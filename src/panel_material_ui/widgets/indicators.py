@@ -5,8 +5,7 @@ from .base import MaterialWidget
 
 
 class LoadingIndicator(MaterialWidget):
-
-    color = param.Selector(objects=COLORS, default='primary')
+    color = param.Selector(objects=COLORS, default="primary")
 
     size = param.Integer(default=None, bounds=(0, None))
 
@@ -14,10 +13,7 @@ class LoadingIndicator(MaterialWidget):
 
     value = param.Number(default=0, bounds=(0, 100))
 
-    variant = param.Selector(
-        default='indeterminate',
-        objects=['determinate', 'indeterminate']
-    )
+    variant = param.Selector(default="indeterminate", objects=["determinate", "indeterminate"])
 
     with_label = param.Boolean(default=False)
 
@@ -27,16 +23,10 @@ class LoadingIndicator(MaterialWidget):
 
 
 class Progress(MaterialWidget):
-
-    color = param.Selector(objects=COLORS, default='primary')
+    color = param.Selector(objects=COLORS, default="primary")
 
     value = param.Number(default=0, bounds=(0, 100))
 
-    variant = param.Selector(
-        default='determinate',
-        objects=[
-            'determinate', 'indeterminate', 'buffer', 'query'
-        ]
-    )
+    variant = param.Selector(default="determinate", objects=["determinate", "indeterminate", "buffer", "query"])
 
     _esm = "LinearProgress.jsx"

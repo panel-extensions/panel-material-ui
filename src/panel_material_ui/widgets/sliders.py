@@ -1,5 +1,4 @@
 import param
-
 from panel.util import edit_readonly
 from param.parameterized import resolve_value
 
@@ -8,7 +7,6 @@ from .base import MaterialWidget
 
 
 class _ContinuousSlider(MaterialWidget):
-
     color = param.Selector(objects=COLORS, default="primary")
 
     start = param.Number(default=0)
@@ -63,7 +61,6 @@ class FloatSlider(_ContinuousSlider):
 
 
 class _RangeSliderBase(_ContinuousSlider):
-
     value = param.Range(default=(0, 100))
 
     value_start = param.Parameter(readonly=True, doc="""The lower value of the selected range.""")
@@ -73,17 +70,15 @@ class _RangeSliderBase(_ContinuousSlider):
     __abstract = True
 
     def __init__(self, **params):
-        if 'value' not in params:
-            params['value'] = (
-                params.get('start', self.start), params.get('end', self.end)
-            )
-        if params['value'] is not None:
-            v1, v2 = params['value']
-            params['value_start'], params['value_end'] = resolve_value(v1), resolve_value(v2)
+        if "value" not in params:
+            params["value"] = (params.get("start", self.start), params.get("end", self.end))
+        if params["value"] is not None:
+            v1, v2 = params["value"]
+            params["value_start"], params["value_end"] = resolve_value(v1), resolve_value(v2)
         with edit_readonly(self):
             super().__init__(**params)
 
-    @param.depends('value', watch=True)
+    @param.depends("value", watch=True)
     def _sync_values(self):
         vs, ve = self.value
         with edit_readonly(self):
@@ -127,13 +122,9 @@ class IntRangeSlider(_RangeSliderBase):
 
 
 class Rating(MaterialWidget):
-
     only_selected = param.Boolean(default=False, doc="Whether to highlight only the select value")
 
-    precision = param.Number(
-        default=1,
-        doc="Use the precision prop to define the minimum increment value change allowed."
-    )
+    precision = param.Number(default=1, doc="Use the precision prop to define the minimum increment value change allowed.")
 
     size = param.Selector(default="medium", objects=["small", "medium", "large"])
 
@@ -144,4 +135,3 @@ class Rating(MaterialWidget):
     value = param.Number(default=0, bounds=(0, 5))
 
     _esm = "Rating.jsx"
-

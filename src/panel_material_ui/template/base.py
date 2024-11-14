@@ -1,6 +1,7 @@
 import param
 
-from ..layout.base import COLORS, MaterialListLike
+from ..base import COLORS
+from ..layout.base import MaterialListLike
 
 
 class AppBar(MaterialListLike):
@@ -18,4 +19,4 @@ class AppBar(MaterialListLike):
 
     _esm = "AppBar.jsx"
 
-    _stylesheets = ['https://fonts.googleapis.com/icon?family=Material+Icons']
+    _stylesheets = ["https://fonts.googleapis.com/icon?family=Material+Icons"]

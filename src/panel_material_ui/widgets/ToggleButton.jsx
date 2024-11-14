@@ -1,8 +1,8 @@
-import ToggleButton from '@mui/material/ToggleButton'
-import Icon from '@mui/material/Icon';
-import Tooltip from '@mui/material/Tooltip';
+import ToggleButton from "@mui/material/ToggleButton"
+import Icon from "@mui/material/Icon";
+import Tooltip from "@mui/material/Tooltip";
 
-export function render({ model, el }) {
+export function render({model, el}) {
   const [color] = model.useState("button_type")
   const [description] = model.useState("description")
   const [disabled] = model.useState("disabled")
@@ -21,7 +21,7 @@ export function render({ model, el }) {
       selected={value}
       onChange={(e, newValue) => setValue(!value)}
     >
-      {icon && <Icon style={ {fontSize: icon_size} }>{icon}</Icon>}
+      {icon && <Icon style={{fontSize: icon_size}}>{icon}</Icon>}
       {label}
     </ToggleButton>
   )
@@ -32,7 +32,7 @@ export function render({ model, el }) {
       arrow
       placement="right"
       PopperProps={{
-	container: el
+        container: el
       }}
     >
       {button}

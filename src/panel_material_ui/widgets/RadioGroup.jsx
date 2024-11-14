@@ -1,10 +1,10 @@
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormControl from '@mui/material/FormControl'
-import FormLabel from '@mui/material/FormLabel'
+import Radio from "@mui/material/Radio"
+import RadioGroup from "@mui/material/RadioGroup"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import FormControl from "@mui/material/FormControl"
+import FormLabel from "@mui/material/FormLabel"
 
-export function render({ model }) {
+export function render({model}) {
   const [disabled] = model.useState("disabled");
   const [color] = model.useState("color");
   const [options] = model.useState("options");
@@ -16,38 +16,37 @@ export function render({ model }) {
     <FormControl component="fieldset" disabled={disabled}>
       {label && <FormLabel id="radio-buttons-group-label">{label}</FormLabel>}
       <RadioGroup
-	aria-labelledby="radio-buttons-group-label"
-	value={value}
-        row={ orientation === "horizontal" ? true : false }
+        aria-labelledby="radio-buttons-group-label"
+        value={value}
+        row={orientation === "horizontal" ? true : false}
       >
         {options.map((option, index) => {
-	  return (
-	    <FormControlLabel
+          return (
+            <FormControlLabel
               key={option}
               value={option}
-	      label={option}
-	      labelPlacement={(orientation === "horizontal") ? "bottom" : "right"}
+              label={option}
+              labelPlacement={(orientation === "horizontal") ? "bottom" : "right"}
               control={
-		<Radio
-		  checked={exclusive ? (value==option) : value.includes(option)}
-		  color={color}
-		  onClick={(e) => {
-		    let newValue
-		    if (exclusive) {
-		      newValue = option
-		    } else if (value.includes(option)) {
-		      newValue = value.filter((v) => v !== option)
-		    } else {
-		      newValue = [...value]
-		      newValue.push(option)
-		    }
-		    console.log(newValue)
-		    setValue(newValue)
-		  }}
-		/>
-	      }
-	    />
-	  )
+                <Radio
+                  checked={exclusive ? (value==option) : value.includes(option)}
+                  color={color}
+                  onClick={(e) => {
+                    let newValue
+                    if (exclusive) {
+                      newValue = option
+                    } else if (value.includes(option)) {
+                      newValue = value.filter((v) => v !== option)
+                    } else {
+                      newValue = [...value]
+                      newValue.push(option)
+                    }
+                    setValue(newValue)
+                  }}
+                />
+              }
+            />
+          )
         })}
       </RadioGroup>
     </FormControl>

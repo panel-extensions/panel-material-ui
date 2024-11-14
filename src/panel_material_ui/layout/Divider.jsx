@@ -1,6 +1,6 @@
-import Divider from '@mui/material/Divider';
+import Divider from "@mui/material/Divider";
 
-export function render({ model }) {
+export function render({model}) {
   const [orientation] = model.useState("orientation");
   const [variant] = model.useState("variant");
   const objects = model.get_child("objects");

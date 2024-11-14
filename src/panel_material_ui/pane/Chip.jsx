@@ -1,7 +1,7 @@
-import Chip from '@mui/material/Chip';
-import Icon from '@mui/material/Icon';
+import Chip from "@mui/material/Chip";
+import Icon from "@mui/material/Icon";
 
-export function render({ model }) {
+export function render({model}) {
   const [color] = model.useState("color");
   const [icon] = model.useState("icon");
   const [label] = model.useState("object");
@@ -11,11 +11,11 @@ export function render({ model }) {
   return (
     <Chip
       color={color}
-      icon={ icon && <Icon>{icon}</Icon> }
+      icon={icon && <Icon>{icon}</Icon>}
       label={label}
       size={size}
       variant={variant}
-      onClick={(e) => model.send_event('click', e) }
+      onClick={(e) => model.send_event("click", e)}
     />
   );
 }

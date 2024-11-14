@@ -1,8 +1,8 @@
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
 
-export function render({ model }) {
+export function render({model}) {
   const [active, setActive] = model.useState("active");
   const [color] = model.useState("color");
   const [location] = model.useState("tabs_location");
@@ -31,7 +31,7 @@ export function render({ model }) {
     </Tabs>
   )
   return (
-    <Box style={{ display: "flex", flexDirection: (location === "left" || location === "right") ? "row" : "column" }}  >
+    <Box style={{display: "flex", flexDirection: (location === "left" || location === "right") ? "row" : "column"}}  >
       { (location === "left" || location === "above") && tabs }
       <Box>
         {objects[active]}

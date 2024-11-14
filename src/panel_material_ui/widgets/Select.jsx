@@ -1,9 +1,9 @@
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 
-export function render({ model, el }) {
+export function render({model, el}) {
   const [value, setValue] = model.useState("value");
   const [options] = model.useState("options");
   const [label] = model.useState("label");
@@ -16,7 +16,7 @@ export function render({ model, el }) {
         MenuProps={{
           container: el,
         }}
-	disabled={disabled}
+        disabled={disabled}
         value={value}
         label={label}
         variant={variant}

@@ -1,6 +1,6 @@
-import TextField from '@mui/material/TextField'
+import TextField from "@mui/material/TextField"
 
-export function render({ model }) {
+export function render({model}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")

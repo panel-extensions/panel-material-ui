@@ -1,8 +1,8 @@
-import Checkbox from '@mui/material/Checkbox'
-import Icon from '@mui/material/Icon';
-import Tooltip from '@mui/material/Tooltip';
+import Checkbox from "@mui/material/Checkbox"
+import Icon from "@mui/material/Icon";
+import Tooltip from "@mui/material/Tooltip";
 
-export function render({ model, el }) {
+export function render({model, el}) {
   const [active_icon] = model.useState("active_icon")
   const [color] = model.useState("color")
   const [description] = model.useState("description")
@@ -19,7 +19,7 @@ export function render({ model, el }) {
       disabled={disabled}
       selected={value}
       size={size}
-      onClick={(e, newValue) => setValue(!value) }
+      onClick={(e, newValue) => setValue(!value)}
       icon={<Icon>{icon}</Icon>}
       checkedIcon={<Icon>{active_icon}</Icon>}
     />
@@ -31,7 +31,7 @@ export function render({ model, el }) {
       arrow
       placement="right"
       PopperProps={{
-	container: el
+        container: el
       }}
     >
       {button}

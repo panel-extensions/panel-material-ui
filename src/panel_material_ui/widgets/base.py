@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import param
-
 from panel._param import Margin
 from panel.widgets.base import WidgetBase
 
@@ -9,7 +8,6 @@ from ..base import MaterialComponent
 
 
 class MaterialWidget(MaterialComponent, WidgetBase):
-
     description = param.String()
 
     disabled = param.Boolean(default=False)
@@ -23,14 +21,14 @@ class MaterialWidget(MaterialComponent, WidgetBase):
     __abstract = True
 
     def _process_param_change(self, params):
-        description = params.pop('description', None)
-        icon = params.pop('icon', None)
-        label = params.pop('label', None)
+        description = params.pop("description", None)
+        icon = params.pop("icon", None)
+        label = params.pop("label", None)
         props = MaterialComponent._process_param_change(self, params)
         if icon:
-            props['icon'] = icon
+            props["icon"] = icon
         if label:
-            props['label'] = label
+            props["label"] = label
         if description:
-            props['description'] = description
+            props["description"] = description
         return props

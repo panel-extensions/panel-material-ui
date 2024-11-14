@@ -1,8 +1,8 @@
-import Box from '@mui/material/Box'
-import Slider from '@mui/material/Slider'
-import Typography from '@mui/material/Typography'
+import Box from "@mui/material/Box"
+import Slider from "@mui/material/Slider"
+import Typography from "@mui/material/Typography"
 
-export function render({ model }) {
+export function render({model}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [end] = model.useState("end")
@@ -17,10 +17,10 @@ export function render({ model }) {
   return (
     <Box>
       <Typography variant="body1">
-        {label && label+": "}
-	<strong>
-	  {Array.isArray(value) ? `${value[0]} .. ${value[1]}` : value }
-	</strong>
+        {label && `${label}: `}
+        <strong>
+          {Array.isArray(value) ? `${value[0]} .. ${value[1]}` : value }
+        </strong>
       </Typography>
       <Slider
         value={value}
@@ -28,11 +28,11 @@ export function render({ model }) {
         max={end}
         step={step}
         disabled={disabled}
-	color={color}
-	track={track}
-	orientation={orientation}
-	valueLabelDisplay={tooltips ? "auto" : "off"}
-        onChange={(event, newValue) => setValue(newValue) }
+        color={color}
+        track={track}
+        orientation={orientation}
+        valueLabelDisplay={tooltips ? "auto" : "off"}
+        onChange={(event, newValue) => setValue(newValue)}
       />
     </Box>
   )

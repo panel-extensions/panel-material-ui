@@ -1,14 +1,18 @@
 import inspect
+
 from itertools import product
+from typing import Type
 
 import panel as pn
 import param
 
 from panel_material_ui import *
+from panel_material_ui.base import MaterialComponent
 
 pn.extension(template='material', defer_load=True)
 
 from itertools import chain
+
 
 def insert_at_nth_position(main_list, insert_list, n):
     # Split main_list into chunks of size n
@@ -32,7 +36,7 @@ def render_variant(component, variant, **kwargs):
         if isinstance(component.param[p], param.Integer):
             values.append(list(range(10)))
         elif isinstance(component.param[p], param.Boolean):
-            values.append((False, True))
+            values.append([False, True])
         else:
             values.append(component.param[p].objects)
     combinations = product(*values)
@@ -80,11 +84,11 @@ def render_spec(spec, depth=0, label='main'):
     return tabs
 
 
-def render_openable(component, **kwargs):
-    close = Button(on_click=lambda _: backdrop.param.update(open=False), label='Close')
-    backdrop = component(CircularProgress(), close)
-    button = Button(on_click=lambda _: backdrop.param.update(open=True), label=f'Open {component.name}')
-    col = pn.Column(button, backdrop)
+def render_openable(component: Type[MaterialComponent], **kwargs):
+    close = Button(on_click=lambda _: inst.param.update(open=False), label='Close')  # type: ignore
+    inst = component(LoadingIndicator(), close)
+    button = Button(on_click=lambda _: inst.param.update(open=True), label=f'Open {component.name}')
+    col = pn.Column(button, inst)
     return col
 
 spec = {
@@ -131,7 +135,7 @@ spec = {
         ],
         'Input': [
             (Checkbox, (['size', 'value'],), dict(label='I agree to the terms and conditions')),
-            (FileInput, (['button_type', 'button_style'],), dict()),
+            (FileInput, (['button_type', 'button_style'],), {}),
             (Switch, (['color', 'disabled'],), dict(label='Switch me!', value=True)),
             (TextAreaInput, (['color', 'variant'], ['disabled']), dict(label='TextAreaInput')),
             (TextInput, (['color', 'variant'], ['disabled', 'error_state']), dict(label='TextInput')),

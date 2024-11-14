@@ -1,6 +1,6 @@
-import Avatar from '@mui/material/Avatar';
+import Avatar from "@mui/material/Avatar";
 
-export function render({ model }) {
+export function render({model}) {
   const [alt_text] = model.useState("alt_text");
   const [color] = model.useState("color");
   const [object] = model.useState("object");
@@ -10,11 +10,11 @@ export function render({ model }) {
   return (
     <Avatar
       alt={alt_text}
-      sx={{ bgColor: color }}
+      sx={{bgColor: color}}
       size={size}
       src={object}
       variant={variant}
-      onClick={(e) => model.send_event('click', e) }
+      onClick={(e) => model.send_event("click", e)}
     />
   );
 }

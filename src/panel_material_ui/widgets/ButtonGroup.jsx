@@ -1,7 +1,7 @@
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
+import ToggleButton from "@mui/material/ToggleButton"
 
-export function render({ model }) {
+export function render({model}) {
   const [variant] = model.useState("variant")
   const [color] = model.useState("color")
   const [size] = model.useState("size")
@@ -21,28 +21,28 @@ export function render({ model }) {
       variant={variant}
     >
       {options.map((option, index) => {
-	return (
-	  <ToggleButton
-	    aria-label={option}
-	    key={option}
-	    value={option}
-	    selected={exclusive ? (value==option) : value.includes(option)}
-	    onClick={(e) => {
-	      let newValue
-	      if (exclusive) {
-		newValue = option
-	      } else if (value.includes(option)) {
-		newValue = value.filter((v) => v !== option)
-	      } else {
-		newValue = [...value]
-		newValue.push(option)
-	      }
-	      setValue(newValue)
-	    }}
-	  >
-	    {option}
-	  </ToggleButton>
-	)
+        return (
+          <ToggleButton
+            aria-label={option}
+            key={option}
+            value={option}
+            selected={exclusive ? (value==option) : value.includes(option)}
+            onClick={(e) => {
+              let newValue
+              if (exclusive) {
+                newValue = option
+              } else if (value.includes(option)) {
+                newValue = value.filter((v) => v !== option)
+              } else {
+                newValue = [...value]
+                newValue.push(option)
+              }
+              setValue(newValue)
+            }}
+          >
+            {option}
+          </ToggleButton>
+        )
       })}
     </ToggleButtonGroup>
   )

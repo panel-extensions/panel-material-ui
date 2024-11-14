@@ -1,6 +1,6 @@
-import Backdrop from '@mui/material/Backdrop';
+import Backdrop from "@mui/material/Backdrop";
 
-export function render({ model }) {
+export function render({model}) {
   const [open] = model.useState("open");
   const objects = model.get_child("objects");
 

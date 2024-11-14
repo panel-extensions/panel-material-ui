@@ -1,10 +1,5 @@
 [build-system]
-requires = [
-    "hatchling",
-    "hatch-vcs",
-    "panel>=1.5.4",
-    "packaging",
-]
+requires = ["hatchling", "hatch-vcs", "panel>=1.5.4", "packaging"]
 build-backend = "hatchling.build"
 
 [tool.setuptools_scm]
@@ -18,29 +13,24 @@ readme = "README.md"
 license = { text = "BSD" }
 requires-python = ">=3.10"
 authors = [{ name = "Philipp Rudiger", email = "philipp.jfr@gmail.com" }]
-maintainers = [
-    { name = "Philipp Rudiger", email = "philipp.jfr@gmail.com" },
-]
+maintainers = [{ name = "Philipp Rudiger", email = "philipp.jfr@gmail.com" }]
 classifiers = [
-    "License :: OSI Approved :: BSD License",
-    "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Operating System :: OS Independent",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "Natural Language :: English",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Software Development :: Libraries",
+  "License :: OSI Approved :: BSD License",
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Natural Language :: English",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Libraries",
 ]
 
-dependencies = [
-    'panel >=1.5.4',
-    'packaging',
-]
+dependencies = ['panel >=1.5.4', 'packaging']
 
 [project.urls]
 Homepage = "https://github.com/panel-extensions/panel-material-ui"
@@ -48,64 +38,60 @@ Source = "https://github.com/panel-extensions/panel-material-ui"
 
 [project.optional-dependencies]
 dev = [
-    'watchfiles',
-    'mkdocs-material',
-    'mkdocstrings[python]',
-    'pytest',
-    'pytest-asyncio',
-    'pytest-rerunfailures',
-    'pytest-xdist',
+  'watchfiles',
+  'mkdocs-material',
+  'mkdocstrings[python]',
+  'pytest',
+  'pytest-asyncio',
+  'pytest-rerunfailures',
+  'pytest-xdist',
 ]
-mypy = [
-    "mypy",
-    "types-requests",
-    "typing-extensions",
-]
+mypy = ["mypy", "types-requests", "typing-extensions"]
 
 [tool.ruff]
 exclude = [
-    ".git",
-    "__pycache__",
-    ".tox",
-    ".eggs",
-    "*.egg",
-    "doc",
-    "dist",
-    "build",
-    "_build",
-    "examples",
-    ".ipynb_checkpoints",
-    "node_modules",
+  ".git",
+  "__pycache__",
+  ".tox",
+  ".eggs",
+  "*.egg",
+  "doc",
+  "dist",
+  "build",
+  "_build",
+  "examples",
+  ".ipynb_checkpoints",
+  "node_modules",
 ]
 line-length = 165
 fix = true
 
 [tool.ruff.lint]
 ignore = [
-    "E402",  # Module level import not at top of file
-    "E712",  # Avoid equality comparisons to True
-    "E731",  # Do not assign a lambda expression, use a def
-    "N803",  # Argument name should be lowercase
-    "N806",  # Variable name should be lowercase
+  "E402", # Module level import not at top of file
+  "E712", # Avoid equality comparisons to True
+  "E731", # Do not assign a lambda expression, use a def
+  "N803", # Argument name should be lowercase
+  "N806", # Variable name should be lowercase
 ]
 select = [
-    "B",    # flake8-bugbear
-    "E",    # pycodestyle errors
-    "F",    # pyflakes
-    "W",    # pycodestyle warnings
-    "I",    # isort
-    "PIE",
-    "T20",
-    "RUF006",
-    "UP004",
-    "UP006",
-    "UP020",
-    "UP028",
-    "UP030",
-    "UP031",
-    "UP032",
-    "UP034",
-    "UP036",
+  "B",      # flake8-bugbear
+  "E",      # pycodestyle errors
+  "F",      # pyflakes
+  "W",      # pycodestyle warnings
+  "I",      # isort
+  "PIE",
+  "T20",
+  "RUF006",
+  "UP004",
+  "UP006",
+  "UP020",
+  "UP028",
+  "UP030",
+  "UP031",
+  "UP032",
+  "UP034",
+  "UP036",
 ]
 
 [tool.pytest.ini_options]
@@ -116,11 +102,7 @@ asyncio_default_fixture_loop_scope = "function"
 xfail_strict = true
 minversion = "7"
 log_cli_level = "INFO"
-filterwarnings = [
-    "error",
-    "ignore::DeprecationWarning",
-    "ignore::UserWarning",
-]
+filterwarnings = ["error", "ignore::DeprecationWarning", "ignore::UserWarning"]
 testpaths = ["tests"]
 
 [tool.isort]
@@ -134,6 +116,14 @@ include_trailing_comma = true
 python_version = '3.10'
 no_implicit_optional = true
 check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "bokeh.models.*",
+    "param.*",
+    "panel.*"
+]
+ignore_missing_imports = true
 
 [tool.hatch.version]
 source = "vcs"

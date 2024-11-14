@@ -1,7 +1,7 @@
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
+import Checkbox from "@mui/material/Checkbox"
+import FormControlLabel from "@mui/material/FormControlLabel"
 
-export function render({ model }) {
+export function render({model}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -11,10 +11,10 @@ export function render({ model }) {
     <FormControlLabel
       control={
         <Checkbox
-	  color={color}
+          color={color}
           checked={checked}
           disabled={disabled}
-	  size={size}
+          size={size}
           onChange={(event) => setChecked(event.target.checked)}
         />
       }

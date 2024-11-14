@@ -1,18 +1,14 @@
 from __future__ import annotations
 
 import param
-
 from panel.config import config
 from panel.custom import ReactComponent
-from panel.widgets.base import WidgetBase
-
 
 COLORS = ["primary", "secondary", "error", "info", "success", "warning"]
 
 
 class MaterialComponent(ReactComponent):
-
-    theme = param.Selector(default=config.theme, objects=['default', 'dark'])
+    theme = param.Selector(default=config.theme, objects=["default", "dark"])
 
     _importmap = {
         "imports": {
@@ -21,6 +17,6 @@ class MaterialComponent(ReactComponent):
         }
     }
 
-    #_bundle = "panel-material-ui.bundle.js"
+    # _bundle = "panel-material-ui.bundle.js"
 
     __abstract = True

@@ -6,53 +6,53 @@ repo_url: https://github.com/panel-extensions/panel-material-ui
 repo_name: philippjfr/panel-material-ui
 
 theme:
-    name: material
-    logo: 'assets/logo.svg'
-    features:
-        - content.copy.code
-    palette:
-        # Palette toggle for light mode
-        - media: "(prefers-color-scheme: light)"
-          scheme: default
-          primary: white
-          accent: blue
-          toggle:
-            icon: material/brightness-7
-            name: Switch to dark mode
+  name: material
+  logo: "assets/logo.svg"
+  features:
+    - content.copy.code
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
 
-        # Palette toggle for dark mode
-        - media: "(prefers-color-scheme: dark)"
-          scheme: slate
-          primary: black
-          accent: blue
-          toggle:
-            icon: material/brightness-4
-            name: Switch to light mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 
 markdown_extensions:
-    - toc:
-        permalink: true
-    - pymdownx.highlight:
-        anchor_linenums: true
-    - pymdownx.tasklist:
-        custom_checkbox: true
-    - pymdownx.inlinehilite
-    - pymdownx.snippets
-    - pymdownx.superfences
-    - admonition
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
 
 plugins:
-    - search
-    - mkdocstrings:
-        handlers:
-            python:
-                options:
-                    docstring_style: google
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
 
 watch:
-    - docs
+  - docs
 
 nav:
-    - Home: index.md
-    - Reference:
-        - panel-material-ui: reference/panel-material-ui.md
+  - Home: index.md
+  - Reference:
+      - panel-material-ui: reference/panel-material-ui.md

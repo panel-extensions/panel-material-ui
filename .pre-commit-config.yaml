@@ -1,5 +1,50 @@
+default_stages: [pre-commit]
 exclude: ^(\.copier-answers\.yml)|.pixi$
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-toml
+      - id: check-json
+      - id: detect-private-key
+      - id: end-of-file-fixer
+        exclude: \.min\.js$
+      - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.0
+    hooks:
+      - id: ruff
+        files: src/panel_material_ui
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli
+  - repo: https://github.com/hoxbro/prettier-pre-commit
+    rev: v3.3.3
+    hooks:
+      - id: prettier
+        entry: prettier --write --ignore-unknown --no-error-on-unmatched-pattern
+        types_or: [css]
+  - repo: https://github.com/shssoichiro/oxipng
+    rev: v8.0.0
+    hooks:
+      - id: oxipng
+        stages: [manual]
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.13.0
+    hooks:
+      - id: eslint
+        args: ['-c', '.eslintrc.js', 'src/panel_material_ui/**/*.jsx', '--fix']
+        additional_dependencies:
+          - 'eslint@8.57.0'
+          - 'eslint-plugin-react@7.37.2'
+          - '@stylistic/eslint-plugin@1.6.3'
   - repo: local
     hooks:
       # ensure pixi environments are up to date
@@ -11,59 +56,10 @@ repos:
         always_run: true
         require_serial: true
         pass_filenames: false
-      # ruff
-      - id: ruff
-        name: ruff
-        entry: pixi run -e lint ruff check --fix --exit-non-zero-on-fix --force-exclude
-        language: system
-        types_or: [python, pyi]
-        require_serial: true
-      - id: ruff-format
-        name: ruff-format
-        entry: pixi run -e lint ruff format --force-exclude
-        language: system
-        types_or: [python, pyi]
-        require_serial: true
       # mypy
       - id: mypy
         name: mypy
         entry: pixi run -e default mypy
         language: system
         types: [python]
-        require_serial: true
-      # prettier
-      - id: prettier
-        name: prettier
-        entry: pixi run -e lint prettier --write --list-different --ignore-unknown
-        language: system
-        types: [text]
-        files: \.(md|yml|yaml)$
-      # taplo
-      - id: taplo
-        name: taplo
-        entry: pixi run -e lint taplo format
-        language: system
-        types: [toml]
-      # pre-commit-hooks
-      - id: trailing-whitespace-fixer
-        name: trailing-whitespace-fixer
-        entry: pixi run -e lint trailing-whitespace-fixer
-        language: system
-        types: [text]
-      - id: end-of-file-fixer
-        name: end-of-file-fixer
-        entry: pixi run -e lint end-of-file-fixer
-        language: system
-        types: [text]
-      - id: check-merge-conflict
-        name: check-merge-conflict
-        entry: pixi run -e lint check-merge-conflict --assume-in-merge
-        language: system
-        types: [text]
-      # typos
-      - id: typos
-        name: typos
-        entry: pixi run -e lint typos --force-exclude
-        language: system
-        types: [text]
         require_serial: true

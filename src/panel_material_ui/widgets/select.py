@@ -1,24 +1,24 @@
 from __future__ import annotations
 
 import param
-
-from panel.util import PARAM_NAME_PATTERN, indexOf, isIn
 from panel.widgets.select import (
-    SingleSelectBase as _PnSingleSelectBase, _MultiSelectBase as _PnMultiSelectBase
+    SingleSelectBase as _PnSingleSelectBase,
 )
+from panel.widgets.select import (
+    _MultiSelectBase as _PnMultiSelectBase,
+)
+
 from ..base import COLORS
 from .base import MaterialWidget
 
 
 class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
-
     value = param.String(default=None, allow_None=True)
 
     __abstract = True
 
 
 class MaterialMultiSelectBase(MaterialWidget, _PnMultiSelectBase):
-
     value = param.List(default=None, allow_None=True)
 
     __abstract = True
@@ -73,36 +73,35 @@ class Select(MaterialSingleSelectBase):
 
 
 class RadioGroup(MaterialWidget):
-
     color = param.Selector(default="primary", objects=COLORS)
 
-    orientation = param.Selector(default='horizontal',
-        objects=['horizontal', 'vertical'], doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""")
+    orientation = param.Selector(
+        default="horizontal",
+        objects=["horizontal", "vertical"],
+        doc="""
+        Button group orientation, either 'horizontal' (default) or 'vertical'.""",
+    )
 
     _esm = "RadioGroup.jsx"
 
-    _rename = {'name': 'name'}
+    _rename = {"name": "name"}
 
     __abstract = True
 
 
 class RadioBoxGroup(RadioGroup, MaterialSingleSelectBase):
-
     value = param.String(default=None, allow_None=True)
 
-    _constants = {'exclusive': True}
+    _constants = {"exclusive": True}
 
 
 class CheckBoxGroup(RadioGroup, MaterialMultiSelectBase):
-
     value = param.List(default=None, allow_None=True)
 
-    _constants = {'exclusive': False}
+    _constants = {"exclusive": False}
 
 
 class ButtonGroup(MaterialWidget):
-
     color = param.Selector(default="primary", objects=COLORS)
 
     disableElevation = param.Boolean(default=False)
@@ -111,9 +110,12 @@ class ButtonGroup(MaterialWidget):
 
     fullWidth = param.Boolean(default=False)
 
-    orientation = param.Selector(default='horizontal',
-        objects=['horizontal', 'vertical'], doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""")
+    orientation = param.Selector(
+        default="horizontal",
+        objects=["horizontal", "vertical"],
+        doc="""
+        Button group orientation, either 'horizontal' (default) or 'vertical'.""",
+    )
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium")
 
@@ -147,9 +149,8 @@ class RadioButtonGroup(ButtonGroup, MaterialSingleSelectBase):
 
     value = param.Parameter()
 
-    _constants = {'exclusive': True}
+    _constants = {"exclusive": True}
 
 
 class CheckButtonGroup(ButtonGroup, MaterialMultiSelectBase):
-
-    _constants = {'exclusive': False}
+    _constants = {"exclusive": False}

@@ -1,8 +1,8 @@
-import Alert from '@mui/material/Alert';
-import AlertTitle from '@mui/material/AlertTitle';
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 import Collapse from "@mui/material/Collapse";
 
-export function render({ model }) {
+export function render({model}) {
   const [closed, setClosed] = model.useState("closed");
   const [closeable] = model.useState("closeable");
   const [severity] = model.useState("severity");
@@ -17,9 +17,9 @@ export function render({ model }) {
   return (
     <Collapse in={!closed}>
       <Alert severity={severity} variant={variant} {...props}>
-	<AlertTitle>{title}</AlertTitle>
-	{object}
-	{objects}
+        <AlertTitle>{title}</AlertTitle>
+        {object}
+        {objects}
       </Alert>
     </Collapse>
   );

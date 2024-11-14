@@ -1,37 +1,37 @@
-import { styled } from '@mui/material/styles';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import {styled} from "@mui/material/styles";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardHeader from "@mui/material/CardHeader";
+import Collapse from "@mui/material/Collapse";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
+  const {expand, ...other} = props;
   return <IconButton {...other} />;
-})(({ theme }) => ({
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
+})(({theme}) => ({
+  marginLeft: "auto",
+  transition: theme.transitions.create("transform", {
     duration: theme.transitions.duration.shortest,
   }),
   variants: [
     {
-      props: ({ expand }) => !expand,
+      props: ({expand}) => !expand,
       style: {
-        transform: 'rotate(0deg)',
+        transform: "rotate(0deg)",
       },
     },
     {
-      props: ({ expand }) => !!expand,
+      props: ({expand}) => !!expand,
       style: {
-        transform: 'rotate(180deg)',
+        transform: "rotate(180deg)",
       },
     },
   ],
 }));
 
-export function render({ model }) {
+export function render({model}) {
   const [title] = model.useState("title");
   const [elevation] = model.useState("elevation");
   const [outlined] = model.useState("outlined");
@@ -48,25 +48,25 @@ export function render({ model }) {
       variant={outlined ? "outlined" : "elevation"}
     >
       {title && (
-	<CardHeader
-	  action={
-	    collapsible &&
-	    <ExpandMore
-	      expand={!collapsed}
-	      onClick={() => setCollapsed(!collapsed)}
-	      aria-expanded={!collapsed}
-	      aria-label="show more"
-	    >
-	      <ExpandMoreIcon />
-	    </ExpandMore>
-	  }
-	  title={title}
-	>{header}</CardHeader>
+        <CardHeader
+          action={
+            collapsible &&
+            <ExpandMore
+              expand={!collapsed}
+              onClick={() => setCollapsed(!collapsed)}
+              aria-expanded={!collapsed}
+              aria-label="show more"
+            >
+              <ExpandMoreIcon />
+            </ExpandMore>
+          }
+          title={title}
+        >{header}</CardHeader>
       )}
       <Collapse in={!collapsed} timeout="auto" unmountOnExit>
-	<CardContent>
+        <CardContent>
           {objects}
-	</CardContent>
+        </CardContent>
       </Collapse>
     </Card>
   );

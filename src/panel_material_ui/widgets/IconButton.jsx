@@ -1,8 +1,8 @@
-import IconButton from '@mui/material/IconButton';
-import Icon from '@mui/material/Icon';
-import Tooltip from '@mui/material/Tooltip';
+import IconButton from "@mui/material/IconButton";
+import Icon from "@mui/material/Icon";
+import Tooltip from "@mui/material/Tooltip";
 
-export function render({ model, el }) {
+export function render({model, el}) {
   const [active_icon] = model.useState("active_icon")
   const [color] = model.useState("button_type")
   const [description] = model.useState("description")
@@ -14,7 +14,7 @@ export function render({ model, el }) {
   const [current_icon, setIcon] = React.useState(icon)
 
   const handleClick = (e) => {
-    model.send_event('click', e)
+    model.send_event("click", e)
     if (active_icon) {
       setIcon(active_icon)
       setTimeout(() => setIcon(icon), toggle_duration)
@@ -29,7 +29,7 @@ export function render({ model, el }) {
       size={size}
       onClick={handleClick}
     >
-      <Icon style={ {fontSize: size} }>{current_icon}</Icon>
+      <Icon style={{fontSize: size}}>{current_icon}</Icon>
     </IconButton>
   )
 
@@ -39,8 +39,9 @@ export function render({ model, el }) {
       arrow
       placement="right"
       PopperProps={{
-	container: el
-      }}>
+        container: el
+      }}
+    >
       {button}
     </Tooltip>) : button
   )

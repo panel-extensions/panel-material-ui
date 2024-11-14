@@ -8,11 +8,15 @@ postinstall = "pip install --no-build-isolation --no-deps --disable-pip-version-
 
 [dependencies]
 python = ">=3.10"
+panel = ">=1.5.4"
+packaging = "*"
 
 [host-dependencies]
 pip = "*"
 setuptools = ">=61"
 setuptools-scm = "*"
+hatchling = "*"
+hatch-vcs = "*"
 
 [feature.test.dependencies]
 pytest = ">=6"
@@ -32,13 +36,6 @@ check-wheel = "twine check dist/*"
 
 [feature.lint.dependencies]
 pre-commit = "*"
-insert-license-header = "*"
-docformatter = "*"
-ruff = "*"
-prettier = "*"
-taplo = "*"
-pre-commit-hooks = "*"
-typos = "*"
 [feature.lint.tasks]
 pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
