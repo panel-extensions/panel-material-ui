@@ -33,7 +33,10 @@ class IntSlider(_ContinuousSlider):
     The IntSlider widget allows selecting an integer value within a
     set of bounds using a slider.
 
-    Reference: https://panel.holoviz.org/reference/widgets/IntSlider.html
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel IntSlider widget [panel.widgets.IntSlider](https://panel.holoviz.org/reference/widgets/IntSlider.html):
+    - Missing features: bar_color, direction, format, show_value, value_throttled
+    - Extra features: color, description, label, on_event, on_msg, theme, track
 
     :Example:
 
@@ -51,6 +54,11 @@ class FloatSlider(_ContinuousSlider):
     """
     The FloatSlider widget allows selecting a floating-point value
     within a set of bounds using a slider.
+
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel IntSlider widget [panel.widgets.FloatSlider](https://panel.holoviz.org/reference/widgets/FloatSlider.html):
+    - Missing features: bar_color, direction, format, show_value, value_throttled
+    - Extra features: color, description, label, on_event, on_msg, theme, track
 
     :Example:
 
@@ -90,6 +98,11 @@ class RangeSlider(_RangeSliderBase):
     The RangeSlider widget allows selecting a floating-point range
     using a slider with two handles.
 
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel IntSlider widget [panel.widgets.RangeSlider](https://panel.holoviz.org/reference/widgets/RangeSlider.html):
+    - Missing features: bar_color, direction, format, show_value, value_throttled
+    - Extra features: color, description, label, on_event, on_msg, theme, track
+
     :Example:
 
     >>> RangeSlider(
@@ -102,6 +115,11 @@ class IntRangeSlider(_RangeSliderBase):
     """
     The IntRangeSlider widget allows selecting an integer range using
     a slider with two handles.
+
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel IntSlider widget [panel.widgets.IntRangeSlider](https://panel.holoviz.org/reference/widgets/IntRangeSlider.html):
+    - Missing features: bar_color, direction, format, show_value, value_throttled
+    - Extra features: color, description, label, on_event, on_msg, theme, track
 
     :Example:
 
@@ -122,6 +140,15 @@ class IntRangeSlider(_RangeSliderBase):
 
 
 class Rating(MaterialWidget):
+    """
+    The Rating slider widget allows users to select a rating value of their own.
+
+    :Example:
+
+    >>> Rating(value=3, size="large", name="Rate the product")
+
+    """
+
     only_selected = param.Boolean(default=False, doc="Whether to highlight only the select value")
 
     precision = param.Number(default=1, doc="Use the precision prop to define the minimum increment value change allowed.")
