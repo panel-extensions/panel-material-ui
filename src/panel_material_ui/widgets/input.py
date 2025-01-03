@@ -56,6 +56,11 @@ class TextInput(_TextInputBase):
     """
     The `TextInput` widget allows entering any string using a text input box.
 
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel TextInput widget [panel.widgets.TextInput](https://panel.holoviz.org/reference/widgets/TextInput.html):
+    - Missing features: enter_pressed
+    - Extra features: color, error_state, label, on_event, on_msg, theme, variant
+
     :Example:
 
     >>> TextInput(name='Name', placeholder='Enter your name here ...')
@@ -66,11 +71,16 @@ class TextInput(_TextInputBase):
 
 class PasswordInput(_TextInputBase):
     """
-    The `PasswordInput` widget allows entering any string using a text input box.
+    The `PasswordInput` widget allows entering any string using an obfuscated text input box.
+
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel PasswordInput widget [panel.widgets.PasswordInput](https://panel.holoviz.org/reference/widgets/PasswordInput.html):
+    - No missing features
+    - Extra features: color, error_state, label, on_event, on_msg, theme, variant
 
     :Example:
 
-    >>> PasswordInput(name='Name', placeholder='Enter your name here ...')
+    >>> PasswordInput(label='Password', placeholder='Enter your password here ...')
     """
 
     _esm = "PasswordField.jsx"
@@ -83,11 +93,15 @@ class TextAreaInput(_TextInputBase):
 
     Lines are joined with the newline character `\n`.
 
-    Reference: https://panel.holoviz.org/reference/widgets/TextAreaInput.html
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel TextAreaInput widget [panel.widgets.TextAreaInput](https://panel.holoviz.org/reference/widgets/TextAreaInput.html):
+    - No missing features
+    - Extra features: color, error_state, label, on_event, on_msg, theme, variant
+
     :Example:
 
     >>> TextAreaInput(
-    ...     name='Description', placeholder='Enter your description here...'
+    ...     label='Description', placeholder='Enter your description here...'
     ... )
     """
 
@@ -133,11 +147,16 @@ class Checkbox(MaterialWidget):
     The `Checkbox` allows toggling a single condition between `True`/`False`
     states by ticking a checkbox.
 
-    This widget is interchangeable with the `Toggle` widget.
+    This widget is interchangeable with the `Switch` widget.
+
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel Checkbox widget [panel.widgets.Checkbox](https://panel.holoviz.org/reference/widgets/Checkbox.html):
+    - No missing features
+    - Extra features: color, description, indeterminate, label, on_event, on_msg, size, theme
 
     :Example:
 
-    >>> Checkbox(name='Works with the tools you know and love', value=True)
+    >>> Checkbox(label='Works with the tools you know and love', value=True)
     """
 
     color = param.Selector(objects=COLORS, default="primary")
@@ -156,11 +175,16 @@ class Switch(MaterialWidget):
     The `Switch` allows toggling a single condition between `True`/`False`
     states by ticking a checkbox.
 
-    This widget is interchangeable with the `Toggle` widget.
+    This widget is interchangeable with the `Checkbox` widget.
+
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel Switch widget [panel.widgets.Switch](https://panel.holoviz.org/reference/widgets/Switch.html):
+    - No missing features
+    - Extra features: color, description, edge, label, on_event, on_msg, size, theme
 
     :Example:
 
-    >>> Switch(name='Works with the tools you know and love', value=True)
+    >>> Switch(label='Works with the tools you know and love', value=True)
     """
 
     color = param.Selector(objects=["default"] + COLORS, default="primary")
@@ -177,6 +201,21 @@ class Switch(MaterialWidget):
 
 
 class FileInput(MaterialWidget, _PnFileInput):
+    """
+    The `FileInput` allows the user to upload one or more files to the server.
+
+    It makes the filename, MIME type and (bytes) content available in Python.
+
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel FileInput widget [panel.widgets.FileInput](https://panel.holoviz.org/reference/widgets/FileInput.html):
+    - No missing features
+    - Extra features: button_style, button_type, label, on_event, on_msg, theme
+
+    :Example:
+
+    >>> FileInput(accept='.png,.jpeg', multiple=True)
+    """
+
     button_type = param.Selector(objects=COLORS, default="primary")
 
     button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")

@@ -9,14 +9,19 @@ from .base import MaterialWidget
 class ToggleIcon(MaterialWidget):
     """
     The `ToggleIcon` widget allows toggling a single condition between True/False states. This
-    widget is interchangeable with the `Checkbox` and `Toggle` widget.
+    widget is interchangeable with the `Checkbox` and `Switch` widget.
 
     This widget incorporates a `value` attribute, which alternates between `False` and `True`.
+
+    Some missing and extra features (if any) when comparing with the corresponding
+    panel ToggleIcon widget [panel.widgets.ToggleIcon](https://panel.holoviz.org/reference/widgets/ToggleIcon.html):
+    - Missing features: description_delay
+    - Extra features: color, label, on_event, on_msg, theme
 
     :Example:
 
     >>> ToggleIcon(
-    ...     icon="thumb-up", active_icon="thumb-down", size="4em", description="Like"
+    ...     icon="thumb-up", active_icon="thumb-down", size="small", description="Like"
     ... )
     """
 
