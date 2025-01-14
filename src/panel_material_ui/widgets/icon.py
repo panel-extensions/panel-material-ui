@@ -34,7 +34,7 @@ class _ClickableIcon(MaterialWidget):
     )
 
 
-class ToggleIcon(MaterialWidget):
+class ToggleIcon(_ClickableIcon):
     """
     The `ToggleIcon` widget allows toggling a single condition between True/False states. This
     widget is interchangeable with the `Checkbox` and `Switch` widget.
