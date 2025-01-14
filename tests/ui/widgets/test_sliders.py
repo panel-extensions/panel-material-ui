@@ -3,10 +3,9 @@ import pytest
 pytest.importorskip('playwright')
 
 from bokeh.models.formatters import PrintfTickFormatter
+from panel.tests.util import serve_component, wait_until
 from panel_material_ui.widgets import IntSlider, Rating
 from playwright.sync_api import expect
-
-from tests.util import serve_component
 
 pytestmark = pytest.mark.ui
 

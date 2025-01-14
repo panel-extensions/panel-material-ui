@@ -2,10 +2,9 @@ import pytest
 
 pytest.importorskip('playwright')
 
+from panel.tests.util import serve_component, wait_until
 from panel_material_ui.widgets import TextInput, PasswordInput, TextAreaInput, Checkbox, Switch, FileInput, ToggleIcon
-
 from playwright.sync_api import expect
-from tests.util import serve_component, wait_until
 
 pytestmark = pytest.mark.ui
 
