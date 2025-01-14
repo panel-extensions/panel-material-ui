@@ -33,6 +33,10 @@ class ToggleIcon(MaterialWidget):
 
     color = param.Selector(objects=COLORS, default="primary")
 
+    description_delay = param.Integer(default=5000, doc="""
+        Delay (in milliseconds) to display the tooltip after the cursor has
+        hovered over the Button, default is 500ms.""")
+
     icon = param.String(
         default="heart",
         doc="""
