@@ -39,7 +39,7 @@ class Paper(MaterialListLike):
 
     elevation = param.Integer(default=1, bounds=(0, None))
 
-    _esm = "Paper.jsx"
+    _esm_base = "Paper.jsx"
 
 
 class Card(MaterialListLike):
@@ -101,7 +101,7 @@ class Card(MaterialListLike):
 
     outlined = param.Boolean(default=False)
 
-    _esm = "Card.jsx"
+    _esm_base = "Card.jsx"
 
     def select(self, selector: type | Callable[[Viewable], bool] | None = None) -> list[Viewable]:
         return ([] if self.header is None else self.header.select(selector)) + super().select(selector)
@@ -142,7 +142,7 @@ class Accordion(MaterialNamedListLike):
 
     _names = param.List(default=[])
 
-    _esm = "Accordion.jsx"
+    _esm_base = "Accordion.jsx"
 
     def __init__(self, *objects, **params):
         if "objects" not in params:
@@ -191,7 +191,7 @@ class Tabs(MaterialNamedListLike):
 
     _names = param.List(default=[])
 
-    _esm = "Tabs.jsx"
+    _esm_base = "Tabs.jsx"
 
     def __init__(self, *objects, **params):
         if "objects" not in params:
@@ -233,7 +233,7 @@ class Divider(MaterialListLike):
 
     variant = param.Selector(default="fullWidth", objects=["fullWidth", "inset", "middle"])
 
-    _esm = "Divider.jsx"
+    _esm_base = "Divider.jsx"
 
 
 class Alert(MaterialListLike):
@@ -250,7 +250,7 @@ class Alert(MaterialListLike):
 
     variant = param.Selector(default="filled", objects=["filled", "outlined"])
 
-    _esm = "Alert.jsx"
+    _esm_base = "Alert.jsx"
 
 
 class Backdrop(MaterialListLike):
@@ -271,7 +271,7 @@ class Backdrop(MaterialListLike):
 
     open = param.Boolean(default=False)
 
-    _esm = "Backdrop.jsx"
+    _esm_base = "Backdrop.jsx"
 
 
 class Dialog(MaterialListLike):
@@ -296,4 +296,4 @@ class Dialog(MaterialListLike):
 
     title = param.String(default="")
 
-    _esm = "Dialog.jsx"
+    _esm_base = "Dialog.jsx"

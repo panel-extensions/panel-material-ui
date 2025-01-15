@@ -45,7 +45,7 @@ class ChatAreaInput(TextAreaInput):
 
     rows = param.Integer(default=1)
 
-    _esm = "ChatArea.jsx"
+    _esm_base = "ChatArea.jsx"
 
     def _handle_msg(self, msg) -> None:
         """

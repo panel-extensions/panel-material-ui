@@ -69,7 +69,7 @@ class AutocompleteInput(MaterialSingleSelectBase):
 
     _allows_none = True
 
-    _esm = "Autocomplete.jsx"
+    _esm_base = "Autocomplete.jsx"
 
     _rename = {"name": "name"}
 
@@ -113,7 +113,7 @@ class Select(MaterialSingleSelectBase):
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 
-    _esm = "Select.jsx"
+    _esm_base = "Select.jsx"
 
     _rename = {"name": "name"}
 
@@ -128,7 +128,7 @@ class RadioGroup(MaterialWidget):
         Button group orientation, either 'horizontal' (default) or 'vertical'.""",
     )
 
-    _esm = "RadioGroup.jsx"
+    _esm_base = "RadioGroup.jsx"
 
     _rename = {"name": "name"}
 
@@ -205,7 +205,7 @@ class ButtonGroup(MaterialWidget):
 
     width = param.Integer(default=None, doc="""""")
 
-    _esm = "ButtonGroup.jsx"
+    _esm_base = "ButtonGroup.jsx"
 
     _rename = {"name": "name"}
 
@@ -260,3 +260,55 @@ class CheckButtonGroup(ButtonGroup, MaterialMultiSelectBase):
 
     """
     _constants = {"exclusive": False}
+
+
+class MultiChoice(MaterialMultiSelectBase):
+    """
+    The `MultiChoice` widget allows selecting multiple values from a list of
+    `options`.
+
+    It falls into the broad category of multi-value, option-selection widgets
+    that provide a compatible API and include the `MultiSelect`,
+    `CrossSelector`, `CheckBoxGroup` and `CheckButtonGroup` widgets.
+
+    The `MultiChoice` widget provides a much more compact UI than
+    `MultiSelect`.
+
+    Reference: https://panel.holoviz.org/reference/widgets/MultiChoice.html
+
+    :Example:
+
+    >>> MultiChoice(
+    ...     name='Favourites', value=['Panel', 'hvPlot'],
+    ...     options=['Panel', 'hvPlot', 'HoloViews', 'GeoViews', 'Datashader', 'Param', 'Colorcet'],
+    ...     max_items=2
+    ... )
+    """
+
+    delete_button = param.Boolean(default=True, doc="""
+        Whether to display a button to delete a selected option.""")
+
+    max_items = param.Integer(default=None, bounds=(1, None), doc="""
+        Maximum number of options that can be selected.""")
+
+    option_limit = param.Integer(default=None, bounds=(1, None), doc="""
+        Maximum number of options to display at once.""")
+
+    search_option_limit = param.Integer(default=None, bounds=(1, None), doc="""
+        Maximum number of options to display at once if search string is entered.""")
+
+    placeholder = param.String(default='', doc="""
+        String displayed when no selection has been made.""")
+
+    solid = param.Boolean(default=True, doc="""
+        Whether to display widget with solid or light style.""")
+
+    width = param.Integer(default=300, allow_None=True, doc="""
+      Width of this component. If sizing_mode is set to stretch
+      or scale mode this will merely be used as a suggestion.""")
+
+    value = param.List(default=[])
+
+    _rename = {"name": None}
+
+    _esm_base = "MultiChoice.jsx"

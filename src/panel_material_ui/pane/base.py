@@ -18,7 +18,7 @@ class Chip(MaterialComponent):
 
     variant = param.Selector(objects=["filled", "outlined"], default="filled")
 
-    _esm = "Chip.jsx"
+    _esm_base = "Chip.jsx"
 
     _stylesheets = ["https://fonts.googleapis.com/icon?family=Material+Icons"]
 
@@ -42,7 +42,7 @@ class Avatar(MaterialComponent):
 
     variant = param.Selector(objects=["rounded", "square"], default="rounded")
 
-    _esm = "Avatar.jsx"
+    _esm_base = "Avatar.jsx"
 
 
 class Skeleton(MaterialComponent):
@@ -52,4 +52,4 @@ class Skeleton(MaterialComponent):
 
     width = param.Integer(default=0)
 
-    _esm = "Skeleton.jsx"
+    _esm_base = "Skeleton.jsx"

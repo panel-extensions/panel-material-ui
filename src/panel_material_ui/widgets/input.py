@@ -76,7 +76,7 @@ class TextInput(_TextInputBase):
     enter_pressed = param.Event(doc="""
         Event when the enter key has been pressed.""")
 
-    _esm = "TextField.jsx"
+    _esm_base = "TextField.jsx"
 
     def _handle_enter(self, event: DOMEvent):
         self.param.trigger('enter_pressed')
@@ -94,7 +94,7 @@ class PasswordInput(_TextInputBase):
     >>> PasswordInput(label='Password', placeholder='Enter your password here ...')
     """
 
-    _esm = "PasswordField.jsx"
+    _esm_base = "PasswordField.jsx"
 
 
 class TextAreaInput(_TextInputBase):
@@ -148,7 +148,7 @@ class TextAreaInput(_TextInputBase):
         Can only be set during initialization.""",
     )
 
-    _esm = "TextArea.jsx"
+    _esm_base = "TextArea.jsx"
 
 
 class Checkbox(MaterialWidget):
@@ -174,7 +174,7 @@ class Checkbox(MaterialWidget):
 
     value = param.Boolean(default=False)
 
-    _esm = "Checkbox.jsx"
+    _esm_base = "Checkbox.jsx"
 
 
 class Switch(MaterialWidget):
@@ -202,7 +202,7 @@ class Switch(MaterialWidget):
 
     width = param.Boolean(default=None)
 
-    _esm = "Switch.jsx"
+    _esm_base = "Switch.jsx"
 
 
 class FileInput(MaterialWidget, _PnFileInput):
@@ -225,7 +225,7 @@ class FileInput(MaterialWidget, _PnFileInput):
 
     width = param.Integer(default=None)
 
-    _esm = "FileInput.jsx"
+    _esm_base = "FileInput.jsx"
 
     def __init__(self, **params):
         super().__init__(**params)
