@@ -60,7 +60,7 @@ class ToggleIcon(_ClickableIcon):
 
     width = param.Boolean(default=None)
 
-    _esm = "ToggleIcon.jsx"
+    _esm_base = "ToggleIcon.jsx"
 
 
 class ButtonIcon(_ClickableIcon, _ButtonBase):
@@ -107,7 +107,7 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
         and how long the button should be disabled for.""",
     )
 
-    _esm = "IconButton.jsx"
+    _esm_base = "IconButton.jsx"
 
     def __init__(self, **params):
         click_handler = params.pop('on_click', None)

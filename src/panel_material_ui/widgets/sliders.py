@@ -169,7 +169,7 @@ class Rating(MaterialWidget):
 
     value = param.Number(default=0, allow_None=True, bounds=(0, 5))
 
-    _esm = "Rating.jsx"
+    _esm_base = "Rating.jsx"
 
     @param.depends("end", watch=True, on_init=True)
     def _update_value_bounds(self):

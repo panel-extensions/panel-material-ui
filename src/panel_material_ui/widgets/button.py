@@ -82,7 +82,7 @@ class Button(_ButtonBase, _ClickButton):
 
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
 
-    _esm = "Button.jsx"
+    _esm_base = "Button.jsx"
 
     _rename: ClassVar[Mapping[str, str | None]] = {"label": "label", "button_style": "button_style"}
 
@@ -141,4 +141,4 @@ class Toggle(_ButtonBase):
 
     value = param.Boolean(default=False)
 
-    _esm = "ToggleButton.jsx"
+    _esm_base = "ToggleButton.jsx"

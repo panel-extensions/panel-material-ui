@@ -21,9 +21,30 @@ function themed_render(props) {{
   const [defaultTheme] = props.model.useState('theme')
 
   const theme = createTheme({{
+    cssVariables: {{
+      rootSelector: ':host',
+      colorSchemeSelector: 'class',
+    }},
     colorSchemes: {{
       dark: defaultTheme === "dark",
     }},
+    components: {{
+      MuiPopover: {{
+        defaultProps: {{
+          container: props.view.container,
+        }},
+      }},
+      MuiPopper: {{
+        defaultProps: {{
+          container: props.view.container,
+        }},
+      }},
+      MuiModal: {{
+        defaultProps: {{
+          container: props.view.container,
+        }},
+      }},
+    }}
   }});
 
   return (
@@ -44,8 +65,8 @@ class MaterialComponent(ReactComponent):
 
     _importmap = {
         "imports": {
-            "@mui/material/": "https://esm.sh/@mui/material@6.1.7/",
-            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.1.7/",
+            "@mui/material/": "https://esm.sh/@mui/material@6.4.0/",
+            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.0/",
         }
     }
 
