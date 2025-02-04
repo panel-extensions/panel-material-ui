@@ -4,8 +4,10 @@ import Popper from "@mui/material/Popper"
 
 export function render({model, el}) {
   const [value, setValue] = model.useState("value")
+  const [value_input, setValueInput] = model.useState("value_input")
   const [options] = model.useState("options")
   const [label] = model.useState("label")
+  const [placeholder] = model.useState("placeholder")
   const [restrict] = model.useState("restrict")
   const [variant] = model.useState("variant")
   const [disabled] = model.useState("disabled")
@@ -38,7 +40,19 @@ export function render({model, el}) {
       filterOptions={filt_func}
       variant={variant}
       PopperComponent={CustomPopper}
-      renderInput={(params) => <TextField {...params} variant={variant} label={label} />}
+      renderInput={(params) => <TextField
+        {...params}
+        variant={variant}
+        label={label}
+        placeholder={placeholder}
+        onChange={(event) => setValueInput(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            model.send_event("enter", event)
+            setValue(value_input)
+          }
+        }}
+      />}
     />
   )
 }

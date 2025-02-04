@@ -103,13 +103,13 @@ def test_radio_box_group_color(page, color):
     expect(page.locator(f".MuiRadio-color{color.capitalize()}")).to_have_count(len(widget.options))
 
 
-@pytest.mark.parametrize('orientation', ["horizontal", "vertical"])
-def test_radio_box_group_orientation(page, orientation):
-    widget = RadioBoxGroup(name='RadioBoxGroup test', options=["Option 1", "Option 2", "Option 3"], orientation=orientation)
+@pytest.mark.parametrize('inline', [True, False])
+def test_radio_box_group_orientation(page, inline):
+    widget = RadioBoxGroup(name='RadioBoxGroup test', options=["Option 1", "Option 2", "Option 3"], inline=inline)
     serve_component(page, widget)
 
     expect(page.locator(".radio-box-group")).to_have_count(1)
-    if orientation == "horizontal":
+    if inline:
         rbg_orient = page.locator(".MuiRadioGroup-row")
         expect(rbg_orient).to_have_count(1)
 
