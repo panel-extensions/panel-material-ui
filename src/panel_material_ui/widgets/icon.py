@@ -54,9 +54,9 @@ class ToggleIcon(_ClickableIcon):
 
     color = param.Selector(objects=COLORS, default="primary")
 
-    description_delay = param.Integer(default=5000, doc="""
+    description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
-        hovered over the Button, default is 500ms.""")
+        hovered over the Button, default is 1000ms.""")
 
     width = param.Boolean(default=None)
 

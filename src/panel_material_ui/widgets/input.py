@@ -3,12 +3,13 @@ from __future__ import annotations
 from typing import Any
 
 import param
+from bokeh.models.formatters import TickFormatter
 from panel.models.reactive_html import DOMEvent
 from panel.util import edit_readonly
 from panel.widgets.input import FileInput as _PnFileInput
 
-from ..base import COLORS
-from .base import MaterialWidget
+from ..base import COLORS, ThemedTransform
+from .base import MaterialWidget, TooltipTransform
 
 
 class _TextInputBase(MaterialWidget):
@@ -168,6 +169,10 @@ class Checkbox(MaterialWidget):
 
     color = param.Selector(objects=COLORS, default="primary")
 
+    description_delay = param.Integer(default=1000, doc="""
+        Delay (in milliseconds) to display the tooltip after the cursor has
+        hovered over the Button, default is 1000ms.""")
+
     indeterminate = param.Boolean(default=False)
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium")
@@ -175,6 +180,7 @@ class Checkbox(MaterialWidget):
     value = param.Boolean(default=False)
 
     _esm_base = "Checkbox.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
 
 
 class Switch(MaterialWidget):
@@ -194,6 +200,10 @@ class Switch(MaterialWidget):
 
     color = param.Selector(objects=["default"] + COLORS, default="primary")
 
+    description_delay = param.Integer(default=1000, doc="""
+        Delay (in milliseconds) to display the tooltip after the cursor has
+        hovered over the Button, default is 1000ms.""")
+
     edge = param.Selector(objects=["start", "end", False], default=False)
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium")
@@ -203,6 +213,7 @@ class Switch(MaterialWidget):
     width = param.Boolean(default=None)
 
     _esm_base = "Switch.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
 
 
 class FileInput(MaterialWidget, _PnFileInput):
@@ -223,9 +234,14 @@ class FileInput(MaterialWidget, _PnFileInput):
 
     button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
 
+    description_delay = param.Integer(default=1000, doc="""
+        Delay (in milliseconds) to display the tooltip after the cursor has
+        hovered over the Button, default is 1000ms.""")
+
     width = param.Integer(default=None)
 
     _esm_base = "FileInput.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
 
     def __init__(self, **params):
         super().__init__(**params)
@@ -251,3 +267,134 @@ class FileInput(MaterialWidget, _PnFileInput):
             value=value,
         )
         self._buffer.clear()
+
+
+class _NumericInputBase(MaterialWidget):
+
+    color = param.Selector(objects=COLORS, default="primary")
+
+    format = param.ClassSelector(default=None, class_=(str, TickFormatter,), doc="""
+        Allows defining a custom format string or bokeh TickFormatter.""")
+
+    placeholder = param.String(default='0', doc="""
+        Placeholder for empty input field.""")
+
+    start = param.Parameter(default=None, allow_None=True, doc="""
+        Optional minimum allowable value.""")
+
+    end = param.Parameter(default=None, allow_None=True, doc="""
+        Optional maximum allowable value.""")
+
+    value = param.Number(default=0, allow_None=True, doc="""
+        The current value of the spinner.""")
+
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+
+    __abstract = True
+
+
+class _IntInputBase(_NumericInputBase):
+
+    value = param.Integer(default=0, allow_None=True, doc="""
+        The current value of the spinner.""")
+
+    start = param.Integer(default=None, allow_None=True, doc="""
+        Optional minimum allowable value.""")
+
+    end = param.Integer(default=None, allow_None=True, doc="""
+        Optional maximum allowable value.""")
+
+    mode = param.String(default='int', constant=True, doc="""
+        Define the type of number which can be enter in the input""")
+
+    __abstract = True
+
+
+class _FloatInputBase(_NumericInputBase):
+
+    value = param.Number(default=0, allow_None=True, doc="""
+        The current value of the spinner.""")
+
+    start = param.Number(default=None, allow_None=True, doc="""
+        Optional minimum allowable value.""")
+
+    end = param.Number(default=None, allow_None=True, doc="""
+        Optional maximum allowable value.""")
+
+    mode = param.String(default='float', constant=True, doc="""
+        Define the type of number which can be enter in the input""")
+
+    __abstract = True
+
+
+class _SpinnerBase(_NumericInputBase):
+
+    page_step_multiplier = param.Integer(default=10, bounds=(0, None), doc="""
+        Defines the multiplication factor applied to step when the page up
+        and page down keys are pressed.""")
+
+    wheel_wait = param.Integer(default=100, doc="""
+        Defines the debounce time in ms before updating `value_throttled` when
+        the mouse wheel is used to change the input.""")
+
+    width = param.Integer(default=300, allow_None=True, doc="""
+      Width of this component. If sizing_mode is set to stretch
+      or scale mode this will merely be used as a suggestion.""")
+
+    _esm_base = "NumberInput.jsx"
+
+    __abstract = True
+
+
+class IntInput(_SpinnerBase, _IntInputBase):
+    """
+    The `IntInput` allows selecting an integer value using a spinbox.
+
+    It behaves like a slider except that lower and upper bounds are optional
+    and a specific value can be entered. The value can be changed using the
+    keyboard (up, down, page up, page down), mouse wheel and arrow buttons.
+
+    Reference: https://panel.holoviz.org/reference/widgets/IntInput.html
+
+    :Example:
+
+    >>> IntInput(name='Value', value=100, start=0, end=1000, step=10)
+    """
+
+    step = param.Integer(default=1, doc="""
+        The step size.""")
+
+    value_throttled = param.Integer(default=None, constant=True, doc="""
+        The current value. Updates only on `<enter>` or when the widget looses focus.""")
+
+
+class FloatInput(_SpinnerBase, _FloatInputBase):
+    """
+    The `IntInput` allows selecting an integer value using a spinbox.
+
+    It behaves like a slider except that lower and upper bounds are optional
+    and a specific value can be entered. The value can be changed using the
+    keyboard (up, down, page up, page down), mouse wheel and arrow buttons.
+
+    Reference: https://panel.holoviz.org/reference/widgets/IntInput.html
+
+    :Example:
+
+    >>> IntInput(name='Value', value=100, start=0, end=1000, step=10)
+    """
+
+    step = param.Number(default=0.1, doc="""
+        The step size.""")
+
+    value_throttled = param.Integer(default=None, constant=True, doc="""
+        The current value. Updates only on `<enter>` or when the widget looses focus.""")
+
+
+class NumberInput(_SpinnerBase):
+
+    def __new__(self, **params):
+        param_list = ["value", "start", "stop", "step"]
+        if all(isinstance(params.get(p, 0), int) for p in param_list):
+            return IntInput(**params)
+        else:
+            return FloatInput(**params)

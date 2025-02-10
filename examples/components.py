@@ -148,7 +148,9 @@ spec = {
             (TextAreaInput, (['color', 'variant'], ['disabled']), dict(label='TextAreaInput')),
             (TextInput, (['color', 'variant'], ['disabled', 'error_state']), dict(label='TextInput')),
             (ToggleIcon, (['color', 'value'],), dict(icon='favorite', active_icon='favorite-border')),
-            (PasswordInput, (['color', 'variant'], ['disabled']), dict(label='PasswordInput'))
+            (PasswordInput, (['color', 'variant'], ['disabled']), dict(label='PasswordInput')),
+            (FloatInput, (['color', 'variant'], ['disabled']), dict(label='FloatInput', step=0.1)),
+            (IntInput, (['color', 'variant'], ['disabled']), dict(label='IntInput'))
         ],
         'Selection': [
             (AutocompleteInput, (['variant'], ['disabled']), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Autocomplete')),
