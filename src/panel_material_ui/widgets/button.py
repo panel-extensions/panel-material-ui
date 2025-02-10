@@ -11,8 +11,8 @@ import param
 from panel.widgets.button import _ButtonBase as _PnButtonBase
 from panel.widgets.button import _ClickButton
 
-from ..base import COLORS
-from .base import MaterialWidget
+from ..base import COLORS, ThemedTransform
+from .base import MaterialWidget, TooltipTransform
 
 
 class _ButtonBase(MaterialWidget, _PnButtonBase):
@@ -36,6 +36,8 @@ class _ButtonBase(MaterialWidget, _PnButtonBase):
     )
 
     width = param.Integer(default=None)
+
+    _esm_transforms = [TooltipTransform, ThemedTransform]
 
     __abstract = True
 

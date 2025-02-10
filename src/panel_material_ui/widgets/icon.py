@@ -4,8 +4,8 @@ from collections.abc import Callable
 
 import param
 
-from ..base import COLORS
-from .base import MaterialWidget
+from ..base import COLORS, ThemedTransform
+from .base import MaterialWidget, TooltipTransform
 from .button import _ButtonBase
 
 
@@ -33,6 +33,10 @@ class _ClickableIcon(MaterialWidget):
         Whether the icon is toggled on or off.""",
     )
 
+    _esm_transforms = [TooltipTransform, ThemedTransform]
+
+    __abstract = False
+
 
 class ToggleIcon(_ClickableIcon):
     """
@@ -40,10 +44,6 @@ class ToggleIcon(_ClickableIcon):
     widget is interchangeable with the `Checkbox` and `Switch` widget.
 
     This widget incorporates a `value` attribute, which alternates between `False` and `True`.
-
-    Some missing and extra features (if any) when comparing with the corresponding
-    panel ToggleIcon widget [panel.widgets.ToggleIcon](https://panel.holoviz.org/reference/widgets/ToggleIcon.html):
-    - Missing features: description_delay
 
     :Example:
 

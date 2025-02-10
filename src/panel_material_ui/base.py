@@ -16,7 +16,31 @@ COLORS = ["primary", "secondary", "error", "info", "success", "warning"]
 
 BASE_PATH = pathlib.Path(__file__).parent
 
-THEME_WRAPPER = """\
+
+class ESMTransform:
+    """
+    ESMTransform allows writing transforms for ReactComponent
+    that add additional functionality by wrapping the base
+    ESM with a wrapping function.
+    """
+
+    _transform: str | None = None
+
+    @classmethod
+    def apply(cls, component: type[ReactComponent], esm: str, input_component: str) -> tuple[str, str]:
+        name = cls.__name__.replace('Transform', '')
+        output = f'{name}{component.__name__}'
+        return cls._transform.format(
+            esm=esm,
+            input=input_component,
+            output=output
+        ), output
+
+
+class ThemedTransform(ESMTransform):
+
+    _transform = """\
+import * as React from "react"
 import 'material-icons/iconfont/material-icons.css';
 import {{ ThemeProvider, createTheme }} from '@mui/material/styles';
 import {{ deepmerge }} from '@mui/utils';
@@ -24,7 +48,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 
 {esm}
 
-function themed_render(props) {{
+function {output}(props) {{
   const [dark_theme] = props.model.useState('dark_theme')
   const [theme_config ] = props.model.useState('theme_config')
 
@@ -85,15 +109,18 @@ function themed_render(props) {{
   return (
     <ThemeProvider theme={{theme}}>
       <CssBaseline />
-      <Panel{component} {{...props}}/>
+      <{input} {{...props}}/>
     </ThemeProvider>
   )
 }}
-
-export default {{ render: themed_render }}
 """
 
+
 class MaterialComponent(ReactComponent):
+    """
+    Baseclass for all MaterialComponents which defines the bundle location,
+    the JS dependencies and theming support via the ThemedTransform.
+    """
 
     dark_theme = param.Boolean()
 
@@ -101,6 +128,7 @@ class MaterialComponent(ReactComponent):
 
     _bundle = BASE_PATH / "panel-material-ui.bundle.js"
     _esm_base = None
+    _esm_transforms = [ThemedTransform]
     _importmap = {
         "imports": {
             "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.2/",
@@ -145,21 +173,22 @@ class MaterialComponent(ReactComponent):
         return []
 
     @classmethod
+    def _render_esm_base(cls):
+        esm_base = (pathlib.Path(inspect.getfile(cls)).parent / cls._esm_base).read_text()
+        if not cls._esm_transforms:
+            return esm_base
+
+        component_name = f'Panel{cls.__name__}'
+        esm_base = esm_base.replace('export function render', f'function {component_name}')
+        for transform in cls._esm_transforms:
+            esm_base, component_name = transform.apply(cls, esm_base, component_name)
+        esm_base += f'\nexport default {{ render: {component_name} }}'
+        return textwrap.dedent(esm_base)
+
+    @classmethod
     def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
         if compiled != 'compiling':
             return super()._render_esm(compiled=compiled, server=server)
         elif cls._esm_base is None:
             return None
-        esm_base = pathlib.Path(inspect.getfile(cls)).parent / cls._esm_base
-        component = cls.__name__
-        esm = (
-            esm_base
-            .read_text()
-            .replace('export function render(', f'export function Panel{component}(')
-            .replace('const render =', f'const Panel{component} =')
-        )
-        esm = textwrap.dedent(esm)
-        if compiled == 'compiling':
-            esm = 'import * as React from "react"\n' + esm
-        wrapper = THEME_WRAPPER.format(esm=esm, component=component)
-        return wrapper
+        return cls._render_esm_base()
