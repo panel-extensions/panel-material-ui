@@ -37,8 +37,6 @@ class _ButtonBase(MaterialWidget, _PnButtonBase):
 
     width = param.Integer(default=None)
 
-    _stylesheets = ["https://fonts.googleapis.com/icon?family=Material+Icons"]
-
     __abstract = True
 
     def _process_param_change(self, params):

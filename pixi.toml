@@ -18,6 +18,14 @@ setuptools-scm = "*"
 hatchling = "*"
 hatch-vcs = "*"
 
+[feature.compile.dependencies]
+nodejs = ">=18"
+esbuild = "*"
+
+[feature.compile.tasks]
+compile = "panel compile panel_material_ui --file-loader woff woff2"
+compile-develop = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch"
+
 [feature.test.dependencies]
 pytest = ">=6"
 pytest-cov = "*"
@@ -74,4 +82,5 @@ py311 = ["py311", "test"]
 py312 = ["py312", "test"]
 test-ui = ["py312", "test", "test-ui"]
 build = ["build"]
+compile = ["py312", "compile"]
 lint = { features = ["lint"], no-default-feature = true }

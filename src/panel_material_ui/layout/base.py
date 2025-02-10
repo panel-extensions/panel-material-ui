@@ -47,21 +47,6 @@ class Card(MaterialListLike):
     A `Card` layout allows arranging multiple panel objects in a
     collapsible, vertical container with a header bar.
 
-    Some missing features (if any) when comparing with the corresponding
-    Panel Card layout [panel.Card](https://panel.holoviz.org/reference/layouts/Card.html):
-    - active_header_background
-    - auto_scroll_limit
-    - button_css_classes
-    - header_background
-    - header_color
-    - header_css_classes
-    - hide_header
-    - scroll
-    - scroll_button_threshold
-    - scroll_position
-    - title_css_classes
-    - view_latest
-
     :Example:
 
     >>> Card(some_widget, some_pane, some_python_object, title='Card')

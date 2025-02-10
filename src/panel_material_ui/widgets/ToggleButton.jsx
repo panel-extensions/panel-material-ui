@@ -12,7 +12,6 @@ export function render({model, el}) {
   const [label] = model.useState("label")
   const [variant] = model.useState("button_style")
   const [value, setValue] = model.useState("value")
-  const [theme] = model.useState("theme")
 
   const button = (
     <ToggleButton

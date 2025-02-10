@@ -1,6 +1,6 @@
 import inspect
 
-from itertools import product
+from itertools import chain, product
 from typing import Type
 
 import panel as pn
@@ -8,11 +8,19 @@ import param
 
 from panel_material_ui import *
 from panel_material_ui.base import MaterialComponent
+from panel_material_ui.template import Page
 
-pn.extension(template='material', defer_load=True)
+pn.extension(defer_load=True)
 
-from itertools import chain
+pn.config.design = MaterialDesign
 
+color = pn.widgets.ColorPicker(value='#ff0000')
+dark = Checkbox(value=pn.config.theme=='dark')
+
+design_kwargs = dict(
+    dark_theme=dark,
+    theme_config={'palette': {'primary': {'main': color}}},
+)
 
 def insert_at_nth_position(main_list, insert_list, n):
     # Split main_list into chunks of size n
@@ -25,10 +33,15 @@ def insert_at_nth_position(main_list, insert_list, n):
     ))
     return result
 
+i = 0
+
 def render_variant(component, variant, **kwargs):
+    global i
+    i += 1
+
     title = f'# {component.name}'
     if not variant:
-        return pn.Column(title, component(**kwargs), name=component.name)
+        return pn.Column(title, component(**dict(kwargs, **design_kwargs)), name=component.name)
     elif inspect.isfunction(variant):
         return variant(component, **kwargs)
     values = []
@@ -44,7 +57,7 @@ def render_variant(component, variant, **kwargs):
     cols = len(values[-1])
     clabels = ([''] if ndim > 1 else []) + [f'### {v}' for v in values[-1]]
     grid_items = [
-        component(**dict(zip(variant, vs), **kwargs))
+        component(**dict(zip(variant, vs), **dict(kwargs, **design_kwargs)))
         for vs in combinations
     ]
     if ndim > 1:
@@ -74,12 +87,12 @@ def render_spec(spec, depth=0, label='main'):
     if isinstance(spec, dict):
         tabs = Tabs(*(
             (title, render_spec(subspec, depth+1, label=title)) for title, subspec in spec.items()
-        ), sizing_mode='stretch_width')
+        ), sizing_mode='stretch_width', **design_kwargs)
     else:
         tabs = Tabs(*(
             pn.param.ParamFunction(pn.bind(show_variants, component, variants=varss, **kwargs), lazy=True, name=component.name)
             for component, varss,  kwargs in spec
-        ), dynamic=True)
+        ), dynamic=True, **design_kwargs)
     pn.state.location.sync(tabs, dict(active=f'active{label}'))
     return tabs
 
@@ -94,7 +107,7 @@ def render_openable(component: Type[MaterialComponent], **kwargs):
 spec = {
     'Layouts': {
         'ListLike': [
-            (Alert, (['severity', 'variant'], ['closeable']), dict(title='Title', object='An alert message')),
+            (Alert, (['severity', 'variant'], ['closeable']), dict(title='Title')),
             (Card, (['outlined', 'collapsed'], ['raised', 'collapsible']), dict(objects=['A', 'B', 'C'], title='A Card', margin=10)),
             (Divider, (['orientation', 'variant'],), dict(objects=['Foo'], width=200, height=200)),
             (Paper, (['elevation'],), dict(objects=['A', 'B', 'C'], margin=10, styles={'padding': '1em'})),
@@ -110,7 +123,7 @@ spec = {
     },
     'Indicators': {
         'Progress': [
-            (LoadingIndicator, (['color', 'with_label'], ['variant']), dict(value=50)),
+            (LoadingIndicator, (['color',], ['variant']), dict(value=50)),
             (Progress, (['color', 'variant'],), dict(value=50))
         ]
     },
@@ -121,11 +134,6 @@ spec = {
             (Skeleton, (), dict(width=100, height=100, margin=10)),
         ]
     },
-    'Template': {
-        'AppBar': [
-            (AppBar, (['color'],), dict(objects=['Item 1', 'Item 2', 'Item 3'])),
-        ]
-    },
     'Widgets': {
         'Buttons': [
             (Button, (['button_style', 'button_type'], ['disabled', 'button_style']), dict(label='Hello', icon='favorite', description='A Button')),
@@ -134,6 +142,7 @@ spec = {
         ],
         'Input': [
             (Checkbox, (['size', 'value'],), dict(label='I agree to the terms and conditions')),
+            (DatePicker, ([],), dict(label='DatePicker')),
             (FileInput, (['button_type', 'button_style'],), {}),
             (Switch, (['color', 'disabled'],), dict(label='Switch me!', value=True)),
             (TextAreaInput, (['color', 'variant'], ['disabled']), dict(label='TextAreaInput')),
@@ -158,4 +167,4 @@ spec = {
     },
 }
 
-render_spec(spec).servable(title='panel-material-ui components')
+Page(header=[color, dark], main=[render_spec(spec)], sidebar=['# Foo'], title='panel-material-ui components', **design_kwargs).servable()

@@ -29,3 +29,17 @@ pixi run pre-commit-install
 pixi run postinstall
 pixi run test
 ```
+
+Note that unlike other Panel based ESM components panel-material-ui components only work in compiled mode. When working on this project we recommend you run:
+
+```bash
+pixi run compile-dev
+```
+
+This will watch JS modules for changes and rebuild the JS and CSS bundles. You can then develop using the `components.py` application:
+
+```bash
+panel serve examples/components.py --autoreload
+```
+
+which will reload whenever the bundle is automatically rebuilt.

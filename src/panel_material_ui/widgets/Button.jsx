@@ -11,7 +11,6 @@ export function render({model, el}) {
   const [icon_size] = model.useState("icon_size")
   const [label] = model.useState("label")
   const [variant] = model.useState("button_style")
-  const [theme] = model.useState("theme")
 
   const button = (
     <Button
