@@ -118,7 +118,9 @@ jobs:
         with:
           environments: ${{ matrix.environment }}
       - name: Install repository
-        run: pixi run -e ${{ matrix.environment }} postinstall
+        run: |
+          pixi run -e ${{ matrix.environment }} postinstall
+          pixi run compile
       - name: Run pytest
         run: pixi run -e ${{ matrix.environment }} test-coverage --color=yes
 
