@@ -22,6 +22,8 @@ class LoadingIndicator(MaterialWidget):
 
     variant = param.Selector(default="indeterminate", objects=["determinate", "indeterminate"])
 
+    width = param.Integer(default=None)
+
     _esm_base = "CircularProgress.jsx"
 
 

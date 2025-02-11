@@ -23,14 +23,16 @@ class MaterialListLike(MaterialComponent, ListLike):
 
 
 class MaterialNamedListLike(MaterialComponent, NamedListLike):
+
     __abstract = True
+
 
 
 class Paper(MaterialListLike):
     """
     Paper implements a container for displaying content on an elevated surface.
 
-    Reference to the equivalent Material UI Paper component:
+    Reference to the Material UI Paper component:
     https://mui.com/material-ui/react-paper/
 
     :Example:
@@ -108,6 +110,9 @@ class Accordion(MaterialNamedListLike):
     Panel Accordion layout [panel.Accordion](https://panel.holoviz.org/reference/layouts/Accordion.html):
     `active_header_background`, `header_background`, `header_color`, `scroll`
 
+    Reference to the Material UI Accordion component:
+    https://mui.com/material-ui/react-accordion/
+
     :Example:
 
     >>> Accordion(("Card 1", "Card 1 objects"), ("Card 2", "Card 2 objects"))
@@ -150,6 +155,9 @@ class Tabs(MaterialNamedListLike):
     Missing features (if any) when comparing with the corresponding
     Panel Tabs layout [panel.Tabs](https://panel.holoviz.org/reference/layouts/Tabs.html):
     `closable`, `scroll`.
+
+    Reference to the Material UI Accordion component:
+    https://mui.com/material-ui/react-tabs/
 
     :Example:
 
@@ -247,7 +255,7 @@ class Backdrop(MaterialListLike):
     Reference to the corresponding Material UI `Backdrop`:
     https://mui.com/material-ui/react-backdrop/
 
-    Example:
+    :Example:
     >>> close = Button(on_click=lambda _: backdrop.param.update(open=False), label='Close')  # type: ignore
     >>> backdrop = Backdrop(LoadingIndicator(), close)
     >>> button = Button(on_click=lambda _: backdrop.param.update(open=True), label=f'Open {Backdrop.name}')
@@ -268,7 +276,7 @@ class Dialog(MaterialListLike):
     Reference to the corresponding Material UI `Dialog`:
     https://mui.com/material-ui/react-dialog/
 
-    Example:
+    :Example:
     >>> close = Button(on_click=lambda _: dialog.param.update(open=False), label='Close')  # type: ignore
     >>> dialog = Dialog("This is a modal", close)
     >>> button = Button(on_click=lambda _: dialog.param.update(open=True), label=f'Open {Dialog.name}')

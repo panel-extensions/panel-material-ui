@@ -15,7 +15,7 @@ from .base import MaterialWidget
 
 
 class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
-    value = param.String(default=None, allow_None=True)
+    value = param.Parameter(default=None, allow_None=True)
 
     __abstract = True
 
@@ -119,6 +119,7 @@ class Select(MaterialSingleSelectBase):
 
 
 class RadioGroup(MaterialWidget):
+
     color = param.Selector(default="primary", objects=COLORS)
 
     orientation = param.Selector(
@@ -186,6 +187,9 @@ class CheckBoxGroup(RadioGroup, MaterialMultiSelectBase):
 
 
 class ButtonGroup(MaterialWidget):
+
+    button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
+
     color = param.Selector(default="primary", objects=COLORS)
 
     disableElevation = param.Boolean(default=False)

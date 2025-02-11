@@ -1,3 +1,4 @@
+import datetime as dt
 import inspect
 
 from itertools import chain, product
@@ -45,6 +46,7 @@ def render_variant(component, variant, **kwargs):
     elif inspect.isfunction(variant):
         return variant(component, **kwargs)
     values = []
+    print(component)
     for p in variant:
         if isinstance(component.param[p], param.Integer):
             values.append(list(range(10)))
@@ -130,7 +132,15 @@ spec = {
     'Pane': {
         'Text': [
             (Avatar, (['variant'],), dict(object='https://panel.holoviz.org/_static/favicon.ico')),
+            (Breadcrumbs, (), dict(items=["Home", "Catalog", "Accessories"])),
             (Chip, (['color', 'variant'], ['size']), dict(object='Foo', icon='favorite')),
+            (List, (), dict(items=[
+                "Home",
+                {"label": "Catalog", "icon": "category"},
+                {"label": "Checkout", "icon": "shopping_cart"},
+                '---',
+                {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
+            ])),
             (Skeleton, (), dict(width=100, height=100, margin=10)),
         ]
     },
@@ -142,7 +152,8 @@ spec = {
         ],
         'Input': [
             (Checkbox, (['size', 'value'],), dict(label='I agree to the terms and conditions')),
-            (DatePicker, ([],), dict(label='DatePicker')),
+            (DatePicker, (['color', 'variant'], ['disabled']), dict(label='DatePicker', value=dt.date(2024, 1, 1))),
+            (DatetimePicker, (['color', 'variant'], ['disabled']), dict(label='DateTimePicker', value=dt.datetime(2024, 1, 1, 1, 0))),
             (FileInput, (['button_type', 'button_style'],), {}),
             (Switch, (['color', 'disabled'],), dict(label='Switch me!', value=True)),
             (TextAreaInput, (['color', 'variant'], ['disabled']), dict(label='TextAreaInput')),
@@ -150,20 +161,22 @@ spec = {
             (ToggleIcon, (['color', 'value'],), dict(icon='favorite', active_icon='favorite-border')),
             (PasswordInput, (['color', 'variant'], ['disabled']), dict(label='PasswordInput')),
             (FloatInput, (['color', 'variant'], ['disabled']), dict(label='FloatInput', step=0.1)),
-            (IntInput, (['color', 'variant'], ['disabled']), dict(label='IntInput'))
+            (IntInput, (['color', 'variant'], ['disabled']), dict(label='IntInput')),
+            (TimePicker, (['color', 'variant'], ['disabled', 'clock']), dict(label='TimePicker'))
         ],
         'Selection': [
             (AutocompleteInput, (['variant'], ['disabled']), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Autocomplete')),
             (CheckBoxGroup, (['color', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='CheckBoxGroup', value=['Bar'])),
             (CheckButtonGroup, (['color', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='CheckButtonGroup', value=['Foo', 'Bar'])),
             (RadioBoxGroup, (['color', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='RadioBoxGroup', value='Foo')),
-            (RadioButtonGroup, (['color', 'variant'], ['size'], ['orientation']), dict(options=['Foo', 'Bar', 'Baz'], label='RadioButtonGroup', value='Foo')),
+            (RadioButtonGroup, (['color', 'button_style'], ['size'], ['orientation']), dict(options=['Foo', 'Bar', 'Baz'], label='RadioButtonGroup', value='Foo')),
             (Select, (['variant', 'disabled'],), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Select')),
         ],
         'Sliders': [
             (FloatSlider, (['color', 'track'], ['disabled']), dict(start=0, end=7.2, value=3.14, label='FloatSlider')),
             (IntSlider, (['color', 'track'], ['disabled']), dict(start=0, end=10, value=5, label='IntSlider')),
             (IntRangeSlider, (['color', 'track'], ['disabled']), dict(start=0, end=10, value=(5, 7), label='IntRangeSlider')),
+            (RangeSlider, (['color', 'track'], ['disabled']), dict(start=0, end=3.14, value=(0.1, 0.7), label='RangeSlider')),
             (Rating, [], dict(start=0, end=10, value=4))
         ]
     },

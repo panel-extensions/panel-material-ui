@@ -25,6 +25,7 @@ function {output}(props) {{
       title={{description}}
       arrow
       enterDelay={{description_delay}}
+      enterNextDelay={{description_delay}}
       placement="right"
       slotProps={{{{ popper: {{ container: props.el }} }}}}
     >
@@ -36,7 +37,8 @@ function {output}(props) {{
 
 
 class MaterialWidget(MaterialComponent, WidgetBase):
-    description = param.String()
+
+    description = param.String(default='Description')
 
     disabled = param.Boolean(default=False)
 

@@ -3,6 +3,7 @@ import ToggleButton from "@mui/material/ToggleButton"
 
 export function render({model}) {
   const [color] = model.useState("color")
+  const [variant] = model.useState("button_style")
   const [size] = model.useState("size")
   const [orientation] = model.useState("orientation")
   const [disabled] = model.useState("disabled")
@@ -24,6 +25,7 @@ export function render({model}) {
             aria-label={option}
             key={option}
             value={option}
+	    variant={variant}
             selected={exclusive ? (value==option) : value.includes(option)}
             onClick={(e) => {
               let newValue
