@@ -26,7 +26,7 @@ export function render({model}) {
             aria-label={option}
             key={option}
             value={option}
-	    variant={variant}
+            variant={variant}
             selected={exclusive ? (value==option) : value.includes(option)}
             onClick={(e) => {
               let newValue

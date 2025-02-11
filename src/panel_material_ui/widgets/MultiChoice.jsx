@@ -27,7 +27,7 @@ export function render({model, view}) {
 
   const handleChange = (event) => {
     const {
-      target: { value },
+      target: {value},
     } = event;
     setValue(
       // On autofill we get a stringified value.
@@ -36,15 +36,15 @@ export function render({model, view}) {
   };
 
   return (
-    <FormControl sx={{ m: 1, width: 300 }}>
+    <FormControl sx={{m: 1, width: 300}}>
       <InputLabel>{label}</InputLabel>
       <Select
         multiple
         value={value}
         onChange={handleChange}
         input={<OutlinedInput label={label} />}
-	renderValue={(selected) => (
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+        renderValue={(selected) => (
+          <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5}}>
             {selected.map((value) => (
               <Chip key={value} label={value} />
             ))}

@@ -1,9 +1,9 @@
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Link from '@mui/material/Link';
-import Typography from '@mui/material/Typography';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
-export function render({ model }) {
+export function render({model}) {
   const [items] = model.useState("items");
   const [separator] = model.useState("separator");
 

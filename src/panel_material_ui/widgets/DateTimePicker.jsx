@@ -1,10 +1,10 @@
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DateTimePicker as MUIDateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import TextField from '@mui/material/TextField';
-import dayjs from 'dayjs';
+import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {DateTimePicker as MUIDateTimePicker} from "@mui/x-date-pickers/DateTimePicker";
+import TextField from "@mui/material/TextField";
+import dayjs from "dayjs";
 
-export function render({ model }) {
+export function render({model}) {
   const [value, setValue] = React.useState(model.value ? dayjs(model.value) : null);
   const [label] = model.useState("label");
   const [color] = model.useState("color");
@@ -23,7 +23,7 @@ export function render({ model }) {
 
   const handleChange = (newValue) => {
     setValue(newValue);
-    model.send_event('onChange', { value: newValue });
+    model.send_event("onChange", {value: newValue});
   };
 
   const [disabled_dates] = model.useState("disabled_dates");
@@ -51,8 +51,8 @@ export function render({ model }) {
 
   // Check whether the given date (JS Date) is in a list of dates or ranges.
   function inList(date, list) {
-    if (!list || list.length === 0) return false;
-    for (let item of list) {
+    if (!list || list.length === 0) { return false; }
+    for (const item of list) {
       if (Array.isArray(item) || (item && typeof item === "object" && ("from" in item || "to" in item))) {
         if (dateInRange(date, item)) {
           return true;
@@ -84,21 +84,21 @@ export function render({ model }) {
       <MUIDateTimePicker
         label={label}
         value={value}
-	onChange={handleChange}
+        onChange={handleChange}
         views={views}
         disabled={disabled}
-	format={format}
+        format={format}
         minDate={min_date ? new Date(min_date) : undefined}
         maxDate={max_date ? new Date(max_date) : undefined}
         disableFuture={disable_future}
         disablePast={disable_past}
-	shouldDisableDate={shouldDisableDate}
+        shouldDisableDate={shouldDisableDate}
         openTo={open_to}
         showTodayButton={show_today_button}
         clearable={clearable}
-	ampm={!military_time}
-	sx={{ width: "100%" }}
-	slotProps={{ textField: { variant: variant, color: color } }}
+        ampm={!military_time}
+        sx={{width: "100%"}}
+        slotProps={{textField: {variant, color}}}
       />
     </LocalizationProvider>
   );

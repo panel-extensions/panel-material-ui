@@ -1,9 +1,9 @@
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { TimePicker as MUITimePicker } from '@mui/x-date-pickers/TimePicker';
-import TextField from '@mui/material/TextField';
+import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {TimePicker as MUITimePicker} from "@mui/x-date-pickers/TimePicker";
+import TextField from "@mui/material/TextField";
 
-export function render({ model }) {
+export function render({model}) {
   const [value, setValue] = React.useState(model.value ? new Date(model.value) : null);
   const [label] = model.useState("label");
   const [disabled] = model.useState("disabled");
@@ -30,8 +30,8 @@ export function render({ model }) {
         minutesStep={minutes_increment}
         minTime={min_time ? new Date(min_time) : undefined}
         maxTime={max_time ? new Date(max_time) : undefined}
-	slotProps={{ textField: { variant: variant, color: color } }}
-	sx={{ width: "100%" }}
+        slotProps={{textField: {variant, color}}}
+        sx={{width: "100%"}}
       />
     </LocalizationProvider>
   );

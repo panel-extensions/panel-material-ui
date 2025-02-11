@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box"
-import TextField from '@mui/material/TextField';
+import TextField from "@mui/material/TextField";
 
-export function render({ model }) {
+export function render({model}) {
   const [value, setValue] = React.useState(model.value);
   const [color] = model.useState("color");
   const [disabled] = model.useState("disabled");
@@ -29,10 +29,10 @@ export function render({ model }) {
       color={color}
       disabled={disabled}
       label={label}
-      sx={{ width: "100%" }}
+      sx={{width: "100%"}}
       value={value}
       variant={variant}
-      inputProps={{ step: step, min: min, max: max }}
+      inputProps={{step, min, max}}
       onChange={handleChange}
     />
   );

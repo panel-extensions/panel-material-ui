@@ -1,10 +1,10 @@
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker as MUIDatePicker } from '@mui/x-date-pickers/DatePicker';
-import TextField from '@mui/material/TextField';
-import dayjs from 'dayjs';
+import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {DatePicker as MUIDatePicker} from "@mui/x-date-pickers/DatePicker";
+import TextField from "@mui/material/TextField";
+import dayjs from "dayjs";
 
-export function render({ model }) {
+export function render({model}) {
   const [value, setValue] = React.useState(model.value ? dayjs.unix(model.value/1000) : null);
   const [label] = model.useState("label");
   const [color] = model.useState("color");
@@ -22,7 +22,7 @@ export function render({ model }) {
 
   const handleChange = (newValue) => {
     setValue(newValue);
-    model.send_event('onChange', { value: newValue });
+    model.send_event("onChange", {value: newValue});
   };
 
   const [disabled_dates] = model.useState("disabled_dates");
@@ -45,8 +45,8 @@ export function render({ model }) {
 
   // Check whether the given date (JS Date) is in a list of dates or ranges.
   function inList(date, list) {
-    if (!list || list.length === 0) return false;
-    for (let item of list) {
+    if (!list || list.length === 0) { return false; }
+    for (const item of list) {
       if (Array.isArray(item) || (item && typeof item === "object" && ("from" in item || "to" in item))) {
         if (dateInRange(date, item)) {
           return true;
@@ -72,15 +72,14 @@ export function render({ model }) {
     }
     return false;
   }
-  console.log(inputFormat)
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <MUIDatePicker
         label={label}
         value={value}
-	variant={variant}
-	color={color}
+        variant={variant}
+        color={color}
         onChange={handleChange}
         format={inputFormat}
         views={views}
@@ -89,12 +88,12 @@ export function render({ model }) {
         maxDate={max_date ? new Date(max_date) : undefined}
         disableFuture={disable_future}
         disablePast={disable_past}
-	shouldDisableDate={shouldDisableDate}
+        shouldDisableDate={shouldDisableDate}
         openTo={open_to}
         showTodayButton={show_today_button}
         clearable={clearable}
-	sx={{ width: "100%" }}
-	slotProps={{ textField: { variant: variant, color: color } }}
+        sx={{width: "100%"}}
+        slotProps={{textField: {variant, color}}}
       />
     </LocalizationProvider>
   );

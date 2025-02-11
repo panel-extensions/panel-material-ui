@@ -37,10 +37,10 @@ export function render({model}) {
       <Typography variant="body1">
         {label && `${label}: `}
         { show_value &&
-	  <strong>
+          <strong>
             {value_label}
-	  </strong>
-	}
+          </strong>
+        }
       </Typography>
       <Slider
         value={value}
@@ -53,16 +53,16 @@ export function render({model}) {
         orientation={orientation}
         valueLabelDisplay={tooltips ? "auto" : "off"}
         onChange={(event, newValue) => setValue(newValue)}
-	onChangeCommitted={(event, newValue) => setValueThrottled(newValue)}
-	sx={{
+        onChangeCommitted={(event, newValue) => setValueThrottled(newValue)}
+        sx={{
           "& .MuiSlider-track": {
             backgroundColor: bar_color,
             borderColor: bar_color
           },
-	  "& .MuiSlider-rail": {
+          "& .MuiSlider-rail": {
             backgroundColor: bar_color,
           },
-	}}
+        }}
       />
     </Box>
   )
