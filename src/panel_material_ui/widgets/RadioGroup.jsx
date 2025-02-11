@@ -9,7 +9,7 @@ export function render({model}) {
   const [color] = model.useState("color");
   const [options] = model.useState("options");
   const [label] = model.useState("label");
-  const [orientation] = model.useState("orientation");
+  const [inline] = model.useState("inline");
   const [value, setValue] = model.useState("value");
   const exclusive = model.esm_constants.exclusive
   return (
@@ -18,7 +18,7 @@ export function render({model}) {
       <RadioGroup
         aria-labelledby="radio-buttons-group-label"
         value={value}
-        row={orientation === "horizontal" ? true : false}
+        row={inline}
       >
         {options.map((option, index) => {
           return (
@@ -26,7 +26,7 @@ export function render({model}) {
               key={option}
               value={option}
               label={option}
-              labelPlacement={(orientation === "horizontal") ? "bottom" : "right"}
+              labelPlacement={inline ? "bottom" : "right"}
               control={
                 <Radio
                   checked={exclusive ? (value==option) : value.includes(option)}

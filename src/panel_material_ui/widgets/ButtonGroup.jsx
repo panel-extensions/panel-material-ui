@@ -1,5 +1,6 @@
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
+import Tooltip from "@mui/material/Tooltip";
 
 export function render({model}) {
   const [color] = model.useState("color")

@@ -9,6 +9,7 @@ export function render({model, el}) {
   const [label] = model.useState("label");
   const [variant] = model.useState("variant");
   const [disabled] = model.useState("disabled");
+  const [disabled_options] = model.useState("disabled_options");
   return (
     <FormControl fullWidth disabled={disabled}>
       {label && <InputLabel>{label}</InputLabel>}
@@ -23,7 +24,13 @@ export function render({model, el}) {
         onChange={(event) => setValue(event.target.value)}
       >
         {options.map((option, index) => (
-          <MenuItem key={index} value={option}>{option}</MenuItem>
+          <MenuItem
+            key={index}
+            value={option}
+            disabled={disabled_options?.includes(option)}
+          >
+            {option}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>

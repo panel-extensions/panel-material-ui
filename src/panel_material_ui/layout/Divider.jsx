@@ -10,7 +10,7 @@ export function render({model}) {
       orientation={orientation}
       variant={variant}
     >
-      {objects}
+      {objects.length > 0 ? objects : null}
     </Divider>
   );
 }

@@ -103,31 +103,31 @@ def test_radio_box_group_color(page, color):
     expect(page.locator(f".MuiRadio-color{color.capitalize()}")).to_have_count(len(widget.options))
 
 
-@pytest.mark.parametrize('orientation', ["horizontal", "vertical"])
-def test_radio_box_group_orientation(page, orientation):
-    widget = RadioBoxGroup(name='RadioBoxGroup test', options=["Option 1", "Option 2", "Option 3"], orientation=orientation)
+@pytest.mark.parametrize('inline', [True, False])
+def test_radio_box_group_orientation(page, inline):
+    widget = RadioBoxGroup(name='RadioBoxGroup test', options=["Option 1", "Option 2", "Option 3"], inline=inline)
     serve_component(page, widget)
 
     expect(page.locator(".radio-box-group")).to_have_count(1)
-    if orientation == "horizontal":
+    if inline:
         rbg_orient = page.locator(".MuiRadioGroup-row")
         expect(rbg_orient).to_have_count(1)
 
 
-@pytest.mark.parametrize('color', ["primary", "secondary", "error", "info", "success", "warning"])
-def test_radio_button_group_color(page, color):
+@pytest.mark.parametrize('button_type', ["primary", "secondary", "error", "info", "success", "warning"])
+def test_radio_button_group_color(page, button_type):
     widget = RadioButtonGroup(
         name='RadioButtonGroup test',
         options=["Option 1", "Option 2", "Option 3"],
-        color=color
+        button_type=button_type
     )
     serve_component(page, widget)
 
     expect(page.locator(".radio-button-group")).to_have_count(1)
-    if color == "error":
-        option_color = page.locator(f".Mui-{color}")
+    if button_type == "error":
+        option_color = page.locator(f".Mui-{button_type}")
     else:
-        option_color = page.locator(f".MuiToggleButton-{color}")
+        option_color = page.locator(f".MuiToggleButton-{button_type}")
     expect(option_color).to_have_count(len(widget.options))
 
 
@@ -157,21 +157,21 @@ def test_radio_button_group_size(page, size):
     expect(page.locator(f".MuiToggleButton-size{size.capitalize()}")).to_have_count(len(widget.options))
 
 
-@pytest.mark.parametrize('color', ["primary", "secondary", "error", "info", "success", "warning"])
-def test_check_button_group_color(page, color):
+@pytest.mark.parametrize('button_type', ["primary", "secondary", "error", "info", "success", "warning"])
+def test_check_button_group_color(page, button_type):
     widget = CheckButtonGroup(
         name='CheckButtonGroup test',
         value=[],
         options=["Option 1", "Option 2", "Option 3"],
-        color=color
+        button_type=button_type
     )
     serve_component(page, widget)
 
     expect(page.locator(".check-button-group")).to_have_count(1)
-    if color == "error":
-        option_color = page.locator(f".Mui-{color}")
+    if button_type == "error":
+        option_color = page.locator(f".Mui-{button_type}")
     else:
-        option_color = page.locator(f".MuiToggleButton-{color}")
+        option_color = page.locator(f".MuiToggleButton-{button_type}")
     expect(option_color).to_have_count(len(widget.options))
 
 
