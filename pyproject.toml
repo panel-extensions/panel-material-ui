@@ -38,13 +38,14 @@ Source = "https://github.com/panel-extensions/panel-material-ui"
 
 [project.optional-dependencies]
 dev = [
-  'watchfiles',
-  'mkdocs-material',
-  'mkdocstrings[python]',
-  'pytest',
-  'pytest-asyncio',
-  'pytest-rerunfailures',
-  'pytest-xdist',
+  "mkdocs-material",
+  "mkdocstrings[python]",
+  "pre-commit",
+  "pytest-asyncio",
+  "pytest-rerunfailures",
+  "pytest-xdist",
+  "pytest",
+  "watchfiles",
 ]
 mypy = ["mypy", "types-requests", "typing-extensions"]
 
