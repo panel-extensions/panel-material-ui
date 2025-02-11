@@ -157,7 +157,7 @@ jobs:
       - name: Install and compile panel-material-ui
         run: |
           pixi run -e ${{ matrix.environment }} postinstall
-	  pixi run compile
+          pixi run compile
 
       - name: Verify Pixi Installation
         run: pixi --version
