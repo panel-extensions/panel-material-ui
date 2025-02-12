@@ -17,8 +17,6 @@ setuptools = ">=61"
 setuptools-scm = "*"
 hatchling = "*"
 hatch-vcs = "*"
-
-[feature.compile.dependencies]
 nodejs = ">=18"
 esbuild = "*"
 
