@@ -1,15 +1,22 @@
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.util import edit_readonly
+from panel.widgets.slider import _SliderBase
 from param.parameterized import resolve_value
 
 from ..base import COLORS
 from .base import MaterialWidget
 
 
-class _ContinuousSlider(MaterialWidget):
+class _ContinuousSlider(MaterialWidget, _SliderBase):
+
+    bar_color = param.Color(default=None, doc="Color of the bar")
 
     color = param.Selector(objects=COLORS, default="primary")
+
+    direction = param.Selector(default='ltr', objects=['ltr', 'rtl'], doc="""
+        Whether the slider should go from left-to-right ('ltr') or
+        right-to-left ('rtl').""")
 
     start = param.Number(default=0)
 
@@ -20,15 +27,15 @@ class _ContinuousSlider(MaterialWidget):
 
     step = param.Number(default=1)
 
-    orientation = param.Selector(objects=["horizontal", "vertical"], default="horizontal")
-
-    tooltips = param.Boolean(default=True)
-
     track = param.Selector(objects=["normal", "inverted", False], default="normal")
 
     value = param.Number(default=0)
 
-    _esm = "Slider.jsx"
+    value_throttled = param.Number(default=0, constant=True)
+
+    _esm_base = "Slider.jsx"
+
+    _rename = {"name": "name"}
 
     __abstract = True
 
@@ -46,11 +53,6 @@ class IntSlider(_ContinuousSlider):
     The IntSlider widget allows selecting an integer value within a
     set of bounds using a slider.
 
-    Some missing and extra features (if any) when comparing with the corresponding
-    panel IntSlider widget [panel.widgets.IntSlider](https://panel.holoviz.org/reference/widgets/IntSlider.html):
-    - Missing features: bar_color, direction, format, show_value, value_throttled
-    - Extra features: color, description, label, on_event, on_msg, theme, track
-
     :Example:
 
     >>> IntSlider(value=5, start=0, end=10, step=1, name="Integer Value")
@@ -60,18 +62,17 @@ class IntSlider(_ContinuousSlider):
 
     start = param.Integer(default=1)
 
-    step = param.Integer(default=1)
+    step = param.Integer(default=1, readonly=True)
+
+    value = param.Integer(default=0)
+
+    value_throttled = param.Integer(default=0, constant=True)
 
 
 class FloatSlider(_ContinuousSlider):
     """
     The FloatSlider widget allows selecting a floating-point value
     within a set of bounds using a slider.
-
-    Some missing and extra features (if any) when comparing with the corresponding
-    panel IntSlider widget [panel.widgets.FloatSlider](https://panel.holoviz.org/reference/widgets/FloatSlider.html):
-    - Missing features: bar_color, direction, format, show_value, value_throttled
-    - Extra features: color, description, label, on_event, on_msg, theme, track
 
     :Example:
 
@@ -82,7 +83,10 @@ class FloatSlider(_ContinuousSlider):
 
 
 class _RangeSliderBase(_ContinuousSlider):
+
     value = param.Range(default=(0, 100))
+
+    value_throttled = param.Range(default=(0, 100), readonly=True)
 
     value_start = param.Parameter(readonly=True, doc="""The lower value of the selected range.""")
 
@@ -111,11 +115,6 @@ class RangeSlider(_RangeSliderBase):
     The RangeSlider widget allows selecting a floating-point range
     using a slider with two handles.
 
-    Some missing and extra features (if any) when comparing with the corresponding
-    panel IntSlider widget [panel.widgets.RangeSlider](https://panel.holoviz.org/reference/widgets/RangeSlider.html):
-    - Missing features: bar_color, direction, format, show_value, value_throttled
-    - Extra features: color, description, label, on_event, on_msg, theme, track
-
     :Example:
 
     >>> RangeSlider(
@@ -128,11 +127,6 @@ class IntRangeSlider(_RangeSliderBase):
     """
     The IntRangeSlider widget allows selecting an integer range using
     a slider with two handles.
-
-    Some missing and extra features (if any) when comparing with the corresponding
-    panel IntSlider widget [panel.widgets.IntRangeSlider](https://panel.holoviz.org/reference/widgets/IntRangeSlider.html):
-    - Missing features: bar_color, direction, format, show_value, value_throttled
-    - Extra features: color, description, label, on_event, on_msg, theme, track
 
     :Example:
 
@@ -169,7 +163,7 @@ class Rating(MaterialWidget):
 
     value = param.Number(default=0, allow_None=True, bounds=(0, 5))
 
-    _esm = "Rating.jsx"
+    _esm_base = "Rating.jsx"
 
     @param.depends("end", watch=True, on_init=True)
     def _update_value_bounds(self):

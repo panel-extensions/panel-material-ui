@@ -3,17 +3,20 @@ import Slider from "@mui/material/Slider"
 import Typography from "@mui/material/Typography"
 
 export function render({model}) {
+  const [bar_color] = model.useState("bar_color")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [end] = model.useState("end")
   const [format] = model.useState("format")
   const [label] = model.useState("label")
   const [orientation] = model.useState("orientation")
+  const [show_value] = model.useState("show_value")
   const [start] = model.useState("start")
   const [step] = model.useState("step")
   const [tooltips] = model.useState("tooltips")
   const [track] = model.useState("track")
   const [value, setValue] = model.useState("value")
+  const [value_throttled, setValueThrottled] = model.useState("value_throttled")
 
   const [value_label, setValueLabel] = React.useState()
 
@@ -33,9 +36,11 @@ export function render({model}) {
     <Box sx={{height: "100%"}}>
       <Typography variant="body1">
         {label && `${label}: `}
-        <strong>
-          {value_label}
-        </strong>
+        { show_value &&
+          <strong>
+            {value_label}
+          </strong>
+        }
       </Typography>
       <Slider
         value={value}
@@ -48,6 +53,16 @@ export function render({model}) {
         orientation={orientation}
         valueLabelDisplay={tooltips ? "auto" : "off"}
         onChange={(event, newValue) => setValue(newValue)}
+        onChangeCommitted={(event, newValue) => setValueThrottled(newValue)}
+        sx={{
+          "& .MuiSlider-track": {
+            backgroundColor: bar_color,
+            borderColor: bar_color
+          },
+          "& .MuiSlider-rail": {
+            backgroundColor: bar_color,
+          },
+        }}
       />
     </Box>
   )

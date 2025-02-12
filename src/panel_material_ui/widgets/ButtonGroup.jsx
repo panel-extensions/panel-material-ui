@@ -2,10 +2,9 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import Tooltip from "@mui/material/Tooltip";
 
-export function render({model, el}) {
-  const [color] = model.useState("button_type")
-  const [description] = model.useState("description")
-  const [description_delay] = model.useState("description_delay")
+export function render({model}) {
+  const [color] = model.useState("color")
+  const [variant] = model.useState("button_style")
   const [size] = model.useState("size")
   const [orientation] = model.useState("orientation")
   const [disabled] = model.useState("disabled")
@@ -13,7 +12,7 @@ export function render({model, el}) {
   const [options] = model.useState("options")
   const [value, setValue] = model.useState("value")
   const exclusive = model.esm_constants.exclusive
-  const button_group = (
+  return (
     <ToggleButtonGroup
       disabled={disabled}
       orientation={orientation}
@@ -27,6 +26,7 @@ export function render({model, el}) {
             aria-label={option}
             key={option}
             value={option}
+            variant={variant}
             selected={exclusive ? (value==option) : value.includes(option)}
             onClick={(e) => {
               let newValue
@@ -46,18 +46,5 @@ export function render({model, el}) {
         )
       })}
     </ToggleButtonGroup>
-  )
-  return (description ? (
-    <Tooltip
-      title={description}
-      enterDelay={description_delay}
-      arrow
-      placement="right"
-      PopperProps={{
-        container: el
-      }}
-    >
-      {button_group}
-    </Tooltip>) : button_group
   )
 }

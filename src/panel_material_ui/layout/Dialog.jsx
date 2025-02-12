@@ -8,12 +8,8 @@ export function render({model, view}) {
   const [title] = model.useState("title");
   const objects = model.get_child("objects");
 
-  model.on("after_render", () => {
-    document.head.append(...view.style_cache.children)
-  })
-
   return (
-    <Dialog open={open} fullScreen={full_screen}>
+    <Dialog open={open} fullScreen={full_screen} container={view.container}>
       <DialogTitle>
         {title}
       </DialogTitle>

@@ -62,7 +62,6 @@ export function render({model}) {
   const [multiple] = model.useState("multiple")
   const [label] = model.useState("label")
   const [variant] = model.useState("button_style")
-  const [theme] = model.useState("theme")
 
   return (
     <Button

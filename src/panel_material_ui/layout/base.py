@@ -23,14 +23,16 @@ class MaterialListLike(MaterialComponent, ListLike):
 
 
 class MaterialNamedListLike(MaterialComponent, NamedListLike):
+
     __abstract = True
+
 
 
 class Paper(MaterialListLike):
     """
     Paper implements a container for displaying content on an elevated surface.
 
-    Reference to the equivalent Material UI Paper component:
+    Reference to the Material UI Paper component:
     https://mui.com/material-ui/react-paper/
 
     :Example:
@@ -39,28 +41,13 @@ class Paper(MaterialListLike):
 
     elevation = param.Integer(default=1, bounds=(0, None))
 
-    _esm = "Paper.jsx"
+    _esm_base = "Paper.jsx"
 
 
 class Card(MaterialListLike):
     """
     A `Card` layout allows arranging multiple panel objects in a
     collapsible, vertical container with a header bar.
-
-    Some missing features (if any) when comparing with the corresponding
-    Panel Card layout [panel.Card](https://panel.holoviz.org/reference/layouts/Card.html):
-    - active_header_background
-    - auto_scroll_limit
-    - button_css_classes
-    - header_background
-    - header_color
-    - header_css_classes
-    - hide_header
-    - scroll
-    - scroll_button_threshold
-    - scroll_position
-    - title_css_classes
-    - view_latest
 
     :Example:
 
@@ -101,7 +88,7 @@ class Card(MaterialListLike):
 
     outlined = param.Boolean(default=False)
 
-    _esm = "Card.jsx"
+    _esm_base = "Card.jsx"
 
     def select(self, selector: type | Callable[[Viewable], bool] | None = None) -> list[Viewable]:
         return ([] if self.header is None else self.header.select(selector)) + super().select(selector)
@@ -123,6 +110,9 @@ class Accordion(MaterialNamedListLike):
     Panel Accordion layout [panel.Accordion](https://panel.holoviz.org/reference/layouts/Accordion.html):
     `active_header_background`, `header_background`, `header_color`, `scroll`
 
+    Reference to the Material UI Accordion component:
+    https://mui.com/material-ui/react-accordion/
+
     :Example:
 
     >>> Accordion(("Card 1", "Card 1 objects"), ("Card 2", "Card 2 objects"))
@@ -142,7 +132,7 @@ class Accordion(MaterialNamedListLike):
 
     _names = param.List(default=[])
 
-    _esm = "Accordion.jsx"
+    _esm_base = "Accordion.jsx"
 
     def __init__(self, *objects, **params):
         if "objects" not in params:
@@ -165,6 +155,9 @@ class Tabs(MaterialNamedListLike):
     Missing features (if any) when comparing with the corresponding
     Panel Tabs layout [panel.Tabs](https://panel.holoviz.org/reference/layouts/Tabs.html):
     `closable`, `scroll`.
+
+    Reference to the Material UI Accordion component:
+    https://mui.com/material-ui/react-tabs/
 
     :Example:
 
@@ -191,7 +184,7 @@ class Tabs(MaterialNamedListLike):
 
     _names = param.List(default=[])
 
-    _esm = "Tabs.jsx"
+    _esm_base = "Tabs.jsx"
 
     def __init__(self, *objects, **params):
         if "objects" not in params:
@@ -233,7 +226,7 @@ class Divider(MaterialListLike):
 
     variant = param.Selector(default="fullWidth", objects=["fullWidth", "inset", "middle"])
 
-    _esm = "Divider.jsx"
+    _esm_base = "Divider.jsx"
 
 
 class Alert(MaterialListLike):
@@ -250,7 +243,7 @@ class Alert(MaterialListLike):
 
     variant = param.Selector(default="filled", objects=["filled", "outlined"])
 
-    _esm = "Alert.jsx"
+    _esm_base = "Alert.jsx"
 
 
 class Backdrop(MaterialListLike):
@@ -262,7 +255,7 @@ class Backdrop(MaterialListLike):
     Reference to the corresponding Material UI `Backdrop`:
     https://mui.com/material-ui/react-backdrop/
 
-    Example:
+    :Example:
     >>> close = Button(on_click=lambda _: backdrop.param.update(open=False), label='Close')  # type: ignore
     >>> backdrop = Backdrop(LoadingIndicator(), close)
     >>> button = Button(on_click=lambda _: backdrop.param.update(open=True), label=f'Open {Backdrop.name}')
@@ -271,7 +264,7 @@ class Backdrop(MaterialListLike):
 
     open = param.Boolean(default=False)
 
-    _esm = "Backdrop.jsx"
+    _esm_base = "Backdrop.jsx"
 
 
 class Dialog(MaterialListLike):
@@ -283,7 +276,7 @@ class Dialog(MaterialListLike):
     Reference to the corresponding Material UI `Dialog`:
     https://mui.com/material-ui/react-dialog/
 
-    Example:
+    :Example:
     >>> close = Button(on_click=lambda _: dialog.param.update(open=False), label='Close')  # type: ignore
     >>> dialog = Dialog("This is a modal", close)
     >>> button = Button(on_click=lambda _: dialog.param.update(open=True), label=f'Open {Dialog.name}')
@@ -296,4 +289,4 @@ class Dialog(MaterialListLike):
 
     title = param.String(default="")
 
-    _esm = "Dialog.jsx"
+    _esm_base = "Dialog.jsx"

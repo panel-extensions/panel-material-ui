@@ -40,19 +40,21 @@ export function render({model, el}) {
       filterOptions={filt_func}
       variant={variant}
       PopperComponent={CustomPopper}
-      renderInput={(params) => <TextField
-        {...params}
-        variant={variant}
-        label={label}
-        placeholder={placeholder}
-        onChange={(event) => setValueInput(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            model.send_event("enter", event)
-            setValue(value_input)
-          }
-        }}
-      />}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          variant={variant}
+          label={label}
+          placeholder={placeholder}
+          onChange={(event) => setValueInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              model.send_event("enter", event)
+              setValue(value_input)
+            }
+          }}
+        />
+      )}
     />
   )
 }

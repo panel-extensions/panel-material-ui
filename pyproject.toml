@@ -1,9 +1,12 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs", "panel>=1.5.4", "packaging"]
+requires = ["hatchling", "hatch-vcs", "panel>=1.6.1a1", "packaging"]
 build-backend = "hatchling.build"
 
 [tool.setuptools_scm]
 version_scheme = "post-release"
+
+[tool.hatch.build.hooks.custom]
+path = 'hatch_build.py'
 
 [project]
 name = "panel-material-ui"
@@ -29,8 +32,7 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development :: Libraries",
 ]
-
-dependencies = ['panel >=1.5.4', 'packaging']
+dependencies = ['panel >=1.6.1a1', 'packaging']
 
 [project.urls]
 Homepage = "https://github.com/panel-extensions/panel-material-ui"

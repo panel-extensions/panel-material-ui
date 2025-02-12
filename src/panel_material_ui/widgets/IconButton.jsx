@@ -1,12 +1,8 @@
 import IconButton from "@mui/material/IconButton";
-import Icon from "@mui/material/Icon";
-import Tooltip from "@mui/material/Tooltip";
 
 export function render({model, el}) {
   const [active_icon] = model.useState("active_icon")
   const [color] = model.useState("button_type")
-  const [description] = model.useState("description")
-  const [description_delay] = model.useState("description_delay")
   const [disabled] = model.useState("disabled")
   const [edge] = model.useState("edge")
   const [icon] = model.useState("icon")
@@ -22,7 +18,7 @@ export function render({model, el}) {
     }
   }
 
-  const button = (
+  return (
     <IconButton
       color={color}
       disabled={disabled}
@@ -32,19 +28,5 @@ export function render({model, el}) {
     >
       <Icon style={{fontSize: size}}>{current_icon}</Icon>
     </IconButton>
-  )
-
-  return (description ? (
-    <Tooltip
-      title={description}
-      enterDelay={description_delay}
-      arrow
-      placement="right"
-      PopperProps={{
-        container: el
-      }}
-    >
-      {button}
-    </Tooltip>) : button
   )
 }

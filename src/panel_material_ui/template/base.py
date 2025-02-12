@@ -1,22 +1,33 @@
 import param
+from panel.viewable import Children
 
-from ..base import COLORS
-from ..layout.base import MaterialListLike
+from ..base import MaterialComponent
 
 
-class AppBar(MaterialListLike):
+class Page(MaterialComponent):
     """
-    AppBar
+    The `Page` component is the equivalent of a `Template` in Panel.
+
+    Unlike a `Template` the `Page` component is implemented entirely
+    in Javascript, making it possible to dynamically update components.
+
+    :Example:
+
+    >>> Page(main=['# Content'], title='My App')
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    header = Children(doc="Items rendered in the header.")
 
-    logo = param.String(default=None)
+    main = Children(doc="Items rendered in the main area.")
 
-    title = param.String(default="")
+    sidebar = Children(doc="Items rendered in the sidebar.")
 
-    position = param.Selector(default="static", objects=["fixed", "static", "sticky"])
+    sidebar_open = param.Boolean(default=True, doc="Whether the sidebar is open or closed.")
 
-    _esm = "AppBar.jsx"
+    sidebar_variant = param.Selector(default="persistent", objects=["persistent", "drawer"])
 
-    _stylesheets = ["https://fonts.googleapis.com/icon?family=Material+Icons"]
+    sidebar_width = param.Integer(default=250, doc="Width of the sidebar")
+
+    title = param.String(doc="Title of the application.")
+
+    _esm_base = "Page.jsx"

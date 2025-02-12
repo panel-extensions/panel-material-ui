@@ -22,7 +22,9 @@ class LoadingIndicator(MaterialWidget):
 
     variant = param.Selector(default="indeterminate", objects=["determinate", "indeterminate"])
 
-    _esm = "CircularProgress.jsx"
+    width = param.Integer(default=None)
+
+    _esm_base = "CircularProgress.jsx"
 
 
 class Progress(MaterialWidget):
@@ -45,4 +47,4 @@ class Progress(MaterialWidget):
 
     variant = param.Selector(default="determinate", objects=["determinate", "indeterminate", "buffer", "query"])
 
-    _esm = "LinearProgress.jsx"
+    _esm_base = "LinearProgress.jsx"
