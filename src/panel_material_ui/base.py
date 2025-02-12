@@ -169,7 +169,7 @@ class MaterialComponent(ReactComponent):
         esm_path = cls._esm_path(compiled=True)
         css_path = esm_path.with_suffix('.css')
         if css_path.is_file():
-            return [str(css_path)] + [str(p) for p in BASE_PATH.glob('material-icons-*.woff*')]
+            return [str(css_path)] + [str(p) for p in (BASE_PATH / 'dist').glob('material-icons-*.woff*')]
         return []
 
     @classmethod
