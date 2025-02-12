@@ -26,7 +26,7 @@ jobs:
       - name: Check package
         run: pixi run -e build check-wheel
       - name: Upload package
-        uses: actions/upload-artifact@4
+        uses: actions/upload-artifact@v4
         with:
           name: pip
           path: dist/*
