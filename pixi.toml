@@ -20,6 +20,10 @@ hatch-vcs = "*"
 nodejs = ">=18"
 esbuild = "*"
 
+[feature.compile.dependencies]
+nodejs = ">=18"
+esbuild = "*"
+
 [feature.compile.tasks]
 compile = "panel compile panel_material_ui --file-loader woff woff2"
 compile-develop = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch"
