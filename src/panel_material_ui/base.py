@@ -8,13 +8,15 @@ from typing import Literal
 import param
 from panel.config import config
 from panel.custom import ReactComponent
-from panel.util import classproperty
+from panel.util import base_version, classproperty
 
+from .__version import __version__  # noqa
 from .theme import MaterialDesign
 
 COLORS = ["primary", "secondary", "error", "info", "success", "warning"]
 
 BASE_PATH = pathlib.Path(__file__).parent
+CDN_DIST = "https://cdn.holoviz.org/panel-material-ui/{__version__}/panel-material-ui.bundle.js"
 
 
 class ESMTransform:
@@ -126,7 +128,7 @@ class MaterialComponent(ReactComponent):
 
     theme_config = param.Dict(default=None, nested_refs=True, doc="Options to configure the ThemeProvider")
 
-    _bundle = BASE_PATH / "dist" /"panel-material-ui.bundle.js"
+    _bundle = BASE_PATH / "dist" / "panel-material-ui.bundle.js"
     _esm_base = None
     _esm_transforms = [ThemedTransform]
     _importmap = {
@@ -188,7 +190,10 @@ class MaterialComponent(ReactComponent):
     @classmethod
     def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
         if compiled != 'compiling':
-            return super()._render_esm(compiled=compiled, server=server)
+            if compiled and __version__ == base_version(__version__):
+                return CDN_DIST
+            else:
+                return super()._render_esm(compiled=True, server=server)
         elif cls._esm_base is None:
             return None
         return cls._render_esm_base()
