@@ -16,7 +16,7 @@ from .theme import MaterialDesign
 COLORS = ["primary", "secondary", "error", "info", "success", "warning"]
 
 BASE_PATH = pathlib.Path(__file__).parent
-CDN_DIST = "https://cdn.holoviz.org/panel-material-ui/{__version__}/panel-material-ui.bundle.js"
+CDN_DIST = "https://cdn.holoviz.org/panel-material-ui/v{__version__}/panel-material-ui.bundle.js"
 
 
 class ESMTransform:
