@@ -252,9 +252,7 @@ class ButtonGroup(MaterialWidget):
 
     button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
 
-    button_type = param.Selector(objects=COLORS, default="primary")
-
-    color = param.Selector(default="primary", objects=COLORS)
+    button_type = param.Selector(objects=COLORS+["standard"], default="standard")
 
     disableElevation = param.Boolean(default=False)
 

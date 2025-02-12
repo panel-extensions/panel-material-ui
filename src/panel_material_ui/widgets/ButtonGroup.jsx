@@ -3,7 +3,7 @@ import ToggleButton from "@mui/material/ToggleButton"
 import Tooltip from "@mui/material/Tooltip";
 
 export function render({model}) {
-  const [color] = model.useState("color")
+  const [color] = model.useState("button_type")
   const [variant] = model.useState("button_style")
   const [size] = model.useState("size")
   const [orientation] = model.useState("orientation")
@@ -14,19 +14,19 @@ export function render({model}) {
   const exclusive = model.esm_constants.exclusive
   return (
     <ToggleButtonGroup
+      color={color}
       disabled={disabled}
       orientation={orientation}
       value={value}
+      variant={variant}
     >
       {options.map((option, index) => {
         return (
           <ToggleButton
-            color={color}
             size={size}
             aria-label={option}
             key={option}
             value={option}
-            variant={variant}
             selected={exclusive ? (value==option) : value.includes(option)}
             onClick={(e) => {
               let newValue

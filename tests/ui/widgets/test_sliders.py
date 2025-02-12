@@ -11,7 +11,7 @@ pytestmark = pytest.mark.ui
 
 
 def test_int_slider(page):
-    widget = IntSlider(value=5, start=0, end=10, step=1)
+    widget = IntSlider(value=5, start=0, end=10)
     serve_component(page, widget)
 
     slider = page.locator('.int-slider')
@@ -22,7 +22,7 @@ def test_int_slider(page):
 
 
 def test_slider_value_update(page):
-    widget = IntSlider(value=5, start=0, end=10, step=1)
+    widget = IntSlider(value=5, start=0, end=10)
     serve_component(page, widget)
     slider_value = page.locator('.MuiTypography-root')
 
@@ -33,7 +33,7 @@ def test_slider_value_update(page):
 
 @pytest.mark.parametrize('color', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
 def test_slider_color(page, color):
-    widget = IntSlider(value=5, start=0, end=10, step=1, color=color)
+    widget = IntSlider(value=5, start=0, end=10, color=color)
     serve_component(page, widget)
 
     expect(page.locator(f'.MuiSlider-color{color.capitalize()}')).to_have_count(1)
@@ -41,13 +41,13 @@ def test_slider_color(page, color):
 
 @pytest.mark.parametrize('track', ["inverted", False])
 def test_slider_track(page, track):
-    widget = IntSlider(value=5, start=0, end=10, step=1, track=track)
+    widget = IntSlider(value=5, start=0, end=10, track=track)
     serve_component(page, widget)
     expect(page.locator(f'.MuiSlider-track{str(track).capitalize()}')).to_have_count(1)
 
 
 def test_slider_vertical_orientation(page):
-    widget = IntSlider(value=5, start=0, end=10, step=1, orientation='vertical')
+    widget = IntSlider(value=5, start=0, end=10, orientation='vertical')
 
     serve_component(page, widget)
 
@@ -56,7 +56,7 @@ def test_slider_vertical_orientation(page):
 
 
 def test_slider_format_str(page):
-    widget = IntSlider(value=1101, start=0, end=2000, format='0a', step=1)
+    widget = IntSlider(value=1101, start=0, end=2000, format='0a')
 
     serve_component(page, widget)
 
@@ -68,7 +68,7 @@ def test_slider_format_str(page):
 
 
 def test_slider_format_model(page):
-    widget = IntSlider(value=1, start=0, end=10, format=PrintfTickFormatter(format='%d m'), step=1)
+    widget = IntSlider(value=1, start=0, end=10, format=PrintfTickFormatter(format='%d m'))
 
     serve_component(page, widget)
 
