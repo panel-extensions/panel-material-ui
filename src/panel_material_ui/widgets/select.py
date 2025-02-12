@@ -236,6 +236,13 @@ class CheckBoxGroup(RadioGroup, MaterialMultiSelectBase):
     ... )
     """
 
+    orientation = param.Selector(
+        default="horizontal",
+        objects=["horizontal", "vertical"],
+        doc="""
+        Button group orientation, either 'horizontal' (default) or 'vertical'.""",
+    )
+
     value = param.List(default=None, allow_None=True)
 
     _constants = {"exclusive": False}

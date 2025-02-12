@@ -52,7 +52,7 @@ export function render({model, el}) {
               model.send_event("enter", event)
               setValue(value_input)
             }
-	  }}
+          }}
         />
       )}
     />
