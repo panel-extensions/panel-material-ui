@@ -126,7 +126,7 @@ class MaterialComponent(ReactComponent):
 
     theme_config = param.Dict(default=None, nested_refs=True, doc="Options to configure the ThemeProvider")
 
-    _bundle = BASE_PATH / "panel-material-ui.bundle.js"
+    _bundle = BASE_PATH / "dist" /"panel-material-ui.bundle.js"
     _esm_base = None
     _esm_transforms = [ThemedTransform]
     _importmap = {
