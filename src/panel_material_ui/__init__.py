@@ -1,3 +1,4 @@
+from .__version import __version__  # noqa
 from .layout import *  # noqa
 from .pane import *  # noqa
 from .template import *  # noqa
