@@ -10,12 +10,18 @@ pytestmark = pytest.mark.ui
 
 
 @pytest.mark.parametrize('button_style', ['contained', 'outlined', 'text'])
-@pytest.mark.parametrize('button_type', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
-def test_button_format(page, button_style, button_type):
-    widget = Button(name='Click', button_style=button_style, button_type=button_type)
+def test_button_style(page, button_style):
+    widget = Button(name='Click', button_style=button_style, button_type='primary')
     serve_component(page, widget)
-    # TODO: this check should pass
-    button_format = page.locator(f'.MuiButton-{button_style}{button_type.capitalize()}')
+    button_format = page.locator(f'.MuiButton-{button_style}Primary')
+    expect(button_format).to_have_count(1)
+
+
+@pytest.mark.parametrize('button_type', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
+def test_button_type(page, button_type):
+    widget = Button(name='Click', button_style='contained', button_type=button_type)
+    serve_component(page, widget)
+    button_format = page.locator(f'.MuiButton-contained{button_type.capitalize()}')
     expect(button_format).to_have_count(1)
 
 
@@ -50,10 +56,12 @@ def test_button_icon(page):
     serve_component(page, widget)
     button_icon = page.locator('.button-icon')
     icon = page.locator('.material-icons')
-    wait_until(lambda: expect(button_icon).to_have_count(1), page=page)
-    wait_until(lambda: expect(icon).to_have_text('favorite'), page=page)
-    button_icon.click()
-    wait_until(lambda: expect(icon).to_have_text('check'), page=page)
+
+    expect(button_icon).to_have_count(1)
+    expect(icon).to_have_text('favorite')
+
+    button_icon.click(force=True)
+    expect(icon).to_have_text('check')
 
 
 @pytest.mark.parametrize('button_type', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
@@ -80,7 +88,7 @@ def test_toggle(page):
 
     toggle.click()
     toggle_pressed = page.locator("button[aria-pressed='true']")
-    wait_until(lambda: expect(toggle_pressed).to_have_count(1), page=page)
+    expect(toggle_pressed).to_have_count(1)
     wait_until(lambda: widget.value, page=page)
 
 

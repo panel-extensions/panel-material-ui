@@ -50,10 +50,9 @@ def test_accordion_active(page):
     expect(expanded_cards).to_have_count(1)
     expanded_cards.wait_for(timeout=5000)
     assert layout.active == [0]
-
     # set `active`, the cards expanded accordingly
     layout.active = [0, 1]
-    expect(page.locator('.Mui-expanded')).to_have_count(2)
+    expect(page.locator('.MuiAccordionSummary-root.Mui-expanded')).to_have_count(2)
 
 
 def test_tabs(page):

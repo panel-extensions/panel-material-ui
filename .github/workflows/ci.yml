@@ -22,7 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         if: github.event_name != 'pull_request'
-
       - name: Check for code changes
         uses: dorny/paths-filter@v3
         id: filter
@@ -32,7 +31,6 @@ jobs:
               - 'src/**'
               - 'pyproject.toml'
               - '.github/workflows/ci.yaml'
-
       - name: Set matrix option
         run: |
           if [[ '${{ github.event_name }}' == 'workflow_dispatch' ]]; then
@@ -45,7 +43,6 @@ jobs:
             OPTION="default"
           fi
           echo "MATRIX_OPTION=$OPTION" >> $GITHUB_ENV
-
       - name: Set test matrix with 'default' option
         if: env.MATRIX_OPTION == 'default'
         run: |
@@ -54,7 +51,6 @@ jobs:
               "environment": ["test-310", "test-312"],
           }')
           echo "MATRIX=$MATRIX" >> $GITHUB_ENV
-
       - name: Set test matrix with 'full' option
         if: env.MATRIX_OPTION == 'full'
         run: |
@@ -63,7 +59,6 @@ jobs:
               "environment": ["test-310", "test-311", "test-312"]
           }')
           echo "MATRIX=$MATRIX" >> $GITHUB_ENV
-
       - name: Set test matrix with 'downstream' option
         if: env.MATRIX_OPTION == 'downstream'
         run: |
@@ -72,7 +67,6 @@ jobs:
               "environment": ["test-311"]
           }')
           echo "MATRIX=$MATRIX" >> $GITHUB_ENV
-
   pixi_lock:
     name: Pixi lock
     runs-on: ubuntu-latest
@@ -80,7 +74,6 @@ jobs:
       - uses: holoviz-dev/holoviz_tasks/pixi_lock@v0
         with:
           cache: ${{ github.event.inputs.cache == 'true' || github.event.inputs.cache == '' }}
-
   pre-commit:
     timeout-minutes: 30
     runs-on: ubuntu-latest
@@ -93,7 +86,6 @@ jobs:
           environments: default lint
       - name: pre-commit
         run: pixi run pre-commit-run --color=always --show-diff-on-failure
-
   pytest:
     timeout-minutes: 30
     runs-on: ubuntu-latest
