@@ -53,9 +53,11 @@ class IntSlider(_ContinuousSlider):
     The IntSlider widget allows selecting an integer value within a
     set of bounds using a slider.
 
+    Reference: https://panel.holoviz.org/reference/widgets/IntSlider.html
+
     :Example:
 
-    >>> IntSlider(value=5, start=0, end=10, step=1, name="Integer Value")
+    >>> IntSlider(value=5, start=0, end=10, step=1, label="Integer Value")
     """
 
     end = param.Integer(default=1)
@@ -74,9 +76,11 @@ class FloatSlider(_ContinuousSlider):
     The FloatSlider widget allows selecting a floating-point value
     within a set of bounds using a slider.
 
+    Reference: https://panel.holoviz.org/reference/widgets/FloatSlider.html
+
     :Example:
 
-    >>> FloatSlider(value=0.5, start=0.0, end=1.0, step=0.1, name="Float value")
+    >>> FloatSlider(value=0.5, start=0.0, end=1.0, step=0.1, label="Float value")
     """
 
     step = param.Number(default=0.1, doc="The step size.")
@@ -115,10 +119,12 @@ class RangeSlider(_RangeSliderBase):
     The RangeSlider widget allows selecting a floating-point range
     using a slider with two handles.
 
+    Reference: https://panel.holoviz.org/reference/widgets/RangeSlider.html
+
     :Example:
 
     >>> RangeSlider(
-    ...     value=(1.0, 1.5), start=0.0, end=2.0, step=0.25, name="A tuple of floats"
+    ...     value=(1.0, 1.5), start=0.0, end=2.0, step=0.25, label="A tuple of floats"
     ... )
     """
 
@@ -128,10 +134,12 @@ class IntRangeSlider(_RangeSliderBase):
     The IntRangeSlider widget allows selecting an integer range using
     a slider with two handles.
 
+    Reference: https://panel.holoviz.org/reference/widgets/IntRangeSlider.html
+
     :Example:
 
     >>> IntRangeSlider(
-    ...     value=(2, 4), start=0, end=10, step=2, name="A tuple of integers"
+    ...     value=(2, 4), start=0, end=10, step=2, label="A tuple of integers"
     ... )
     """
 
@@ -149,6 +157,8 @@ class IntRangeSlider(_RangeSliderBase):
 class Rating(MaterialWidget):
     """
     The Rating slider widget allows users to select a rating value of their own.
+
+    Reference: https://mui.com/material-ui/react-rating/
 
     :Example:
 

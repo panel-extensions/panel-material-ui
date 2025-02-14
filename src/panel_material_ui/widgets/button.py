@@ -67,6 +67,10 @@ class Button(_ButtonBase, _ClickButton):
     It also provides an additional `clicks` parameter, that can be
     watched to subscribe to click events.
 
+    References:
+    - https://panel.holoviz.org/reference/widgets/Button.html
+    - https://mui.com/material-ui/react-button/
+
     :Example:
 
     >>> Button(name='Click me', icon='caret-right', button_type='primary')
@@ -127,6 +131,10 @@ class Toggle(_ButtonBase):
     """The `Toggle` widget allows toggling a single condition between `True`/`False` states.
 
     This widget is interchangeable with the `Checkbox` widget.
+
+    References:
+    - https://panel.holoviz.org/reference/widgets/Toggle.html
+    - https://mui.com/material-ui/react-toggle-button/
 
     :Example:
 

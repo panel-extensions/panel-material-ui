@@ -8,8 +8,9 @@ class LoadingIndicator(MaterialWidget):
     """
     The `LoadingIndicator` provides a visual representation as a spinner of the loading status.
 
-    Reference to the corresponding Panel component `panel.indicators.LoadingSpinner`:
-    https://panel.holoviz.org/reference/indicators/LoadingSpinner.html
+    References:
+    - https://panel.holoviz.org/reference/indicators/LoadingSpinner.html
+    - https://mui.com/material-ui/react-progress/#circular
 
     :Example:
 
@@ -32,9 +33,9 @@ class Progress(MaterialWidget):
     The `Progress` widget displays the progress towards some target
     based on the current `value` and the `max` value.
 
-    Missing features when comparing with the corresponding
-    panel Progress indicator [panel.indicator.Progress](https://panel.holoviz.org/reference/indicators/Progress.html):
-    `active`, `bar_color`, `max`.
+    References:
+    - https://panel.holoviz.org/reference/indicators/Progress.html
+    - https://mui.com/material-ui/react-progress/#linear
 
     :Example:
 

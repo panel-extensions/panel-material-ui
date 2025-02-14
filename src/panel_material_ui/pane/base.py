@@ -4,6 +4,16 @@ from ..base import COLORS, MaterialComponent
 
 
 class Avatar(MaterialComponent):
+    """
+    The `Avatar` component is used to display profile pictures, user initials, icons,
+    or custom images.
+
+    Reference: https://mui.com/material-ui/react-avatar/
+
+    :Example:
+    >>> Avatar(object="path/to/image.jpg")
+    """
+
     alt_text = param.String(
         default=None,
         doc="""
@@ -23,6 +33,16 @@ class Avatar(MaterialComponent):
 
 
 class Chip(MaterialComponent):
+    """
+    A `Chip` can be used to display information, labels, tags, or actions. It can include text,
+    an avatar, an icon, or a delete button.
+
+    Reference: https://mui.com/material-ui/react-chip/
+
+    :Example:
+    >>> Chip(object="Log Time", icon="clock")
+    """
+
     color = param.Selector(objects=COLORS, default="primary")
 
     icon = param.String(
@@ -44,6 +64,13 @@ class Chip(MaterialComponent):
 
 
 class Skeleton(MaterialComponent):
+    """
+    The `Skeleton` component is used as a placeholder while content is loading.
+    It provides a visual indication that data is being fetched, improving perceived performance
+    and user experience.
+
+    Reference: https://mui.com/material-ui/react-skeleton/
+    """
 
     variant = param.Selector(objects=["circular", "rectangular", "rounded"], default="rounded")
 
@@ -55,6 +82,12 @@ class Skeleton(MaterialComponent):
 
 
 class Breadcrumbs(MaterialComponent):
+    """
+    The `Breadcrumbs` component is used to show the navigation path of a user within an application.
+    It improves usability by allowing users to track their location and navigate back easily.
+
+    Reference: https://mui.com/material-ui/react-breadcrumbs/
+    """
 
     items = param.List(default=[], doc=(
         "List of breadcrumb items. Each item may be a string or an object with keys: "
@@ -67,6 +100,12 @@ class Breadcrumbs(MaterialComponent):
 
 
 class List(MaterialComponent):
+    """
+    The `List` component is used to display a structured group of items, such as menus,
+    navigation links, or settings.
+
+    Reference: https://mui.com/material-ui/react-list/
+    """
 
     items = param.List(default=[], doc=(
         "List of items to display. Each item may be a string or an object with properties: "

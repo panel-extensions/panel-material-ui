@@ -32,8 +32,7 @@ class Paper(MaterialListLike):
     """
     Paper implements a container for displaying content on an elevated surface.
 
-    Reference to the Material UI Paper component:
-    https://mui.com/material-ui/react-paper/
+    Reference: https://mui.com/material-ui/react-paper/
 
     :Example:
     >>> Paper(name="Paper", objects=[1, 2, 3], elevation=10, width=200, height=200)
@@ -48,6 +47,10 @@ class Card(MaterialListLike):
     """
     A `Card` layout allows arranging multiple panel objects in a
     collapsible, vertical container with a header bar.
+
+    References:
+    - https://panel.holoviz.org/reference/layouts/Card.html
+    - https://mui.com/material-ui/react-card/
 
     :Example:
 
@@ -106,12 +109,9 @@ class Accordion(MaterialNamedListLike):
     interactively updating and modifying the cards using the methods `append`,
     `extend`, `clear`, `insert`, `pop`, `remove` and `__setitem__`.
 
-    Missing features (if any) when comparing with the corresponding
-    Panel Accordion layout [panel.Accordion](https://panel.holoviz.org/reference/layouts/Accordion.html):
-    `active_header_background`, `header_background`, `header_color`, `scroll`
-
-    Reference to the Material UI Accordion component:
-    https://mui.com/material-ui/react-accordion/
+    References:
+    - https://panel.holoviz.org/reference/layouts/Accordion.html
+    - https://mui.com/material-ui/react-accordion/
 
     :Example:
 
@@ -152,12 +152,9 @@ class Tabs(MaterialNamedListLike):
     `append`, `extend`, `clear`, `insert`, `pop`, `remove` and `__setitem__`,
     which make it possible to interactively update and modify the tabs.
 
-    Missing features (if any) when comparing with the corresponding
-    Panel Tabs layout [panel.Tabs](https://panel.holoviz.org/reference/layouts/Tabs.html):
-    `closable`, `scroll`.
-
-    Reference to the Material UI Accordion component:
-    https://mui.com/material-ui/react-tabs/
+    References:
+    - https://panel.holoviz.org/reference/layouts/Tabs.html
+    - https://mui.com/material-ui/react-tabs/
 
     :Example:
 
@@ -214,8 +211,9 @@ class Divider(MaterialListLike):
     A `Divider` draws a horizontal rule (a `<hr>` tag in HTML) to separate
     multiple components in a layout.
 
-    Reference to the equivalent Panel Divider layout:
-    https://panel.holoviz.org/reference/layouts/Divider.html
+    References:
+    - https://panel.holoviz.org/reference/layouts/Divider.html
+    - https://mui.com/material-ui/react-divider/
 
     :Example:
 
@@ -230,6 +228,18 @@ class Divider(MaterialListLike):
 
 
 class Alert(MaterialListLike):
+    """
+    An `Alert` displays messages, such as warnings, errors, success messages,
+    or informational updates. It provides a visually distinct way to inform users about
+    the system’s status.
+
+    Reference: https://mui.com/material-ui/react-alert/
+
+    :Example:
+
+    >>> Alert(title="This is an alert")
+    """
+
 
     closed = param.Boolean(default=False)
 
@@ -252,8 +262,7 @@ class Backdrop(MaterialListLike):
     It is often used to focus attention on a specific part of the interface,
     such as during loading states or while a modal dialog is open.
 
-    Reference to the corresponding Material UI `Backdrop`:
-    https://mui.com/material-ui/react-backdrop/
+    Reference: https://mui.com/material-ui/react-backdrop/
 
     :Example:
     >>> close = Button(on_click=lambda _: backdrop.param.update(open=False), label='Close')  # type: ignore
@@ -273,8 +282,7 @@ class Dialog(MaterialListLike):
     user interaction. It is often used for tasks such as confirmations, forms, or displaying
     additional information.
 
-    Reference to the corresponding Material UI `Dialog`:
-    https://mui.com/material-ui/react-dialog/
+    Reference: https://mui.com/material-ui/react-dialog/
 
     :Example:
     >>> close = Button(on_click=lambda _: dialog.param.update(open=False), label='Close')  # type: ignore

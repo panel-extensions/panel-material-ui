@@ -69,8 +69,9 @@ class TextInput(_TextInputBase):
     """
     The `TextInput` widget allows entering any string using a text input box.
 
-    Reference to the corresponding panel PasswordInput widget:
-    https://panel.holoviz.org/reference/widgets/PasswordInput.html
+    References:
+    - https://panel.holoviz.org/reference/widgets/TextInput.html
+    - https://mui.com/material-ui/react-text-field/
 
     :Example:
 
@@ -90,8 +91,9 @@ class PasswordInput(_TextInputBase):
     """
     The `PasswordInput` widget allows entering any string using an obfuscated text input box.
 
-    Reference to the corresponding panel PasswordInput widget:
-    https://panel.holoviz.org/reference/widgets/PasswordInput.html
+    References:
+    - https://panel.holoviz.org/reference/widgets/PasswordInput.html
+    - https://mui.com/material-ui/react-text-field/#input-adornments
 
     :Example:
 
@@ -108,8 +110,9 @@ class TextAreaInput(_TextInputBase):
 
     Lines are joined with the newline character `\n`.
 
-    Reference to the corresponding panel TextAreaInput widget:
-    https://panel.holoviz.org/reference/widgets/TextAreaInput.html
+    References:
+    - https://panel.holoviz.org/reference/widgets/TextAreaInput.html
+    - https://mui.com/material-ui/react-text-field/
 
     :Example:
 
@@ -161,8 +164,9 @@ class FileInput(MaterialWidget, _PnFileInput):
 
     It makes the filename, MIME type and (bytes) content available in Python.
 
-    Reference to the corresponding panel FileInput widget:
-    https://panel.holoviz.org/reference/widgets/FileInput.html
+    References:
+    - https://panel.holoviz.org/reference/widgets/FileInput.html
+    - https://mui.com/material-ui/react-button/#file-upload
 
     :Example:
 
@@ -409,7 +413,9 @@ class DatePicker(_DatePickerBase):
     The `DatePicker` allows selecting a `date` value using a text box
     and a date-picking utility.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DatePicker.html
+    References:
+    - https://panel.holoviz.org/reference/widgets/DatePicker.html
+    - https://mui.com/x/react-date-pickers/
 
     :Example:
 
@@ -433,7 +439,9 @@ class DateRangePicker(_DatePickerBase):
     The `DateRangePicker` allows selecting a `date` range using a text box
     and a date-picking utility.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DateRangePicker.html
+    References:
+    - https://panel.holoviz.org/reference/widgets/DateRangePicker.html
+    - https://mui.com/x/react-date-pickers/
 
     :Example:
 
@@ -529,7 +537,9 @@ class DatetimePicker(_DatetimePickerBase):
     The `DatetimePicker` allows selecting selecting a `datetime` value using a
     textbox and a datetime-picking utility.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DatetimePicker.html
+    References:
+    - https://panel.holoviz.org/reference/widgets/DatetimePicker.html
+    - https://mui.com/x/react-date-pickers/
 
     :Example:
 
@@ -562,7 +572,9 @@ class DatetimeRangePicker(_DatetimePickerBase):
     The `DatetimeRangePicker` allows selecting selecting a `datetime` range
     using a text box and a datetime-range-picking utility.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DatetimeRangePicker.html
+    References:
+    - https://panel.holoviz.org/reference/widgets/DatetimeRangePicker.html
+    - https://mui.com/x/react-date-pickers/
 
     :Example:
 
@@ -656,8 +668,9 @@ class Checkbox(MaterialWidget):
 
     This widget is interchangeable with the `Switch` widget.
 
-    Reference to the corresponding panel Checkbox widget:
-    https://panel.holoviz.org/reference/widgets/Checkbox.html
+    References:
+    - https://panel.holoviz.org/reference/widgets/Checkbox.html
+    - https://mui.com/material-ui/react-checkbox/
 
     :Example:
 
@@ -687,8 +700,9 @@ class Switch(MaterialWidget):
 
     This widget is interchangeable with the `Checkbox` widget.
 
-    Reference to the corresponding panel Switch widget:
-    https://panel.holoviz.org/reference/widgets/Switch.html
+    References:
+    - https://panel.holoviz.org/reference/widgets/Switch.html
+    - https://mui.com/material-ui/react-switch/
 
     :Example:
 
