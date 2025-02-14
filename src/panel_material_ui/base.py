@@ -3,9 +3,10 @@ from __future__ import annotations
 import inspect
 import pathlib
 import textwrap
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 import param
+from bokeh.settings import settings as _settings
 from panel.config import config
 from panel.custom import ReactComponent
 from panel.util import base_version, classproperty
@@ -15,11 +16,14 @@ from .theme import MaterialDesign
 
 if TYPE_CHECKING:
     from bokeh.document import Document
+    from bokeh.model import Model
+    from pyviz_comms import Comm
 
 COLORS = ["primary", "secondary", "error", "info", "success", "warning"]
 
 BASE_PATH = pathlib.Path(__file__).parent
-CDN_DIST = f"https://cdn.holoviz.org/panel-material-ui/v{__version__}/panel-material-ui.bundle.js"
+IS_RELEASE = __version__ == base_version(__version__)
+CDN_DIST = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}/panel-material-ui.bundle.js"
 
 
 class ESMTransform:
@@ -171,7 +175,7 @@ class MaterialComponent(ReactComponent):
 
     @classproperty
     def _bundle_css(cls):
-        if not config.autoreload and __version__ == base_version(__version__):
+        if not config.autoreload and IS_RELEASE and _settings.resources(default='server') == 'cdn':
             return [CDN_DIST.replace('.js', '.css')]
         esm_path = cls._esm_path(compiled=True)
         css_path = esm_path.with_suffix('.css')
@@ -195,17 +199,25 @@ class MaterialComponent(ReactComponent):
     @classmethod
     def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
         if compiled != 'compiling':
-            if compiled and __version__ == base_version(__version__):
-                return CDN_DIST
-            else:
-                return super()._render_esm(compiled=True, server=server)
+            return super()._render_esm(compiled=True, server=server)
         elif cls._esm_base is None:
             return None
         return cls._render_esm_base()
 
-    def _get_properties(self, doc: Document | None) -> dict[str, Any]:
-        props = super()._get_properties(doc)
-        if props['esm'] == CDN_DIST:
-            props['bundle'] = 'url'
-            props['css_bundle'] = CDN_DIST.replace('.js', '.css')
-        return props
+    def _get_model(
+        self, doc: Document, root: Model | None = None,
+        parent: Model | None = None, comm: Comm | None = None
+    ) -> Model:
+        model = super()._get_model(doc, root, parent, comm)
+        # Ensure model loads ESM and CSS bundles from CDN
+        # if requested or if in notebook
+        if (
+            (comm is None and not config.autoreload and IS_RELEASE and _settings.resources(default='server') == 'cdn') or
+            (comm and IS_RELEASE and not config.inline)
+        ):
+            model.update(
+                bundle='url',
+                css_bundle=CDN_DIST.replace('.js', '.css'),
+                esm=CDN_DIST,
+            )
+        return model
