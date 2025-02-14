@@ -17,7 +17,7 @@ lint = { features = ["lint"], no-default-feature = true }
 
 [dependencies]
 python = ">=3.10"
-panel = ">=1.6.1a1"
+panel = ">=1.6.1"
 packaging = "*"
 
 [host-dependencies]
