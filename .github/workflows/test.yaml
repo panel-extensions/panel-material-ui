@@ -37,9 +37,11 @@ jobs:
     needs: [setup]
     runs-on: "ubuntu-latest"
     steps:
-      - uses: holoviz-dev/holoviz_tasks/pre-commit@v0
+      - uses: actions/checkout@v4
+        if: github.event_name != 'pull_request'
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.8.1
+      - uses: holoviz-dev/holoviz_tasks/pre-commit@v0
       - uses: pre-commit/action@v3.0.1
         if: needs.setup.outputs.img_change == 'true'
         with:
