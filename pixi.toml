@@ -20,6 +20,9 @@ python = ">=3.10"
 panel = ">=1.6.1"
 packaging = "*"
 
+[pypi-dependencies]
+panel_material_ui = { path = ".", editable = true }
+
 [host-dependencies]
 pip = "*"
 setuptools = ">=61"
