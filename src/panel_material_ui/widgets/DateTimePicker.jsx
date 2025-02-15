@@ -1,11 +1,11 @@
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {DatePicker as MUIDatePicker} from "@mui/x-date-pickers/DatePicker";
 import {DateTimePicker as MUIDateTimePicker} from "@mui/x-date-pickers/DateTimePicker";
 import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
 
-export function render({model}) {
-  const [value, setValue] = React.useState(model.value ? dayjs(model.value) : null);
+export function render({model, view}) {
   const [label] = model.useState("label");
   const [color] = model.useState("color");
   const [variant] = model.useState("variant");
@@ -19,7 +19,23 @@ export function render({model}) {
   const [show_today_button] = model.useState("show_today_button");
   const [clearable] = model.useState("clearable");
   const [format] = model.useState("format");
-  const [military_time] = model.useState("military_time");
+  const range = model.esm_constants.range
+  const time = model.esm_constants.time
+
+  const timeProps = {}
+  if (time) {
+    const [military_time] = model.useState("military_time");
+    timeProps["ampm"] = !military_time
+  }
+
+  function parseDate(d) {
+    if (Array.isArray(d)) {
+      return d.map(timestamp => dayjs.unix(timestamp / 1000));
+    } else {
+      return dayjs.unix(d / 1000);
+    }
+  }
+  const [value, setValue] = React.useState(model.value ? parseDate(model.value) : null);
 
   const handleChange = (newValue) => {
     setValue(newValue);
@@ -28,11 +44,6 @@ export function render({model}) {
 
   const [disabled_dates] = model.useState("disabled_dates");
   const [enabled_dates] = model.useState("enabled_dates");
-
-  // Helper to convert a value to a Date.
-  function parseDate(d) {
-    return new Date(d);
-  }
 
   // Check whether a given date falls within a specified range.
   function dateInRange(date, range) {
@@ -79,6 +90,7 @@ export function render({model}) {
     return false;
   }
 
+  const component = time ? MUIDateTimePicker : MUIDatePicker
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <MUIDateTimePicker
@@ -88,17 +100,17 @@ export function render({model}) {
         views={views}
         disabled={disabled}
         format={format}
-        minDate={min_date ? new Date(min_date) : undefined}
-        maxDate={max_date ? new Date(max_date) : undefined}
+	minDate={min_date ? parseDate(min_date) : undefined}
+        maxDate={max_date ? parseDate(max_date) : undefined}
         disableFuture={disable_future}
         disablePast={disable_past}
         shouldDisableDate={shouldDisableDate}
         openTo={open_to}
         showTodayButton={show_today_button}
         clearable={clearable}
-        ampm={!military_time}
         sx={{width: "100%"}}
-        slotProps={{textField: {variant, color}}}
+        slotProps={{textField: {variant, color}, popper: {container: view.container}}}
+	{...timeProps}
       />
     </LocalizationProvider>
   );

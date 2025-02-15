@@ -375,7 +375,9 @@ class _DatePickerBase(MaterialInputWidget):
       Width of this component. If sizing_mode is set to stretch
       or scale mode this will merely be used as a suggestion.""")
 
-    _esm_base = "DatePicker.jsx"
+    _esm_base = "DateTimePicker.jsx"
+
+    _constants = {'range': False, 'time': False}
 
     __abstract = True
 
@@ -461,7 +463,7 @@ class DateRangePicker(_DatePickerBase):
     value = param.DateRange(default=None, doc="""
         The current value""")
 
-    _constants = {'range': True}
+    _constants = {'range': True, 'time': False}
 
     def __init__(self, **params):
         super().__init__(**params)
@@ -490,7 +492,7 @@ class _DatetimePickerBase(_DatePickerBase):
 
     views = param.List(default=['year', 'month', 'day', 'hours', 'minutes'], doc="The views that are available for the date picker.")
 
-    _esm_base = "DateTimePicker.jsx"
+    _constants = {'range': False, 'time': True}
 
     __abstract = True
 
@@ -588,6 +590,7 @@ class DatetimeRangePicker(_DatetimePickerBase):
     value = param.DateRange(default=None, doc="""
         The current value""")
 
+    _constants = {'range': True, 'time': True}
 
 
 class _TimeCommon(MaterialWidget):
