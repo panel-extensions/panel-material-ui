@@ -64,7 +64,7 @@ class IntSlider(_ContinuousSlider):
 
     start = param.Integer(default=1)
 
-    step = param.Integer(default=1, readonly=True)
+    step = param.Integer(default=1, bounds=(1, None))
 
     value = param.Integer(default=0)
 
