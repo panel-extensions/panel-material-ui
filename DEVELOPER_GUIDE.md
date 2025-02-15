@@ -2,6 +2,10 @@
 
 Welcome. We are so happy that you want to contribute.
 
+`panel-material-ui` is automatically built, tested and released on Github Actions. The setup heavily leverages `pixi`, though we recommend using it, you can also set up your own virtual environment.
+
+`panel-material-ui`, unlike other Panel extensions, has to be compiled and is shipped with a compiled JavaScript bundle. When making any changes you must recompile it.
+
 ## 🧳 Prerequisites
 
 - [Git CLI](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
@@ -16,31 +20,25 @@ Below we describe how to install and use this project for development.
 To install for development you will have to clone the repository with git:
 
 ```bash
-git clone https://github.com/panel-extensions/panel-graphic-walker.git
-cd panel-graphic-walker
+git clone https://github.com/panel-extensions/panel-material-ui.git
+cd panel-material-ui
 ```
 
-Now you can either install `nodejs` and `esbuild` manually and then run:
+If you want to manage your own environment, including installations of `nodejs` and `esbuild` (e.g. using conda) set up your development environment with:
 
 ```bash
 pip install -e .
 ```
 
-Alternatively we recommend developing with pixi. To get started run the following command to install into the default environment:
-
-```bash
-pixi run install
-```
-
 ### Developing
 
-Note that unlike other Panel based ESM components panel-material-ui components only work in compiled mode. This means that whenever you make any changes to the React implementation you have to recompile the JS bundle. To make this process easier we recommend you run:
+Whenever you make any changes to the React implementationsof the components  (i.e. the .jsx files) you have to recompile the JS bundle. To make this process easier we recommend you run:
 
 ```bash
 pixi run compile-dev
 ```
 
-This will continuously watch the files for changes and automatically recompile. And is equivalent to:
+This will continuously watch the files for changes and automatically recompile. This is equivalent to:
 
 ```bash
 panel compile panel_material_ui --build-dir build --watch --file-loader woff woff2
