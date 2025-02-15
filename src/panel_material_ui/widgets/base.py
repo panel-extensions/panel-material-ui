@@ -38,7 +38,7 @@ function {output}(props) {{
 
 class MaterialWidget(MaterialComponent, WidgetBase):
 
-    description = param.String(default='Description')
+    description = param.String(default=None)
 
     disabled = param.Boolean(default=False)
 
@@ -49,6 +49,11 @@ class MaterialWidget(MaterialComponent, WidgetBase):
     width = param.Integer(default=300, bounds=(0, None))
 
     __abstract = True
+
+    def __init__(self, **params):
+        if 'label' not in params and 'name' in params:
+            params['label'] = params['name']
+        super().__init__(**params)
 
     def _process_param_change(self, params):
         description = params.pop("description", None)
