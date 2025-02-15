@@ -25,7 +25,7 @@ export function render({model, view}) {
   const timeProps = {}
   if (time) {
     const [military_time] = model.useState("military_time");
-    timeProps["ampm"] = !military_time
+    timeProps.ampm = !military_time
   }
 
   function parseDate(d) {
@@ -100,7 +100,7 @@ export function render({model, view}) {
         views={views}
         disabled={disabled}
         format={format}
-	minDate={min_date ? parseDate(min_date) : undefined}
+        minDate={min_date ? parseDate(min_date) : undefined}
         maxDate={max_date ? parseDate(max_date) : undefined}
         disableFuture={disable_future}
         disablePast={disable_past}
@@ -110,7 +110,7 @@ export function render({model, view}) {
         clearable={clearable}
         sx={{width: "100%"}}
         slotProps={{textField: {variant, color}, popper: {container: view.container}}}
-	{...timeProps}
+        {...timeProps}
       />
     </LocalizationProvider>
   );
