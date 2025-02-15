@@ -93,8 +93,8 @@ nodejs = ">=18"
 esbuild = "*"
 
 [feature.compile-task.tasks]
-compile = { cmd = "panel compile panel_material_ui --file-loader woff woff2", env = { PYTHONPATH = "./src:$PATH" } }
-compile-dev = { cmd = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch", env = { PYTHONPATH = "./src:$PATH" } }
+compile = { cmd = "panel compile panel_material_ui --file-loader woff woff2", env = { PYTHONPATH = "./src:$PYTHONPATH" } }
+compile-dev = { cmd = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch", env = { PYTHONPATH = "./src:PYTHON$PATH" } }
 
 # =============================================
 # ================== LINT =====================
