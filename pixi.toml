@@ -5,13 +5,14 @@ platforms = ["osx-arm64", "osx-64", "linux-64", "win-64"]
 
 [tasks]
 install = "pip install --no-build-isolation --no-deps --disable-pip-version-check -e ."
-run-dev = "panel serve examples/components.py --dev --port 0 --show"
-run-example = { cmd = "echo ", depends-on = ["install", "run-dev"] }
+serve-dev = "panel serve examples/components.py --dev --port 0 --show"
+run-example = { cmd = "echo ", depends-on = ["install", "serve-dev"] }
 
 [dependencies]
 python = ">=3.10"
 panel = ">=1.6.1"
 packaging = "*"
+watchfiles = "*"
 
 [host-dependencies]
 pip = "*"
@@ -93,7 +94,7 @@ esbuild = "*"
 
 [feature.compile.tasks]
 compile = "panel compile panel_material_ui --file-loader woff woff2"
-compile-develop = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch"
+compile-dev = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch"
 
 # =============================================
 # ================== LINT =====================
