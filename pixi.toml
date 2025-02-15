@@ -29,7 +29,7 @@ test-311 = ["py311", "compile", "test-core", "test-unit-task"]
 test-312 = ["py312", "compile", "test-core", "test-unit-task"]
 test-ui = ["py312", "compile", "test-core", "test-ui"]
 build = ["py312", "build", "compile"]
-compile = ["py312", "compile"]
+compile = ["py312", "compile", "compile-task"]
 lint = { features = ["lint"], no-default-feature = true }
 
 [feature.py310.dependencies]
@@ -92,9 +92,9 @@ check-wheel = "twine check dist/*"
 nodejs = ">=18"
 esbuild = "*"
 
-[feature.compile.tasks]
-compile = "panel compile panel_material_ui --file-loader woff woff2"
-compile-dev = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch"
+[feature.compile-task.tasks]
+compile = { cmd = "panel compile panel_material_ui --file-loader woff woff2", env = { PYTHONPATH = "./src:$PATH" } }
+compile-dev = { cmd = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch", env = { PYTHONPATH = "./src:$PATH" } }
 
 # =============================================
 # ================== LINT =====================
