@@ -1,3 +1,18 @@
+"""
+Panel Material UI is a library that provides Material UI components for Panel.
+
+It implements a collection of widgets and components that follow Material Design
+principles and guidelines, providing a modern and consistent look and feel.
+The library integrates seamlessly with Panel's reactive programming model while
+leveraging the robust Material UI React component library.
+
+The base module provides core functionality including:
+
+- ESM transformation utilities for React components
+- Theme configuration and management
+- Color constants and configuration
+- Base component classes
+"""
 from __future__ import annotations
 
 import inspect
@@ -47,6 +62,10 @@ class ESMTransform:
 
 
 class ThemedTransform(ESMTransform):
+    """
+    ThemedTransform is a transform that applies a theme to a component.
+    It adds a ThemeProvider and CssBaseline to the component.
+    """
 
     _transform = """\
 import * as React from "react"
@@ -131,7 +150,9 @@ class MaterialComponent(ReactComponent):
     the JS dependencies and theming support via the ThemedTransform.
     """
 
-    dark_theme = param.Boolean()
+    dark_theme = param.Boolean(doc="""
+        Whether to use dark theme. If not specified, will default to Panel's
+        global theme setting.""")
 
     theme_config = param.Dict(default=None, nested_refs=True, doc="Options to configure the ThemeProvider")
 

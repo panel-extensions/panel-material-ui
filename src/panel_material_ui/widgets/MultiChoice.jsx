@@ -1,10 +1,12 @@
 import Box from "@mui/material/Box";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Chip from "@mui/material/Chip";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import FilledInput from "@mui/material/FilledInput";
+import Input from "@mui/material/Input";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -14,39 +16,63 @@ const MenuProps = {
   PaperProps: {
     style: {
       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
     },
   },
 };
 
-export function render({model, view}) {
+export function render({model}) {
+  const [color] = model.useState("color");
+  const [delete_button] = model.useState("delete_button");
   const [disabled] = model.useState("disabled");
   const [label] = model.useState("label");
+  const [max_items] = model.useState("max_items");
+  const [option_limit] = model.useState("option_limit");
   const [options] = model.useState("options");
+  const [placeholder] = model.useState("placeholder");
+  const [search_option_limit] = model.useState("search_option_limit");
+  const [solid] = model.useState("solid");
   const [value, setValue] = model.useState("value");
-
+  const [variant] = model.useState("variant");
   const handleChange = (event) => {
-    const {
-      target: {value},
-    } = event;
-    setValue(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value,
-    );
+    const new_value = event.target.value;
+    // On autofill we get a stringified value.
+    const values = typeof new_value === "string" ? new_value.split(",") : new_value
+    if (values && max_items && (values.length > max_items)) {
+      return
+    }
+    setValue(values)
   };
 
   return (
     <FormControl sx={{m: 1, width: 300}}>
-      <InputLabel>{label}</InputLabel>
+      <InputLabel id={`chip-label-${model.id}`}>{label}</InputLabel>
       <Select
         multiple
+        color={color}
+        disabled={disabled}
         value={value}
         onChange={handleChange}
-        input={<OutlinedInput label={label} />}
+        input={variant === "outlined" ?
+          <OutlinedInput id="select-multiple-chip" label="Chip" /> :
+          variant === "filled" ?
+          <FilledInput id="select-multiple-chip" label="Chip" /> :
+          <Input id="select-multiple-chip" label="Chip" />
+        }
+        labelId={`chip-label-${model.id}`}
+        variant={variant}
         renderValue={(selected) => (
           <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5}}>
-            {selected.map((value) => (
-              <Chip key={value} label={value} />
+            {selected.map((selected_value) => (
+              <Chip
+                color={color}
+                variant={solid ? "filled" : "outlined"}
+                key={selected_value}
+                label={selected_value}
+                onMouseDown={(event) => event.stopPropagation()}
+                onDelete={delete_button ? (event) => {
+                  setValue(value.filter(v => v !== selected_value));
+                } : undefined}
+              />
             ))}
           </Box>
         )}
