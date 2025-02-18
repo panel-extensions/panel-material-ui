@@ -53,7 +53,7 @@ export function render({model, el}) {
         value={value}
         label={label}
         variant={variant}
-        onChange={(event) => { console.log(event.target.value); setValue(event.target.value)}}
+        onChange={(event) => { setValue(event.target.value) }}
       >
         {option_list}
       </Select>

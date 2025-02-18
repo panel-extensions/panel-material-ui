@@ -55,8 +55,8 @@ export function render({model}) {
         input={variant === "outlined" ?
           <OutlinedInput id="select-multiple-chip" label="Chip" /> :
           variant === "filled" ?
-          <FilledInput id="select-multiple-chip" label="Chip" /> :
-          <Input id="select-multiple-chip" label="Chip" />
+            <FilledInput id="select-multiple-chip" label="Chip" /> :
+            <Input id="select-multiple-chip" label="Chip" />
         }
         labelId={`chip-label-${model.id}`}
         variant={variant}

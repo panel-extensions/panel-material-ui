@@ -12,7 +12,7 @@ export function render({model, view}) {
   const [variant] = model.useState("variant");
 
   const handleChange = (event) => {
-    const { options } = event.target;
+    const {options} = event.target;
     const newSelections = [];
     for (let i = 0, l = options.length; i < l; i += 1) {
       if (options[i].selected) {
@@ -20,8 +20,8 @@ export function render({model, view}) {
       }
     }
     if (!max_items) {
-        setValue(newSelections);
-        return;
+      setValue(newSelections);
+      return;
     }
 
     // Find the newly added item (if any) by comparing with previous value
@@ -44,7 +44,7 @@ export function render({model, view}) {
   return (
     <FormControl sx={{m: 1, width: 300}}>
       <InputLabel shrink htmlFor={`select-multiple-native-${model.id}`}>
-          {label}
+        {label}
       </InputLabel>
       <Select
         multiple
@@ -54,7 +54,7 @@ export function render({model, view}) {
         value={value}
         onChange={handleChange}
         inputProps={{
-            id: `select-multiple-native-${model.id}`,
+          id: `select-multiple-native-${model.id}`,
         }}
         variant={variant}
       >
