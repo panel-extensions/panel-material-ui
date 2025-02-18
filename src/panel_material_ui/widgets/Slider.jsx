@@ -46,7 +46,9 @@ export function render({model}) {
   }, [format, value])
 
   const marks = React.useMemo(() => {
-    if (!ticks) return undefined
+    if (!ticks) {
+      return undefined
+    }
     return ticks.map(tick => ({
       value: tick,
       label: format_value(tick)
