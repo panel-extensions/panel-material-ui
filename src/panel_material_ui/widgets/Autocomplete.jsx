@@ -11,7 +11,7 @@ export function render({model, el}) {
   const [restrict] = model.useState("restrict")
   const [variant] = model.useState("variant")
   const [disabled] = model.useState("disabled")
-
+  const [sx] = model.useState("sx")
   function CustomPopper(props) {
     return <Popper {...props} container={el} />
   }
@@ -39,6 +39,7 @@ export function render({model, el}) {
       freeSolo={!restrict}
       filterOptions={filt_func}
       variant={variant}
+      sx={sx}
       PopperComponent={CustomPopper}
       renderInput={(params) => (
         <TextField

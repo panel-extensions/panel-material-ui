@@ -21,7 +21,7 @@ export function render({model}) {
   const [placeholder] = model.useState("placeholder")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
-
+  const [sx] = model.useState("sx")
   const [showPassword, setShowPassword] = React.useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -62,6 +62,7 @@ export function render({model}) {
             </IconButton>
           </InputAdornment>
         }
+        sx={sx}
       />
     </>
   )

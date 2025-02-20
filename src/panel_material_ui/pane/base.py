@@ -1,4 +1,9 @@
+from __future__ import annotations
+
+from typing import Callable
+
 import param
+from panel.models.reactive_html import DOMEvent
 
 from ..base import COLORS, MaterialComponent
 
@@ -89,6 +94,8 @@ class Breadcrumbs(MaterialComponent):
     Reference: https://mui.com/material-ui/react-breadcrumbs/
     """
 
+    color = param.Selector(objects=COLORS, default="primary")
+
     items = param.List(default=[], doc=(
         "List of breadcrumb items. Each item may be a string or an object with keys: "
         "'label' (required) and 'href' (optional)."
@@ -107,6 +114,9 @@ class List(MaterialComponent):
     Reference: https://mui.com/material-ui/react-list/
     """
 
+    active = param.Integer(default=None, doc="""
+        Last clicked list item.""")
+
     items = param.List(default=[], doc=(
         "List of items to display. Each item may be a string or an object with properties: "
         "'label' (required), 'icon' (optional), 'avatar' (optional), and 'secondary' (optional)."
@@ -114,5 +124,40 @@ class List(MaterialComponent):
 
     _esm_base = "List.jsx"
 
+    def __init__(self, **params):
+        click_handler = params.pop('on_click', None)
+        super().__init__(**params)
+        self._on_click_callbacks = []
+        if click_handler:
+            self.on_click(click_handler)
+
     def _handle_click(self, event):
-        pass
+        self.active = event.index
+        for fn in self._on_click_callbacks:
+            try:
+                fn(event)
+            except Exception as e:
+                print(f'List on_click handler errored: {e}')  # noqa
+
+    def on_click(self, callback: Callable[[DOMEvent], None]):
+        """
+        Register a callback to be executed when a list item
+        is clicked.
+
+        Parameters
+        ----------
+        callback: (callable)
+            The callback to run on click events.
+        """
+        self._on_click_callbacks.append(callback)
+
+    def remove_on_click(self, callback: Callable[[DOMEvent], None]):
+        """
+        Remove a previously added click handler.
+
+        Parameters
+        ----------
+        callback: (callable)
+            The callback to run on edit events.
+        """
+        self._on_click_callbacks.remove(callback)

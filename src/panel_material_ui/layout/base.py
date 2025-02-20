@@ -69,7 +69,8 @@ class Card(MaterialListLike):
         Whether the Card should be expandable and collapsible.""",
     )
 
-    elevation = param.Integer(default=1, bounds=(0, None))
+    elevation = param.Integer(default=1, bounds=(0, None), doc="""
+        The elevation of the Card.""")
 
     header = Child(
         doc="""
@@ -89,7 +90,8 @@ class Card(MaterialListLike):
         by the header if defined."""
     )
 
-    outlined = param.Boolean(default=False)
+    outlined = param.Boolean(default=False, doc="""
+        Whether the Card should be outlined.""")
 
     _esm_base = "Card.jsx"
 
@@ -168,9 +170,14 @@ class Tabs(MaterialNamedListLike):
         Index of the currently displayed objects.""",
     )
 
+    centered = param.Boolean(default=False, doc="""
+        Whether the tabs should be centered.""")
+
     color = param.Selector(default="primary", objects=["primary", "secondary"])
 
-    dynamic = param.Boolean(default=False)
+    dynamic = param.Boolean(default=False, doc="""
+        Whether the tab contents should be rendered dynamically,
+        i.e. only when the tab is active.""")
 
     tabs_location = param.ObjectSelector(
         default="above",
@@ -241,17 +248,23 @@ class Alert(MaterialListLike):
     """
 
 
-    closed = param.Boolean(default=False)
+    closed = param.Boolean(default=False, doc="""
+        Whether the alert is closed.""")
 
-    closeable = param.Boolean(default=False)
+    closeable = param.Boolean(default=False, doc="""
+        Whether the alert is closeable.""")
 
-    severity = param.Selector(objects=["error", "warning", "info", "success"], default="success")
+    severity = param.Selector(objects=["error", "warning", "info", "success"], default="success", doc="""
+        The severity of the alert.""")
 
-    object = param.String(default="")
+    object = param.String(default="", doc="""
+        The object to display in the alert.""")
 
-    title = param.String(default=None)
+    title = param.String(default=None, doc="""
+        The title of the alert.""")
 
-    variant = param.Selector(default="filled", objects=["filled", "outlined"])
+    variant = param.Selector(default="filled", objects=["filled", "outlined"], doc="""
+        The variant of the alert.""")
 
     _esm_base = "Alert.jsx"
 
@@ -271,7 +284,8 @@ class Backdrop(MaterialListLike):
     >>> pn.Column(button, backdrop).servable()
     """
 
-    open = param.Boolean(default=False)
+    open = param.Boolean(default=False, doc="""
+        Whether the backdrop is open.""")
 
     _esm_base = "Backdrop.jsx"
 
@@ -291,10 +305,13 @@ class Dialog(MaterialListLike):
     >>> pn.Column(button, dialog).servable()
     """
 
-    full_screen = param.Boolean(default=False)
+    full_screen = param.Boolean(default=False, doc="""
+        Whether the dialog should be full screen.""")
 
-    open = param.Boolean(default=False)
+    open = param.Boolean(default=False, doc="""
+        Whether the dialog is open.""")
 
-    title = param.String(default="")
+    title = param.String(default="", doc="""
+        The title of the dialog.""")
 
     _esm_base = "Dialog.jsx"

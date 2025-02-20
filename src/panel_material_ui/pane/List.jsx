@@ -10,6 +10,7 @@ import ListItemText from "@mui/material/ListItemText";
 
 export function render({model}) {
   const [items] = model.useState("items");
+  const [sx] = model.useState("sx");
 
   const handleItemClick = (item, index) => {
     model.send_event("click", {index, item});
@@ -53,7 +54,7 @@ export function render({model}) {
     );
   });
   return (
-    <List>
+    <List sx={sx}>
       {listItems}
     </List>
   );

@@ -45,6 +45,8 @@ class _TextInputBase(MaterialInputWidget):
         Placeholder for empty input field.""",
     )
 
+    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+
     value = param.String(default="")
 
     value_input = param.String(
@@ -219,6 +221,8 @@ class _NumericInputBase(MaterialInputWidget):
 
     placeholder = param.String(default='0', doc="""
         Placeholder for empty input field.""")
+
+    size = param.Selector(objects=["small", "medium", "large"], default="medium")
 
     start = param.Parameter(default=None, allow_None=True, doc="""
         Optional minimum allowable value.""")

@@ -17,11 +17,14 @@ class LoadingIndicator(MaterialWidget):
     >>> LoadingIndicator(color='success')
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="""
+        The color of the loading indicator.""")
 
-    value = param.Number(default=0, bounds=(0, 100))
+    value = param.Number(default=0, bounds=(0, 100), doc="""
+        The value of the loading indicator.""")
 
-    variant = param.Selector(default="indeterminate", objects=["determinate", "indeterminate"])
+    variant = param.Selector(default="indeterminate", objects=["determinate", "indeterminate"], doc="""
+        The variant of the loading indicator.""")
 
     width = param.Integer(default=None)
 
@@ -42,10 +45,13 @@ class Progress(MaterialWidget):
     >>> Progress(value=20, color="primary")
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="""
+        The color of the progress bar.""")
 
-    value = param.Number(default=0, bounds=(0, 100))
+    value = param.Number(default=0, bounds=(0, 100), doc="""
+        The value of the progress bar.""")
 
-    variant = param.Selector(default="determinate", objects=["determinate", "indeterminate", "buffer", "query"])
+    variant = param.Selector(default="determinate", objects=["determinate", "indeterminate", "buffer", "query"], doc="""
+        The variant of the progress bar.""")
 
     _esm_base = "LinearProgress.jsx"

@@ -20,6 +20,17 @@ def test_autocomplete_input_value_updates(page):
 
     wait_until(lambda: widget.value == 'Option 2', page)
 
+def test_autocomplete_dict_options(page):
+    widget = AutocompleteInput(name='Autocomplete Input test', options={"Option 1": 1, "Option 2": 2, "123": 123})
+    serve_component(page, widget)
+
+    expect(page.locator(".autocomplete-input")).to_have_count(1)
+
+    page.locator("input").fill("Option 2")
+    page.locator(".MuiAutocomplete-option").click()
+
+    wait_until(lambda: widget.value == 2, page)
+
 def test_autocomplete_input_value_updates_unrestricted(page):
     widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"], restrict=False)
     serve_component(page, widget)
@@ -84,7 +95,6 @@ def test_autocomplete_min_characters(page):
     page.locator("input").fill("O")
     expect(page.locator(".MuiAutocomplete-option")).to_have_count(2)
 
-
 @pytest.mark.parametrize('variant', ["filled", "outlined", "standard"])
 def test_select_variant(page, variant):
     widget = Select(name='Select test', variant=variant, options=["Option 1", "Option 2", "Option 3"])
@@ -93,7 +103,6 @@ def test_select_variant(page, variant):
     expect(page.locator(".select")).to_have_count(1)
     expect(page.locator(f".MuiSelect-{variant}")).to_have_count(1)
 
-
 @pytest.mark.parametrize('color', ["primary", "secondary", "error", "info", "success", "warning"])
 def test_radio_box_group_color(page, color):
     widget = RadioBoxGroup(name='RadioBoxGroup test', options=["Option 1", "Option 2", "Option 3"], color=color)
@@ -101,7 +110,6 @@ def test_radio_box_group_color(page, color):
 
     expect(page.locator(".radio-box-group")).to_have_count(1)
     expect(page.locator(f".MuiRadio-color{color.capitalize()}")).to_have_count(len(widget.options))
-
 
 @pytest.mark.parametrize('inline', [True, False])
 def test_radio_box_group_orientation(page, inline):
@@ -112,7 +120,6 @@ def test_radio_box_group_orientation(page, inline):
     if inline:
         rbg_orient = page.locator(".MuiRadioGroup-row")
         expect(rbg_orient).to_have_count(1)
-
 
 @pytest.mark.parametrize('button_type', ["primary", "secondary", "error", "info", "success", "warning"])
 def test_radio_button_group_color(page, button_type):
@@ -130,7 +137,6 @@ def test_radio_button_group_color(page, button_type):
         option_color = page.locator(f".MuiToggleButton-{button_type}")
     expect(option_color).to_have_count(len(widget.options))
 
-
 @pytest.mark.parametrize('orientation', ["horizontal", "vertical"])
 def test_radio_button_group_orientation(page, orientation):
     widget = RadioButtonGroup(
@@ -143,7 +149,6 @@ def test_radio_button_group_orientation(page, orientation):
     expect(page.locator(".radio-button-group")).to_have_count(1)
     expect(page.locator(f".MuiToggleButtonGroup-{orientation}")).to_have_count(1)
 
-
 @pytest.mark.parametrize('size', ["small", "medium", "large"])
 def test_radio_button_group_size(page, size):
     widget = RadioButtonGroup(
@@ -155,7 +160,6 @@ def test_radio_button_group_size(page, size):
 
     expect(page.locator(".radio-button-group")).to_have_count(1)
     expect(page.locator(f".MuiToggleButton-size{size.capitalize()}")).to_have_count(len(widget.options))
-
 
 @pytest.mark.parametrize('button_type', ["primary", "secondary", "error", "info", "success", "warning"])
 def test_check_button_group_color(page, button_type):
@@ -174,7 +178,6 @@ def test_check_button_group_color(page, button_type):
         option_color = page.locator(f".MuiToggleButton-{button_type}")
     expect(option_color).to_have_count(len(widget.options))
 
-
 @pytest.mark.parametrize('orientation', ["horizontal", "vertical"])
 def test_check_button_group_orientation(page, orientation):
     widget = CheckButtonGroup(
@@ -187,7 +190,6 @@ def test_check_button_group_orientation(page, orientation):
 
     expect(page.locator(".check-button-group")).to_have_count(1)
     expect(page.locator(f".MuiToggleButtonGroup-{orientation}")).to_have_count(1)
-
 
 @pytest.mark.parametrize('size', ["small", "medium", "large"])
 def test_check_button_group_size(page, size):

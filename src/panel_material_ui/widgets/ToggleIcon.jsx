@@ -8,6 +8,7 @@ export function render({model, el}) {
   const [size] = model.useState("size")
   const [label] = model.useState("label")
   const [value, setValue] = model.useState("value")
+  const [sx] = model.useState("sx")
 
   return (
     <Checkbox
@@ -19,6 +20,7 @@ export function render({model, el}) {
       onClick={(e, newValue) => setValue(!value)}
       icon={<Icon>{icon}</Icon>}
       checkedIcon={<Icon>{active_icon}</Icon>}
+      sx={sx}
     />
   )
 }

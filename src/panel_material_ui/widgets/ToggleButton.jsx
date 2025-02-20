@@ -8,6 +8,7 @@ export function render({model, el}) {
   const [label] = model.useState("label")
   const [variant] = model.useState("button_style")
   const [value, setValue] = model.useState("value")
+  const [sx] = model.useState("sx")
 
   return (
     <ToggleButton
@@ -16,6 +17,7 @@ export function render({model, el}) {
       variant={variant}
       selected={value}
       onChange={(e, newValue) => setValue(!value)}
+      sx={sx}
     >
       {icon && <Icon style={{fontSize: icon_size}}>{icon}</Icon>}
       {label}

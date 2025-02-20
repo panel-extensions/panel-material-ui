@@ -62,6 +62,7 @@ export function render({model}) {
   const [multiple] = model.useState("multiple")
   const [label] = model.useState("label")
   const [variant] = model.useState("button_style")
+  const [sx] = model.useState("sx")
 
   return (
     <Button
@@ -71,6 +72,7 @@ export function render({model}) {
       tabIndex={-1}
       startIcon={<CloudUploadIcon />}
       variant={variant}
+      sx={sx}
     >
       Upload files
       <VisuallyHiddenInput

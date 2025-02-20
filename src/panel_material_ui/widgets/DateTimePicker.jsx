@@ -19,6 +19,7 @@ export function render({model, view}) {
   const [show_today_button] = model.useState("show_today_button");
   const [clearable] = model.useState("clearable");
   const [format] = model.useState("format");
+  const [sx] = model.useState("sx");
   const range = model.esm_constants.range
   const time = model.esm_constants.time
 
@@ -108,7 +109,7 @@ export function render({model, view}) {
         openTo={open_to}
         showTodayButton={show_today_button}
         clearable={clearable}
-        sx={{width: "100%"}}
+        sx={{width: "100%", ...sx}}
         slotProps={{textField: {variant, color}, popper: {container: view.container}}}
         {...timeProps}
       />

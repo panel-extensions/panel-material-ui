@@ -100,20 +100,15 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
     clicks = param.Integer(default=0, doc="""
         The number of times the button has been clicked.""")
 
-    edge = param.Selector(objects=["start", "end", False], default=False)
+    edge = param.Selector(objects=["start", "end", False], default=False, doc="""
+        Whether the icon should be on the start or end of the button.""")
 
-    size = param.String(
-        default="1em",
-        doc="""
-        Size of the icon as a string, e.g. 12px or 1em.""",
-    )
+    size = param.String(default="1em", doc="""
+        Size of the icon as a string, e.g. 12px or 1em.""",)
 
-    toggle_duration = param.Integer(
-        default=75,
-        doc="""
+    toggle_duration = param.Integer(default=75, doc="""
         The number of milliseconds the active_icon should be shown for
-        and how long the button should be disabled for.""",
-    )
+        and how long the button should be disabled for.""")
 
     _esm_base = "IconButton.jsx"
 
@@ -139,6 +134,6 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
         Returns
         -------
         watcher: param.Parameterized.Watcher
-          A `Watcher` that executes the callback when the MenuButton is clicked.
+            A `Watcher` that executes the callback when the MenuButton is clicked.
         """
         return self.param.watch(callback, 'clicks', onlychanged=False)

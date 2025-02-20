@@ -4,9 +4,11 @@ import Box from "@mui/material/Box";
 
 export function render({model}) {
   const [active, setActive] = model.useState("active");
+  const [centered] = model.useState("centered");
   const [color] = model.useState("color");
   const [location] = model.useState("tabs_location");
   const [names] = model.useState("_names");
+  const [sx] = model.useState("sx");
   const objects = model.get_child("objects");
 
   const handleChange = (event, newValue) => {
@@ -17,6 +19,7 @@ export function render({model}) {
 
   const tabs = (
     <Tabs
+      centered={centered}
       indicatorColor={color}
       textColor={color}
       value={active}
@@ -24,6 +27,7 @@ export function render({model}) {
       orientation={orientation}
       variant="scrollable"
       scrollButtons="auto"
+      sx={sx}
     >
       {names.map((label, index) => (
         <Tab key={index} label={label} />

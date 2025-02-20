@@ -11,6 +11,7 @@ export function render({model}) {
   const [label] = model.useState("label");
   const [inline] = model.useState("inline");
   const [value, setValue] = model.useState("value");
+  const [sx] = model.useState("sx");
   const exclusive = model.esm_constants.exclusive
   return (
     <FormControl component="fieldset" disabled={disabled}>
@@ -19,6 +20,7 @@ export function render({model}) {
         aria-labelledby="radio-buttons-group-label"
         value={value}
         row={inline}
+        sx={sx}
       >
         {options.map((option, index) => {
           return (

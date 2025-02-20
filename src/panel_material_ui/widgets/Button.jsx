@@ -7,12 +7,13 @@ export function render({model, el}) {
   const [icon_size] = model.useState("icon_size")
   const [label] = model.useState("label")
   const [variant] = model.useState("button_style")
-
+  const [sx] = model.useState("sx")
   return (
     <Button
       color={color}
       disabled={disabled}
       variant={variant}
+      sx={sx}
       startIcon={icon && <Icon style={{fontSize: icon_size}}>{icon}</Icon>}
       onClick={() => model.send_event("click", {})}
     >
