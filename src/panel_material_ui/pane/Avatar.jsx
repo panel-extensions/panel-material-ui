@@ -6,11 +6,12 @@ export function render({model}) {
   const [object] = model.useState("object");
   const [size] = model.useState("size");
   const [variant] = model.useState("variant");
+  const [sx] = model.useState("sx");
 
   return (
     <Avatar
       alt={alt_text}
-      sx={{bgColor: color}}
+      sx={{bgColor: color, ...sx}}
       size={size}
       src={object}
       variant={variant}

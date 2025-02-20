@@ -62,6 +62,7 @@ export function render({model}) {
   const [open, setOpen] = model.useState("sidebar_open")
   const [variant] = model.useState("sidebar_variant")
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
+  const [sx] = model.useState("sx")
 
   const toggleOpen = () => {
     setOpen(!open);
@@ -88,7 +89,7 @@ export function render({model}) {
   );
 
   return (
-    <Box sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden"}}>
+    <Box sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
       <AppBar position="fixed" color="primary" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
         <Toolbar>
           { model.sidebar.length &&

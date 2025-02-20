@@ -226,12 +226,8 @@ class RadioBoxGroup(RadioGroup, MaterialSingleSelectBase):
     ... )
     """
 
-    orientation = param.Selector(
-        default="horizontal",
-        objects=["horizontal", "vertical"],
-        doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""",
-    )
+    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
+        Button group orientation, either 'horizontal' (default) or 'vertical'.""")
 
     value = param.String(default=None, allow_None=True)
 
@@ -424,7 +420,7 @@ class MultiChoice(MultiSelect):
         String displayed when no selection has been made.""")
 
     solid = param.Boolean(default=True, doc="""
-        Whether to display widget with solid or light style.""")
+       π Whether to display widget with solid or light style.""")
 
     _rename = {"name": None}
 

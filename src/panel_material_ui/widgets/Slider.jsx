@@ -14,6 +14,7 @@ export function render({model}) {
   const [show_value] = model.useState("show_value")
   const [start] = model.useState("start")
   const [step] = model.useState("step")
+  const [sx] = model.useState("sx")
   const [ticks] = model.useState("ticks")
   const [tooltips] = model.useState("tooltips")
   const [track] = model.useState("track")
@@ -88,6 +89,7 @@ export function render({model}) {
           "& .MuiSlider-rail": {
             backgroundColor: bar_color,
           },
+          ...sx
         }}
         valueLabelFormat={format_value}
       />

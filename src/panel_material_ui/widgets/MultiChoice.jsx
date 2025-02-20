@@ -33,6 +33,7 @@ export function render({model}) {
   const [solid] = model.useState("solid");
   const [value, setValue] = model.useState("value");
   const [variant] = model.useState("variant");
+  const [sx] = model.useState("sx");
   const handleChange = (event) => {
     const new_value = event.target.value;
     // On autofill we get a stringified value.
@@ -50,8 +51,6 @@ export function render({model}) {
         multiple
         color={color}
         disabled={disabled}
-        value={value}
-        onChange={handleChange}
         input={variant === "outlined" ?
           <OutlinedInput id="select-multiple-chip" label="Chip" /> :
           variant === "filled" ?
@@ -59,6 +58,8 @@ export function render({model}) {
             <Input id="select-multiple-chip" label="Chip" />
         }
         labelId={`chip-label-${model.id}`}
+	onChange={handleChange}
+        sx={sx}
         variant={variant}
         renderValue={(selected) => (
           <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5}}>
@@ -76,6 +77,7 @@ export function render({model}) {
             ))}
           </Box>
         )}
+	value={value}
         MenuProps={MenuProps}
       >
         {options.map((name) => (

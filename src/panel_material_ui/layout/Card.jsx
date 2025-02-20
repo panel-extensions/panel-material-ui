@@ -38,6 +38,7 @@ export function render({model}) {
   const [raised] = model.useState("raised");
   const [collapsible] = model.useState("collapsible");
   const [collapsed, setCollapsed] = model.useState("collapsed");
+  const [sx] = model.useState("sx");
   const header = model.get_child("header");
   const objects = model.get_child("objects");
 
@@ -46,6 +47,7 @@ export function render({model}) {
       raised={raised}
       elevation={elevation}
       variant={outlined ? "outlined" : "elevation"}
+      sx={sx}
     >
       {title && (
         <CardHeader

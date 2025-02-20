@@ -10,7 +10,7 @@ export function render({model}) {
   const [active, setActive] = model.useState("active");
   const [names] = model.useState("_names");
   const [toggle] = model.useState("toggle");
-
+  const [sx] = model.useState("sx");
   const handle_expand = (index) => () => {
     let newActive
     if (active.includes(index)) {
@@ -32,6 +32,7 @@ export function render({model}) {
             defaultExpanded={active.includes(index)}
             expanded={active.includes(index)}
             key={`accordion-${index}`}
+            sx={sx}
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />} onClick={handle_expand(index)}>{names[index]}</AccordionSummary>
             <AccordionDetails>{obj}</AccordionDetails>

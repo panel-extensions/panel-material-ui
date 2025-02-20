@@ -1,17 +1,18 @@
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import ListSubheader from "@mui/material/ListSubheader";
+import InputLabel from "@mui/material/InputLabel"
+import MenuItem from "@mui/material/MenuItem"
+import FormControl from "@mui/material/FormControl"
+import Select from "@mui/material/Select"
+import ListSubheader from "@mui/material/ListSubheader"
 
 export function render({model, el}) {
-  const [value, setValue] = model.useState("value");
-  const [options] = model.useState("options");
-  const [color] = model.useState("color");
-  const [label] = model.useState("label");
-  const [variant] = model.useState("variant");
-  const [disabled] = model.useState("disabled");
-  const [disabled_options] = model.useState("disabled_options");
+  const [value, setValue] = model.useState("value")
+  const [options] = model.useState("options")
+  const [color] = model.useState("color")
+  const [label] = model.useState("label")
+  const [variant] = model.useState("variant")
+  const [disabled] = model.useState("disabled")
+  const [disabled_options] = model.useState("disabled_options")
+  const [sx] = model.useState("sx")
 
   let option_list;
   if (Array.isArray(options)) {
@@ -54,6 +55,7 @@ export function render({model, el}) {
         label={label}
         variant={variant}
         onChange={(event) => { setValue(event.target.value) }}
+        sx={sx}
       >
         {option_list}
       </Select>

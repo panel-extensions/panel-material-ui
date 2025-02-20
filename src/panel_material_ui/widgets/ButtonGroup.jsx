@@ -11,6 +11,7 @@ export function render({model}) {
   const [disableElevation] = model.useState("disableElevation")
   const [options] = model.useState("options")
   const [value, setValue] = model.useState("value")
+  const [sx] = model.useState("sx")
   const exclusive = model.esm_constants.exclusive
   return (
     <ToggleButtonGroup
@@ -19,6 +20,7 @@ export function render({model}) {
       orientation={orientation}
       value={value}
       variant={variant}
+      sx={sx}
     >
       {options.map((option, index) => {
         return (

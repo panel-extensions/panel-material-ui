@@ -6,11 +6,12 @@ import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.util import datetime_as_utctimestamp, edit_readonly, value_as_date, value_as_datetime
 from panel.widgets.slider import DiscreteSlider as _PnDiscreteSlider
-from panel.widgets.slider import _SliderBase
+from panel.widgets.slider import _EditableContinuousSlider, _SliderBase
 from param.parameterized import resolve_value
 
 from ..base import COLORS
 from .base import MaterialWidget
+from .input import FloatInput, IntInput
 
 
 class _ContinuousSlider(MaterialWidget, _SliderBase):
@@ -349,6 +350,8 @@ class DiscreteSlider(_PnDiscreteSlider):
     options = param.ClassSelector(default=[], class_=(dict, list), doc="""
         A list or dictionary of valid options.""")
 
+    width = param.Integer(default=300, bounds=(0, None), allow_None=True)
+
     def _update_options(self, *events):
         values, labels = self.values, self.labels
         if not self.options and self.value is None:
@@ -412,3 +415,66 @@ class Rating(MaterialWidget):
         if 'value' in msg and msg['value'] is None:
             msg['value'] = 0
         return super()._process_property_change(msg)
+
+
+class _EditableContinuousSliderBase(_EditableContinuousSlider):
+
+    def __init__(self, **params):
+        super().__init__(**params)
+        self._value_edit.param.update(
+            size="small",
+            variant="filled",
+            stylesheets=[
+                ".MuiFilledInput-input { padding-top: 4px !important;}"
+            ]
+        )
+
+
+class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
+    """
+    The EditableFloatSlider widget allows selecting selecting a
+    numeric floating-point value within a set of bounds using a slider
+    and for more precise control offers an editable number input box.
+
+    Reference: https://panel.holoviz.org/reference/widgets/EditableFloatSlider.html
+
+    :Example:
+
+    >>> EditableFloatSlider(
+    ...     value=1.0, start=0.0, end=2.0, step=0.25, name="A float value"
+    ... )
+    """
+
+    fixed_start = param.Number(default=None, doc="""
+        A fixed lower bound for the slider and input.""")
+
+    fixed_end = param.Number(default=None, doc="""
+        A fixed upper bound for the slider and input.""")
+
+    _slider_widget = FloatSlider
+    _input_widget = FloatInput
+
+
+class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
+    """
+    The EditableIntSlider widget allows selecting selecting an integer
+    value within a set of bounds using a slider and for more precise
+    control offers an editable integer input box.
+
+    Reference: https://panel.holoviz.org/reference/widgets/EditableIntSlider.html
+
+    :Example:
+
+    >>> EditableIntSlider(
+    ...     value=2, start=0, end=5, step=1, name="An integer value"
+    ... )
+    """
+
+    fixed_start = param.Integer(default=None, doc="""
+        A fixed lower bound for the slider and input.""")
+
+    fixed_end = param.Integer(default=None, doc="""
+       A fixed upper bound for the slider and input.""")
+
+    _slider_widget = IntSlider
+    _input_widget = IntInput

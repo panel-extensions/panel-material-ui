@@ -46,7 +46,7 @@ class MaterialWidget(MaterialComponent, WidgetBase):
 
     margin = Margin(default=10)
 
-    width = param.Integer(default=300, bounds=(0, None))
+    width = param.Integer(default=300, bounds=(0, None), allow_None=True)
 
     __abstract = True
 

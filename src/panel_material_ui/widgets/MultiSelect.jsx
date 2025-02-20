@@ -1,6 +1,9 @@
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import FilledInput from "@mui/material/FilledInput";
+import Input from "@mui/material/Input";
 
 export function render({model, view}) {
   const [color] = model.useState("color");
@@ -10,7 +13,7 @@ export function render({model, view}) {
   const [options] = model.useState("options");
   const [value, setValue] = model.useState("value");
   const [variant] = model.useState("variant");
-
+  const [sx] = model.useState("sx");
   const handleChange = (event) => {
     const {options} = event.target;
     const newSelections = [];
@@ -41,9 +44,10 @@ export function render({model, view}) {
     }
   };
 
+  const inputId = `select-multiple-native-${model.id}`;
   return (
     <FormControl sx={{m: 1, width: 300}}>
-      <InputLabel shrink htmlFor={`select-multiple-native-${model.id}`}>
+      <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
         {label}
       </InputLabel>
       <Select
@@ -53,9 +57,14 @@ export function render({model, view}) {
         disabled={disabled}
         value={value}
         onChange={handleChange}
-        inputProps={{
-          id: `select-multiple-native-${model.id}`,
-        }}
+        labelId={`select-multiple-label-${model.id}`}
+        input={variant === "outlined" ?
+            <OutlinedInput id={inputId}/> :
+            variant === "filled" ?
+              <FilledInput id={inputId}/> :
+              <Input id={inputId}/>
+        }
+        sx={sx}
         variant={variant}
       >
         {options.map((name) => (
