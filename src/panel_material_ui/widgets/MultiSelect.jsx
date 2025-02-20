@@ -59,10 +59,10 @@ export function render({model, view}) {
         onChange={handleChange}
         labelId={`select-multiple-label-${model.id}`}
         input={variant === "outlined" ?
-            <OutlinedInput id={inputId}/> :
-            variant === "filled" ?
-              <FilledInput id={inputId}/> :
-              <Input id={inputId}/>
+          <OutlinedInput id={inputId}/> :
+          variant === "filled" ?
+            <FilledInput id={inputId}/> :
+            <Input id={inputId}/>
         }
         sx={sx}
         variant={variant}

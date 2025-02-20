@@ -10,6 +10,8 @@ export function render({model}) {
   const [options] = model.useState("options");
   const [label] = model.useState("label");
   const [orientation] = model.useState("orientation");
+  const [sx] = model.useState("sx");
+
   return (
     <FormControl component="fieldset" disabled={disabled}>
       {label && <FormLabel id="demo-radio-buttons-group-label">{label}</FormLabel>}
@@ -24,6 +26,7 @@ export function render({model}) {
             value={option}
             label={option}
             control={<Radio onChange={(e) => setValue("option")}/>}
+            sx={sx}
           />
         ))}
       </RadioGroup>

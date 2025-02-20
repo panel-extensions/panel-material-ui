@@ -58,7 +58,7 @@ export function render({model}) {
             <Input id="select-multiple-chip" label="Chip" />
         }
         labelId={`chip-label-${model.id}`}
-	onChange={handleChange}
+        onChange={handleChange}
         sx={sx}
         variant={variant}
         renderValue={(selected) => (
@@ -77,7 +77,7 @@ export function render({model}) {
             ))}
           </Box>
         )}
-	value={value}
+	      value={value}
         MenuProps={MenuProps}
       >
         {options.map((name) => (
