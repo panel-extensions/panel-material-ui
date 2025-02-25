@@ -5,6 +5,7 @@ from typing import Any
 import param
 from panel.util import edit_readonly, isIn
 from panel.widgets.base import Widget
+from panel.widgets.select import NestedSelect as _PnNestedSelect
 from panel.widgets.select import Select as _PnSelect
 from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
 from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
@@ -425,3 +426,35 @@ class MultiChoice(MultiSelect):
     _rename = {"name": None}
 
     _esm_base = "MultiChoice.jsx"
+
+
+class NestedSelect(_PnNestedSelect):
+    """
+    The `NestedSelect` widget is composed of multiple widgets, where subsequent select options
+    depend on the parent's value.
+
+    Reference: https://panel.holoviz.org/reference/widgets/NestedSelect.html
+
+    :Example:
+
+    >>> NestedSelect(
+    ...     options={
+    ...         "gfs": {"tmp": [1000, 500], "pcp": [1000]},
+    ...         "name": {"tmp": [1000, 925, 850, 700, 500], "pcp": [1000]},
+    ...     },
+    ...     levels=["model", "var", "level"],
+    ... )
+    """
+
+    def _extract_level_metadata(self, i):
+        """
+        Extract the widget type and keyword arguments from the level metadata.
+        """
+        level = self._levels[i]
+        if isinstance(level, int):
+            return Select, {}
+        elif isinstance(level, str):
+            return Select, {"name": level}
+        widget_type = level.get("type", Select)
+        widget_kwargs = {k: v for k, v in level.items() if k != "type"}
+        return widget_type, widget_kwargs
