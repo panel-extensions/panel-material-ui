@@ -24,6 +24,39 @@ def test_text_input_variant(page, variant):
         expect(page.locator(f'.Mui{variant.capitalize()}Input-root')).to_have_count(1)
 
 
+def test_text_input_typing(page):
+    widget = TextInput(name='Test', placeholder='Type something...')
+    serve_component(page, widget)
+    
+    # Find the input field and type into it
+    input_field = page.locator('input').nth(0)
+    input_field.click()
+    input_field.type('Hello World', delay=50)
+    
+    # Check that the text appears as we type (value_input)
+    expect(input_field).to_have_value('Hello World')
+    
+    # Check value_input is updated while typing
+    wait_until(lambda: widget.value_input == 'Hello World', page)
+    
+    # But the main value should only be updated when we press Enter
+    assert widget.value == ''
+    
+    # Press Enter to update the value
+    input_field.press('Enter')
+    wait_until(lambda: widget.value == 'Hello World', page)
+    
+    # Test that typing more updates the display and value_input but not the value
+    input_field.type(' Again', delay=50)
+    expect(input_field).to_have_value('Hello World Again')
+    wait_until(lambda: widget.value_input == 'Hello World Again', page)
+    assert widget.value == 'Hello World'
+    
+    # Press Enter to update the value
+    input_field.press('Enter')
+    wait_until(lambda: widget.value == 'Hello World Again', page)
+
+
 def test_password_show_hide(page):
     widget = PasswordInput(label='Password', placeholder='Enter your password here ...')
     serve_component(page, widget)
@@ -41,6 +74,37 @@ def test_text_area_input(page):
     serve_component(page, widget)
     expect(page.locator('.text-area-input')).to_have_count(1)
     expect(page.locator('textarea[rows="5"]')).to_have_count(1)
+
+
+def test_text_area_typing(page):
+    widget = TextAreaInput(label='Description', placeholder='Type something...')
+    serve_component(page, widget)
+    
+    # Find the textarea and type into it
+    textarea = page.locator('textarea').nth(0)
+    textarea.click()
+    
+    # Type text including newlines
+    textarea.type('Multiline', delay=50)
+    textarea.press('Enter')
+    textarea.type('Text', delay=50)
+    textarea.press('Enter')
+    textarea.type('Test', delay=50)
+    
+    # Check that the text appears as we type (value_input)
+    expect(textarea).to_have_value('Multiline\nText\nTest')
+    
+    # Check value_input is updated while typing
+    wait_until(lambda: widget.value_input == 'Multiline\nText\nTest', page)
+    
+    # But value should still be the original value (empty string) since we haven't blurred
+    assert widget.value == ''
+    
+    # Click elsewhere to trigger blur
+    page.locator('body').click()
+    wait_until(lambda: widget.value == 'Multiline\nText\nTest', page)
+
+
 
 
 def test_text_area_auto_grow(page):
