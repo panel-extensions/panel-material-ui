@@ -77,7 +77,7 @@ export function render({model}) {
             ))}
           </Box>
         )}
-	      value={value}
+	value={value}
         MenuProps={MenuProps}
       >
         {options.map((name) => (
