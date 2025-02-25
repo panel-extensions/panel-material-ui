@@ -9,6 +9,7 @@ export function render({model}) {
   const [value_input, setValueInput] = model.useState("value_input")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
+  const [sx] = model.useState("sx")
 
   return (
     <TextField
@@ -30,6 +31,7 @@ export function render({model}) {
       }}
       rows={4}
       fullWidth
+      sx={sx}
     />
   )
 }

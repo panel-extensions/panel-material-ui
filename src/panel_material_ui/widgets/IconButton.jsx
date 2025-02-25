@@ -7,6 +7,7 @@ export function render({model, el}) {
   const [edge] = model.useState("edge")
   const [icon] = model.useState("icon")
   const [size] = model.useState("size")
+  const [sx] = model.useState("sx")
   const [toggle_duration] = model.useState("toggle_duration")
   const [current_icon, setIcon] = React.useState(icon)
 
@@ -24,6 +25,7 @@ export function render({model, el}) {
       disabled={disabled}
       edge={edge}
       size={size}
+      sx={sx}
       onClick={handleClick}
     >
       <Icon style={{fontSize: size}}>{current_icon}</Icon>

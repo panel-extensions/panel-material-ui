@@ -15,12 +15,18 @@ pn.extension(defer_load=True)
 
 pn.config.design = MaterialDesign
 
-color = pn.widgets.ColorPicker(value='#ff0000')
-dark = Checkbox(value=pn.config.theme=='dark')
+primary_color = pn.widgets.ColorPicker(value='#ff0000', name='Primary', width=150)
+secondary_color = pn.widgets.ColorPicker(value='#0000ff', name='Secondary', width=150)
+dark = Checkbox(value=pn.config.theme=='dark', width=150, label='Dark mode')
 
 design_kwargs = dict(
     dark_theme=dark,
-    theme_config={'palette': {'primary': {'main': color}}},
+    theme_config={
+        'palette': {
+            'primary': {'main': primary_color},
+            'secondary': {'main': secondary_color},
+        }
+    },
 )
 
 def insert_at_nth_position(main_list, insert_list, n):
@@ -46,7 +52,6 @@ def render_variant(component, variant, **kwargs):
     elif inspect.isfunction(variant):
         return variant(component, **kwargs)
     values = []
-    print(component)
     for p in variant:
         if isinstance(component.param[p], param.Integer):
             values.append(list(range(10)))
@@ -167,19 +172,36 @@ spec = {
         'Selection': [
             (AutocompleteInput, (['variant'], ['disabled']), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Autocomplete')),
             (CheckBoxGroup, (['color', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='CheckBoxGroup', value=['Bar'])),
-            (CheckButtonGroup, (['color', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='CheckButtonGroup', value=['Foo', 'Bar'])),
+            (CheckButtonGroup, (['button_type', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='CheckButtonGroup', value=['Foo', 'Bar'])),
             (RadioBoxGroup, (['color', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='RadioBoxGroup', value='Foo')),
-            (RadioButtonGroup, (['color', 'button_style'], ['size'], ['orientation']), dict(options=['Foo', 'Bar', 'Baz'], label='RadioButtonGroup', value='Foo')),
-            (Select, (['variant', 'disabled'],), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Select')),
+            (RadioButtonGroup, (['button_type', 'button_style'], ['size'], ['orientation']), dict(options=['Foo', 'Bar', 'Baz'], label='RadioButtonGroup', value='Foo')),
+            (MultiSelect, (['variant', 'color'], ['disabled'],), dict(options=['Foo', 'Bar', 'Baz'], label='Select')),
+            (MultiChoice, (['variant', 'color'], ['disabled'],), dict(options=['Foo', 'Bar', 'Baz'], label='Select')),
+            (Select, (['variant', 'color'], ['disabled'],), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Select')),
         ],
         'Sliders': [
+            (DateSlider, (['color', 'track'], ['disabled']), dict(start=dt.datetime(2019, 1, 1), end=dt.datetime(2019, 6, 1), value=dt.datetime(2019, 2, 8), label='DateSlider')),
+            (DatetimeSlider, (['color', 'track'], ['disabled']), dict(start=dt.datetime(2019, 1, 1), end=dt.datetime(2019, 6, 1), value=dt.datetime(2019, 2, 8), label='DatetimeSlider')),
+            (DateRangeSlider, (['color', 'track'], ['disabled']), dict(start=dt.datetime(2019, 1, 1), end=dt.datetime(2019, 6, 1), value=(dt.datetime(2019, 2, 8), dt.datetime(2019, 3, 8)), label='DateRangeSlider')),
+            (DatetimeRangeSlider, (['color', 'track'], ['disabled']), dict(start=dt.datetime(2019, 1, 1), end=dt.datetime(2019, 6, 1), value=(dt.datetime(2019, 2, 8), dt.datetime(2019, 3, 8)), label='FloatSlider')),
             (FloatSlider, (['color', 'track'], ['disabled']), dict(start=0, end=7.2, value=3.14, label='FloatSlider')),
             (IntSlider, (['color', 'track'], ['disabled']), dict(start=0, end=10, value=5, label='IntSlider')),
             (IntRangeSlider, (['color', 'track'], ['disabled']), dict(start=0, end=10, value=(5, 7), label='IntRangeSlider')),
             (RangeSlider, (['color', 'track'], ['disabled']), dict(start=0, end=3.14, value=(0.1, 0.7), label='RangeSlider')),
-            (Rating, [], dict(start=0, end=10, value=4))
+            (Rating, [], dict(end=10, value=4))
         ]
     },
 }
 
-Page(header=[color, dark], main=[render_spec(spec)], sidebar=['# Foo'], title='panel-material-ui components', **design_kwargs).servable()
+page = Page(
+    main=[render_spec(spec)],
+    sidebar=[
+        primary_color,
+        secondary_color,
+        dark
+    ],
+    title='panel-material-ui components',
+    **design_kwargs
+)
+
+page.servable()

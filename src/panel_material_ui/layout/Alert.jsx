@@ -9,6 +9,7 @@ export function render({model}) {
   const [title] = model.useState("title");
   const [object] = model.useState("object");
   const [variant] = model.useState("variant");
+  const [sx] = model.useState("sx");
   const objects = model.get_child("objects");
   const props = {}
   if (closeable) {
@@ -16,7 +17,7 @@ export function render({model}) {
   }
   return (
     <Collapse in={!closed}>
-      <Alert severity={severity} variant={variant} {...props}>
+      <Alert severity={severity} variant={variant} {...props} sx={sx}>
         <AlertTitle>{title}</AlertTitle>
         {object}
         {objects}

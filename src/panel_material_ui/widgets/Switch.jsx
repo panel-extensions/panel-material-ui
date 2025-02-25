@@ -8,6 +8,7 @@ export function render({model}) {
   const [edge] = model.useState("edge")
   const [label] = model.useState("label")
   const [size] = model.useState("size")
+  const [sx] = model.useState("sx")
 
   return (
     <FormControlLabel
@@ -19,6 +20,7 @@ export function render({model}) {
           size={size}
           edge={edge}
           onChange={(event) => setChecked(event.target.checked)}
+          sx={sx}
         />
       }
       label={label}

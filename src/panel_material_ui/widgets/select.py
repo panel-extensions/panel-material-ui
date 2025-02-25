@@ -1,27 +1,53 @@
 from __future__ import annotations
 
+from typing import Any
+
 import param
 from panel.util import edit_readonly, isIn
 from panel.widgets.base import Widget
-from panel.widgets.select import (
-    SingleSelectBase as _PnSingleSelectBase,
-)
-from panel.widgets.select import (
-    _MultiSelectBase as _PnMultiSelectBase,
-)
+from panel.widgets.select import NestedSelect as _PnNestedSelect
+from panel.widgets.select import Select as _PnSelect
+from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
+from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
 
 from ..base import COLORS
 from .base import MaterialWidget
 
 
 class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
+    """
+    Base class for Material UI single-select widgets.
+
+    This class combines Material UI styling with Panel's single select functionality.
+    It provides the foundation for widgets that allow selecting a single value from
+    a list of options, such as dropdown selects and autocomplete inputs.
+
+    This is an abstract base class and should not be used directly.
+    """
+
     value = param.Parameter(default=None, allow_None=True)
+
+    _allows_values = False
 
     __abstract = True
 
 
 class MaterialMultiSelectBase(MaterialWidget, _PnMultiSelectBase):
-    value = param.List(default=None, allow_None=True)
+    """
+    Base class for Material UI multi-select widgets.
+
+    This class combines Material UI styling with Panel's multi-select functionality.
+    It provides the foundation for widgets that allow selecting multiple values from
+    a list of options, such as multi-select dropdowns and autocomplete inputs.
+
+    This is an abstract base class and should not be used directly.
+    """
+
+    value = param.List(default=[], allow_None=True)
+
+    _rename = {"name": "name"}
+
+    _allows_values = False
 
     __abstract = True
 
@@ -70,9 +96,8 @@ class AutocompleteInput(MaterialSingleSelectBase):
         completion string. Using `"includes"` means that the user's text can
         match any substring of a completion string.""")
 
-    value_input = param.String(
+    value_input = param.Parameter(
         default="",
-        allow_None=True,
         readonly=True,
         doc="""
         Initial or entered text value updated on every key press.""",
@@ -111,7 +136,7 @@ class AutocompleteInput(MaterialSingleSelectBase):
             self.value_input = self.value
 
 
-class Select(MaterialSingleSelectBase):
+class Select(MaterialSingleSelectBase, _PnSelect):
     """
     The `Select` widget allows selecting a value from a list.
 
@@ -128,61 +153,47 @@ class Select(MaterialSingleSelectBase):
     >>> Select(label='Study', options=['Biology', 'Chemistry', 'Physics'])
     """
 
+    color = param.Selector(objects=COLORS, default="primary")
+
     disabled_options = param.List(default=[], nested_refs=True, doc="""
         Optional list of ``options`` that are disabled, i.e. unusable and
-        un-clickable. If ``options`` is a dictionary the list items must be
-        dictionary values.""")
+        un-clickable. If ``options`` is a dictionary the list items have to
+        correspond to the values in the options dictionary..""")
+
+    groups = param.Dict(default=None, nested_refs=True, doc="""
+        Dictionary whose keys are used to visually group the options
+        and whose values are either a list or a dictionary of options
+        to select from. Mutually exclusive with ``options``  and valid only
+        if ``size`` is 1.""")
+
+    size = param.Integer(default=1, bounds=(1, None), doc="""
+        Declares how many options are displayed at the same time.
+        If set to 1 displays options as dropdown otherwise displays
+        scrollable area.""")
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 
     _esm_base = "Select.jsx"
-
     _rename = {"name": "name"}
 
-    def __init__(self, **params):
-        super().__init__(**params)
-        self._internal_callbacks.extend([
-            self.param.watch(
-                self._validate_disabled_options,
-                ['options', 'disabled_options', 'value']
-            ),
-        ])
-        self._validate_disabled_options()
-
-    def _validate_disabled_options(self, *events):
-        if self.disabled_options and self.disabled_options == self.values:
-            raise ValueError(
-                f'All the options of a {type(self).__name__} '
-                'widget cannot be disabled.'
-            )
-        not_in_opts = [
-            dopts
-            for dopts in self.disabled_options
-            if dopts not in (self.values or [])
-        ]
-        if not_in_opts:
-            raise ValueError(
-                f'Cannot disable non existing options of {type(self).__name__}: {not_in_opts}'
-            )
-        if len(events) == 1:
-            if events[0].name == 'value' and self.value in self.disabled_options:
-                raise ValueError(
-                    f'Cannot set the value of {type(self).__name__} to '
-                    f'{self.value!r} as it is a disabled option.'
-                )
-            elif events[0].name == 'disabled_options' and self.value in self.disabled_options:
-                raise ValueError(
-                    f'Cannot set disabled_options of {type(self).__name__} to a list that '
-                    f'includes the current value {self.value!r}.'
-                )
-        if self.value in self.disabled_options:
-            raise ValueError(
-                f'Cannot initialize {type(self).__name__} with value {self.value!r} '
-                'as it is one of the disabled options.'
-            )
+    def _process_param_change(self, msg: dict[str, Any]) -> dict[str, Any]:
+        if 'groups' in msg and msg['groups'] is None:
+            # Workaround for bug in Panel implementation, fixed in >1.6.1.
+            msg.pop('groups')
+        msg = super()._process_param_change(msg)
+        if 'groups' in msg:
+            msg['groups'] = [item[0] for sublist in msg['groups'].values() for item in sublist]
+        return msg
 
 
 class RadioGroup(MaterialWidget):
+    """
+    Base class for Material UI radio groups.
+
+    This class combines Material UI styling with Panel's radio group functionality.
+    It provides the foundation for widgets that allow selecting a single value from
+    a list of options, such as radio buttons and checkboxes.
+    """
 
     color = param.Selector(default="primary", objects=COLORS)
 
@@ -216,12 +227,8 @@ class RadioBoxGroup(RadioGroup, MaterialSingleSelectBase):
     ... )
     """
 
-    orientation = param.Selector(
-        default="horizontal",
-        objects=["horizontal", "vertical"],
-        doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""",
-    )
+    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
+        Button group orientation, either 'horizontal' (default) or 'vertical'.""")
 
     value = param.String(default=None, allow_None=True)
 
@@ -260,6 +267,15 @@ class CheckBoxGroup(RadioGroup, MaterialMultiSelectBase):
 
 
 class ButtonGroup(MaterialWidget):
+    """
+    Base class for Material UI button groups.
+
+    This class combines Material UI styling with Panel's button group functionality.
+    It provides the foundation for widgets that allow selecting a single or multiple
+    values from a list of options, such as toggle buttons and checkboxes.
+
+    This is an abstract base class and should not be used directly.
+    """
 
     button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
 
@@ -341,7 +357,33 @@ class CheckButtonGroup(ButtonGroup, MaterialMultiSelectBase):
     _constants = {"exclusive": False}
 
 
-class MultiChoice(MaterialMultiSelectBase):
+class MultiSelect(MaterialMultiSelectBase):
+    """
+    The `MultiSelect` widget allows selecting multiple values from a list of
+    `options`.
+
+    It falls into the broad category of multi-value, option-selection widgets
+    that provide a compatible API and include the `MultiSelect`,
+    `CrossSelector`, `CheckBoxGroup` and `CheckButtonGroup` widgets.
+
+    References:
+    - https://panel.holoviz.org/reference/widgets/MultiSelect.html
+    - https://mui.com/material-ui/react-select/#multiple-select
+    """
+
+    color = param.Selector(objects=COLORS, default="primary")
+
+    max_items = param.Integer(default=None, bounds=(1, None), doc="""
+        Maximum number of options that can be selected.""")
+
+    value = param.List(default=[], allow_None=True)
+
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+
+    _esm_base = "MultiSelect.jsx"
+
+
+class MultiChoice(MultiSelect):
     """
     The `MultiChoice` widget allows selecting multiple values from a list of
     `options`.
@@ -369,9 +411,6 @@ class MultiChoice(MaterialMultiSelectBase):
     delete_button = param.Boolean(default=True, doc="""
         Whether to display a button to delete a selected option.""")
 
-    max_items = param.Integer(default=None, bounds=(1, None), doc="""
-        Maximum number of options that can be selected.""")
-
     option_limit = param.Integer(default=None, bounds=(1, None), doc="""
         Maximum number of options to display at once.""")
 
@@ -382,14 +421,40 @@ class MultiChoice(MaterialMultiSelectBase):
         String displayed when no selection has been made.""")
 
     solid = param.Boolean(default=True, doc="""
-        Whether to display widget with solid or light style.""")
-
-    width = param.Integer(default=300, allow_None=True, doc="""
-      Width of this component. If sizing_mode is set to stretch
-      or scale mode this will merely be used as a suggestion.""")
-
-    value = param.List(default=[])
+       π Whether to display widget with solid or light style.""")
 
     _rename = {"name": None}
 
     _esm_base = "MultiChoice.jsx"
+
+
+class NestedSelect(_PnNestedSelect):
+    """
+    The `NestedSelect` widget is composed of multiple widgets, where subsequent select options
+    depend on the parent's value.
+
+    Reference: https://panel.holoviz.org/reference/widgets/NestedSelect.html
+
+    :Example:
+
+    >>> NestedSelect(
+    ...     options={
+    ...         "gfs": {"tmp": [1000, 500], "pcp": [1000]},
+    ...         "name": {"tmp": [1000, 925, 850, 700, 500], "pcp": [1000]},
+    ...     },
+    ...     levels=["model", "var", "level"],
+    ... )
+    """
+
+    def _extract_level_metadata(self, i):
+        """
+        Extract the widget type and keyword arguments from the level metadata.
+        """
+        level = self._levels[i]
+        if isinstance(level, int):
+            return Select, {}
+        elif isinstance(level, str):
+            return Select, {"name": level}
+        widget_type = level.get("type", Select)
+        widget_kwargs = {k: v for k, v in level.items() if k != "type"}
+        return widget_type, widget_kwargs
