@@ -523,6 +523,7 @@ class _DatetimePickerBase(_DatePickerBase):
 
     def _process_property_change(self, msg):
         msg = super()._process_property_change(msg)
+        print(msg)
         if 'value' in msg:
             msg['value'] = self._serialize_value(msg['value'])
         return msg
@@ -632,7 +633,7 @@ class TimePicker(_TimeCommon):
     :Example:
 
     >>> TimePicker(
-    ...     value="12:59:31", start="09:00:00", end="18:00:00", name="Time"
+    ...     value=time(12, 59, 31), start="09:00:00", end="18:00:00", name="Time"
     ... )
     """
 
@@ -647,25 +648,60 @@ class TimePicker(_TimeCommon):
     end = param.ClassSelector(default=None, class_=(dt_time, str), doc="""
         Inclusive upper bound of the allowed time selection""")
 
-    format = param.String(default='H:i', doc="""
-        Formatting specification for the display of the picked date.
-
-        +---+------------------------------------+------------+
-        | H | Hours (24 hours)                   | 00 to 23   |
-        | h | Hours                              | 1 to 12    |
-        | G | Hours, 2 digits with leading zeros | 1 to 12    |
-        | i | Minutes                            | 00 to 59   |
-        | S | Seconds, 2 digits                  | 00 to 59   |
-        | s | Seconds                            | 0, 1 to 59 |
-        | K | AM/PM                              | AM or PM   |
-        +---+------------------------------------+------------+
-
-        See also https://flatpickr.js.org/formatting/#date-formatting-tokens.
+    format = param.String(default=None, doc="""
+        Format to display the time. Use 'HH:mm:ss' to include seconds.
+        For 12-hour clock, use 'hh:mm a'. See dayjs formatting options.
+        If None, will be automatically set based on clock and seconds settings.
     """)
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 
     _esm_base = "TimePicker.jsx"
+
+    def __init__(self, **params):
+        # Convert time objects to appropriate string format if needed
+        for attr in ['value', 'start', 'end']:
+            if attr in params and isinstance(params[attr], dt_time):
+                params[attr] = params[attr].strftime('%H:%M:%S')
+        
+        super().__init__(**params)
+        
+        # Set initial format based on clock and seconds if not explicitly provided
+        if self.format is None:
+            self._update_format_from_settings()
+
+    @param.depends('clock', 'seconds', watch=True)
+    def _update_format_from_settings(self):
+        """Update the time format based on clock and seconds settings."""
+        if self.clock == '12h':
+            self.format = 'hh:mm a' if not self.seconds else 'hh:mm:ss a'
+        else:  # 24h
+            self.format = 'HH:mm' if not self.seconds else 'HH:mm:ss'
+
+    def _process_param_change(self, msg):
+        msg = super()._process_param_change(msg)
+        # Convert time objects to strings when sending to JS
+        if 'value' in msg and isinstance(msg['value'], dt_time):
+            msg['value'] = msg['value'].strftime('%H:%M:%S')
+        if 'start' in msg and isinstance(msg['start'], dt_time):
+            msg['start'] = msg['start'].strftime('%H:%M:%S')
+        if 'end' in msg and isinstance(msg['end'], dt_time):
+            msg['end'] = msg['end'].strftime('%H:%M:%S')
+        return msg
+
+    def _process_property_change(self, msg):
+        msg = super()._process_property_change(msg)
+        # Convert string time values to datetime.time objects
+        if 'value' in msg:
+            time_str = msg['value']
+            if time_str and isinstance(time_str, str):
+                time_parts = time_str.split(':')
+                if len(time_parts) >= 2:
+                    hours = int(time_parts[0])
+                    minutes = int(time_parts[1])
+                    seconds = int(time_parts[2]) if len(time_parts) > 2 else 0
+                    msg['value'] = dt_time(hours, minutes, seconds)
+        return msg
 
 
 class Checkbox(MaterialWidget):
