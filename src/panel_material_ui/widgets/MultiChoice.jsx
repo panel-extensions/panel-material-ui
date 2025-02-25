@@ -22,17 +22,22 @@ const MenuProps = {
 export function render({model, view}) {
   const [disabled] = model.useState("disabled");
   const [label] = model.useState("label");
+  const [max_items] = model.useState("max_items");
   const [options] = model.useState("options");
   const [value, setValue] = model.useState("value");
 
   const handleChange = (event) => {
     const {
-      target: {value},
+      target: { value: newValue },
     } = event;
-    setValue(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value,
-    );
+
+    // Ensure value is an array
+    const selectedValues = typeof newValue === "string" ? newValue.split(",") : newValue;
+
+    // Prevent selection if maxItems limit is reached
+    if (selectedValues.length <= max_items) {
+      setValue(selectedValues);
+    }
   };
 
   return (
@@ -56,6 +61,7 @@ export function render({model, view}) {
           <MenuItem
             key={name}
             value={name}
+            disabled={value.length >= max_items && !value.includes(name)}
           >
             {name}
           </MenuItem>
