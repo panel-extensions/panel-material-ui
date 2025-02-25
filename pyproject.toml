@@ -32,7 +32,7 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development :: Libraries",
 ]
-dependencies = ['panel >=1.6.1', 'packaging']
+dependencies = ['panel >=1.6.2a1', 'packaging']
 
 [project.urls]
 Homepage = "https://github.com/panel-extensions/panel-material-ui"
