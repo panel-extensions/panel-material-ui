@@ -183,8 +183,12 @@ def test_select_change_options(widget, document, comm):
     widget = select.get_root(document, comm=comm)
 
     select.options = {'A': 'a'}
-    assert select.value is None
-    assert widget.data.value is None
+    if select._allows_none:
+        assert select.value is None
+        assert widget.data.value is None
+    else:
+        assert select.value == opts['A']
+        assert widget.data.value == 'A'
 
     select.options = {}
     assert select.value is select.param['value'].default
@@ -197,14 +201,23 @@ def test_select_non_hashable_options(widget, document, comm):
 
     widget = select.get_root(document, comm=comm)
 
-    select.value = opts['A']
-    assert select.value is opts['A']
-    assert widget.data.value == (str(opts['A']) if select._allows_values else 'A')
+    if select._allows_none:
+        select.value = None
+        assert select.value is None
+        assert widget.data.value is None
+    else:
+        select.value = opts['A']
+        assert select.value is opts['A']
+        assert widget.data.value == (str(opts['A']) if select._allows_values else 'A')
 
     opts.pop('A')
     select.options = opts
-    assert select.value is None
-    assert widget.data.value is None
+    if select._allows_none:
+        assert select.value is None
+        assert widget.data.value is None
+    else:
+        assert select.value is opts['1']
+        assert widget.data.value == '1'
 
 def test_select_mutables(document, comm):
     opts = {'A': [1,2,3], 'B': [2,4,6], 'C': dict(a=1,b=2)}
@@ -239,6 +252,6 @@ def test_select_change_options_on_watch(document, comm):
     model = select.get_root(document, comm=comm)
 
     select.value = 1
-    assert select.value is None
-    assert model.data.value is None
+    assert select.value == 2
+    assert model.data.value == 'D'
     assert model.data.options == list(select.options)
