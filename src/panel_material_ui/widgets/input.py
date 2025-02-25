@@ -523,7 +523,6 @@ class _DatetimePickerBase(_DatePickerBase):
 
     def _process_property_change(self, msg):
         msg = super()._process_property_change(msg)
-        print(msg)
         if 'value' in msg:
             msg['value'] = self._serialize_value(msg['value'])
         return msg
