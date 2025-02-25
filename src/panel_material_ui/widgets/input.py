@@ -662,9 +662,9 @@ class TimePicker(_TimeCommon):
         for attr in ['value', 'start', 'end']:
             if attr in params and isinstance(params[attr], dt_time):
                 params[attr] = params[attr].strftime('%H:%M:%S')
-        
+
         super().__init__(**params)
-        
+
         # Set initial format based on clock and seconds if not explicitly provided
         if self.format is None:
             self._update_format_from_settings()

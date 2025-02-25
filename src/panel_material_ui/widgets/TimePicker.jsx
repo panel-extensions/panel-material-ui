@@ -22,11 +22,11 @@ export function render({model, view}) {
 
   // Parse the time value from Python
   function parseTime(timeString) {
-    if (!timeString) return null;
-    
+    if (!timeString) { return null; }
+
     // Handle both datetime.time objects and string representations
-    if (typeof timeString === 'string') {
-      const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    if (typeof timeString === "string") {
+      const [hours, minutes, seconds] = timeString.split(":").map(Number);
       // Create a dayjs object for today with the specified time
       return dayjs().hour(hours).minute(minutes).second(seconds || 0);
     } else {
@@ -52,7 +52,7 @@ export function render({model, view}) {
     setValue(newValue);
     if (newValue) {
       // Format as HH:MM:SS for Python's datetime.time
-      const timeString = newValue.format('HH:mm:ss');
+      const timeString = newValue.format("HH:mm:ss");
       model.value = timeString;
     } else {
       model.value = null;
@@ -60,7 +60,7 @@ export function render({model, view}) {
   };
 
   // Format the view options based on whether seconds are enabled
-  const views = seconds ? ['hours', 'minutes', 'seconds'] : ['hours', 'minutes'];
+  const views = seconds ? ["hours", "minutes", "seconds"] : ["hours", "minutes"];
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
