@@ -434,12 +434,22 @@ class DatePicker(_DatePickerBase):
     ... )
     """
 
-    _constants = {'range': True}
+    _constants = {'range': False, 'time': False}
 
-    def _handle_onChange(self, event):
-        if 'value' not in event.data:
-            return
-        self.value = event.data['value'].toISOString().split('T')[0]
+    value = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
+        The current value. Can be a datetime object or a string in ISO format.""")
+
+    def _serialize_value(self, value):
+        """Convert value for sending to JavaScript."""
+        if isinstance(value, str) and value:
+            try:
+                if self.as_numpy_datetime64:
+                    return np.datetime64(value)
+                else:
+                    return self._parse_datetime_string(value)
+            except ValueError:
+                return None
+        return value
 
 class DateRangePicker(_DatePickerBase):
     """

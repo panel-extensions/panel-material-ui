@@ -75,17 +75,18 @@ export function render({model, view}) {
   // For tracking internal state changes vs. actual submission
   const [internalValue, setInternalValue] = React.useState(() => parseDate(modelValue));
 
+  // Track whether the calendar is open
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
+
+  // Track the last committed value timestamp to prevent duplicate updates
+  const lastCommittedRef = React.useRef(null);
+
   // Update local state when model value changes from Python
   React.useEffect(() => {
     const parsedDate = parseDate(modelValue);
     setValue(parsedDate);
     setInternalValue(parsedDate);
   }, [modelValue]);
-
-  // Handle changes from the date picker UI (internal state only)
-  const handleChange = (newValue) => {
-    setInternalValue(newValue);
-  };
 
   // Format the date value for Python
   function formatDateForPython(date) {
@@ -107,18 +108,68 @@ export function render({model, view}) {
     }
   }
 
-  // Update the model when selection is accepted
-  const handleAccept = (newValue) => {
-    setValue(newValue);
-    model.value = formatDateForPython(newValue);
+  // Safely update the model value
+  function updateModelValue(date) {
+    // Only update if we have a valid date
+    if (!date || !date.isValid()) return;
+
+    const formattedDate = formatDateForPython(date);
+
+    // Skip update if this is the same value we just committed
+    const currentTimestamp = date.valueOf();
+    if (lastCommittedRef.current === currentTimestamp) {
+      console.log("Skipping duplicate update for", formattedDate);
+      return;
+    }
+
+    // Update our tracking reference
+    lastCommittedRef.current = currentTimestamp;
+
+    // Update the model
+    console.log("Updating model value:", formattedDate);
+    setValue(date);
+    model.value = formattedDate;
+  }
+
+  // Handle calendar open
+  const handleOpen = () => {
+    console.log("Calendar opened");
+    setIsCalendarOpen(true);
   };
 
-  // Also update on blur to catch manual edits
-  const handleBlur = () => {
-    if (internalValue && internalValue.isValid()) {
-      setValue(internalValue);
-      model.value = formatDateForPython(internalValue);
+  // Handle changes from the date picker UI
+  const handleChange = (newValue) => {
+    console.log("Date changed:", newValue);
+    setInternalValue(newValue);
+
+    // For direct calendar selection, update immediately
+    if (isCalendarOpen && newValue && newValue.isValid()) {
+      console.log("Updating model value on change:", formatDateForPython(newValue));
+      updateModelValue(newValue);
     }
+  };
+
+  // Handle explicit accept (enter key or click on today button)
+  const handleAccept = (newValue) => {
+    console.log("Date accepted:", newValue);
+    updateModelValue(newValue);
+  };
+
+  // Handle blur to catch manual edits
+  const handleBlur = () => {
+    console.log("Input blurred, current value:", internalValue);
+    if (!isCalendarOpen) {  // Don't update on blur if calendar is open
+      updateModelValue(internalValue);
+    }
+  };
+
+  // Handle calendar close
+  const handleClose = () => {
+    console.log("Calendar closed");
+    setIsCalendarOpen(false);
+
+    // Don't update the model again on close - the change handler already did it
+    // This prevents the issue where the value changes again on close
   };
 
   const [disabled_dates] = model.useState("disabled_dates");
@@ -172,6 +223,15 @@ export function render({model, view}) {
   // Use the appropriate component based on whether we need date+time or just date
   const Component = time ? MUIDateTimePicker : MUIDatePicker;
 
+  // Handle keyboard events (like Enter)
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && internalValue && internalValue.isValid()) {
+      console.log("Enter key pressed");
+      updateModelValue(internalValue);
+      e.preventDefault();
+    }
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Component
@@ -179,7 +239,8 @@ export function render({model, view}) {
         value={internalValue}
         onChange={handleChange}
         onAccept={handleAccept}
-        onClose={handleBlur}
+        onClose={handleClose}
+        onOpen={handleOpen}
         views={views}
         disabled={disabled}
         format={format}
@@ -196,7 +257,11 @@ export function render({model, view}) {
           textField: {
             variant,
             color,
-            onBlur: handleBlur
+            onBlur: handleBlur,
+            onKeyDown: handleKeyDown,
+            InputProps: {
+              onBlur: handleBlur
+            }
           },
           popper: {container: view.container}
         }}
