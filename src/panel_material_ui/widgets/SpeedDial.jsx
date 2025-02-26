@@ -35,7 +35,7 @@ export function render({model, view}) {
               <Avatar color={item.color}>{avatar}</Avatar>
             )}
             tooltipTitle={item.label || name}
-            slotProps={{popper: { container: view.container }}}
+            slotProps={{popper: {container: view.container}}}
             onClick={() => { model.send_msg(name) }}
           />
         )
