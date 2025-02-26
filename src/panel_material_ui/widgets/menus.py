@@ -15,7 +15,7 @@ class MenuBase(MaterialWidget):
         List of items to display. Each item may be a string, a tuple mapping from a label to a value,
         or an object with a few common properties and a few widget specific properties.""")
 
-    value = param.String(default=None, doc="""
+    value = param.ClassSelector(default=None, class_=(int, str), doc="""
         Last clicked menu item.""")
 
     width = param.Integer(default=None, doc="""
