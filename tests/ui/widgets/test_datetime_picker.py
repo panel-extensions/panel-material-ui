@@ -80,7 +80,6 @@ def test_datetime_picker_color(page, color):
     expect(page.locator(".MuiInputBase-root")).to_have_count(1)
 
 
-@pytest.mark.skip("This test needs to be updated for the actual time display format")
 @pytest.mark.parametrize('military_time,expected_format', [
     (True, ["14:30"]),  # 24h format
     (False, ["02:30", "pm"])  # 12h format
@@ -149,7 +148,6 @@ def test_datetime_picker_with_seconds(page):
     assert datetime_picker.value.second == 45
 
 
-@pytest.mark.skip("This test needs to be updated for the actual time display format")
 def test_datetime_picker_format_update(page):
     """Test format updates when settings change."""
     datetime_picker = DatetimePicker(
