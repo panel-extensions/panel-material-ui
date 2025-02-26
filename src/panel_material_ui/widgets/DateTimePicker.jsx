@@ -20,27 +20,79 @@ export function render({model, view}) {
   const [clearable] = model.useState("clearable");
   const [format] = model.useState("format");
   const [sx] = model.useState("sx");
-  const range = model.esm_constants.range
-  const time = model.esm_constants.time
+  const [modelValue] = model.useState("value");
+  const range = model.esm_constants.range;
+  const time = model.esm_constants.time;
 
-  const timeProps = {}
+  const timeProps = {};
   if (time) {
     const [military_time] = model.useState("military_time");
-    timeProps.ampm = !military_time
+    timeProps.ampm = !military_time;
   }
 
+  // Parse date from various formats
   function parseDate(d) {
+    if (d === null || d === undefined) {
+      return null;
+    }
+
+    // Handle array values (for range pickers)
     if (Array.isArray(d)) {
-      return d.map(timestamp => dayjs.unix(timestamp / 1000));
-    } else {
+      return d.map(item => parseDate(item)).filter(Boolean);
+    }
+
+    // Handle timestamp or unix timestamp
+    if (typeof d === 'number') {
       return dayjs.unix(d / 1000);
     }
-  }
-  const [value, setValue] = React.useState(model.value ? parseDate(model.value) : null);
 
+    // Handle ISO string format
+    if (typeof d === 'string') {
+      const parsedDate = dayjs(d);
+      return parsedDate;
+    }
+
+    // Default parsing for other formats
+    return dayjs(d);
+  }
+
+  // Initialize state with model value
+  const [value, setValue] = React.useState(() => parseDate(modelValue));
+
+  // For tracking internal state changes vs. actual submission
+  const [internalValue, setInternalValue] = React.useState(() => parseDate(modelValue));
+
+  // Keep in sync with model changes
+  React.useEffect(() => {
+    const parsedDate = parseDate(modelValue);
+    setValue(parsedDate);
+    setInternalValue(parsedDate);
+  }, [modelValue]);
+
+  // Handle internal changes (typing, selecting from picker)
   const handleChange = (newValue) => {
+    setInternalValue(newValue);
+  };
+
+  // Only update the model when input is complete (blur or selection confirmed)
+  const handleAccept = (newValue) => {
     setValue(newValue);
-    model.send_event("onChange", {value: newValue});
+    if (newValue) {
+      // Update the model directly
+      const formattedValue = newValue.format('YYYY-MM-DD HH:mm:ss');
+      model.value = formattedValue;
+    } else {
+      model.value = null;
+    }
+  };
+
+  // Also update on blur to catch manual edits
+  const handleBlur = () => {
+    if (internalValue) {
+      setValue(internalValue);
+      const formattedValue = internalValue.format('YYYY-MM-DD HH:mm:ss');
+      model.value = formattedValue;
+    }
   };
 
   const [disabled_dates] = model.useState("disabled_dates");
@@ -91,13 +143,17 @@ export function render({model, view}) {
     return false;
   }
 
-  const component = time ? MUIDateTimePicker : MUIDatePicker
+  // Use the appropriate component based on whether we need date+time or just date
+  const Component = time ? MUIDateTimePicker : MUIDatePicker;
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <MUIDateTimePicker
+      <Component
         label={label}
-        value={value}
+        value={internalValue}
         onChange={handleChange}
+        onAccept={handleAccept}
+        onClose={handleBlur}
         views={views}
         disabled={disabled}
         format={format}
@@ -110,7 +166,14 @@ export function render({model, view}) {
         showTodayButton={show_today_button}
         clearable={clearable}
         sx={{width: "100%", ...sx}}
-        slotProps={{textField: {variant, color}, popper: {container: view.container}}}
+        slotProps={{
+          textField: {
+            variant,
+            color,
+            onBlur: handleBlur
+          },
+          popper: {container: view.container}
+        }}
         {...timeProps}
       />
     </LocalizationProvider>
