@@ -42,12 +42,12 @@ export function render({model, view}) {
     }
 
     // Handle timestamp or unix timestamp
-    if (typeof d === 'number') {
+    if (typeof d === "number") {
       return dayjs.unix(d / 1000);
     }
 
     // Handle ISO string format
-    if (typeof d === 'string') {
+    if (typeof d === "string") {
       const parsedDate = dayjs(d);
       return parsedDate;
     }
@@ -79,7 +79,7 @@ export function render({model, view}) {
     setValue(newValue);
     if (newValue) {
       // Update the model directly
-      const formattedValue = newValue.format('YYYY-MM-DD HH:mm:ss');
+      const formattedValue = newValue.format("YYYY-MM-DD HH:mm:ss");
       model.value = formattedValue;
     } else {
       model.value = null;
@@ -90,7 +90,7 @@ export function render({model, view}) {
   const handleBlur = () => {
     if (internalValue) {
       setValue(internalValue);
-      const formattedValue = internalValue.format('YYYY-MM-DD HH:mm:ss');
+      const formattedValue = internalValue.format("YYYY-MM-DD HH:mm:ss");
       model.value = formattedValue;
     }
   };
