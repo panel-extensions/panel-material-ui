@@ -20,7 +20,6 @@ export function render({model, view}) {
   const [clearable] = model.useState("clearable");
   const [format] = model.useState("format");
   const [sx] = model.useState("sx");
-  const [modelValue] = model.useState("value");
   const range = model.esm_constants.range;
   const time = model.esm_constants.time;
 
@@ -30,7 +29,6 @@ export function render({model, view}) {
     timeProps.ampm = !military_time;
   }
 
-  // Parse date from various formats
   function parseDate(d) {
     if (d === null || d === undefined) {
       return null;
@@ -38,60 +36,88 @@ export function render({model, view}) {
 
     // Handle array values (for range pickers)
     if (Array.isArray(d)) {
-      return d.map(item => parseDate(item)).filter(Boolean);
+      return d.map(timestamp => dayjs(timestamp));
     }
 
-    // Handle timestamp or unix timestamp
-    if (typeof d === "number") {
-      return dayjs.unix(d / 1000);
+    // Handle numeric timestamp (milliseconds since epoch)
+    if (typeof d === 'number') {
+      // Create a dayjs date from the timestamp
+      // For non-time components, use UTC parsing to avoid timezone issues
+      if (!time) {
+        // Create date from milliseconds, then extract only the date part
+        const date = new Date(d);
+        const year = date.getUTCFullYear();
+        const month = date.getUTCMonth();
+        const day = date.getUTCDate();
+
+        // Set to noon to avoid timezone issues
+        return dayjs().year(year).month(month).date(day).hour(12);
+      } else {
+        // For time components, use local timezone as expected
+        return dayjs(d);
+      }
     }
 
-    // Handle ISO string format
-    if (typeof d === "string") {
-      const parsedDate = dayjs(d);
-      return parsedDate;
+    // Handle string values
+    if (typeof d === 'string') {
+      return dayjs(d);
     }
 
-    // Default parsing for other formats
     return dayjs(d);
   }
 
-  // Initialize state with model value
+  // Get the model value once on initialization
+  const [modelValue] = model.useState("value");
+
+  // Initialize with the model value
   const [value, setValue] = React.useState(() => parseDate(modelValue));
 
   // For tracking internal state changes vs. actual submission
   const [internalValue, setInternalValue] = React.useState(() => parseDate(modelValue));
 
-  // Keep in sync with model changes
+  // Update local state when model value changes from Python
   React.useEffect(() => {
     const parsedDate = parseDate(modelValue);
     setValue(parsedDate);
     setInternalValue(parsedDate);
   }, [modelValue]);
 
-  // Handle internal changes (typing, selecting from picker)
+  // Handle changes from the date picker UI (internal state only)
   const handleChange = (newValue) => {
     setInternalValue(newValue);
   };
 
-  // Only update the model when input is complete (blur or selection confirmed)
+  // Format the date value for Python
+  function formatDateForPython(date) {
+    if (!date || !date.isValid()) {
+      return null;
+    }
+
+    if (time) {
+      // For DateTimePicker, format with time
+      return date.format('YYYY-MM-DD HH:mm:ss');
+    } else {
+      // For DatePicker, manually construct the date string to avoid timezone issues
+      const year = date.year();
+      const month = date.month() + 1; // dayjs months are 0-indexed
+      const day = date.date();
+
+      // Format with leading zeros
+      return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    }
+  }
+
+  // Update the model when selection is accepted
   const handleAccept = (newValue) => {
     setValue(newValue);
-    if (newValue) {
-      // Update the model directly
-      const formattedValue = newValue.format("YYYY-MM-DD HH:mm:ss");
-      model.value = formattedValue;
-    } else {
-      model.value = null;
-    }
+    model.value = formatDateForPython(newValue);
   };
 
   // Also update on blur to catch manual edits
   const handleBlur = () => {
-    if (internalValue) {
+    if (internalValue && internalValue.isValid()) {
       setValue(internalValue);
-      const formattedValue = internalValue.format("YYYY-MM-DD HH:mm:ss");
-      model.value = formattedValue;
+      model.value = formatDateForPython(internalValue);
     }
   };
 

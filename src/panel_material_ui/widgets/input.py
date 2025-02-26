@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from datetime import time as dt_time
 from typing import Any
 
@@ -411,6 +411,8 @@ class _DatePickerBase(MaterialInputWidget):
             value = msg[p]
             if isinstance(value, str):
                 msg[p] = datetime.date(datetime.strptime(value, '%Y-%m-%d'))
+            elif isinstance(value, float):
+                msg[p] = datetime.fromtimestamp(value / 1000, tz=timezone.utc).date()
         return msg
 
 
@@ -438,7 +440,6 @@ class DatePicker(_DatePickerBase):
         if 'value' not in event.data:
             return
         self.value = event.data['value'].toISOString().split('T')[0]
-
 
 class DateRangePicker(_DatePickerBase):
     """
