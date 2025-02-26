@@ -1,6 +1,6 @@
 import Avatar from "@mui/material/Avatar"
-import SpeedDialIcon from '@mui/material/SpeedDialIcon'
-import SpeedDialAction from '@mui/material/SpeedDialAction'
+import SpeedDialIcon from "@mui/material/SpeedDialIcon"
+import SpeedDialAction from "@mui/material/SpeedDialAction"
 import SpeedDial from "@mui/material/SpeedDial"
 import Icon from "@mui/material/Icon"
 
@@ -17,7 +17,7 @@ export function render({model, view}) {
 
   return (
     <SpeedDial
-      FabProps={{color: color}}
+      FabProps={{color}}
       ariaLabel={label}
       direction={direction}
       icon={icon ? <Icon>{icon}</Icon> : <SpeedDialIcon openIcon={open_icon ? open_icon : undefined} />}
@@ -35,7 +35,7 @@ export function render({model, view}) {
               <Avatar color={item.color}>{avatar}</Avatar>
             )}
             tooltipTitle={item.label || name}
-            slotProps={{ popper: { container: view.container } }}
+            slotProps={{popper: { container: view.container }}}
             onClick={() => { model.send_msg(name) }}
           />
         )
