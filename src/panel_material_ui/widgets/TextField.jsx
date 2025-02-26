@@ -20,7 +20,7 @@ export function render({model}) {
       multiline={model.esm_constants.multiline}
       placeholder={placeholder}
       variant={variant}
-      value={value}
+      value={value_input}
       onBlur={() => setValue(value_input)}
       onChange={(event) => setValueInput(event.target.value)}
       onKeyDown={(event) => {
