@@ -40,7 +40,7 @@ export function render({model, view}) {
     }
 
     // Handle numeric timestamp (milliseconds since epoch)
-    if (typeof d === 'number') {
+    if (typeof d === "number") {
       // Create a dayjs date from the timestamp
       // For non-time components, use UTC parsing to avoid timezone issues
       if (!time) {
@@ -59,7 +59,7 @@ export function render({model, view}) {
     }
 
     // Handle string values
-    if (typeof d === 'string') {
+    if (typeof d === "string") {
       return dayjs(d);
     }
 
@@ -96,7 +96,7 @@ export function render({model, view}) {
 
     if (time) {
       // For DateTimePicker, format with time
-      return date.format('YYYY-MM-DD HH:mm:ss');
+      return date.format("YYYY-MM-DD HH:mm:ss");
     } else {
       // For DatePicker, manually construct the date string to avoid timezone issues
       const year = date.year();
@@ -104,14 +104,14 @@ export function render({model, view}) {
       const day = date.date();
 
       // Format with leading zeros
-      return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+      return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
     }
   }
 
   // Safely update the model value
   function updateModelValue(date) {
     // Only update if we have a valid date
-    if (!date || !date.isValid()) return;
+    if (!date || !date.isValid()) { return; }
 
     const formattedDate = formatDateForPython(date);
 
@@ -225,7 +225,7 @@ export function render({model, view}) {
 
   // Handle keyboard events (like Enter)
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && internalValue && internalValue.isValid()) {
+    if (e.key === "Enter" && internalValue && internalValue.isValid()) {
       console.log("Enter key pressed");
       updateModelValue(internalValue);
       e.preventDefault();
