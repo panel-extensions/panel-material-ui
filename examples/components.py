@@ -15,12 +15,10 @@ pn.extension(defer_load=True)
 
 pn.config.design = MaterialDesign
 
-primary_color = pn.widgets.ColorPicker(value='#ff0000', name='Primary', width=150)
-secondary_color = pn.widgets.ColorPicker(value='#0000ff', name='Secondary', width=150)
-dark = Checkbox(value=pn.config.theme=='dark', width=150, label='Dark mode')
+primary_color = pn.widgets.ColorPicker(value='#404db0', name='Primary', width=150)
+secondary_color = pn.widgets.ColorPicker(value='#ee8349', name='Secondary', width=150)
 
 design_kwargs = dict(
-    dark_theme=dark,
     theme_config={
         'palette': {
             'primary': {'main': primary_color},
@@ -137,15 +135,7 @@ spec = {
     'Pane': {
         'Text': [
             (Avatar, (['variant'],), dict(object='https://panel.holoviz.org/_static/favicon.ico')),
-            (Breadcrumbs, (), dict(items=["Home", "Catalog", "Accessories"])),
             (Chip, (['color', 'variant'], ['size']), dict(object='Foo', icon='favorite')),
-            (List, (), dict(items=[
-                "Home",
-                {"label": "Catalog", "icon": "category"},
-                {"label": "Checkout", "icon": "shopping_cart"},
-                '---',
-                {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
-            ])),
             (Skeleton, (), dict(width=100, height=100, margin=10)),
         ]
     },
@@ -168,6 +158,26 @@ spec = {
             (FloatInput, (['color', 'variant'], ['disabled']), dict(label='FloatInput', step=0.1)),
             (IntInput, (['color', 'variant'], ['disabled']), dict(label='IntInput')),
             (TimePicker, (['color', 'variant'], ['disabled', 'clock']), dict(label='TimePicker'))
+        ],
+        'Menu': [
+            (Breadcrumbs, (), dict(items={
+                "Home": "Home",
+                "Catalog": {"label": "Catalog", "icon": "category"},
+                "Checkout": {"label": "Checkout", "icon": "shopping_cart"},
+                "Accessories": {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
+            })),
+            (List, (), dict(items={
+                "Home": "Home",
+                "Catalog": {"label": "Catalog", "icon": "category"},
+                "Checkout": {"label": "Checkout", "icon": "shopping_cart"},
+                "Accessories": {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
+            })),
+            (SpeedDial, (), dict(items={
+                "Home": "Home",
+                "Catalog": {"label": "Catalog", "icon": "category"},
+                "Checkout": {"label": "Checkout", "icon": "shopping_cart"},
+                "Accessories": {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
+            })),
         ],
         'Selection': [
             (AutocompleteInput, (['variant'], ['disabled']), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Autocomplete')),
@@ -198,7 +208,6 @@ page = Page(
     sidebar=[
         primary_color,
         secondary_color,
-        dark
     ],
     title='panel-material-ui components',
     **design_kwargs
