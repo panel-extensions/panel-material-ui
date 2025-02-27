@@ -114,11 +114,9 @@ export function render({model, view}) {
     if (!date || !date.isValid()) { return; }
 
     const formattedDate = formatDateForPython(date);
-
     // Skip update if this is the same value we just committed
     const currentTimestamp = date.valueOf();
     if (lastCommittedRef.current === currentTimestamp) {
-      console.log("Skipping duplicate update for", formattedDate);
       return;
     }
 
@@ -126,51 +124,44 @@ export function render({model, view}) {
     lastCommittedRef.current = currentTimestamp;
 
     // Update the model
-    console.log("Updating model value:", formattedDate);
     setValue(date);
     model.value = formattedDate;
-  }
+    }
 
-  // Handle calendar open
-  const handleOpen = () => {
-    console.log("Calendar opened");
+    // Handle calendar open
+    const handleOpen = () => {
     setIsCalendarOpen(true);
-  };
+    };
 
-  // Handle changes from the date picker UI
-  const handleChange = (newValue) => {
-    console.log("Date changed:", newValue);
+    // Handle changes from the date picker UI
+    const handleChange = (newValue) => {
     setInternalValue(newValue);
 
     // For direct calendar selection, update immediately
     if (isCalendarOpen && newValue && newValue.isValid()) {
-      console.log("Updating model value on change:", formatDateForPython(newValue));
       updateModelValue(newValue);
     }
-  };
+    };
 
-  // Handle explicit accept (enter key or click on today button)
-  const handleAccept = (newValue) => {
-    console.log("Date accepted:", newValue);
+    // Handle explicit accept (enter key or click on today button)
+    const handleAccept = (newValue) => {
     updateModelValue(newValue);
-  };
+    };
 
-  // Handle blur to catch manual edits
-  const handleBlur = () => {
-    console.log("Input blurred, current value:", internalValue);
+    // Handle blur to catch manual edits
+    const handleBlur = () => {
     if (!isCalendarOpen) {  // Don't update on blur if calendar is open
       updateModelValue(internalValue);
     }
-  };
+    };
 
-  // Handle calendar close
-  const handleClose = () => {
-    console.log("Calendar closed");
+    // Handle calendar close
+    const handleClose = () => {
     setIsCalendarOpen(false);
 
     // Don't update the model again on close - the change handler already did it
     // This prevents the issue where the value changes again on close
-  };
+    };
 
   const [disabled_dates] = model.useState("disabled_dates");
   const [enabled_dates] = model.useState("enabled_dates");
@@ -226,7 +217,6 @@ export function render({model, view}) {
   // Handle keyboard events (like Enter)
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && internalValue && internalValue.isValid()) {
-      console.log("Enter key pressed");
       updateModelValue(internalValue);
       e.preventDefault();
     }
