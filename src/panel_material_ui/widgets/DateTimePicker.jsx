@@ -126,42 +126,42 @@ export function render({model, view}) {
     // Update the model
     setValue(date);
     model.value = formattedDate;
-    }
+  }
 
-    // Handle calendar open
-    const handleOpen = () => {
+  // Handle calendar open
+  const handleOpen = () => {
     setIsCalendarOpen(true);
-    };
+  };
 
-    // Handle changes from the date picker UI
-    const handleChange = (newValue) => {
+  // Handle changes from the date picker UI
+  const handleChange = (newValue) => {
     setInternalValue(newValue);
 
     // For direct calendar selection, update immediately
     if (isCalendarOpen && newValue && newValue.isValid()) {
       updateModelValue(newValue);
     }
-    };
+  };
 
-    // Handle explicit accept (enter key or click on today button)
-    const handleAccept = (newValue) => {
+  // Handle explicit accept (enter key or click on today button)
+  const handleAccept = (newValue) => {
     updateModelValue(newValue);
-    };
+  };
 
-    // Handle blur to catch manual edits
-    const handleBlur = () => {
+  // Handle blur to catch manual edits
+  const handleBlur = () => {
     if (!isCalendarOpen) {  // Don't update on blur if calendar is open
       updateModelValue(internalValue);
     }
-    };
+  };
 
-    // Handle calendar close
-    const handleClose = () => {
+  // Handle calendar close
+  const handleClose = () => {
     setIsCalendarOpen(false);
 
     // Don't update the model again on close - the change handler already did it
     // This prevents the issue where the value changes again on close
-    };
+  };
 
   const [disabled_dates] = model.useState("disabled_dates");
   const [enabled_dates] = model.useState("enabled_dates");
