@@ -380,3 +380,5 @@ $RECYCLE.BIN/
 # pixi
 .pixi
 pixi.lock
+
+src/panel_material_ui/_version.py
