@@ -384,3 +384,5 @@ src/panel_material_ui/_version.py
 jupyter_execute/
 builtdocs/
 doc/reference/
+
+panel_sparse_ref/
