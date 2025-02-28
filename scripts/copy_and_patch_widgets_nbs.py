@@ -15,6 +15,8 @@ from pathlib import Path
 import nbformat
 import panel_material_ui as pnmui
 
+from param import concrete_descendents
+
 PANEL_SPARSE_REF = 'panel_sparse_ref'
 
 if Path(PANEL_SPARSE_REF).exists():
@@ -29,11 +31,21 @@ finally:
     os.chdir(cdir)
 
 mwidgets = [w.lower() for w in dir(pnmui.widgets)]
+mwidgets = list(concrete_descendents(pnmui.widgets.base.MaterialWidget))
 nb_to_copy = []
+mwidgets_not_implemented = []
 
 for nb in Path(PANEL_SPARSE_REF, 'examples', 'reference', 'widgets').glob('*.ipynb'):
-    if nb.stem.lower() in mwidgets:
+    if nb.stem in mwidgets:
         nb_to_copy.append(nb)
+        mwidgets.remove(nb.stem)
+    else:
+        mwidgets_not_implemented.append(nb.stem)
+
+print(f'These Material widgets have no reference notebook in Panel:\n{"\n".join(sorted(mwidgets))}')
+print()
+print(f'These Panel widgets have no Material implementation:\n{"\n".join(sorted(mwidgets_not_implemented))}')
+print()
 
 for nbpath in nb_to_copy:
     with open(nbpath, "r") as f:
