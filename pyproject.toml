@@ -51,8 +51,6 @@ version-file = "src/panel_material_ui/_version.py"
 [project.optional-dependencies]
 dev = [
   'watchfiles',
-  'mkdocs-material',
-  'mkdocstrings[python]',
   'pytest',
   'pytest-asyncio',
   'pytest-rerunfailures',
