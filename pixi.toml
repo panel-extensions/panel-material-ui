@@ -31,6 +31,8 @@ test-ui = ["py312", "compile", "test-core", "test-ui"]
 build = ["py312", "build", "compile"]
 compile = ["py312", "compile", "compile-task"]
 lint = { features = ["lint"], no-default-feature = true }
+# docs = ["py311", "example", "doc"]
+docs = ["py311", "doc"]
 
 [feature.py310.dependencies]
 python = "3.10.*"
@@ -70,6 +72,50 @@ _install-ui = 'playwright install chromium'
 [feature.test-ui.tasks.test-ui]
 cmd = 'pytest ./tests/ui --ui --browser chromium -n logical --dist loadgroup --reruns 3 --reruns-delay 10'
 depends-on = ["_install", "_install-ui"]
+
+# =============================================
+# =================== DOCS ====================
+# =============================================
+[feature.doc.activation.env]
+MOZ_HEADLESS = "1"
+PANEL_IPYWIDGET = "1"
+OBJC_DISABLE_INITIALIZE_FORK_SAFETY = "YES"
+SPHINX_APIDOC_OPTIONS = "members,show-inheritance"
+
+[feature.doc.dependencies]
+# lxml = "*"
+nbsite = ">=0.8.6rc9"
+# selenium = "*"
+numpydoc = "*"
+# pydeck = ">=0.8"  # Add back to examples, when it support ipywidgets 8.0
+matplotlib = "*"  # not optional in nbsite
+
+[feature.doc.tasks]
+# _docs-refmanual = 'sphinx-apidoc -e -o doc/api/ panel/ --ext-autodoc --ext-intersphinx'
+# _docs-convert-gallery = 'python scripts/gallery/convert_gallery.py'
+_docs-generate = 'nbsite build --what=html --output=builtdocs --org holoviz --project-name panel-material-ui --disable-parallel'
+_docs-generate-parallel = 'nbsite build --what=html --output=builtdocs --org holoviz --project-name panel-material-ui'
+# _docs-copy-panel-dist = 'cp -r ./panel/dist ./builtdocs/panel_dist'
+# _docs-pyodide = 'panel convert examples/gallery/*.ipynb doc/how_to/*/examples/*.md --to pyodide-worker --out ./builtdocs/pyodide/ --pwa --index --requirements doc/pyodide_dependencies.json --exclude examples/gallery/vtk*.ipynb'
+docs-server = 'python -m http.server 5500 --directory ./builtdocs'
+
+[feature.doc.tasks.docs-build]
+depends-on = [
+    # '_docs-refmanual',
+    # '_docs-convert-gallery',
+    '_docs-generate',
+    # '_docs-copy-panel-dist',
+    # '_docs-pyodide',
+]
+
+[feature.doc.tasks.docs-build-parallel]
+depends-on = [
+    # '_docs-refmanual',
+    # '_docs-convert-gallery',
+    '_docs-generate-parallel',
+    # '_docs-copy-panel-dist',
+    # '_docs-pyodide',
+]
 
 # =============================================
 # ================== BUILD ====================

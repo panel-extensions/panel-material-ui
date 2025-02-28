@@ -212,9 +212,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
-
 # PyBuilder
 .pybuilder/
 target/
@@ -382,3 +379,8 @@ $RECYCLE.BIN/
 pixi.lock
 
 src/panel_material_ui/_version.py
+
+# Sphinx documentation
+jupyter_execute/
+builtdocs/
+doc/reference/
