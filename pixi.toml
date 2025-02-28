@@ -24,9 +24,9 @@ nodejs = ">=18"
 esbuild = "*"
 
 [environments]
-test-310 = ["py310", "compile", "test-core", "test-unit-task"]
-test-311 = ["py311", "compile", "test-core", "test-unit-task"]
-test-312 = ["py312", "compile", "test-core", "test-unit-task"]
+test-310 = ["py310", "compile", "test-core", "example", "test-example", "test-unit-task"]
+test-311 = ["py311", "compile", "test-core", "example", "test-example", "test-unit-task"]
+test-312 = ["py312", "compile", "test-core", "example", "test-example", "test-unit-task"]
 test-ui = ["py312", "compile", "test-core", "test-ui"]
 build = ["py312", "build", "compile"]
 compile = ["py312", "compile", "compile-task"]
@@ -40,6 +40,9 @@ python = "3.10.*"
 python = "3.11.*"
 [feature.py312.dependencies]
 python = "3.12.*"
+
+[feature.example.dependencies]
+jupyterlab = "*"
 
 # =============================================
 # ================== TEST =====================
@@ -57,6 +60,12 @@ mypy = "*"
 _install = "pip install --no-build-isolation --no-deps --disable-pip-version-check -e ."
 test = { cmd = "pytest", depends-on = ["_install"] }
 test-coverage = { cmd = "pytest --cov=panel_material_ui --cov-report=xml --cov-report=term-missing", depends-on = ["_install"] }
+
+[feature.test-example.tasks]
+test-example = 'pytest -n logical --dist loadscope --nbval-lax examples'
+
+[feature.test-example.dependencies]
+nbval = "*"
 
 [feature.test-ui]
 channels = ["microsoft"]
