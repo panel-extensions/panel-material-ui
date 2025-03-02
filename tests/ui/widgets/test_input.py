@@ -57,6 +57,38 @@ def test_text_input_typing(page):
     wait_until(lambda: widget.value == 'Hello World Again', page)
 
 
+def test_textinput_enter_pressed(page):
+    text_input = TextInput()
+    clicks = [0]
+
+    def on_enter(event):
+        clicks[0] += 1
+
+    text_input.param.watch(on_enter, "enter_pressed")
+    serve_component(page, text_input)
+
+    # Find the input field and type into it
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    input_area.press('Enter')
+    wait_until(lambda: clicks[0] == 1)
+    input_area.press("Enter")
+    wait_until(lambda: clicks[0] == 2)
+
+
+def test_textinput_max_length(page):
+    widget = TextInput(max_length=2)
+    serve_component(page, widget)
+
+    # Find the input field and type into it
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    # type more but only first max_length characters are allowed
+    input_area.type("123")
+    expect(input_area).to_have_value("12")
+    wait_until(lambda: widget.value_input == "12", page)
+
+
 def test_password_show_hide(page):
     widget = PasswordInput(label='Password', placeholder='Enter your password here ...')
     serve_component(page, widget)
