@@ -18,6 +18,7 @@ export function render({model}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
+  const [max_length] = model.useState("max_length")
   const [placeholder] = model.useState("placeholder")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
@@ -45,6 +46,7 @@ export function render({model}) {
         variant={variant}
         value={value}
         disabled={disabled}
+        inputProps={{ maxLength: max_length }}
         onChange={(event) => setValue(event.target.value)}
         fullWidth
         type={showPassword ? "text" : "password"}
