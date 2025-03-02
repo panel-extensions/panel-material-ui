@@ -101,6 +101,19 @@ def test_password_show_hide(page):
     expect(page.locator('input[type="text"]')).to_have_count(1)
 
 
+def test_password_max_length(page):
+    widget = PasswordInput(max_length=2)
+    serve_component(page, widget)
+
+    # Find the input field and type into it
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    # type more but only first max_length characters are allowed
+    input_area.type("123")
+    expect(input_area).to_have_value("12")
+    wait_until(lambda: widget.value_input == "12", page)
+
+
 def test_text_area_input(page):
     widget = TextAreaInput(label='Description', placeholder='Enter your description here...', rows=5)
     serve_component(page, widget)
