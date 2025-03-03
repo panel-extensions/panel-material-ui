@@ -5,6 +5,7 @@ export function render({model}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
+  const [max_length] = model.useState("max_length")
   const [max_rows] = model.useState("max_rows")
   const [label] = model.useState("label")
   const [placeholder] = model.useState("placeholder")
@@ -28,6 +29,7 @@ export function render({model}) {
       color={color}
       disabled={disabled}
       error={error_state}
+      inputProps={{ maxLength: max_length }}
       label={label}
       maxRows={max_rows}
       onBlur={() => setValue(value_input)}

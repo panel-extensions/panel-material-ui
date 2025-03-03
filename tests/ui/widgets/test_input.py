@@ -150,8 +150,6 @@ def test_text_area_typing(page):
     wait_until(lambda: widget.value == 'Multiline\nText\nTest', page)
 
 
-
-
 def test_text_area_auto_grow(page):
     widget = TextAreaInput(auto_grow=True, value="1\n2\n3\n4\n")
     serve_component(page, widget)
@@ -207,6 +205,19 @@ def test_text_area_auto_grow_shrink_back_on_new_value(page):
 
     text_area.value = ""
     assert input_area.bounding_box()['height'] == 2 * TEXTAREA_LINE_HEIGHT
+
+
+def test_text_area_max_length(page):
+    widget = TextAreaInput(max_length=2)
+    serve_component(page, widget)
+
+    # Find the input field and type into it
+    input_area = page.locator('.MuiInputBase-input').nth(0)
+    input_area.click()
+    # type more but only first max_length characters are allowed
+    input_area.type("123")
+    expect(input_area).to_have_value("12")
+    wait_until(lambda: widget.value_input == "12", page)
 
 
 def test_checkbox(page):
