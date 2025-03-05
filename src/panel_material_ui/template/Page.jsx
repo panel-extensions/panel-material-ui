@@ -127,10 +127,10 @@ export function render({model}) {
         {drawer}
       </Box>}
       <Main open={open} sidebar_width={sidebar_width} variant={isMobile ? "drawer" : variant}>
-	<Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
+        <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
           <Toolbar/>
           {model.get_child("main")}
-	</Box>
+        </Box>
       </Main>
     </Box>
   );
