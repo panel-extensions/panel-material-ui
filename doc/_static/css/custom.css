@@ -1,5 +1,5 @@
-:root[data-theme='light'],
-:root[data-theme='dark'] {
+:root[data-theme="light"],
+:root[data-theme="dark"] {
   --holoviz-main-color: #0072b5;
   --pst-color-inline-code: var(--holoviz-main-color);
   --pst-color-link-hover: var(--holoviz-main-color);
@@ -50,12 +50,12 @@
   border-radius: 4px;
 }
 
-html[data-theme='light'] .highlight {
+html[data-theme="light"] .highlight {
   background-color: #263238;
   color: #f8f8f2;
 }
 
-pre[id^='codecell'] {
+pre[id^="codecell"] {
   background-color: unset;
   border: none;
   border-radius: 0.5em;
