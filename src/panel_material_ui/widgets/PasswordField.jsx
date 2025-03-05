@@ -46,7 +46,7 @@ export function render({model}) {
         variant={variant}
         value={value}
         disabled={disabled}
-        inputProps={{ maxLength: max_length }}
+        inputProps={{maxLength: max_length}}
         onChange={(event) => setValue(event.target.value)}
         fullWidth
         type={showPassword ? "text" : "password"}

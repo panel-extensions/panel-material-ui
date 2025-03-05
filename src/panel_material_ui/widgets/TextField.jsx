@@ -17,7 +17,7 @@ export function render({model}) {
       color={color}
       disabled={disabled}
       error={error_state}
-      inputProps={{ maxLength: max_length }}
+      inputProps={{maxLength: max_length}}
       label={label}
       multiline={model.esm_constants.multiline}
       placeholder={placeholder}
