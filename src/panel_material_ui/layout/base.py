@@ -18,6 +18,8 @@ if TYPE_CHECKING:
 
 class MaterialLayout(MaterialComponent, SizingModeMixin):
 
+    __abstract = True
+
     def __init__(self, *objects, **params):
         if objects:
             params["objects"] = objects
