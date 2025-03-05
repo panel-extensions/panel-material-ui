@@ -174,7 +174,7 @@ class Select(MaterialSingleSelectBase, _PnSelect):
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 
     _esm_base = "Select.jsx"
-    _rename = {"name": "name"}
+    _rename = {"name": "name", "groups": "groups"}
 
     def _process_param_change(self, msg: dict[str, Any]) -> dict[str, Any]:
         if 'groups' in msg and msg['groups'] is None:
