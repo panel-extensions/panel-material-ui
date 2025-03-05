@@ -6,6 +6,7 @@ export function render({model}) {
   const [disabled] = model.useState("disabled");
   const [format] = model.useState("format");
   const [label] = model.useState("label");
+  const [placeholder] = model.useState("placeholder")
   const [step] = model.useState("step");
   const [min] = model.useState("start");
   const [max] = model.useState("end");
@@ -31,6 +32,7 @@ export function render({model}) {
       color={color}
       disabled={disabled}
       label={label}
+      placeholder={placeholder}
       size={size}
       value={value}
       variant={variant}
