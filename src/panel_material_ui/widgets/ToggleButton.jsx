@@ -1,6 +1,7 @@
 import ToggleButton from "@mui/material/ToggleButton"
 
-export function render({model, el}) {
+export function render({model}) {
+  const [button_style] = model.useState("button_style")
   const [color] = model.useState("button_type")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")

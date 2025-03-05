@@ -17,6 +17,8 @@ from .base import MaterialWidget, TooltipTransform
 
 class _ButtonBase(MaterialWidget, _PnButtonBase):
 
+    button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
+
     button_type = param.Selector(objects=COLORS, default="primary")
 
     clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
@@ -38,6 +40,9 @@ class _ButtonBase(MaterialWidget, _PnButtonBase):
     width = param.Integer(default=None)
 
     _esm_transforms = [TooltipTransform, ThemedTransform]
+    _rename: ClassVar[Mapping[str, str | None]] = {
+        "label": "label", "button_style": "button_style"
+    }
 
     __abstract = True
 
@@ -76,8 +81,6 @@ class Button(_ButtonBase, _ClickButton):
     >>> Button(name='Click me', icon='caret-right', button_type='primary')
     """
 
-    button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
-
     icon_size = param.String(
         default="1em",
         doc="""
@@ -87,8 +90,6 @@ class Button(_ButtonBase, _ClickButton):
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
 
     _esm_base = "Button.jsx"
-
-    _rename: ClassVar[Mapping[str, str | None]] = {"label": "label", "button_style": "button_style"}
 
     def __init__(self, **params):
         click_handler = params.pop("on_click", None)
@@ -141,11 +142,10 @@ class Toggle(_ButtonBase):
     >>> Toggle(name='Toggle', button_type='success')
     """
 
-    icon_size = param.String(
-        default="1em",
-        doc="""
-        Size of the icon as a string, e.g. 12px or 1em.""",
-    )
+    button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
+
+    icon_size = param.String(default="1em", doc="""
+        Size of the icon as a string, e.g. 12px or 1em.""")
 
     value = param.Boolean(default=False)
 
