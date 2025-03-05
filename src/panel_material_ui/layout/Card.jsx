@@ -53,7 +53,7 @@ export function render({model, view}) {
   model.on("after_layout", () => {
     for (const child_view of view.layoutable_views) {
       if (view.el) {
-	view.el.style.minHeight = "auto"
+        view.el.style.minHeight = "auto"
       }
     }
   })
@@ -63,7 +63,7 @@ export function render({model, view}) {
       raised={raised}
       elevation={elevation}
       variant={outlined ? "outlined" : "elevation"}
-      sx={{display: 'flex', flexDirection: 'column', width: "100%", height: "100%", ...sx}}
+      sx={{display: "flex", flexDirection: "column", width: "100%", height: "100%", ...sx}}
     >
       {!hide_header && (
         <CardHeader
@@ -82,15 +82,15 @@ export function render({model, view}) {
         >{header}</CardHeader>
       )}
       <Collapse
-       in={!collapsed}
+        in={!collapsed}
         timeout="auto"
         unmountOnExit
         sx={{
           flexGrow: 1,
           height: "100%",
           width: "100%",
-          '& .MuiCollapse-wrapper': {
-            height: '100% !important',
+          "& .MuiCollapse-wrapper": {
+            height: "100% !important",
           },
         }}
       >
@@ -100,16 +100,16 @@ export function render({model, view}) {
             width: "100%",
             display: "flex",
             flexDirection: "column",
-            '&:last-child': {
-              pb: '16px',
+            "&:last-child": {
+              pb: "16px",
             },
           }}
         >
-            {objects.map((object) => {
-              set_flex(object.props)
-              return object
-            })}
-          </CardContent>
+          {objects.map((object) => {
+            set_flex(object.props)
+            return object
+          })}
+        </CardContent>
       </Collapse>
     </Card>
   );
