@@ -4,16 +4,17 @@ from typing import TYPE_CHECKING, Callable
 
 import param
 from bokeh.models import Spacer as BkSpacer
-from panel.layout.base import ListLike, NamedListLike
+from panel.layout.base import ListLike, NamedListLike, SizingModeMixin
 from panel.viewable import Child
 
-from ..base import MaterialComponent
+from ..base import COLORS, MaterialComponent
 
 if TYPE_CHECKING:
     from panel.viewable import Viewable
 
 
-class MaterialListLike(MaterialComponent, ListLike):
+class MaterialListLike(MaterialComponent, ListLike, SizingModeMixin):
+
     __abstract = True
 
     def __init__(self, *objects, **params):
@@ -21,11 +22,31 @@ class MaterialListLike(MaterialComponent, ListLike):
             params["objects"] = objects
         super().__init__(**params)
 
+    def _get_model(self, doc, root, parent, comm):
+        model = super()._get_model(doc, root, parent, comm)
+        props = dict(model.properties_with_values())
+        props["sizing_mode"] = self.sizing_mode
+        sizing_mode = self._compute_sizing_mode(model.data.objects, props)
+        model.update(**sizing_mode)
+        return model
 
-class MaterialNamedListLike(MaterialComponent, NamedListLike):
+
+class MaterialNamedListLike(MaterialComponent, NamedListLike, SizingModeMixin):
 
     __abstract = True
 
+    def __init__(self, *objects, **params):
+        if objects:
+            params["objects"] = objects
+        super().__init__(**params)
+
+    def _get_model(self, doc, root, parent, comm):
+        model = super()._get_model(doc, root, parent, comm)
+        props = dict(model.properties_with_values())
+        props["sizing_mode"] = self.sizing_mode
+        sizing_mode = self._compute_sizing_mode(model.data.objects, props)
+        model.update(**sizing_mode)
+        return model
 
 
 class Paper(MaterialListLike):
@@ -43,7 +64,7 @@ class Paper(MaterialListLike):
     _esm_base = "Paper.jsx"
 
 
-class Card(MaterialListLike):
+class Card(MaterialNamedListLike):
     """
     A `Card` layout allows arranging multiple panel objects in a
     collapsible, vertical container with a header bar.
@@ -78,6 +99,10 @@ class Card(MaterialListLike):
         Will override the given title if defined."""
     )
 
+    header_css_classes = param.List()
+
+    hide_header = param.Boolean(default=False)
+
     raised = param.Boolean(
         default=True,
         doc="""
@@ -90,9 +115,12 @@ class Card(MaterialListLike):
         by the header if defined."""
     )
 
+    title_css_classes = param.List()
+
     outlined = param.Boolean(default=False, doc="""
         Whether the Card should be outlined.""")
 
+    _direction = "vertical"
     _esm_base = "Card.jsx"
 
     def select(self, selector: type | Callable[[Viewable], bool] | None = None) -> list[Viewable]:
@@ -173,6 +201,8 @@ class Tabs(MaterialNamedListLike):
     centered = param.Boolean(default=False, doc="""
         Whether the tabs should be centered.""")
 
+    closable = param.Boolean(default=False, doc="")
+
     color = param.Selector(default="primary", objects=["primary", "secondary"])
 
     dynamic = param.Boolean(default=False, doc="""
@@ -187,6 +217,8 @@ class Tabs(MaterialNamedListLike):
     )
 
     _names = param.List(default=[])
+
+    _direction = "vertical"
 
     _esm_base = "Tabs.jsx"
 
@@ -247,6 +279,8 @@ class Alert(MaterialListLike):
     >>> Alert(title="This is an alert")
     """
 
+    alert_type = param.Selector(objects=COLORS, default="primary", doc="""
+        The type of the alert.""")
 
     closed = param.Boolean(default=False, doc="""
         Whether the alert is closed.""")
@@ -263,7 +297,7 @@ class Alert(MaterialListLike):
     title = param.String(default=None, doc="""
         The title of the alert.""")
 
-    variant = param.Selector(default="filled", objects=["filled", "outlined"], doc="""
+    variant = param.Selector(default="outlined", objects=["filled", "outlined"], doc="""
         The variant of the alert.""")
 
     _esm_base = "Alert.jsx"

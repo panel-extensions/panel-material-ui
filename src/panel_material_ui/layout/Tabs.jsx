@@ -35,9 +35,9 @@ export function render({model}) {
     </Tabs>
   )
   return (
-    <Box style={{display: "flex", flexDirection: (location === "left" || location === "right") ? "row" : "column"}}  >
+    <Box sx={{display: "flex", flexDirection: (location === "left" || location === "right") ? "row" : "column", height: "100%"}}  >
       { (location === "left" || location === "above") && tabs }
-      <Box>
+      <Box sx={{flexGrow: 1}}>
         {objects[active]}
       </Box>
       { (location === "right" || location === "below") && tabs }

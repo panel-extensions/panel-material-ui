@@ -26,8 +26,8 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      height: "100%",
-      overflow: "auto",
+      height: "auto",
+      overflow: "hidden",
       width: {sm: `calc(100% - ${sidebar_width}px)`},
       variants: [
         {
@@ -63,6 +63,7 @@ export function render({model}) {
   const [variant] = model.useState("sidebar_variant")
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
   const [sx] = model.useState("sx")
+  const sidebar = model.get_child("sidebar")
 
   const toggleOpen = () => {
     setOpen(!open);
@@ -71,7 +72,7 @@ export function render({model}) {
     setDarkTheme(!dark_theme)
   }
 
-  const drawer = (
+  const drawer = sidebar.length > 0 ? (
     <Drawer
       open={open}
       sx={{
@@ -83,16 +84,16 @@ export function render({model}) {
       <Toolbar/>
       <Divider />
       <Box sx={{overflow: "auto"}}>
-        {model.get_child("sidebar")}
+        {}
       </Box>
     </Drawer>
-  );
+  ) : null;
 
   return (
     <Box sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
       <AppBar position="fixed" color="primary" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
         <Toolbar>
-          { model.sidebar.length &&
+          { model.sidebar.length > 0 &&
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -118,15 +119,18 @@ export function render({model}) {
           </IconButton>
         </Toolbar>
       </AppBar>
+      {drawer &&
       <Box
         component="nav"
         sx={variant === "drawer" || isMobile ? {width: 0, flexShrink: {xs: 0}} : {width: {sm: sidebar_width}, flexShrink: {sm: 0}}}
       >
         {drawer}
-      </Box>
+      </Box>}
       <Main open={open} sidebar_width={sidebar_width} variant={isMobile ? "drawer" : variant}>
-        <Toolbar/>
-        {model.get_child("main")}
+	<Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
+          <Toolbar/>
+          {model.get_child("main")}
+	</Box>
       </Main>
     </Box>
   );
