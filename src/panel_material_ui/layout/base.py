@@ -10,19 +10,23 @@ from panel.viewable import Child
 from ..base import COLORS, MaterialComponent
 
 if TYPE_CHECKING:
+    from bokeh.document import Document
+    from bokeh.model import Model
     from panel.viewable import Viewable
+    from pyviz_comms import Comm
 
 
-class MaterialListLike(MaterialComponent, ListLike, SizingModeMixin):
-
-    __abstract = True
+class MaterialLayout(MaterialComponent, SizingModeMixin):
 
     def __init__(self, *objects, **params):
         if objects:
             params["objects"] = objects
         super().__init__(**params)
 
-    def _get_model(self, doc, root, parent, comm):
+    def _get_model(
+        self, doc: Document, root: Model | None = None,
+        parent: Model | None = None, comm: Comm | None = None
+    ) -> Model:
         model = super()._get_model(doc, root, parent, comm)
         props = dict(model.properties_with_values())
         props["sizing_mode"] = self.sizing_mode
@@ -31,22 +35,14 @@ class MaterialListLike(MaterialComponent, ListLike, SizingModeMixin):
         return model
 
 
-class MaterialNamedListLike(MaterialComponent, NamedListLike, SizingModeMixin):
+class MaterialListLike(MaterialLayout, ListLike):
 
     __abstract = True
 
-    def __init__(self, *objects, **params):
-        if objects:
-            params["objects"] = objects
-        super().__init__(**params)
 
-    def _get_model(self, doc, root, parent, comm):
-        model = super()._get_model(doc, root, parent, comm)
-        props = dict(model.properties_with_values())
-        props["sizing_mode"] = self.sizing_mode
-        sizing_mode = self._compute_sizing_mode(model.data.objects, props)
-        model.update(**sizing_mode)
-        return model
+class MaterialNamedListLike(MaterialLayout, NamedListLike):
+
+    __abstract = True
 
 
 class Paper(MaterialListLike):
