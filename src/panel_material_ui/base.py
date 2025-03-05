@@ -73,66 +73,36 @@ import 'material-icons/iconfont/material-icons.css';
 import {{ ThemeProvider, createTheme }} from '@mui/material/styles';
 import {{ deepmerge }} from '@mui/utils';
 import CssBaseline from '@mui/material/CssBaseline';
+import {{SessionStore, dark_mode, render_theme_config, render_theme_css}} from "./utils"
 
 {esm}
 
 function {output}(props) {{
-  const [dark_theme] = props.model.useState('dark_theme')
-  const [theme_config ] = props.model.useState('theme_config')
+  const [dark_theme, setDarkTheme] = props.model.useState('dark_theme')
+  const [theme_config] = props.model.useState('theme_config')
 
-  const config = deepmerge(
-    theme_config,
-    {{
-      cssVariables: {{
-        rootSelector: ':host',
-        colorSchemeSelector: 'class',
-      }},
-      palette: {{
-        mode: dark_theme ? "dark" : "light"
-      }},
-      components: {{
-        MuiPopover: {{
-          defaultProps: {{
-            container: props.view.container,
-          }},
-        }},
-        MuiPopper: {{
-          defaultProps: {{
-            container: props.view.container,
-          }},
-        }},
-        MuiModal: {{
-          defaultProps: {{
-            container: props.view.container,
-          }},
-        }},
-      }}
-    }}
-  )
-  const theme = createTheme(config);
+  const config = render_theme_config(props, theme_config, dark_theme)
+  const theme = createTheme(config)
+
+  let style_el = document.querySelector("#global-styles-panel-mui")
+  if (!style_el) {{
+    style_el = document.createElement("style")
+    style_el.id = "global-styles-panel-mui"
+    document.head.appendChild(style_el)
+  }}
 
   React.useEffect(() => {{
-    let styleElement = document.querySelector("#global-styles-panel-mui");
-    if (!styleElement) {{
-      styleElement = document.createElement("style");
-      styleElement.id = "global-styles-panel-mui";
-      document.head.appendChild(styleElement)
+    if (dark_mode.get_value() === dark_theme) {{
+      return
     }}
+    dark_mode.set_value(dark_theme)
+    style_el.textContent = render_theme_css(theme)
+  }}, [dark_theme]);
 
-    styleElement.textContent = `
-      :root, :host {{
-        --panel-primary-color: ${{theme.palette.primary.main}};
-        --panel-on-primary-color: ${{theme.palette.primary.contrastText}};
-        --panel-secondary-color: ${{theme.palette.secondary.main}};
-        --panel-on-secondary-color: ${{theme.palette.secondary.contrastText}};
-        --panel-background-color: ${{theme.palette.background.default}};
-        --panel-on-background-color: ${{theme.palette.text.primary}};
-        --panel-surface-color: ${{theme.palette.background.paper}};
-        --panel-on-surface-color: ${{theme.palette.text.primary}};
-      }}
-    `;
-
-  }}, [theme]);
+  React.useEffect(() => {{
+    let style_el = document.querySelector("#global-styles-panel-mui")
+    return dark_mode.subscribe((val) => setDarkTheme(val))
+  }}, [])
 
   return (
     <ThemeProvider theme={{theme}}>
@@ -166,6 +136,7 @@ class MaterialComponent(ReactComponent):
 
     _bundle = BASE_PATH / "dist" / "panel-material-ui.bundle.js"
     _esm_base = None
+    _esm_shared = {'utils': BASE_PATH / "utils.js"}
     _esm_transforms = [ThemedTransform]
     _importmap = {
         "imports": {
@@ -173,7 +144,8 @@ class MaterialComponent(ReactComponent):
             "@mui/material/": "https://esm.sh/@mui/material@6.4.2/",
             "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.24.1",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
-            "material-icons/": "https://esm.sh/material-icons@1.13.13/"
+            "material-icons/": "https://esm.sh/material-icons@1.13.13/",
+            "notistack": "https://esm.sh/notistack@3.0.2"
         }
     }
 
