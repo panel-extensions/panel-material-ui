@@ -288,6 +288,15 @@ class _SpinnerBase(_NumericInputBase):
 
     __abstract = True
 
+    def __init__(self, **params):
+        if 'value' not in params:
+            value = params.get('start', self.value)
+            if value is not None:
+                params['value'] = value
+        if 'value' in params and 'value_throttled' in self.param:
+            params['value_throttled'] = params['value']
+        super().__init__(**params)
+
 
 class IntInput(_SpinnerBase, _IntInputBase):
     """

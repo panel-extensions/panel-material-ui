@@ -57,6 +57,38 @@ def test_text_input_typing(page):
     wait_until(lambda: widget.value == 'Hello World Again', page)
 
 
+def test_textinput_enter_pressed(page):
+    text_input = TextInput()
+    clicks = [0]
+
+    def on_enter(event):
+        clicks[0] += 1
+
+    text_input.param.watch(on_enter, "enter_pressed")
+    serve_component(page, text_input)
+
+    # Find the input field and type into it
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    input_area.press('Enter')
+    wait_until(lambda: clicks[0] == 1)
+    input_area.press("Enter")
+    wait_until(lambda: clicks[0] == 2)
+
+
+def test_textinput_max_length(page):
+    widget = TextInput(max_length=2)
+    serve_component(page, widget)
+
+    # Find the input field and type into it
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    # type more but only first max_length characters are allowed
+    input_area.type("123")
+    expect(input_area).to_have_value("12")
+    wait_until(lambda: widget.value_input == "12", page)
+
+
 def test_password_show_hide(page):
     widget = PasswordInput(label='Password', placeholder='Enter your password here ...')
     serve_component(page, widget)
@@ -67,6 +99,19 @@ def test_password_show_hide(page):
     eye_button.click()
     # password is displayed
     expect(page.locator('input[type="text"]')).to_have_count(1)
+
+
+def test_password_max_length(page):
+    widget = PasswordInput(max_length=2)
+    serve_component(page, widget)
+
+    # Find the input field and type into it
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    # type more but only first max_length characters are allowed
+    input_area.type("123")
+    expect(input_area).to_have_value("12")
+    wait_until(lambda: widget.value_input == "12", page)
 
 
 def test_text_area_input(page):
@@ -103,8 +148,6 @@ def test_text_area_typing(page):
     # Click elsewhere to trigger blur
     page.locator('body').click()
     wait_until(lambda: widget.value == 'Multiline\nText\nTest', page)
-
-
 
 
 def test_text_area_auto_grow(page):
@@ -162,6 +205,19 @@ def test_text_area_auto_grow_shrink_back_on_new_value(page):
 
     text_area.value = ""
     assert input_area.bounding_box()['height'] == 2 * TEXTAREA_LINE_HEIGHT
+
+
+def test_text_area_max_length(page):
+    widget = TextAreaInput(max_length=2)
+    serve_component(page, widget)
+
+    # Find the input field and type into it
+    input_area = page.locator('.MuiInputBase-input').nth(0)
+    input_area.click()
+    # type more but only first max_length characters are allowed
+    input_area.type("123")
+    expect(input_area).to_have_value("12")
+    wait_until(lambda: widget.value_input == "12", page)
 
 
 def test_checkbox(page):
