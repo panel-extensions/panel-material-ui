@@ -145,7 +145,9 @@ class MaterialComponent(ReactComponent):
             "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.24.1",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
             "material-icons/": "https://esm.sh/material-icons@1.13.13/",
-            "notistack": "https://esm.sh/notistack@3.0.2"
+            "notistack": "https://esm.sh/notistack@3.0.2",
+            "@mui/base/Unstable_NumberInput": "https://esm.sh/@mui/base@5.0.0-beta.69",
+            "@mui/system": "https://esm.sh/@mui/system",
         }
     }
 

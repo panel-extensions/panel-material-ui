@@ -7,7 +7,7 @@ from typing import Any
 
 import numpy as np
 import param
-from bokeh.models.formatters import TickFormatter
+from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.models.reactive_html import DOMEvent
 from panel.util import edit_readonly, try_datetime64_to_datetime
 from panel.widgets.input import FileInput as _PnFileInput
@@ -234,6 +234,11 @@ class _NumericInputBase(MaterialInputWidget):
         The current value of the spinner.""")
 
     __abstract = True
+
+    def _process_param_change(self, params):
+        if 'format' in params and isinstance(params['format'], str):
+            params['format'] = NumeralTickFormatter(format=params['format'])
+        return super()._process_param_change(params)
 
 
 class _IntInputBase(_NumericInputBase):
