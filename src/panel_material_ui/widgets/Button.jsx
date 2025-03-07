@@ -8,6 +8,7 @@ export function render({model, el}) {
   const [label] = model.useState("label")
   const [variant] = model.useState("button_style")
   const [sx] = model.useState("sx")
+
   return (
     <Button
       color={color}

@@ -68,13 +68,14 @@ export function render({model}) {
     <Button
       color={color}
       component="label"
+      disabled={disabled}
       role={undefined}
       tabIndex={-1}
       startIcon={<CloudUploadIcon />}
       variant={variant}
       sx={sx}
     >
-      Upload files
+      {label || "Upload File(s)"}
       <VisuallyHiddenInput
         type="file"
         onChange={(event) => {

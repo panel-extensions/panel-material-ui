@@ -45,7 +45,7 @@ export function render({model}) {
   };
 
   return (
-    <FormControl sx={{m: 1, width: 300}}>
+    <FormControl sx={{m: 1, width: "100%"}}>
       <InputLabel id={`chip-label-${model.id}`}>{label}</InputLabel>
       <Select
         multiple

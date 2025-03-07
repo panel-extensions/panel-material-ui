@@ -14,6 +14,20 @@ export function render({model, view}) {
   const [label] = model.useState("label")
 
   const keys = Array.isArray(items) ? items.map((_, index) => index) : Object.keys(items)
+  const margin = (() => {
+    switch (direction) {
+      case "left":
+        return {marginRight: "16px"}
+      case "right":
+        return {marginLeft: "16px"}
+      case "up":
+        return {marginBottom: "16px"}
+      case "down":
+        return {marginTop: "16px"}
+      default:
+        return {}
+    }
+  })()
 
   return (
     <SpeedDial
@@ -21,7 +35,14 @@ export function render({model, view}) {
       ariaLabel={label}
       direction={direction}
       icon={icon ? <Icon>{icon}</Icon> : <SpeedDialIcon openIcon={open_icon ? open_icon : undefined} />}
-      sx={sx}
+      sx={{
+        "& .MuiSpeedDial-actions": {
+          position: "absolute",
+          zIndex: "calc(var(--mui-zIndex-fab) + 1)",
+          ...margin
+        },
+        ...sx
+      }}
     >
       {keys.map((name) => {
         const item = items[name]
