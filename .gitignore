@@ -212,9 +212,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
-
 # PyBuilder
 .pybuilder/
 target/
@@ -278,9 +275,6 @@ venv.bak/
 
 # Rope project settings
 .ropeproject
-
-# mkdocs documentation
-/site
 
 # mypy
 .mypy_cache/
@@ -380,4 +374,15 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,macos,direnv,python,windows,pycharm+all,visualstudiocode,vim
 
+# pixi
 .pixi
+pixi.lock
+
+src/panel_material_ui/_version.py
+
+# Sphinx documentation
+jupyter_execute/
+builtdocs/
+doc/reference/
+
+panel_sparse_ref/
