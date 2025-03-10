@@ -2,8 +2,13 @@ import pytest
 
 pytest.importorskip('playwright')
 
+import datetime as dt
+
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import TextInput, PasswordInput, TextAreaInput, Checkbox, Switch, FileInput, ToggleIcon
+from panel_material_ui.widgets import (
+    DatePicker,
+    TextInput, PasswordInput, TextAreaInput, Checkbox, Switch, FileInput, ToggleIcon,
+)
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -57,6 +62,7 @@ def test_text_input_typing(page):
     wait_until(lambda: widget.value == 'Hello World Again', page)
 
 
+@pytest.mark.from_panel
 def test_textinput_enter_pressed(page):
     text_input = TextInput()
     clicks = [0]
@@ -150,6 +156,7 @@ def test_text_area_typing(page):
     wait_until(lambda: widget.value == 'Multiline\nText\nTest', page)
 
 
+@pytest.mark.from_panel
 def test_text_area_auto_grow(page):
     widget = TextAreaInput(auto_grow=True, value="1\n2\n3\n4\n")
     serve_component(page, widget)
@@ -164,6 +171,7 @@ def test_text_area_auto_grow(page):
     wait_until(lambda: input_area.bounding_box()['height'] == 8 * TEXTAREA_LINE_HEIGHT, page)
 
 
+@pytest.mark.from_panel
 def test_text_area_auto_grow_max_rows(page):
     text_area = TextAreaInput(auto_grow=True, value="1\n2\n3\n4\n", max_rows=7)
 
@@ -178,6 +186,7 @@ def test_text_area_auto_grow_max_rows(page):
     wait_until(lambda: input_area.bounding_box()['height'] == 7 * TEXTAREA_LINE_HEIGHT, page)
 
 
+@pytest.mark.from_panel
 def test_text_area_auto_grow_min_rows(page):
     text_area = TextAreaInput(auto_grow=True, value="1\n2\n3\n4\n", rows=3)
     serve_component(page, text_area)
@@ -192,6 +201,7 @@ def test_text_area_auto_grow_min_rows(page):
     wait_until(lambda: input_area.bounding_box()['height'] == 3 * TEXTAREA_LINE_HEIGHT, page)
 
 
+@pytest.mark.from_panel
 def test_text_area_auto_grow_shrink_back_on_new_value(page):
     text_area = TextAreaInput(auto_grow=True, value="1\n2\n3\n4\n", max_rows=5)
     serve_component(page, text_area)
@@ -247,3 +257,64 @@ def test_toggle_icon(page):
     expect(icon).to_have_text("thumb-up")
     icon.click()
     expect(icon).to_have_text("thumb-down")
+
+
+def test_datepicker_enabled_dates(page):
+    widget = DatePicker(
+        name='Date Picker',
+        start=dt.date(2024, 4, 1),
+        end=dt.date(2024, 4, 20),
+        enabled_dates=[
+            dt.date(2024, 4, 1),
+            dt.date(2024, 4, 2),
+            dt.date(2024, 4, 20),
+            dt.date(2024, 4, 21),
+        ]
+    )
+    serve_component(page, widget)
+
+    # click the datepicker icon to show dates to select
+    icon = page.locator(".MuiIconButton-root")
+    icon.click()
+    # Select all buttons in the date picker
+    buttons = page.locator('.MuiPickersDay-root').all()
+
+    enabled_buttons = []
+    for button in buttons:
+        is_disabled = button.get_attribute("disabled") is not None or button.evaluate(
+            "el => el.classList.contains('Mui-disabled')")
+        if not is_disabled:
+            value = button.inner_text()  # Get the button's displayed text (date)
+            enabled_buttons.append(value)
+
+    # only enabled dates within the start to end range are selectable
+    assert enabled_buttons == ['1', '2', '20']
+
+
+def test_datepicker_disabled_dates(page):
+    widget = DatePicker(
+        name='Date Picker',
+        start=dt.date(2024, 4, 1),
+        end=dt.date(2024, 4, 20),
+        disabled_dates=[
+            dt.date(2024, 4, i) for i in range(1, 18)
+        ]
+    )
+    serve_component(page, widget)
+
+    # click the datepicker icon to show dates to select
+    icon = page.locator(".MuiIconButton-root")
+    icon.click()
+    # Select all buttons in the date picker
+    buttons = page.locator('.MuiPickersDay-root').all()
+
+    enabled_buttons = []
+    for button in buttons:
+        is_disabled = button.get_attribute("disabled") is not None or button.evaluate(
+            "el => el.classList.contains('Mui-disabled')")
+        if not is_disabled:
+            value = button.inner_text()  # Get the button's displayed text (date)
+            enabled_buttons.append(value)
+
+    # only enabled dates within the start to end range are selectable
+    assert enabled_buttons == ['18', '19', '20']

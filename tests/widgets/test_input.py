@@ -3,15 +3,15 @@ import pytest
 
 from pathlib import Path
 from panel import config
+from datetime import date, datetime, time as dt_time
 
-from panel_material_ui.widgets import FileInput, IntInput, FloatInput
+from panel_material_ui.widgets import FileInput, IntInput, FloatInput, DatePicker
 
 
 
+@pytest.mark.from_panel
 def test_file_input(document, comm):
     file_input = FileInput(accept='.txt')
-
-    widget = file_input.get_root(document, comm=comm)
 
     file_input._process_events({'mime_type': 'text/plain', 'value': 'U29tZSB0ZXh0Cg==', 'filename': 'testfile'})
     assert file_input.value == b'Some text\n'
@@ -20,10 +20,9 @@ def test_file_input(document, comm):
     assert file_input.filename == 'testfile'
 
 
+@pytest.mark.from_panel
 def test_file_input_save_one_file(document, comm, tmpdir):
     file_input = FileInput(accept='.txt')
-
-    widget = file_input.get_root(document, comm=comm)
 
     file_input._process_events({'mime_type': 'text/plain', 'value': 'U29tZSB0ZXh0Cg==', 'filename': 'testfile'})
 
@@ -35,6 +34,7 @@ def test_file_input_save_one_file(document, comm, tmpdir):
     assert content == 'Some text\n'
 
 
+@pytest.mark.from_panel
 @pytest.mark.xfail(reason='')
 def test_int_input(document, comm):
     int_input = IntInput(name='Int input')
@@ -63,6 +63,7 @@ def test_int_input(document, comm):
         assert widget.value == 2
 
 
+@pytest.mark.from_panel
 @pytest.mark.xfail(reason='')
 def test_float_input(document, comm):
     float_input = FloatInput(value=0.4, name="Float input")
@@ -89,3 +90,29 @@ def test_float_input(document, comm):
 
         float_input.value = 0.5
         assert widget.value == 0.5
+
+
+@pytest.mark.from_panel
+def test_date_picker():
+    date_picker = DatePicker(name='DatePicker', value=date(2018, 9, 2),
+                             start=date(2018, 9, 1), end=date(2018, 9, 10))
+
+    date_picker._process_events({'value': '2018-09-03'})
+    assert date_picker.value == date(2018, 9, 3)
+
+    date_picker._process_events({'value': date(2018, 9, 5)})
+    assert date_picker.value == date(2018, 9, 5)
+
+    date_picker._process_events({'value': date(2018, 9, 6)})
+    assert date_picker.value == date(2018, 9, 6)
+
+
+@pytest.mark.from_panel
+def test_date_picker_options():
+    options = [date(2018, 9, 1), date(2018, 9, 2), date(2018, 9, 3)]
+    datetime_picker = DatePicker(
+        name='DatetimePicker', value=date(2018, 9, 2),
+        options=options
+    )
+    assert datetime_picker.value == date(2018, 9, 2)
+    assert datetime_picker.enabled_dates == options

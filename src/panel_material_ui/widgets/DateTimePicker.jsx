@@ -181,6 +181,8 @@ export function render({model, view}) {
     return date >= from && date <= to;
   }
 
+  const getDateOnly = (date) => dayjs(date).format("YYYY-MM-DD");
+
   // Check whether the given date (JS Date) is in a list of dates or ranges.
   function inList(date, list) {
     if (!list || list.length === 0) { return false; }
@@ -190,8 +192,8 @@ export function render({model, view}) {
           return true;
         }
       } else {
-        // Compare single date values (by toDateString for a day-level match).
-        if (parseDate(item).toDateString() === date.toDateString()) {
+        // Compare single date values for a day-level match.
+        if (getDateOnly(item) === getDateOnly(date)) {
           return true;
         }
       }
