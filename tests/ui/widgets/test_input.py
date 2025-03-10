@@ -57,6 +57,7 @@ def test_text_input_typing(page):
     wait_until(lambda: widget.value == 'Hello World Again', page)
 
 
+@pytest.mark.from_panel
 def test_textinput_enter_pressed(page):
     text_input = TextInput()
     clicks = [0]
@@ -150,6 +151,7 @@ def test_text_area_typing(page):
     wait_until(lambda: widget.value == 'Multiline\nText\nTest', page)
 
 
+@pytest.mark.from_panel
 def test_text_area_auto_grow(page):
     widget = TextAreaInput(auto_grow=True, value="1\n2\n3\n4\n")
     serve_component(page, widget)
@@ -164,6 +166,7 @@ def test_text_area_auto_grow(page):
     wait_until(lambda: input_area.bounding_box()['height'] == 8 * TEXTAREA_LINE_HEIGHT, page)
 
 
+@pytest.mark.from_panel
 def test_text_area_auto_grow_max_rows(page):
     text_area = TextAreaInput(auto_grow=True, value="1\n2\n3\n4\n", max_rows=7)
 
@@ -178,6 +181,7 @@ def test_text_area_auto_grow_max_rows(page):
     wait_until(lambda: input_area.bounding_box()['height'] == 7 * TEXTAREA_LINE_HEIGHT, page)
 
 
+@pytest.mark.from_panel
 def test_text_area_auto_grow_min_rows(page):
     text_area = TextAreaInput(auto_grow=True, value="1\n2\n3\n4\n", rows=3)
     serve_component(page, text_area)
@@ -192,6 +196,7 @@ def test_text_area_auto_grow_min_rows(page):
     wait_until(lambda: input_area.bounding_box()['height'] == 3 * TEXTAREA_LINE_HEIGHT, page)
 
 
+@pytest.mark.from_panel
 def test_text_area_auto_grow_shrink_back_on_new_value(page):
     text_area = TextAreaInput(auto_grow=True, value="1\n2\n3\n4\n", max_rows=5)
     serve_component(page, text_area)
