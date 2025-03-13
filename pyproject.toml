@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs", "panel>=1.6.1", "packaging"]
+requires = ["hatchling", "hatch-vcs", "panel >=1.6.2a2", "packaging"]
 build-backend = "hatchling.build"
 
 [tool.setuptools_scm]
