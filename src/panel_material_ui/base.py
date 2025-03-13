@@ -143,6 +143,7 @@ class MaterialComponent(ReactComponent):
             "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.2/",
             "@mui/material/": "https://esm.sh/@mui/material@6.4.2/",
             "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.24.1",
+            "mui-color-input": "https://esm.sh/mui-color-input@6.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
             "material-icons/": "https://esm.sh/material-icons@1.13.13/",
             "notistack": "https://esm.sh/notistack@3.0.2"

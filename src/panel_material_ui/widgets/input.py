@@ -898,3 +898,23 @@ class Switch(MaterialWidget):
 
     _esm_base = "Switch.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
+
+
+class ColorPicker(MaterialWidget):
+    """
+    The `ColorPicker` allows selecting a color value using a color picker utility.
+    """
+
+    alpha = param.Boolean(default=False, doc="Whether to allow alpha transparency.")
+
+    color = param.Selector(objects=COLORS, default="primary")
+
+    format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex")
+
+    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+
+    value = param.String(default=None, doc="The current color value.")
+
+    _esm_base = "ColorPicker.jsx"
