@@ -915,6 +915,6 @@ class ColorPicker(MaterialWidget):
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 
-    value = param.Color(default=None, doc="The current color value.")
+    value = param.String(default=None, doc="The current color value.")
 
     _esm_base = "ColorPicker.jsx"

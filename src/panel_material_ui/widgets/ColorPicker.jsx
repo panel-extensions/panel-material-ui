@@ -5,6 +5,7 @@ export function render({model, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [format] = model.useState("format")
+  const [label] = model.useState("label")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
@@ -15,6 +16,7 @@ export function render({model, el}) {
       color={color}
       disabled={disabled}
       format={format}
+      label={label}
       isAlphaHidden={!alpha}
       onChange={setValue}
       size={size}

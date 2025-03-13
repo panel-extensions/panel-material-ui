@@ -84,7 +84,7 @@ export function render({model}) {
       <Toolbar/>
       <Divider />
       <Box sx={{overflow: "auto"}}>
-        {}
+        {sidebar}
       </Box>
     </Drawer>
   ) : null;
