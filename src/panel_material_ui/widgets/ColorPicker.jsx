@@ -6,6 +6,7 @@ export function render({model, el}) {
   const [disabled] = model.useState("disabled")
   const [format] = model.useState("format")
   const [size] = model.useState("size")
+  const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
   const [value, setValue] = model.useState("value")
 
@@ -17,11 +18,13 @@ export function render({model, el}) {
       isAlphaHidden={!alpha}
       onChange={setValue}
       size={size}
+      sx={sx}
       value={value}
       variant={variant}
       PopoverProps={{
         container: el,
       }}
+      fullWidth
     />
   )
 }
