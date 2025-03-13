@@ -1,4 +1,4 @@
-import {MuiColorInput} from 'mui-color-input'
+import {MuiColorInput} from "mui-color-input"
 
 export function render({model, el}) {
   const [alpha] = model.useState("alpha")
