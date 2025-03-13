@@ -15,8 +15,8 @@ pn.extension(defer_load=True)
 
 pn.config.design = MaterialDesign
 
-primary_color = pn.widgets.ColorPicker(value='#404db0', name='Primary', width=150)
-secondary_color = pn.widgets.ColorPicker(value='#ee8349', name='Secondary', width=150)
+primary_color = ColorPicker(value='#404db0', name='Primary', width=150)
+secondary_color = ColorPicker(value='#ee8349', name='Secondary', width=150)
 
 design_kwargs = dict(
     theme_config={
