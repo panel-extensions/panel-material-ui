@@ -81,33 +81,34 @@ export function render_theme_css(theme) {
 }
 
 export function render_theme_config(props, theme_config, dark_theme) {
-  return deepmerge(
-    theme_config,
-    {
-      cssVariables: {
-        rootSelector: ":host",
-        colorSchemeSelector: "class",
+  const config = {
+    cssVariables: {
+      rootSelector: ":host",
+      colorSchemeSelector: "class",
+    },
+    palette: {
+      mode: dark_theme ? "dark" : "light"
+    },
+    components: {
+      MuiPopover: {
+        defaultProps: {
+          container: props.view.container,
+        },
       },
-      palette: {
-        mode: dark_theme ? "dark" : "light"
+      MuiPopper: {
+        defaultProps: {
+          container: props.view.container,
+        },
       },
-      components: {
-        MuiPopover: {
-          defaultProps: {
-            container: props.view.container,
-          },
+      MuiModal: {
+        defaultProps: {
+          container: props.view.container,
         },
-        MuiPopper: {
-          defaultProps: {
-            container: props.view.container,
-          },
-        },
-        MuiModal: {
-          defaultProps: {
-            container: props.view.container,
-          },
-        },
-      }
+      },
     }
-  )
+  }
+  if (theme_config != null) {
+    return deepmerge(theme_config, config)
+  }
+  return config
 }

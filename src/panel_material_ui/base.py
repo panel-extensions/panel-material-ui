@@ -140,8 +140,8 @@ class MaterialComponent(ReactComponent):
     _esm_transforms = [ThemedTransform]
     _importmap = {
         "imports": {
-            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.2/",
-            "@mui/material/": "https://esm.sh/@mui/material@6.4.2/",
+            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.6/",
+            "@mui/material/": "https://esm.sh/@mui/material@6.4.6/",
             "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.24.1",
             "mui-color-input": "https://esm.sh/mui-color-input@6.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
