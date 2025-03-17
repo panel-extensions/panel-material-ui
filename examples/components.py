@@ -11,7 +11,7 @@ from panel_material_ui import *
 from panel_material_ui.base import MaterialComponent
 from panel_material_ui.template import Page
 
-pn.extension(defer_load=True)
+pn.extension(defer_load=True, notifications=True)
 
 pn.config.design = MaterialDesign
 
@@ -203,14 +203,15 @@ spec = {
     },
 }
 
+notifications = pn.state.notifications.demo(sizing_mode='stretch_width')
+
 page = Page(
     main=[render_spec(spec)],
     sidebar=[
         primary_color,
         secondary_color,
+        notifications
     ],
     title='panel-material-ui components',
     **design_kwargs
-)
-
-page.servable()
+).servable()
