@@ -1,7 +1,7 @@
 import Alert from "@mui/material/Alert"
 import Icon from "@mui/material/Icon"
 import {SnackbarProvider, useSnackbar} from "notistack"
-import { useTheme } from "@mui/material/styles"
+import {useTheme} from "@mui/material/styles"
 
 function NotificationArea({model, view}) {
   const {enqueueSnackbar, closeSnackbar} = useSnackbar()
@@ -66,7 +66,6 @@ function NotificationArea({model, view}) {
             deletedNotifications.current.add(notification._uuid)
             setNotifications(notifications.filter(n => n._uuid !== notification._uuid))
             enqueuedNotifications.current.delete(notification._uuid)
-            console.log('delete')
           },
           persist: notification.duration === 0,
           preventDuplicate: true,
