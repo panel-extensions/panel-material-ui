@@ -10,7 +10,7 @@ serve-example = { cmd = "echo ", depends-on = ["install", "serve-dev"] }
 
 [dependencies]
 python = ">=3.10"
-panel = ">=1.6.2a2"
+panel = ">=1.6.2b1"
 packaging = "*"
 watchfiles = "*"
 
