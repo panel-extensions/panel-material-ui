@@ -33,5 +33,12 @@ class MaterialDesign(Material):
     _resources = {}
     _themes = {'dark': MaterialDark, 'default': MaterialLight}
 
+    @classmethod
+    def _get_modifiers(cls, viewable, theme, isolated=False):
+        modifiers, child_modifiers = super()._get_modifiers(viewable, theme, isolated)
+        if hasattr(viewable, '_esm_base'):
+            del modifiers['stylesheets']
+        return modifiers, child_modifiers
+
 
 config.design = MaterialDesign
