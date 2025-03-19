@@ -202,12 +202,22 @@ class FileInput(MaterialWidget, _PnFileInput):
             return
         elif status == "initializing":
             return
+        elif status == "finished":
+            try:
+                self._flush_buffer()
+                self._send_msg({"status": "finished"})
+            except Exception as e:
+                self._send_msg({"status": "error", "error": str(e)})
+        else:
+            raise ValueError(f"Unknown status: {status}")
+
+    def _flush_buffer(self):
         value, mime_type, filename = [], [], []
         for file_data in self._buffer:
             value.append(file_data["data"])
             filename.append(file_data["filename"])
             mime_type.append(file_data["mime_type"])
-        if self.multiple:
+        if not (self.multiple or self.directory):
             value, filename, mime_type = value[0], filename[0], mime_type[0]
         self.param.update(
             filename=filename,
