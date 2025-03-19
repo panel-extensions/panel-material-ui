@@ -1,0 +1,148 @@
+from __future__ import annotations
+
+import datetime
+from contextlib import ExitStack
+from pathlib import PurePath
+from zoneinfo import ZoneInfo
+
+import param
+from panel.chat.message import ChatMessage, ChatReactionIcons
+from panel.io import state
+from panel.layout import Panel, Row
+from panel.pane import Placeholder
+from panel.pane.image import ImageBase
+from panel.pane.markup import HTMLBasePane
+from panel.util import isfile
+from panel.viewable import Child
+from panel.widgets import Widget
+
+from ..base import MaterialComponent
+from .input import ChatAreaInput
+
+
+class MessageState(param.Parameterized):
+
+    avatar = param.Parameter(allow_refs=True)
+
+    timestamp = param.String(allow_refs=True)
+
+
+class ChatMessage(MaterialComponent, ChatMessage):
+    """
+    Renders another component as a chat message with an associated user
+    and avatar with support for various content types.
+
+    This widget provides a structured view of chat messages, including features like:
+
+    - Displaying user avatars, which can be text, emoji, or images.
+    - Showing the user's name.
+    - Displaying the message timestamp in a customizable format.
+    - Associating reactions with messages and mapping them to icons.
+    - Rendering various content types including text, images, audio, video, and more.
+
+    Reference: https://panel.holoviz.org/reference/chat/ChatMessage.html
+
+    :Example:
+
+    >>> ChatMessage(object="Hello world!", user="New User", avatar="😊")
+    """
+
+    css_classes = param.List(default=[],doc="""
+        The CSS classes to apply to the widget.""")
+
+    default_layout = param.ClassSelector(class_=(Panel), precedence=-1)
+
+    _internal_state = param.ClassSelector(class_=MessageState, default=MessageState())
+    _object_panel = Child()
+
+    _esm_base = "ChatMessage.jsx"
+    _rename = {
+        "avatar": None,
+        "avatar_lookup": None,
+        "default_avatars": None,
+        "object": None
+    }
+    _stylesheets = []
+
+    def __init__(self, object=None, **params):
+        self._exit_stack = ExitStack()
+        if params.get("timestamp") is None:
+            tz = params.get("timestamp_tz")
+            if tz is not None:
+                tz = ZoneInfo(tz)
+            elif state.browser_info and state.browser_info.timezone:
+                tz = ZoneInfo(state.browser_info.timezone)
+            params["timestamp"] = datetime.datetime.now(tz=tz)
+        reaction_icons = params.get("reaction_icons", {"favorite": "heart"})
+        if isinstance(reaction_icons, dict):
+            params["reaction_icons"] = ChatReactionIcons(options=reaction_icons, default_layout=Row, sizing_mode=None)
+        self._internal = True
+        if not self.avatar:
+            self._update_avatar()
+        self._internal_state = MessageState(
+            avatar=self.param.avatar,
+        )
+        if not ChatMessage.width and params.get('width') is None and params.get('sizing_mode', None) is None:
+            params['sizing_mode'] = 'stretch_width'
+        MaterialComponent.__init__(self, object=object, **params)
+        self._internal_state.timestamp = self.param.timestamp.rx().strftime(self.param.timestamp_format)
+        self._build_layout()
+
+    @param.depends('avatar', watch=True, on_init=True)
+    def _render_avatar_html(self):
+        avatar = self.avatar
+        if isinstance(avatar, ImageBase):
+            if self.embed or (isfile(avatar.object) or not isinstance(avatar.object, (str, PurePath))):
+                data = avatar._data(avatar.object)
+                src = avatar._b64(data)
+            elif isinstance(avatar.object, PurePath):
+                raise ValueError(f"Could not find Avatar {type(avatar).__name__}.object {avatar.object}.")
+            else:
+                src = self.avatar.object
+            self._internal_state.avatar = {"type": "image", "src": src}
+        else:
+            self._internal_state.avatar = {"type": "text", "text": self.avatar}
+
+    @property
+    def _synced_params(self) -> list[str]:
+        """
+        Parameters which are synced with properties using transforms
+        applied in the _process_param_change method.
+        """
+        ignored = ['default_layout', 'loading', 'background']
+        return [p for p in self.param if p not in self._manual_params+ignored]
+
+    def _handle_msg(self, msg):
+        if msg == 'edit':
+            self._toggle_edit()
+        elif msg == 'copy':
+            object_panel = self._object_panel
+            if isinstance(object_panel, HTMLBasePane):
+                object_panel = object_panel.object
+            elif isinstance(object_panel, Widget):
+                object_panel = object_panel.value
+            self._send_msg({"type": "copy", "text": object_panel if isinstance(object_panel, str) else ""})
+
+    def _build_layout(self):
+        self._object_panel = self._create_panel(self.object)
+        self._placeholder = Placeholder(
+            object=self._object_panel,
+            css_classes=["placeholder"],
+            stylesheets=self._stylesheets + self.param.stylesheets.rx(),
+            sizing_mode='stretch_width',
+        )
+        self._edit_area = ChatAreaInput(
+            css_classes=["edit-area"],
+            stylesheets=self._stylesheets + self.param.stylesheets.rx()
+        )
+        self.param.watch(self._update_object_pane, "object")
+        self.param.watch(self._update_reaction_icons, "reaction_icons")
+        self.edit_icon.param.watch(self._toggle_edit, "value")
+        self._edit_area.param.watch(self._submit_edit, "enter_pressed")
+        self._composite = Row()
+
+    def _process_param_change(self, params):
+        params = super()._process_param_change(params)
+        if 'stylesheets' in params:
+            params['stylesheets'] += [".message { font-size: 1.25em; overflow-wrap: anywhere; word-break: break-word; }"]
+        return params
