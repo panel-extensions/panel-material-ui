@@ -3,17 +3,20 @@ from __future__ import annotations
 from collections.abc import Iterable
 from datetime import date, datetime, timezone
 from datetime import time as dt_time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import param
-from bokeh.models.formatters import TickFormatter
+from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.models.reactive_html import DOMEvent
 from panel.util import edit_readonly, try_datetime64_to_datetime
 from panel.widgets.input import FileInput as _PnFileInput
 
 from ..base import COLORS, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
+
+if TYPE_CHECKING:
+    from bokeh.document import Document
 
 
 class MaterialInputWidget(MaterialWidget):
@@ -235,6 +238,26 @@ class _NumericInputBase(MaterialInputWidget):
 
     __abstract = True
 
+    def __init__(self, **params):
+        if 'value' not in params:
+            value = params.get('start', self.value)
+            if value is not None:
+                params['value'] = value
+        if 'value' in params and 'value_throttled' in self.param:
+            params['value_throttled'] = params['value']
+        super().__init__(**params)
+
+    def _get_properties(self, doc: Document):
+        props = super()._get_properties(doc)
+        if props['data'].format is None:
+            props['data'].format = NumeralTickFormatter(format='0,0' if self.mode == 'int' else '0,0.0[000]')
+        return props
+
+    def _process_param_change(self, params):
+        if 'format' in params and isinstance(params['format'], str):
+            params['format'] = NumeralTickFormatter(format=params['format'])
+        return super()._process_param_change(params)
+
 
 class _IntInputBase(_NumericInputBase):
 
@@ -288,15 +311,6 @@ class _SpinnerBase(_NumericInputBase):
 
     __abstract = True
 
-    def __init__(self, **params):
-        if 'value' not in params:
-            value = params.get('start', self.value)
-            if value is not None:
-                params['value'] = value
-        if 'value' in params and 'value_throttled' in self.param:
-            params['value_throttled'] = params['value']
-        super().__init__(**params)
-
 
 class IntInput(_SpinnerBase, _IntInputBase):
     """
@@ -338,7 +352,7 @@ class FloatInput(_SpinnerBase, _FloatInputBase):
     step = param.Number(default=0.1, doc="""
         The step size.""")
 
-    value_throttled = param.Integer(default=None, constant=True, doc="""
+    value_throttled = param.Number(default=None, constant=True, doc="""
         The current value. Updates only on `<enter>` or when the widget looses focus.""")
 
 
