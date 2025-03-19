@@ -36,9 +36,9 @@ def test_button_jscallback_clicks(document, comm):
     widget = button.get_root(document, comm=comm)
     assert len(widget.js_event_callbacks) == 1
     callbacks = widget.js_event_callbacks
-    assert 'button_click' in callbacks
-    assert len(callbacks['button_click']) == 1
-    assert code in callbacks['button_click'][0].code
+    assert 'dom_event' in callbacks
+    assert len(callbacks['dom_event']) == 1
+    assert code in callbacks['dom_event'][0].code
 
 
 def test_toggle(document, comm):
