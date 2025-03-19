@@ -60,7 +60,7 @@ test-coverage = { cmd = "pytest --cov=panel_material_ui --cov-report=xml --cov-r
 channels = ["microsoft"]
 
 [feature.test-ui.dependencies]
-playwright = { version = "*", channel = "microsoft" }
+playwright = { version = "<1.51", channel = "microsoft" }
 pytest-playwright = { version = "*", channel = "microsoft" }
 
 [feature.test-ui.tasks]
