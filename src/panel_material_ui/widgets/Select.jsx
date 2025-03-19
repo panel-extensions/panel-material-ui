@@ -5,14 +5,15 @@ import Select from "@mui/material/Select"
 import ListSubheader from "@mui/material/ListSubheader"
 
 export function render({model, el}) {
-  const [value, setValue] = model.useState("value")
-  const [options] = model.useState("options")
   const [color] = model.useState("color")
-  const [label] = model.useState("label")
-  const [variant] = model.useState("variant")
   const [disabled] = model.useState("disabled")
   const [disabled_options] = model.useState("disabled_options")
+  const [label] = model.useState("label")
+  const [options] = model.useState("options")
+  const [size] = model.useState("size")
   const [sx] = model.useState("sx")
+  const [value, setValue] = model.useState("value")
+  const [variant] = model.useState("variant")
 
   let option_list;
   if (Array.isArray(options)) {
