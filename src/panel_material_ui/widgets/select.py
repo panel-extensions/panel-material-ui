@@ -190,6 +190,8 @@ class RadioGroup(MaterialWidget):
         Whether the items be arrange vertically (``False``) or
         horizontally in-line (``True``).""")
 
+    width = param.Integer(default=None)
+
     _esm_base = "RadioGroup.jsx"
 
     _rename = {"name": "name"}
