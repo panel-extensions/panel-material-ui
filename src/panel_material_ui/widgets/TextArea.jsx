@@ -48,7 +48,7 @@ export function render({model, el}) {
         ...sx,
         ...{
           flexGrow: 1,
-          '& .MuiInputBase-root': {
+          "& .MuiInputBase-root": {
             flexGrow: 1,
             alignItems: "flex-start"
           }
