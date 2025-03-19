@@ -67,16 +67,16 @@ export function render({model}) {
   }
 
   const handleKeyDown = (e) => {
-    if (e.key === 'ArrowUp') {
+    if (e.key === "ArrowUp") {
       e.preventDefault();
       increment();
-    } else if (e.key === 'ArrowDown') {
+    } else if (e.key === "ArrowDown") {
       e.preventDefault();
       decrement();
-    } else if (e.key === 'PageUp') {
+    } else if (e.key === "PageUp") {
       e.preventDefault();
       increment(model.page_step_multiplier);
-    } else if (e.key === 'PageDown') {
+    } else if (e.key === "PageDown") {
       e.preventDefault();
       decrement(model.page_step_multiplier);
     }
