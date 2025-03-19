@@ -48,7 +48,7 @@ function NotificationArea({model, view}) {
           content: (
             <Alert
               icon={icon ? <Icon>{icon}</Icon> : undefined}
-              onClose={() => closeSnackbar(key)}
+              onClose={() => closeSnackbar(notification._uuid)}
               severity={notification.notification_type}
               sx={background ? (
                 {
