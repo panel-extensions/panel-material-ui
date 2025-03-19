@@ -52,7 +52,7 @@ export function render({model}) {
     if (value === null) {
       setValue(min != null ? min : 0)
     } else {
-      const incremented = Math.round((value + step * multiplier) * 100000000000) / 100000000000
+      const incremented = Math.round((value + (step * multiplier)) * 100000000000) / 100000000000
       setValue(max != null ? Math.min(max, incremented) : incremented)
     }
   }
@@ -61,7 +61,7 @@ export function render({model}) {
     if (value === null) {
       setValue(max != null ? max : 0)
     } else {
-      const decremented = Math.round((value - step * multiplier) * 100000000000) / 100000000000
+      const decremented = Math.round((value - (step * multiplier)) * 100000000000) / 100000000000
       setValue(min != null ? Math.max(min, decremented) : decremented)
     }
   }
@@ -97,14 +97,14 @@ export function render({model}) {
         inputMode: "decimal",
         startAdornment: (
           <InputAdornment position="start">
-            <IconButton onClick={decrement} size="small">
+            <IconButton onClick={() => decrement()} size="small">
               <RemoveIcon fontSize="small" />
             </IconButton>
           </InputAdornment>
         ),
         endAdornment: (
           <InputAdornment position="end">
-            <IconButton onClick={increment} size="small">
+            <IconButton onClick={() => increment()} size="small">
               <AddIcon fontSize="small" />
             </IconButton>
           </InputAdornment>
