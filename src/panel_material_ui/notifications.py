@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 import param
 from bokeh.models.callbacks import CustomJS
+from panel.config import config
 from panel.io.datamodel import _DATA_MODELS, construct_data_model
 from panel.io.notifications import Notification as _Notification
 from panel.io.notifications import NotificationAreaBase
@@ -158,4 +159,5 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
 
 
 _state._notification_type = NotificationArea
-_DATA_MODELS[MuiNotification] = construct_data_model(MuiNotification)
+if not config.autoreload:
+    _DATA_MODELS[MuiNotification] = construct_data_model(MuiNotification)
