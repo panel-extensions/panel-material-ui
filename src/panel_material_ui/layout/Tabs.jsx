@@ -2,7 +2,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 
-export function render({model}) {
+export function render({model, view}) {
   const [active, setActive] = model.useState("active");
   const [centered] = model.useState("centered");
   const [color] = model.useState("color");
@@ -16,6 +16,10 @@ export function render({model}) {
   };
 
   const orientation = (location === "above" || location === "below") ? "horizontal" : "vertical"
+
+  React.useEffect(() => {
+    view.update_layout()
+  }, [])
 
   const tabs = (
     <Tabs
