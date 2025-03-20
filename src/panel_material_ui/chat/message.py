@@ -52,6 +52,8 @@ class ChatMessage(MaterialComponent, ChatMessage):
 
     default_layout = param.ClassSelector(class_=(Panel), precedence=-1)
 
+    elevation = param.Integer(default=2, doc="The elevation of the message.")
+
     _internal_state = param.ClassSelector(class_=MessageState, default=MessageState())
     _object_panel = Child()
 

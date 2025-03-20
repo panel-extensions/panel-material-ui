@@ -86,7 +86,7 @@ class ChatAreaInput(TextAreaInput):
             self.value_input = ""
         elif msg['type'] == 'action':
             for callback in self._action_callbacks.get(msg['action'], []):
-                callback()
+                callback(msg)
 
     def on_action(self, name: str, callback: Callable):
         """

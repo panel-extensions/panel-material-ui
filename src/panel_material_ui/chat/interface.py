@@ -7,10 +7,8 @@ import param
 from panel.chat.interface import CallbackState, ChatInterface
 from panel.layout import Row
 
-from ..layout import Card
+from .feed import ChatFeed
 from .input import ChatAreaInput
-from .message import ChatMessage
-from .step import ChatStep
 
 if TYPE_CHECKING:
     pass
@@ -21,7 +19,7 @@ ICON_MAP = {
 }
 
 
-class ChatInterface(ChatInterface):
+class ChatInterface(ChatFeed, ChatInterface):
     """
     A chat interface that uses Material UI components.
 
@@ -32,10 +30,7 @@ class ChatInterface(ChatInterface):
     >>> ChatInterface().servable()
     """
 
-    _card_type = Card
     _input_type = ChatAreaInput
-    _message_type = ChatMessage
-    _step_type = ChatStep
 
     _rename = {"loading": "loading"}
 

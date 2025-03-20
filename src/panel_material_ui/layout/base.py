@@ -121,6 +121,8 @@ class Card(MaterialNamedListLike):
     _direction = "vertical"
     _esm_base = "Card.jsx"
 
+    _rename = {"objects": "objects", "title": "title", "header": "header"}
+
     def select(self, selector: type | Callable[[Viewable], bool] | None = None) -> list[Viewable]:
         return ([] if self.header is None else self.header.select(selector)) + super().select(selector)
 

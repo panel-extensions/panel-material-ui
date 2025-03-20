@@ -19,11 +19,11 @@ class ChatStep(Card, _PnChatStep):
     >>> ChatStep("Hello world!", title="Running calculation...', status="running")
     """
 
-    margin = Margin(default=0)
+    margin = Margin(default=(5, 0, 0, 0))
 
     _esm_base = "ChatStep.jsx"
     _rename = {
-        "objects": "objects", "header": None, "title": "title", "status": "status"}
+        "objects": "objects", "title": "title", "status": "status"}
     _stylesheets = []
 
     def __init__(self, *objects, **params):

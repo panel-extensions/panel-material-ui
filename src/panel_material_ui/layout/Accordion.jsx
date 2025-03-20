@@ -1,11 +1,9 @@
 import Accordion from "@mui/material/Accordion";
-import AccordionActions from "@mui/material/AccordionActions";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Button from "@mui/material/Button";
 
-export function render({model}) {
+export function render({model, view}) {
   const objects = model.get_child("objects");
   const [active, setActive] = model.useState("active");
   const [names] = model.useState("_names");
@@ -23,6 +21,10 @@ export function render({model}) {
     }
     setActive(newActive)
   };
+
+  React.useEffect(() => {
+    view.update_layout()
+  }, [])
 
   return (
     <>

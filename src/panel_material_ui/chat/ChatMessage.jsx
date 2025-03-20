@@ -77,7 +77,8 @@ function PlaceholderAvatar() {
   )
 }
 
-export function render({model}) {
+export function render({model, view}) {
+  const [elevation] = model.useState("elevation")
   const [user] = model.useState("user")
   const [show_avatar] = model.useState("show_avatar")
   const [show_edit_icon] = model.useState("show_edit_icon")
@@ -98,9 +99,15 @@ export function render({model}) {
     navigator.clipboard.writeText(msg.text)
   })
 
+  React.useEffect(() => {
+    view.update_layout()
+  }, [])
+
+  const placeholder = show_avatar && (avatar.type === "text" && avatar.text == "PLACEHOLDER")
+
   return (
-    <Box sx={{flexDirection: "row", display: "flex"}}>
-      {show_avatar && (avatar.type === "text" && avatar.text == "PLACEHOLDER") ? (
+    <Box sx={{flexDirection: "row", display: "flex", maxWidth: "100%"}}>
+      {placeholder ? (
         <PlaceholderAvatar />
       ) : (
         <Avatar
@@ -110,14 +117,14 @@ export function render({model}) {
           {avatar.type == "text" ? [...avatar.text][0] : null}
         </Avatar>
       )}
-      <Stack direction="column" spacing={0} sx={{flexGrow: 1}}>
+      {!placeholder && <Stack direction="column" spacing={0} sx={{flexGrow: 1, maxWidth: "calc(100% - 60px)"}}>
         {show_user && <Typography variant="caption">
           {user}
         </Typography>}
         <Stack direction="row" spacing={0}>
           {header}
         </Stack>
-        <Paper elevation={2} sx={{bgcolor: "background.paper", maxWidth: "calc(100% - 20px)"}}>
+        <Paper elevation={elevation} sx={{bgcolor: "background.paper", maxWidth: "calc(100% - 20px)"}}>
           {object}
         </Paper>
         <Stack direction="row" spacing={0}>
@@ -139,7 +146,7 @@ export function render({model}) {
         {show_timestamp && <Typography variant="caption" color="text.secondary">
           {timestamp}
         </Typography>}
-      </Stack>
+      </Stack>}
     </Box>
   );
 };

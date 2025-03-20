@@ -6,7 +6,7 @@ export function render({model}) {
   const objects = model.get_child("objects");
 
   return (
-    <Backdrop open={open} sx={sx}>
+    <Backdrop open={open} sx={{zIndex: (theme) => theme.zIndex.drawer + 1, ...sx}}>
       {objects}
     </Backdrop>
   );
