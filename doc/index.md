@@ -1,5 +1,6 @@
-# Index
+# Panel Material UI
 
+Welcome to the documentation of `panel-material-ui`!
 
 ```{toctree}
 :titlesonly:
