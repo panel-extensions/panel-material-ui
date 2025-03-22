@@ -46,17 +46,14 @@ html_css_files += [
 html_theme = "pydata_sphinx_theme"
 html_favicon = "_static/icons/favicon.ico"
 
-current_release = panel.__version__  # Current release version variable
-
-announcement_text = f"Panel {current_release} has just been released! Check out the <a href='https://panel.holoviz.org/about/releases.html'>release notes</a> and support Panel by giving it a 🌟 on <a href='https://github.com/holoviz/panel'>Github</a>."
-
+current_release = panel_material_ui.__version__  # Current release version variable
 
 html_theme_options = {
     "logo": {
         "image_light": "_static/logo_horizontal_light_theme.png",
         "image_dark": "_static/logo_horizontal_dark_theme.png",
     },
-    "github_url": "https://github.com/holoviz/panel",
+    "github_url": "https://github.com/panel-extensions/panel-material-ui",
     "icon_links": [
         {
             "name": "Twitter",
@@ -78,11 +75,10 @@ html_theme_options = {
     "pygments_dark_style": "material",
     "header_links_before_dropdown": 5,
     'secondary_sidebar_items': [
-        "github-stars-button",
+        # "github-stars-button",
         # "panelitelink",
         "page-toc",
     ],
-    "announcement": announcement_text,
 }
 
 
@@ -124,8 +120,8 @@ nbsite_analytics = {
 }
 
 nbsite_gallery_conf = {
-    'github_org': 'holoviz',
-    'github_project': 'panel',
+    'github_org': 'panel-extensions',
+    'github_project': 'panel-material-ui',
     'galleries': {
         'reference': {
             'title': 'Component Gallery',
@@ -198,8 +194,8 @@ templates_path += [
 
 html_context.update({
     "last_release": f"v{release}",
-    "github_user": "holoviz",
-    "github_repo": "panel",
+    "github_user": "panel-extensions",
+    "github_repo": "panel-material-ui",
     "default_mode": "light",
     "panelite_endpoint": jlite_url,
     "gallery_url": gallery_url,
