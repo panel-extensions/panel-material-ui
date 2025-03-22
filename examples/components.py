@@ -11,12 +11,12 @@ from panel_material_ui import *
 from panel_material_ui.base import MaterialComponent
 from panel_material_ui.template import Page
 
-pn.extension(defer_load=True)
+pn.extension(defer_load=True, notifications=True)
 
 pn.config.design = MaterialDesign
 
-primary_color = pn.widgets.ColorPicker(value='#404db0', name='Primary', width=150)
-secondary_color = pn.widgets.ColorPicker(value='#ee8349', name='Secondary', width=150)
+primary_color = ColorPicker(value='#404db0', name='Primary', sizing_mode='stretch_width')
+secondary_color = ColorPicker(value='#ee8349', name='Secondary', sizing_mode='stretch_width')
 
 design_kwargs = dict(
     theme_config={
@@ -203,14 +203,15 @@ spec = {
     },
 }
 
+notifications = pn.state.notifications.demo(sizing_mode='stretch_width')
+
 page = Page(
     main=[render_spec(spec)],
     sidebar=[
         primary_color,
         secondary_color,
+        notifications
     ],
     title='panel-material-ui components',
     **design_kwargs
-)
-
-page.servable()
+).servable()

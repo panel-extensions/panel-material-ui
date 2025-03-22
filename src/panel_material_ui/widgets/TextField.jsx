@@ -5,6 +5,7 @@ export function render({model}) {
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
   const [label] = model.useState("label")
+  const [max_length] = model.useState("max_length")
   const [placeholder] = model.useState("placeholder")
   const [value_input, setValueInput] = model.useState("value_input")
   const [value, setValue] = model.useState("value")
@@ -16,6 +17,7 @@ export function render({model}) {
       color={color}
       disabled={disabled}
       error={error_state}
+      inputProps={{maxLength: max_length}}
       label={label}
       multiline={model.esm_constants.multiline}
       placeholder={placeholder}

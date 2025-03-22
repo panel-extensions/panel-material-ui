@@ -6,11 +6,11 @@ platforms = ["osx-arm64", "osx-64", "linux-64", "win-64"]
 [tasks]
 install = "pip install --no-build-isolation --no-deps --disable-pip-version-check -e ."
 serve-dev = "panel serve examples/components.py --dev --port 0 --show"
-run-example = { cmd = "echo ", depends-on = ["install", "serve-dev"] }
+serve-example = { cmd = "echo ", depends-on = ["install", "serve-dev"] }
 
 [dependencies]
 python = ">=3.10"
-panel = ">=1.6.2a1"
+panel = ">=1.6.2b1"
 packaging = "*"
 watchfiles = "*"
 
@@ -71,7 +71,7 @@ nbval = "*"
 channels = ["microsoft"]
 
 [feature.test-ui.dependencies]
-playwright = { version = "*", channel = "microsoft" }
+playwright = { version = "<1.51", channel = "microsoft" }
 pytest-playwright = { version = "*", channel = "microsoft" }
 
 [feature.test-ui.tasks]

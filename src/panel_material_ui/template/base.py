@@ -1,4 +1,5 @@
 import param
+from panel.config import config
 from panel.viewable import Children
 
 from ..base import MaterialComponent
@@ -31,3 +32,7 @@ class Page(MaterialComponent):
     title = param.String(doc="Title of the application.")
 
     _esm_base = "Page.jsx"
+
+    @param.depends('dark_theme', watch=True)
+    def _update_config(self):
+        config.theme = 'dark' if self.dark_theme else 'default'

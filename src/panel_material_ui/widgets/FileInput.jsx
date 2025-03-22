@@ -1,7 +1,8 @@
 import Button from "@mui/material/Button"
+import CircularProgress from "@mui/material/CircularProgress"
 import {styled} from "@mui/material/styles";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-
+import ErrorIcon from "@mui/icons-material/Error";
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
@@ -15,7 +16,7 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 async function read_file(file) {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => {
       const {result} = reader
@@ -40,7 +41,7 @@ async function load_files(files, accept, directory, multiple) {
 
     if (directory) {
       const ext = file.name.split(".").pop()
-      if ((accept.length > 0 && isString(ext)) ? accept.includes(`.${ext}`) : true) {
+      if ((accept && accept.length > 0 && isString(ext)) ? accept.includes(`.${ext}`) : true) {
         filenames.push(file.webkitRelativePath)
         values.push(value)
         mime_types.push(mime_type)
@@ -64,31 +65,68 @@ export function render({model}) {
   const [variant] = model.useState("button_style")
   const [sx] = model.useState("sx")
 
+  const [uploading, setUploading] = React.useState(false)
+  const [error] = React.useState(false)
+
+  model.on("msg:custom", (msg) => {
+    if (msg.status === "finished") {
+      setUploading(false)
+      setError(false)
+    } else if (msg.status === "error") {
+      setError(true)
+    }
+  })
+
+  const icon = (
+    error ? (
+      <ErrorIcon color="error" />
+    ) : (
+      uploading ? (
+        <CircularProgress color="common.white" size={15} />
+      ) : (
+        <CloudUploadIcon />
+      )
+    )
+  )
+
   return (
     <Button
       color={color}
       component="label"
+      disabled={disabled}
       role={undefined}
       tabIndex={-1}
-      startIcon={<CloudUploadIcon />}
+      startIcon={icon}
       variant={variant}
       sx={sx}
     >
-      Upload files
+      {label || directory ? "Upload Directory" : "Upload File(s)"}
       <VisuallyHiddenInput
         type="file"
         onChange={(event) => {
           load_files(event.target.files, accept, directory, multiple).then((data) => {
             const [values, filenames, mime_types] = data
+            setUploading(true)
             model.send_msg({status: "initializing"})
             for (let i = 0; i < values.length; i++) {
-              model.send_msg({data: values[i], mime_type: mime_types[i], filename: filenames[i], part: i, status: "in_progress"})
+              model.send_msg({
+                data: values[i],
+                mime_type: mime_types[i],
+                filename: filenames[i],
+                part: i,
+                status: "in_progress",
+              })
             }
             model.send_msg({status: "finished"})
           }).catch((e) => console.error(e))
         }}
         accept={accept}
         multiple={multiple}
+        ref={(ref) => {
+          if (ref) {
+            ref.webkitdirectory = directory
+          }
+        }}
       />
     </Button>
   );

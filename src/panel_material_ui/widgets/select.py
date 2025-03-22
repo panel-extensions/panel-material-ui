@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 import param
 from panel.util import edit_readonly, isIn
 from panel.widgets.base import Widget
@@ -174,16 +172,7 @@ class Select(MaterialSingleSelectBase, _PnSelect):
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 
     _esm_base = "Select.jsx"
-    _rename = {"name": "name"}
-
-    def _process_param_change(self, msg: dict[str, Any]) -> dict[str, Any]:
-        if 'groups' in msg and msg['groups'] is None:
-            # Workaround for bug in Panel implementation, fixed in >1.6.1.
-            msg.pop('groups')
-        msg = super()._process_param_change(msg)
-        if 'groups' in msg:
-            msg['groups'] = [item[0] for sublist in msg['groups'].values() for item in sublist]
-        return msg
+    _rename = {"name": "name", "groups": None}
 
 
 class RadioGroup(MaterialWidget):
@@ -200,6 +189,8 @@ class RadioGroup(MaterialWidget):
     inline = param.Boolean(default=False, doc="""
         Whether the items be arrange vertically (``False``) or
         horizontally in-line (``True``).""")
+
+    width = param.Integer(default=None)
 
     _esm_base = "RadioGroup.jsx"
 

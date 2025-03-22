@@ -1,19 +1,22 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from datetime import time as dt_time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import param
-from bokeh.models.formatters import TickFormatter
+from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.models.reactive_html import DOMEvent
 from panel.util import edit_readonly, try_datetime64_to_datetime
 from panel.widgets.input import FileInput as _PnFileInput
 
 from ..base import COLORS, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
+
+if TYPE_CHECKING:
+    from bokeh.document import Document
 
 
 class MaterialInputWidget(MaterialWidget):
@@ -199,12 +202,22 @@ class FileInput(MaterialWidget, _PnFileInput):
             return
         elif status == "initializing":
             return
+        elif status == "finished":
+            try:
+                self._flush_buffer()
+                self._send_msg({"status": "finished"})
+            except Exception as e:
+                self._send_msg({"status": "error", "error": str(e)})
+        else:
+            raise ValueError(f"Unknown status: {status}")
+
+    def _flush_buffer(self):
         value, mime_type, filename = [], [], []
         for file_data in self._buffer:
             value.append(file_data["data"])
             filename.append(file_data["filename"])
             mime_type.append(file_data["mime_type"])
-        if self.multiple:
+        if not (self.multiple or self.directory):
             value, filename, mime_type = value[0], filename[0], mime_type[0]
         self.param.update(
             filename=filename,
@@ -234,6 +247,26 @@ class _NumericInputBase(MaterialInputWidget):
         The current value of the spinner.""")
 
     __abstract = True
+
+    def __init__(self, **params):
+        if 'value' not in params:
+            value = params.get('start', self.value)
+            if value is not None:
+                params['value'] = value
+        if 'value' in params and 'value_throttled' in self.param:
+            params['value_throttled'] = params['value']
+        super().__init__(**params)
+
+    def _get_properties(self, doc: Document):
+        props = super()._get_properties(doc)
+        if props['data'].format is None:
+            props['data'].format = NumeralTickFormatter(format='0,0' if self.mode == 'int' else '0,0.0[000]')
+        return props
+
+    def _process_param_change(self, params):
+        if 'format' in params and isinstance(params['format'], str):
+            params['format'] = NumeralTickFormatter(format=params['format'])
+        return super()._process_param_change(params)
 
 
 class _IntInputBase(_NumericInputBase):
@@ -329,7 +362,7 @@ class FloatInput(_SpinnerBase, _FloatInputBase):
     step = param.Number(default=0.1, doc="""
         The step size.""")
 
-    value_throttled = param.Integer(default=None, constant=True, doc="""
+    value_throttled = param.Number(default=None, constant=True, doc="""
         The current value. Updates only on `<enter>` or when the widget looses focus.""")
 
 
@@ -411,6 +444,8 @@ class _DatePickerBase(MaterialInputWidget):
             value = msg[p]
             if isinstance(value, str):
                 msg[p] = datetime.date(datetime.strptime(value, '%Y-%m-%d'))
+            elif isinstance(value, float):
+                msg[p] = datetime.fromtimestamp(value / 1000, tz=timezone.utc).date()
         return msg
 
 
@@ -432,13 +467,22 @@ class DatePicker(_DatePickerBase):
     ... )
     """
 
-    _constants = {'range': True}
+    _constants = {'range': False, 'time': False}
 
-    def _handle_onChange(self, event):
-        if 'value' not in event.data:
-            return
-        self.value = event.data['value'].toISOString().split('T')[0]
+    value = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
+        The current value. Can be a datetime object or a string in ISO format.""")
 
+    def _serialize_value(self, value):
+        """Convert value for sending to JavaScript."""
+        if isinstance(value, str) and value:
+            try:
+                if self.as_numpy_datetime64:
+                    return np.datetime64(value)
+                else:
+                    return self._parse_datetime_string(value)
+            except ValueError:
+                return None
+        return value
 
 class DateRangePicker(_DatePickerBase):
     """
@@ -480,6 +524,7 @@ class DateRangePicker(_DatePickerBase):
 
 
 class _DatetimePickerBase(_DatePickerBase):
+    """Base class for DatetimePicker components."""
 
     enable_seconds = param.Boolean(default=True, doc="""
       Enable editing of the seconds in the widget.""")
@@ -487,22 +532,86 @@ class _DatetimePickerBase(_DatePickerBase):
     enable_time = param.Boolean(default=True, doc="""
       Enable editing of the time in the widget.""")
 
-    format = param.String(default='YYYY-MM-DD hh:mm a', doc="The format of the date displayed in the input.")
+    format = param.String(default=None, doc="""
+        Format to display the datetime. Use custom format string based on dayjs.
+        If None, will be set automatically based on military_time setting.
+        For 12-hour: 'YYYY-MM-DD hh:mm a'
+        For 24-hour: 'YYYY-MM-DD HH:mm'
+        Add ':ss' to include seconds.""")
 
     military_time = param.Boolean(default=True, doc="""
       Whether to display time in 24 hour format.""")
 
-    open_to = param.Selector(objects=['year', 'month', 'day'], default='day', doc="The default view to open the calendar to.")
+    open_to = param.Selector(objects=['year', 'month', 'day'], default='day', doc="""
+      The default view to open the calendar to.""")
 
-    views = param.List(default=['year', 'month', 'day', 'hours', 'minutes'], doc="The views that are available for the date picker.")
+    views = param.List(default=['year', 'month', 'day', 'hours', 'minutes'], doc="""
+      The views that are available for the date picker.""")
 
+    # This is critical - we need to tell the JS component to include time
     _constants = {'range': False, 'time': True}
 
     __abstract = True
 
+    def __init__(self, **params):
+        # Preserve original value
+        original_value = None
+        if 'value' in params:
+            original_value = params['value']
+
+        # Handle value as string - we want to preserve the datetime object
+        if 'value' in params and isinstance(params['value'], str):
+            params['value'] = self._parse_datetime_string(params['value'])
+
+        super().__init__(**params)
+
+        # Override any date-only conversion that might have happened in parent class
+        if original_value is not None and isinstance(original_value, (datetime, str)) and hasattr(self, 'value'):
+            if isinstance(original_value, str):
+                self.value = self._parse_datetime_string(original_value)
+            elif isinstance(original_value, datetime):
+                self.value = original_value
+
+        # Set default format based on military_time
+        if self.format is None:
+            self._update_format_from_settings()
+
+    @param.depends('military_time', 'enable_seconds', watch=True)
+    def _update_format_from_settings(self):
+        """Update format based on clock and seconds settings."""
+        if self.military_time:
+            self.format = 'YYYY-MM-DD HH:mm' + (':ss' if self.enable_seconds else '')
+        else:
+            self.format = 'YYYY-MM-DD hh:mm' + (':ss' if self.enable_seconds else '') + ' a'
+
+    @staticmethod
+    def _parse_datetime_string(value_str):
+        """Convert datetime string to datetime object."""
+        if not value_str:
+            return None
+
+        formats = [
+            '%Y-%m-%d %H:%M:%S',  # 2023-01-01 14:30:00
+            '%Y-%m-%d %H:%M',     # 2023-01-01 14:30
+            '%Y-%m-%dT%H:%M:%S',  # 2023-01-01T14:30:00
+            '%Y-%m-%dT%H:%M'      # 2023-01-01T14:30
+        ]
+
+        for fmt in formats:
+            try:
+                return datetime.strptime(value_str, fmt)
+            except ValueError:
+                continue
+
+        # If we can't parse it as datetime, try date only
+        try:
+            return datetime.strptime(value_str, '%Y-%m-%d')
+        except ValueError as exc:
+            raise ValueError(f"Could not parse '{value_str}' as a datetime") from exc
+
     def _convert_to_datetime(self, v):
         if v is None:
-            return
+            return None
 
         if isinstance(v, Iterable) and not isinstance(v, str):
             container_type = type(v)
@@ -511,30 +620,69 @@ class _DatetimePickerBase(_DatePickerBase):
                 for vv in v
             )
 
+        # Handle string conversion
+        if isinstance(v, str):
+            return self._parse_datetime_string(v)
+
+        # Handle other types
         v = try_datetime64_to_datetime(v)
         if isinstance(v, datetime):
             return v
         elif isinstance(v, date):
+            # Convert date to datetime
             return datetime(v.year, v.month, v.day)
-        elif isinstance(v, str):
-            return datetime.strptime(v, r'%Y-%m-%d %H:%M:%S')
         else:
             raise ValueError(f"Could not convert {v} to datetime")
 
     def _process_property_change(self, msg):
-        msg = super()._process_property_change(msg)
-        if 'value' in msg:
-            msg['value'] = self._serialize_value(msg['value'])
+        """Process incoming values from JavaScript.
+
+        IMPORTANT: We completely override the parent method to avoid
+        the date-only parsing that causes problems with datetime strings.
+        """
+        # Get the parent's parent method (MaterialWidget._process_property_change)
+        # to avoid _DatePickerBase's implementation which only handles dates
+        msg = MaterialWidget._process_property_change(self, msg)
+
+        # Handle our datetime parameters
+        for p in ('start', 'end', 'value'):
+            if p not in msg:
+                continue
+
+            value = msg[p]
+            if isinstance(value, str):
+                try:
+                    # Parse as datetime with time component
+                    msg[p] = self._parse_datetime_string(value)
+                except ValueError:
+                    # If parsing fails, keep the original value
+                    pass
+
         return msg
 
     def _process_param_change(self, msg):
+        """Process outgoing values to JavaScript."""
+        # Only handle our specific parameters, let parent class handle the rest
+        # This avoids the date-only conversion in the parent class
+        our_params = {}
+        for p in ('value', 'start', 'end'):
+            if p in msg:
+                our_params[p] = msg.pop(p)
+
+        # Let parent handle the remaining parameters
         msg = super()._process_param_change(msg)
-        if 'value' in msg:
-            msg['value'] = self._deserialize_value(self._convert_to_datetime(msg['value']))
-        if 'start' in msg:
-            msg['start'] = self._convert_to_datetime(msg['start'])
-        if 'end' in msg:
-            msg['end'] = self._convert_to_datetime(msg['end'])
+
+        # Now handle our parameters
+        for p, v in our_params.items():
+            if v is not None:
+                # Convert to datetime if needed
+                dt_value = self._convert_to_datetime(v)
+                if dt_value is not None:
+                    # Format as string for JavaScript
+                    msg[p] = dt_value.strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    msg[p] = None
+
         return msg
 
 
@@ -554,22 +702,29 @@ class DatetimePicker(_DatetimePickerBase):
     ...    start=date(2025,1,1), end=date(2025,12,31),
     ...    military_time=True, name='Date and time'
     ... )
+
+    Also supports string values:
+
+    >>> DatetimePicker(
+    ...    value="2025-01-01 22:00:00",
+    ...    military_time=True, name='Date and time'
+    ... )
     """
     mode = param.String('single', constant=True)
 
-    value = param.Date(default=None)
+    value = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
+        The current value. Can be a datetime object or a string in ISO format.""")
 
     def _serialize_value(self, value):
+        """Convert value for sending to JavaScript."""
         if isinstance(value, str) and value:
-            if self.as_numpy_datetime64:
-                value = np.datetime64(value)
-            else:
-                value = datetime.strptime(value, r'%Y-%m-%d %H:%M:%S')
-        return value
-
-    def _deserialize_value(self, value):
-        if isinstance(value, (datetime, date)):
-            value = value.strftime(r'%Y-%m-%d %H:%M:%S')
+            try:
+                if self.as_numpy_datetime64:
+                    return np.datetime64(value)
+                else:
+                    return self._parse_datetime_string(value)
+            except ValueError:
+                return None
         return value
 
 
@@ -767,3 +922,23 @@ class Switch(MaterialWidget):
 
     _esm_base = "Switch.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
+
+
+class ColorPicker(MaterialWidget):
+    """
+    The `ColorPicker` allows selecting a color value using a color picker utility.
+    """
+
+    alpha = param.Boolean(default=False, doc="Whether to allow alpha transparency.")
+
+    color = param.Selector(objects=COLORS, default="primary")
+
+    format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex")
+
+    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+
+    value = param.String(default=None, doc="The current color value.")
+
+    _esm_base = "ColorPicker.jsx"

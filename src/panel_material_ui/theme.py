@@ -3,15 +3,16 @@ from __future__ import annotations
 import param
 from bokeh.themes import Theme as _BkTheme
 from panel.config import config
-from panel.theme import DarkTheme, DefaultTheme, Native
 from panel.theme.material import (
     MATERIAL_DARK_THEME,
     MATERIAL_THEME,
+    Material,
+    MaterialDarkTheme,
+    MaterialDefaultTheme,
 )
-from panel.widgets import Tabulator
 
 
-class MaterialLight(DefaultTheme):
+class MaterialLight(MaterialDefaultTheme):
 
     base_css = param.Filename(default=None)
 
@@ -19,7 +20,7 @@ class MaterialLight(DefaultTheme):
         class_=(_BkTheme, str), default=_BkTheme(json=MATERIAL_THEME))
 
 
-class MaterialDark(DarkTheme):
+class MaterialDark(MaterialDarkTheme):
 
     base_css = param.Filename(default=None)
 
@@ -27,15 +28,17 @@ class MaterialDark(DarkTheme):
         class_=(_BkTheme, str), default=_BkTheme(json=MATERIAL_DARK_THEME))
 
 
-class MaterialDesign(Native):
+class MaterialDesign(Material):
 
-    modifiers = {
-        Tabulator: {
-            'theme': 'materialize'
-        },
-    }
-
+    _resources = {}
     _themes = {'dark': MaterialDark, 'default': MaterialLight}
+
+    @classmethod
+    def _get_modifiers(cls, viewable, theme, isolated=False):
+        modifiers, child_modifiers = super()._get_modifiers(viewable, theme, isolated)
+        if hasattr(viewable, '_esm_base'):
+            del modifiers['stylesheets']
+        return modifiers, child_modifiers
 
 
 config.design = MaterialDesign
