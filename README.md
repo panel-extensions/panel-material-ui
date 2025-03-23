@@ -24,7 +24,7 @@
 </tr>
 <tr>
 <td>Docs</td>
-<td><a href="https://github.com/holoviz/panel-material-ui/tree/gh-pages"><img src="https://img.shields.io/github/last-commit/holoviz/panel-material-ui/gh-pages.svg" alt="gh-pages"></a> <a href="https://panel.holoviz.org"><img src="https://img.shields.io/website-up-down-green-red/https/panel.holoviz.org.svg" alt="site"></a>
+<td><a href="https://github.com/panel-extensions/panel-material-ui/tree/gh-pages"><img src="https://img.shields.io/github/last-commit/panel-extensions/panel-material-ui/gh-pages.svg" alt="gh-pages"></a> <a href="https://panel-extensions.github.io/panel-material-ui/"><img src="https://img.shields.io/website-up-down-green-red/https/panel-extensions.github.io/panel-material-ui.svg" alt="site"></a>
 </td>
 </tr>
 <tr>
