@@ -28,6 +28,10 @@ defaults:
   run:
     shell: bash -e {0}
 
+
+permissions:
+  contents: write
+
 env:
   DISPLAY: ":99.0"
 
