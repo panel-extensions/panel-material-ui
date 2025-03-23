@@ -76,9 +76,11 @@ jobs:
         run: echo "tag=${{ needs.docs_build.outputs.tag }}" >> $GITHUB_OUTPUT
       - name: Deploy dev
         uses: peaceiris/actions-gh-pages@v4
-        # if: |
-        #   (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'dev') ||
-        #   (github.event_name == 'push' && (contains(steps.vars.outputs.tag, 'a') || contains(steps.vars.outputs.tag, 'b') || contains(steps.vars.outputs.tag, 'rc')))
+        # Dev site built on PRs
+        if: |
+          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'dev') ||
+          (github.event_name == 'push' && (contains(steps.vars.outputs.tag, 'a') || contains(steps.vars.outputs.tag, 'b') || contains(steps.vars.outputs.tag, 'rc')))
         with:
           personal_token: ${{ secrets.HOLOVIZ_ACCESS_TOKEN }}
           external_repository: holoviz-dev/panel-material-ui
@@ -86,8 +88,9 @@ jobs:
           force_orphan: true
       - name: Deploy main
         # if: |
-        #   (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'main') ||
-        #   (github.event_name == 'push' && !(contains(steps.vars.outputs.tag, 'a') || contains(steps.vars.outputs.tag, 'b') || contains(steps.vars.outputs.tag, 'rc')))
+        #   (github.event_name != 'pull_request') &&
+        #   ((github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'main') ||
+        #   (github.event_name == 'push' && !(contains(steps.vars.outputs.tag, 'a') || contains(steps.vars.outputs.tag, 'b') || contains(steps.vars.outputs.tag, 'rc'))))
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
