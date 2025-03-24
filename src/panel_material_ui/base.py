@@ -84,25 +84,31 @@ function {output}(props) {{
   const config = render_theme_config(props, theme_config, dark_theme)
   const theme = createTheme(config)
 
-  let style_el = document.querySelector("#global-styles-panel-mui")
-  if (!style_el) {{
-    style_el = document.createElement("style")
-    style_el.id = "global-styles-panel-mui"
-    document.head.appendChild(style_el)
-  }}
-
   React.useEffect(() => {{
     if (dark_mode.get_value() === dark_theme) {{
       return
     }}
     dark_mode.set_value(dark_theme)
-    style_el.textContent = render_theme_css(theme)
   }}, [dark_theme])
 
   React.useEffect(() => {{
     let style_el = document.querySelector("#global-styles-panel-mui")
-    return dark_mode.subscribe((val) => setDarkTheme(val))
+    if (style_el) {{
+      return dark_mode.subscribe((val) => setDarkTheme(val))
+    }} else {{
+      style_el = document.createElement("style")
+      style_el.id = "styles-panel-mui"
+      props.view.shadow_el.insertBefore(style_el, props.view.container)
+      style_el.textContent = render_theme_css(theme)
+    }}
   }}, [])
+
+  React.useEffect(() => {{
+    const style_el = props.view.shadow_el.querySelector("#styles-panel-mui")
+    if (style_el) {{
+      style_el.textContent = render_theme_css(theme)
+    }}
+  }}, [theme])
 
   return (
     <ThemeProvider theme={{theme}}>

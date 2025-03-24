@@ -71,7 +71,7 @@ export function render_theme_css(theme) {
       --danger-border-subtle: ${dark ? "#842029" : "#f1aeb5"};
       --light-border-subtle: ${dark ? "#495057" : "#e9ecef"};
       --dark-border-subtle: ${dark ? "#343a40" : "#adb5bd"};
-
+      --bokeh-font-size: ${theme.typography.fontSize}px;
     }
   `
 }

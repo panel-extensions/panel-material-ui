@@ -55,11 +55,52 @@ export function render({model, view}) {
   const sidebar = model.get_child("sidebar")
 
   const toggleOpen = () => {
-    setOpen(!open);
+    setOpen(!open)
   }
   const toggleTheme = () => {
     setDarkTheme(!dark_theme)
   }
+
+  let global_style_el = document.querySelector("#global-styles-panel-mui")
+  const template_style_el = document.querySelector("#template-styles")
+  if (!global_style_el) {
+    {
+      global_style_el = document.createElement("style")
+      global_style_el.id = "global-styles-panel-mui"
+      if (template_style_el) {
+        document.head.insertBefore(global_style_el, template_style_el)
+      } else {
+        document.head.appendChild(global_style_el)
+      }
+    }
+  }
+  let page_style_el = document.querySelector("#page-style")
+  if (!page_style_el) {
+    page_style_el = document.createElement("style")
+    page_style_el.id = "page-style"
+    if (template_style_el) {
+      document.head.insertBefore(page_style_el, template_style_el)
+    } else {
+      document.head.appendChild(page_style_el)
+    }
+  }
+
+  React.useEffect(() => {
+    global_style_el.textContent = render_theme_css(theme)
+    const style_objs = theme.generateStyleSheets()
+    const css = style_objs
+      .map((obj) => {
+        return Object.entries(obj).map(([selector, vars]) => {
+          const varLines = Object.entries(vars)
+            .map(([key, val]) => `  ${key}: ${val};`)
+            .join("\n");
+          return `:root, ${selector} {\n${varLines}\n}`;
+        })
+          .join("\n\n");
+      })
+      .join("\n\n");
+    page_style_el.textContent = css
+  }, [theme])
 
   React.useEffect(() => {
     view.update_layout()
@@ -80,7 +121,7 @@ export function render({model, view}) {
         {sidebar}
       </Box>
     </Drawer>
-  ) : null;
+  ) : null
 
   return (
     <Box sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
