@@ -9,6 +9,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import DarkMode from "@mui/icons-material/DarkMode";
 import LightMode from "@mui/icons-material/LightMode";
+import TocIcon from "@mui/icons-material/Toc";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
 
@@ -52,11 +53,11 @@ export function render({model, view}) {
   const [variant] = model.useState("sidebar_variant")
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
   const [sx] = model.useState("sx")
+  const [contextbar_open, contextOpen] = model.useState("contextbar_open")
+  const [contextbar_width] = model.useState("contextbar_width")
   const sidebar = model.get_child("sidebar")
+  const contextbar = model.get_child("contextbar")
 
-  const toggleOpen = () => {
-    setOpen(!open)
-  }
   const toggleTheme = () => {
     setDarkTheme(!dark_theme)
   }
@@ -123,6 +124,23 @@ export function render({model, view}) {
     </Drawer>
   ) : null
 
+  const context_drawer = contextbar.length > 0 ? (
+    <Drawer
+      anchor="right"
+      open={contextbar_open}
+      onClose={() => contextOpen(false)}
+      sx={{
+        width: contextbar_width,
+        flexShrink: 0,
+        zIndex: (theme) => theme.zIndex.drawer + 2,
+        [`& .MuiDrawer-paper`]: {width: contextbar_width, padding: "0.5em", boxSizing: "border-box"},
+      }}
+      variant="temporary"
+    >
+      {contextbar}
+    </Drawer>
+  ) : null
+
   return (
     <Box sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
       <AppBar position="fixed" color="primary" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
@@ -131,7 +149,7 @@ export function render({model, view}) {
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={toggleOpen}
+            onClick={() => setOpen(!open)}
             edge="start"
             sx={[
               {
@@ -151,6 +169,20 @@ export function render({model, view}) {
           <IconButton onClick={toggleTheme} color="inherit" align="right">
             {dark_theme ? <DarkMode /> : <LightMode />}
           </IconButton>
+          { (model.contextbar.length > 0 && !contextbar_open) &&
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={() => contextOpen(!contextbar_open)}
+            edge="start"
+            sx={[
+              {
+                mr: 2,
+              },
+            ]}
+          >
+            <TocIcon />
+          </IconButton>}
         </Toolbar>
       </AppBar>
       {drawer &&
@@ -168,6 +200,9 @@ export function render({model, view}) {
           </Box>
         </Box>
       </Main>
+      <Box component="nav" sx={{flexShrink: 0}}>
+        {context_drawer}
+      </Box>
     </Box>
   );
 }
