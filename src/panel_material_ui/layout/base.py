@@ -121,6 +121,8 @@ class Card(MaterialNamedListLike):
     _direction = "vertical"
     _esm_base = "Card.jsx"
 
+    _rename = {"objects": "objects", "title": "title", "header": "header"}
+
     def select(self, selector: type | Callable[[Viewable], bool] | None = None) -> list[Viewable]:
         return ([] if self.header is None else self.header.select(selector)) + super().select(selector)
 
@@ -231,16 +233,17 @@ class Tabs(MaterialNamedListLike):
 
     def _get_child_model(self, child, doc, root, parent, comm):
         ref = root.ref["id"]
-        models = []
+        models, old_models = [], []
         for i, sv in enumerate(child):
             if self.dynamic and i != self.active:
                 model = BkSpacer()
             elif ref in sv._models:
                 model = sv._models[ref][0]
+                old_models.append(model)
             else:
                 model = sv._get_model(doc, root, parent, comm)
             models.append(model)
-        return models
+        return models, old_models
 
 
 class Divider(MaterialListLike):

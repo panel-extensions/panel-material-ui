@@ -37,10 +37,8 @@ export function render_theme_css(theme) {
       --panel-on-background-color: ${theme.palette.text.primary};
       --panel-surface-color: ${theme.palette.background.paper};
       --panel-on-surface-color: ${theme.palette.text.primary};
-      // Code colors
       --code-bg-color: "#263238";
       --code-text-color: #82aaff;
-      // Status colors
       --success-bg-color: ${theme.palette.success.main};
       --success-text-color: ${theme.palette.success.contrastText};
       --danger-bg-color: ${theme.palette.error.main};
@@ -57,7 +55,6 @@ export function render_theme_css(theme) {
       --warning-text-color: #997404;
       --light-text-color: #6c757d;
       --dark-text-color: #495057;
-      // Subtle background colors
       --primary-bg-subtle: ${dark ? "#031633" : "#cfe2ff"};
       --secondary-bg-subtle: ${dark ? "#212529" : "#f8f9fa"};
       --success-bg-subtle: ${dark ? "#051b11" : "#d1e7dd"};
@@ -66,7 +63,6 @@ export function render_theme_css(theme) {
       --danger-bg-subtle: ${dark ? "#2c0b0e" : "#f8d7da"};
       --light-bg-subtle: ${dark ? "#343a40" : "#fcfcfd"};
       --dark-bg-subtle: ${dark ? "#1a1d20" : "#ced4da"};
-      // Subtle border colors
       --primary-border-subtle: ${dark ? "#084298" : "#9ec5fe"};
       --secondary-border-subtle: ${dark ? "#495057" : "#e9ecef"};
       --success-border-subtle: ${dark ? "#0f5132" : "#a3cfbb"};

@@ -97,7 +97,7 @@ function {output}(props) {{
     }}
     dark_mode.set_value(dark_theme)
     style_el.textContent = render_theme_css(theme)
-  }}, [dark_theme]);
+  }}, [dark_theme])
 
   React.useEffect(() => {{
     let style_el = document.querySelector("#global-styles-panel-mui")

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Callable
+
 import param
 
 from ..widgets import TextAreaInput
@@ -21,6 +25,13 @@ class ChatAreaInput(TextAreaInput):
     >>> ChatAreaInput(max_rows=10)
     """
 
+    actions = param.Dict(default={}, doc="""
+        A dictionary of actions that can be invoked via the speed dial to the
+        left of input area. The actions should be defined as a dictionary indexed
+        by the name of the action mapping to values that themselves are dictionaries
+        containing an icon. Users can define callbacks by registering callbacks using
+        the on_action method.""")
+
     auto_grow = param.Boolean(default=True)
 
     disabled_enter = param.Boolean(
@@ -38,6 +49,8 @@ class ChatAreaInput(TextAreaInput):
         doc="If True, pressing the Enter key sends the message, if False it is sent by pressing the Ctrl+Enter.",
     )
 
+    loading = param.Boolean(default=False)
+
     max_rows = param.Integer(default=10)
 
     max_length = param.Integer(default=50000, doc="""
@@ -47,12 +60,48 @@ class ChatAreaInput(TextAreaInput):
 
     _esm_base = "ChatArea.jsx"
 
+    _rename = {"loading": "loading"}
+
+    def __init__(self, **params):
+        action_callbacks = {}
+        if 'actions' in params:
+            actions = {}
+            for action, value in params['actions'].items():
+                value = dict(value)
+                if 'callback' in value:
+                    action_callbacks[action] = value.pop('callback')
+                actions[action] = value
+            params['actions'] = actions
+        super().__init__(**params)
+        self._action_callbacks = {}
+        for action, callback in action_callbacks.items():
+            self.on_action(action, callback)
+
     def _handle_msg(self, msg) -> None:
+        if msg['type'] == 'input':
+            self.value = msg['value']
+            self.param.trigger('enter_pressed')
+            with param.discard_events(self):
+                self.value = ""
+            self.value_input = ""
+        elif msg['type'] == 'action':
+            for callback in self._action_callbacks.get(msg['action'], []):
+                callback(msg)
+
+    def on_action(self, name: str, callback: Callable):
         """
-        Clear value on shift enter key down.
+        Allows registering a callback invoked when an action is defined.
+
+        Parameters
+        ----------
+        name: str
+            The name of the action to register the callback for.
+        callback: callable
+            The callback to invoke when the action is triggered.
         """
-        self.value = msg
-        self.param.trigger('enter_pressed')
-        with param.discard_events(self):
-            self.value = ""
-        self.value_input = ""
+        if name not in self._action_callbacks:
+            self._action_callbacks[name] = []
+        self._action_callbacks[name].append(callback)
+
+    def _update_loading(self, *_) -> None:
+        pass
