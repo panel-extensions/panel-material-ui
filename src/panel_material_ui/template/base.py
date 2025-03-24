@@ -1,8 +1,46 @@
+from __future__ import annotations
+
+import json
+import pathlib
+from typing import TYPE_CHECKING
+
 import param
+from jinja2 import Environment, FileSystemLoader
+from markupsafe import Markup
 from panel.config import config
+from panel.io.resources import URL
 from panel.viewable import Children
 
 from ..base import MaterialComponent
+
+if TYPE_CHECKING:
+    from bokeh.document import Document
+    from panel.io.location import LocationAreaBase
+
+
+def get_env():
+    ''' Get the correct Jinja2 Environment, also for frozen scripts.
+    '''
+    internal_path = pathlib.Path(__file__).parent / '..' / '_templates'
+    return Environment(loader=FileSystemLoader([
+        str(internal_path.resolve())
+    ]))
+
+def conffilter(value):
+    return json.dumps(dict(value)).replace('"', '\'')
+
+class json_dumps(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, URL):
+            return str(obj)
+        return super().default(obj)
+
+_env = get_env()
+_env.trim_blocks = True
+_env.lstrip_blocks = True
+_env.filters['json'] = lambda obj: Markup(json.dumps(obj, cls=json_dumps))
+_env.filters['conffilter'] = conffilter
+_env.filters['sorted'] = sorted
 
 
 class Page(MaterialComponent):
@@ -36,3 +74,11 @@ class Page(MaterialComponent):
     @param.depends('dark_theme', watch=True)
     def _update_config(self):
         config.theme = 'dark' if self.dark_theme else 'default'
+
+    def server_doc(
+        self, doc: Document | None = None, title: str | None = None,
+        location: bool | LocationAreaBase | None = True
+    ) -> Document:
+        doc = super().server_doc(doc, title, location)
+        doc.template = _env.get_template('base.html')
+        return doc
