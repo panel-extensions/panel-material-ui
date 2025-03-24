@@ -1,12 +1,12 @@
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
-import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import EditNoteIcon from "@mui/icons-material/EditNote";
+import Avatar from "@mui/material/Avatar"
+import Box from "@mui/material/Box"
+import Icon from "@mui/material/Icon"
+import IconButton from "@mui/material/IconButton"
+import Paper from "@mui/material/Paper"
+import Stack from "@mui/material/Stack"
+import Typography from "@mui/material/Typography"
+import ContentCopyIcon from "@mui/icons-material/ContentCopy"
+import EditNoteIcon from "@mui/icons-material/EditNote"
 
 function PlaceholderAvatar() {
   return (<Box sx={{
@@ -77,6 +77,11 @@ function PlaceholderAvatar() {
   )
 }
 
+function isEmoji(str) {
+  const emojiRegex = /[\p{Emoji}]/u;
+  return emojiRegex.test(str);
+}
+
 export function render({model, view}) {
   const [elevation] = model.useState("elevation")
   const [user] = model.useState("user")
@@ -114,7 +119,7 @@ export function render({model, view}) {
           src={avatar.type === "image" ? avatar.src : null}
           sx={{margin: "1em 0.5em 0 0", bgcolor: "background.paper", boxShadow: 3}}
         >
-          {avatar.type == "text" ? [...avatar.text][0] : null}
+          {avatar.type == "text" ? isEmoji(avatar.text) ? avatar.text : [...avatar.text][0] : <Icon>{avatar.icon}</Icon>}
         </Avatar>
       )}
       {!placeholder && <Stack direction="column" spacing={0} sx={{flexGrow: 1, maxWidth: "calc(100% - 60px)"}}>

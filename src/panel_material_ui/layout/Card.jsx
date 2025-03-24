@@ -57,8 +57,8 @@ export function render({model, view}) {
 
   model.on("after_layout", () => {
     for (const child_view of view.layoutable_views) {
-      if (view.el) {
-        view.el.style.minHeight = "auto"
+      if (child_view.el) {
+        child_view.el.style.minHeight = "auto"
       }
     }
   })
@@ -83,7 +83,7 @@ export function render({model, view}) {
               <ExpandMoreIcon />
             </ExpandMore>
           }
-          title={model.header ? header : <Typography variant="h8">{title}</Typography>}
+          title={model.header ? header : <Typography variant="h6">{title}</Typography>}
         />
       )}
       <Collapse
@@ -110,10 +110,7 @@ export function render({model, view}) {
             },
           }}
         >
-          {objects.map((object) => {
-            set_flex(object.props)
-            return object
-          })}
+          {objects}
         </CardContent>
       </Collapse>
     </Card>

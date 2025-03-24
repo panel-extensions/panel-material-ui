@@ -24,7 +24,6 @@ class ChatStep(Card, _PnChatStep):
     _esm_base = "ChatStep.jsx"
     _rename = {
         "objects": "objects", "title": "title", "status": "status"}
-    _stylesheets = []
 
     def __init__(self, *objects, **params):
         self._instance = None

@@ -10,7 +10,8 @@ from panel.chat.message import ChatMessage, ChatReactionIcons
 from panel.io import state
 from panel.layout import Panel, Row
 from panel.pane import Placeholder
-from panel.pane.image import ImageBase
+from panel.pane import panel as as_panel
+from panel.pane.image import Image, ImageBase
 from panel.pane.markup import HTMLBasePane
 from panel.util import isfile
 from panel.viewable import Child
@@ -64,7 +65,6 @@ class ChatMessage(MaterialComponent, ChatMessage):
         "default_avatars": None,
         "object": None
     }
-    _stylesheets = []
 
     def __init__(self, object=None, **params):
         self._exit_stack = ExitStack()
@@ -93,7 +93,10 @@ class ChatMessage(MaterialComponent, ChatMessage):
     @param.depends('avatar', watch=True, on_init=True)
     def _render_avatar_html(self):
         avatar = self.avatar
-        if isinstance(avatar, ImageBase):
+        if isinstance(avatar, dict):
+            self._internal_state.avatar = avatar
+        elif isinstance(avatar, ImageBase) or (isinstance(avatar, str) and Image.applies(avatar)):
+            avatar = as_panel(avatar)
             if self.embed or (isfile(avatar.object) or not isinstance(avatar.object, (str, PurePath))):
                 data = avatar._data(avatar.object)
                 src = avatar._b64(data)

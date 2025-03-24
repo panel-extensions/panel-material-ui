@@ -1,6 +1,5 @@
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
@@ -8,7 +7,6 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import DarkMode from "@mui/icons-material/DarkMode";
 import LightMode from "@mui/icons-material/LightMode";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -43,18 +41,9 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
       ],
     })
   }
-);
+)
 
-const DrawerHeader = styled("div")(({theme}) => ({
-  display: "flex",
-  alignItems: "center",
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  justifyContent: "flex-end",
-}));
-
-export function render({model}) {
+export function render({model, view}) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [sidebar_width] = model.useState("sidebar_width")
@@ -71,6 +60,10 @@ export function render({model}) {
   const toggleTheme = () => {
     setDarkTheme(!dark_theme)
   }
+
+  React.useEffect(() => {
+    view.update_layout()
+  }, [])
 
   const drawer = sidebar.length > 0 ? (
     <Drawer
@@ -129,7 +122,9 @@ export function render({model}) {
       <Main open={open} sidebar_width={sidebar_width} variant={isMobile ? "drawer" : variant}>
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
           <Toolbar/>
-          {model.get_child("main")}
+          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0}}>
+            {model.get_child("main")}
+          </Box>
         </Box>
       </Main>
     </Box>

@@ -1,5 +1,4 @@
 import {styled} from "@mui/material/styles"
-import Avatar from "@mui/material/Avatar"
 import Box from "@mui/material/Box"
 import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
@@ -8,22 +7,13 @@ import Collapse from "@mui/material/Collapse"
 import IconButton from "@mui/material/IconButton"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 
-function set_flex(props) {
-  const model = props.parent.model.data[props.name][props.index]
-  const view = props.parent.get_child_view(model)
-  if (view.el) {
-    view.el.style.minHeight = "auto"
-  }
-}
-
 const status_colors = {
-  "failed": "red",
-  "success": "green",
-  "pending": "transparent",
-  "running": "gold",
-  "completed": "green"
+  failed: "red",
+  success: "green",
+  pending: "transparent",
+  running: "gold",
+  completed: "green"
 }
-
 
 const ExpandMore = styled((props) => {
   const {expand, ...other} = props;
@@ -68,8 +58,8 @@ export function render({model, view}) {
 
   model.on("after_layout", () => {
     for (const child_view of view.layoutable_views) {
-      if (view.el) {
-        view.el.style.minHeight = "auto"
+      if (child_view.el) {
+        child_view.el.style.minHeight = "auto"
       }
     }
   })
@@ -95,28 +85,28 @@ export function render({model, view}) {
         }
         avatar={
           <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            mr: 2
-          }}
-        >
-          <Box
             sx={{
-              width: 15,
-              height: 15,
-              borderRadius: '50%',
-              border: '1px solid',
-              borderColor: 'black',
-              bgcolor: status_colors[status]
+              display: "flex",
+              alignItems: "center",
+              mr: 2
             }}
-          />
-        </Box>
+          >
+            <Box
+              sx={{
+                width: 15,
+                height: 15,
+                borderRadius: "50%",
+                border: "1px solid",
+                borderColor: "black",
+                bgcolor: status_colors[status]
+              }}
+            />
+          </Box>
         }
         sx={{
           padding: "0.5em 0.5em 0.5em 1em",
         }}
-        title={model.header ? header : <Typography variant="h8">{title}</Typography>}
+        title={model.header ? header : <Typography variant="h6">{title}</Typography>}
       />
       <Collapse
         in={!collapsed}
@@ -143,10 +133,7 @@ export function render({model, view}) {
             },
           }}
         >
-          {objects.map((object) => {
-            set_flex(object.props)
-            return object
-          })}
+          {objects}
         </CardContent>
       </Collapse>
     </Card>

@@ -122,7 +122,7 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
               _destroyed: false,
               _uuid: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
             }
-            if (ntype.data.value === 'custom') {pytest tests/ui/test_notifications.py --ui --headed -x -k "clear"
+            if (ntype.data.value === 'custom') {
               config.background = color.data.value
             }
             notifications.data.notifications = [...notifications.data.notifications, config]

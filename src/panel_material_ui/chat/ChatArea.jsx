@@ -109,7 +109,7 @@ export function render({model, view}) {
                   onClick={() => model.send_msg({type: "action", action})}
                 />
               ))}
-    	    </SpeedDial>
+            </SpeedDial>
           </InputAdornment>
         ) : null
       }
@@ -134,7 +134,6 @@ export function render({model, view}) {
             (!enter_sends && (event.ctrlKey || event.shiftKey))
           )
         ) {
-          console.log("send")
           send()
         }
       }}
