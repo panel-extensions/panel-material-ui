@@ -272,15 +272,11 @@ class ButtonGroup(MaterialWidget):
 
     button_type = param.Selector(objects=COLORS+["standard"], default="standard")
 
-    disableElevation = param.Boolean(default=False)
-
     description_delay = param.Integer(default=5000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
 
     exclusive = param.Boolean(default=False)
-
-    fullWidth = param.Boolean(default=False)
 
     orientation = param.Selector(
         default="horizontal",
@@ -291,7 +287,7 @@ class ButtonGroup(MaterialWidget):
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium")
 
-    width = param.Integer(default=None, doc="""""")
+    width = param.Integer(default=None)
 
     _esm_base = "ButtonGroup.jsx"
 
