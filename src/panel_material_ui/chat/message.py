@@ -11,7 +11,7 @@ from panel.io import state
 from panel.layout import Panel, Row
 from panel.pane import Placeholder
 from panel.pane import panel as as_panel
-from panel.pane.image import Image, ImageBase
+from panel.pane.image import FileBase, Image, ImageBase
 from panel.pane.markup import HTMLBasePane
 from panel.util import isfile
 from panel.viewable import Child
@@ -19,6 +19,8 @@ from panel.widgets import Widget
 
 from ..base import MaterialComponent
 from .input import ChatAreaInput
+
+_MESSAGE_BG = ":host(.message), .message { background-color: unset !important; }"
 
 
 class MessageState(param.Parameterized):
@@ -145,6 +147,24 @@ class ChatMessage(MaterialComponent, ChatMessage):
         self.edit_icon.param.watch(self._toggle_edit, "value")
         self._edit_area.param.watch(self._submit_edit, "enter_pressed")
         self._composite = Row()
+
+    def _include_styles(self, obj):
+        obj = as_panel(obj)
+        for o in obj.select():
+            params = {
+                "stylesheets": [
+                    stylesheet for stylesheet in self._stylesheets + self.stylesheets
+                    if stylesheet not in o.stylesheets
+                ] + [_MESSAGE_BG] + o.stylesheets
+            }
+            is_markup = isinstance(o, HTMLBasePane) and not isinstance(o, FileBase)
+            if is_markup:
+                params["sizing_mode"] = None
+                if not o.css_classes and len(str(o.object)) > 0:  # only show a background if there is content
+                    params["css_classes"] = [
+                        *(css for css in o.css_classes if css != "message"), "message"
+                    ]
+            o.param.update(**params)
 
     def _process_param_change(self, params):
         params = super()._process_param_change(params)
