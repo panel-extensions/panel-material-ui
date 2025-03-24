@@ -55,6 +55,12 @@ class Page(MaterialComponent):
     >>> Page(main=['# Content'], title='My App')
     """
 
+    contextbar = Children(doc="Items rendered in the contextbar.")
+
+    contextbar_open = param.Boolean(default=False, doc="Whether the contextbar is open or closed.")
+
+    contextbar_width = param.Integer(default=250, doc="Width of the contextbar")
+
     header = Children(doc="Items rendered in the header.")
 
     main = Children(doc="Items rendered in the main area.")
