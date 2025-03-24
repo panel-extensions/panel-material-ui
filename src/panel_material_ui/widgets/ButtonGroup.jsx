@@ -8,7 +8,6 @@ export function render({model}) {
   const [size] = model.useState("size")
   const [orientation] = model.useState("orientation")
   const [disabled] = model.useState("disabled")
-  const [disableElevation] = model.useState("disableElevation")
   const [options] = model.useState("options")
   const [value, setValue] = model.useState("value")
   const [sx] = model.useState("sx")
