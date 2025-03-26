@@ -20,7 +20,7 @@ from panel.widgets import Widget
 from ..base import MaterialComponent
 from .input import ChatAreaInput
 
-_MESSAGE_BG = ":host(.message), .message { background-color: unset !important; }"
+_MESSAGE_BG = ":host(.message), .message { background-color: unset !important; box-shadow: unset !important; }"
 
 
 class MessageState(param.Parameterized):

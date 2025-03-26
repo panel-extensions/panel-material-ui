@@ -77,12 +77,10 @@ export function render({model, view}) {
     }
     model.send_msg({type: "input", value: value_input})
     setValueInput("")
-    setDisabledEnter(true)
   }
 
   const stop = () => {
     model.send_msg({type: "action", action: "stop"})
-    setDisabledEnter(false)
   }
 
   return (
@@ -114,11 +112,8 @@ export function render({model, view}) {
         ) : null
       }
       endAdornment={
-        <InputAdornment position="end">
-          <IconButton
-            color="primary"
-            onClick={() => disabled ? stop() : send()}
-          >
+        <InputAdornment onClick={() => disabled_enter ? stop() : send()} position="end">
+          <IconButton color="primary">
             {disabled_enter ? <SpinningStopIcon color={color}/> : <SendIcon/>}
           </IconButton>
         </InputAdornment>
