@@ -37,7 +37,7 @@ export function render_theme_css(theme) {
       --panel-on-background-color: ${theme.palette.text.primary};
       --panel-surface-color: ${theme.palette.background.paper};
       --panel-on-surface-color: ${theme.palette.text.primary};
-      --code-bg-color: "#263238";
+      --code-bg-color: #263238;
       --code-text-color: #82aaff;
       --success-bg-color: ${theme.palette.success.main};
       --success-text-color: ${theme.palette.success.contrastText};

@@ -83,10 +83,12 @@ class ChatAreaInput(TextAreaInput):
             self.param.trigger('enter_pressed')
             with param.discard_events(self):
                 self.value = ""
-            self.value_input = ""
         elif msg['type'] == 'action':
             for callback in self._action_callbacks.get(msg['action'], []):
-                callback(msg)
+                try:
+                    callback(msg)
+                except Exception:
+                    pass
 
     def on_action(self, name: str, callback: Callable):
         """
@@ -104,4 +106,6 @@ class ChatAreaInput(TextAreaInput):
         self._action_callbacks[name].append(callback)
 
     def _update_loading(self, *_) -> None:
-        pass
+        """
+        Loading handler handled client-side.
+        """

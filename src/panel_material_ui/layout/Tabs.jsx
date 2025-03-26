@@ -17,9 +17,7 @@ export function render({model, view}) {
 
   const orientation = (location === "above" || location === "below") ? "horizontal" : "vertical"
 
-  React.useEffect(() => {
-    view.update_layout()
-  }, [])
+  React.useEffect(() => view.update_layout(), [active])
 
   const tabs = (
     <Tabs
@@ -39,9 +37,9 @@ export function render({model, view}) {
     </Tabs>
   )
   return (
-    <Box sx={{display: "flex", flexDirection: (location === "left" || location === "right") ? "row" : "column", height: "100%"}}  >
+    <Box sx={{display: "flex", flexDirection: (location === "left" || location === "right") ? "row" : "column", height: "100%", maxWidth: "100%"}}  >
       { (location === "left" || location === "above") && tabs }
-      <Box sx={{flexGrow: 1}}>
+      <Box sx={{flexGrow: 1, minWidth: 0}}>
         {objects[active]}
       </Box>
       { (location === "right" || location === "below") && tabs }

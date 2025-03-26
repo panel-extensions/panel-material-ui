@@ -82,7 +82,7 @@ function isEmoji(str) {
   return emojiRegex.test(str);
 }
 
-export function render({model, view}) {
+export function render({model}) {
   const [elevation] = model.useState("elevation")
   const [user] = model.useState("user")
   const [show_avatar] = model.useState("show_avatar")
@@ -103,10 +103,6 @@ export function render({model, view}) {
   model.on("msg:custom", (msg) => {
     navigator.clipboard.writeText(msg.text)
   })
-
-  React.useEffect(() => {
-    view.update_layout()
-  }, [])
 
   const placeholder = show_avatar && (avatar.type === "text" && avatar.text == "PLACEHOLDER")
 

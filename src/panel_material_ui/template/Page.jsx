@@ -44,7 +44,7 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
   }
 )
 
-export function render({model, view}) {
+export function render({model}) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [sidebar_width] = model.useState("sidebar_width")
@@ -57,6 +57,7 @@ export function render({model, view}) {
   const [contextbar_width] = model.useState("contextbar_width")
   const sidebar = model.get_child("sidebar")
   const contextbar = model.get_child("contextbar")
+  const header = model.get_child("header")
 
   const toggleTheme = () => {
     setDarkTheme(!dark_theme)
@@ -102,10 +103,6 @@ export function render({model, view}) {
       .join("\n\n");
     page_style_el.textContent = css
   }, [theme])
-
-  React.useEffect(() => {
-    view.update_layout()
-  }, [])
 
   const drawer = sidebar.length > 0 ? (
     <Drawer
@@ -164,7 +161,7 @@ export function render({model, view}) {
             {title}
           </Typography>
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
-            {model.get_child("header")}
+            {header}
           </Box>
           <IconButton onClick={toggleTheme} color="inherit" align="right">
             {dark_theme ? <DarkMode /> : <LightMode />}

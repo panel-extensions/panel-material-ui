@@ -45,17 +45,18 @@ export function render({model}) {
   };
 
   return (
-    <FormControl sx={{m: 1, width: "100%"}}>
+    <FormControl sx={{width: "100%"}}>
       <InputLabel id={`chip-label-${model.id}`}>{label}</InputLabel>
       <Select
+        fullWidth
         multiple
         color={color}
         disabled={disabled}
         input={variant === "outlined" ?
-          <OutlinedInput id="select-multiple-chip" label="Chip" /> :
+          <OutlinedInput id="select-multiple-chip" label={label}/> :
           variant === "filled" ?
-            <FilledInput id="select-multiple-chip" label="Chip" /> :
-            <Input id="select-multiple-chip" label="Chip" />
+            <FilledInput id="select-multiple-chip" label={label}/> :
+            <Input id="select-multiple-chip" label={label}/>
         }
         labelId={`chip-label-${model.id}`}
         onChange={handleChange}
