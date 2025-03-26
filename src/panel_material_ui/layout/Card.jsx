@@ -51,10 +51,6 @@ export function render({model, view}) {
   const header = model.get_child("header")
   const objects = model.get_child("objects")
 
-  React.useEffect(() => {
-    view.update_layout()
-  }, [])
-
   model.on("after_layout", () => {
     for (const child_view of view.layoutable_views) {
       if (child_view.el) {

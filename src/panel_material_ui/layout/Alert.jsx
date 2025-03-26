@@ -2,7 +2,7 @@ import Alert from "@mui/material/Alert"
 import AlertTitle from "@mui/material/AlertTitle"
 import Collapse from "@mui/material/Collapse"
 
-export function render({model, view}) {
+export function render({model}) {
   const [closed, setClosed] = model.useState("closed")
   const [closeable] = model.useState("closeable")
   const [severity] = model.useState("severity")
@@ -16,10 +16,6 @@ export function render({model, view}) {
   if (closeable) {
     props.onClose = () => { setClosed(true) }
   }
-
-  React.useEffect(() => {
-    view.update_layout()
-  }, [])
 
   return (
     <Collapse in={!closed}>

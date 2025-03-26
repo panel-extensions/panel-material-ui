@@ -39,7 +39,7 @@ const ExpandMore = styled((props) => {
   ],
 }));
 
-export function render({model, view}) {
+export function render({model}) {
   const [collapsible] = model.useState("collapsible")
   const [collapsed, setCollapsed] = model.useState("collapsed")
   const [hide_header] = model.useState("hide_header")
@@ -51,18 +51,6 @@ export function render({model, view}) {
   const header = model.get_child("header")
   const objects = model.get_child("objects")
   const [status] = model.useState("status")
-
-  React.useEffect(() => {
-    view.update_layout()
-  }, [])
-
-  model.on("after_layout", () => {
-    for (const child_view of view.layoutable_views) {
-      if (child_view.el) {
-        child_view.el.style.minHeight = "auto"
-      }
-    }
-  })
 
   return (
     <Card

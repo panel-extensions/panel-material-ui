@@ -1,14 +1,15 @@
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Accordion from "@mui/material/Accordion"
+import AccordionSummary from "@mui/material/AccordionSummary"
+import AccordionDetails from "@mui/material/AccordionDetails"
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 
-export function render({model, view}) {
-  const objects = model.get_child("objects");
-  const [active, setActive] = model.useState("active");
-  const [names] = model.useState("_names");
-  const [toggle] = model.useState("toggle");
-  const [sx] = model.useState("sx");
+export function render({model}) {
+  const objects = model.get_child("objects")
+  const [active, setActive] = model.useState("active")
+  const [names] = model.useState("_names")
+  const [toggle] = model.useState("toggle")
+  const [sx] = model.useState("sx")
+
   const handle_expand = (index) => () => {
     let newActive
     if (active.includes(index)) {
@@ -21,10 +22,6 @@ export function render({model, view}) {
     }
     setActive(newActive)
   };
-
-  React.useEffect(() => {
-    view.update_layout()
-  }, [])
 
   return (
     <>
