@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Any
 
 import param
+from panel.links import Callback
 
 from ..base import COLORS, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
@@ -111,6 +113,7 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
         and how long the button should be disabled for.""")
 
     _esm_base = "IconButton.jsx"
+    _event = "dom_event"
 
     def __init__(self, **params):
         click_handler = params.pop('on_click', None)
@@ -137,3 +140,54 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
             A `Watcher` that executes the callback when the MenuButton is clicked.
         """
         return self.param.watch(callback, 'clicks', onlychanged=False)
+
+    def js_on_click(self, args: dict[str, Any] | None = None, code: str = "") -> Callback:
+        """
+        Allows defining a JS callback to be triggered when the button
+        is clicked.
+
+        Parameters
+        -----------
+        args: dict
+          A mapping of objects to make available to the JS callback
+        code: str
+          The Javascript code to execute when the button is clicked.
+
+        Returns
+        -------
+        callback: Callback
+          The Callback which can be used to disable the callback.
+        """
+        if args is None:
+            args = {}
+        return Callback(self, code={'event:'+self._event: code}, args=args)
+
+    def jscallback(self, args: dict[str, Any] | None = None, **callbacks: str) -> Callback:
+        """
+        Allows defining a Javascript (JS) callback to be triggered when a property
+        changes on the source object. The keyword arguments define the
+        properties that trigger a callback and the JS code that gets
+        executed.
+
+        Parameters
+        -----------
+        args: dict
+          A mapping of objects to make available to the JS callback
+        **callbacks: dict
+          A mapping between properties on the source model and the code
+          to execute when that property changes
+
+        Returns
+        -------
+        callback: Callback
+          The Callback which can be used to disable the callback.
+        """
+        if args is None:
+            args = {}
+        for k, v in list(callbacks.items()):
+            if k == 'clicks':
+                k = 'event:'+self._event
+            val = self._rename.get(v, v)
+            if val is not None:
+                callbacks[k] = val
+        return Callback(self, code=callbacks, args=args)
