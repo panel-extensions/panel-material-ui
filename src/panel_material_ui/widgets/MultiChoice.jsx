@@ -45,10 +45,11 @@ export function render({model}) {
   };
 
   return (
-    <FormControl sx={{m: 1, width: "100%"}}>
+    <FormControl sx={{width: "100%"}}>
       <InputLabel id={`chip-label-${model.id}`}>{label}</InputLabel>
       <Select
-        multiple
+	fullWidth
+	multiple
         color={color}
         disabled={disabled}
         input={variant === "outlined" ?
