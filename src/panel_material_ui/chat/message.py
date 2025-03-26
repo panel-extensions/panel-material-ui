@@ -150,12 +150,13 @@ class ChatMessage(MaterialComponent, ChatMessage):
 
     def _include_styles(self, obj):
         obj = as_panel(obj)
+        combined = self._stylesheets + self.stylesheets + [_MESSAGE_BG]
         for o in obj.select():
             params = {
                 "stylesheets": [
-                    stylesheet for stylesheet in self._stylesheets + self.stylesheets
+                    stylesheet for stylesheet in combined
                     if stylesheet not in o.stylesheets
-                ] + [_MESSAGE_BG] + o.stylesheets
+                ] + o.stylesheets
             }
             is_markup = isinstance(o, HTMLBasePane) and not isinstance(o, FileBase)
             if is_markup:
