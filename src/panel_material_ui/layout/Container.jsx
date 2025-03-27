@@ -1,4 +1,4 @@
-import { Container } from "@mui/material"
+import Container from "@mui/material/Container"
 
 export function render({model}) {
   const [disableGutters] = model.useState("disable_gutters")
