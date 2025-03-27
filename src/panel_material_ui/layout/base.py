@@ -62,6 +62,66 @@ class Paper(MaterialListLike):
     _esm_base = "Paper.jsx"
 
 
+class Container(MaterialListLike):
+    """
+    The `Container` layout centers your content horizontally. It's the most basic layout element.
+
+    References:
+    - https://mui.com/material-ui/react-container/
+
+    :Example:
+
+    >>> Container(some_widget, some_pane, some_python_object, title='Container')
+    """
+
+    disable_gutters = param.Boolean(default=False, doc="""
+        If `True`, the container will not have gutters.""")
+
+    fixed = param.Boolean(default=False, doc="""
+        Set the max-width to match the min-width of the current breakpoint.
+        This is useful if you'd prefer to design for a fixed set of sizes
+        instead of trying to accommodate a fully fluid viewport.""")
+
+    width_option = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="lg")
+
+    _esm_base = "Container.jsx"
+
+
+class Grid(MaterialListLike):
+    """
+    The `Grid` layout is a two-dimensional layout that allows arranging items in a grid.
+
+    References:
+    - https://mui.com/material-ui/react-grid/
+
+    :Example:
+
+    >>> Grid(some_widget, some_pane, some_python_object, title='Grid')
+    """
+
+    container = param.Boolean(default=False, doc="""
+        Whether the grid should be a container.""")
+
+    columns = param.ClassSelector(default=12, class_=(int, dict), doc="""
+        The number of columns to display in the grid.""")
+
+    column_spacing = param.Integer(default=None, doc="""
+        The spacing between the columns in the grid. Overrides the `spacing` parameter.""")
+
+    direction = param.Selector(objects=["row", "column", "column-reverse", "row-reverse"], default="row")
+
+    row_spacing = param.Integer(default=None, doc="""
+        The spacing between the rows in the grid. Overrides the `spacing` parameter.""")
+
+    size = param.ClassSelector(default=None, class_=(int, dict), doc="""
+        The size of the grid. Overrides the `columns` parameter.""")
+
+    spacing = param.Integer(default=0, doc="""
+        The spacing between the columns and rows in the grid.""")
+
+    _esm_base = "Grid.jsx"
+
+
 class Card(MaterialNamedListLike):
     """
     A `Card` layout allows arranging multiple panel objects in a
