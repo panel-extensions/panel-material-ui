@@ -10,7 +10,9 @@ import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.models.reactive_html import DOMEvent
 from panel.util import edit_readonly, try_datetime64_to_datetime
+from panel.widgets.input import DatetimeInput as _PnDatetimeInput
 from panel.widgets.input import FileInput as _PnFileInput
+from panel.widgets.input import LiteralInput as _PnLiteralInput
 
 from ..base import COLORS, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
@@ -806,6 +808,20 @@ class TimePicker(_TimeCommon):
         Format to display the time. Use 'HH:mm:ss' to include seconds.
         For 12-hour clock, use 'hh:mm a'. See dayjs formatting options.
         If None, will be automatically set based on clock and seconds settings.
+
+        +----+------------------------------------+------------+
+        | H  | Hours                              | 0 to 23    |
+        | HH | Hours, 2-digits                    | 00 to 23   |
+        | h  | Hours, 12-hour clock               | 1 to 12    |
+        | hh | Hours, 12-hour clock, 2-digits     | 1 to 12    |
+        | m  | Minutes                            | 0 to 59    |
+        | mm | Minutes                            | 00 to 59   |
+        | s  | Seconds                            | 0, 1 to 59 |
+        | ss | Seconds                            | 00 to 59   |
+        | a  | am/pm, lower-case                  | am or pm   |
+        | A  | AM/PM, upper-cas                   | AM or PM   |
+        +----+------------------------------------+------------+
+
     """)
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
@@ -834,13 +850,14 @@ class TimePicker(_TimeCommon):
 
     def _process_param_change(self, msg):
         msg = super()._process_param_change(msg)
-        # Convert time objects to strings when sending to JS
         if 'value' in msg and isinstance(msg['value'], dt_time):
             msg['value'] = msg['value'].strftime('%H:%M:%S')
         if 'start' in msg and isinstance(msg['start'], dt_time):
             msg['start'] = msg['start'].strftime('%H:%M:%S')
         if 'end' in msg and isinstance(msg['end'], dt_time):
             msg['end'] = msg['end'].strftime('%H:%M:%S')
+        if 'format' in msg and msg['format'] is not None:
+            msg['format'] = msg['format'].replace('K', 'A').replace('HH', 'G').replace('i', 'mm')
         return msg
 
     def _process_property_change(self, msg):
@@ -942,3 +959,106 @@ class ColorPicker(MaterialWidget):
     value = param.String(default=None, doc="The current color value.")
 
     _esm_base = "ColorPicker.jsx"
+
+
+class LiteralInput(TextInput, _PnLiteralInput):
+    """
+    The `LiteralInput` allows entering any string using a text input box.
+
+    References:
+    - https://panel.holoviz.org/reference/widgets/LiteralInput.html
+    """
+
+    value = param.Parameter()
+
+    value_input = param.Parameter()
+
+    def _process_param_change(self, msg):
+        msg = super()._process_param_change(msg)
+        if self._state:
+            msg["error_state"] = True
+        else:
+            msg["error_state"] = False
+        if "value" in msg:
+            msg["value_input"] = msg.pop("value")
+        if "title" in msg:
+            msg["label"] = msg.pop("title")
+        return msg
+
+
+class DatetimeInput(TextInput, _PnDatetimeInput):
+    """
+    The `DatetimeInput` allows entering a datetime value using a text input box.
+    """
+
+    value = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
+        The current value. Can be a datetime object or a string in ISO format.""")
+
+    value_input = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
+        The current value. Can be a datetime object or a string in ISO format.""")
+
+    def _process_param_change(self, msg):
+        msg = super()._process_param_change(msg)
+        if self._state:
+            msg["error_state"] = True
+        else:
+            msg["error_state"] = False
+        if "value" in msg:
+            msg["value_input"] = msg.pop("value")
+        if "title" in msg:
+            msg["label"] = msg.pop("title")
+        return msg
+
+
+class DictInput(LiteralInput):
+    """
+    The `DictInput` allows entering a dictionary value using a text input box.
+    """
+
+    type = param.ClassSelector(default=dict, class_=type, readonly=True, doc="The type of the value.")
+
+    value = param.Parameter(default={})
+
+
+class ListInput(LiteralInput):
+    """
+    The `ListInput` allows entering a list value using a text input box.
+    """
+
+    type = param.ClassSelector(default=list, class_=type, readonly=True, doc="The type of the value.")
+
+    value = param.Parameter(default=[])
+
+
+class TupleInput(LiteralInput):
+    """
+    The `TupleInput` allows entering a tuple value using a text input box.
+    """
+
+    type = param.ClassSelector(default=tuple, class_=type, readonly=True, doc="The type of the value.")
+
+    value = param.Parameter(default=())
+
+
+__all__ = [
+    "TextInput",
+    "PasswordInput",
+    "TextAreaInput",
+    "FileInput",
+    "IntInput",
+    "FloatInput",
+    "NumberInput",
+    "DatePicker",
+    "DateRangePicker",
+    "DatetimePicker",
+    "DatetimeRangePicker",
+    "TimePicker",
+    "Checkbox",
+    "Switch",
+    "ColorPicker",
+    "LiteralInput",
+    "DatetimeInput",
+    "DictInput",
+    "ListInput",
+    "TupleInput"
+]

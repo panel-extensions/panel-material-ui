@@ -363,6 +363,9 @@ class MultiSelect(MaterialMultiSelectBase):
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         Maximum number of options that can be selected.""")
 
+    size = param.Integer(default=None, doc="""
+        The number of options to display at once (not currently supported).""")
+
     value = param.List(default=[], allow_None=True)
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
@@ -445,3 +448,15 @@ class NestedSelect(_PnNestedSelect):
         widget_type = level.get("type", Select)
         widget_kwargs = {k: v for k, v in level.items() if k != "type"}
         return widget_type, widget_kwargs
+
+__all__ = [
+    "AutocompleteInput",
+    "Select",
+    "RadioBoxGroup",
+    "CheckBoxGroup",
+    "RadioButtonGroup",
+    "CheckButtonGroup",
+    "MultiSelect",
+    "MultiChoice",
+    "NestedSelect"
+]

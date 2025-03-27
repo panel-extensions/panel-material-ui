@@ -191,3 +191,8 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
             if val is not None:
                 callbacks[k] = val
         return Callback(self, code=callbacks, args=args)
+
+__all__ = [
+    "ToggleIcon",
+    "ButtonIcon"
+]

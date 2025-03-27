@@ -4,9 +4,9 @@ from ..base import COLORS
 from .base import MaterialWidget
 
 
-class LoadingIndicator(MaterialWidget):
+class LoadingSpinner(MaterialWidget):
     """
-    The `LoadingIndicator` provides a visual representation as a spinner of the loading status.
+    The `LoadingSpinner` provides a visual representation as a spinner of the loading status.
 
     References:
     - https://panel.holoviz.org/reference/indicators/LoadingSpinner.html
@@ -14,11 +14,14 @@ class LoadingIndicator(MaterialWidget):
 
     :Example:
 
-    >>> LoadingIndicator(color='success')
+    >>> LoadingSpinner(color='success')
     """
 
     color = param.Selector(objects=COLORS, default="primary", doc="""
         The color of the loading indicator.""")
+
+    size = param.Integer(default=40, doc="""
+        The size of the loading spinner.""")
 
     value = param.Number(default=0, bounds=(0, 100), doc="""
         The value of the loading indicator.""")
@@ -55,3 +58,9 @@ class Progress(MaterialWidget):
         The variant of the progress bar.""")
 
     _esm_base = "LinearProgress.jsx"
+
+
+__all__ = [
+    "LoadingSpinner",
+    "Progress"
+]

@@ -11,7 +11,7 @@ import param
 from panel.widgets.button import _ButtonBase as _PnButtonBase
 from panel.widgets.button import _ClickButton
 
-from ..base import COLORS, ThemedTransform
+from ..base import COLOR_ALIASES, COLORS, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
 
 
@@ -19,7 +19,7 @@ class _ButtonBase(MaterialWidget, _PnButtonBase):
 
     button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
 
-    button_type = param.Selector(objects=COLORS, default="primary")
+    button_type = param.Selector(objects=COLORS, default="default")
 
     clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
 
@@ -41,24 +41,22 @@ class _ButtonBase(MaterialWidget, _PnButtonBase):
 
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _rename: ClassVar[Mapping[str, str | None]] = {
-        "label": "label", "button_style": "button_style"
+        "label": "label",
+        "button_style": "button_style",
+        "button_type": "button_type"
     }
 
     __abstract = True
 
     def _process_param_change(self, params):
-        icon = params.pop("icon", None)
-        label = params.pop("label", None)
-        button_style = params.pop('button_style', None)
-        props = MaterialWidget._process_param_change(self, params)
-        props['button_style'] = self.button_style
-        if icon:
-            props["icon"] = icon
-        if label:
-            props["label"] = label
+        button_style = params.pop("button_style", None)
+        if "button_type" in params:
+            button_type = params["button_type"]
+            params["button_type"] = COLOR_ALIASES.get(button_type, button_type)
+        params = MaterialWidget._process_param_change(self, params)
         if button_style:
-            props["button_style"] = button_style
-        return props
+            params["button_style"] = button_style
+        return params
 
 
 class Button(_ButtonBase, _ClickButton):
@@ -143,7 +141,9 @@ class Toggle(_ButtonBase):
     >>> Toggle(name='Toggle', button_type='success')
     """
 
-    button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
+    button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
+        The button style, either 'solid' or 'outline'. As of today (March 27th, 2025) the
+        `button_style` property does not work (see https://github.com/mui/material-ui/issues/34238).""")
 
     icon_size = param.String(default="1em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
@@ -151,3 +151,8 @@ class Toggle(_ButtonBase):
     value = param.Boolean(default=False)
 
     _esm_base = "ToggleButton.jsx"
+
+__all__ = [
+    "Button",
+    "Toggle"
+]

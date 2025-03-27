@@ -28,3 +28,7 @@ class FileDownload(_ButtonBase, _FileDownload):
 
     def _handle_click(self, event=None):
         self._clicks += 1
+
+__all__ = [
+    "FileDownload"
+]

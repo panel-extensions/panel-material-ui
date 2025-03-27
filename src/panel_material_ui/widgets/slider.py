@@ -28,7 +28,7 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
 
     end = param.Number(default=100)
 
-    format = param.ClassSelector(class_=(str, TickFormatter,), doc="""
+    format = param.ClassSelector(default='0[.]00', class_=(str, TickFormatter,), doc="""
         A custom format string or Bokeh TickFormatter.""")
 
     step = param.Number(default=1)
@@ -69,6 +69,9 @@ class IntSlider(_ContinuousSlider):
     """
 
     end = param.Integer(default=1)
+
+    format = param.ClassSelector(default='0,0', class_=(str, TickFormatter,), doc="""
+        A custom format string or Bokeh TickFormatter.""")
 
     start = param.Integer(default=1)
 
@@ -205,8 +208,18 @@ class _RangeSliderBase(_ContinuousSlider):
         if params["value"] is not None:
             v1, v2 = params["value"]
             params["value_start"], params["value_end"] = resolve_value(v1), resolve_value(v2)
+        if 'format' in params and isinstance(params['format'], str):
+            params['format'] = NumeralTickFormatter(format=params['format'])
         with edit_readonly(self):
             super().__init__(**params)
+
+    def _process_property_change(self, msg):
+        msg = super()._process_property_change(msg)
+        if 'value' in msg:
+            msg['value'] = tuple(msg['value'])
+        if 'value_throttled' in msg:
+            msg['value_throttled'] = tuple(msg['value_throttled'])
+        return msg
 
     @param.depends("value", watch=True)
     def _sync_values(self):
@@ -245,6 +258,9 @@ class IntRangeSlider(_RangeSliderBase):
     """
 
     start = param.Integer(default=0)
+
+    format = param.ClassSelector(default='0,0', class_=(str, TickFormatter,), doc="""
+        A custom format string or Bokeh TickFormatter.""")
 
     end = param.Integer(default=100)
 
@@ -302,6 +318,35 @@ class DateRangeSlider(_RangeSliderBase):
         Datetime format used for parsing and formatting the date.""")
 
     _constants = {"date": True}
+
+    _property_conversion = staticmethod(value_as_date)
+
+    _rename = {'value_start': None, 'value_end': None}
+
+    def _process_param_change(self, msg):
+        msg = super()._process_param_change(msg)
+        if msg.get('value', 'unchanged') is None:
+            del msg['value']
+        elif 'value' in msg:
+            v1, v2 = msg['value']
+            if isinstance(v1, dt.datetime):
+                v1 = datetime_as_utctimestamp(v1)
+            if isinstance(v2, dt.datetime):
+                v2 = datetime_as_utctimestamp(v2)
+            msg['value'] = (v1, v2)
+        if msg.get('value_throttled', 'unchanged') is None:
+            del msg['value_throttled']
+        return msg
+
+    def _process_property_change(self, msg):
+        msg = super()._process_property_change(msg)
+        if 'value' in msg:
+            v1, v2 = msg['value']
+            msg['value'] = (self._property_conversion(v1), self._property_conversion(v2))
+        if 'value_throttled' in msg:
+            v1, v2 = msg['value_throttled']
+            msg['value_throttled'] = (self._property_conversion(v1), self._property_conversion(v2))
+        return msg
 
 
 class DatetimeRangeSlider(DateRangeSlider):
@@ -424,8 +469,10 @@ class _EditableContinuousSliderBase(_EditableContinuousSlider):
         self._value_edit.param.update(
             size="small",
             variant="filled",
+            sizing_mode="stretch_width",
             stylesheets=[
                 ".MuiFilledInput-input { padding-top: 4px !important;}"
+                ".MuiInputAdornment-positionStart {margin-top: 0 !important;}"
             ]
         )
 

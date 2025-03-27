@@ -95,6 +95,7 @@ export function render({model}) {
       onKeyDown={handleKeyDown}
       InputProps={{
         inputMode: "decimal",
+        sx: {padding: 0},
         startAdornment: (
           <InputAdornment position="start">
             <IconButton onClick={() => decrement()} size="small">
