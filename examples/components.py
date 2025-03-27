@@ -194,6 +194,14 @@ spec = {
                    label='SelectPicker',
                    label_callback=lambda _, selected_values, options: f'{selected_values} values out of {options} options',
                    )),
+            (SelectSearch, ([],), 
+                dict(
+                    options=['Foo', 'Bar', 'Boo', 'Baz'], 
+                    bookmarks=['Baz'],
+                    value='Bar', 
+                    label='SelectSearch',
+                    
+            )),
         ],
         'Sliders': [
             (DateSlider, (['color', 'track'], ['disabled']), dict(start=dt.datetime(2019, 1, 1), end=dt.datetime(2019, 6, 1), value=dt.datetime(2019, 2, 8), label='DateSlider')),

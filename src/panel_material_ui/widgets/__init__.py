@@ -7,3 +7,4 @@ from .misc import *  # noqa
 from .select import *  # noqa
 from .sliders import *  # noqa
 from .SelectPicker import *  # noqa
+from .SelectSearch import *  # noqa
