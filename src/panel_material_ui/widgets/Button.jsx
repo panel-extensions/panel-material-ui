@@ -15,7 +15,7 @@ export function render({model, el}) {
       color={color}
       disabled={disabled}
       onClick={() => model.send_event("click", {})}
-      startIcon={icon && icon.startsWith("<") ? <SvgIcon>{icon}</SvgIcon> : <Icon style={{fontSize: icon_size}}>{icon}</Icon>}
+      startIcon={icon && icon.trim().startsWith("<") ? <SvgIcon>{icon}</SvgIcon> : <Icon style={{fontSize: icon_size}}>{icon}</Icon>}
       sx={sx}
       variant={variant}
     >
