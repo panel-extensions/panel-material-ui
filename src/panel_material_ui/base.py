@@ -275,6 +275,9 @@ class MaterialComponent(ReactComponent):
         else:
             linkable = list(self.param)
 
+        if 'margin' not in kwargs:
+            kwargs['margin'] = 0
+
         params = [p for p in linkable if p not in Viewable.param]
         controls = Param(self.param, parameters=params, default_layout=Paper,
                          name='Controls', **kwargs)

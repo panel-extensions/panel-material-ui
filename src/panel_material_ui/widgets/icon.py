@@ -37,7 +37,7 @@ class _ClickableIcon(MaterialWidget):
 
     _esm_transforms = [TooltipTransform, ThemedTransform]
 
-    __abstract = False
+    __abstract = True
 
 
 class ToggleIcon(_ClickableIcon):

@@ -40,7 +40,6 @@ export function render({model, view}) {
   }, [modelValue])
 
   const handleChange = (newValue) => {
-    console.log(newValue)
     if (newValue) {
       const timeString = newValue.format("HH:mm:ss")
       setModelValue(timeString)
