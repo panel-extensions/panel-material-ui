@@ -18,7 +18,8 @@ function PlaceholderAvatar() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center"
-    }}>
+    }}
+    >
       <Box
         component="span"
         sx={{
