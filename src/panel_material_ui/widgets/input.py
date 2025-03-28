@@ -760,21 +760,17 @@ class _TimeCommon(MaterialWidget):
         Whether to use 12 hour or 24 hour clock.""")
 
     hour_increment = param.Integer(default=1, bounds=(1, None), doc="""
-    Defines the granularity of hour value increments in the UI.
-    """)
+        Defines the granularity of hour value increments in the UI.""")
 
     minute_increment = param.Integer(default=1, bounds=(1, None), doc="""
-    Defines the granularity of minute value increments in the UI.
-    """)
+        Defines the granularity of minute value increments in the UI.""")
 
     second_increment = param.Integer(default=1, bounds=(1, None), doc="""
-    Defines the granularity of second value increments in the UI.
-    """)
+        Defines the granularity of second value increments in the UI.""")
 
     seconds = param.Boolean(default=False, doc="""
-    Allows to select seconds. By default only hours and minutes are
-    selectable, and AM/PM depending on the `clock` option.
-    """)
+        Allows to select seconds. By default only hours and minutes are
+        selectable, and AM/PM depending on the `clock` option.""")
 
     __abstract = True
 
@@ -857,7 +853,7 @@ class TimePicker(_TimeCommon):
         if 'end' in msg and isinstance(msg['end'], dt_time):
             msg['end'] = msg['end'].strftime('%H:%M:%S')
         if 'format' in msg and msg['format'] is not None:
-            msg['format'] = msg['format'].replace('K', 'A').replace('HH', 'G').replace('i', 'mm')
+            msg['format'] = msg['format'].replace('K', 'A').replace('G', 'HH').replace('i', 'mm')
         return msg
 
     def _process_property_change(self, msg):
