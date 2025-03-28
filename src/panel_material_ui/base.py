@@ -24,7 +24,9 @@ import param
 from bokeh.settings import settings as _settings
 from panel.config import config
 from panel.custom import ReactComponent
+from panel.param import Param
 from panel.util import base_version, classproperty
+from panel.viewable import Viewable
 
 from .__version import __version__  # noqa
 from .theme import MaterialDesign
@@ -34,7 +36,9 @@ if TYPE_CHECKING:
     from bokeh.model import Model
     from pyviz_comms import Comm
 
-COLORS = ["primary", "secondary", "error", "info", "success", "warning"]
+COLORS = ["default", "primary", "secondary", "error", "info", "success", "warning", "light", "dark", "danger"]
+
+COLOR_ALIASES = {"danger": "error"}
 
 BASE_PATH = pathlib.Path(__file__).parent
 IS_RELEASE = __version__ == base_version(__version__)
@@ -146,12 +150,12 @@ class MaterialComponent(ReactComponent):
     _esm_transforms = [ThemedTransform]
     _importmap = {
         "imports": {
-            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.6/",
-            "@mui/material/": "https://esm.sh/@mui/material@6.4.6/",
-            "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.24.1",
+            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.9/",
+            "@mui/material/": "https://esm.sh/@mui/material@6.4.9/",
+            "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.28.0",
             "mui-color-input": "https://esm.sh/mui-color-input@6.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
-            "material-icons/": "https://esm.sh/material-icons@1.13.13/",
+            "material-icons/": "https://esm.sh/material-icons@1.13.14/",
             "notistack": "https://esm.sh/notistack@3.0.2"
         }
     }
@@ -183,7 +187,7 @@ class MaterialComponent(ReactComponent):
 
     @classproperty
     def _bundle_css(cls):
-        if not config.autoreload and IS_RELEASE and _settings.resources(default='server') == 'cdn':
+        if not config.autoreload and (not config.inline or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
             return [CDN_DIST.replace('.js', '.css')]
         esm_path = cls._esm_path(compiled=True)
         css_path = esm_path.with_suffix('.css')
@@ -206,11 +210,13 @@ class MaterialComponent(ReactComponent):
 
     @classmethod
     def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
-        if compiled != 'compiling':
-            return super()._render_esm(compiled=True, server=server)
-        elif cls._esm_base is None:
+        if cls._esm_base is None:
             return None
-        return cls._render_esm_base()
+        elif compiled == 'compiling':
+            return cls._render_esm_base()
+        elif not config.autoreload and (not config.inline or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
+            return CDN_DIST
+        return super()._render_esm(compiled=True, server=server)
 
     def _get_model(
         self, doc: Document, root: Model | None = None,
@@ -221,7 +227,7 @@ class MaterialComponent(ReactComponent):
         # if requested or if in notebook
         if (
             (comm is None and not config.autoreload and IS_RELEASE and _settings.resources(default='server') == 'cdn') or
-            (comm and IS_RELEASE and not config.inline)
+            (comm and not config.inline)
         ):
             model.update(
                 bundle='url',
@@ -229,3 +235,70 @@ class MaterialComponent(ReactComponent):
                 esm=CDN_DIST,
             )
         return model
+
+    def _process_param_change(self, params):
+        if 'color' in params:
+            color = params['color']
+            params['color'] = COLOR_ALIASES.get(color, color)
+        return super()._process_param_change(params)
+
+    def controls(self, parameters: list[str] = None, jslink: bool = True, **kwargs) -> Viewable:
+        """
+        Creates a set of widgets which allow manipulating the parameters
+        on this instance. By default all parameters which support
+        linking are exposed, but an explicit list of parameters can
+        be provided.
+
+        Parameters
+        ----------
+        parameters: list(str) | None
+           An explicit list of parameters to return controls for.
+        jslink: bool
+           Whether to use jslinks instead of Python based links.
+           This does not allow using all types of parameters.
+        kwargs: dict
+           Additional kwargs to pass to the Param pane(s) used to
+           generate the controls widgets.
+
+        Returns
+        -------
+        A layout of the controls
+        """
+        from .layout import Paper, Tabs
+        from .widgets import LiteralInput
+
+        parameters = parameters or []
+        if parameters:
+            linkable = parameters
+        elif jslink:
+            linkable = self._linkable_params
+        else:
+            linkable = list(self.param)
+
+        if 'margin' not in kwargs:
+            kwargs['margin'] = 0
+
+        params = [p for p in linkable if p not in Viewable.param]
+        controls = Param(self.param, parameters=params, default_layout=Paper,
+                         name='Controls', **kwargs)
+        layout_params = [p for p in linkable if p in Viewable.param]
+        if 'name' not in layout_params and self._property_mapping.get('name', False) is not None and not parameters:
+            layout_params.insert(0, 'name')
+        style = Param(self.param, parameters=layout_params, default_layout=Paper,
+                      name='Layout', **kwargs)
+        if jslink:
+            for p in params:
+                widget = controls._widgets[p]
+                widget.jslink(self, value=p, bidirectional=True)
+                if isinstance(widget, LiteralInput):
+                    widget.serializer = 'json'
+            for p in layout_params:
+                widget = style._widgets[p]
+                widget.jslink(self, value=p, bidirectional=p != 'loading')
+                if isinstance(widget, LiteralInput):
+                    widget.serializer = 'json'
+
+        if params and layout_params:
+            return Tabs(controls.layout[0], style.layout[0])
+        elif params:
+            return controls.layout[0]

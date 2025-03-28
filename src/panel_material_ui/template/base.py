@@ -88,3 +88,7 @@ class Page(MaterialComponent):
         doc = super().server_doc(doc, title, location)
         doc.template = _env.get_template('base.html')
         return doc
+
+__all__ = [
+    "Page"
+]

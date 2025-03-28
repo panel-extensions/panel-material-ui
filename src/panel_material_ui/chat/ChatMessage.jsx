@@ -9,71 +9,72 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy"
 import EditNoteIcon from "@mui/icons-material/EditNote"
 
 function PlaceholderAvatar() {
-  return (<Box sx={{
-    margin: "1em 0.5em 0 0",
-    width: 40,
-    height: 40,
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
-  }}
-  >
-    <Box
-      component="span"
-      sx={{
-        position: "absolute",
-        width: "100%",
-        height: "100%",
-        borderRadius: "50%",
-        border: "3px solid",
-        borderColor: "black",
-        borderTopColor: "transparent",
-        strokeLinecap: "round",
-        animation: "spin 1s linear infinite",
-        "@keyframes spin": {
-          "0%": {transform: "rotate(0deg)"},
-          "100%": {transform: "rotate(360deg)"}
-        }
-      }}
-    />
-    <Box
-      component="span"
-      sx={{
-        position: "absolute",
-        width: "80%",
-        height: "80%",
-        borderRadius: "50%",
-        border: "3px solid",
-        borderColor: "black",
-        borderTopColor: "transparent",
-        strokeLinecap: "round",
-        animation: "spin 1.5s linear infinite",
-        "@keyframes spin": {
-          "0%": {transform: "rotate(0deg)"},
-          "100%": {transform: "rotate(-360deg)"}
-        }
-      }}
-    />
-    <Box
-      component="span"
-      sx={{
-        position: "absolute",
-        width: "50%",
-        height: "50%",
-        borderRadius: "50%",
-        border: "3px solid",
-        borderColor: "black",
-        borderTopColor: "transparent",
-        strokeLinecap: "round",
-        animation: "spin 2.5s linear infinite",
-        "@keyframes spin": {
-          "0%": {transform: "rotate(0deg)"},
-          "100%": {transform: "rotate(360deg)"}
-        }
-      }}
-    />
-  </Box>
+  return (
+    <Box sx={{
+      margin: "1em 0.5em 0 0",
+      width: 40,
+      height: 40,
+      position: "relative",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }}
+    >
+      <Box
+        component="span"
+        sx={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          borderRadius: "50%",
+          border: "3px solid",
+          borderColor: "black",
+          borderTopColor: "transparent",
+          strokeLinecap: "round",
+          animation: "spin 1s linear infinite",
+          "@keyframes spin": {
+            "0%": {transform: "rotate(0deg)"},
+            "100%": {transform: "rotate(360deg)"}
+          }
+        }}
+      />
+      <Box
+        component="span"
+        sx={{
+          position: "absolute",
+          width: "80%",
+          height: "80%",
+          borderRadius: "50%",
+          border: "3px solid",
+          borderColor: "black",
+          borderTopColor: "transparent",
+          strokeLinecap: "round",
+          animation: "spin 1.5s linear infinite",
+          "@keyframes spin": {
+            "0%": {transform: "rotate(0deg)"},
+            "100%": {transform: "rotate(-360deg)"}
+          }
+        }}
+      />
+      <Box
+        component="span"
+        sx={{
+          position: "absolute",
+          width: "50%",
+          height: "50%",
+          borderRadius: "50%",
+          border: "3px solid",
+          borderColor: "black",
+          borderTopColor: "transparent",
+          strokeLinecap: "round",
+          animation: "spin 2.5s linear infinite",
+          "@keyframes spin": {
+            "0%": {transform: "rotate(0deg)"},
+            "100%": {transform: "rotate(360deg)"}
+          }
+        }}
+      />
+    </Box>
   )
 }
 
@@ -136,7 +137,7 @@ export function render({model}) {
             <ContentCopyIcon sx={{width: "0.5em"}} color="lightgray"/>
           </IconButton>}
           {show_reaction_icons && reactions.map((reaction) => (
-            <IconButton disableRipple size="small" sx={{padding: "0 0.1em"}} onClick={() => { model.send_msg(reaction) }}>
+            <IconButton key={`reaction-${reaction}`} disableRipple size="small" sx={{padding: "0 0.1em"}} onClick={() => { model.send_msg(reaction) }}>
               <Icon sx={{width: "0.5em"}}>{reaction_icons[reaction] || reaction}</Icon>
             </IconButton>
           ))}

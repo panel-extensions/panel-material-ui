@@ -29,13 +29,12 @@ export function render({model, view}) {
         const object = objects[index]
         return model.class_name === "Grid" ? (
           <Grid
-            size={model.data.size}
             columns={model.data.columns}
-            direction={model.data.direction}
             columnSpacing={model.data.column_spacing}
-            rowSpacing={model.data.row_spacing}
-            spacing={model.data.spacing}
             direction={model.data.direction}
+            rowSpacing={model.data.row_spacing}
+            size={model.data.size}
+            spacing={model.data.spacing}
           >
             {object}
           </Grid>

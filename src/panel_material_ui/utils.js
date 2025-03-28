@@ -1,4 +1,5 @@
 import {deepmerge} from "@mui/utils";
+import {grey} from "@mui/material/colors";
 
 export class SessionStore {
   constructor() {
@@ -83,7 +84,25 @@ export function render_theme_config(props, theme_config, dark_theme) {
       colorSchemeSelector: "class",
     },
     palette: {
-      mode: dark_theme ? "dark" : "light"
+      mode: dark_theme ? "dark" : "light",
+      default: {
+        main: grey[dark_theme ? 700 : 400],
+        light: grey[dark_theme ? 500 : 200],
+        dark: grey[dark_theme ? 900 : 600],
+        contrastText: dark_theme ? "#ffffff" : "#000000",
+      },
+      dark: {
+        main: grey[dark_theme ? 800 : 600],
+        light: grey[dark_theme ? 700 : 400],
+        dark: grey[dark_theme ? 900 : 800],
+        contrastText: dark_theme ? "#ffffff" : "#000000",
+      },
+      light: {
+        main: grey[200],
+        light: "#ffffff",
+        dark: grey[300],
+        contrastText: "#000000",
+      },
     },
     components: {
       MuiPopover: {
@@ -99,6 +118,20 @@ export function render_theme_config(props, theme_config, dark_theme) {
       MuiModal: {
         defaultProps: {
           container: props.view.container,
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            textTransform: "none",
+          },
+        },
+      },
+      MuiButtonBase: {
+        styleOverrides: {
+          root: {
+            textTransform: "none",
+          },
         },
       },
     }

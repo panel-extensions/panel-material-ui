@@ -1,4 +1,5 @@
 import Button from "@mui/material/Button"
+import SvgIcon from "@mui/material/SvgIcon"
 
 export function render({model, el}) {
   const [color] = model.useState("button_type")
@@ -13,10 +14,10 @@ export function render({model, el}) {
     <Button
       color={color}
       disabled={disabled}
-      variant={variant}
-      sx={sx}
-      startIcon={icon && <Icon style={{fontSize: icon_size}}>{icon}</Icon>}
       onClick={() => model.send_event("click", {})}
+      startIcon={icon && icon.startsWith("<") ? <SvgIcon>{icon}</SvgIcon> : <Icon style={{fontSize: icon_size}}>{icon}</Icon>}
+      sx={sx}
+      variant={variant}
     >
       {label}
     </Button>
