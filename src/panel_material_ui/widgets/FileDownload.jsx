@@ -68,7 +68,7 @@ export function render({model, view}) {
       color={button_type}
       disabled={disabled}
       startIcon={icon ? (
-        icon.startsWith("<") ? <SvgIcon>{icon}</SvgIcon> : <Icon style={{fontSize: icon_size}}>{icon}</Icon>
+        icon.trim().startsWith("<") ? <SvgIcon>{icon}</SvgIcon> : <Icon style={{fontSize: icon_size}}>{icon}</Icon>
       ) : <FileDownloadIcon style={{fontSize: icon_size}}/>}
       onClick={handleClick}
       sx={sx}
