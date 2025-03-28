@@ -86,9 +86,9 @@ export function render_theme_config(props, theme_config, dark_theme) {
     palette: {
       mode: dark_theme ? "dark" : "light",
       default: {
-        main: grey[dark_theme ? 700 : 500],
-        light: grey[dark_theme ? 500 : 300],
-        dark: grey[dark_theme ? 900 : 700],
+        main: grey[dark_theme ? 700 : 400],
+        light: grey[dark_theme ? 500 : 200],
+        dark: grey[dark_theme ? 900 : 600],
         contrastText: dark_theme ? "#ffffff" : "#000000",
       },
       dark: {

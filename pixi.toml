@@ -66,6 +66,7 @@ test-example = 'pytest -n logical --dist loadscope --nbval-lax examples'
 
 [feature.test-example.dependencies]
 nbval = "*"
+bokeh_sampledata = "*"
 
 [feature.test-ui]
 channels = ["microsoft"]
