@@ -10,7 +10,7 @@ serve-example = { cmd = "echo ", depends-on = ["install", "serve-dev"] }
 
 [dependencies]
 python = ">=3.10"
-panel = ">=1.6.2rc2"
+panel = ">=1.6.2"
 packaging = "*"
 watchfiles = "*"
 
@@ -94,11 +94,10 @@ SPHINX_APIDOC_OPTIONS = "members,show-inheritance"
 [feature.doc.dependencies]
 # lxml = "*"
 nbsite = ">=0.8.8a7"
-# selenium = "*"
 numpydoc = "*"
-# pydeck = ">=0.8"  # Add back to examples, when it support ipywidgets 8.0
 matplotlib = "*"  # not optional in nbsite
 holoviews = "*"  # nbsite needs holoviews somehow
+bokeh_sampledata = "*"
 
 [feature.doc.tasks]
 # _docs-refmanual = 'sphinx-apidoc -e -o doc/api/ panel/ --ext-autodoc --ext-intersphinx'
