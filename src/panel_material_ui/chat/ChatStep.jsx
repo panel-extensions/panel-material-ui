@@ -6,6 +6,7 @@ import CardHeader from "@mui/material/CardHeader"
 import Collapse from "@mui/material/Collapse"
 import IconButton from "@mui/material/IconButton"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
+import Typography from "@mui/material/Typography"
 
 const status_colors = {
   failed: "red",

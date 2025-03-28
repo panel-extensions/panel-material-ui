@@ -14,12 +14,12 @@ export function render({model}) {
   const [dense] = model.useState("dense")
   const keys = Array.isArray(items) ? items.map((_, index) => index) : Object.keys(items)
 
-  const listItems = keys.map((name) => {
+  const listItems = keys.map((name, index) => {
     const item = items[name]
     const isObject = (typeof item === "object" && item !== null)
     const label = isObject ? item.label : item
     if (label === "---" || label === null) {
-      return <Divider/>
+      return <Divider key={`divider-${index}`}/>
     }
     const secondary = isObject ? item.secondary : null
     const icon = isObject ? item.icon : undefined
