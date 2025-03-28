@@ -210,13 +210,13 @@ class MaterialComponent(ReactComponent):
 
     @classmethod
     def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
-        if not config.autoreload and (not config.inline or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
-            return CDN_DIST
-        if compiled != 'compiling':
-            return super()._render_esm(compiled=True, server=server)
-        elif cls._esm_base is None:
+        if cls._esm_base is None:
             return None
-        return cls._render_esm_base()
+        elif compiled == 'compiling':
+            return cls._render_esm_base()
+        elif not config.autoreload and (not config.inline or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
+            return CDN_DIST
+        return super()._render_esm(compiled=True, server=server)
 
     def _get_model(
         self, doc: Document, root: Model | None = None,
