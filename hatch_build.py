@@ -14,7 +14,7 @@ GREEN, RED, RESET = "\033[0;32m", "\033[0;31m", "\033[0m"
 def compile_bundle():
     from panel.io.compile import compile_components, find_module_bundles
 
-    print(f"{GREEN}[PANEL-MATERIAL_UI]{RESET} Compile panel-material-ui bundle", flush=True)
+    print(f"{GREEN}[PANEL-MATERIAL-UI]{RESET} Compile panel-material-ui bundle", flush=True)
     panel_dir = BASE_DIR / "panel"
 
     sys.path.insert(0, str(BASE_DIR / "src"))
