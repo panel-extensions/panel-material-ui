@@ -9,11 +9,30 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{{ dist_url }}images/apple-touch-icon.png">
     {% if app_favicon is not defined %} <link rel="icon" type="image/png" sizes="32x32" href="{{ dist_url }}images/favicon.ico"> {% endif %}
     {% if manifest_url %}<link rel="manifest" href="{{ manifest_url }}">{% endif %}
-  {%  block preamble -%}{%- endblock %}
-  {%  block resources %}
+    {%  block preamble -%}
+    {%- if meta.name %}
+    <meta name="name" content="{{ meta.name }}">
+    {% endif -%}
+    {%- if meta.description %}
+    <meta name="description" content="{{ meta.description }}">
+    {% endif -%}
+    {%- if meta.keywords %}
+    <meta name="keywords" content="{{ meta.keywords }}">
+    {% endif -%}
+    {%- if meta.author %}
+    <meta name="author" content="{{ meta.author }}">
+    {% endif -%}
+    {%- if meta.refresh %}
+    <meta http-equiv="refresh" content="{{ meta.refresh }}">
+    {% endif -%}
+    {%- if meta.viewport %}
+    <meta name="viewport" content="{{ meta.viewport }}">
+    {% endif -%}
+    {%- endblock %}
+  {% block resources %}
     <style>
       html, body {
-	display: flow-root;
+      	display: flow-root;
         box-sizing: border-box;
         height: 100%;
         margin: 0;
@@ -44,12 +63,12 @@
         100% { transform: rotate(360deg); }
       }
     </style>
-  {%   block css_resources -%}
+  {% block css_resources -%}
     {{- bokeh_css if bokeh_css }}
   {%-  endblock css_resources %}
-  {%   block js_resources -%}
-    {{  bokeh_js if bokeh_js }}
-  {%-  endblock js_resources %}
+  {% block js_resources -%}
+    {{ bokeh_js if bokeh_js }}
+  {%- endblock js_resources %}
     <style id="template-styles">
       html, body {
       	color: var(--mui-palette-text-primary);
@@ -70,7 +89,7 @@
   {% block body %}
   <body>
   {%  block inner_body %}
-    <div id="loading-overlay">
+    <div id="loading-overlay" style="display: none;">
       <div class="spinner"></div>
     </div>
   {%    block contents %}
@@ -85,10 +104,15 @@
   {%    endblock contents %}
   {{ plot_script | indent(4) }}
   <script>
+    let timeout = 0;
     function checkIdle() {
       if (Bokeh.index && Bokeh.index.roots[0] && Bokeh.index.roots[0].model.document.is_idle) {
         document.getElementById('loading-overlay').style.display = 'none';
       } else {
+        timeout += 100;
+        if (timeout > 1000) {
+          document.getElementById('loading-overlay').style.display = 'block';
+        }
         setTimeout(checkIdle, 100);
       }
     }
