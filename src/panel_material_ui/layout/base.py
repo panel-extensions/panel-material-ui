@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Callable
 
 import param
 from bokeh.models import Spacer as BkSpacer
+from panel._param import Margin
 from panel.layout.base import ListLike, NamedListLike, SizingModeMixin
 from panel.viewable import Child
 
@@ -17,6 +18,8 @@ if TYPE_CHECKING:
 
 
 class MaterialLayout(MaterialComponent, SizingModeMixin):
+
+    margin = Margin(default=0, doc="The margin of the layout.")
 
     __abstract = True
 
@@ -192,7 +195,7 @@ class Accordion(MaterialNamedListLike):
     The `Accordion` layout is a type of `Card` layout that allows switching
     between multiple objects by clicking on the corresponding card header.
 
-    The labels for each card will default to the `name` parameter of the card’s
+    The labels for each card will default to the `name` parameter of the card's
     contents, but may also be defined explicitly as part of a tuple.
 
     `Accordion` has a list-like API that allows
@@ -236,7 +239,7 @@ class Tabs(MaterialNamedListLike):
     on the corresponding tab header.
 
     Tab labels may be defined explicitly as part of a tuple or will be
-    inferred from the `name` parameter of the tab’s contents.
+    inferred from the `name` parameter of the tab's contents.
 
     Like `Accordion`, `Tabs` has a list-like API with methods to
     `append`, `extend`, `clear`, `insert`, `pop`, `remove` and `__setitem__`,
@@ -331,7 +334,7 @@ class Alert(MaterialListLike):
     """
     An `Alert` displays messages, such as warnings, errors, success messages,
     or informational updates. It provides a visually distinct way to inform users about
-    the system’s status.
+    the system's status.
 
     Reference: https://mui.com/material-ui/react-alert/
 
@@ -410,3 +413,17 @@ class Dialog(MaterialListLike):
         The title of the dialog.""")
 
     _esm_base = "Dialog.jsx"
+
+
+__all__ = [
+    "Paper",
+    "Container",
+    "Grid",
+    "Card",
+    "Accordion",
+    "Tabs",
+    "Divider",
+    "Alert",
+    "Backdrop",
+    "Dialog"
+]

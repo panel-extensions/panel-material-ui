@@ -363,6 +363,9 @@ class MultiSelect(MaterialMultiSelectBase):
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         Maximum number of options that can be selected.""")
 
+    size = param.Integer(default=None, doc="""
+        The number of options to display at once (not currently supported).""")
+
     value = param.List(default=[], allow_None=True)
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
@@ -452,12 +455,12 @@ class SelectPicker(MaterialWidget):
     # these params will be reflected in the UI
     title = param.String(default="")
 
-    # a callback called everytime the value changes, to update the label
+    # a callback called every time the value changes, to update the label
     # params: widget, number of selected values, number of options
     # returns: the new label
     label_callback: callable = None
 
-    # updated everytime the value changes, using label_callback
+    # updated every time the value changes, using label_callback
     label = param.String(default="")
 
     options = param.List(doc="List of possible values to be selected", default=[])
@@ -608,4 +611,15 @@ class SelectSearch(MaterialWidget):
 
         return result
 
-    
+
+__all__ = [
+    "AutocompleteInput",
+    "Select",
+    "RadioBoxGroup",
+    "CheckBoxGroup",
+    "RadioButtonGroup",
+    "CheckButtonGroup",
+    "MultiSelect",
+    "MultiChoice",
+    "NestedSelect"
+]

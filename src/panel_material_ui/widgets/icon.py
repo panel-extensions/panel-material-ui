@@ -37,7 +37,7 @@ class _ClickableIcon(MaterialWidget):
 
     _esm_transforms = [TooltipTransform, ThemedTransform]
 
-    __abstract = False
+    __abstract = True
 
 
 class ToggleIcon(_ClickableIcon):
@@ -191,3 +191,8 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
             if val is not None:
                 callbacks[k] = val
         return Callback(self, code=callbacks, args=args)
+
+__all__ = [
+    "ToggleIcon",
+    "ButtonIcon"
+]

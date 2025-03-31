@@ -5,25 +5,29 @@ from itertools import chain, product
 from typing import Type
 
 import panel as pn
-import param
 
 from panel_material_ui import *
 from panel_material_ui.base import MaterialComponent
 from panel_material_ui.template import Page
 
+import param
 pn.extension(defer_load=True, notifications=True)
 
 pn.config.design = MaterialDesign
 
 primary_color = ColorPicker(value='#404db0', name='Primary', sizing_mode='stretch_width')
 secondary_color = ColorPicker(value='#ee8349', name='Secondary', sizing_mode='stretch_width')
+font_size = IntInput(value=14, name='Font Size', step=1, start=2, end=100, sizing_mode='stretch_width')
 
 design_kwargs = dict(
     theme_config={
         'palette': {
             'primary': {'main': primary_color},
             'secondary': {'main': secondary_color},
-        }
+        },
+        'typography': {
+            'fontSize': font_size,
+        },
     },
 )
 
@@ -104,7 +108,7 @@ def render_spec(spec, depth=0, label='main'):
 
 def render_openable(component: Type[MaterialComponent], **kwargs):
     close = Button(on_click=lambda _: inst.param.update(open=False), label='Close')  # type: ignore
-    inst = component(LoadingIndicator(), close)
+    inst = component(LoadingSpinner(), close)
     button = Button(on_click=lambda _: inst.param.update(open=True), label=f'Open {component.name}')
     col = pn.Column(button, inst)
     return col
@@ -128,7 +132,7 @@ spec = {
     },
     'Indicators': {
         'Progress': [
-            (LoadingIndicator, (['color',], ['variant']), dict(value=50)),
+            (LoadingSpinner, (['color',], ['variant']), dict(value=50)),
             (Progress, (['color', 'variant'],), dict(value=50))
         ]
     },
@@ -189,18 +193,17 @@ spec = {
             (MultiChoice, (['variant', 'color'], ['disabled'],), dict(options=['Foo', 'Bar', 'Baz'], label='Select')),
             (Select, (['variant', 'color'], ['disabled'],), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Select')),
             (SelectPicker, ([],),
-              dict(options=['Foo', 'Bar', 'Baz'], 
-                   value=['Foo', 'Bar'], 
+              dict(options=['Foo', 'Bar', 'Baz'],
+                   value=['Foo', 'Bar'],
                    label='SelectPicker',
                    label_callback=lambda _, selected_values, options: f'{selected_values} values out of {options} options',
                    )),
-            (SelectSearch, ([],), 
+            (SelectSearch, ([],),
                 dict(
-                    options=['Foo', 'Bar', 'Boo', 'Baz'], 
+                    options=['Foo', 'Bar', 'Boo', 'Baz'],
                     bookmarks=['Baz'],
-                    value='Bar', 
+                    value='Bar',
                     label='SelectSearch',
-                    
             )),
         ],
         'Sliders': [
@@ -220,10 +223,14 @@ spec = {
 notifications = pn.state.notifications.demo(sizing_mode='stretch_width')
 
 page = Page(
+    contextbar=[
+        '### Context'
+    ],
     main=[render_spec(spec)],
     sidebar=[
         primary_color,
         secondary_color,
+        font_size,
         notifications
     ],
     title='panel-material-ui components',

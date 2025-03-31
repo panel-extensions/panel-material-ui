@@ -28,12 +28,10 @@ def test_time_picker(page):
     # Enter a new time value
     input_element.fill("12:30 pm")
 
-    # Wait for the value to update
-    wait_until(lambda: time_picker.value == datetime.time(12, 30), page)
-
-    # The time value in Python model should match the original value
-    assert time_picker.value == datetime.time(12, 30, 0)
-
+    try:
+        wait_until(lambda: time_picker.value == datetime.time(12, 30), page)
+    except Exception:
+        assert time_picker.value == datetime.time(12, 30)
 
 def test_time_picker_with_datetime_time(page):
     """Test TimePicker with datetime.time instance."""

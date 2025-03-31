@@ -115,6 +115,8 @@ class List(MenuBase):
 
     dense = param.Boolean(default=False, doc="Whether to show the list items in a dense format.")
 
+    removable = param.Boolean(default=False, doc="Whether to allow deleting items.")
+
     _esm_base = "List.jsx"
 
 
@@ -179,3 +181,10 @@ class Pagination(MaterialWidget):
     @param.depends('count', watch=True, on_init=True)
     def _update_count(self):
         self.param.value.bounds = (0, self.count - 1)
+
+__all__ = [
+    "Breadcrumbs",
+    "List",
+    "SpeedDial",
+    "Pagination"
+]

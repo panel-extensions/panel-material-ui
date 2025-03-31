@@ -26,5 +26,14 @@ class FileDownload(_ButtonBase, _FileDownload):
     _esm_base = "FileDownload.jsx"
     _rename = {"_clicks": None, "icon": "icon", "icon_size": "icon_size"}
 
+    def __init__(self, file=None, **params):
+        self._default_label = 'label' not in params
+        self._synced = False
+        super().__init__(file=file, **params)
+
     def _handle_click(self, event=None):
         self._clicks += 1
+
+__all__ = [
+    "FileDownload"
+]
