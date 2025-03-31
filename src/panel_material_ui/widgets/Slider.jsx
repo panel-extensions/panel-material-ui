@@ -30,9 +30,9 @@ export function render({model}) {
     } else if (date) {
       return dayjs.unix(d / 1000).format(format || "YYYY-MM-DD");
     } else if (format) {
-      if (typeof format === 'string') {
-        const tickers = window.Bokeh.require('models/formatters')
-        return new tickers.NumeralTickFormatter({format: format}).doFormat([d])[0]
+      if (typeof format === "string") {
+        const tickers = window.Bokeh.require("models/formatters")
+        return new tickers.NumeralTickFormatter({format}).doFormat([d])[0]
       } else {
         return format.doFormat([d])[0]
       }
