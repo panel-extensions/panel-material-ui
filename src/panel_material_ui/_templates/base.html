@@ -110,7 +110,7 @@
         document.getElementById('loading-overlay').style.display = 'none';
       } else {
         timeout += 100;
-        if (timeout > 1000) {
+        if (timeout > 500) {
           document.getElementById('loading-overlay').style.display = 'block';
         }
         setTimeout(checkIdle, 100);
