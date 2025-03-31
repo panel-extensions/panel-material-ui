@@ -1,170 +1,366 @@
-import {useState} from 'react';
-import InputAdornment from '@mui/material/InputAdornment';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import ClearIcon from '@mui/icons-material/Clear';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemText from '@mui/material/ListItemText';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import Box from '@mui/material/Box'
+import Chip from '@mui/material/Chip'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import InputAdornment from '@mui/material/InputAdornment'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import ClearIcon from '@mui/icons-material/Clear'
+import Checkbox from '@mui/material/Checkbox'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import ListItemText from '@mui/material/ListItemText'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import Select from '@mui/material/Select'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import FilledInput from '@mui/material/FilledInput'
+import Input from '@mui/material/Input'
+import Typography from '@mui/material/Typography'
 
-export function render({ model, el }) {
-    const [options] = model.useState("options");
-    const [optionsLabels] = model.useState("options_labels");
-    const [bookmarks] = model.useState("bookmarks");
-    const [value, setValue] = model.useState("value");
-    const [filterStr, setFilterStr] = model.useState("filter_str");
-    const [placeholder] = model.useState("placeholder");
-    const [title] = model.useState("title");
+export function render({ model, view }) {
+  const [bookmarks] = model.useState("bookmarks")
+  const [color] = model.useState("color")
+  const [disabled] = model.useState("disabled")
+  const [dropdown_height] = model.useState("dropdown_height")
+  const [filterStr, setFilterStr] = model.useState("filter_str")
+  const [label] = model.useState("label")
+  const [open, setOpen] = model.useState("dropdown_open")
+  const [options] = model.useState("options")
+  const [placeholder] = model.useState("placeholder")
+  const [sx] = model.useState("sx")
+  const [value, setValue] = model.useState("value")
+  const [variant] = model.useState("variant")
 
-    const [width] = model.useState("width");
-    const [dropdownHeight] = model.useState("dropdown_height");
-    
-    const [anchorPosition, setAnchorPosition] = useState({ top: 500, left: 50 });
+  const multi = model.esm_constants.multi
+  const solid = true
+  const delete_button = true
+  let chip = false
+  if (multi) {
+    [chip] = model.useState("chip")
+  }
 
-    const [open, setOpen] = model.useState("dropdown_open"); // Explicitly track dropdown state
+  const menuRef = React.useRef(null)
 
-    const selectDidOpen = (event) => {
-
-        const elRect = el.getBoundingClientRect();
-        const parentRect = document.getElementsByTagName("fast-card")[0]?.getBoundingClientRect() || { top: 0, left: 0 };
-        setAnchorPosition({
-            top: elRect.bottom - parentRect.top,
-            left: elRect.left - parentRect.left
-        });
-
-        setOpen(true);
-    };
-
-    const handleSearchChange = (event) => {
-        setFilterStr(event.target.value);
-        event.stopPropagation();
-    };
-
-    const closeDropdown = () => {
-        setOpen(false);
-        setFilterStr("");
+  React.useEffect(() => {
+    if (!multi && filterStr && menuRef.current) {
+      const matchedElement = menuRef.current.querySelector('[data-matched="true"]')
+      if (matchedElement) {
+        matchedElement.scrollIntoView({ block: 'nearest' })
+      }
     }
+  }, [filterStr])
 
-    const handleClickOnOption = (opt) => {
-        setValue(opt);
-        closeDropdown();
-    };
+  const items = options
+  .map((opt) => {
+    const option = options.find((o) => (Array.isArray(o) ? o[0] === opt : o === opt))
+    const value = Array.isArray(option) ? option[1] : option
+    const label = Array.isArray(option) ? option[0] : option
+    return { value, label }
+  })
 
-    const bookmarkedOptions = bookmarks
-        .map(opt => ({ value: opt, label: optionsLabels ? optionsLabels[options.indexOf(opt)] : opt }))
-        .filter(({ label }) => label.toLowerCase().includes(filterStr.toLowerCase()));
+  const matches = (label) => {
+    return label.toLowerCase().includes(filterStr.toLowerCase())
+  }
 
-    const filteredOptions = options
-        .map((opt, index) => ({ value: opt, label: optionsLabels ? optionsLabels[index] : opt }))
-        .filter(({ label }) => label.toLowerCase().includes(filterStr.toLowerCase()))
-        .filter(({ value }) => !bookmarks.includes(value));
+  const bookmarkedOptions = items.filter(({ value }) => bookmarks.includes(value))
+  const filteredOptions = items.filter(({ value }) => !bookmarks.includes(value))
+  let matchedOptions = [...bookmarkedOptions, ...filteredOptions].filter(({ label }) => matches(label))
+  if (!multi) {
+    matchedOptions = matchedOptions.slice(0, 1)
+  }
 
-        
+  const matched_count = matchedOptions.length
 
-    const getLabelForValue = (val) => {
-        const index = options.indexOf(val);
-        return optionsLabels && optionsLabels[index] ? optionsLabels[index] : val;
-    };
+  const isChecked = () => filteredOptions.length > 0 &&
+    (filterStr ? (
+      matchedOptions.every(item => value.includes(item.value))
+    ) : (
+      filteredOptions.every(item => value.includes(item.value))
+    ))
 
-    const MenuProps = {
-        container: el,
-        anchorReference: "anchorPosition",
-        anchorPosition: anchorPosition,
-        PaperProps: {
-            style: {
-                width: width,
-                height: dropdownHeight,
-            },
-            sx: {
-                "& .MuiList-root": { paddingTop: 0, paddingBottom: 0 },
-                top: 0,
-                left: 0,
-                //backgroundColor:"rgba(255,0,0,64)", // debug
-            },
-        },
-        transformOrigin: "0px 0px",
-        sx: {
-            // backgroundColor:"rgba(0,0,255,64)", // debug
-        },
-        onClick: (e) => { if (e.target.type !== 'text'){ closeDropdown(); }  },
-    };
+  const isIndeterminate = () => filteredOptions.length > 0 &&
+    (filterStr ? (
+      matchedOptions.some(item => value.includes(item.value)) &&
+      !matchedOptions.every(item => value.includes(item.value))
+    ) : (
+      filteredOptions.some(item => value.includes(item.value)) &&
+      !filteredOptions.every(item => value.includes(item.value))
+    ))
+  const [checked, setChecked] = React.useState(isChecked)
+  const [indeterminate, setIndeterminate] = React.useState(isIndeterminate)
 
-    return (
-        <FormControl variant="outlined">
-            <InputLabel shrink sx={{translate:"15px 15px"}}>{title}</InputLabel>
-            <Select
-                variant="outlined"
-                value={value}
-                input={<OutlinedInput notched label={title} />}
-                displayEmpty
-                MenuProps={MenuProps}
-                open={open}
-                onOpen={() => {selectDidOpen();}  }
-                renderValue={(selected) => selected ? getLabelForValue(selected) : placeholder}
-                sx={{   padding: 0, 
-                        margin:0, 
-                        width:width,
-                }}
-            >
-                <MenuItem disableGutters 
-                    sx={{ paddingTop:0, paddingBottom:0, }}>
-                    <TextField
-                        sx={{ paddingTop: 0, paddingBottom: 0, width:1 }}
-                        variant="filled"
-                        placeholder="Search..."
-                        value={filterStr}
-                        onChange={handleSearchChange}
-                        onFocus={(e) => {e.stopPropagation();}}
-                        slotProps={{
-                            input: {
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <FilterListIcon />
-                                    </InputAdornment>
-                                ),
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <ClearIcon onClick={()=>{setFilterStr("")}}/>
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
+  React.useEffect(() => {
+    setChecked(isChecked)
+    setIndeterminate(isIndeterminate())
+  }, [value, filterStr])
+
+  const [anchorPosition, setAnchorPosition] = React.useState(null)
+  const calculate_anchor = (event) => {
+    const elRect = event.currentTarget.getBoundingClientRect()
+    let parentRect
+    if (view.parent) {
+      parentRect = view.parent.el.getBoundingClientRect()
+    } else {
+      parentRect = document.body.getBoundingClientRect()
+    }
+    const res = {
+      top: elRect.bottom - parentRect.top,
+      left: elRect.left - parentRect.left
+    }
+    setAnchorPosition(res)
+    setOpen(true)
+  }
+
+  const MenuProps = {
+    anchorReference: "anchorPosition",
+    anchorPosition: anchorPosition,
+    disablePortal: true,
+    transformOrigin: {
+      vertical: "top",
+      horizontal: "left",
+    },
+    sx: {height: dropdown_height},
+    MenuListProps: {
+      ref: menuRef,
+    },
+  }
+  return (
+    <FormControl fullWidth variant={variant} disabled={disabled}>
+      {label && <InputLabel id={`${model.id}-label`}>{label}</InputLabel>}
+      <Select
+        multiple={multi}
+        color={color}
+        variant={variant}
+        value={value}
+        displayEmpty
+        input={variant === "outlined" ?
+          <OutlinedInput label={value.length > 0 || open ? label : ""}/> :
+            variant === "filled" ?
+          <FilledInput label={value.length > 0 || open ? label : ""}/> :
+          <Input label={value.length > 0 || open ? label : ""}/>
+        }
+        MenuProps={MenuProps}
+        placeholder={placeholder}
+        labelId={`${model.id}-label`}
+        open={open}
+        onOpen={calculate_anchor}
+        onClose={() => setOpen(false)}
+        sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
+        renderValue={(selected) => {
+          if (multi) {
+            if (chip) {
+              return (
+                <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5}}>
+                  {selected.map((selected_value) => (
+                    <Chip
+                      color={color}
+                      variant={solid ? "filled" : "outlined"}
+                      key={selected_value}
+                      label={selected_value}
+                      onMouseDown={(event) => event.stopPropagation()}
+                      onDelete={delete_button ? (event) => {
+                        setValue(value.filter(v => v !== selected_value));
+                      } : undefined}
                     />
-                </MenuItem>
-
-                <Box sx={{ overflowY: "auto", 
-                            height: dropdownHeight - 54*2,
-                                marginLeft:2 }}>
-                {bookmarkedOptions.length > 0 && (
-                    <>
-                        {bookmarkedOptions.map(({ value: opt, label }) => (
-                            <MenuItem key={opt} value={opt} disableGutters 
-                                onClick={(e) => {
-                                    handleClickOnOption(opt);
-                                }}
-                            >
-                                <ListItemText primary={label} />
-                            </MenuItem>
-                        ))}
-                        <MenuItem disabled divider />
-                    </>
-                )}
-                
-                    {filteredOptions.map(({ value: opt, label }) => (
-                        <MenuItem key={opt} value={opt} disableGutters 
-                            onClick={(e) => {
-                                handleClickOnOption(opt);
-                            }}
-                        >
-                            <ListItemText primary={label} />
-                        </MenuItem>
-                    ))}
+                  ))}
                 </Box>
-            </Select>
-        </FormControl>
-    );
+              )
+            }
+            return selected.join(', ')
+          }
+          return selected
+        }}
+      >
+        <MenuItem
+          disableGutters
+          sx={{
+            paddingTop: 0,
+            paddingBottom: 0,
+            position: 'sticky',
+            pointerEvents: 'auto',
+            top: 0,
+            zIndex: 100,
+            backgroundColor: 'background.paper',
+            "&:hover": {
+              backgroundColor: 'background.paper',
+            },
+            "&.Mui-focusVisible": {
+              backgroundColor: 'background.paper',
+            },
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <TextField
+            sx={{ paddingTop: 0, paddingBottom: 0, zIndex: 1, "&.Mui-focused": {
+              backgroundColor: 'background.paper',
+            }}}
+            fullWidth
+            variant="filled"
+            placeholder="Search..."
+            value={filterStr}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === 'Enter' && filterStr) {
+                if (multi) {
+                  const filteredValues = [...bookmarkedOptions, ...filteredOptions]
+                  .filter(item => item.label.toLowerCase().includes(filterStr.toLowerCase()))
+                  .map(item => item.value);
+                  setValue([...new Set([...value, ...filteredValues])])
+                } else {
+                  setValue(filteredOptions.find(item => item.label.toLowerCase().includes(filterStr.toLowerCase())).value)
+                }
+              }
+            }}
+            onChange={(e) => {
+              setFilterStr(e.target.value)
+              e.stopPropagation()
+            }}
+            onClick={(e) => {
+              e.stopPropagation()
+            }}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FilterListIcon />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end" onClick={() => {
+                    setFilterStr("");
+                    setOpen(false)
+                  }}>
+                    <IconButton>
+                      <ClearIcon/>
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+          {multi && (
+          <Box sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexDirection: 'row',
+              width: '100%',
+              borderBottomColor: 'divider',
+              borderBottomWidth: 1,
+              borderBottomStyle: 'solid'
+            }}
+          >
+            <Checkbox
+              size="small"
+              checked={checked}
+              indeterminate={indeterminate}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                const filteredValues = filteredOptions.map(item => item.value)
+                if (filterStr) {
+                  if (!checked || indeterminate) {
+                    setValue([...new Set([...value, ...filteredValues.filter(matches)])])
+                    setChecked(true)
+                    setIndeterminate(false)
+                  } else {
+                    setValue(value.filter(v => !matches(v)));
+                    setChecked(false)
+                    setIndeterminate(false)
+                  }
+                } else {
+                  if (!checked || indeterminate) {
+                    setValue(filteredValues)
+                    setChecked(true)
+                    setIndeterminate(false)
+                  } else {
+                    setValue([])
+                    setChecked(false)
+                    setIndeterminate(false)
+                  }
+                }
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            />
+            <Typography
+              variant="caption"
+              sx={{
+                  display: 'block',
+                  px: 1,
+                  py: 0,
+                  color: 'text.secondary'
+              }}
+              >
+              {filterStr ? (
+                matched_count > 0 ? `${checked ? "Deselect" : "Select"} ${matched_count} matched items` : 'No items matched'
+              ) : (
+                `${checked ? "Deselect" : "Select"} ${checked ? value.length : (items.length - value.length)} items`
+              )}
+            </Typography>
+            {filterStr && <Button
+              size="small"
+              variant="text"
+              onClick={(e) => {
+                setFilterStr("");
+                e.stopPropagation();
+              }}
+            >
+              Clear
+            </Button>}
+          </Box>
+        )}
+        </MenuItem>
+        {[
+          ...(bookmarkedOptions.length > 0 ? [
+            ...bookmarkedOptions.map(item => ({ ...item, isBookmarked: true })),
+            { isDivider: true }
+          ] : []),
+          ...filteredOptions.map(item => ({ ...item, isBookmarked: false }))
+        ].map((item, index) => {
+          if (item.isDivider) {
+            return <MenuItem key={`divider-${index}`} disabled divider />
+          }
+
+          const matched = filterStr && matches(item.label)
+          const { value: opt, label, isBookmarked } = item
+          const handleClick = (e) => {
+            if (!multi) {
+              setValue(opt)
+              return
+            }
+            const isChecked = !value.includes(opt)
+            if (isChecked) {
+              setValue([...value, opt])
+            } else {
+              setValue(value.filter(v => v !== opt))
+            }
+            e.stopPropagation()
+          }
+
+          return (
+            <MenuItem
+              key={opt}
+              value={opt}
+              disableGutters
+              onClick={handleClick}
+              data-matched={matched}
+              sx={{
+                backgroundColor: matched ? 'action.selected' : 'inherit',
+                '&:hover': {
+                  backgroundColor: matched ? 'action.selected' : 'action.hover',
+                }
+              }}
+            >
+              {multi && <Checkbox checked={value.includes(opt)} onClick={handleClick} />}
+              <ListItemText primary={label} sx={{margin: 2}} />
+            </MenuItem>
+          )
+        })}
+      </Select>
+    </FormControl>
+  )
 }
