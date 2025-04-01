@@ -17,7 +17,7 @@ import FilledInput from '@mui/material/FilledInput'
 import Input from '@mui/material/Input'
 import Typography from '@mui/material/Typography'
 
-export function render({ model, view }) {
+export function render({ model }) {
   const [bookmarks] = model.useState("bookmarks")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -29,6 +29,7 @@ export function render({ model, view }) {
   const [options] = model.useState("options")
   const [placeholder] = model.useState("placeholder")
   const [sx] = model.useState("sx")
+  const [value_label] = model.useState("value")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
@@ -130,7 +131,9 @@ export function render({ model, view }) {
         onClose={() => setOpen(false)}
         sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
         renderValue={(selected) => {
-          if (multi) {
+          if (value_label) {
+            return value_label
+          } else if (multi) {
             if (chip) {
               return (
                 <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5}}>

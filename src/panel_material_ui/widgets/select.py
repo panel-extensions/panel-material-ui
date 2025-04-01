@@ -465,6 +465,8 @@ class _SelectPickerBase(MaterialWidget):
 
     placeholder = param.String(default="")
 
+    value_label = param.String(doc="Custom label to describe the current option(s).")
+
 
 class SelectPicker(MultiSelect, _SelectPickerBase):
     """
