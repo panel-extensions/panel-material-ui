@@ -23,6 +23,7 @@ export function render({ model, view }) {
   const [disabled] = model.useState("disabled")
   const [dropdown_height] = model.useState("dropdown_height")
   const [filterStr, setFilterStr] = model.useState("filter_str")
+  const [filter_on_search] = model.useState("filter_on_search")
   const [label] = model.useState("label")
   const [open, setOpen] = model.useState("dropdown_open")
   const [options] = model.useState("options")
@@ -50,17 +51,17 @@ export function render({ model, view }) {
     }
   }, [filterStr])
 
+  const matches = (label) => {
+    return label.toLowerCase().includes(filterStr.toLowerCase())
+  }
+
   const items = options
   .map((opt) => {
     const option = options.find((o) => (Array.isArray(o) ? o[0] === opt : o === opt))
     const value = Array.isArray(option) ? option[1] : option
     const label = Array.isArray(option) ? option[0] : option
     return { value, label }
-  })
-
-  const matches = (label) => {
-    return label.toLowerCase().includes(filterStr.toLowerCase())
-  }
+  }).filter(({label}) => (!filter_on_search || filterStr === "" || matches(label)))
 
   const bookmarkedOptions = items.filter(({ value }) => bookmarks.includes(value))
   const filteredOptions = items.filter(({ value }) => !bookmarks.includes(value))

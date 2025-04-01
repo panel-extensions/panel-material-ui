@@ -456,6 +456,9 @@ class _SelectPickerBase(MaterialWidget):
 
     filter_str = param.String(default="")
 
+    filter_on_search = param.Boolean(default=False, doc="""
+        Whether options are filtered or merely highlighted on search.""")
+
     dropdown_height = param.Integer(default=500)
 
     dropdown_open = param.Boolean(default=False, doc="Whether the dropdown is open")
