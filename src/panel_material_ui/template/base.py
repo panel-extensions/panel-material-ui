@@ -98,10 +98,11 @@ class Page(MaterialComponent):
     title = param.String(doc="Title of the application.")
 
     _esm_base = "Page.jsx"
+    _rename = {"config": None, "meta": None}
 
     def __init__(self, **params):
         resources, meta = {}, {}
-        for k in params:
+        for k in list(params):
             if k.startswith('meta_'):
                 meta[k.replace('meta_', '')] = params.pop(k)
             elif k in _base_config.param:
