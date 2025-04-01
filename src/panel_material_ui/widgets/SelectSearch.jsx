@@ -95,30 +95,12 @@ export function render({ model, view }) {
     setIndeterminate(isIndeterminate())
   }, [value, filterStr])
 
-  const [anchorPosition, setAnchorPosition] = React.useState(null)
-  const calculate_anchor = (event) => {
-    const elRect = event.currentTarget.getBoundingClientRect()
-    let parentRect
-    if (view.parent) {
-      parentRect = view.parent.el.getBoundingClientRect()
-    } else {
-      parentRect = document.body.getBoundingClientRect()
-    }
-    const res = {
-      top: elRect.bottom - parentRect.top,
-      left: elRect.left - parentRect.left
-    }
-    setAnchorPosition(res)
-    setOpen(true)
-  }
-
   const MenuProps = {
-    anchorReference: "anchorPosition",
-    anchorPosition: anchorPosition,
     disablePortal: true,
-    transformOrigin: {
-      vertical: "top",
-      horizontal: "left",
+    getContentAnchorEl: null,
+    anchorOrigin: {
+      vertical: 'bottom',
+      horizontal: 'left',
     },
     sx: {height: dropdown_height},
     MenuListProps: {
@@ -144,7 +126,7 @@ export function render({ model, view }) {
         placeholder={placeholder}
         labelId={`${model.id}-label`}
         open={open}
-        onOpen={calculate_anchor}
+        onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
         sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
         renderValue={(selected) => {
