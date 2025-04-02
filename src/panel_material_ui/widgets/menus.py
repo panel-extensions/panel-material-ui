@@ -141,6 +141,8 @@ class Breadcrumbs(MenuBase):
     Reference: https://mui.com/material-ui/react-breadcrumbs/
     """
 
+    active = param.Integer(default=None)
+
     color = param.Selector(objects=COLORS, default="primary")
 
     separator = param.String(default=None, doc="The separator displayed between breadcrumb items.")

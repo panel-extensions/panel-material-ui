@@ -24,7 +24,7 @@ def test_breadcrumbs(page):
 
     for i in range(3):
         page.locator(".MuiBreadcrumbs-li").nth(i).click()
-        wait_until(lambda: widget.value == i, page)
+        wait_until(lambda: widget.value == widget.items[i], page)
 
 def test_list(page):
     widget = List(name='List test', items=['Item 1', 'Item 2', 'Item 3'])
@@ -40,7 +40,7 @@ def test_list(page):
 
     for i in range(3):
         page.locator(".MuiListItemButton-root").nth(i).click()
-        wait_until(lambda: widget.value == i, page)
+        wait_until(lambda: widget.value == widget.items[i], page)
 
 def test_speed_dial(page):
     widget = SpeedDial(name='SpeedDial test', items=[
@@ -76,4 +76,4 @@ def test_speed_dial(page):
 
     for i in range(3):
         page.locator(".MuiSpeedDial-actions button").nth(i).click()
-        wait_until(lambda: widget.value == i, page)
+        wait_until(lambda: widget.value == widget.items[i], page)
