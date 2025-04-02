@@ -12,9 +12,10 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemAvatar from "@mui/material/ListItemAvatar"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import MoreVert from '@mui/icons-material/MoreVert';
+import Menu from "@mui/material/Menu"
+import MenuItem from "@mui/material/MenuItem"
+import MoreVert from "@mui/icons-material/MoreVert"
+
 export function render({model}) {
   const [dense] = model.useState("dense")
   const [label] = model.useState("label")
@@ -38,7 +39,7 @@ export function render({model}) {
     } else {
       path = [...path, name]
     }
-    const key = path.join(',')
+    const key = path.join(",")
     const isObject = (typeof item === "object" && item !== null)
     const label = isObject ? item.label : item
     if (label === "---" || label === null) {
@@ -72,7 +73,7 @@ export function render({model}) {
     }
 
     const list_item = (
-      <ListItemButton onClick={() => { model.send_msg({'type': 'click', 'item': path}) }} sx={{p: `0 4px 0 ${(indent+1) * 8}px`}}>
+      <ListItemButton onClick={() => { model.send_msg({"type": "click", "item": path}) }} sx={{p: `0 4px 0 ${(indent+1) * 8}px`}}>
         {leadingComponent}
         <ListItemText primary={label} secondary={secondary} />
         {subitems && (
@@ -102,7 +103,7 @@ export function render({model}) {
               <MenuItem
                 key={index}
                 onClick={() => {
-		  model.send_msg({'type': 'action', 'action': action.action, 'item': path})
+		  model.send_msg({"type": "action", "action": action.action, "item": path})
                 }}
               >
 		{action.icon && <Icon>{action.icon}</Icon>}
