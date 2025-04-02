@@ -103,7 +103,7 @@ export function render({model}) {
                 <MenuItem
                   key={index}
                   onClick={() => {
-		    model.send_msg({type: "action", action: action.action, item: path})
+                    model.send_msg({type: "action", action: action.action, item: path})
                   }}
                 >
                   {action.icon && <Icon>{action.icon}</Icon>}
