@@ -1,12 +1,40 @@
 from __future__ import annotations
 
+from collections import defaultdict
+from functools import partial
 from typing import Callable
 
 import param
+from panel.io.state import state
 from panel.models.reactive_html import DOMEvent
 
 from ..base import COLORS
 from .base import MaterialWidget
+
+
+def filter_item(item, keys):
+    if isinstance(item, dict):
+        item = {k: v for k, v in item.items() if k in keys}
+        if 'children' in item:
+            item['children'] = filter_items(item['children'], keys)
+        return item
+    return item
+
+
+def filter_items(items, keys):
+    if isinstance(items, dict):
+        return {k: filter_item(v, keys) for k, v in items.items()}
+    elif isinstance(items, list):
+        return [filter_item(item, keys) for item in items]
+    elif isinstance(items, list):
+        filtered_items = []
+        for item in items:
+            if isinstance(item, dict):
+                filtered_items.append(filter_item(item, keys))
+            else:
+                filtered_items.append(item)
+        return filtered_items
+    return items
 
 
 class MenuBase(MaterialWidget):
@@ -15,43 +43,65 @@ class MenuBase(MaterialWidget):
         List of items to display. Each item may be a string, a tuple mapping from a label to a value,
         or an object with a few common properties and a few widget specific properties.""")
 
-    value = param.ClassSelector(default=None, class_=(int, str), doc="""
+    value = param.ClassSelector(default=None, class_=(dict, str), doc="""
         Last clicked menu item.""")
 
     width = param.Integer(default=None, doc="""
         The width of the menu.""")
+
+    _item_keys = ['label', 'children']
+    _rename = {'value': None}
 
     __abstract = True
 
     def __init__(self, **params):
         click_handler = params.pop('on_click', None)
         super().__init__(**params)
+        self._on_action_callbacks = defaultdict(list)
         self._on_click_callbacks = []
         if click_handler:
             self.on_click(click_handler)
 
-    def _process_params(self, **params):
-        if 'items' in params and isinstance(params['items'], list) and any(isinstance(item, tuple) for item in params['items']):
-            items = {}
-            for index, item in enumerate(params['items']):
-                if isinstance(item, tuple):
-                    items[item[0]] = item[1]
-                elif isinstance(item, dict):
-                    items[item['label']] = item
-                elif item is None:
-                    items[f'--- {index}'] = None
-                else:
-                    items[item] = item
-            params['items'] = items
+    def _process_param_change(self, params):
+        params = super()._process_param_change(params)
+        if 'items' in params:
+            if isinstance(params['items'], list) and any(isinstance(item, tuple) for item in params['items']):
+                items = {}
+                for index, item in enumerate(params['items']):
+                    if isinstance(item, tuple):
+                        items[item[0]] = item[1]
+                    elif isinstance(item, dict):
+                        items[item['label']] = item
+                    elif item is None:
+                        items[f'--- {index}'] = None
+                    else:
+                        items[item] = item
+            else:
+                items = params['items']
+            params['items'] = filter_items(items, self._item_keys)
         return params
 
-    def _handle_msg(self, name):
-        self.value = name
-        for fn in self._on_click_callbacks:
-            try:
-                fn(name)
-            except Exception as e:
-                print(f'List on_click handler errored: {e}')  # noqa
+    def _handle_msg(self, msg):
+        path = msg['item']
+        keys = path if isinstance(path, list) else [path]
+        value = self.items
+        for key in keys:
+            if isinstance(value, dict):
+                value = value['subitems']
+            value = value[key]
+        if msg['type'] == 'click':
+            self.value = value
+            for fn in self._on_click_callbacks:
+                try:
+                    state.execute(partial(fn, value))
+                except Exception as e:
+                    print(f'List on_click handler errored: {e}')  # noqa
+        elif msg['type'] == 'action':
+            for fn in self._on_action_callbacks.get(msg['action'], []):
+                try:
+                    state.execute(partial(fn, value))
+                except Exception as e:
+                    print(f'List on_action handler errored: {e}')  # noqa
 
     def on_click(self, callback: Callable[[DOMEvent], None]):
         """
@@ -96,6 +146,8 @@ class Breadcrumbs(MenuBase):
     separator = param.String(default=None, doc="The separator displayed between breadcrumb items.")
 
     _esm_base = "Breadcrumbs.jsx"
+    _item_keys = ['label', 'icon', 'avatar', 'color', 'secondary']
+
 
 
 class List(MenuBase):
@@ -118,6 +170,34 @@ class List(MenuBase):
     removable = param.Boolean(default=False, doc="Whether to allow deleting items.")
 
     _esm_base = "List.jsx"
+
+    _item_keys = ['label', 'children', 'icon', 'avatar', 'color', 'secondary', 'actions']
+
+    def on_action(self, action: str, callback: Callable[[DOMEvent], None]):
+        """
+        Register a callback to be executed when an action is clicked.
+
+        Parameters
+        ----------
+        action: (str)
+            The action to register a callback for.
+        callback: (callable)
+            The callback to run on action events.
+        """
+        self._on_action_callbacks[action].append(callback)
+
+    def remove_on_action(self, action: str, callback: Callable[[DOMEvent], None]):
+        """
+        Remove a previously added action handler.
+
+        Parameters
+        ----------
+        action: (str)
+            The action to remove a callback for.
+        callback: (callable)
+            The callback to remove.
+        """
+        self._on_action_callbacks[action].remove(callback)
 
 
 class SpeedDial(MenuBase):
@@ -147,6 +227,8 @@ class SpeedDial(MenuBase):
         The icon to display when the menu is open.""")
 
     _esm_base = "SpeedDial.jsx"
+
+    _item_keys = ['label', 'icon', 'avatar', 'color']
 
 
 class Pagination(MaterialWidget):
@@ -181,6 +263,7 @@ class Pagination(MaterialWidget):
     @param.depends('count', watch=True, on_init=True)
     def _update_count(self):
         self.param.value.bounds = (0, self.count - 1)
+
 
 __all__ = [
     "Breadcrumbs",
