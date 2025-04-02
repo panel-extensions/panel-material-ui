@@ -15,7 +15,7 @@ export function render({model}) {
   const breadcrumbItems = keys.map((name, index) => {
     const item = items[name]
     const color_string = name == value ? color : "inherit"
-    const props = {color: color_string, key: index, onClick: () => { model.send_msg(name) }}
+    const props = {color: color_string, key: index, onClick: () => { model.send_msg({type: "click", item: name}) }}
     if (typeof item === "object" && item !== null) {
       if (item.href && index < items.length - 1) {
         return (
