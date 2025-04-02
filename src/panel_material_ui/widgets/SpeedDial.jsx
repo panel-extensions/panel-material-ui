@@ -57,7 +57,7 @@ export function render({model, view}) {
             )}
             tooltipTitle={item.label || name}
             slotProps={{popper: {container: view.container}}}
-            onClick={() => { model.send_msg(name) }}
+            onClick={() => { model.send_msg({type: "click", item: name}) }}
           />
         )
       })}
