@@ -73,7 +73,7 @@ export function render({model}) {
     }
 
     const list_item = (
-      <ListItemButton onClick={() => { model.send_msg({"type": "click", "item": path}) }} sx={{p: `0 4px 0 ${(indent+1) * 8}px`}}>
+      <ListItemButton onClick={() => { model.send_msg({type: "click", item: path}) }} sx={{p: `0 4px 0 ${(indent+1) * 8}px`}}>
         {leadingComponent}
         <ListItemText primary={label} secondary={secondary} />
         {subitems && (
@@ -97,18 +97,18 @@ export function render({model}) {
             <Menu
               anchorEl={menu_anchor}
               open={current_menu_open[key]}
-              onClose={() => setMenuOpen({...current_menu_open, [key] : false})}
+              onClose={() => setMenuOpen({...current_menu_open, [key]: false})}
             >
-            {actions.map((action, index) => (
-              <MenuItem
-                key={index}
-                onClick={() => {
-		  model.send_msg({"type": "action", "action": action.action, "item": path})
-                }}
-              >
-		{action.icon && <Icon>{action.icon}</Icon>}
-                {action.label}
-              </MenuItem>
+              {actions.map((action, index) => (
+                <MenuItem
+                  key={index}
+                  onClick={() => {
+		  model.send_msg({type: "action", action: action.action, item: path})
+                  }}
+                >
+                  {action.icon && <Icon>{action.icon}</Icon>}
+                  {action.label}
+                </MenuItem>
               ))}
             </Menu>
           </React.Fragment>
