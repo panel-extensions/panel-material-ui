@@ -1,4 +1,5 @@
 import ToggleButton from "@mui/material/ToggleButton"
+import SvgIcon from "@mui/material/SvgIcon"
 
 export function render({model}) {
   const [button_style] = model.useState("button_style")
