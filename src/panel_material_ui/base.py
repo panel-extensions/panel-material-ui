@@ -304,10 +304,6 @@ class MaterialComponent(ReactComponent):
 
     @property
     def _synced_params(self) -> list[str]:
-        """
-        Parameters which are synced with properties using transforms
-        applied in the _process_param_change method.
-        """
         ignored = ['default_layout']
         return [p for p in self.param if p not in ignored]
 
