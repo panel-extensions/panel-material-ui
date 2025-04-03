@@ -899,6 +899,8 @@ class Checkbox(MaterialWidget):
 
     value = param.Boolean(default=False)
 
+    width = param.Integer(default=None)
+
     _esm_base = "Checkbox.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
 

@@ -192,7 +192,7 @@ export function render({model}) {
       <Main open={open} sidebar_width={sidebar_width} variant={isMobile ? "drawer" : variant}>
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
           <Toolbar/>
-          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0}}>
+          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column"}}>
             {model.get_child("main")}
           </Box>
         </Box>

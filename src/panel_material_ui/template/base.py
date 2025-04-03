@@ -93,7 +93,7 @@ class Page(MaterialComponent):
 
     sidebar_variant = param.Selector(default="persistent", objects=["persistent", "drawer"])
 
-    sidebar_width = param.Integer(default=250, doc="Width of the sidebar")
+    sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
 
     title = param.String(doc="Title of the application.")
 
