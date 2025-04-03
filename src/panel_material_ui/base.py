@@ -214,7 +214,7 @@ class MaterialComponent(ReactComponent):
             return None
         elif compiled == 'compiling':
             return cls._render_esm_base()
-        elif not config.autoreload and (not config.inline or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
+        elif not config.autoreload and (not (config.inline or server) or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
             return CDN_DIST
         return super()._render_esm(compiled=True, server=server)
 
