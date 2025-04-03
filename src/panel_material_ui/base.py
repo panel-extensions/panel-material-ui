@@ -111,7 +111,7 @@ function {output}(props) {{
     : 'rgba(255, 255, 255, 0.5)'
 
   return (
-    <div style={{{{ position: 'relative' }}}}>
+    <div style={{{{ display: 'contents', position: 'relative' }}}}>
       <{input} {{...props}}/>
       {{loading && (
         <div style={{{{
