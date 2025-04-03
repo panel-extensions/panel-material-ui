@@ -76,46 +76,14 @@ class ThemedTransform(ESMTransform):
     _transform = """\
 import * as React from "react"
 import 'material-icons/iconfont/material-icons.css';
-import {{ ThemeProvider, createTheme }} from '@mui/material/styles';
-import {{ deepmerge }} from '@mui/utils';
+import {{ ThemeProvider }} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import {{SessionStore, dark_mode, render_theme_config, render_theme_css}} from "./utils"
+import {{install_theme_hooks}} from "./utils"
 
 {esm}
 
 function {output}(props) {{
-  const [dark_theme, setDarkTheme] = props.model.useState('dark_theme')
-  const [theme_config] = props.model.useState('theme_config')
-
-  const config = render_theme_config(props, theme_config, dark_theme)
-  const theme = createTheme(config)
-
-  React.useEffect(() => {{
-    if (dark_mode.get_value() === dark_theme) {{
-      return
-    }}
-    dark_mode.set_value(dark_theme)
-  }}, [dark_theme])
-
-  React.useEffect(() => {{
-    let style_el = document.querySelector("#global-styles-panel-mui")
-    if (style_el) {{
-      return dark_mode.subscribe((val) => setDarkTheme(val))
-    }} else {{
-      style_el = document.createElement("style")
-      style_el.id = "styles-panel-mui"
-      props.view.shadow_el.insertBefore(style_el, props.view.container)
-      style_el.textContent = render_theme_css(theme)
-    }}
-  }}, [])
-
-  React.useEffect(() => {{
-    const style_el = props.view.shadow_el.querySelector("#styles-panel-mui")
-    if (style_el) {{
-      style_el.textContent = render_theme_css(theme)
-    }}
-  }}, [theme])
-
+  const theme = install_theme_hooks(props)
   return (
     <ThemeProvider theme={{theme}}>
       <CssBaseline />
@@ -137,16 +105,13 @@ import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
 function {output}(props) {{
   const [loading] = props.model.useState('loading')
   const theme = useMuiTheme()
-  if (!loading) {{
-    return <{input} {{...props}}/>
-  }}
 
   const overlayColor = theme.palette.mode === 'dark'
     ? 'rgba(0, 0, 0, 0.7)'
     : 'rgba(255, 255, 255, 0.5)'
 
   return (
-    <div style={{{{ position: 'relative' }}}}>
+    <div style={{{{ display: 'contents', position: 'relative' }}}}>
       <{input} {{...props}}/>
       {{loading && (
         <div style={{{{
