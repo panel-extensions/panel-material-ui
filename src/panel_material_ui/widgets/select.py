@@ -449,6 +449,48 @@ class NestedSelect(_PnNestedSelect):
         widget_kwargs = {k: v for k, v in level.items() if k != "type"}
         return widget_type, widget_kwargs
 
+
+class _SelectPickerBase(MaterialWidget):
+
+    bookmarks = param.List(default=[], doc="List of bookmarked options")
+
+    filter_str = param.String(default="")
+
+    filter_on_search = param.Boolean(default=False, doc="""
+        Whether options are filtered or merely highlighted on search.""")
+
+    dropdown_height = param.Integer(default=500)
+
+    dropdown_open = param.Boolean(default=False, doc="Whether the dropdown is open")
+
+    placeholder = param.String(default="")
+
+    value_label = param.String(doc="Custom label to describe the current option(s).")
+
+
+class SelectPicker(MultiSelect, _SelectPickerBase):
+    """
+    The `SelectPicker` widget allows selecting a value from a list of options.
+    """
+
+    chip = param.Boolean(default=True, doc="Whether to display a chip for each selected option")
+
+    defaults_to_all = param.Boolean(default=True, doc="""
+        If True, `value` will be set to all options if no checkbox is selected.""")
+
+    _constants = {"multi": True}
+    _esm_base = "SelectSearch.jsx"
+
+
+class SelectSearch(Select, _SelectPickerBase):
+    """
+    The `SelectSearch` widget allows selecting a value from a list of options.
+    """
+
+    _constants = {"multi": False}
+    _esm_base = "SelectSearch.jsx"
+
+
 __all__ = [
     "AutocompleteInput",
     "Select",
@@ -458,5 +500,7 @@ __all__ = [
     "CheckButtonGroup",
     "MultiSelect",
     "MultiChoice",
-    "NestedSelect"
+    "NestedSelect",
+    "SelectPicker",
+    "SelectSearch"
 ]
