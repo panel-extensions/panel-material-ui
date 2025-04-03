@@ -30,9 +30,7 @@ class _ButtonBase(MaterialWidget, _PnButtonBase):
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 1000ms.""")
 
-    icon = param.String(
-        default=None,
-        doc="""
+    icon = param.String(default=None, doc="""
         An icon to render to the left of the button label. Either an SVG or an
         icon name which is loaded from Material Icons.""",
     )

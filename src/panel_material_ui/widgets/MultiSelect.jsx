@@ -42,7 +42,7 @@ export function render({model, view}) {
 
   const inputId = `select-multiple-native-${model.id}`
   return (
-    <FormControl sx={{m: 1, width: 300}}>
+    <FormControl fullWidth>
       <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
         {label}
       </InputLabel>
