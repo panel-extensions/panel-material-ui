@@ -4,6 +4,7 @@ from typing import Callable
 
 import param
 
+from ..base import ThemedTransform
 from ..widgets import TextAreaInput
 
 
@@ -59,6 +60,8 @@ class ChatAreaInput(TextAreaInput):
     rows = param.Integer(default=1)
 
     _esm_base = "ChatArea.jsx"
+
+    _esm_transforms = [ThemedTransform]
 
     _rename = {"loading": "loading"}
 

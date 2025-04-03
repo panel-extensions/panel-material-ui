@@ -11,7 +11,7 @@ import param
 from panel.widgets.button import _ButtonBase as _PnButtonBase
 from panel.widgets.button import _ClickButton
 
-from ..base import COLOR_ALIASES, COLORS, ThemedTransform
+from ..base import COLOR_ALIASES, COLORS, LoadingTransform, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
 
 
@@ -37,7 +37,7 @@ class _ButtonBase(MaterialWidget, _PnButtonBase):
 
     width = param.Integer(default=None)
 
-    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
     _rename: ClassVar[Mapping[str, str | None]] = {
         "label": "label",
         "button_style": "button_style",

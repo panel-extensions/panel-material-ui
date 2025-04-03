@@ -18,12 +18,14 @@ from __future__ import annotations
 import inspect
 import pathlib
 import textwrap
-from typing import TYPE_CHECKING, Literal
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, Literal
 
 import param
 from bokeh.settings import settings as _settings
 from panel.config import config
 from panel.custom import ReactComponent
+from panel.models import ReactComponent as BkReactComponent
 from panel.param import Param
 from panel.util import base_version, classproperty
 from panel.viewable import Viewable
@@ -124,6 +126,49 @@ function {output}(props) {{
 """
 
 
+class LoadingTransform(ESMTransform):
+
+    _transform = """\
+import MuiCircularProgress from '@mui/material/CircularProgress'
+import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
+
+{esm}
+
+function {output}(props) {{
+  const [loading] = props.model.useState('loading')
+  const theme = useMuiTheme()
+  if (!loading) {{
+    return <{input} {{...props}}/>
+  }}
+
+  const overlayColor = theme.palette.mode === 'dark'
+    ? 'rgba(0, 0, 0, 0.7)'
+    : 'rgba(255, 255, 255, 0.5)'
+
+  return (
+    <div style={{{{ position: 'relative' }}}}>
+      <{input} {{...props}}/>
+      {{loading && (
+        <div style={{{{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: overlayColor,
+          zIndex: theme.zIndex.modal - 1
+        }}}}>
+          <MuiCircularProgress color="primary" />
+        </div>
+      )}}
+    </div>
+  )
+}}"""
+
+
 class MaterialComponent(ReactComponent):
     """
     Baseclass for all MaterialComponents which defines the bundle location,
@@ -133,6 +178,9 @@ class MaterialComponent(ReactComponent):
     dark_theme = param.Boolean(doc="""
         Whether to use dark theme. If not specified, will default to Panel's
         global theme setting.""")
+
+    loading = param.Boolean(default=False, doc="""
+        Displays loading spinner on top of the component.""")
 
     theme_config = param.Dict(default=None, nested_refs=True, doc="""
         Options to configure the ThemeProvider.
@@ -147,7 +195,7 @@ class MaterialComponent(ReactComponent):
     _bundle = BASE_PATH / "dist" / "panel-material-ui.bundle.js"
     _esm_base = None
     _esm_shared = {'utils': BASE_PATH / "utils.js"}
-    _esm_transforms = [ThemedTransform]
+    _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
         "imports": {
             "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.9/",
@@ -159,6 +207,7 @@ class MaterialComponent(ReactComponent):
             "notistack": "https://esm.sh/notistack@3.0.2"
         }
     }
+    _rename = {'loading': 'loading'}
 
     __abstract = True
 
@@ -241,6 +290,25 @@ class MaterialComponent(ReactComponent):
             color = params['color']
             params['color'] = COLOR_ALIASES.get(color, color)
         return super()._process_param_change(params)
+
+    def _set_on_model(self, msg: Mapping[str, Any], root: Model, model: Model) -> None:
+        if 'loading' in msg and isinstance(model, BkReactComponent):
+            model.data.loading = msg.pop('loading')
+        super()._set_on_model(msg, root, model)
+
+    def _get_properties(self, doc: Document | None) -> dict[str, Any]:
+        props = super()._get_properties(doc)
+        props.pop('loading', None)
+        props['data'].loading = self.loading
+        return props
+
+    @property
+    def _synced_params(self) -> list[str]:
+        ignored = ['default_layout']
+        return [p for p in self.param if p not in ignored]
+
+    def _update_loading(self, *_) -> None:
+        pass
 
     def controls(self, parameters: list[str] = None, jslink: bool = True, **kwargs) -> Viewable:
         """
