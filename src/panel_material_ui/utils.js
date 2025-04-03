@@ -1,5 +1,7 @@
+import * as React from "react"
+import {grey} from "@mui/material/colors"
+import {createTheme} from "@mui/material/styles";
 import {deepmerge} from "@mui/utils";
-import {grey} from "@mui/material/colors";
 
 export class SessionStore {
   constructor() {
@@ -140,4 +142,39 @@ export function render_theme_config(props, theme_config, dark_theme) {
     return deepmerge(theme_config, config)
   }
   return config
+}
+
+export const install_theme_hooks = (props) => {
+  const [dark_theme, setDarkTheme] = props.model.useState("dark_theme")
+  const [theme_config] = props.model.useState("theme_config")
+
+  const config = render_theme_config(props, theme_config, dark_theme)
+  const theme = createTheme(config)
+
+  React.useEffect(() => {
+    if (dark_mode.get_value() === dark_theme) {
+      return
+    }
+    dark_mode.set_value(dark_theme)
+  }, [dark_theme])
+
+  React.useEffect(() => {
+    let style_el = document.querySelector("#global-styles-panel-mui")
+    if (style_el) {
+      return dark_mode.subscribe((val) => setDarkTheme(val))
+    } else {
+      style_el = document.createElement("style")
+      style_el.id = "styles-panel-mui"
+      props.view.shadow_el.insertBefore(style_el, props.view.container)
+      style_el.textContent = render_theme_css(theme)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    const style_el = props.view.shadow_el.querySelector("#styles-panel-mui")
+    if (style_el) {
+      style_el.textContent = render_theme_css(theme)
+    }
+  }, [theme])
+  return theme
 }

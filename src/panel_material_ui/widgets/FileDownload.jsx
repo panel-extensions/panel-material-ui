@@ -1,6 +1,5 @@
 import Button from "@mui/material/Button"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
-import SvgIcon from "@mui/material/SvgIcon"
 import {useTheme} from "@mui/material/styles"
 
 function dataURItoBlob(dataURI) {
@@ -67,9 +66,11 @@ export function render({model, view}) {
     <Button
       color={button_type}
       disabled={disabled}
-      startIcon={icon ? (
-        icon.trim().startsWith("<") ? <SvgIcon>{icon}</SvgIcon> : <Icon style={{fontSize: icon_size}}>{icon}</Icon>
-      ) : <FileDownloadIcon style={{fontSize: icon_size}}/>}
+      startIcon={icon && (
+        icon.trim().startsWith("<") ?
+          <img src={`data:image/svg+xml;base64,${btoa(icon)}`} style={{width: icon_size, height: icon_size, paddingRight: "0.5em"}} /> :
+          <Icon style={{fontSize: icon_size}}>{icon}</Icon>
+      )}
       onClick={handleClick}
       sx={sx}
       variant={button_style}

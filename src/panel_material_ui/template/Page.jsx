@@ -12,6 +12,7 @@ import LightMode from "@mui/icons-material/LightMode";
 import TocIcon from "@mui/icons-material/Toc";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
+import {render_theme_css} from "./utils"
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && prop !== "variant" && prop !== "sidebar_width"})(
   ({sidebar_width, theme, open, variant}) => {

@@ -1,5 +1,4 @@
 import ToggleButton from "@mui/material/ToggleButton"
-import SvgIcon from "@mui/material/SvgIcon"
 
 export function render({model}) {
   const [button_style] = model.useState("button_style")
@@ -20,7 +19,11 @@ export function render({model}) {
       sx={sx}
       variant={button_style}
     >
-      {icon && (icon.trim().startsWith("<") ? <SvgIcon>{icon}</SvgIcon> : <Icon style={{fontSize: icon_size}}>{icon}</Icon>)}
+      {icon && (
+        icon.trim().startsWith("<") ?
+          <img src={`data:image/svg+xml;base64,${btoa(icon)}`} style={{width: icon_size, height: icon_size, paddingRight: "0.5em"}} /> :
+          <Icon style={{fontSize: icon_size}}>{icon}</Icon>
+      )}
       {label}
     </ToggleButton>
   )

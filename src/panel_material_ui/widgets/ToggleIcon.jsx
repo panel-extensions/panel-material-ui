@@ -1,5 +1,4 @@
 import Checkbox from "@mui/material/Checkbox"
-import SvgIcon from "@mui/material/SvgIcon"
 
 export function render({model, el}) {
   const [active_icon] = model.useState("active_icon")
@@ -19,8 +18,16 @@ export function render({model, el}) {
       selected={value}
       size={size}
       onClick={(e, newValue) => setValue(!value)}
-      icon={icon.trim().startsWith("<") ? <SvgIcon>{icon}</SvgIcon> : <Icon>{icon}</Icon>}
-      checkedIcon={active_icon.trim().startsWith("<") ? <SvgIcon>{active_icon}</SvgIcon> : <Icon>{active_icon}</Icon>}
+      icon={
+        icon.trim().startsWith("<") ?
+          <img src={`data:image/svg+xml;base64,${btoa(icon)}`}/> :
+          <Icon>{icon}</Icon>
+      }
+      checkedIcon={
+        active_icon.trim().startsWith("<") ?
+          <img src={`data:image/svg+xml;base64,${btoa(active_icon)}`}/> :
+          <Icon>{active_icon}</Icon>
+      }
       sx={sx}
     />
   )
