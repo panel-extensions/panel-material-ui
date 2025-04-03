@@ -19,7 +19,7 @@ export function render({model}) {
       sx={sx}
       variant={button_style}
     >
-      {icon && icon.trim().startsWith("<") ? <SvgIcon>{icon}</SvgIcon> : <Icon style={{fontSize: icon_size}}>{icon}</Icon>}
+      {icon && (icon.trim().startsWith("<") ? <SvgIcon>{icon}</SvgIcon> : <Icon style={{fontSize: icon_size}}>{icon}</Icon>)}
       {label}
     </ToggleButton>
   )
