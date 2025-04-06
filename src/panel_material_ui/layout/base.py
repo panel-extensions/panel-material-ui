@@ -278,17 +278,15 @@ class Tabs(MaterialNamedListLike):
     >>> Tabs(("Tab 1", "Tab 1 objects"), ("Tab 2", "Card 2 objects"))
 
     """
-    active = param.Integer(
-        default=0,
-        bounds=(0, None),
-        doc="""
-        Index of the currently displayed objects.""",
-    )
+    active = param.Integer(default=0, bounds=(0, None), doc="""
+        Index of the currently displayed objects.""")
+
+    closable = param.Boolean(default=False, doc="""
+        Whether to display an icon to allow closing and thereby
+        removing a tab.""")
 
     centered = param.Boolean(default=False, doc="""
         Whether the tabs should be centered.""")
-
-    closable = param.Boolean(default=False, doc="")
 
     color = param.Selector(default="primary", objects=["primary", "secondary"])
 
@@ -329,6 +327,40 @@ class Tabs(MaterialNamedListLike):
                 model = sv._get_model(doc, root, parent, comm)
             models.append(model)
         return models, old_models
+
+    def _process_close(self, ref, attr, old, new):
+        """
+        Handle closed tabs.
+        """
+        model, _ = self._models.get(ref)
+        if model:
+            try:
+                inds = [old.index(tab) for tab in new]
+            except Exception:
+                return old, None
+            old = self.objects
+            new = [old[i] for i in inds]
+        return old, new
+
+    def _comm_change(self, doc, ref, comm, subpath, attr, old, new):
+        if attr in self._changing.get(ref, []):
+            self._changing[ref].remove(attr)
+            return
+        if attr == 'objects':
+            old, new = self._process_close(ref, attr, old, new)
+            if new is None:
+                return
+        super()._comm_change(doc, ref, comm, subpath, attr, old, new)
+
+    def _server_change(self, doc, ref, subpath, attr, old, new):
+        if attr in self._changing.get(ref, []):
+            self._changing[ref].remove(attr)
+            return
+        if attr == 'objects':
+            old, new = self._process_close(ref, attr, old, new)
+            if new is None:
+                return
+        super()._server_change(doc, ref, subpath, attr, old, new)
 
 
 class Divider(MaterialListLike):
