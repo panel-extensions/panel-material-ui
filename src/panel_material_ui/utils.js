@@ -146,11 +146,38 @@ export function render_theme_config(props, theme_config, dark_theme) {
 
 export const install_theme_hooks = (props) => {
   const [dark_theme, setDarkTheme] = props.model.useState("dark_theme")
-  const [theme_config] = props.model.useState("theme_config")
+  const [own_theme_config] = props.model.useState("theme_config")
 
+  let current = props.view
+  let found = false
+  while (current != null) {
+    if (current.model?.data?.theme_config != null) {
+      found = true
+      break
+    } else {
+      current = current.parent
+    }
+  }
+  const view = found ? current : props.view
+  const theme_config = view.model.data.theme_config
   const config = render_theme_config(props, theme_config, dark_theme)
-  const theme = createTheme(config)
+  const [theme, setTheme] = React.useState(createTheme(config))
+  const cb = (theme_config) => {
+    theme_config = theme_config != null ? theme_config :  view.model.data.theme_config
+    const config = render_theme_config(props, theme_config, props.view.model.data.dark_theme)
+    const theme = createTheme(config)
+    setTheme(theme)
+  }
+  React.useEffect(() => {
+    view.model_proxy.on("theme_config", cb)
+    return () => view.model_proxy.off("theme_config", cb)
+  }, [])
 
+  const deps = [dark_theme]
+  if (view !== props.view) {
+    deps.push(own_theme_config)
+  }
+  React.useEffect(() => cb(props.view.model.data.theme_config), deps)
   React.useEffect(() => {
     if (dark_mode.get_value() === dark_theme) {
       return
