@@ -127,9 +127,8 @@ nbsite_gallery_conf = {
             'title': 'Component Gallery',
             'extensions': ['*.ipynb', '*.py', '*.md'],
             'sections': [
-                # 'panes',
                 'widgets',
-                # 'layouts',
+                'layouts',
                 # 3 most important by expected usage. Rest alphabetically
                 # 'chat',
                 # 'global',
@@ -137,14 +136,7 @@ nbsite_gallery_conf = {
                 # 'templates',
                 # 'custom_components',
             ],
-            # 'titles': {
-            #     'Vega': 'Altair & Vega',
-            #     'DeckGL': 'PyDeck & Deck.gl',
-            #     'ECharts': 'PyEcharts & ECharts',
-            #     'IPyWidget': 'ipywidgets',
-            #     'PanelCallbackHandler': 'LangChain CallbackHandler',
-            # },
-            # 'as_pyodide': True,
+            'as_pyodide': True,
             'normalize_titles': False,
         }
     },
