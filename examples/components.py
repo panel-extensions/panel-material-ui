@@ -50,7 +50,7 @@ def render_variant(component, variant, **kwargs):
 
     title = f'# {component.name}'
     if not variant:
-        return pn.Column(title, component(**dict(kwargs, **design_kwargs)), name=component.name)
+        return pn.Column(title, component(**kwargs), name=component.name)
     elif inspect.isfunction(variant):
         return variant(component, **kwargs)
     values = []
@@ -66,7 +66,7 @@ def render_variant(component, variant, **kwargs):
     cols = len(values[-1])
     clabels = ([''] if ndim > 1 else []) + [f'### {v}' for v in values[-1]]
     grid_items = [
-        component(**dict(zip(variant, vs), **dict(kwargs, **design_kwargs)))
+        component(**dict(zip(variant, vs), **kwargs))
         for vs in combinations
     ]
     if ndim > 1:
@@ -96,12 +96,12 @@ def render_spec(spec, depth=0, label='main'):
     if isinstance(spec, dict):
         tabs = Tabs(*(
             (title, render_spec(subspec, depth+1, label=title)) for title, subspec in spec.items()
-        ), sizing_mode='stretch_width', **design_kwargs)
+        ), sizing_mode='stretch_width')
     else:
         tabs = Tabs(*(
             pn.param.ParamFunction(pn.bind(show_variants, component, variants=varss, **kwargs), lazy=True, name=component.name)
             for component, varss,  kwargs in spec
-        ), dynamic=True, **design_kwargs)
+        ), dynamic=True)
     pn.state.location.sync(tabs, dict(active=f'active{label}'))
     return tabs
 
