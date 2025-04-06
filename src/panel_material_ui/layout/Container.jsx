@@ -4,10 +4,11 @@ export function render({model}) {
   const [disableGutters] = model.useState("disable_gutters")
   const [fixed] = model.useState("fixed")
   const [widthOption] = model.useState("width_option")
-  const [objects] = model.get_child("objects")
+  const [sx] = model.useState("sx")
+  const objects = model.get_child("objects")
 
   return (
-    <Container disableGutters={disableGutters} fixed={fixed} maxWidth={widthOption}>
+    <Container disableGutters={disableGutters} fixed={fixed} maxWidth={widthOption} sx={sx}>
       {objects}
     </Container>
   )
