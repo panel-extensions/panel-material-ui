@@ -47,7 +47,13 @@ class MaterialListLike(MaterialLayout, ListLike):
 
 class MaterialNamedListLike(MaterialLayout, NamedListLike):
 
+    _names = param.List(default=[])
+
     __abstract = True
+
+    @param.depends("objects", watch=True)
+    def _trigger_names(self):
+        self.param.trigger("_names")
 
 
 class Paper(MaterialListLike):
@@ -60,7 +66,13 @@ class Paper(MaterialListLike):
     >>> Paper(name="Paper", objects=[1, 2, 3], elevation=10, width=200, height=200)
     """
 
+    direction = param.Selector(objects=["row", "column", "column-reverse", "row-reverse"], default="column")
+
     elevation = param.Integer(default=1, bounds=(0, None))
+
+    square = param.Boolean(default=False, doc="Whether to disable rounded corners.")
+
+    variant = param.Selector(objects=["elevation", "outlined"], default="elevation")
 
     _esm_base = "Paper.jsx"
 
@@ -85,6 +97,8 @@ class Container(MaterialListLike):
         This is useful if you'd prefer to design for a fixed set of sizes
         instead of trying to accommodate a fully fluid viewport.""")
 
+    sizing_mode = param.Selector(default='stretch_width')
+
     width_option = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="lg")
 
     _esm_base = "Container.jsx"
@@ -108,18 +122,18 @@ class Grid(MaterialListLike):
     columns = param.ClassSelector(default=12, class_=(int, dict), doc="""
         The number of columns to display in the grid.""")
 
-    column_spacing = param.Integer(default=None, doc="""
+    column_spacing = param.Number(default=None, doc="""
         The spacing between the columns in the grid. Overrides the `spacing` parameter.""")
 
     direction = param.Selector(objects=["row", "column", "column-reverse", "row-reverse"], default="row")
 
-    row_spacing = param.Integer(default=None, doc="""
+    row_spacing = param.Number(default=None, doc="""
         The spacing between the rows in the grid. Overrides the `spacing` parameter.""")
 
-    size = param.ClassSelector(default=None, class_=(int, dict), doc="""
+    size = param.ClassSelector(default=None, class_=(int, str, dict), doc="""
         The size of the grid. Overrides the `columns` parameter.""")
 
-    spacing = param.Integer(default=0, doc="""
+    spacing = param.Number(default=0, doc="""
         The spacing between the columns and rows in the grid.""")
 
     _esm_base = "Grid.jsx"
@@ -139,26 +153,24 @@ class Card(MaterialNamedListLike):
     >>> Card(some_widget, some_pane, some_python_object, title='Card')
     """
 
-    collapsed = param.Boolean(
-        default=False,
-        doc="""
-        Whether the contents of the Card are collapsed.""",
-    )
+    collapsed = param.Boolean(default=False, doc="""
+        Whether the contents of the Card are collapsed.""")
 
-    collapsible = param.Boolean(
-        default=True,
-        doc="""
-        Whether the Card should be expandable and collapsible.""",
-    )
+    collapsible = param.Boolean(default=True, doc="""
+        Whether the Card should be expandable and collapsible.""")
 
     elevation = param.Integer(default=1, bounds=(0, None), doc="""
         The elevation of the Card.""")
 
-    header = Child(
-        doc="""
+    header = Child(doc="""
         A Panel component to display in the header bar of the Card.
-        Will override the given title if defined."""
-    )
+        Will override the given title if defined.""")
+
+    header_background = param.Color(doc="""
+        The background color of the Card header.""")
+
+    header_color = param.Color(doc="""
+        The text color of the Card header.""")
 
     header_css_classes = param.List()
 
@@ -211,19 +223,31 @@ class Accordion(MaterialNamedListLike):
     >>> Accordion(("Card 1", "Card 1 objects"), ("Card 2", "Card 2 objects"))
     """
 
-    active = param.List(
-        default=[],
-        doc="""
-        List of indexes of active cards.""",
-    )
+    active_header_color = param.Color(doc="""
+        The text color of the active Card header.""")
 
-    toggle = param.Boolean(
-        default=False,
-        doc="""
-        Whether to toggle between active cards or allow multiple cards""",
-    )
+    active_header_background = param.Color(doc="""
+        The background color of the active Card header.""")
 
-    _names = param.List(default=[])
+    active = param.List(default=[], doc="""
+        List of indexes of active cards.""")
+
+    disabled = param.List(default=[], doc="""
+        List of indexes of disabled cards.""")
+
+    disable_gutters = param.Boolean(default=False, doc="""
+        Whether to disable margins between expanded sections.""")
+
+    header_background = param.Color(doc="""
+        The background color of the Card header.""")
+
+    header_color = param.Color(doc="""
+        The text color of the Card header.""")
+
+    square = param.Boolean(default=False, doc="Whether to disable rounded corners.")
+
+    toggle = param.Boolean(default=False, doc="""
+        Whether to toggle between active cards or allow multiple cards""")
 
     _esm_base = "Accordion.jsx"
 
@@ -254,17 +278,15 @@ class Tabs(MaterialNamedListLike):
     >>> Tabs(("Tab 1", "Tab 1 objects"), ("Tab 2", "Card 2 objects"))
 
     """
-    active = param.Integer(
-        default=0,
-        bounds=(0, None),
-        doc="""
-        Index of the currently displayed objects.""",
-    )
+    active = param.Integer(default=0, bounds=(0, None), doc="""
+        Index of the currently displayed objects.""")
+
+    closable = param.Boolean(default=False, doc="""
+        Whether to display an icon to allow closing and thereby
+        removing a tab.""")
 
     centered = param.Boolean(default=False, doc="""
         Whether the tabs should be centered.""")
-
-    closable = param.Boolean(default=False, doc="")
 
     color = param.Selector(default="primary", objects=["primary", "secondary"])
 
@@ -278,8 +300,6 @@ class Tabs(MaterialNamedListLike):
         doc="""
         The location of the tabs relative to the tab contents.""",
     )
-
-    _names = param.List(default=[])
 
     _direction = "vertical"
 
@@ -307,6 +327,40 @@ class Tabs(MaterialNamedListLike):
                 model = sv._get_model(doc, root, parent, comm)
             models.append(model)
         return models, old_models
+
+    def _process_close(self, ref, attr, old, new):
+        """
+        Handle closed tabs.
+        """
+        model, _ = self._models.get(ref)
+        if model:
+            try:
+                inds = [old.index(tab) for tab in new]
+            except Exception:
+                return old, None
+            old = self.objects
+            new = [old[i] for i in inds]
+        return old, new
+
+    def _comm_change(self, doc, ref, comm, subpath, attr, old, new):
+        if attr in self._changing.get(ref, []):
+            self._changing[ref].remove(attr)
+            return
+        if attr == 'objects':
+            old, new = self._process_close(ref, attr, old, new)
+            if new is None:
+                return
+        super()._comm_change(doc, ref, comm, subpath, attr, old, new)
+
+    def _server_change(self, doc, ref, subpath, attr, old, new):
+        if attr in self._changing.get(ref, []):
+            self._changing[ref].remove(attr)
+            return
+        if attr == 'objects':
+            old, new = self._process_close(ref, attr, old, new)
+            if new is None:
+                return
+        super()._server_change(doc, ref, subpath, attr, old, new)
 
 
 class Divider(MaterialListLike):

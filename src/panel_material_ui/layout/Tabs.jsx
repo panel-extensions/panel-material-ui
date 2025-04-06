@@ -1,15 +1,16 @@
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/material/Box";
+import Tabs from "@mui/material/Tabs"
+import Tab from "@mui/material/Tab"
+import Box from "@mui/material/Box"
 
 export function render({model, view}) {
-  const [active, setActive] = model.useState("active");
-  const [centered] = model.useState("centered");
-  const [color] = model.useState("color");
-  const [location] = model.useState("tabs_location");
-  const [names] = model.useState("_names");
-  const [sx] = model.useState("sx");
-  const objects = model.get_child("objects");
+  const [active, setActive] = model.useState("active")
+  const [centered] = model.useState("centered")
+  const [closable] = model.useState("closable")
+  const [color] = model.useState("color")
+  const [location] = model.useState("tabs_location")
+  const [names] = model.useState("_names")
+  const [sx] = model.useState("sx")
+  const objects = model.get_child("objects")
 
   const handleChange = (event, newValue) => {
     setActive(newValue);
@@ -17,7 +18,15 @@ export function render({model, view}) {
 
   const orientation = (location === "above" || location === "below") ? "horizontal" : "vertical"
 
-  React.useEffect(() => view.update_layout(), [active])
+  const handleClose = (event, index) => {
+    event.stopPropagation()
+    if (index === active && index > objects.length - 2) {
+      setActive(Math.max(0, objects.length - 2))
+    }
+    const newObjects = [...view.model.data.objects]
+    newObjects.splice(index, 1)
+    view.model.data.setv({objects: newObjects})
+  }
 
   const tabs = (
     <Tabs
@@ -32,7 +41,27 @@ export function render({model, view}) {
       sx={sx}
     >
       {names.map((label, index) => (
-        <Tab key={index} label={label} />
+        <Tab
+          key={index}
+          label={
+            closable ? (
+              <Box sx={{display: "flex", alignItems: "center"}}>
+                {label}
+                <Box
+                  component="span"
+                  sx={{
+                    ml: 1,
+                    cursor: "pointer",
+                    "&:hover": {opacity: 0.7}
+                  }}
+                  onClick={(e) => handleClose(e, index)}
+                >
+                  ✕
+                </Box>
+              </Box>
+            ) : label
+          }
+        />
       ))}
     </Tabs>
   )

@@ -2,13 +2,21 @@ import Accordion from "@mui/material/Accordion"
 import AccordionSummary from "@mui/material/AccordionSummary"
 import AccordionDetails from "@mui/material/AccordionDetails"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
+import Typography from "@mui/material/Typography"
 
 export function render({model}) {
-  const objects = model.get_child("objects")
   const [active, setActive] = model.useState("active")
+  const [active_header_background] = model.useState("active_header_background")
+  const [active_header_color] = model.useState("active_header_color")
+  const [disabled] = model.useState("disabled")
+  const [disable_gutters] = model.useState("disable_gutters")
+  const [header_background] = model.useState("header_background")
+  const [header_color] = model.useState("header_color")
   const [names] = model.useState("_names")
   const [toggle] = model.useState("toggle")
   const [sx] = model.useState("sx")
+  const [square] = model.useState("square")
+  const objects = model.get_child("objects")
 
   const handle_expand = (index) => () => {
     let newActive
@@ -29,11 +37,19 @@ export function render({model}) {
         return (
           <Accordion
             defaultExpanded={active.includes(index)}
+            disabled={disabled.includes(index)}
+            disableGutters={disable_gutters}
             expanded={active.includes(index)}
             key={`accordion-${index}`}
-            sx={sx}
+            square={square}
+            sx={{
+              backgroundColor: active.includes(index) ? active_header_background || header_background : header_background,
+              color: active.includes(index) ? active_header_color || header_color : header_color,
+            }}
           >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} onClick={handle_expand(index)}>{names[index]}</AccordionSummary>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} onClick={handle_expand(index)}>
+              <Typography variant="h6">{names[index]}</Typography>
+            </AccordionSummary>
             <AccordionDetails>{obj}</AccordionDetails>
           </Accordion>
         )
