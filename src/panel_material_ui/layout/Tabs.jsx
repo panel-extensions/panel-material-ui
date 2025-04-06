@@ -45,14 +45,14 @@ export function render({model, view}) {
           key={index}
           label={
             closable ? (
-              <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Box sx={{display: "flex", alignItems: "center"}}>
                 {label}
                 <Box
                   component="span"
                   sx={{
                     ml: 1,
                     cursor: "pointer",
-                    "&:hover": { opacity: 0.7 }
+                    "&:hover": {opacity: 0.7}
                   }}
                   onClick={(e) => handleClose(e, index)}
                 >
