@@ -36,8 +36,8 @@ export function render({model, el}) {
       onClick={handleClick}
     >
       {current_icon.trim().startsWith("<") ?
-         <img src={`data:image/svg+xml;base64,${btoa(current_icon)}`} style={{width: size, height: size}} /> :
-         <Icon style={{fontSize: size}}>{current_icon}</Icon>
+        <img src={`data:image/svg+xml;base64,${btoa(current_icon)}`} style={{width: size, height: size}} /> :
+        <Icon style={{fontSize: size}}>{current_icon}</Icon>
       }
     </IconButton>
   )
