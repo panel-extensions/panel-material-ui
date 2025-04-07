@@ -9,5 +9,5 @@ export function render({model}) {
   const [sx] = model.useState("sx")
   const [text] = model.useState("object")
 
-  return <Typography sx={sx} dangerouslySetInnerHTML={{ __html: html_decode(text) }}></Typography>
+  return <Typography sx={sx} dangerouslySetInnerHTML={{__html: html_decode(text)}}/>
 }
