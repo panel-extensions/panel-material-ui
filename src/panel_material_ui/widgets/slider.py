@@ -51,8 +51,6 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
         if self.orientation == 'vertical' and ('width' in params or 'height' in params):
             params['width'] = self.height
             params['height'] = self.width
-        if 'format' in params and isinstance(params['format'], str):
-            params['format'] = NumeralTickFormatter(format=params['format'])
         return super()._process_param_change(params)
 
 

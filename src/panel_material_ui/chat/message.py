@@ -110,15 +110,6 @@ class ChatMessage(MaterialComponent, ChatMessage):
         else:
             self._internal_state.avatar = {"type": "text", "text": self.avatar}
 
-    @property
-    def _synced_params(self) -> list[str]:
-        """
-        Parameters which are synced with properties using transforms
-        applied in the _process_param_change method.
-        """
-        ignored = ['default_layout', 'loading', 'background']
-        return [p for p in self.param if p not in self._manual_params+ignored]
-
     def _handle_msg(self, msg):
         if msg == 'edit':
             self._toggle_edit()

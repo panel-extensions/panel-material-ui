@@ -192,6 +192,10 @@ class FileInput(MaterialWidget, _PnFileInput):
 
     _esm_base = "FileInput.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
+    _source_transforms = {
+        'filename': None,
+        'value': "'data:' + source.mime_type + ';base64,' + value"
+    }
 
     def __init__(self, **params):
         super().__init__(**params)
@@ -898,6 +902,8 @@ class Checkbox(MaterialWidget):
     size = param.Selector(objects=["small", "medium", "large"], default="medium")
 
     value = param.Boolean(default=False)
+
+    width = param.Integer(default=None)
 
     _esm_base = "Checkbox.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]

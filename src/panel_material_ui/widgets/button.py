@@ -11,7 +11,7 @@ import param
 from panel.widgets.button import _ButtonBase as _PnButtonBase
 from panel.widgets.button import _ClickButton
 
-from ..base import COLOR_ALIASES, COLORS, ThemedTransform
+from ..base import COLOR_ALIASES, COLORS, LoadingTransform, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
 
 
@@ -30,16 +30,14 @@ class _ButtonBase(MaterialWidget, _PnButtonBase):
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 1000ms.""")
 
-    icon = param.String(
-        default=None,
-        doc="""
+    icon = param.String(default=None, doc="""
         An icon to render to the left of the button label. Either an SVG or an
         icon name which is loaded from Material Icons.""",
     )
 
     width = param.Integer(default=None)
 
-    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
     _rename: ClassVar[Mapping[str, str | None]] = {
         "label": "label",
         "button_style": "button_style",

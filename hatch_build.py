@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+import typing as t
 
 from pathlib import Path
 
@@ -14,8 +15,7 @@ GREEN, RED, RESET = "\033[0;32m", "\033[0;31m", "\033[0m"
 def compile_bundle():
     from panel.io.compile import compile_components, find_module_bundles
 
-    print(f"{GREEN}[PANEL-MATERIAL_UI]{RESET} Compile panel-material-ui bundle", flush=True)
-    panel_dir = BASE_DIR / "panel"
+    print(f"{GREEN}[PANEL-MATERIAL-UI]{RESET} Compile panel-material-ui bundle", flush=True)
 
     sys.path.insert(0, str(BASE_DIR / "src"))
     module_bundles = find_module_bundles('panel_material_ui')
@@ -40,7 +40,7 @@ def compile_bundle():
     if not errors:
         print(f"{GREEN}[PANEL-MATERIAL-UI]{RESET} Finished building bundle", flush=True)
     else:
-        print(f"{RED}[PANEL]{RESET} Failed building bundle", flush=True)
+        print(f"{RED}[PANEL-MATERIAL-UI]{RESET} Failed building bundle", flush=True)
         sys.exit(1)
 
 

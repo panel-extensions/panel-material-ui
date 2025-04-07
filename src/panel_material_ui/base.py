@@ -18,12 +18,14 @@ from __future__ import annotations
 import inspect
 import pathlib
 import textwrap
-from typing import TYPE_CHECKING, Literal
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, Literal
 
 import param
 from bokeh.settings import settings as _settings
 from panel.config import config
 from panel.custom import ReactComponent
+from panel.models import ReactComponent as BkReactComponent
 from panel.param import Param
 from panel.util import base_version, classproperty
 from panel.viewable import Viewable
@@ -74,46 +76,14 @@ class ThemedTransform(ESMTransform):
     _transform = """\
 import * as React from "react"
 import 'material-icons/iconfont/material-icons.css';
-import {{ ThemeProvider, createTheme }} from '@mui/material/styles';
-import {{ deepmerge }} from '@mui/utils';
+import {{ ThemeProvider }} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import {{SessionStore, dark_mode, render_theme_config, render_theme_css}} from "./utils"
+import {{install_theme_hooks}} from "./utils"
 
 {esm}
 
 function {output}(props) {{
-  const [dark_theme, setDarkTheme] = props.model.useState('dark_theme')
-  const [theme_config] = props.model.useState('theme_config')
-
-  const config = render_theme_config(props, theme_config, dark_theme)
-  const theme = createTheme(config)
-
-  React.useEffect(() => {{
-    if (dark_mode.get_value() === dark_theme) {{
-      return
-    }}
-    dark_mode.set_value(dark_theme)
-  }}, [dark_theme])
-
-  React.useEffect(() => {{
-    let style_el = document.querySelector("#global-styles-panel-mui")
-    if (style_el) {{
-      return dark_mode.subscribe((val) => setDarkTheme(val))
-    }} else {{
-      style_el = document.createElement("style")
-      style_el.id = "styles-panel-mui"
-      props.view.shadow_el.insertBefore(style_el, props.view.container)
-      style_el.textContent = render_theme_css(theme)
-    }}
-  }}, [])
-
-  React.useEffect(() => {{
-    const style_el = props.view.shadow_el.querySelector("#styles-panel-mui")
-    if (style_el) {{
-      style_el.textContent = render_theme_css(theme)
-    }}
-  }}, [theme])
-
+  const theme = install_theme_hooks(props)
   return (
     <ThemeProvider theme={{theme}}>
       <CssBaseline />
@@ -122,6 +92,46 @@ function {output}(props) {{
   )
 }}
 """
+
+
+class LoadingTransform(ESMTransform):
+
+    _transform = """\
+import MuiCircularProgress from '@mui/material/CircularProgress'
+import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
+
+{esm}
+
+function {output}(props) {{
+  const [loading] = props.model.useState('loading')
+  const theme = useMuiTheme()
+
+  const overlayColor = theme.palette.mode === 'dark'
+    ? 'rgba(0, 0, 0, 0.7)'
+    : 'rgba(255, 255, 255, 0.5)'
+
+  return (
+    <div style={{{{ display: 'contents', position: 'relative' }}}}>
+      <{input} {{...props}}/>
+      {{loading && (
+        <div style={{{{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: overlayColor,
+          zIndex: theme.zIndex.modal - 1
+        }}}}>
+          <MuiCircularProgress color="primary" />
+        </div>
+      )}}
+    </div>
+  )
+}}"""
 
 
 class MaterialComponent(ReactComponent):
@@ -133,6 +143,9 @@ class MaterialComponent(ReactComponent):
     dark_theme = param.Boolean(doc="""
         Whether to use dark theme. If not specified, will default to Panel's
         global theme setting.""")
+
+    loading = param.Boolean(default=False, doc="""
+        Displays loading spinner on top of the component.""")
 
     theme_config = param.Dict(default=None, nested_refs=True, doc="""
         Options to configure the ThemeProvider.
@@ -147,7 +160,7 @@ class MaterialComponent(ReactComponent):
     _bundle = BASE_PATH / "dist" / "panel-material-ui.bundle.js"
     _esm_base = None
     _esm_shared = {'utils': BASE_PATH / "utils.js"}
-    _esm_transforms = [ThemedTransform]
+    _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
         "imports": {
             "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.9/",
@@ -159,6 +172,7 @@ class MaterialComponent(ReactComponent):
             "notistack": "https://esm.sh/notistack@3.0.2"
         }
     }
+    _rename = {'loading': 'loading'}
 
     __abstract = True
 
@@ -214,7 +228,7 @@ class MaterialComponent(ReactComponent):
             return None
         elif compiled == 'compiling':
             return cls._render_esm_base()
-        elif not config.autoreload and (not config.inline or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
+        elif not config.autoreload and (not (config.inline or server) or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
             return CDN_DIST
         return super()._render_esm(compiled=True, server=server)
 
@@ -241,6 +255,25 @@ class MaterialComponent(ReactComponent):
             color = params['color']
             params['color'] = COLOR_ALIASES.get(color, color)
         return super()._process_param_change(params)
+
+    def _set_on_model(self, msg: Mapping[str, Any], root: Model, model: Model) -> None:
+        if 'loading' in msg and isinstance(model, BkReactComponent):
+            model.data.loading = msg.pop('loading')
+        super()._set_on_model(msg, root, model)
+
+    def _get_properties(self, doc: Document | None) -> dict[str, Any]:
+        props = super()._get_properties(doc)
+        props.pop('loading', None)
+        props['data'].loading = self.loading
+        return props
+
+    @property
+    def _synced_params(self) -> list[str]:
+        ignored = ['default_layout']
+        return [p for p in self.param if p not in ignored]
+
+    def _update_loading(self, *_) -> None:
+        pass
 
     def controls(self, parameters: list[str] = None, jslink: bool = True, **kwargs) -> Viewable:
         """

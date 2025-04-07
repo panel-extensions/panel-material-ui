@@ -19,7 +19,11 @@ export function render({model}) {
       sx={sx}
       variant={button_style}
     >
-      {icon && <Icon style={{fontSize: icon_size}}>{icon}</Icon>}
+      {icon && (
+        icon.trim().startsWith("<") ?
+          <img src={`data:image/svg+xml;base64,${btoa(icon)}`} style={{width: icon_size, height: icon_size, paddingRight: "0.5em"}} /> :
+          <Icon style={{fontSize: icon_size}}>{icon}</Icon>
+      )}
       {label}
     </ToggleButton>
   )

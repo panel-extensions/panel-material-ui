@@ -18,8 +18,16 @@ export function render({model, el}) {
       selected={value}
       size={size}
       onClick={(e, newValue) => setValue(!value)}
-      icon={<Icon>{icon}</Icon>}
-      checkedIcon={<Icon>{active_icon}</Icon>}
+      icon={
+        icon.trim().startsWith("<") ?
+          <img src={`data:image/svg+xml;base64,${btoa(icon)}`}/> :
+          <Icon>{icon}</Icon>
+      }
+      checkedIcon={
+        active_icon.trim().startsWith("<") ?
+          <img src={`data:image/svg+xml;base64,${btoa(active_icon)}`}/> :
+          <Icon>{active_icon}</Icon>
+      }
       sx={sx}
     />
   )

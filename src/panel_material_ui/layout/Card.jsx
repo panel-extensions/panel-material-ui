@@ -40,14 +40,16 @@ const ExpandMore = styled((props) => {
 }))
 
 export function render({model, view}) {
-  const [title] = model.useState("title")
-  const [elevation] = model.useState("elevation")
-  const [outlined] = model.useState("outlined")
-  const [raised] = model.useState("raised")
   const [collapsible] = model.useState("collapsible")
   const [collapsed, setCollapsed] = model.useState("collapsed")
-  const [sx] = model.useState("sx")
+  const [elevation] = model.useState("elevation")
+  const [header_color] = model.useState("header_color")
+  const [header_background] = model.useState("header_background")
   const [hide_header] = model.useState("hide_header")
+  const [outlined] = model.useState("outlined")
+  const [raised] = model.useState("raised")
+  const [sx] = model.useState("sx")
+  const [title] = model.useState("title")
   const header = model.get_child("header")
   const objects = model.get_child("objects")
 
@@ -80,6 +82,10 @@ export function render({model, view}) {
             </ExpandMore>
           }
           title={model.header ? header : <Typography variant="h6">{title}</Typography>}
+          sx={{
+            backgroundColor: header_background,
+            color: header_color,
+          }}
         />
       )}
       <Collapse
