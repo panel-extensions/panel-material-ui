@@ -136,7 +136,8 @@ export function render({model, view}) {
   const getInput = () => {
     const inputProps = {
       id: "select-input",
-      label: label || ""
+      label: label || "",
+      color
     }
     switch (variant) {
       case "outlined":
@@ -302,6 +303,7 @@ export function render({model, view}) {
                 size="small"
                 checked={checked}
                 indeterminate={indeterminate}
+                color={color}
                 onMouseDown={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -410,7 +412,7 @@ export function render({model, view}) {
                 }
               }}
             >
-              {multi && searchable && <Checkbox checked={value.includes(opt)} onClick={handleClick} />}
+              {multi && searchable && <Checkbox color={color} checked={value.includes(opt)} onClick={handleClick} />}
               <ListItemText primary={label} sx={{margin: 2}} />
             </MenuItem>
           )
@@ -443,7 +445,7 @@ export function render({model, view}) {
         onClose={() => setOpen(false)}
         renderValue={renderValue}
         MenuProps={MenuProps}
-        sx={sx}
+        sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
       >
         {renderMenuItems()}
       </Select>
