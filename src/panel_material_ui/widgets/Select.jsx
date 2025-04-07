@@ -24,6 +24,7 @@ export function render({model, view}) {
   const [label] = model.useState("label")
   const [options] = model.useState("options")
   const [sx] = model.useState("sx")
+  const [placeholder] = model.useState("placeholder")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
@@ -238,7 +239,8 @@ export function render({model, view}) {
                   const filteredValues = [...bookmarkedOptions, ...filteredOptions]
                     .filter(item => item.label.toLowerCase().includes(filterStr.toLowerCase()))
                     .map(item => item.value)
-                  setValue([...new Set([...value, ...filteredValues])])
+                  const newValues = [...new Set([...value, ...filteredValues])]
+                  setValue(max_items ? newValues.slice(0, max_items) : newValues)
                 } else {
                   setValue(filteredOptions.find(item =>
                     item.label.toLowerCase().includes(filterStr.toLowerCase())
@@ -383,7 +385,11 @@ export function render({model, view}) {
             }
             const isChecked = !value.includes(opt)
             if (isChecked) {
-              setValue([...value, opt])
+              if (max_items && value.length >= max_items) {
+                setValue([...value.slice(1), opt])
+              } else {
+                setValue([...value, opt])
+              }
             } else {
               setValue(value.filter(v => v !== opt))
             }
@@ -422,6 +428,7 @@ export function render({model, view}) {
         disabled={disabled}
         value={value}
         input={getInput()}
+        placeholder={placeholder}
         labelId={`select-label-${model.id}`}
         variant={variant}
         onChange={(event) => {
@@ -431,6 +438,7 @@ export function render({model, view}) {
           }
           setValue(newValue)
         }}
+        open={open}
         onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
         renderValue={renderValue}

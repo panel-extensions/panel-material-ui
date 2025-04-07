@@ -150,21 +150,20 @@ class _SelectDropdownBase(MaterialWidget):
 
     filter_str = param.String(default="", doc="Filter string for the dropdown")
 
-    filter_on_search = param.Boolean(default=False, doc="""
+    filter_on_search = param.Boolean(default=True, doc="""
         Whether options are filtered or merely highlighted on search.""")
 
     dropdown_height = param.Integer(default=500, doc="Height of the dropdown menu")
 
     dropdown_open = param.Boolean(default=False, doc="Whether the dropdown is open")
 
-    placeholder = param.String(default="")
+    placeholder = param.String(default="", doc="Placeholder text for the dropdown")
 
     searchable = param.Boolean(default=True, doc="Whether the dropdown is searchable")
 
     value_label = param.String(doc="Custom label to describe the current option(s).")
 
     __abstract = True
-
 
 
 class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
