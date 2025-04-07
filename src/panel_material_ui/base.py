@@ -242,7 +242,7 @@ class MaterialComponent(ReactComponent):
         # if requested or if in notebook
         if (
             (comm is None and not config.autoreload and IS_RELEASE and _settings.resources(default='server') == 'cdn') or
-            ((comm or state._is_pyodide) and not config.inline)
+            ((comm or state._is_pyodide) and not config.inline) or model.esm is CDN_DIST
         ):
             model.update(
                 bundle='url',
