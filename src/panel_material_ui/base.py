@@ -25,6 +25,7 @@ import param
 from bokeh.settings import settings as _settings
 from panel.config import config
 from panel.custom import ReactComponent
+from panel.io.state import state
 from panel.models import ReactComponent as BkReactComponent
 from panel.param import Param
 from panel.util import base_version, classproperty
@@ -241,7 +242,7 @@ class MaterialComponent(ReactComponent):
         # if requested or if in notebook
         if (
             (comm is None and not config.autoreload and IS_RELEASE and _settings.resources(default='server') == 'cdn') or
-            (comm and not config.inline)
+            ((comm or state._is_pyodide) and not config.inline) or model.esm is CDN_DIST
         ):
             model.update(
                 bundle='url',
