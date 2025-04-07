@@ -57,16 +57,16 @@ Typography(
 You can make your font sizes responsive by specifying breakpoints in your theme if you’d like more control, or simply adjust them via `sx` on individual components. For a single `Typography` component:
 
 ```{pyodide}
-from panel_material_ui from Typography
+from panel_material_ui import Typography
 
 Typography(
     "Responsive Typography",
     sx={
-        "fontSize": "1.2rem",
-        "@media (min-width:600px)": {
+	"fontSize": "1.2rem",
+        "@media (min-width: 600px)": {
             "fontSize": "1.5rem"
         },
-        "@media (min-width:900px)": {
+        "@media (min-width: 900px)": {
             "fontSize": "2.4rem"
         }
     }
@@ -101,7 +101,7 @@ By default, panel_material_ui defines up to 13 text variants:
 Each variant can be independently styled via `theme_config["typography"][<variant>]`:
 
 ```{pyodide}
-from panel_material_ui from Typography
+from panel_material_ui import Typography
 
 my_theme = {
     "typography": {
@@ -123,7 +123,7 @@ Then any `panel_material_ui` typography-based component referencing these varian
 If you want to create entirely new variants (e.g., poster) or remove existing ones (e.g., h3), `panel_material_ui` allows you to do so by editing the typography dict:
 
 ```{pyodide}
-from panel_material_ui from Typography
+from panel_material_ui import Typography
 
 my_theme = {
     "typography": {
