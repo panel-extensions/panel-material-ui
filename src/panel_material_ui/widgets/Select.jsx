@@ -1,96 +1,452 @@
-import InputLabel from "@mui/material/InputLabel"
+import Box from "@mui/material/Box"
+import Chip from "@mui/material/Chip"
+import Button from "@mui/material/Button"
+import IconButton from "@mui/material/IconButton"
+import InputAdornment from "@mui/material/InputAdornment"
+import FilterListIcon from "@mui/icons-material/FilterList"
+import ClearIcon from "@mui/icons-material/Clear"
+import Checkbox from "@mui/material/Checkbox"
+import TextField from "@mui/material/TextField"
 import MenuItem from "@mui/material/MenuItem"
+import ListItemText from "@mui/material/ListItemText"
 import FormControl from "@mui/material/FormControl"
+import InputLabel from "@mui/material/InputLabel"
 import Select from "@mui/material/Select"
+import OutlinedInput from "@mui/material/OutlinedInput"
+import FilledInput from "@mui/material/FilledInput"
+import Input from "@mui/material/Input"
+import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
 
-export function render({model, view, el}) {
+export function render({model, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
-  const [disabled_options] = model.useState("disabled_options")
   const [label] = model.useState("label")
   const [options] = model.useState("options")
-  const [size] = model.useState("size")
   const [sx] = model.useState("sx")
+  const [placeholder] = model.useState("placeholder")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
-  let option_list;
-  if (Array.isArray(options)) {
-    option_list = options.map((opt, index) => {
-      const optValue = Array.isArray(opt) ? opt[1] : opt;
-      const optLabel = Array.isArray(opt) ? opt[0] : opt;
-      return (
-        <MenuItem
-          key={index}
-          value={optValue}
-          disabled={disabled_options?.includes(optValue)}
-        >
-          {optLabel}
-        </MenuItem>
-      )
-    });
-  } else if (typeof options === "object" && options !== null) {
-    option_list = Object.entries(options).flatMap(([groupLabel, groupOptions]) => [
-      <ListSubheader key={`${groupLabel}-header`}>{groupLabel}</ListSubheader>,
-      ...groupOptions.map((option, idx) => {
-        const optValue = Array.isArray(option) ? option[1] : option;
-        const optLabel = Array.isArray(option) ? option[0] : option;
-        return (
-          <MenuItem
-            key={`${groupLabel}-${idx}`}
-            value={optValue}
-            disabled={disabled_options?.includes(optValue)}
-          >
-            {optLabel}
-          </MenuItem>
-        );
-      }),
-    ]);
+  // SelectSearch specific props
+  const [bookmarks] = model.useState("bookmarks", [])
+  const [dropdown_height] = model.useState("dropdown_height")
+  const [filterStr, setFilterStr] = model.useState("filter_str")
+  const [filter_on_search] = model.useState("filter_on_search")
+  const [open, setOpen] = model.useState("dropdown_open")
+  const [searchable] = model.useState("searchable")
+  const [value_label] = model.useState("value_label")
+
+  // MultiChoice specific props
+  const multi = model.esm_constants.multi || false
+  let chip = false
+  let delete_button = false
+  let max_items = 1
+  let solid = false
+  if (multi) {
+    const [chip_state] = model.useState("chip")
+    const [delete_button_state] = model.useState("delete_button")
+    const [max_items_state] = model.useState("max_items")
+    const [solid_state] = model.useState("solid")
+    chip = chip_state === undefined ? true : chip_state
+    delete_button = delete_button_state === undefined ? true : delete_button_state
+    max_items = max_items_state === undefined ? null : max_items_state
+    solid = solid_state === undefined ? true : solid_state
   }
 
-  const [anchorPosition, setAnchorPosition] = React.useState(null);
+  // Select specific props
+  const [disabled_options] = model.useState("disabled_options", [])
 
-  const calculate_anchor = (event) => {
-    const elRect = event.currentTarget.getBoundingClientRect()
-    let parentRect
-    if (view.parent) {
-      parentRect = view.parent.el.getBoundingClientRect()
-    } else {
-      parentRect = document.body.getBoundingClientRect()
+  const matches = (label) => {
+    return label.toLowerCase().includes(filterStr.toLowerCase())
+  }
+
+  const processOptions = () => {
+    if (Array.isArray(options)) {
+      return options.map((opt) => {
+        const option = options.find((o) => (Array.isArray(o) ? o[0] === opt : o === opt))
+        const value = Array.isArray(option) ? option[1] : option
+        const label = Array.isArray(option) ? option[0] : option
+        return {value, label}
+      })
     }
-    const res = {
-      top: elRect.bottom - parentRect.top + 5,
-      left: elRect.left - parentRect.left + 5
+    return []
+  }
+
+  const menuRef = React.useRef(null)
+
+  const items = processOptions().filter(({label}) => (!filter_on_search || filterStr === "" || matches(label)))
+  const bookmarkedOptions = items.filter(({value}) => bookmarks.includes(value))
+  const filteredOptions = items.filter(({value}) => !bookmarks.includes(value))
+  let matchedOptions = [...bookmarkedOptions, ...filteredOptions].filter(({label}) => matches(label))
+
+  if (!multi) {
+    matchedOptions = matchedOptions.slice(0, 1)
+  }
+
+  const matched_count = matchedOptions.length
+
+  // Checkbox logic for multi-select
+  const isChecked = () => filteredOptions.length > 0 &&
+    (filterStr ? (
+      matchedOptions.every(item => value.includes(item.value))
+    ) : (
+      filteredOptions.every(item => value.includes(item.value))
+    ))
+
+  const isIndeterminate = () => filteredOptions.length > 0 &&
+    (filterStr ? (
+      matchedOptions.some(item => value.includes(item.value)) &&
+      !matchedOptions.every(item => value.includes(item.value))
+    ) : (
+      filteredOptions.some(item => value.includes(item.value)) &&
+      !filteredOptions.every(item => value.includes(item.value))
+    ))
+
+  const [checked, setChecked] = React.useState(isChecked)
+  const [indeterminate, setIndeterminate] = React.useState(isIndeterminate)
+
+  React.useEffect(() => {
+    setChecked(isChecked)
+    setIndeterminate(isIndeterminate())
+  }, [value, filterStr])
+
+  React.useEffect(() => {
+    if (!multi && filterStr && menuRef.current) {
+      const matchedElement = menuRef.current.querySelector('[data-matched="true"]')
+      if (matchedElement) {
+        matchedElement.scrollIntoView({block: "nearest"})
+      }
     }
-    setAnchorPosition(res)
+  }, [filterStr])
+
+  const MenuProps = {
+    disablePortal: true,
+    getContentAnchorEl: null,
+    anchorOrigin: {
+      vertical: "bottom",
+      horizontal: "left",
+    },
+    sx: {height: dropdown_height},
+    MenuListProps: {
+      ref: menuRef,
+    },
+  }
+
+  const getInput = () => {
+    const inputProps = {
+      id: "select-input",
+      label: label || ""
+    }
+    switch (variant) {
+      case "outlined":
+        return <OutlinedInput {...inputProps} />
+      case "filled":
+        return <FilledInput {...inputProps} />
+      default:
+        return <Input {...inputProps} />
+    }
+  }
+
+  const renderValue = (selected) => {
+    if (value_label) {
+      return value_label
+    }
+    if (multi && chip) {
+      return (
+        <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5}}>
+          {selected.map((selected_value) => (
+            <Chip
+              color={color}
+              variant={solid ? "filled" : "outlined"}
+              key={selected_value}
+              label={selected_value}
+              onMouseDown={(event) => event.stopPropagation()}
+              onDelete={delete_button ? () => {
+                setValue(value.filter(v => v !== selected_value))
+              } : undefined}
+            />
+          ))}
+        </Box>
+      )
+    }
+    return multi ? selected.join(", ") : selected
+  }
+
+  const renderMenuItems = () => {
+    if (typeof options === "object" && !Array.isArray(options)) {
+      return Object.entries(options).flatMap(([groupLabel, groupOptions]) => [
+        <ListSubheader key={`${groupLabel}-header`}>{groupLabel}</ListSubheader>,
+        ...groupOptions.map((option, idx) => {
+          const optValue = Array.isArray(option) ? option[1] : option
+          const optLabel = Array.isArray(option) ? option[0] : option
+          return (
+            <MenuItem
+              key={`${groupLabel}-${idx}`}
+              value={optValue}
+              disabled={disabled_options?.includes(optValue)}
+            >
+              {optLabel}
+            </MenuItem>
+          )
+        }),
+      ])
+    }
+
+    return (
+      <>
+        {searchable && <MenuItem
+          disableGutters
+          disableRipple
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+          sx={{
+            paddingTop: 0,
+            paddingBottom: 0,
+            position: "sticky",
+            pointerEvents: "auto",
+            top: 0,
+            zIndex: 100,
+            backgroundColor: "background.paper",
+            "&:hover": {
+              backgroundColor: "background.paper",
+            },
+            "&.Mui-focusVisible": {
+              backgroundColor: "background.paper",
+            },
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <TextField
+            sx={{
+              paddingTop: 0,
+              paddingBottom: 0,
+              zIndex: 1,
+              "&.Mui-focused": {
+                backgroundColor: "background.paper",
+              }
+            }}
+            fullWidth
+            variant="filled"
+            placeholder="Search..."
+            value={filterStr}
+            onKeyDown={(e) => {
+              e.stopPropagation()
+              if (e.key === "Enter" && filterStr) {
+                if (multi) {
+                  const filteredValues = [...bookmarkedOptions, ...filteredOptions]
+                    .filter(item => item.label.toLowerCase().includes(filterStr.toLowerCase()))
+                    .map(item => item.value)
+                  const newValues = [...new Set([...value, ...filteredValues])]
+                  setValue(max_items ? newValues.slice(0, max_items) : newValues)
+                } else {
+                  setValue(filteredOptions.find(item =>
+                    item.label.toLowerCase().includes(filterStr.toLowerCase())
+                  ).value)
+                }
+              }
+            }}
+            onChange={(e) => {
+              setFilterStr(e.target.value)
+              e.stopPropagation()
+            }}
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+            }}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FilterListIcon />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      setFilterStr("")
+                      setOpen(false)
+                      e.preventDefault()
+                      e.stopPropagation()
+                    }}
+                    position="end"
+                    sx={{zIndex: 100}}
+                  >
+                    <IconButton>
+                      <ClearIcon/>
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+          {multi && searchable && (
+            <Box sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexDirection: "row",
+              width: "100%",
+              borderBottomColor: "divider",
+              borderBottomWidth: 1,
+              borderBottomStyle: "solid"
+            }}
+            >
+              <Checkbox
+                size="small"
+                checked={checked}
+                indeterminate={indeterminate}
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
+                onClick={(e) => {
+                  const filteredValues = filteredOptions.map(item => item.value)
+                  if (filterStr) {
+                    if (!checked || indeterminate) {
+                      setValue([...new Set([...value, ...filteredValues.filter(matches)])])
+                      setChecked(true)
+                      setIndeterminate(false)
+                    } else {
+                      setValue(value.filter(v => !matches(v)))
+                      setChecked(false)
+                      setIndeterminate(false)
+                    }
+                  } else {
+                    if (!checked || indeterminate) {
+                      setValue(filteredValues)
+                      setChecked(true)
+                      setIndeterminate(false)
+                    } else {
+                      setValue([])
+                      setChecked(false)
+                      setIndeterminate(false)
+                    }
+                  }
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
+              />
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  px: 1,
+                  py: 0,
+                  color: "text.secondary"
+                }}
+              >
+                {filterStr ? (
+                  matched_count > 0 ?
+                    `${checked ? "Deselect" : "Select"} ${matched_count} matched items` :
+                    "No items matched"
+                ) : (
+                  `${checked ? "Deselect" : "Select"} ${checked ? value.length : (items.length - value.length)} items`
+                )}
+              </Typography>
+              {filterStr && (
+                <Button
+                  size="small"
+                  variant="text"
+                  onClick={(e) => {
+                    setFilterStr("")
+                    e.stopPropagation()
+                  }}
+                >
+                  Clear
+                </Button>
+              )}
+            </Box>
+          )}
+        </MenuItem>}
+        {[
+          ...(bookmarkedOptions.length > 0 ? [
+            ...bookmarkedOptions.map(item => ({...item, isBookmarked: true})),
+            {isDivider: true}
+          ] : []),
+          ...filteredOptions.map(item => ({...item, isBookmarked: false}))
+        ].map((item, index) => {
+          if (item.isDivider) {
+            return <MenuItem key={`divider-${index}`} disabled divider />
+          }
+
+          const matched = filterStr && matches(item.label)
+          const {value: opt, label, isBookmarked} = item
+          const handleClick = (e) => {
+            if (!multi) {
+              setValue(opt)
+              return
+            }
+            const isChecked = !value.includes(opt)
+            if (isChecked) {
+              if (max_items && value.length >= max_items) {
+                setValue([...value.slice(1), opt])
+              } else {
+                setValue([...value, opt])
+              }
+            } else {
+              setValue(value.filter(v => v !== opt))
+            }
+            e.stopPropagation()
+          }
+
+          return (
+            <MenuItem
+              key={opt}
+              value={opt}
+              disableGutters
+              onClick={handleClick}
+              data-matched={matched}
+              sx={{
+                backgroundColor: matched ? "action.selected" : "inherit",
+                "&:hover": {
+                  backgroundColor: matched ? "action.selected" : "action.hover",
+                }
+              }}
+            >
+              {multi && searchable && <Checkbox checked={value.includes(opt)} onClick={handleClick} />}
+              <ListItemText primary={label} sx={{margin: 2}} />
+            </MenuItem>
+          )
+        })}
+      </>
+    )
   }
 
   return (
     <FormControl fullWidth disabled={disabled}>
       {label && <InputLabel id={`select-label-${model.id}`}>{label}</InputLabel>}
       <Select
-        onOpen={calculate_anchor}
-        MenuProps={{
-          anchorReference: "anchorPosition",
-          anchorPosition,
-          disablePortal: true,
-          transformOrigin: {
-            vertical: "top",
-            horizontal: "left",
-          },
-        }}
+        multiple={multi}
         color={color}
         disabled={disabled}
         value={value}
-        label={label}
+        input={getInput()}
+        placeholder={placeholder}
         labelId={`select-label-${model.id}`}
         variant={variant}
-        onChange={(event) => { setValue(event.target.value) }}
+        onChange={(event) => {
+          const newValue = event.target.value
+          if (multi && max_items && newValue.length > max_items) {
+            return
+          }
+          setValue(newValue)
+        }}
+        open={open}
+        onOpen={() => setOpen(true)}
+        onClose={() => setOpen(false)}
+        renderValue={renderValue}
+        MenuProps={MenuProps}
         sx={sx}
       >
-        {option_list}
+        {renderMenuItems()}
       </Select>
     </FormControl>
-  );
+  )
 }
