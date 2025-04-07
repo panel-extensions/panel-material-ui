@@ -134,7 +134,40 @@ class AutocompleteInput(MaterialSingleSelectBase):
             self.value_input = self.value
 
 
-class Select(MaterialSingleSelectBase, _PnSelect):
+class _SelectDropdownBase(MaterialWidget):
+    """
+    Base class for Material UI dropdown based select widgets.
+
+    This is an abstract base class and should not be used directly.
+    """
+
+    bookmarks = param.List(default=[], doc="List of bookmarked options")
+
+    disabled_options = param.List(default=[], nested_refs=True, doc="""
+        Optional list of ``options`` that are disabled, i.e. unusable and
+        un-clickable. If ``options`` is a dictionary the list items have to
+        correspond to the values in the options dictionary..""")
+
+    filter_str = param.String(default="", doc="Filter string for the dropdown")
+
+    filter_on_search = param.Boolean(default=False, doc="""
+        Whether options are filtered or merely highlighted on search.""")
+
+    dropdown_height = param.Integer(default=500, doc="Height of the dropdown menu")
+
+    dropdown_open = param.Boolean(default=False, doc="Whether the dropdown is open")
+
+    placeholder = param.String(default="")
+
+    searchable = param.Boolean(default=True, doc="Whether the dropdown is searchable")
+
+    value_label = param.String(doc="Custom label to describe the current option(s).")
+
+    __abstract = True
+
+
+
+class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     """
     The `Select` widget allows selecting a value from a list.
 
@@ -153,11 +186,6 @@ class Select(MaterialSingleSelectBase, _PnSelect):
 
     color = param.Selector(objects=COLORS, default="primary")
 
-    disabled_options = param.List(default=[], nested_refs=True, doc="""
-        Optional list of ``options`` that are disabled, i.e. unusable and
-        un-clickable. If ``options`` is a dictionary the list items have to
-        correspond to the values in the options dictionary..""")
-
     groups = param.Dict(default=None, nested_refs=True, doc="""
         Dictionary whose keys are used to visually group the options
         and whose values are either a list or a dictionary of options
@@ -171,6 +199,7 @@ class Select(MaterialSingleSelectBase, _PnSelect):
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 
+    _constants = {"multi": False}
     _esm_base = "Select.jsx"
     _rename = {"name": "name", "groups": None}
 
@@ -373,7 +402,7 @@ class MultiSelect(MaterialMultiSelectBase):
     _esm_base = "MultiSelect.jsx"
 
 
-class MultiChoice(MultiSelect):
+class MultiChoice(_SelectDropdownBase, MultiSelect):
     """
     The `MultiChoice` widget allows selecting multiple values from a list of
     `options`.
@@ -398,6 +427,8 @@ class MultiChoice(MultiSelect):
     ... )
     """
 
+    chip = param.Boolean(default=True, doc="Whether to display a chip for each selected option")
+
     delete_button = param.Boolean(default=True, doc="""
         Whether to display a button to delete a selected option.""")
 
@@ -411,11 +442,11 @@ class MultiChoice(MultiSelect):
         String displayed when no selection has been made.""")
 
     solid = param.Boolean(default=True, doc="""
-       π Whether to display widget with solid or light style.""")
+        Whether to display chips with solid or outlined style.""")
 
+    _constants = {"multi": True}
+    _esm_base = "Select.jsx"
     _rename = {"name": None}
-
-    _esm_base = "MultiChoice.jsx"
 
 
 class NestedSelect(_PnNestedSelect):
@@ -450,47 +481,6 @@ class NestedSelect(_PnNestedSelect):
         return widget_type, widget_kwargs
 
 
-class _SelectPickerBase(MaterialWidget):
-
-    bookmarks = param.List(default=[], doc="List of bookmarked options")
-
-    filter_str = param.String(default="")
-
-    filter_on_search = param.Boolean(default=False, doc="""
-        Whether options are filtered or merely highlighted on search.""")
-
-    dropdown_height = param.Integer(default=500)
-
-    dropdown_open = param.Boolean(default=False, doc="Whether the dropdown is open")
-
-    placeholder = param.String(default="")
-
-    value_label = param.String(doc="Custom label to describe the current option(s).")
-
-
-class SelectPicker(MultiSelect, _SelectPickerBase):
-    """
-    The `SelectPicker` widget allows selecting a value from a list of options.
-    """
-
-    chip = param.Boolean(default=True, doc="Whether to display a chip for each selected option")
-
-    defaults_to_all = param.Boolean(default=True, doc="""
-        If True, `value` will be set to all options if no checkbox is selected.""")
-
-    _constants = {"multi": True}
-    _esm_base = "SelectSearch.jsx"
-
-
-class SelectSearch(Select, _SelectPickerBase):
-    """
-    The `SelectSearch` widget allows selecting a value from a list of options.
-    """
-
-    _constants = {"multi": False}
-    _esm_base = "SelectSearch.jsx"
-
-
 __all__ = [
     "AutocompleteInput",
     "Select",
@@ -501,6 +491,4 @@ __all__ = [
     "MultiSelect",
     "MultiChoice",
     "NestedSelect",
-    "SelectPicker",
-    "SelectSearch"
 ]
