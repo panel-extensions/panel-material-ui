@@ -1,11 +1,22 @@
 from __future__ import annotations
 
 import param
+from panel.pane.markup import Markdown
 
 from ..base import COLORS, MaterialComponent
 
 
-class Avatar(MaterialComponent):
+class MaterialPaneBase(MaterialComponent):
+
+    object = param.Parameter()
+
+    __abstract = True
+
+    def __init__(self, object=None, **params):
+        super().__init__(object=object, **params)
+
+
+class Avatar(MaterialPaneBase):
     """
     The `Avatar` component is used to display profile pictures, user initials, icons,
     or custom images.
@@ -13,7 +24,7 @@ class Avatar(MaterialComponent):
     Reference: https://mui.com/material-ui/react-avatar/
 
     :Example:
-    >>> Avatar(object="path/to/image.jpg")
+    >>> Avatar("path/to/image.jpg")
     """
 
     alt_text = param.String(
@@ -34,7 +45,7 @@ class Avatar(MaterialComponent):
     _esm_base = "Avatar.jsx"
 
 
-class Chip(MaterialComponent):
+class Chip(MaterialPaneBase):
     """
     A `Chip` can be used to display information, labels, tags, or actions. It can include text,
     an avatar, an icon, or a delete button.
@@ -42,7 +53,7 @@ class Chip(MaterialComponent):
     Reference: https://mui.com/material-ui/react-chip/
 
     :Example:
-    >>> Chip(object="Log Time", icon="clock")
+    >>> Chip("Log Time", icon="clock")
     """
 
     color = param.Selector(objects=COLORS, default="primary")
@@ -65,7 +76,7 @@ class Chip(MaterialComponent):
         pass
 
 
-class Skeleton(MaterialComponent):
+class Skeleton(MaterialPaneBase):
     """
     The `Skeleton` component is used as a placeholder while content is loading.
     It provides a visual indication that data is being fetched, improving perceived performance
@@ -81,3 +92,16 @@ class Skeleton(MaterialComponent):
     width = param.Integer(default=0)
 
     _esm_base = "Skeleton.jsx"
+
+
+class Typography(MaterialPaneBase, Markdown):
+    """
+    The `Typography` component is used to display text with different styles and weights.
+
+    Reference: https://mui.com/material-ui/react-typography/
+    """
+
+    variant = param.String(default=None, doc="The typography variant, e.g. h1, h2, body1.")
+
+    _esm_base = "Typography.jsx"
+    _rename = {"object": "object"}
