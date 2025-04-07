@@ -203,7 +203,7 @@ class MaterialComponent(ReactComponent):
     @classproperty
     def _bundle_css(cls):
         from panel.io.resources import RESOURCE_MODE
-        if not config.autoreload and (IS_RELEASE and 'cdn' in (RESOURCE_MODE, _settings.resources(default='server'))):
+        if not config.autoreload and ('cdn' in (RESOURCE_MODE, _settings.resources(default='server'))):
             return [CDN_DIST.replace('.js', '.css')]
         esm_path = cls._esm_path(compiled=True)
         css_path = esm_path.with_suffix('.css')
