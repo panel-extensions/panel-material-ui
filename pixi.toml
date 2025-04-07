@@ -95,7 +95,7 @@ SPHINX_APIDOC_OPTIONS = "members,show-inheritance"
 
 [feature.doc.dependencies]
 # lxml = "*"
-nbsite = ">=0.8.8a7"
+nbsite = "=0.8.8a7"
 numpydoc = "*"
 matplotlib = "*"  # not optional in nbsite
 holoviews = "*"  # nbsite needs holoviews somehow
