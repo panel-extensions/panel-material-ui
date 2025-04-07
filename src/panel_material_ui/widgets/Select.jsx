@@ -137,7 +137,7 @@ export function render({model, view}) {
     const inputProps = {
       id: "select-input",
       label: label || "",
-      color: color
+      color
     }
     switch (variant) {
       case "outlined":
