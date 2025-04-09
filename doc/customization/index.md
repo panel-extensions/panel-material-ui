@@ -22,26 +22,6 @@ Explore the fundamentals of customizing **panel-material-ui** components. Learn 
 [Learn more »](how_to_customize)
 :::
 
-:::{grid-item-card} {octicon}`moon;2.5em;sd-mr-1` Dark Mode
-:link: dark_mode
-:link-type: doc
-
-Seamlessly toggle between light and dark palettes, or enforce one mode across your application. Perfect for low-light usage and user preference support.
-
-+++
-[Learn more »](dark_mode)
-:::
-
-:::{grid-item-card} {octicon}`paintbrush;2.5em;sd-mr-1` Color
-:link: color
-:link-type: doc
-
-Dive into the Material Design color system. Create harmonious palettes, pick accessible shades, and apply them to your Panel components.
-
-+++
-[Learn more »](color)
-:::
-
 :::{grid-item-card} {octicon}`list-unordered;2.5em;sd-mr-1` Palette
 :link: palette
 :link-type: doc
@@ -62,6 +42,36 @@ Learn how to customize fonts, sizes, and text styles.
 [Learn more »](typography)
 :::
 
+:::{grid-item-card} {octicon}`apps;2.5em;sd-mr-1` Themed Components
+:link: components
+:link-type: doc
+
+Customize components changing default props, styles, or adding new variants—by defining a `components` key within your `theme_config`..
+
++++
+[Learn more »](components)
+:::
+
+:::{grid-item-card} {octicon}`moon;2.5em;sd-mr-1` Dark Mode
+:link: dark_mode
+:link-type: doc
+
+Seamlessly toggle between light and dark palettes, or enforce one mode across your application. Perfect for low-light usage and user preference support.
+
++++
+[Learn more »](dark_mode)
+:::
+
+:::{grid-item-card} {octicon}`paintbrush;2.5em;sd-mr-1` Color
+:link: color
+:link-type: doc
+
+Dive into the Material Design color system. Create harmonious palettes, pick accessible shades, and apply them to your Panel components.
+
++++
+[Learn more »](color)
+:::
+
 ::::
 
 ## Where to go next?
@@ -75,8 +85,9 @@ Learn how to customize fonts, sizes, and text styles.
 :maxdepth: 2
 
 customize
-dark_mode
-color
 palette
 typography
+components
+dark_mode
+color
 ```

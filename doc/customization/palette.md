@@ -44,7 +44,7 @@ Each has the same four tokens (main, light, dark, contrastText). These defaults 
 
 ## Customizing the default palette
 
-You can override the defaults via the theme_config parameter that you pass to your panel-material-ui components:
+You can override the defaults via the `theme_config` parameter that you pass to your panel-material-ui components:
 
 ```{pyodide}
 from panel_material_ui import Button
@@ -65,6 +65,81 @@ my_theme = {
 
 Button(label="Custom Themed Button", theme_config=my_theme, button_type='primary')
 ```
+
+### Providing colors directly
+
+You don’t need to use a predefined palette. For each palette entry (e.g., primary), you can specify `main` (required), and optionally `light`, `dark`, and `contrastText`:
+
+```python
+my_theme = {
+    "palette": {
+        "primary": {
+            "main": "#FF5733",
+            # light, dark, and contrastText can be automatically computed
+        },
+        "secondary": {
+            "main": "#E0C2FF",
+            "light": "#F5EBFF",   # optional
+            "dark": "#BA99D5",    # optional
+            "contrastText": "#47008F",  # optional
+        }
+    }
+}
+```
+
+### Contrast threshold
+
+
+When `panel_material_ui` automatically picks contrastText for a color (if you don’t specify it), it uses a `contrastThreshold` value. By default, it’s 3 (a 3:1 contrast), but you can increase it for improved accessibility:
+
+```python
+my_theme = {
+    "palette": {
+        "primary": {
+            "main": "#3f50b5",
+        },
+        "contrastThreshold": 4.5  # Increase for higher contrast
+    }
+}
+```
+
+This helps ensure a better color contrast ratio for text displayed over the `primary.main` color.
+
+### Tonal offset
+
+Similarly, panel_material_ui calculates the `light` and `dark` tokens by shifting the luminance of `main`. The `tonalOffset` defaults to 0.2, but you can override it at the top level of your palette:
+
+```python
+my_theme = {
+    "palette": {
+        "tonalOffset": 0.25,
+        "primary": {
+            "main": "#FF5733",
+        },
+    }
+}
+```
+
+This means `light` becomes lighter and `dark` becomes darker relative to `main`.
+
+### Accessibility
+
+For color contrast, the recommendation is a minimum ratio of 4.5:1 for body text (per [WCAG 2.1 Rule 1.4.3](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html)). If you’re relying on `panel_material_ui` to auto-compute `contrastText`, be sure to increase `contrastThreshold` to 4.5:
+
+```python
+my_theme = {
+    "palette": {
+        "contrastThreshold": 4.5,
+        "primary": {"main": "#3f50b5"},
+    }
+}
+```
+
+However, you should still verify that the chosen foreground and background colors yield the contrast you want, especially if you’re targeting stricter guidelines.
+
+## Dark mode
+
+For more guidance on setting up dark mode, including toggling, see our [Dark mode guide](./dark_mode). Typically, in `panel_material_ui`, you either set `dark_mode=True` on individual components or at the `Page` level.
 
 ## Summary
 
