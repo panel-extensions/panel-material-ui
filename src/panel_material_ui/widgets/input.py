@@ -484,44 +484,6 @@ class DatePicker(_DatePickerBase):
                 return None
         return value
 
-class DateRangePicker(_DatePickerBase):
-    """
-    The `DateRangePicker` allows selecting a `date` range using a text box
-    and a date-picking utility.
-
-    References:
-    - https://panel.holoviz.org/reference/widgets/DateRangePicker.html
-    - https://mui.com/x/react-date-pickers/
-
-    :Example:
-
-    >>> DateRangePicker(
-    ...     value=(date(2025,1,1), date(2025,1,5)),
-    ...     start=date(2025,1,1), end=date(2025,12,31),
-    ...     name='Date range'
-    ... )
-    """
-
-    start = param.CalendarDate(default=None, doc="""
-        Inclusive lower bound of the allowed date selection""")
-
-    end = param.CalendarDate(default=None, doc="""
-        Inclusive upper bound of the allowed date selection""")
-
-    value = param.DateRange(default=None, doc="""
-        The current value""")
-
-    _constants = {'range': True, 'time': False}
-
-    def __init__(self, **params):
-        super().__init__(**params)
-        self._update_value_bounds()
-
-    @param.depends('start', 'end', watch=True)
-    def _update_value_bounds(self):
-        self.param.value.bounds = (self.start, self.end)
-        self.param.value._validate(self.value)
-
 
 class _DatetimePickerBase(_DatePickerBase):
     """Base class for DatetimePicker components."""
@@ -731,29 +693,6 @@ class DatetimePicker(_DatetimePickerBase):
                 return None
         return value
 
-
-class DatetimeRangePicker(_DatetimePickerBase):
-    """
-    The `DatetimeRangePicker` allows selecting selecting a `datetime` range
-    using a text box and a datetime-range-picking utility.
-
-    References:
-    - https://panel.holoviz.org/reference/widgets/DatetimeRangePicker.html
-    - https://mui.com/x/react-date-pickers/
-
-    :Example:
-
-    >>> DatetimeRangePicker(
-    ...    value=(datetime(2025,1,1,22,0), datetime(2025,1,2,22,0)),
-    ...    start=date(2025,1,1), end=date(2025,12,31),
-    ...    military_time=True, name='Datetime Range'
-    ... )
-    """
-
-    value = param.DateRange(default=None, doc="""
-        The current value""")
-
-    _constants = {'range': True, 'time': True}
 
 
 class _TimeCommon(MaterialWidget):
@@ -1053,9 +992,7 @@ __all__ = [
     "FloatInput",
     "NumberInput",
     "DatePicker",
-    "DateRangePicker",
     "DatetimePicker",
-    "DatetimeRangePicker",
     "TimePicker",
     "Checkbox",
     "Switch",
