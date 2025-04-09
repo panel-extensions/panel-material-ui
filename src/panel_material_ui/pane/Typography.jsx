@@ -8,6 +8,7 @@ function html_decode(input) {
 export function render({model}) {
   const [sx] = model.useState("sx")
   const [text] = model.useState("object")
+  const [variant] = model.useState("variant")
 
-  return <Typography sx={sx} dangerouslySetInnerHTML={{__html: html_decode(text)}}/>
+  return <Typography sx={sx} dangerouslySetInnerHTML={{__html: html_decode(text)}} variant={variant}/>
 }

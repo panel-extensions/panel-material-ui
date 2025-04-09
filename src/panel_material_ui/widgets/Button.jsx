@@ -1,12 +1,12 @@
 import Button from "@mui/material/Button"
 
 export function render({model, el}) {
-  const [color] = model.useState("button_type")
+  const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [label] = model.useState("label")
-  const [variant] = model.useState("button_style")
+  const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
   return (

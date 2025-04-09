@@ -57,12 +57,12 @@ async function load_files(files, accept, directory, multiple) {
 
 export function render({model}) {
   const [accept] = model.useState("accept")
-  const [color] = model.useState("button_type")
+  const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [directory] = model.useState("directory")
   const [multiple] = model.useState("multiple")
   const [label] = model.useState("label")
-  const [variant] = model.useState("button_style")
+  const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
   const [uploading, setUploading] = React.useState(false)

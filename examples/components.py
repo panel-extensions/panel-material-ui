@@ -117,7 +117,7 @@ spec = {
     'Layouts': {
         'ListLike': [
             (Alert, (['severity', 'variant'], ['closeable']), dict(title='Title')),
-            (Card, (['outlined', 'collapsed'], ['raised', 'collapsible']), dict(objects=['A', 'B', 'C'], title='A Card', margin=10)),
+            (Card, (['collapsed', 'variant'], ['raised', 'collapsible']), dict(objects=['A', 'B', 'C'], title='A Card', margin=10)),
             (Divider, (['orientation', 'variant'],), dict(objects=['Foo'], width=200, height=200)),
             (Paper, (['elevation'],), dict(objects=['A', 'B', 'C'], margin=10, styles={'padding': '1em'})),
         ],

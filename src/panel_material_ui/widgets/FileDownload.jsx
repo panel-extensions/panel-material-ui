@@ -16,8 +16,7 @@ function dataURItoBlob(dataURI) {
 
 export function render({model, view}) {
   const [auto] = model.useState("auto")
-  const [button_style] = model.useState("button_style")
-  const [button_type] = model.useState("button_type")
+  const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [embed] = model.useState("embed")
   const [filename] = model.useState("filename")
@@ -26,6 +25,7 @@ export function render({model, view}) {
   const [icon_size] = model.useState("icon_size")
   const [label] = model.useState("label")
   const [sx] = model.useState("sx")
+  const [variant] = model.useState("variant")
 
   const linkRef = React.useRef(null)
   const theme = useTheme()
@@ -64,7 +64,7 @@ export function render({model, view}) {
 
   return (
     <Button
-      color={button_type}
+      color={color}
       disabled={disabled}
       startIcon={icon ? (
         icon.trim().startsWith("<") ?
@@ -73,9 +73,9 @@ export function render({model, view}) {
       ): <FileDownloadIcon style={{fontSize: icon_size}}/>}
       onClick={handleClick}
       sx={sx}
-      variant={button_style}
+      variant={variant}
     >
-      {auto ? label : <a ref={linkRef} href={file_data} download={filename} style={{color: theme.palette[button_type].contrastText}}>{label}</a>}
+      {auto ? label : <a ref={linkRef} href={file_data} download={filename} style={{color: theme.palette[color].contrastText}}>{label}</a>}
     </Button>
   )
 }

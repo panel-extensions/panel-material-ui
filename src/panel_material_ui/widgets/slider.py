@@ -114,6 +114,21 @@ class DateSlider(_ContinuousSlider):
     ... )
     """
 
+    as_datetime = param.Boolean(default=False, doc="""
+        Whether to store the date as a datetime.""")
+
+    end = param.Date(default=None, doc="""
+        The upper bound.""")
+
+    format = param.String(default=None, doc="""
+        Datetime format used for parsing and formatting the date.""")
+
+    start = param.Date(default=None, doc="""
+        The lower bound.""")
+
+    step = param.Integer(default=1, bounds=(1, None), doc="""
+        The step parameter in days.""")
+
     value = param.Date(default=None, doc="""
         The selected date value of the slider. Updated when the slider
         handle is dragged. Supports datetime.datetime, datetime.date
@@ -122,22 +137,12 @@ class DateSlider(_ContinuousSlider):
     value_throttled = param.Date(default=None, constant=True, doc="""
         The value of the slider. Updated when the slider handle is released.""")
 
-    start = param.Date(default=None, doc="""
-        The lower bound.""")
-
-    end = param.Date(default=None, doc="""
-        The upper bound.""")
-
-    as_datetime = param.Boolean(default=False, doc="""
-        Whether to store the date as a datetime.""")
-
-    step = param.Integer(default=1, bounds=(1, None), doc="""
-        The step parameter in days.""")
-
-    format = param.String(default=None, doc="""
-        Datetime format used for parsing and formatting the date.""")
-
     _constants = {"date": True}
+    _rename = {"as_datetime": None}
+    _source_transforms = {
+        "value": None, "value_throttled": None, "value_start": None,
+        "value_end": None, "start": None, "end": None
+    }
 
     def _process_param_change(self, msg):
         msg = super()._process_param_change(msg)
@@ -320,6 +325,10 @@ class DateRangeSlider(_RangeSliderBase):
     _property_conversion = staticmethod(value_as_date)
 
     _rename = {'value_start': None, 'value_end': None}
+    _source_transforms = {
+        "value": None, "value_throttled": None, "value_start": None,
+        "value_end": None, "start": None, "end": None
+    }
 
     def _process_param_change(self, msg):
         msg = super()._process_param_change(msg)
@@ -383,6 +392,13 @@ class DiscreteSlider(_PnDiscreteSlider):
     Reference: https://panel.holoviz.org/reference/widgets/DiscreteSlider.html
     """
 
+    color = param.Selector(objects=COLORS, default="primary")
+
+    options = param.ClassSelector(default=[], class_=(dict, list), doc="""
+        A list or dictionary of valid options.""")
+
+    track = param.Selector(objects=["normal", "inverted", False], default="normal")
+
     value = param.Parameter(doc="""
         The selected value of the slider. Updated when the handle is
         dragged. Must be one of the options.""")
@@ -390,10 +406,11 @@ class DiscreteSlider(_PnDiscreteSlider):
     value_throttled = param.Parameter(constant=True, doc="""
         The value of the slider. Updated when the handle is released.""")
 
-    options = param.ClassSelector(default=[], class_=(dict, list), doc="""
-        A list or dictionary of valid options.""")
-
     width = param.Integer(default=300, bounds=(0, None), allow_None=True)
+
+    _slider_style_params = [
+        'bar_color', 'direction', 'disabled', 'orientation', "color", "track"
+    ]
 
     def _update_options(self, *events):
         values, labels = self.values, self.labels

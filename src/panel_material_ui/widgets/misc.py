@@ -25,6 +25,7 @@ class FileDownload(_ButtonBase, _FileDownload):
 
     _esm_base = "FileDownload.jsx"
     _rename = {"_clicks": None, "icon": "icon", "icon_size": "icon_size"}
+    _source_transforms = {"button_type": None, "button_style": None, "callback": None, "file": None, "value": None}
 
     def __init__(self, file=None, **params):
         self._default_label = 'label' not in params

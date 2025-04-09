@@ -1,23 +1,23 @@
 import ToggleButton from "@mui/material/ToggleButton"
 
 export function render({model}) {
-  const [button_style] = model.useState("button_style")
-  const [color] = model.useState("button_type")
+  const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [label] = model.useState("label")
   const [value, setValue] = model.useState("value")
   const [sx] = model.useState("sx")
+  const [variant] = model.useState("variant")
 
   return (
     <ToggleButton
       color={color}
       disabled={disabled}
       selected={value}
-      onChange={(e, newValue) => setValue(!value)}
+      onChange={() => setValue(!value)}
       sx={sx}
-      variant={button_style}
+      variant={variant}
     >
       {icon && (
         icon.trim().startsWith("<") ?

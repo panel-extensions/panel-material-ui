@@ -1,17 +1,17 @@
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
-import Tooltip from "@mui/material/Tooltip";
 
 export function render({model}) {
-  const [color] = model.useState("button_type")
-  const [variant] = model.useState("button_style")
-  const [size] = model.useState("size")
-  const [orientation] = model.useState("orientation")
+  const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [options] = model.useState("options")
-  const [value, setValue] = model.useState("value")
+  const [orientation] = model.useState("orientation")
+  const [size] = model.useState("size")
   const [sx] = model.useState("sx")
+  const [value, setValue] = model.useState("value")
+  const [variant] = model.useState("variant")
   const exclusive = model.esm_constants.exclusive
+
   return (
     <ToggleButtonGroup
       color={color}

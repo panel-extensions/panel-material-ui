@@ -3,7 +3,7 @@ import {useTheme} from "@mui/material/styles"
 
 export function render({model, el}) {
   const [active_icon] = model.useState("active_icon")
-  const [color] = model.useState("button_type")
+  const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [edge] = model.useState("edge")
   const [icon] = model.useState("icon")

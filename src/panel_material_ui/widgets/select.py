@@ -10,6 +10,7 @@ from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
 
 from ..base import COLORS
 from .base import MaterialWidget
+from .button import _ButtonLike
 
 
 class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
@@ -203,7 +204,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     _rename = {"name": "name", "groups": None}
 
 
-class RadioGroup(MaterialWidget):
+class _RadioGroup(MaterialWidget):
     """
     Base class for Material UI radio groups.
 
@@ -227,7 +228,7 @@ class RadioGroup(MaterialWidget):
     __abstract = True
 
 
-class RadioBoxGroup(RadioGroup, MaterialSingleSelectBase):
+class RadioBoxGroup(_RadioGroup, MaterialSingleSelectBase):
     """
     The `RadioBoxGroup` widget allows selecting a value from a list of options.
 
@@ -254,7 +255,7 @@ class RadioBoxGroup(RadioGroup, MaterialSingleSelectBase):
     _constants = {"exclusive": True}
 
 
-class CheckBoxGroup(RadioGroup, MaterialMultiSelectBase):
+class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
     """
     The `CheckBoxGroup` widget allows selecting between a list of options by
     ticking the corresponding checkboxes.
@@ -285,7 +286,7 @@ class CheckBoxGroup(RadioGroup, MaterialMultiSelectBase):
     _constants = {"exclusive": False}
 
 
-class ButtonGroup(MaterialWidget):
+class _ButtonGroup(_ButtonLike):
     """
     Base class for Material UI button groups.
 
@@ -296,15 +297,9 @@ class ButtonGroup(MaterialWidget):
     This is an abstract base class and should not be used directly.
     """
 
-    button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
-
-    button_type = param.Selector(objects=COLORS+["standard"], default="standard")
-
     description_delay = param.Integer(default=5000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
-
-    exclusive = param.Boolean(default=False)
 
     orientation = param.Selector(
         default="horizontal",
@@ -324,7 +319,7 @@ class ButtonGroup(MaterialWidget):
     __abstract = True
 
 
-class RadioButtonGroup(ButtonGroup, MaterialSingleSelectBase):
+class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
     """
     The `RadioButtonGroup` widget allows selecting from a list or dictionary
     of values using a set of toggle buttons.
@@ -349,7 +344,7 @@ class RadioButtonGroup(ButtonGroup, MaterialSingleSelectBase):
     _constants = {"exclusive": True}
 
 
-class CheckButtonGroup(ButtonGroup, MaterialMultiSelectBase):
+class CheckButtonGroup(_ButtonGroup, MaterialMultiSelectBase):
     """
     The `CheckButtonGroup` widget allows selecting from a list or dictionary
     of values using a set of toggle buttons.
@@ -369,6 +364,7 @@ class CheckButtonGroup(ButtonGroup, MaterialMultiSelectBase):
     ... )
 
     """
+
     _constants = {"exclusive": False}
 
 
