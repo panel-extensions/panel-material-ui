@@ -40,6 +40,7 @@ export function render({model, view}) {
   const [header_background] = model.useState("header_background")
   const [hide_header] = model.useState("hide_header")
   const [raised] = model.useState("raised")
+  const [square] = model.useState("square")
   const [sx] = model.useState("sx")
   const [title] = model.useState("title")
   const [title_css_classes] = model.useState("title_css_classes")
@@ -58,6 +59,7 @@ export function render({model, view}) {
   return (
     <Card
       elevation={elevation}
+      square={square}
       raised={raised}
       variant={variant}
       sx={{display: "flex", flexDirection: "column", width: "100%", height: "100%", ...sx}}

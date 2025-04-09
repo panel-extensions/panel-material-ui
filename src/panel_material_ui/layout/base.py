@@ -63,6 +63,8 @@ class PaperMixin(param.Parameterized):
 
     elevation = param.Integer(default=1, bounds=(0, None))
 
+    raised = param.Boolean(default=True, doc="Whether the layout is raised visually.")
+
     square = param.Boolean(default=False, doc="Whether to disable rounded corners.")
 
     variant = param.Selector(objects=["elevation", "outlined"], default="elevation")
