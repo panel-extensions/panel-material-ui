@@ -38,7 +38,7 @@ export function render({model, view}) {
       orientation={orientation}
       variant="scrollable"
       scrollButtons="auto"
-      sx={sx}
+      sx={{transition: "height 0.3s", ...sx}}
     >
       {names.map((label, index) => (
         <Tab

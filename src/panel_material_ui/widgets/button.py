@@ -11,24 +11,64 @@ import param
 from panel.widgets.button import _ButtonBase as _PnButtonBase
 from panel.widgets.button import _ClickButton
 
-from ..base import COLOR_ALIASES, COLORS, LoadingTransform, ThemedTransform
+from ..base import COLOR_ALIASES, COLORS, STYLE_ALIASES, LoadingTransform, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
 
 
-class _ButtonBase(MaterialWidget, _PnButtonBase):
+class _ButtonLike(MaterialWidget):
 
-    button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
+    button_style = param.Selector(objects=["contained", "outlined", "text"], default=None, doc="""
+        The variant of the component (alias for variant to match Panel's Button API).""")
 
-    button_type = param.Selector(objects=COLORS, default="default")
+    button_type = param.Selector(objects=COLORS, default=None, doc="""
+        The type of the component (alias for color to match Panel's Button API).""")
 
-    clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
+    color = param.Selector(objects=COLORS, default="default", doc="""
+        The color of the component.""")
 
     description = param.String(default=None, doc="""
         The description in the tooltip.""")
 
-    description_delay = param.Integer(default=1000, doc="""
+    description_delay = param.Integer(default=5000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
-        hovered over the Button, default is 1000ms.""")
+        hovered over the Button, default is 500ms.""")
+
+    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
+        The variant of the component.""")
+
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
+    _rename = {"button_style": None, "button_type": None}
+    _source_transforms = {"button_style": None, "button_type": None}
+
+    __abstract = True
+
+    @param.depends("button_type", watch=True, on_init=True)
+    def _update_color(self):
+        if self.button_type:
+            self.color = self.button_type
+
+    @param.depends("variant", watch=True, on_init=True)
+    def _update_variant(self):
+        if self.button_style:
+            self.variant = self.button_style
+
+    def _process_param_change(self, params):
+        params = super()._process_param_change(params)
+        if "color" in params:
+            color = params["color"]
+            params["color"] = COLOR_ALIASES.get(color, color)
+        if "variant" in params:
+            variant = params["variant"]
+            params["variant"] = STYLE_ALIASES.get(variant, variant)
+        # Work around Panel button_style css_classes issue
+        if "css_classes" in params:
+            params["css_classes"] = [css_cls for css_cls in params["css_classes"] if css_cls is not None]
+        return params
+
+
+class _ButtonBase(_ButtonLike, _PnButtonBase):
+
+    clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
 
     icon = param.String(default=None, doc="""
         An icon to render to the left of the button label. Either an SVG or an
@@ -37,24 +77,11 @@ class _ButtonBase(MaterialWidget, _PnButtonBase):
 
     width = param.Integer(default=None)
 
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
     _rename: ClassVar[Mapping[str, str | None]] = {
-        "label": "label",
-        "button_style": "button_style",
-        "button_type": "button_type"
+        "label": "label"
     }
 
     __abstract = True
-
-    def _process_param_change(self, params):
-        button_style = params.pop("button_style", None)
-        if "button_type" in params:
-            button_type = params["button_type"]
-            params["button_type"] = COLOR_ALIASES.get(button_type, button_type)
-        params = MaterialWidget._process_param_change(self, params)
-        if button_style:
-            params["button_style"] = button_style
-        return params
 
 
 class Button(_ButtonBase, _ClickButton):
@@ -139,16 +166,13 @@ class Toggle(_ButtonBase):
     >>> Toggle(name='Toggle', button_type='success')
     """
 
-    button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
-        The button style, either 'solid' or 'outline'. As of today (March 27th, 2025) the
-        `button_style` property does not work (see https://github.com/mui/material-ui/issues/34238).""")
-
     icon_size = param.String(default="1em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
 
     value = param.Boolean(default=False)
 
     _esm_base = "ToggleButton.jsx"
+
 
 __all__ = [
     "Button",

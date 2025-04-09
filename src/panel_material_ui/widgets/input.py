@@ -14,8 +14,9 @@ from panel.widgets.input import DatetimeInput as _PnDatetimeInput
 from panel.widgets.input import FileInput as _PnFileInput
 from panel.widgets.input import LiteralInput as _PnLiteralInput
 
-from ..base import COLORS, ThemedTransform
+from ..base import COLORS, LoadingTransform, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
+from .button import _ButtonLike
 
 if TYPE_CHECKING:
     from bokeh.document import Document
@@ -23,9 +24,11 @@ if TYPE_CHECKING:
 
 class MaterialInputWidget(MaterialWidget):
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="""
+        The color variant of the input.""")
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="""
+        The variant of the input.""")
 
     __abstract = True
 
@@ -165,7 +168,7 @@ class TextAreaInput(_TextInputBase):
     _esm_base = "TextArea.jsx"
 
 
-class FileInput(MaterialWidget, _PnFileInput):
+class FileInput(_ButtonLike, _PnFileInput):
     """
     The `FileInput` allows the user to upload one or more files to the server.
 
@@ -180,18 +183,9 @@ class FileInput(MaterialWidget, _PnFileInput):
     >>> FileInput(accept='.png,.jpeg', multiple=True)
     """
 
-    button_type = param.Selector(objects=COLORS, default="primary")
-
-    button_style = param.Selector(objects=["contained", "outlined", "text"], default="contained")
-
-    description_delay = param.Integer(default=1000, doc="""
-        Delay (in milliseconds) to display the tooltip after the cursor has
-        hovered over the Button, default is 1000ms.""")
-
     width = param.Integer(default=None)
 
     _esm_base = "FileInput.jsx"
-    _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
         'filename': None,
         'value': "'data:' + source.mime_type + ';base64,' + value"
@@ -721,6 +715,10 @@ class DatetimePicker(_DatetimePickerBase):
     value = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
         The current value. Can be a datetime object or a string in ISO format.""")
 
+    _source_transforms = {
+        "value": None, "start": None, "end": None
+    }
+
     def _serialize_value(self, value):
         """Convert value for sending to JavaScript."""
         if isinstance(value, str) and value:
@@ -940,7 +938,7 @@ class Switch(MaterialWidget):
     width = param.Boolean(default=None)
 
     _esm_base = "Switch.jsx"
-    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
 
 class ColorPicker(MaterialWidget):
@@ -998,6 +996,10 @@ class DatetimeInput(TextInput, _PnDatetimeInput):
 
     value_input = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
         The current value. Can be a datetime object or a string in ISO format.""")
+
+    _source_transforms = {
+        "value": None, "value_input": None, "start": None, "end": None
+    }
 
     def _process_param_change(self, msg):
         msg = super()._process_param_change(msg)

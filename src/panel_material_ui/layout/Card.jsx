@@ -7,14 +7,6 @@ import IconButton from "@mui/material/IconButton"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
 
-function set_flex(props) {
-  const model = props.parent.model.data[props.name][props.index]
-  const view = props.parent.get_child_view(model)
-  if (view.el) {
-    view.el.style.minHeight = "auto"
-  }
-}
-
 const ExpandMore = styled((props) => {
   const {expand, ...other} = props;
   return <IconButton {...other} />;
@@ -44,12 +36,14 @@ export function render({model, view}) {
   const [collapsed, setCollapsed] = model.useState("collapsed")
   const [elevation] = model.useState("elevation")
   const [header_color] = model.useState("header_color")
+  const [header_css_classes] = model.useState("header_css_classes")
   const [header_background] = model.useState("header_background")
   const [hide_header] = model.useState("hide_header")
-  const [outlined] = model.useState("outlined")
   const [raised] = model.useState("raised")
   const [sx] = model.useState("sx")
   const [title] = model.useState("title")
+  const [title_css_classes] = model.useState("title_css_classes")
+  const [variant] = model.useState("variant")
   const header = model.get_child("header")
   const objects = model.get_child("objects")
 
@@ -63,9 +57,9 @@ export function render({model, view}) {
 
   return (
     <Card
-      raised={raised}
       elevation={elevation}
-      variant={outlined ? "outlined" : "elevation"}
+      raised={raised}
+      variant={variant}
       sx={{display: "flex", flexDirection: "column", width: "100%", height: "100%", ...sx}}
     >
       {!hide_header && (
@@ -81,7 +75,8 @@ export function render({model, view}) {
               <ExpandMoreIcon />
             </ExpandMore>
           }
-          title={model.header ? header : <Typography variant="h6">{title}</Typography>}
+          classes={header_css_classes}
+          title={model.header ? header : <Typography classes={title_css_classes} variant="h6">{title}</Typography>}
           sx={{
             backgroundColor: header_background,
             color: header_color,

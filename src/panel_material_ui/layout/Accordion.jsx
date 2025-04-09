@@ -10,12 +10,14 @@ export function render({model}) {
   const [active_header_color] = model.useState("active_header_color")
   const [disabled] = model.useState("disabled")
   const [disable_gutters] = model.useState("disable_gutters")
+  const [elevation] = model.useState("elevation")
   const [header_background] = model.useState("header_background")
   const [header_color] = model.useState("header_color")
   const [names] = model.useState("_names")
   const [toggle] = model.useState("toggle")
   const [sx] = model.useState("sx")
   const [square] = model.useState("square")
+  const [variant] = model.useState("variant")
   const objects = model.get_child("objects")
 
   const handle_expand = (index) => () => {
@@ -39,9 +41,11 @@ export function render({model}) {
             defaultExpanded={active.includes(index)}
             disabled={disabled.includes(index)}
             disableGutters={disable_gutters}
+            elevation={elevation}
             expanded={active.includes(index)}
             key={`accordion-${index}`}
             square={square}
+            variant={variant}
             sx={{
               backgroundColor: active.includes(index) ? active_header_background || header_background : header_background,
               color: active.includes(index) ? active_header_color || header_color : header_color,

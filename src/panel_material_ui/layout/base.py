@@ -56,7 +56,21 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         self.param.trigger("_names")
 
 
-class Paper(MaterialListLike):
+class PaperMixin(param.Parameterized):
+    """
+    Baseclass adding Paper parameters to a layout.
+    """
+
+    elevation = param.Integer(default=1, bounds=(0, None))
+
+    square = param.Boolean(default=False, doc="Whether to disable rounded corners.")
+
+    variant = param.Selector(objects=["elevation", "outlined"], default="elevation")
+
+    _abstract = True
+
+
+class Paper(MaterialListLike, PaperMixin):
     """
     Paper implements a container for displaying content on an elevated surface.
 
@@ -67,12 +81,6 @@ class Paper(MaterialListLike):
     """
 
     direction = param.Selector(objects=["row", "column", "column-reverse", "row-reverse"], default="column")
-
-    elevation = param.Integer(default=1, bounds=(0, None))
-
-    square = param.Boolean(default=False, doc="Whether to disable rounded corners.")
-
-    variant = param.Selector(objects=["elevation", "outlined"], default="elevation")
 
     _esm_base = "Paper.jsx"
 
@@ -139,7 +147,7 @@ class Grid(MaterialListLike):
     _esm_base = "Grid.jsx"
 
 
-class Card(MaterialNamedListLike):
+class Card(MaterialNamedListLike, PaperMixin):
     """
     A `Card` layout allows arranging multiple panel objects in a
     collapsible, vertical container with a header bar.
@@ -159,9 +167,6 @@ class Card(MaterialNamedListLike):
     collapsible = param.Boolean(default=True, doc="""
         Whether the Card should be expandable and collapsible.""")
 
-    elevation = param.Integer(default=1, bounds=(0, None), doc="""
-        The elevation of the Card.""")
-
     header = Child(doc="""
         A Panel component to display in the header bar of the Card.
         Will override the given title if defined.""")
@@ -172,26 +177,17 @@ class Card(MaterialNamedListLike):
     header_color = param.Color(doc="""
         The text color of the Card header.""")
 
-    header_css_classes = param.List()
+    header_css_classes = param.List(doc="""
+        List of CSS classes to apply to CardHeader component.""")
 
     hide_header = param.Boolean(default=False)
 
-    raised = param.Boolean(
-        default=True,
-        doc="""
-        Whether the Card should be visually raised above the background.""",
-    )
-
-    title = param.String(
-        doc="""
+    title = param.String(doc="""
         A title to be displayed in the Card header, will be overridden
-        by the header if defined."""
-    )
+        by the header if defined.""")
 
-    title_css_classes = param.List()
-
-    outlined = param.Boolean(default=False, doc="""
-        Whether the Card should be outlined.""")
+    title_css_classes = param.List(doc="""
+        List of CSS classes to apply to CardTitle component.""")
 
     _direction = "vertical"
     _esm_base = "Card.jsx"
@@ -202,7 +198,7 @@ class Card(MaterialNamedListLike):
         return ([] if self.header is None else self.header.select(selector)) + super().select(selector)
 
 
-class Accordion(MaterialNamedListLike):
+class Accordion(MaterialNamedListLike, PaperMixin):
     """
     The `Accordion` layout is a type of `Card` layout that allows switching
     between multiple objects by clicking on the corresponding card header.
@@ -243,8 +239,6 @@ class Accordion(MaterialNamedListLike):
 
     header_color = param.Color(doc="""
         The text color of the Card header.""")
-
-    square = param.Boolean(default=False, doc="Whether to disable rounded corners.")
 
     toggle = param.Boolean(default=False, doc="""
         Whether to toggle between active cards or allow multiple cards""")

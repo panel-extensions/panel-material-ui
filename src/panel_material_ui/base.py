@@ -42,6 +42,7 @@ if TYPE_CHECKING:
 COLORS = ["default", "primary", "secondary", "error", "info", "success", "warning", "light", "dark", "danger"]
 
 COLOR_ALIASES = {"danger": "error"}
+STYLE_ALIASES = {"outline": "outlined"}
 
 BASE_PATH = pathlib.Path(__file__).parent
 IS_RELEASE = __version__ == base_version(__version__)
