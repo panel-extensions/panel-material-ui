@@ -16,7 +16,7 @@ Welcome to the **Panel Material UI** customization guides. These guides walk you
 :link: customize
 :link-type: doc
 
-Explore the fundamentals of customizing **panel_material_ui** components. Learn one-off styling with `sx`, overriding nested elements, global CSS overrides, and theme inheritance.
+Explore the fundamentals of customizing **panel-material-ui** components. Learn one-off styling with `sx`, overriding nested elements, global CSS overrides, and theme inheritance.
 
 +++
 [Learn more »](how_to_customize)

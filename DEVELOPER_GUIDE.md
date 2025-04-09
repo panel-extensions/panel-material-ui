@@ -15,7 +15,7 @@ Welcome. We are so happy that you want to contribute.
 
 Below we describe how to install and use this project for development.
 
-### 💻 Install for Development
+### 💻 Clone the repository
 
 To install for development you will have to clone the repository with git:
 
@@ -24,36 +24,36 @@ git clone https://github.com/panel-extensions/panel-material-ui.git
 cd panel-material-ui
 ```
 
-If you want to manage your own environment, including installations of `nodejs` and `esbuild` (e.g. using conda) set up your development environment with:
+### Install Pixi
+
+Install pixi as described on the [Pixi web site](https://pixi.sh/latest/).
+
+To see all available commands run:
 
 ```bash
-pip install -e .
+pixi task list
 ```
 
 ### Developing
 
-Whenever you make any changes to the React implementationsof the components  (i.e. the .jsx files) you have to recompile the JS bundle. To make this process easier we recommend you run:
+To install the dependencies run:
+
+```bash
+pixi install
+```
+
+In order for changes to the React code (i.e. the .jsx files) to take effect you need to recompile the JS bundle. To make this process easier we recommend you run:
 
 ```bash
 pixi run compile-dev
 ```
 
-This will continuously watch the files for changes and automatically recompile. This is equivalent to:
-
-```bash
-panel compile panel_material_ui --build-dir build --watch --file-loader woff woff2
-```
+**This will continuously watch the files for changes and automatically recompile**.
 
 In a separate terminal you can now launch a Panel server to preview the components:
 
 ```bash
 pixi run serve-dev
-```
-
-This is equivalent to:
-
-```bash
-panel serve examples/components.py --dev --port 0 --show
 ```
 
 ### Testing

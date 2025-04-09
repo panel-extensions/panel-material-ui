@@ -1,6 +1,6 @@
 # Color
 
-Convey meaning through color. By default, `panel_material_ui` provides access to the Material Design color system, allowing you to choose from a broad set of hue and shade combinations.
+Convey meaning through color. By default, `panel-material-ui` provides access to the Material Design color system, allowing you to choose from a broad set of hue and shade combinations.
 
 The Material Design color system can be used to create a cohesive color theme that matches your brand or style.
 
@@ -11,13 +11,13 @@ The Material Design color system can be used to create a cohesive color theme th
 The Material Design team provides a powerful palette configuration tool at [material.io/resources/color/](https://material.io/resources/color/). It helps you:
 
 - Select color pairs and gauge their accessibility levels.
-- Generate palette suggestions you can directly feed into `panel_material_ui` for your `theme_config`.
+- Generate palette suggestions you can directly feed into `panel-material-ui` for your `theme_config`.
 
 [![Official color tool](https://mui.com/static/images/color/colorTool.png)](https://m2.material.io/inline-tools/color/)
 
-### Using the palette in panel_material_ui
+### Using the palette in panel-material-ui
 
-In `panel_material_ui`, you specify colors in a `theme_config` dictionary. Below is a simple example of customizing both the primary and secondary color in your UI:
+In `panel-material-ui`, you specify colors in a `theme_config` dictionary. Below is a simple example of customizing both the primary and secondary color in your UI:
 
 ```{pyodide}
 from panel_material_ui import Button
@@ -42,7 +42,7 @@ my_theme = {
 Button(label="Brand Button", theme_config=my_theme, button_type="primary").servable()
 ```
 
-- If you only provide main, `panel_material_ui` may calculate light, dark, and contrastText automatically (note this does not work for the default, dark and light palettes).
+- If you only provide main, `panel-material-ui` may calculate light, dark, and contrastText automatically (note this does not work for the default, dark and light palettes).
 - Defining all four explicitly lets you fine-tune exactly how your components appear.
 
 ### Playground
@@ -92,4 +92,4 @@ my_theme = {
 }
 ```
 
-If you’d like more details, refer to the Material UI Palette Accessibility docs (the same principles apply in `panel_material_ui`).
+If you’d like more details, refer to the Material UI Palette Accessibility docs (the same principles apply in `panel-material-ui`).

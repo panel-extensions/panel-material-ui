@@ -33,7 +33,7 @@ Typography(
 
 ## Font size
 
-Like Material UI, `panel_material_ui` uses `rem` units for font sizing. By default, browsers render `1rem = 16px`, but users may override this in their own browser settings. This approach improves accessibility, allowing your UI to scale gracefully if the user increases the default font size.
+Like Material UI, `panel-material-ui` uses `rem` units for font sizing. By default, browsers render `1rem = 16px`, but users may override this in their own browser settings. This approach improves accessibility, allowing your UI to scale gracefully if the user increases the default font size.
 
 To change the base font size, set `theme_config["typography"]["fontSize"]`:
 
@@ -81,7 +81,7 @@ Some developers prefer to set the <html> font size to 10px (or 62.5%) for simple
 
 1. Adjust your global HTML styles (e.g., via a Panel template or CSS) to `html { font-size: 62.5%; }` which effectively makes `1rem = 10px`.
 
-2. Let `panel_material_ui` know what the new root size is by setting `theme_config["typography"]["htmlFontSize"] = 10`.
+2. Let `panel-material-ui` know what the new root size is by setting `theme_config["typography"]["htmlFontSize"] = 10`.
 
 :::{note}
 Be mindful that changing the base font size can affect accessibility if a user is depending on the default 16px.
@@ -89,7 +89,7 @@ Be mindful that changing the base font size can affect accessibility if a user i
 
 ## Variants
 
-By default, panel_material_ui defines up to 13 text variants:
+By default, panel-material-ui defines up to 13 text variants:
 
 - `h1`, `h2`, `h3`, `h4`, `h5`, `h6`
 - `subtitle1`, `subtitle2`
@@ -116,11 +116,11 @@ Typography(
 ).servable()
 ```
 
-Then any `panel_material_ui` typography-based component referencing these variants will pick up your custom definitions.
+Then any `panel-material-ui` typography-based component referencing these variants will pick up your custom definitions.
 
 ### Adding & disabling variants
 
-If you want to create entirely new variants (e.g., poster) or remove existing ones (e.g., h3), `panel_material_ui` allows you to do so by editing the typography dict:
+If you want to create entirely new variants (e.g., poster) or remove existing ones (e.g., h3), `panel-material-ui` allows you to do so by editing the typography dict:
 
 ```{pyodide}
 from panel_material_ui import Typography
@@ -154,4 +154,4 @@ The disabled h3 variant simply reverts to default or becomes unavailable.
 - **Use media queries** in the `theme_config` or the `sx` parameter for responsive scaling.
 - **HTML root size** can be changed via CSS and `htmlFontSize` to keep rem arithmetic straightforward—but keep user accessibility in mind.
 
-With these options, `panel_material_ui` offers a powerful and flexible typography system that stays consistent with Material Design principles while adapting neatly to Panel’s Pythonic ecosystem.
+With these options, `panel-material-ui` offers a powerful and flexible typography system that stays consistent with Material Design principles while adapting neatly to Panel’s Pythonic ecosystem.
