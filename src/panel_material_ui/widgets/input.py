@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 class MaterialInputWidget(MaterialWidget):
 
-    color = param.Selector(objects=COLORS, default="primary", doc="""
+    color = param.Selector(objects=COLORS, default="default", doc="""
         The color variant of the input.""")
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="""
@@ -504,13 +504,12 @@ class _DatetimePickerBase(_DatePickerBase):
     military_time = param.Boolean(default=True, doc="""
       Whether to display time in 24 hour format.""")
 
-    open_to = param.Selector(objects=['year', 'month', 'day'], default='day', doc="""
+    open_to = param.Selector(objects=['year', 'month', 'day', 'hours', 'minutes'], default=None, doc="""
       The default view to open the calendar to.""")
 
     views = param.List(default=['year', 'month', 'day', 'hours', 'minutes'], doc="""
       The views that are available for the date picker.""")
 
-    # This is critical - we need to tell the JS component to include time
     _constants = {'range': False, 'time': True}
 
     __abstract = True
@@ -672,7 +671,6 @@ class DatetimePicker(_DatetimePickerBase):
     ...    military_time=True, name='Date and time'
     ... )
     """
-    mode = param.String('single', constant=True)
 
     value = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
         The current value. Can be a datetime object or a string in ISO format.""")
@@ -730,7 +728,7 @@ class TimePicker(_TimeCommon):
     ... )
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="default")
 
     value = param.ClassSelector(default=None, class_=(dt_time, str), doc="""
         The current value""")
@@ -828,7 +826,7 @@ class Checkbox(MaterialWidget):
     >>> Checkbox(label='Works with the tools you know and love', value=True)
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="default")
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
@@ -862,7 +860,7 @@ class Switch(MaterialWidget):
     >>> Switch(label='Works with the tools you know and love', value=True)
     """
 
-    color = param.Selector(objects=["default"] + COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="default")
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
@@ -887,7 +885,7 @@ class ColorPicker(MaterialWidget):
 
     alpha = param.Boolean(default=False, doc="Whether to allow alpha transparency.")
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="default")
 
     format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex")
 

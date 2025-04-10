@@ -74,6 +74,8 @@ class AutocompleteInput(MaterialSingleSelectBase):
     case_sensitive = param.Boolean(default=True, doc="""
         Enable or disable case sensitivity.""")
 
+    color = param.Selector(objects=COLORS, default="default")
+
     min_characters = param.Integer(default=2, doc="""
         The number of characters a user must type before
         completions are presented.""")
@@ -184,7 +186,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     >>> Select(label='Study', options=['Biology', 'Chemistry', 'Physics'])
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="default")
 
     groups = param.Dict(default=None, nested_refs=True, doc="""
         Dictionary whose keys are used to visually group the options
@@ -297,16 +299,8 @@ class _ButtonGroup(_ButtonLike):
     This is an abstract base class and should not be used directly.
     """
 
-    description_delay = param.Integer(default=5000, doc="""
-        Delay (in milliseconds) to display the tooltip after the cursor has
-        hovered over the Button, default is 500ms.""")
-
-    orientation = param.Selector(
-        default="horizontal",
-        objects=["horizontal", "vertical"],
-        doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""",
-    )
+    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
+        Button group orientation, either 'horizontal' (default) or 'vertical'.""")
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium")
 

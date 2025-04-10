@@ -88,10 +88,10 @@ export function render_theme_config(props, theme_config, dark_theme) {
     palette: {
       mode: dark_theme ? "dark" : "light",
       default: {
-        main: grey[dark_theme ? 700 : 300],
+        main: dark_theme ? grey[700] : "#000000",
         light: grey[dark_theme ? 500 : 100],
-        dark: grey[dark_theme ? 900 : 500],
-        contrastText: dark_theme ? "#ffffff" : "#000000",
+        dark: grey[dark_theme ? 900 : 600],
+        contrastText: dark_theme ? "#ffffff" : "#ffffff",
       },
       dark: {
         main: grey[dark_theme ? 800 : 600],
@@ -122,20 +122,121 @@ export function render_theme_config(props, theme_config, dark_theme) {
           container: props.view.container,
         },
       },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            variants: [
+              {
+                props: {color: "default"},
+                style: {
+                  color: "var(--mui-palette-default-dark)",
+                },
+              },
+            ],
+          },
+        },
+      },
+      MuiSwitch: {
+        styleOverrides: {
+          switchBase: {
+            "&.MuiSwitch-colorDefault.Mui-checked": {
+              color: "var(--mui-palette-default-contrastText)",
+            },
+            "&.MuiSwitch-colorDefault.Mui-checked + .MuiSwitch-track": {
+              backgroundColor: "var(--mui-palette-default-main)",
+              opacity: 0.7,
+            },
+          },
+        },
+      },
+      MuiSlider: {
+        styleOverrides: {
+          root: {
+            "& .MuiSlider-thumbColorDefault": {
+              backgroundColor: "var(--mui-palette-default-contrastText)",
+            },
+            variants: [
+              {
+                props: {color: "default"},
+                style: {
+                  color: "var(--mui-palette-default-dark)",
+                },
+              },
+            ],
+          },
+        },
+      },
+      MuiToggleButton: {
+        styleOverrides: {
+          root: {
+            "&.MuiToggleButton-default.Mui-selected": {
+              backgroundColor: "var(--mui-palette-default-light)",
+              color: "var(--mui-palette-default-main)",
+            },
+          },
+        },
+      },
+      MuiFab: {
+        styleOverrides: {
+          root: {
+            "&.MuiFab-default": {
+              color: "var(--mui-palette-default-main)",
+              backgroundColor: "var(--mui-palette-default-contrastText)",
+            },
+          }
+        },
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            "&.MuiTab-textColorDefault": {
+              color: "var(--mui-palette-default-main)"
+            }
+          }
+        }
+      },
       MuiButton: {
         styleOverrides: {
           root: {
+            variants: [
+              {
+                props: {variant: "contained", color: "default"},
+                style: {
+                  backgroundColor: "var(--mui-palette-default-contrastText)",
+                  color: "var(--mui-palette-default-main)",
+                },
+              },
+              {
+                props: {variant: "outlined", color: "default"},
+                style: {
+                  borderColor: "var(--mui-palette-default-main)",
+                  color: "var(--mui-palette-default-main)",
+                  "&:hover": {
+                    backgroundColor: "var(--mui-palette-default-light)",
+                  },
+                },
+              },
+              {
+                props: {variant: "text", color: "default"},
+                style: {
+                  color: "var(--mui-palette-default-main)",
+                  "&:hover": {
+                    backgroundColor: "var(--mui-palette-default-light)",
+                  },
+                },
+              },
+            ],
             textTransform: "none",
           },
         },
       },
-      MuiButtonBase: {
+      MuiMultiSectionDigitalClock: {
         styleOverrides: {
           root: {
-            textTransform: "none",
-          },
-        },
-      },
+            minWidth: "165px"
+          }
+        }
+      }
     }
   }
   if (theme_config != null) {

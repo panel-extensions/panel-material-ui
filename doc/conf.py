@@ -129,18 +129,12 @@ nbsite_gallery_conf = {
             'sections': [
                 'widgets',
                 'layouts',
-                # 3 most important by expected usage. Rest alphabetically
-                # 'chat',
-                # 'global',
-                # 'indicators',
-                # 'templates',
-                # 'custom_components',
             ],
             'as_pyodide': True,
             'normalize_titles': False,
         }
     },
-    'thumbnail_url': 'https://assets.holoviz.org/panel/thumbnails',
+    'thumbnail_url': 'https://assets.holoviz.org/panel-material-ui/thumbnails',
     # 'deployment_url': gallery_url,
     # 'jupyterlite_url': jlite_url,
     'only_use_existing': True,
@@ -154,31 +148,16 @@ else:
     panel_req = f'{CDN_ROOT}wheels/panel-{PY_VERSION}-py3-none-any.whl'
     bokeh_req = f'{CDN_ROOT}wheels/bokeh-{BOKEH_VERSION}-py3-none-any.whl'
 
-def get_requirements():
-    with open('pyodide_dependencies.json') as deps:
-        dependencies = json.load(deps)
-    requirements = {}
-    for src, deps in dependencies.items():
-        if deps is None:
-            continue
-        src = src.replace('.ipynb', '').replace('.md', '')
-        for name, min_version in MINIMUM_VERSIONS.items():
-            if any(name in req for req in deps):
-                deps = [f'{name}>={min_version}' if name in req else req for req in deps]
-        requirements[src] = deps
-    return requirements
-
-
 html_js_files = [
     (None, {'body': '{"shimMode": true}', 'type': 'esms-options'}),
     f'https://cdn.holoviz.org/panel/{js_version}/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js',
 ]
 
-# nbsite_pyodide_conf = {
-#     'PYODIDE_URL': f'https://cdn.jsdelivr.net/pyodide/{PYODIDE_VERSION}/full/pyodide.js',
-#     'requirements': [bokeh_req, panel_req, 'pyodide-http'],
-#     'requires': get_requirements(),
-# }
+nbsite_pyodide_conf = {
+    'PYODIDE_URL': f'https://cdn.jsdelivr.net/pyodide/{PYODIDE_VERSION}/full/pyodide.js',
+    'requirements': [bokeh_req, panel_req, 'pyodide-http'],
+    'requires': ["panel-material-ui"],
+}
 
 templates_path += [
     '_templates'
@@ -243,17 +222,12 @@ def _get_pyodide_version():
     raise NotImplementedError(F"{PYODIDE_VERSION=} is not valid")
 
 def update_versions(app, docname, source):
-    from panel.models.tabulator import TABULATOR_VERSION
-    from panel.models.vizzu import VIZZU_VERSION
-
     # Inspired by: https://stackoverflow.com/questions/8821511
     version_replace = {
         "{{PANEL_VERSION}}" : PY_VERSION,
         "{{BOKEH_VERSION}}" : BOKEH_VERSION,
         "{{PYSCRIPT_VERSION}}" : PYSCRIPT_VERSION,
-        "{{PYODIDE_VERSION}}" : _get_pyodide_version(),
-        "{{TABULATOR_VERSION}}" : TABULATOR_VERSION,
-        "{{VIZZU_VERSION}}" : VIZZU_VERSION,
+        "{{PYODIDE_VERSION}}" : _get_pyodide_version()
     }
 
     for old, new in version_replace.items():

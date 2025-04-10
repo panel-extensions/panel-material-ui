@@ -21,12 +21,12 @@ export function render({model, el}) {
       icon={
         icon.trim().startsWith("<") ?
           <img src={`data:image/svg+xml;base64,${btoa(icon)}`}/> :
-          <Icon>{icon}</Icon>
+          <Icon color={color}>{icon}</Icon>
       }
       checkedIcon={
         active_icon.trim().startsWith("<") ?
-          <img src={`data:image/svg+xml;base64,${btoa(active_icon)}`}/> :
-          <Icon>{active_icon}</Icon>
+          <img src={`data:image/svg+xml;base64,${btoa(active_icon || icon)}`}/> :
+          <Icon color={color}>{active_icon || icon}</Icon>
       }
       sx={sx}
     />

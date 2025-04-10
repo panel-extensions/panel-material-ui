@@ -98,14 +98,14 @@ export function render({model}) {
         sx: {padding: 0},
         startAdornment: (
           <InputAdornment position="start">
-            <IconButton onClick={() => decrement()} size="small">
+            <IconButton onClick={() => decrement()} size="small" color="default">
               <RemoveIcon fontSize="small" />
             </IconButton>
           </InputAdornment>
         ),
         endAdornment: (
           <InputAdornment position="end">
-            <IconButton onClick={() => increment()} size="small">
+            <IconButton onClick={() => increment()} size="small" color="default">
               <AddIcon fontSize="small" />
             </IconButton>
           </InputAdornment>

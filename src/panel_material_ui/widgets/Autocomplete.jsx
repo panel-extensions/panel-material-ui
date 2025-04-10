@@ -3,14 +3,15 @@ import Autocomplete from "@mui/material/Autocomplete"
 import Popper from "@mui/material/Popper"
 
 export function render({model, el}) {
+  const [color] = model.useState("color")
+  const [disabled] = model.useState("disabled")
+  const [label] = model.useState("label")
   const [value, setValue] = model.useState("value")
   const [value_input, setValueInput] = model.useState("value_input")
   const [options] = model.useState("options")
-  const [label] = model.useState("label")
   const [placeholder] = model.useState("placeholder")
   const [restrict] = model.useState("restrict")
   const [variant] = model.useState("variant")
-  const [disabled] = model.useState("disabled")
   const [sx] = model.useState("sx")
   function CustomPopper(props) {
     return <Popper {...props} container={el} />
@@ -32,14 +33,15 @@ export function render({model, el}) {
 
   return (
     <Autocomplete
-      value={value}
+      color={color}
+      disabled={disabled}
+      filterOptions={filt_func}
+      freeSolo={!restrict}
       onChange={(event, newValue) => setValue(newValue)}
       options={options}
-      disabled={disabled}
-      freeSolo={!restrict}
-      filterOptions={filt_func}
       variant={variant}
       sx={sx}
+      value={value}
       PopperComponent={CustomPopper}
       renderInput={(params) => (
         <TextField

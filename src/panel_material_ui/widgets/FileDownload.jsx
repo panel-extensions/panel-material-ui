@@ -66,9 +66,10 @@ export function render({model, view}) {
     <Button
       color={color}
       disabled={disabled}
+      fullWidth
       startIcon={icon ? (
         icon.trim().startsWith("<") ?
-          <img src={`data:image/svg+xml;base64,${btoa(icon)}`} style={{width: icon_size, height: icon_size, paddingRight: "0.5em"}} /> :
+          <img src={`data:image/svg+xml;base64,${btoa(icon)}`} width={icon_size} height={icon_size} style={{paddingRight: "0.5em"}} /> :
           <Icon style={{fontSize: icon_size}}>{icon}</Icon>
       ): <FileDownloadIcon style={{fontSize: icon_size}}/>}
       onClick={handleClick}

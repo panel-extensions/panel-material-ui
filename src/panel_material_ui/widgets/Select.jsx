@@ -423,7 +423,7 @@ export function render({model, view}) {
 
   return (
     <FormControl fullWidth disabled={disabled}>
-      {label && <InputLabel id={`select-label-${model.id}`}>{label}</InputLabel>}
+      {label && <InputLabel color={color} id={`select-label-${model.id}`}>{label}</InputLabel>}
       <Select
         multiple={multi}
         color={color}

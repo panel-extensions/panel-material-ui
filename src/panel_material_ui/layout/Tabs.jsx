@@ -1,6 +1,7 @@
 import Tabs from "@mui/material/Tabs"
 import Tab from "@mui/material/Tab"
 import Box from "@mui/material/Box"
+import {useTheme} from "@mui/material/styles"
 
 export function render({model, view}) {
   const [active, setActive] = model.useState("active")
@@ -11,6 +12,8 @@ export function render({model, view}) {
   const [names] = model.useState("_names")
   const [sx] = model.useState("sx")
   const objects = model.get_child("objects")
+
+  const theme = useTheme()
 
   const handleChange = (event, newValue) => {
     setActive(newValue);
@@ -38,6 +41,7 @@ export function render({model, view}) {
       orientation={orientation}
       variant="scrollable"
       scrollButtons="auto"
+      TabIndicatorProps={{style: {backgroundColor: theme.palette[color].main}}}
       sx={{transition: "height 0.3s", ...sx}}
     >
       {names.map((label, index) => (

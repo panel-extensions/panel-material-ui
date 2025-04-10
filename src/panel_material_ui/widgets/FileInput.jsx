@@ -1,8 +1,11 @@
 import Button from "@mui/material/Button"
 import CircularProgress from "@mui/material/CircularProgress"
-import {styled} from "@mui/material/styles";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import ErrorIcon from "@mui/icons-material/Error";
+import {styled} from "@mui/material/styles"
+import CloudUploadIcon from "@mui/icons-material/CloudUpload"
+import ErrorIcon from "@mui/icons-material/Error"
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import {useTheme} from "@mui/material/styles"
+
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
@@ -13,7 +16,7 @@ const VisuallyHiddenInput = styled("input")({
   left: 0,
   whiteSpace: "nowrap",
   width: 1,
-});
+})
 
 async function read_file(file) {
   return new Promise((resolve, reject) => {
@@ -65,29 +68,43 @@ export function render({model}) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
-  const [uploading, setUploading] = React.useState(false)
-  const [error] = React.useState(false)
+  const [status, setStatus] = React.useState("idle")
+  const [n, setN] = React.useState(0)
+  const theme = useTheme()
 
   model.on("msg:custom", (msg) => {
     if (msg.status === "finished") {
-      setUploading(false)
-      setError(false)
+      setStatus("completed")
+      setTimeout(() => {
+        setStatus("idle")
+      }, 2000)
     } else if (msg.status === "error") {
-      setError(true)
+      setStatus("error")
     }
   })
+  const icon = (() => {
+    switch (status) {
+      case "error":
+        return <ErrorIcon color="error" />;
+      case "idle":
+        return <CloudUploadIcon />;
+      case "uploading":
+        return <CircularProgress color={theme.palette[color].contrastText} size={15} />;
+      case "completed":
+        return <CheckCircleIcon color="success" />;
+      default:
+        return null;
+    }
+  })();
 
-  const icon = (
-    error ? (
-      <ErrorIcon color="error" />
-    ) : (
-      uploading ? (
-        <CircularProgress color="common.white" size={15} />
-      ) : (
-        <CloudUploadIcon />
-      )
-    )
-  )
+  let title = ""
+  if (status === "completed") {
+    title = `Uploaded ${n} file${n === 1 ? "" : "s"}.`
+  } else if (label) {
+    title = label
+  } else {
+    title = `Upload File${  multiple ? "(s)" : ""}`
+  }
 
   return (
     <Button
@@ -100,13 +117,13 @@ export function render({model}) {
       variant={variant}
       sx={sx}
     >
-      {label || directory ? "Upload Directory" : "Upload File(s)"}
+      {title}
       <VisuallyHiddenInput
         type="file"
         onChange={(event) => {
           load_files(event.target.files, accept, directory, multiple).then((data) => {
             const [values, filenames, mime_types] = data
-            setUploading(true)
+            setStatus("uploading")
             model.send_msg({status: "initializing"})
             for (let i = 0; i < values.length; i++) {
               model.send_msg({
@@ -117,6 +134,7 @@ export function render({model}) {
                 status: "in_progress",
               })
             }
+            setN(values.length)
             model.send_msg({status: "finished"})
           }).catch((e) => console.error(e))
         }}

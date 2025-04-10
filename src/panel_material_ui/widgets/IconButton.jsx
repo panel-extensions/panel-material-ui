@@ -10,10 +10,10 @@ export function render({model, el}) {
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [toggle_duration] = model.useState("toggle_duration")
-  const [current_icon, setIcon] = React.useState(icon)
-  const [color_variant, setColorVariant] = React.useState(color)
 
   const theme = useTheme()
+  const [current_icon, setIcon] = React.useState(icon)
+  const [color_variant, setColorVariant] = React.useState(null)
 
   const handleClick = (e) => {
     model.send_event("click", e)
@@ -22,18 +22,18 @@ export function render({model, el}) {
       setTimeout(() => setIcon(icon), toggle_duration)
     } else {
       setColorVariant(theme.palette[color].dark)
-      setTimeout(() => setColorVariant(color), toggle_duration)
+      setTimeout(() => setColorVariant(null), toggle_duration)
     }
   }
 
   return (
     <IconButton
-      color={color_variant}
+      color={color}
       disabled={disabled}
       edge={edge}
-      size={size}
-      sx={sx}
       onClick={handleClick}
+      size={size}
+      sx={{color: color_variant, width: "100%", ...sx}}
     >
       {current_icon.trim().startsWith("<") ?
         <img src={`data:image/svg+xml;base64,${btoa(current_icon)}`} style={{width: size, height: size}} /> :
