@@ -216,7 +216,7 @@ class SpeedDial(MenuBase):
     Reference: https://mui.com/material-ui/react-speed-dial/
     """
 
-    color = param.Selector(default="primary", objects=COLORS, doc="""
+    color = param.Selector(default="default", objects=COLORS, doc="""
         The color of the menu.""")
 
     direction = param.Selector(default="right", objects=["right", "left", "up", "down"], doc="""
@@ -240,7 +240,7 @@ class Pagination(MaterialWidget):
     Reference: https://mui.com/material-ui/react-pagination/
     """
 
-    color = param.Selector(default="primary", objects=COLORS, doc="The color of the pagination.")
+    color = param.Selector(default="default", objects=COLORS, doc="The color of the pagination.")
 
     count = param.Integer(default=None, doc="The total number of pages.")
 

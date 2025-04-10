@@ -14,9 +14,10 @@ export function render({model}) {
     <ToggleButton
       color={color}
       disabled={disabled}
+      fullWidth
       selected={value}
       onChange={() => setValue(!value)}
-      sx={sx}
+      sx={{...sx}}
       variant={variant}
     >
       {icon && (
