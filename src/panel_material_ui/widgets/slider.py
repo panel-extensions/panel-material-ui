@@ -18,7 +18,7 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
 
     bar_color = param.Color(default=None, doc="Color of the bar")
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="default")
 
     direction = param.Selector(default='ltr', objects=['ltr', 'rtl'], doc="""
         Whether the slider should go from left-to-right ('ltr') or
@@ -392,7 +392,7 @@ class DiscreteSlider(_PnDiscreteSlider):
     Reference: https://panel.holoviz.org/reference/widgets/DiscreteSlider.html
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="default")
 
     options = param.ClassSelector(default=[], class_=(dict, list), doc="""
         A list or dictionary of valid options.""")

@@ -284,7 +284,7 @@ class Tabs(MaterialNamedListLike):
     centered = param.Boolean(default=False, doc="""
         Whether the tabs should be centered.""")
 
-    color = param.Selector(default="primary", objects=["primary", "secondary"])
+    color = param.Selector(default="default", objects=["default", "primary", "secondary"])
 
     dynamic = param.Boolean(default=False, doc="""
         Whether the tab contents should be rendered dynamically,

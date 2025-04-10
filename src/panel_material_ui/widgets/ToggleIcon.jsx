@@ -25,8 +25,8 @@ export function render({model, el}) {
       }
       checkedIcon={
         active_icon.trim().startsWith("<") ?
-          <img src={`data:image/svg+xml;base64,${btoa(active_icon)}`}/> :
-          <Icon>{active_icon}</Icon>
+          <img src={`data:image/svg+xml;base64,${btoa(active_icon || icon)}`}/> :
+          <Icon>{active_icon || icon}</Icon>
       }
       sx={sx}
     />

@@ -21,7 +21,7 @@ export function render({model, el}) {
       onChange={setValue}
       size={size}
       sx={sx}
-      value={value}
+      value={value || undefined}
       variant={variant}
       PopoverProps={{
         container: el,
