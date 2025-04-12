@@ -1,3 +1,4 @@
 import panel as pn
+from shared.page import create_page
 
-pn.panel("Notifications").servable()
+create_page("Notifications", main=["# Notifications"]).servable(title="Notifications")

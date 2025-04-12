@@ -2,51 +2,14 @@ import panel as pn
 import panel_material_ui as pmu
 import pandas as pd
 from shared.config import BODY_STYLES, CARD_STYLES, BODY_BACKGROUND
+from shared.data import get_authors_data
+from shared.page import create_page
 
 pn.extension()
 
-data = [
-    {
-        "image": "https://randomuser.me/api/portraits/men/1.jpg",
-        "name": "John Michael",
-        "email": "john.michael@example.com",
-        "title": "Manager",
-        "team": "Organization",
-        "status": "Online",
-        "employed": "23/04/18",
-    },
-    {
-        "image": "https://randomuser.me/api/portraits/women/2.jpg",
-        "name": "Alexa Liras",
-        "email": "alexa.liras@example.com",
-        "title": "Programmer",
-        "team": "Developer",
-        "status": "Offline",
-        "employed": "11/01/19",
-    },
-    {
-        "image": "https://randomuser.me/api/portraits/men/3.jpg",
-        "name": "Laurent Perrier",
-        "email": "laurent.perrier@example.com",
-        "title": "Executive",
-        "team": "Projects",
-        "status": "Online",
-        "employed": "19/09/17",
-    },
-    {
-        "image": "https://randomuser.me/api/portraits/women/4.jpg",
-        "name": "Michael Levi",
-        "email": "michael.levi@example.com",
-        "title": "Designer",
-        "team": "Creative",
-        "status": "Online",
-        "employed": "24/12/08",
-    },
-]
-df = pd.DataFrame(data)
 
 @pn.cache
-def style_authors_table(df=df):
+def to_styled_authors_table(data):
     def render_author(row):
         return (
             f'<div style="display:flex; align-items:center; gap:10px;">'
@@ -66,12 +29,12 @@ def style_authors_table(df=df):
     def render_edit_button():
         return '<button style="color:black;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;">Edit</button>'
 
-    df["Author"] = df.apply(render_author, axis=1)
-    df["Function"] = df.apply(render_function, axis=1)
-    df["Status"] = df.apply(render_status, axis=1)
-    df["Edit"] = render_edit_button()
-    df = df.rename(columns={"employed": "Employed"})
-    df = df[
+    data["Author"] = data.apply(render_author, axis=1)
+    data["Function"] = data.apply(render_function, axis=1)
+    data["Status"] = data.apply(render_status, axis=1)
+    data["Edit"] = render_edit_button()
+    data = data.rename(columns={"employed": "Employed"})
+    data = data[
         [
             "Author",
             "Function",
@@ -81,7 +44,7 @@ def style_authors_table(df=df):
         ]
     ]
 
-    styled_df = df.style
+    styled_df = data.style
     styled_df = (
         styled_df.hide(axis="index")
         .set_table_styles(
@@ -113,45 +76,37 @@ def style_authors_table(df=df):
     return styled_df
 
 
-styled_table = style_authors_table(df)
-author_table = pn.panel(styled_table, sizing_mode="stretch_width")
+def get_card_with_jumbo_header(title, content):
+    return pn.Column(
+        pn.pane.Markdown(
+            title,
+            sizing_mode="stretch_width",
+            styles={
+                "background": "black",
+                "color": "white",
+                "border_radius": "5px",
+                "position": "relative",
+                "padding-left": "25px",
+                "top": "-25px",
+            },
+            margin=(10, 50, 10, 50),
+            height=50,
+        ),
+        content,
+        styles=CARD_STYLES,
+        margin=10,
+    )
 
-authors_card = pn.Column(
-    pn.pane.Markdown(
-        "### Authors Table",
-        sizing_mode="stretch_width",
-        styles={
-            "background": "black",
-            "color": "white",
-            "border_radius": "5px",
-            "position": "relative",
-            "padding-left": "25px",
-            "top": "-25px",
-        },
-        margin=(10, 50, 10, 50),
-        height=50,
-    ),
-    author_table,
-    styles=CARD_STYLES,
-    margin=10,
-)
+
+authors_data = get_authors_data()
+styled_authors_table = to_styled_authors_table(authors_data)
+authors_table = pn.panel(styled_authors_table, sizing_mode="stretch_width")
+authors_card = get_card_with_jumbo_header("### Authors Table", authors_table)
 
 main = pn.Column(
     pn.Spacer(height=25),
     authors_card,
     pn.Spacer(sizing_mode="stretch_both"),
     sizing_mode="stretch_both",
-    # styles=BODY_STYLES,
 )
-
-pmu.template.Page(
-    main=[main],
-    theme_config={
-        "palette": {
-            "primary": {"main": BODY_BACKGROUND},
-            "background": {
-                "paper": BODY_BACKGROUND,
-            },
-        }
-    },
-).servable()
+create_page(name="Tables", main=[main]).servable(title="Tables")
