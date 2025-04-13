@@ -87,18 +87,18 @@ def create_change_indicator(title, icon, value, change_percent, since):
         change_class=change_class,
     )
     # Why pn.pane.HTML not visible?
-    return pn.panel(
+    return pn.pane.HTML(
         html,
         stylesheets=[_CHANGE_INDICATOR_CSS],
         sizing_mode="stretch_width",
     )
 
 
-def create_menu(selected: str, pages: list[tuple] = PAGES):
+def create_menu(selected: str, pages: list[tuple] = PAGES, button_color="primary"):
     items = pn.Column()
     for name_, href, icon in pages:
         button_style = "contained" if selected == name_ else "text"
-        button_type = "primary" if selected == name_ else "default"
+        button_type = button_color if selected == name_ else "default"
         button = pmu.widgets.Button(
             name=name_,
             icon=icon,

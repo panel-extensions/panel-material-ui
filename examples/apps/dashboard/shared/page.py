@@ -1,10 +1,10 @@
 import panel as pn
 import panel_material_ui as pmu
 from shared.components import create_menu
-from shared.config import CARD_STYLES, BODY_STYLES
+from shared.config import PAPER_STYLES, BODY_STYLES, PageSettings
 
 
-def create_sidebar(name: str):
+def create_sidebar(name: str, button_color, settings: PageSettings):
     documentation_link = pmu.widgets.Button(
         name="Documentation",
         variant="outlined",
@@ -20,25 +20,66 @@ def create_sidebar(name: str):
     return pmu.Column(
         "#### <img style='margin-bottom: -10px;margin-right: 10px;margin-left:5px;' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAAM1BMVEUAcrUBd7jk6OuoxdsAcrUAbLP08vAAbbUAdLUAcrVQnMm6z99+rM86jcJ5sNElhL10qc1QLvfMAAAACnRSTlPP////////KCjO4FwxLQAAAJNJREFUKJGNktEShCAIRRXCCrX2/792aaYU3YXpTDM+nMQLGtawGIQtmE6s48S+kkRkSBEHMim6rMyYAA7u1EdSTj9kenYWRPGQsVNaWTnjxFzifGhvJbbcTp+V4yCj4gOA19rSImgkmvxAf2Ua5Vw267Ij5xTIbcUdgjc+f/DelenLXu5vTGs/EwNfuo963S23b1+vug28mwd6wAAAAABJRU5ErkJggg=='></img>Creative Panel",
         pmu.layout.Divider(sizing_mode="stretch_width", margin=(10, 5, 10, 5)),
-        create_menu(name),
+        create_menu(name, button_color=button_color),
         pn.Spacer(sizing_mode="stretch_height"),
         documentation_link,
         reference_link,
-        styles={"background": "white", "border-radius": "5px", "margin": "10px"},
+        styles=settings.sidebar_styles,
         width=300,
         sizing_mode="stretch_height",
     )
 
 
-def create_context():
+def create_github_star_count():
+    return pn.panel(
+        """\
+    <a href="https://github.com/panel-extensions/panel-material-ui">
+        <img height="20" src="https://img.shields.io/github/stars/panel-extensions/panel-material-ui?style=social" alt="GitHub stars">
+    </a>\
+    """,
+        align="center",
+    )
+
+def create_context(settings: PageSettings):
+    buttons = [pmu.widgets.Button(name=name, variant="outlined", color="dark") for name in settings.param.sidebar_background_color.objects]
+    def update_buttons(buttons=buttons):
+        for but in buttons:
+            but.variant = "contained" if but.name==settings.sidebar_background_color else "outlined"
+    update_buttons()
+
+    def click(event, buttons=buttons):
+        button = event.obj
+        settings.sidebar_background_color=button.name
+        update_buttons()
+    [button.on_click(click) for button in buttons]
+
+
     return pn.Column(
-        "#### Material UI Configurator",
+        "## Material UI Configurator",
+        pmu.widgets.RadioBoxGroup.from_param(settings.param.sidebar_button_color),
+        """### Sidenav Type
+
+Choose between different sidenav types.""",
+        pn.Row(*buttons, align="center"),
+        pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
+        pmu.Switch.from_param(settings.param.dark_theme, name="Light/ Dark"),
+        pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
+        create_github_star_count(),
+        pmu.widgets.Button(name="Free Download", href="https://github.com/panel-extensions/panel-material-ui", color="primary", variant="contained", sizing_mode="stretch_width"),
+        pmu.widgets.Button(name="Documentation", href="https://holoviz-dev.github.io/panel-material-ui/", variant="outlined", sizing_mode="stretch_width"),
+        pn.pane.Markdown("## Thank you for sharing!", align="center"),
+        pn.Row(
+            pmu.widgets.Button(name="Tweet", href="https://twitter.com/intent/tweet?text=Check%20Panel%20Material%20UI%20Dashboard%20made%20by%20%40HoloViz%20%23webdesign%20%23dashboard%20%23dataviz&url=https%3A%2F%2Fholoviz-dev.github.io%2Fpanel-material-ui%2F", color="dark", variant="contained"),
+            pmu.widgets.Button(name="Share", href="https://www.facebook.com/sharer/sharer.php?u=https://holoviz-dev.github.io/panel-material-ui", color="dark", variant="contained"),
+            align="center",
+        ),
         pn.Spacer(sizing_mode="stretch_height"),
-        width=300,
+        width=450,
         margin=10,
-        styles=CARD_STYLES,
+        styles=PAPER_STYLES,
         visible=True,
     )
+
 
 
 def create_header(name: str, settings_callback):
@@ -55,14 +96,7 @@ def create_header(name: str, settings_callback):
         href="https://panel.holoviz.org",
         align="center",
     )
-    github_star_count = pn.panel(
-        """\
-    <a href="https://github.com/panel-extensions/panel-material-ui">
-        <img height="20" src="https://img.shields.io/github/stars/panel-extensions/panel-material-ui?style=social" alt="GitHub stars">
-    </a>\
-    """,
-        align="center",
-    )
+    github_star_count = create_github_star_count()
     settings_button = pmu.widgets.ButtonIcon(
         name="Context", icon="settings", align="center", on_click=settings_callback
     )
@@ -90,9 +124,11 @@ def create_fab():
 
 
 def create_page(name: str, main: list):
-    sidebar = create_sidebar(name=name)
+    settings = PageSettings()
 
-    context = create_context()
+    sidebar = create_sidebar(name=name, button_color=settings.param.sidebar_button_color, settings=settings)
+
+    context = create_context(settings=settings)
 
     def toggle_context(event):
         context.visible = not context.visible

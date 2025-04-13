@@ -1,7 +1,7 @@
 import panel as pn
 import panel_material_ui as pmu
 import pandas as pd
-from shared.config import BODY_STYLES, CARD_STYLES, BODY_BACKGROUND
+from shared.config import BODY_STYLES, PAPER_STYLES, BODY_BACKGROUND
 from shared.data import get_authors_data
 from shared.page import create_page
 
@@ -93,7 +93,7 @@ def get_card_with_jumbo_header(title, content):
             height=50,
         ),
         content,
-        styles=CARD_STYLES,
+        styles=PAPER_STYLES,
         margin=10,
     )
 
