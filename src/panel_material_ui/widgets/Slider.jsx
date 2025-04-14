@@ -62,7 +62,7 @@ export function render({model}) {
   }, [ticks, format, date])
 
   return (
-    <FormControl disabled={disabled} fullWidth>
+    <FormControl disabled={disabled} fullWidth sx={orientation === "vertical" ? {height: "100%"} : {}}>
       <FormLabel>
         {label && `${label}: `}
         { show_value &&
