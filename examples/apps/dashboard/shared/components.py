@@ -1,6 +1,11 @@
 import panel as pn
 import panel_material_ui as pmu
 from .config import PAGES
+from panel_material_ui.pane.base import MaterialPaneBase
+import param
+import panel as pn
+
+from panel.custom import ReactComponent
 
 _CHANGE_INDICATOR_CSS = """
 .card {
@@ -69,7 +74,6 @@ _CHANGE_INDICATOR_TEMPLATE = """\
 </div>\
 """
 
-
 def create_change_indicator(title, icon, value, change_percent, since):
     if change_percent > 0:
         change_class = "change-positive"
@@ -110,3 +114,48 @@ def create_menu(selected: str, pages: list[tuple] = PAGES, button_color="primary
         )
         items.append(button)
     return items
+
+class Timeline(ReactComponent):
+
+    _importmap = {
+        "imports": {
+            "@mui/lab/": "https://esm.sh/@mui/lab/",
+        }
+    }
+
+    _esm = """
+    import Timeline from '@mui/lab/Timeline';
+    import TimelineItem from '@mui/lab/TimelineItem';
+    import TimelineSeparator from '@mui/lab/TimelineSeparator';
+    import TimelineConnector from '@mui/lab/TimelineConnector';
+    import TimelineContent from '@mui/lab/TimelineContent';
+    import TimelineDot from '@mui/lab/TimelineDot';
+
+    export function render({ model }) {
+      return (
+        <Timeline>
+        <TimelineItem>
+            <TimelineSeparator>
+                <TimelineDot />
+                <TimelineConnector />
+            </TimelineSeparator>
+            <TimelineContent>$2400, Design changes</TimelineContent>
+        </TimelineItem>
+        <TimelineItem>
+            <TimelineSeparator>
+                <TimelineDot />
+                <TimelineConnector />
+            </TimelineSeparator>
+            <TimelineContent>New order #1832412</TimelineContent>
+        </TimelineItem>
+        <TimelineItem>
+            <TimelineSeparator>
+                <TimelineDot />
+                <TimelineConnector />
+            </TimelineSeparator>
+            <TimelineContent>Server payments for April</TimelineContent>
+        </TimelineItem>
+        </Timeline>
+    )
+    }
+    """
