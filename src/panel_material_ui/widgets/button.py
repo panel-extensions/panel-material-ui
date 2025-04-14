@@ -111,7 +111,7 @@ class Button(_ButtonBase, _ClickButton):
     )
 
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
-
+    href = param.String(doc="A url. Turns the Button into a link button.")
     _esm_base = "Button.jsx"
     _event = "dom_event"
 

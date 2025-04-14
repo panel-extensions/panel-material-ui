@@ -8,6 +8,7 @@ export function render({model, el}) {
   const [label] = model.useState("label")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
+  const [href] = model.useState("href")
 
   return (
     <Button
@@ -21,6 +22,7 @@ export function render({model, el}) {
       )}
       sx={sx}
       variant={variant}
+      href={href}
     >
       {label}
     </Button>

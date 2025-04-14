@@ -86,6 +86,7 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
     further actions or monitoring.
 
     References:
+    - https://holoviz-dev.github.io/panel-material-ui/reference/widgets/ButtonIcon.html
     - https://panel.holoviz.org/reference/widgets/ButtonIcon.html
     - https://mui.com/material-ui/icons/
 
