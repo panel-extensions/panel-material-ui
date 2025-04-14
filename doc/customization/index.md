@@ -76,7 +76,7 @@ Dive into the Material Design color system. Create harmonious palettes, pick acc
 
 ## Where to go next?
 
-- If you’re new to **Panel**, check out the [Getting Started](https://panel.holoviz.org/getting_started/index.md) guides to learn the basics.
+- If you’re new to **Panel**, check out the [Getting Started](https://panel.holoviz.org/getting_started/index.html) guides to learn the basics.
 - Already confident with Panel? Dive deeper into advanced theming and usage within these customization guides, or reference [Material UI’s design principles](https://mui.com/) for additional inspiration.
 
 ```{toctree}
