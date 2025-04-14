@@ -13,6 +13,7 @@ export function render({model, el}) {
     <Button
       color={color}
       disabled={disabled}
+      fullWidth
       onClick={() => model.send_event("click", {})}
       startIcon={icon && (
         icon.trim().startsWith("<") ?

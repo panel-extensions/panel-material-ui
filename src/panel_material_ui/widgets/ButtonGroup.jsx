@@ -16,6 +16,7 @@ export function render({model}) {
     <ToggleButtonGroup
       color={color}
       disabled={disabled}
+      fullWidth
       orientation={orientation}
       value={value}
       variant={variant}

@@ -111,11 +111,12 @@ export function render({model}) {
       color={color}
       component="label"
       disabled={disabled}
+      fullWidth
       role={undefined}
-      tabIndex={-1}
       startIcon={icon}
-      variant={variant}
       sx={sx}
+      tabIndex={-1}
+      variant={variant}
     >
       {title}
       <VisuallyHiddenInput

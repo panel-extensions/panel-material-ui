@@ -11,18 +11,18 @@ export function render({model}) {
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
+  const [size] = model.useState("size")
 
   return (
     <TextField
       color={color}
       disabled={disabled}
       error={error_state}
+      fullWidth
       inputProps={{maxLength: max_length}}
       label={label}
       multiline={model.esm_constants.multiline}
       placeholder={placeholder}
-      variant={variant}
-      value={value_input}
       onBlur={() => setValue(value_input)}
       onChange={(event) => setValueInput(event.target.value)}
       onKeyDown={(event) => {
@@ -32,8 +32,10 @@ export function render({model}) {
         }
       }}
       rows={4}
-      fullWidth
+      size={size}
       sx={sx}
+      variant={variant}
+      value={value_input}
     />
   )
 }

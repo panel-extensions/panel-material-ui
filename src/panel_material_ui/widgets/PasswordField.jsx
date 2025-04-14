@@ -1,18 +1,8 @@
-import FilledInput from "@mui/material/FilledInput";
-import IconButton from "@mui/material/IconButton";
-import Input from "@mui/material/Input";
-import InputLabel from "@mui/material/InputLabel";
-import InputAdornment from "@mui/material/InputAdornment";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import TextField from "@mui/material/Input";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-
-const components = {
-  standard: Input,
-  outlined: OutlinedInput,
-  filled: FilledInput
-};
+import IconButton from "@mui/material/IconButton"
+import InputAdornment from "@mui/material/InputAdornment"
+import TextField from "@mui/material/TextField"
+import Visibility from "@mui/icons-material/Visibility"
+import VisibilityOff from "@mui/icons-material/VisibilityOff"
 
 export function render({model}) {
   const [color] = model.useState("color")
@@ -23,49 +13,39 @@ export function render({model}) {
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
-  const [showPassword, setShowPassword] = React.useState(false);
-
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
-
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
-
-  const handleMouseUpPassword = (event) => {
-    event.preventDefault();
-  };
-
-  const Component = components[variant] || components.standard;
+  const [showPassword, setShowPassword] = React.useState(false)
 
   return (
-    <>
-      <InputLabel>{label}</InputLabel>
-      <Component
-        color={color}
-        placeholder={placeholder}
-        variant={variant}
-        value={value}
-        disabled={disabled}
-        inputProps={{maxLength: max_length}}
-        onChange={(event) => setValue(event.target.value)}
-        fullWidth
-        type={showPassword ? "text" : "password"}
-        endAdornment={
-          <InputAdornment position="end">
-            <IconButton
-              aria-label={
-                showPassword ? "hide the password" : "display the password"
-              }
-              onClick={handleClickShowPassword}
-              onMouseDown={handleMouseDownPassword}
-              onMouseUp={handleMouseUpPassword}
-            >
-              {showPassword ? <VisibilityOff /> : <Visibility />}
-            </IconButton>
-          </InputAdornment>
+    <TextField
+      color={color}
+      disabled={disabled}
+      slotProps={{
+        input: {
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label={
+                  showPassword ? "hide the password" : "display the password"
+                }
+                onClick={() => setShowPassword((show) => !show)}
+                onMouseDown={(event) => event.preventDefault()}
+                onMouseUp={(event) => event.preventDefault()}
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          )
         }
-        sx={sx}
-      />
-    </>
+      }}
+      fullWidth
+      inputProps={{maxLength: max_length}}
+      label={label}
+      onChange={(event) => setValue(event.target.value)}
+      placeholder={placeholder}
+      sx={sx}
+      type={showPassword ? "text" : "password"}
+      variant={variant}
+      value={value}
+    />
   )
 }

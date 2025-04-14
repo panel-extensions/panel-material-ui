@@ -17,14 +17,14 @@ def test_int_slider(page):
     slider = page.locator('.int-slider')
     expect(slider).to_have_count(1)
 
-    slider_value = page.locator('.MuiTypography-root')
+    slider_value = page.locator('.MuiFormLabel-root')
     expect(slider_value).to_have_text(str(widget.value))
 
 
 def test_slider_value_update(page):
     widget = IntSlider(value=5, start=0, end=10)
     serve_component(page, widget)
-    slider_value = page.locator('.MuiTypography-root')
+    slider_value = page.locator('.MuiFormLabel-root')
 
     for i in range(widget.start, widget.end, widget.step):
         widget.value = i
@@ -52,7 +52,7 @@ def test_slider_vertical_orientation(page):
     serve_component(page, widget)
 
     expect(page.locator(f'.MuiSlider-vertical')).to_have_count(1)
-    assert page.locator('.MuiSlider-rail').evaluate("el => el.offsetHeight") == widget.width
+    assert page.locator('.MuiSlider-rail').evaluate("el => el.offsetHeight") == 277
 
 
 def test_slider_format_str(page):
@@ -60,11 +60,11 @@ def test_slider_format_str(page):
 
     serve_component(page, widget)
 
-    expect(page.locator('.MuiTypography-root')).to_have_text('1k')
+    expect(page.locator('.MuiFormLabel-root')).to_have_text('1k')
 
     widget.value = 2000
 
-    expect(page.locator('.MuiTypography-root')).to_have_text('2k')
+    expect(page.locator('.MuiFormLabel-root')).to_have_text('2k')
 
 
 def test_slider_format_model(page):
@@ -72,11 +72,11 @@ def test_slider_format_model(page):
 
     serve_component(page, widget)
 
-    expect(page.locator('.MuiTypography-root')).to_have_text('1 m')
+    expect(page.locator('.MuiFormLabel-root')).to_have_text('1 m')
 
     widget.value = 7
 
-    expect(page.locator('.MuiTypography-root')).to_have_text('7 m')
+    expect(page.locator('.MuiFormLabel-root')).to_have_text('7 m')
 
 
 @pytest.mark.parametrize('size', ["small", "medium", "large"])

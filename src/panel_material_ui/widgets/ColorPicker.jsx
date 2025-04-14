@@ -16,17 +16,17 @@ export function render({model, el}) {
       color={color}
       disabled={disabled}
       format={format}
-      label={label}
+      fullWidth
       isAlphaHidden={!alpha}
+      label={label}
       onChange={setValue}
       size={size}
       sx={sx}
-      value={value || undefined}
+      value={value}
       variant={variant}
       PopoverProps={{
         container: el,
       }}
-      fullWidth
     />
   )
 }
