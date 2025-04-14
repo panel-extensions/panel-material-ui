@@ -5,14 +5,15 @@ import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
 
 export function render({model}) {
-  const [disabled] = model.useState("disabled");
-  const [color] = model.useState("color");
-  const [options] = model.useState("options");
-  const [label] = model.useState("label");
-  const [inline] = model.useState("inline");
-  const [value, setValue] = model.useState("value");
-  const [sx] = model.useState("sx");
+  const [color] = model.useState("color")
+  const [disabled] = model.useState("disabled")
+  const [inline] = model.useState("inline")
+  const [label] = model.useState("label")
+  const [options] = model.useState("options")
+  const [sx] = model.useState("sx")
+  const [value, setValue] = model.useState("value")
   const exclusive = model.esm_constants.exclusive
+
   return (
     <FormControl component="fieldset" disabled={disabled} fullWidth>
       {label && <FormLabel id="radio-buttons-group-label">{label}</FormLabel>}
@@ -21,7 +22,7 @@ export function render({model}) {
         fullWidth
         row={inline}
         sx={sx}
-	      value={value}
+        value={value}
       >
         {options.map((option, index) => {
           return (
