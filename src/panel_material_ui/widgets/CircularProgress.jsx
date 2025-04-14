@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box"
 import CircularProgress from "@mui/material/CircularProgress"
 import Typography from "@mui/material/Typography"
-import { useTheme } from "@mui/material/styles"
+import {useTheme} from "@mui/material/styles"
 
 export function render({model}) {
   const [bgcolor] = model.useState("bgcolor")
@@ -37,6 +37,7 @@ export function render({model}) {
           sx={{
             position: "absolute",
             left: 0,
+            ...sx
           }}
           thickness={thickness}
           value={idle ? 100 : (typeof value === "boolean") ? 0 : value}
@@ -49,16 +50,16 @@ export function render({model}) {
               left: 0,
               bottom: 0,
               right: 0,
-              position: 'absolute',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              position: "absolute",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <Typography
               variant="caption"
               component="div"
-              sx={{ color: 'text.secondary' }}
+              sx={{ color: "text.secondary" }}
             >
               {`${Math.round(value)}%`}
             </Typography>
