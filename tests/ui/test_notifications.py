@@ -78,7 +78,7 @@ def test_notifications_destroy(page):
 
     page.click('.bk-btn')
 
-    expect(page.locator('.MuiAlert-message')).to_have_count(2)
+    wait_until(lambda: expect(page.locator('.MuiAlert-message')).to_have_count(2), page)
 
     notifications[0].destroy()
 
