@@ -155,6 +155,32 @@ class Button(_ButtonBase, _ClickButton):
         self.param.update(clicks=self.clicks + 1, value=True)
 
 
+class Fab(Button):
+    """
+    The `Fab` is a so called floating action button that allows triggering events when the button is
+    clicked.
+
+    References:
+    - https://panel.holoviz.org/reference/widgets/Fab.html
+    - https://mui.com/material-ui/react-fab/
+
+    :Example:
+
+    >>> Fab(icon='add')
+    """
+
+    icon = param.String(default="add", doc="""
+        The icon to display on the button.""")
+
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
+        The size of the button.""")
+
+    variant = param.Selector(objects=["circular", "extended"], default="circular", doc="""
+        The variant of the button.""")
+
+    _esm_base = "Fab.jsx"
+
+
 class Toggle(_ButtonBase):
     """The `Toggle` widget allows toggling a single condition between `True`/`False` states.
 
@@ -166,7 +192,7 @@ class Toggle(_ButtonBase):
 
     :Example:
 
-    >>> Toggle(name='Toggle', button_type='success')
+    >>> Toggle(label='Toggle', color='success')
     """
 
     icon_size = param.String(default="1em", doc="""
@@ -179,5 +205,6 @@ class Toggle(_ButtonBase):
 
 __all__ = [
     "Button",
+    "Fab",
     "Toggle"
 ]
