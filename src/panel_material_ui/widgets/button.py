@@ -104,6 +104,9 @@ class Button(_ButtonBase, _ClickButton):
     >>> Button(name='Click me', icon='caret-right', button_type='primary')
     """
 
+    href = param.String(default=None, doc="""
+        The URL to navigate to when the button is clicked.""")
+
     icon_size = param.String(
         default="1em",
         doc="""
