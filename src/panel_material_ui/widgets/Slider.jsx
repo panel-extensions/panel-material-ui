@@ -1,7 +1,7 @@
-import Box from "@mui/material/Box"
+import FormControl from "@mui/material/FormControl"
+import FormLabel from "@mui/material/FormLabel"
 import Slider from "@mui/material/Slider"
-import Typography from "@mui/material/Typography"
-import dayjs from "dayjs";
+import dayjs from "dayjs"
 
 export function render({model}) {
   const [bar_color] = model.useState("bar_color")
@@ -62,30 +62,26 @@ export function render({model}) {
   }, [ticks, format, date])
 
   return (
-    <Box sx={{height: "100%"}}>
-      <Typography variant="body1">
+    <FormControl disabled={disabled} fullWidth>
+      <FormLabel>
         {label && `${label}: `}
         { show_value &&
           <strong>
             {value_label}
           </strong>
         }
-      </Typography>
+      </FormLabel>
       <Slider
-        value={value}
-        min={start}
-        max={end}
+        color={color}
         getAriaLabel={() => label}
         getAriaValueText={format_value}
-        step={date ? step*86400000 : (datetime ? step*1000 : step)}
         marks={marks}
-        disabled={disabled}
-        color={color}
-        track={track}
+        max={end}
+        min={start}
         orientation={orientation}
-        valueLabelDisplay={tooltips ? "auto" : "off"}
         onChange={(_, newValue) => setValue(newValue)}
         onChangeCommitted={(_, newValue) => setValueThrottled(newValue)}
+        step={date ? step*86400000 : (datetime ? step*1000 : step)}
         sx={{
           "& .MuiSlider-track": {
             backgroundColor: bar_color,
@@ -96,8 +92,11 @@ export function render({model}) {
           },
           ...sx
         }}
+        track={track}
+        value={value}
+        valueLabelDisplay={tooltips ? "auto" : "off"}
         valueLabelFormat={format_value}
       />
-    </Box>
+    </FormControl>
   )
 }

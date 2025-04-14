@@ -14,13 +14,14 @@ export function render({model}) {
   const [sx] = model.useState("sx");
   const exclusive = model.esm_constants.exclusive
   return (
-    <FormControl component="fieldset" disabled={disabled}>
+    <FormControl component="fieldset" disabled={disabled} fullWidth>
       {label && <FormLabel id="radio-buttons-group-label">{label}</FormLabel>}
       <RadioGroup
         aria-labelledby="radio-buttons-group-label"
-        value={value}
+        fullWidth
         row={inline}
         sx={sx}
+	      value={value}
       >
         {options.map((option, index) => {
           return (

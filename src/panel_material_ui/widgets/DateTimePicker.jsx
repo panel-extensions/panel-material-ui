@@ -216,6 +216,7 @@ export function render({model, view}) {
         disableFuture={disable_future}
         disablePast={disable_past}
         format={format}
+        fullWidth
         label={label}
         minDate={min_date ? parseDate(min_date) : undefined}
         maxDate={max_date ? parseDate(max_date) : undefined}

@@ -13,6 +13,7 @@ export function render({model, el}) {
   const [restrict] = model.useState("restrict")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
+
   function CustomPopper(props) {
     return <Popper {...props} container={el} />
   }
@@ -37,16 +38,12 @@ export function render({model, el}) {
       disabled={disabled}
       filterOptions={filt_func}
       freeSolo={!restrict}
+      fullWidth
       onChange={(event, newValue) => setValue(newValue)}
       options={options}
-      variant={variant}
-      sx={sx}
-      value={value}
-      PopperComponent={CustomPopper}
       renderInput={(params) => (
         <TextField
           {...params}
-          variant={variant}
           label={label}
           placeholder={placeholder}
           onChange={(event) => setValueInput(event.target.value)}
@@ -56,8 +53,13 @@ export function render({model, el}) {
               setValue(value_input)
             }
           }}
+          variant={variant}
         />
       )}
+      sx={sx}
+      value={value}
+      variant={variant}
+      PopperComponent={CustomPopper}
     />
   )
 }

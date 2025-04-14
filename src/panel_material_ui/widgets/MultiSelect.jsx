@@ -42,26 +42,24 @@ export function render({model, view}) {
 
   const inputId = `select-multiple-native-${model.id}`
   return (
-    <FormControl fullWidth>
+    <FormControl disabled={disabled} fullWidth variant={variant}>
       <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
         {label}
       </InputLabel>
       <Select
-        multiple
-        native
         color={color}
-        disabled={disabled}
-        value={value}
-        onChange={handleChange}
-        labelId={`select-multiple-label-${model.id}`}
         input={variant === "outlined" ?
           <OutlinedInput id={inputId} label={label}/> :
           variant === "filled" ?
             <FilledInput id={inputId} label={label}/> :
             <Input id={inputId} label={label}/>
         }
+        labelId={`select-multiple-label-${model.id}`}
+        multiple
+        native
+        onChange={handleChange}
         sx={sx}
-        variant={variant}
+        value={value}
       >
         {options.map((name) => (
           <option

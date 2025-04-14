@@ -13,12 +13,12 @@ export function render({model}) {
   const [sx] = model.useState("sx");
 
   return (
-    <FormControl component="fieldset" disabled={disabled}>
-      {label && <FormLabel id="demo-radio-buttons-group-label">{label}</FormLabel>}
+    <FormControl component="fieldset" disabled={disabled} fullWidth>
+      {label && <FormLabel id="radio-buttons-group-label">{label}</FormLabel>}
       <RadioGroup
-        aria-labelledby="demo-radio-buttons-group-label"
-        value={value}
+        aria-labelledby="radio-buttons-group-label"
         row={orientation === "horizontal" ? true : false}
+        value={value}
       >
         {options.map((option, index) => (
           <FormControlLabel

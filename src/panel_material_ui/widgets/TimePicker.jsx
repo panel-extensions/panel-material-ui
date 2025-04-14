@@ -1,7 +1,6 @@
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider"
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
 import {TimePicker} from "@mui/x-date-pickers/TimePicker"
-import TextField from "@mui/material/TextField"
 import dayjs from "dayjs"
 
 export function render({model, view}) {
@@ -53,20 +52,20 @@ export function render({model, view}) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <TimePicker
-        label={label}
-        value={value}
-        onChange={handleChange}
-        disabled={disabled}
         ampm={clock === "12h"}
-        minutesStep={minute_increment}
-        secondsStep={second_increment}
-        hoursStep={hour_increment}
-        views={views}
+        disabled={disabled}
         format={format}
+        hoursStep={hour_increment}
+        label={label}
+        minutesStep={minute_increment}
+        onChange={handleChange}
+        secondsStep={second_increment}
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}
         slotProps={{textField: {variant, color}, popper: {container: view.container}}}
         sx={{width: "100%", ...sx}}
+        value={value}
+        views={views}
       />
     </LocalizationProvider>
   );
