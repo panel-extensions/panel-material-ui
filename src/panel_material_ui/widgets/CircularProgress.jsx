@@ -59,7 +59,7 @@ export function render({model}) {
             <Typography
               variant="caption"
               component="div"
-              sx={{ color: "text.secondary" }}
+              sx={{color: "text.secondary"}}
             >
               {`${Math.round(value)}%`}
             </Typography>
