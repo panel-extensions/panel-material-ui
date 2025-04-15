@@ -13,7 +13,7 @@ import subprocess
 from pathlib import Path
 
 import nbformat
-import panel_material_ui as pnmui
+import panel_material_ui as pmu
 
 from param import concrete_descendents
 
@@ -30,8 +30,8 @@ try:
 finally:
     os.chdir(cdir)
 
-mwidgets = [w.lower() for w in dir(pnmui.widgets)]
-mwidgets = list(concrete_descendents(pnmui.widgets.base.MaterialWidget))
+mwidgets = [w.lower() for w in dir(pmu.widgets)]
+mwidgets = list(concrete_descendents(pmu.widgets.base.MaterialWidget))
 nb_to_copy = []
 mwidgets_not_implemented = []
 
@@ -50,7 +50,7 @@ print()
 for nbpath in nb_to_copy:
     with open(nbpath, "r") as f:
         notebook = nbformat.read(f, as_version=4)
-    monkey = nbformat.v4.new_code_cell(source="import panel_material_ui as pnmui; import panel as pn; pn.widgets = pnmui.widgets")
+    monkey = nbformat.v4.new_code_cell(source="import panel_material_ui as pmu; import panel as pn; pn.widgets = pmu.widgets")
     notebook['cells'].insert(0, monkey)
     opath = Path('examples', 'reference', 'widgets', nbpath.name)
     if opath.exists():
