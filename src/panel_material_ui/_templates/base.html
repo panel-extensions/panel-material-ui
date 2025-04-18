@@ -83,7 +83,7 @@
     </style>
   {%  endblock resources %}
   {%  block postamble %}
-    {% for css in resources.css %}
+    {% for css in resources.css.values() %}
     <link rel="stylesheet" href="{{ css }}">
     {% endfor %}
 
@@ -97,7 +97,7 @@
     {% endfor %}
 
     <!-- Template JS -->
-    {% for src in resources.js_files.values() %}
+    {% for src in resources.js.values() %}
     <script src="{{ src }}"></script>
     {% endfor %}
     {% for src in resources.js_modules.values() %}
