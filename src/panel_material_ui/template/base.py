@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import json
 import pathlib
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import param
 from jinja2 import Environment, FileSystemLoader
 from markupsafe import Markup
 from panel.config import _base_config, config
-from panel.io.resources import URL
+from panel.io.resources import URL, ResourceComponent
 from panel.viewable import Children
 
 from ..base import MaterialComponent
@@ -16,6 +16,7 @@ from ..base import MaterialComponent
 if TYPE_CHECKING:
     from bokeh.document import Document
     from panel.io.location import LocationAreaBase
+    from panel.io.resources import ResourcesType
 
 
 def get_env():
@@ -58,7 +59,7 @@ class Meta(param.Parameterized):
     refresh = param.String(default=None, doc="The refresh of the page.")
 
 
-class Page(MaterialComponent):
+class Page(MaterialComponent, ResourceComponent):
     """
     The `Page` component is the equivalent of a `Template` in Panel.
 
@@ -117,6 +118,39 @@ class Page(MaterialComponent):
     def _update_config(self):
         config.theme = 'dark' if self.dark_theme else 'default'
 
+    def _add_resources(self, resources, extras, raw_css):
+        for rname, res in resources.items():
+            if not res:
+                continue
+            elif rname == "raw_css":
+                raw_css += res
+            elif rname not in extras:
+                extras[rname] = res
+            elif isinstance(res, dict):
+                extras[rname].update(res)  # type: ignore
+            else:
+                extras[rname] += [  # type: ignore
+                    r for r in res if r not in extras.get(rname, [])  # type: ignore
+                ]
+
+    def resolve_resources(
+        self,
+        cdn: bool | Literal['auto'] = 'auto',
+        extras: dict[str, dict[str, str]] | None = None
+    ) -> ResourcesType:
+        extras = extras or {}
+        raw_css = []
+        config_resources = {
+            rt: getattr(self.config, 'css_files' if rt == 'css' else rt)
+            for rt in self._resources if rt == 'css' or rt in self.config.param
+        }
+        design_resources = self._design.resolve_resources()
+        self._add_resources(design_resources, extras, raw_css)
+        self._add_resources(config_resources, extras, raw_css)
+        resources = super().resolve_resources(extras=extras)
+        resources["raw_css"] += raw_css
+        return resources
+
     def server_doc(
         self, doc: Document | None = None, title: str | None = None,
         location: bool | LocationAreaBase | None = True
@@ -125,8 +159,9 @@ class Page(MaterialComponent):
         doc.title = title or self.title or self.meta.title or 'Panel Application'
         doc.template = _env.get_template('base.html')
         doc.template_variables['meta'] = self.meta
-        doc.template_variables['resources'] = self.config
+        doc.template_variables['resources'] = self.resolve_resources()
         return doc
+
 
 __all__ = [
     "Page"
