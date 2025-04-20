@@ -10,11 +10,11 @@ from shared.plots import (
     get_daily_sales_config,
     get_completed_tasks_config,
 )
-from shared.components import create_change_indicator, create_menu, Timeline
+from shared.components import create_change_indicator, create_menu
 from shared.page import create_page
 import pandas as pd
 from shared.data import get_project_data
-
+from panel_material_ui.pane import Timeline
 
 my_theme = {
     "palette": {
@@ -152,65 +152,6 @@ def to_styles_projects_table(data: pd.DataFrame):
     return styled_df
 
 
-HTML = """
-<div class="timeline timeline-one-side">
-<div class="timeline-block mb-3">
-    <span class="timeline-step">
-    <i class="material-symbols-rounded text-success text-gradient">notifications</i>
-    </span>
-    <div class="timeline-content">
-    <h6 class="text-dark text-sm font-weight-bold mb-0">$2400, Design changes</h6>
-    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">22 DEC 7:20 PM</p>
-    </div>
-</div>
-<div class="timeline-block mb-3">
-    <span class="timeline-step">
-    <i class="material-symbols-rounded text-danger text-gradient">code</i>
-    </span>
-    <div class="timeline-content">
-    <h6 class="text-dark text-sm font-weight-bold mb-0">New order #1832412</h6>
-    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 11 PM</p>
-    </div>
-</div>
-<div class="timeline-block mb-3">
-    <span class="timeline-step">
-    <i class="material-symbols-rounded text-info text-gradient">shopping_cart</i>
-    </span>
-    <div class="timeline-content">
-    <h6 class="text-dark text-sm font-weight-bold mb-0">Server payments for April</h6>
-    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 9:34 PM</p>
-    </div>
-</div>
-<div class="timeline-block mb-3">
-    <span class="timeline-step">
-    <i class="material-symbols-rounded text-warning text-gradient">credit_card</i>
-    </span>
-    <div class="timeline-content">
-    <h6 class="text-dark text-sm font-weight-bold mb-0">New card added for order #4395133</h6>
-    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">20 DEC 2:20 AM</p>
-    </div>
-</div>
-<div class="timeline-block mb-3">
-    <span class="timeline-step">
-    <i class="material-symbols-rounded text-primary text-gradient">key</i>
-    </span>
-    <div class="timeline-content">
-    <h6 class="text-dark text-sm font-weight-bold mb-0">Unlock packages for development</h6>
-    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">18 DEC 4:54 AM</p>
-    </div>
-</div>
-<div class="timeline-block">
-    <span class="timeline-step">
-    <i class="material-symbols-rounded text-dark text-gradient">payments</i>
-    </span>
-    <div class="timeline-content">
-    <h6 class="text-dark text-sm font-weight-bold mb-0">New order #9583120</h6>
-    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">17 DEC</p>
-    </div>
-</div>
-</div>
-"""
-
 with pn.config.set(sizing_mode="stretch_width"):
     web_site_views = pn.Column(pn.Column(
         "#### Website Views\n\nLast Campaign Performance",
@@ -256,9 +197,23 @@ with pn.config.set(sizing_mode="stretch_width"):
         margin=10,
         height=550,
     )
+    timeline_config = [
+        {"content_title": "$2400, Design changes", "content": "22 DEC 7:20 PM", "color": "success", "variant": "filled", "icon": "notifications", },
+        {"content_title": "New order #1832412", "content": "21 DEC 11 PM", "color": "error", "variant": "filled", "icon": "code", },
+        {"content_title": "Server payments for April", "content": "21 DEC 9:34 PM", "color": "primary", "variant": "filled", "icon": "shopping_cart", },
+        {"content_title": "New card added for order #4395133", "content": "20 DEC 2:20 AM", "color": "warning", "variant": "filled", "icon": "credit_card", },
+        {"content_title": "Unlock packages for development", "content": "18 DEC 4:54 AM", "color": "info", "variant": "filled", "icon": "key", },
+        {"content_title": "New order #9583120", "content": "17 DEC", "color": "dark", "variant": "filled", "icon": "payments", },
+    ]
+    sx = {
+        "& .MuiTimelineItem-root:before": {
+          "flex": 0,
+          "padding-left": 10,
+        },
+    }
     timeline = pn.Column(
         "#### Orders overview\n\n**24%** this month",
-        Timeline(sizing_mode="stretch_width", ),
+        Timeline(object=timeline_config, sizing_mode="stretch_width", sx=sx),
         styles=PAPER_STYLES,
         margin=10,
         height=550,

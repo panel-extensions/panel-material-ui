@@ -19,7 +19,7 @@ export function render({ model }) {
     <MUITimeline position={position} sx={sx}>
     {items.map((item, idx) => (
         <TimelineItem key={idx}>
-        {(item.opposite !== undefined | item.opposite_title) && (
+        {(item.opposite !== undefined || item.opposite_title !== undefined) && (
             <TimelineOppositeContent sx={{ m: 'auto 0' }} align="right" variant="body2" color="text.secondary">
                 <Typography variant="h6" component="span">
                     {item.opposite_title}
@@ -38,7 +38,7 @@ export function render({ model }) {
             </TimelineDot>
             {idx < items.length - 1 && <TimelineConnector />}
         </TimelineSeparator>
-        {(item.content !== undefined | item.content_title !== undefined) && (
+        {(item.content !== undefined || item.content_title !== undefined) && (
                 <TimelineContent sx={{ m: 'auto 0' }}>
                     <Typography variant="h6" component="span">
                         {item.content_title}
