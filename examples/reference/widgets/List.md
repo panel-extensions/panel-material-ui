@@ -75,6 +75,14 @@ menu = List(name="Pages", items=['Dashboard', 'Tables', 'Notifications'])
 menu.servable()
 ```
 
+## Disabled
+
+```python
+List(items=['Dashboard', 'Tables', 'Notifications'], disabled=True).servable()
+```
+
+**TODO: Get disabled working**
+
 ## Items as a List of Tuples
 
 You can provide the `items` as list of tuples
@@ -113,10 +121,10 @@ pn.Column(menu, menu.param.value).servable()
 ```
 
 - **TODO: Fix `TypeError: list indices must be integers or slices, not str` raised when clicked.**
-- **TODO: Make avatar src url**
-- **TODO: remove avatar color from jsx file as its not a prop of Avatar**
 - **TODO: Get actions working. I can see the msg sent are `{'type': 'click', 'item': ['actions']}` but its looking for 'type': 'action' not 'click'.**
 - **TODO: Get subitems working. I can see they are not included in _item_keys**
+- **TODO: Support avatar src url**
+- **TODO: Consider whether its a better api to support a list of dicts than a dict of dicts. The keys are not used for anything.**
 
 ## Removable
 
@@ -137,3 +145,37 @@ List(name="Pages", items=['Dashboard', 'Tables', 'Notifications'], dense=True).s
 ```
 
 **TODO: Make dense. I don't see any changes**
+
+### Divider
+
+### Custom Menu
+
+```python
+import panel as pn
+from panel.custom import ReactComponent
+import param
+from panel_material_ui.base import COLORS
+from panel_material_ui.widgets import List
+
+pn.extension()
+
+List(
+    name="Menu",
+    items={
+    "Github": { "label": 'GitHub', "icon": 'code', "href": 'https://github.com/panel-extensions/panel-material-ui'},
+    "Discourse": { "label": 'Discourse', "icon": 'people', "href": "https://discourse.holoviz.org/" },
+    "Discord": { "label": 'Discord', "icon": 'chat'},
+}, sx={
+    '& .MuiListItemButton-root': {
+        "border-radius": "var( --mui-shape-borderRadius )",
+        "height": "40px",
+    },
+    '& .MuiListItemButton-root:hover': {
+        'bgcolor': 'black',
+        'color': 'white',
+        '& .MuiListItemIcon-root': {
+            'color': 'white',
+        },
+    }
+}, width=300).servable()
+```
