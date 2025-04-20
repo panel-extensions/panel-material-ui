@@ -171,7 +171,8 @@ class MaterialComponent(ReactComponent):
             "mui-color-input": "https://esm.sh/mui-color-input@6.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
             "material-icons/": "https://esm.sh/material-icons@1.13.14/",
-            "notistack": "https://esm.sh/notistack@3.0.2"
+            "notistack": "https://esm.sh/notistack@3.0.2",
+            "@mui/lab": "https://esm.sh/@mui/lab@6.0.0-beta.32",
         }
     }
     _rename = {'loading': 'loading'}

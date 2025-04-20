@@ -77,8 +77,7 @@ Choose between different sidenav types.""",
         ),
         pn.Spacer(sizing_mode="stretch_height"),
         width=450,
-        margin=10,
-        styles=PAPER_STYLES,
+        styles=PAPER_STYLES | {"padding": "20px"},
         visible=True,
     )
 
@@ -115,13 +114,34 @@ def create_header(name: str, settings_callback):
 
 
 def create_footer():
-    return pn.Row("© 2025, made with by **panel-material-ui** for beautiful data apps.")
+    return pn.Row(
+        "© 2025, made with by **panel-material-ui** for beautiful data apps.",
+        pn.Spacer(sizing_mode="stretch_width"),
+        pmu.widgets.Button(
+            name="Panel Material UI",
+            variant="text",
+            href="https://panel-extensions.github.io/panel-material-ui/",
+        ),
+        pmu.widgets.Button(
+            name="About Us",
+            variant="text",
+            href="https://panel.holoviz.org",
+        ),
+        pmu.widgets.Button(
+            name="Blog",
+            variant="text",
+            href="https://blog.holoviz.org/",
+        ),
+        pmu.widgets.Button(
+            name="License",
+            variant="text",
+            href="https://panel-extensions.github.io/panel-material-ui/LICENSE.md",
+        )
+    )
 
 
 def create_fab():
-    fab_button = pmu.widgets.ButtonIcon(
-        icon="settings", color="dark", size="2em", description="Toggle settings drawer"
-    )
+    fab_button = pmu.Fab(color='light', label='Click me', icon="settings", size="large", description="Toggle settings drawer")
     return pn.Row(pn.Spacer(sizing_mode="stretch_width"), fab_button)
 
 

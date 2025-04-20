@@ -105,3 +105,44 @@ class Typography(MaterialPaneBase, Markdown):
 
     _esm_base = "Typography.jsx"
     _rename = {"object": "object"}
+
+class Timeline(MaterialPaneBase):
+    """Material‑UI **Timeline** component for Panel.
+
+    References:
+
+    - https://mui.com/material-ui/react-timeline/
+
+    Example:
+
+    >>> config = [
+    ...     {"content_title": "Eat", "content": "Because you need strength", "opposite": "08:30", "color": "grey",   "variant": "filled", "icon": "fastfood"},
+    ...     {"content_title": "Code", "content": "Because it's awesome!", "opposite": "09:00", "color": "primary", "variant": "filled", "icon": "laptop_mac"},
+    ...     {"content_title": "Sleep", "content": "Because you need rest", "opposite": "09:30", "color": "secondary",   "variant": "outlined", "icon": "hotel"},
+    ...     {"content_title": "Repeat", "content": "Because this is the life you love!", "opposite": "11:00", "color": "success",      "variant": "filled", "icon": "repeat"},
+    ... ]
+    >>> Timeline(object=config, width=600)
+    """  # noqa: E501
+    object = param.List(default=[], doc="""
+      A list of dictionaries, each mapping directly onto a `TimelineItem` row.
+      Supported keys:
+
+      | key            | type            | default   | description                                      |
+      |----------------|-----------------|-----------|--------------------------------------------------|
+      | **content_title** | str          | *None*    | Header shown in `TimelineContent`.               |
+      | **content**    | str             | *None*    | Body shown in `TimelineContent`.                 |
+      | **opposite_title** | str         | *None*    | Header for `TimelineOppositeContent`             |
+      | **opposite**   | str             | *None*    | Body for `TimelineOppositeContent`               |
+      | **color**      | str             | primary   | Color prop for `TimelineDot`.                    |
+      | **variant**    | str             | filled    | Variant prop for `TimelineDot` (filled/outlined).|
+      | **icon**       | str             | *None     | Name of icon for `Icon` inside `TimelineDot`.    |
+    """)
+
+    position = param.Selector(default="right", objects=[
+      'alternate-reverse',
+      'alternate',
+      'left',
+      'right',
+    ], doc="""The position of the content/ opposite content.""")
+
+    _esm_base = "Timeline.jsx"
