@@ -49,7 +49,9 @@ export function render({model}) {
     const actions = isObject ? item.actions : undefined
     const icon = isObject ? item.icon : undefined
     const avatar = isObject ? item.avatar : undefined
+    const src = avatar && avatar.startsWith("http") ? avatar : undefined
     const color = isObject ? item.color : undefined
+    const href = isObject ? item.href : undefined
     const subitems = isObject ? item.subitems : undefined
     const item_open = isObject ? item.open: true
     current_open[key] = current_open[key] === undefined ? item_open : current_open[key]
@@ -64,16 +66,16 @@ export function render({model}) {
           <Icon color={color}>{icon}</Icon>
         </ListItemIcon>
       )
-    } else {
+    } else if (avatar) {
       leadingComponent = (
         <ListItemAvatar>
-          <Avatar size="small" variant="square" color={color}>{avatar || label[0].toUpperCase()}</Avatar>
+          <Avatar size="small" variant="square" src={ src }>{avatar || label[0].toUpperCase()}</Avatar>
         </ListItemAvatar>
       )
     }
 
     const list_item = (
-      <ListItemButton onClick={() => { model.send_msg({type: "click", item: path}) }} sx={{p: `0 4px 0 ${(indent+1) * 8}px`}}>
+      <ListItemButton href={ href } onClick={() => { model.send_msg({type: "click", item: path}) }} sx={{p: `0 4px 0 ${(indent+1) * 8}px`}}>
         {leadingComponent}
         <ListItemText primary={label} secondary={secondary} />
         {subitems && (
@@ -130,7 +132,6 @@ export function render({model}) {
     }
     return list_item
   }
-
   return (
     <List
       dense={dense}

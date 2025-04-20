@@ -86,7 +86,7 @@ class MenuBase(MaterialWidget):
         keys = path if isinstance(path, list) else [path]
         value = self.items
         for key in keys:
-            if isinstance(value, dict):
+            if isinstance(value, dict) and "subitems" in value:
                 value = value['subitems']
             value = value[key]
         if msg['type'] == 'click':
@@ -163,6 +163,7 @@ class List(MenuBase):
       - avatar: The avatar of the list item (optional)
       - color: The color of the list item (optional)
       - secondary: The secondary text of the list item (optional)
+      - href: a link to open when clicked (optional)
 
     Reference: https://mui.com/material-ui/react-list/
     """
@@ -173,7 +174,7 @@ class List(MenuBase):
 
     _esm_base = "List.jsx"
 
-    _item_keys = ['label', 'children', 'icon', 'avatar', 'color', 'secondary', 'actions']
+    _item_keys = ['label', 'children', 'icon', 'avatar', 'color', 'secondary', 'actions', 'href']
 
     def on_action(self, action: str, callback: Callable[[DOMEvent], None]):
         """
