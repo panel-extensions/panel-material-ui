@@ -41,4 +41,4 @@ class MaterialDesign(Material):
         return modifiers, child_modifiers
 
 
-config.design = MaterialDesign
+param.Parameterized.__setattr__(config, 'design', MaterialDesign)

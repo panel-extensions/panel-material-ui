@@ -3,17 +3,18 @@ import Button from "@mui/material/Button"
 export function render({model, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
+  const [href] = model.useState("href")
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [label] = model.useState("label")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
-  const [href] = model.useState("href")
 
   return (
     <Button
       color={color}
       disabled={disabled}
+      fullWidth
       onClick={() => model.send_event("click", {})}
       startIcon={icon && (
         icon.trim().startsWith("<") ?

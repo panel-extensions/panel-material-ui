@@ -422,17 +422,15 @@ export function render({model, view}) {
   }
 
   return (
-    <FormControl fullWidth disabled={disabled}>
+    <FormControl disabled={disabled} fullWidth>
       {label && <InputLabel color={color} id={`select-label-${model.id}`}>{label}</InputLabel>}
       <Select
-        multiple={multi}
         color={color}
         disabled={disabled}
-        value={value}
         input={getInput()}
-        placeholder={placeholder}
         labelId={`select-label-${model.id}`}
-        variant={variant}
+        multiple={multi}
+        onClose={() => setOpen(false)}
         onChange={(event) => {
           const newValue = event.target.value
           if (multi && max_items && newValue.length > max_items) {
@@ -440,12 +438,14 @@ export function render({model, view}) {
           }
           setValue(newValue)
         }}
-        open={open}
         onOpen={() => setOpen(true)}
-        onClose={() => setOpen(false)}
+        open={open}
         renderValue={renderValue}
-        MenuProps={MenuProps}
         sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
+        placeholder={placeholder}
+        value={value}
+        variant={variant}
+        MenuProps={MenuProps}
       >
         {renderMenuItems()}
       </Select>

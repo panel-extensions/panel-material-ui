@@ -113,6 +113,8 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
         The number of milliseconds the active_icon should be shown for
         and how long the button should be disabled for.""")
 
+    value = param.Event(doc="Toggles from False to True while the event is being processed.")
+
     _esm_base = "IconButton.jsx"
     _event = "dom_event"
 
@@ -121,6 +123,9 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
         super().__init__(**params)
         if click_handler:
             self.on_click(click_handler)
+
+    def _handle_click(self, event):
+        self.param.update(clicks=self.clicks + 1, value=True)
 
     def on_click(
         self, callback: Callable[[param.parameterized.Event], None]

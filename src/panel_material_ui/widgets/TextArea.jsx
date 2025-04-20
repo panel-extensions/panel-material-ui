@@ -27,13 +27,13 @@ export function render({model, el}) {
 
   return (
     <TextField
-      fullWidth
-      multiline
       color={color}
       disabled={disabled}
       error={error_state}
+      fullWidth
       inputProps={{maxLength: max_length}}
       label={label}
+      multiline
       maxRows={max_rows}
       onKeyDown={(e) => {
         if (e.key === "Enter" && e.shiftKey) {

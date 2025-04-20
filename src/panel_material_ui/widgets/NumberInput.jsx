@@ -86,13 +86,15 @@ export function render({model}) {
       color={color}
       disabled={disabled}
       label={label}
+      onBlur={() => setFocused(false)}
+      onChange={() => handleChange()}
+      onFocus={() => setFocused(true)}
+      onKeyDown={handleKeyDown}
       placeholder={placeholder}
       size={size}
+      sx={sx}
       value={valueLabel}
       variant={variant}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      onKeyDown={handleKeyDown}
       InputProps={{
         inputMode: "decimal",
         sx: {padding: 0},
@@ -111,11 +113,6 @@ export function render({model}) {
           </InputAdornment>
         ),
       }}
-      sx={{
-        width: "100%",
-        ...sx
-      }}
-      onChange={handleChange}
     />
   );
 }

@@ -18,6 +18,7 @@ export function render({model}) {
       selected={value}
       onChange={() => setValue(!value)}
       sx={{...sx}}
+      value={value}
       variant={variant}
     >
       {icon && (
