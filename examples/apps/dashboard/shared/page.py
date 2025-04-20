@@ -9,12 +9,14 @@ def create_sidebar(name: str, button_color, settings: PageSettings):
         name="Documentation",
         variant="outlined",
         href="https://holoviz-dev.github.io/panel-material-ui/",
+        sizing_mode="stretch_width",
     )
     reference_link = pmu.widgets.Button(
         name="Reference",
         variant="contained",
         href="https://demos.creative-tim.com/material-dashboard/pages/dashboard",
         color="dark",
+        sizing_mode="stretch_width",
     )
 
     return pmu.Column(
@@ -64,9 +66,9 @@ Choose between different sidenav types.""",
         pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
         pmu.Switch.from_param(settings.param.dark_theme, name="Light/ Dark"),
         pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
-        create_github_star_count(),
         pmu.widgets.Button(name="Free Download", href="https://github.com/panel-extensions/panel-material-ui", color="primary", variant="contained", sizing_mode="stretch_width"),
         pmu.widgets.Button(name="Documentation", href="https://holoviz-dev.github.io/panel-material-ui/", variant="outlined", sizing_mode="stretch_width"),
+        create_github_star_count(),
         pn.pane.Markdown("## Thank you for sharing!", align="center"),
         pn.Row(
             pmu.widgets.Button(name="Tweet", href="https://twitter.com/intent/tweet?text=Check%20Panel%20Material%20UI%20Dashboard%20made%20by%20%40HoloViz%20%23webdesign%20%23dashboard%20%23dataviz&url=https%3A%2F%2Fholoviz-dev.github.io%2Fpanel-material-ui%2F", color="dark", variant="contained"),
