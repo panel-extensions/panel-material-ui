@@ -164,24 +164,24 @@ spec = {
             (TimePicker, (['color', 'variant'], ['disabled', 'clock']), dict(label='TimePicker'))
         ],
         'Menu': [
-            (Breadcrumbs, (), dict(items={
-                "Home": "Home",
-                "Catalog": {"label": "Catalog", "icon": "category"},
-                "Checkout": {"label": "Checkout", "icon": "shopping_cart"},
-                "Accessories": {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
-            })),
-            (List, (), dict(items={
-                "Home": "Home",
-                "Catalog": {"label": "Catalog", "icon": "category"},
-                "Checkout": {"label": "Checkout", "icon": "shopping_cart"},
-                "Accessories": {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
-            })),
-            (SpeedDial, (), dict(items={
-                "Home": "Home",
-                "Catalog": {"label": "Catalog", "icon": "category"},
-                "Checkout": {"label": "Checkout", "icon": "shopping_cart"},
-                "Accessories": {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
-            })),
+            (Breadcrumbs, (['color'],), dict(items=[
+                {"label": "Home"},
+                {"label": "Catalog", "icon": "category"},
+                {"label": "Checkout", "icon": "shopping_cart"},
+                {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
+            ])),
+            (List, (['color'],), dict(items=[
+                {"label": "Home"},
+                {"label": "Catalog", "icon": "category"},
+                {"label": "Checkout", "icon": "shopping_cart"},
+                {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
+            ])),
+            (SpeedDial, (['color'],), dict(active=2, items=[
+                {"label": "Home"},
+                {"label": "Catalog", "icon": "category"},
+                {"label": "Checkout", "icon": "shopping_cart"},
+                {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
+            ])),
         ],
         'Selection': [
             (AutocompleteInput, (['variant'], ['disabled']), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Autocomplete')),

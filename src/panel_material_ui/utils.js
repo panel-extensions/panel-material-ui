@@ -95,9 +95,9 @@ export function render_theme_config(props, theme_config, dark_theme) {
     palette: {
       mode: dark_theme ? "dark" : "light",
       default: {
-        main: dark_theme ? grey[700] : "#000000",
-        light: grey[dark_theme ? 500 : 100],
-        dark: grey[dark_theme ? 900 : 600],
+        main: dark_theme ? grey[500] : "#000000",
+        light: grey[dark_theme ? 200 : 100],
+        dark: grey[dark_theme ? 800 : 600],
         contrastText: dark_theme ? "#ffffff" : "#ffffff",
       },
       dark: {
@@ -178,7 +178,7 @@ export function render_theme_config(props, theme_config, dark_theme) {
           root: {
             "&.MuiToggleButton-default.Mui-selected": {
               backgroundColor: "var(--mui-palette-default-light)",
-              color: "var(--mui-palette-default-main)",
+              color: "var(--mui-palette-default-dark)",
             },
           },
         },
@@ -209,8 +209,12 @@ export function render_theme_config(props, theme_config, dark_theme) {
               {
                 props: {variant: "contained", color: "default"},
                 style: {
-                  backgroundColor: "var(--mui-palette-default-contrastText)",
-                  color: "var(--mui-palette-default-main)",
+                  backgroundColor: `var(--mui-palette-default-${dark_theme ? "dark": "contrastText"})`,
+                  color: `var(--mui-palette-default-${dark_theme ? "contrastText" : "main"})`,
+                  "&:hover": {
+                    backgroundColor: "var(--mui-palette-default-light)",
+                    color: "var(--mui-palette-default-dark)",
+                  },
                 },
               },
               {
@@ -220,6 +224,7 @@ export function render_theme_config(props, theme_config, dark_theme) {
                   color: "var(--mui-palette-default-main)",
                   "&:hover": {
                     backgroundColor: "var(--mui-palette-default-light)",
+                    color: "var(--mui-palette-default-dark)"
                   },
                 },
               },
@@ -229,6 +234,7 @@ export function render_theme_config(props, theme_config, dark_theme) {
                   color: "var(--mui-palette-default-main)",
                   "&:hover": {
                     backgroundColor: "var(--mui-palette-default-light)",
+                    color: "var(--mui-palette-default-dark)",
                   },
                 },
               },
