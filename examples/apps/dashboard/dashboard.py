@@ -77,7 +77,6 @@ def generate_company_html(row, image_width='40px'):
 def generate_progress_bar(row):
     completion_percent = int(round(float(row["Completion"]),0))
     color = 'green' if completion_percent >=99.999 else 'blue'
-    print(color, completion_percent)
     html = f'''
     <div style=\"width: 100%;\">
         <div style=\"margin-bottom: 4px; font-size: 12px; text-align: left;\">{completion_percent}%</div>
