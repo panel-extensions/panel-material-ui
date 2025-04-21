@@ -6,7 +6,7 @@ import Icon from "@mui/material/Icon"
 import NavigateNextIcon from "@mui/icons-material/NavigateNext"
 import {useTheme, styled} from "@mui/material/styles"
 
-const StyledAvatar = styled(Avatar)(({ theme, color }) => ({
+const StyledAvatar = styled(Avatar)(({theme, color}) => ({
   backgroundColor: theme.palette[color]?.main,
   fontSize: "1em",
   width: 24,
