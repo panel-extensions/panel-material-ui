@@ -25,11 +25,8 @@ export function render({model}) {
       {options.map((option, index) => {
         return (
           <ToggleButton
-            size={size}
             aria-label={option}
-            key={option}
-            value={option}
-            selected={exclusive ? (value==option) : value.includes(option)}
+	    key={option}
             onClick={(e) => {
               let newValue
               if (exclusive) {
@@ -42,6 +39,9 @@ export function render({model}) {
               }
               setValue(newValue)
             }}
+	    selected={exclusive ? (value==option) : value.includes(option)}
+            size={size}
+            value={option}
           >
             {option}
           </ToggleButton>
