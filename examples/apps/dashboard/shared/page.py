@@ -84,8 +84,12 @@ Choose between different sidenav types.""",
 
 
 def create_header(name: str, settings_callback):
+    items = [
+        {'label': 'Home', "href": "./"},
+        {'label': f'{name}'},
+    ]
     bread_crumbs = pmu.menus.Breadcrumbs(
-        name="Breadcrumbs test", items=["Pages", name], align="center"
+        name="Breadcrumbs test", items=items, align="center"
     )
     search = pmu.widgets.TextInput(
         name="Type here...", placeholder="Search", size="small"
@@ -146,7 +150,7 @@ def create_fab(settings_callback):
         "bottom": 16,
         "right": 16,
     }
-    fab_button = pmu.Fab(color='light', label='Click me', icon="settings", size="large", description="Toggle settings drawer", on_click=settings_callback, sx=sx)
+    fab_button = pmu.Fab(color='default', label='Click me', icon="settings", size="large", description="Toggle settings drawer", on_click=settings_callback, sx=sx)
     return fab_button
 
 
@@ -167,10 +171,8 @@ def create_page(name: str, main: list):
     main = pn.Column(
         header,
         *main,
-        pn.Spacer(sizing_mode="stretch_height"),
         footer,
-        pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
-        pn.Spacer(height=50, sizing_mode="stretch_width"),
+        pn.Spacer(sizing_mode="stretch_height"),
         fab_row,
         sizing_mode="stretch_width",
         margin=10,

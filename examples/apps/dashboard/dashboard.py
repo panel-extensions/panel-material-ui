@@ -1,6 +1,6 @@
 # Inspiration: https://demos.creative-tim.com/material-dashboard/pages/dashboard
 # docs: https://holoviz-dev.github.io/panel-material-ui/
-# panel serve examples/apps/dashboard/*.py --index dashboard --dev
+# panel serve examples/apps/dashboard/*.py --dev
 import panel_material_ui as pmu
 import panel as pn
 import param
