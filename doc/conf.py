@@ -128,6 +128,8 @@ nbsite_gallery_conf = {
             'extensions': ['*.ipynb', '*.py', '*.md'],
             'sections': [
                 'widgets',
+                'menus',
+                'indicators',
                 'layouts',
             ],
             'as_pyodide': True,
@@ -135,8 +137,6 @@ nbsite_gallery_conf = {
         }
     },
     'thumbnail_url': 'https://assets.holoviz.org/panel-material-ui/thumbnails',
-    # 'deployment_url': gallery_url,
-    # 'jupyterlite_url': jlite_url,
     'only_use_existing': True,
 }
 
