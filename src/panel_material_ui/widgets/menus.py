@@ -11,8 +11,8 @@ from panel.layout import Column
 from panel.layout.base import ListLike
 from panel.models.reactive_html import DOMEvent
 
-from ..base import COLORS
-from .base import MaterialWidget
+from ..base import COLORS, LoadingTransform, ThemedTransform
+from .base import MaterialWidget, TooltipTransform
 from .button import _ButtonBase
 
 
@@ -263,6 +263,27 @@ class List(MenuBase):
         self._on_action_callbacks[action].remove(callback)
 
 
+class Menu(MenuBase):
+    """
+    The `Menu` component is a menu component that allows selecting from a list of items.
+
+    Menu items can be strings or objects with properties:
+      - label: The label of the menu item (required)
+      - icon: The icon of the menu item (optional)
+      - color: The color of the menu item (optional)
+
+    Reference: https://mui.com/material-ui/react-menu/
+    """
+
+    dense = param.Boolean(default=False, doc="Whether to show the menu items in a dense format.")
+
+    open = param.Boolean(default=False, doc="Whether the menu is open.")
+
+    _esm_base = "Menu.jsx"
+
+    _item_keys = ['label', 'icon', 'color', 'items']
+
+
 class MenuButton(MenuBase, _ButtonBase):
     """
     The `MenuButton` component is a button component that allows selecting from a list of items.
@@ -278,6 +299,7 @@ class MenuButton(MenuBase, _ButtonBase):
     margin = Margin(default=5)
 
     _esm_base = "MenuButton.jsx"
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
     _source_transforms = {
         "attached": None,
         "button_type": None,
@@ -311,7 +333,7 @@ class Pagination(MaterialWidget):
 
     value = param.Integer(default=None, doc="The current zero-indexed page number.")
 
-    variant = param.Selector(default="outlined", objects=["outlined", "text"], doc="The variant of the pagination.")
+    variant = param.Selector(default="text", objects=["outlined", "text"], doc="The variant of the pagination.")
 
     width = param.Integer(default=None, doc="The width of the pagination.")
 

@@ -465,6 +465,28 @@ class Dialog(MaterialListLike):
     _esm_base = "Dialog.jsx"
 
 
+class Drawer(MaterialListLike):
+    """
+    The `Drawer` component can be used to display important content in a modal-like overlay that requires
+    user interaction. It is often used for tasks such as confirmations, forms, or displaying
+    additional information.
+
+    Reference: https://mui.com/material-ui/react-drawer/
+
+    :Example:
+    >>> close = Button(on_click=lambda _: drawer.param.update(open=False), label='Close')  # type: ignore
+    >>> drawer = Drawer("This is a drawer", close)
+    >>> button = Button(on_click=lambda _: drawer.param.update(open=True), label=f'Open {Drawer.name}')
+    >>> pn.Column(button, drawer).servable()
+    """
+
+    open = param.Boolean(default=False, doc="""
+        Whether the drawer is open.""")
+
+    _esm_base = "Drawer.jsx"
+
+
+
 __all__ = [
     "Paper",
     "Container",
@@ -475,5 +497,6 @@ __all__ = [
     "Divider",
     "Alert",
     "Backdrop",
-    "Dialog"
+    "Dialog",
+    "Drawer"
 ]

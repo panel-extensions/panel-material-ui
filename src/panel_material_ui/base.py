@@ -29,7 +29,7 @@ from panel.io.state import state
 from panel.models import ReactComponent as BkReactComponent
 from panel.param import Param
 from panel.util import base_version, classproperty
-from panel.viewable import Viewable
+from panel.viewable import Children, Viewable
 
 from .__version import __version__  # noqa
 from .theme import MaterialDesign
@@ -142,6 +142,10 @@ class MaterialComponent(ReactComponent):
     the JS dependencies and theming support via the ThemedTransform.
     """
 
+    attached = Children(doc="""
+        Elements that are attached to this object but are not direct
+        children.""")
+
     dark_theme = param.Boolean(doc="""
         Whether to use dark theme. If not specified, will default to Panel's
         global theme setting.""")
@@ -174,7 +178,8 @@ class MaterialComponent(ReactComponent):
             "notistack": "https://esm.sh/notistack@3.0.2"
         }
     }
-    _rename = {'loading': 'loading'}
+    _rename = {'loading': 'loading', 'attached': 'elements'}
+    _source_transforms = {'attached': None}
 
     __abstract = True
 
@@ -235,11 +240,17 @@ class MaterialComponent(ReactComponent):
             return CDN_DIST
         return super()._render_esm(compiled=True, server=server)
 
+    def _get_children(self, data_model, doc, root, parent, comm):
+        children, old_models = super()._get_children(data_model, doc, root, parent, comm)
+        children.pop('attached', None)
+        return children, old_models
+
     def _get_model(
         self, doc: Document, root: Model | None = None,
         parent: Model | None = None, comm: Comm | None = None
     ) -> Model:
         model = super()._get_model(doc, root, parent, comm)
+        model.elements, _ = self._get_child_model(self.attached, doc, model or root, parent, comm)
         # Ensure model loads ESM and CSS bundles from CDN
         # if requested or if in notebook
         if (
@@ -266,6 +277,7 @@ class MaterialComponent(ReactComponent):
 
     def _get_properties(self, doc: Document | None) -> dict[str, Any]:
         props = super()._get_properties(doc)
+        props.pop('elements', None)
         props.pop('loading', None)
         props['data'].loading = self.loading
         return props
