@@ -12,7 +12,7 @@ export function render({model}) {
   };
 
   return (
-    <Drawer open={open} anchor={anchor} variant={variant} sx={{"& .MuiPaper-root": {"padding": "5px"}}} onClose={toggleDrawer(false)}>
+    <Drawer open={open} anchor={anchor} variant={variant} sx={{"& .MuiPaper-root": {"padding": "5px"},...sx}} onClose={toggleDrawer(false)}>
       {objects}
     </Drawer>
   )

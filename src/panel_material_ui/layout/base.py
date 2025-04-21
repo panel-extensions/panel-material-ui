@@ -468,9 +468,15 @@ class Drawer(MaterialListLike):
     open = param.Boolean(default=False)
     anchor = param.Selector(default="left", objects=["left", "right", "top", "bottom"])
     variant = param.Selector(default="temporary", objects=["temporary", "persistent"])
+
     _esm_base = "Drawer.jsx"
 
-
+    def __init__(self, *objects, **params):
+        if objects:
+            params["objects"] = objects
+        # If the width or height is > 0 it will take up that space when not open
+        params.update(width=0, height=0, sizing_mode="fixed",)
+        super().__init__(**params)
 
 __all__ = [
     "Accordion",

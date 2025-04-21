@@ -43,7 +43,7 @@ open_button = pmu.Button(name="Open Drawer", on_click=open_drawer, margin=(20,5,
 def close_drawer(event):
     drawer.open = False
 
-close_button = pmu.Button(name="Close Drawer", on_click=close_drawer, sizing_mode="stretch_width", color="primary")
+close_button = pmu.Button(name="Close Drawer", on_click=close_drawer, width=300, color="primary")
 drawer.insert(0, close_button)
 
 pn.Column(drawer, open_button).servable()
@@ -67,4 +67,28 @@ The default value is `temporary`.
 
 ```python
 pn.Row(pmu.RadioButtonGroup.from_param(drawer.param.variant), open_button).servable()
+```
+
+## Width
+
+The width of the `Drawer` can be controlled via the maximum width of its child objects.
+
+```python
+pn.Row(pmu.IntSlider.from_param(close_button.param.width, start=300, end=600, step=100, margin=(10, 20, 10, 10)), open_button).servable()
+```
+
+We recommend controlling the `width` by using a `Column`
+
+```.py
+Drawer(pn.Column(
+    pmu.Divider(sizing_mode="stretch_width"), "## Settings", pmu.FloatSlider(name="Value", value=4, color="primary")
+), width=400)
+```
+
+Alternatively its possible to control the width via the `sx` style parameter.
+
+```.py
+drawer.sx={
+    "& .MuiPaper-root": {"width": "500px"}
+}
 ```

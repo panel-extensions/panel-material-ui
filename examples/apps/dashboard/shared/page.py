@@ -56,29 +56,29 @@ def create_context(settings: PageSettings):
     [button.on_click(click) for button in buttons]
 
 
-    return pn.Column(
-        "## Material UI Configurator",
-        pmu.widgets.RadioBoxGroup.from_param(settings.param.sidebar_button_color),
-        """### Sidenav Type
+    return pmu.Drawer(
+        pn.Column(
+            "## Material UI Configurator",
+            pmu.widgets.RadioBoxGroup.from_param(settings.param.sidebar_button_color),
+            """### Sidenav Type
 
 Choose between different sidenav types.""",
-        pn.Row(*buttons, align="center"),
-        pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
-        pmu.Switch.from_param(settings.param.dark_theme, name="Light/ Dark"),
-        pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
-        pmu.widgets.Button(name="Free Download", href="https://github.com/panel-extensions/panel-material-ui", color="primary", variant="contained", sizing_mode="stretch_width"),
-        pmu.widgets.Button(name="Documentation", href="https://holoviz-dev.github.io/panel-material-ui/", variant="outlined", sizing_mode="stretch_width"),
-        create_github_star_count(),
-        pn.pane.Markdown("## Thank you for sharing!", align="center"),
-        pn.Row(
-            pmu.widgets.Button(name="Tweet", href="https://twitter.com/intent/tweet?text=Check%20Panel%20Material%20UI%20Dashboard%20made%20by%20%40HoloViz%20%23webdesign%20%23dashboard%20%23dataviz&url=https%3A%2F%2Fholoviz-dev.github.io%2Fpanel-material-ui%2F", color="dark", variant="contained"),
-            pmu.widgets.Button(name="Share", href="https://www.facebook.com/sharer/sharer.php?u=https://holoviz-dev.github.io/panel-material-ui", color="dark", variant="contained"),
-            align="center",
+            pn.Row(*buttons, align="center"),
+            pmu.layout.Divider(sizing_mode="stretch_width", margin=5, min_width=500),
+            pmu.Switch.from_param(settings.param.dark_theme, name="Light/ Dark"),
+            pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
+            pmu.widgets.Button(name="Free Download", href="https://github.com/panel-extensions/panel-material-ui", color="primary", variant="contained", sizing_mode="stretch_width"),
+            pmu.widgets.Button(name="Documentation", href="https://holoviz-dev.github.io/panel-material-ui/", variant="outlined", sizing_mode="stretch_width"),
+            create_github_star_count(),
+            pn.pane.Markdown("## Thank you for sharing!", align="center"),
+            pn.Row(
+                pmu.widgets.Button(name="Tweet", href="https://twitter.com/intent/tweet?text=Check%20Panel%20Material%20UI%20Dashboard%20made%20by%20%40HoloViz%20%23webdesign%20%23dashboard%20%23dataviz&url=https%3A%2F%2Fholoviz-dev.github.io%2Fpanel-material-ui%2F", color="dark", variant="contained"),
+                pmu.widgets.Button(name="Share", href="https://www.facebook.com/sharer/sharer.php?u=https://holoviz-dev.github.io/panel-material-ui", color="dark", variant="contained"),
+                align="center"
+            ),
+            sizing_mode="fixed", width=400,
         ),
-        pn.Spacer(sizing_mode="stretch_height"),
-        width=450,
-        styles=PAPER_STYLES | {"padding": "20px"},
-        visible=False,
+        anchor="right",
     )
 
 
@@ -152,13 +152,13 @@ def create_page(name: str, main: list):
 
     context = create_context(settings=settings)
 
-    def toggle_context(event):
-        context.visible = not context.visible
+    def toggle_drawer(event):
+        context.open = not context.open
 
-    header = create_header(name=name, settings_callback=toggle_context)
+    header = create_header(name=name, settings_callback=toggle_drawer)
 
     footer = create_footer()
-    fab_row = create_fab(settings_callback=toggle_context)
+    fab_row = create_fab(settings_callback=toggle_drawer)
     main = pn.Column(
         header,
         *main,
