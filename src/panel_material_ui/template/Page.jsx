@@ -151,11 +151,7 @@ export function render({model}) {
             aria-label="open drawer"
             onClick={() => setOpen(!open)}
             edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-            ]}
+            sx={{mr: 2}}
           >
             {open ? <MenuOpenIcon/> : <MenuIcon />}
           </IconButton>
@@ -166,7 +162,7 @@ export function render({model}) {
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
             {header}
           </Box>
-          <IconButton onClick={toggleTheme} color="inherit" align="right">
+          <IconButton onClick={toggleTheme} color="inherit" align="right" sx={{mr: "1em"}}>
             {dark_theme ? <DarkMode /> : <LightMode />}
           </IconButton>
           { (model.contextbar.length > 0 && !contextbar_open) &&
@@ -175,11 +171,7 @@ export function render({model}) {
             aria-label="open drawer"
             onClick={() => contextOpen(!contextbar_open)}
             edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-            ]}
+            sx={{mr: 2}}
           >
             <TocIcon />
           </IconButton>}
