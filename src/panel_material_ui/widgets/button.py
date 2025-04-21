@@ -33,7 +33,7 @@ class _ButtonLike(MaterialWidget):
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
 
-    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
+    variant = param.Selector(default="contained", objects=["contained", "outlined", "text"], doc="""
         The variant of the component.""")
 
     _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
@@ -75,6 +75,9 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
         icon name which is loaded from Material Icons.""",
     )
 
+    icon_size = param.String(default="1em", doc="""
+        Size of the icon as a string, e.g. 12px or 1em.""")
+
     width = param.Integer(default=None)
 
     _rename: ClassVar[Mapping[str, str | None]] = {
@@ -109,7 +112,6 @@ class Button(_ButtonBase, _ClickButton):
         doc="""
         Size of the icon as a string, e.g. 12px or 1em.""",
     )
-
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
     href = param.String(doc="A url. Turns the Button into a link button.")
     _esm_base = "Button.jsx"
