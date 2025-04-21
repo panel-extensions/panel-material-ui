@@ -78,7 +78,7 @@ Choose between different sidenav types.""",
         pn.Spacer(sizing_mode="stretch_height"),
         width=450,
         styles=PAPER_STYLES | {"padding": "20px"},
-        visible=True,
+        visible=False,
     )
 
 
@@ -140,8 +140,8 @@ def create_footer():
     )
 
 
-def create_fab():
-    fab_button = pmu.Fab(color='light', label='Click me', icon="settings", size="large", description="Toggle settings drawer")
+def create_fab(settings_callback):
+    fab_button = pmu.Fab(color='light', label='Click me', icon="settings", size="large", description="Toggle settings drawer", on_click=settings_callback)
     return pn.Row(pn.Spacer(sizing_mode="stretch_width"), fab_button)
 
 
@@ -158,7 +158,7 @@ def create_page(name: str, main: list):
     header = create_header(name=name, settings_callback=toggle_context)
 
     footer = create_footer()
-    fab_row = create_fab()
+    fab_row = create_fab(settings_callback=toggle_context)
     main = pn.Column(
         header,
         *main,
