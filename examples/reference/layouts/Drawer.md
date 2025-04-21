@@ -92,3 +92,7 @@ drawer.sx={
     "& .MuiPaper-root": {"width": "500px"}
 }
 ```
+
+## JS Linking
+
+DESCRIBE HOW TO JS_LINK A BUTTON OR BUTTONICON TO THE DRAWER.OPEN PROPERTY
