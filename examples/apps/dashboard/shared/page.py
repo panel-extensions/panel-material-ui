@@ -20,7 +20,7 @@ def create_sidebar(name: str, button_color, settings: PageSettings):
     )
 
     return pmu.Column(
-        "#### <img style='margin-bottom: -10px;margin-right: 10px;margin-left:5px;' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAAM1BMVEUAcrUBd7jk6OuoxdsAcrUAbLP08vAAbbUAdLUAcrVQnMm6z99+rM86jcJ5sNElhL10qc1QLvfMAAAACnRSTlPP////////KCjO4FwxLQAAAJNJREFUKJGNktEShCAIRRXCCrX2/792aaYU3YXpTDM+nMQLGtawGIQtmE6s48S+kkRkSBEHMim6rMyYAA7u1EdSTj9kenYWRPGQsVNaWTnjxFzifGhvJbbcTp+V4yCj4gOA19rSImgkmvxAf2Ua5Vw267Ij5xTIbcUdgjc+f/DelenLXu5vTGs/EwNfuo963S23b1+vug28mwd6wAAAAABJRU5ErkJggg=='></img>Creative Panel",
+        "#### <img style='margin-bottom: -10px;margin-right: 10px;margin-left:5px;' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAAM1BMVEUAcrUBd7jk6OuoxdsAcrUAbLP08vAAbbUAdLUAcrVQnMm6z99+rM86jcJ5sNElhL10qc1QLvfMAAAACnRSTlPP////////KCjO4FwxLQAAAJNJREFUKJGNktEShCAIRRXCCrX2/792aaYU3YXpTDM+nMQLGtawGIQtmE6s48S+kkRkSBEHMim6rMyYAA7u1EdSTj9kenYWRPGQsVNaWTnjxFzifGhvJbbcTp+V4yCj4gOA19rSImgkmvxAf2Ua5Vw267Ij5xTIbcUdgjc+f/DelenLXu5vTGs/EwNfuo963S23b1+vug28mwd6wAAAAABJRU5ErkJggg=='></img>Panel Material UI",
         pmu.layout.Divider(sizing_mode="stretch_width", margin=(10, 5, 10, 5)),
         create_menu(name, button_color=button_color),
         pn.Spacer(sizing_mode="stretch_height"),
@@ -65,7 +65,7 @@ def create_context(settings: PageSettings):
 Choose between different sidenav types.""",
             pn.Row(*buttons, align="center"),
             pmu.layout.Divider(sizing_mode="stretch_width", margin=5, min_width=500),
-            pmu.Switch.from_param(settings.param.dark_theme, name="Light/ Dark"),
+            pmu.Switch.from_param(settings.param.dark_theme, name="Light/ Dark", disabled=True),
             pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
             pmu.widgets.Button(name="Free Download", href="https://github.com/panel-extensions/panel-material-ui", color="primary", variant="contained", sizing_mode="stretch_width"),
             pmu.widgets.Button(name="Documentation", href="https://holoviz-dev.github.io/panel-material-ui/", variant="outlined", sizing_mode="stretch_width"),
@@ -141,8 +141,13 @@ def create_footer():
 
 
 def create_fab(settings_callback):
-    fab_button = pmu.Fab(color='light', label='Click me', icon="settings", size="large", description="Toggle settings drawer", on_click=settings_callback)
-    return pn.Row(pn.Spacer(sizing_mode="stretch_width"), fab_button)
+    sx ={
+        "position": 'fixed',
+        "bottom": 16,
+        "right": 16,
+    }
+    fab_button = pmu.Fab(color='light', label='Click me', icon="settings", size="large", description="Toggle settings drawer", on_click=settings_callback, sx=sx)
+    return fab_button
 
 
 def create_page(name: str, main: list):
@@ -165,6 +170,7 @@ def create_page(name: str, main: list):
         pn.Spacer(sizing_mode="stretch_height"),
         footer,
         pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
+        pn.Spacer(height=50, sizing_mode="stretch_width"),
         fab_row,
         sizing_mode="stretch_width",
         margin=10,

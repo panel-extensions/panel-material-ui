@@ -1,6 +1,6 @@
 import panel as pn
 import param
-from panel_material_ui.base import COLORS as _BUTTON_COLORS
+from panel_material_ui.base import COLORS as _BUTTON_COLORS, COLOR_ALIASES
 
 BODY_BACKGROUND = "#f5f5f5"
 BODY_STYLES = {"background": BODY_BACKGROUND, "width": "100vw"}  # Hack
@@ -15,16 +15,18 @@ PAPER_STYLES = {
     "border": "1px solid #e5e5e5",
     "box-shadow": "0 1px 2px 0 rgba(0,0,0,.05)",
 }
-PAGES = (
-    ("Dashboard", "dashboard", "dashboard"),
-    ("Tables", "tables", "table_view"),
-    ("Notifications", "notifications", "notifications"),
-)
+PAGES = [
+    {"label": "Dashboard", "href": "dashboard", "icon": "dashboard"},
+    {"label": "Tables", "href": "tables", "icon": "table_view"},
+    {"label": "Notifications", "href": "notifications", "icon": "notifications"},
+]
+
 pn.config.css_files=[
     # "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=schedule,weekend,person,leaderboard"
 ]
 
 _COLOR = {"Dark": "#42424a", "Transparent": "inherit", "White": "white"}
+_BUTTON_COLORS = [color for color in _BUTTON_COLORS if color not in COLOR_ALIASES]
 
 class PageSettings(param.Parameterized):
     dark_theme = param.Boolean(default=False)
