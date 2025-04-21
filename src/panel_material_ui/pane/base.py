@@ -124,18 +124,19 @@ class Timeline(MaterialPaneBase):
     >>> Timeline(object=config, width=600)
     """  # noqa: E501
     object = param.List(default=[], doc="""
-      A list of dictionaries, each mapping directly onto a `TimelineItem` row.
-      Supported keys:
+    A list of dictionaries, each mapping directly onto a `TimelineItem` row.
+    Supported keys:
 
-      | key            | type            | default   | description                                      |
-      |----------------|-----------------|-----------|--------------------------------------------------|
-      | **content_title** | str          | *None*    | Header shown in `TimelineContent`.               |
-      | **content**    | str             | *None*    | Body shown in `TimelineContent`.                 |
-      | **opposite_title** | str         | *None*    | Header for `TimelineOppositeContent`             |
-      | **opposite**   | str             | *None*    | Body for `TimelineOppositeContent`               |
-      | **color**      | str             | primary   | Color prop for `TimelineDot`.                    |
-      | **variant**    | str             | filled    | Variant prop for `TimelineDot` (filled/outlined).|
-      | **icon**       | str             | *None     | Name of icon for `Icon` inside `TimelineDot`.    |
+    | key               | type | default | description                                                                                                       |
+    |-------------------|------|---------|-------------------------------------------------------------------------------------------------------------------|
+    | **content_title** | str  | *None*  | Header of `TimelineContent`.                                                                                      |
+    | **content**       | str  | *None*  | Body of `TimelineContent`.                                                                                        |
+    | **opposite_title**| str  | *None*  | Header of `TimelineOppositeContent`.                                                                              |
+    | **opposite**      | str  | *None*  | Body of `TimelineOppositeContent`.                                                                                |
+    | **color**         | str  | primary | Color prop of `TimelineDot`.                                                                                      |
+    | **variant**       | str  | filled  | Variant prop of `TimelineDot` (filled/ outlined).                                                                 |
+    | **icon**          | str  | *None*  | Lowercase name of `Icon`.                                                                                         |
+    | **disable_dot**   | bool | *None*  | If `True`, the `Icon` is shown standalone and not inside the `TimelineDot`.                                       |
     """)
 
     position = param.Selector(default="right", objects=[

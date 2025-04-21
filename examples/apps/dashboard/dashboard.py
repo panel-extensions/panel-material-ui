@@ -198,12 +198,12 @@ with pn.config.set(sizing_mode="stretch_width"):
         height=550,
     )
     timeline_config = [
-        {"content_title": "$2400, Design changes", "content": "22 DEC 7:20 PM", "color": "success", "variant": "filled", "icon": "notifications", },
-        {"content_title": "New order #1832412", "content": "21 DEC 11 PM", "color": "error", "variant": "filled", "icon": "code", },
-        {"content_title": "Server payments for April", "content": "21 DEC 9:34 PM", "color": "primary", "variant": "filled", "icon": "shopping_cart", },
-        {"content_title": "New card added for order #4395133", "content": "20 DEC 2:20 AM", "color": "warning", "variant": "filled", "icon": "credit_card", },
-        {"content_title": "Unlock packages for development", "content": "18 DEC 4:54 AM", "color": "info", "variant": "filled", "icon": "key", },
-        {"content_title": "New order #9583120", "content": "17 DEC", "color": "dark", "variant": "filled", "icon": "payments", },
+        {"content_title": "$2400, Design changes", "content": "22 DEC 7:20 PM", "color": "success", "icon": "notifications", "disable_dot": True},
+        {"content_title": "New order #1832412", "content": "21 DEC 11 PM", "color": "error", "icon": "code", "disable_dot": True},
+        {"content_title": "Server payments for April", "content": "21 DEC 9:34 PM", "color": "primary", "icon": "shopping_cart", "disable_dot": True},
+        {"content_title": "New card added for order #4395133", "content": "20 DEC 2:20 AM", "color": "warning", "icon": "credit_card", "disable_dot": True},
+        {"content_title": "Unlock packages for development", "content": "18 DEC 4:54 AM", "color": "error", "icon": "key", "disable_dot": True},
+        {"content_title": "New order #9583120", "content": "17 DEC", "color": "dark", "icon": "payments", "disable_dot": True},
     ]
     sx = {
         "& .MuiTimelineItem-root:before": {

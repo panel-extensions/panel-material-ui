@@ -20,7 +20,7 @@ export function render({ model }) {
     {items.map((item, idx) => (
         <TimelineItem key={idx}>
         {(item.opposite !== undefined || item.opposite_title !== undefined) && (
-            <TimelineOppositeContent sx={{ m: 'auto 0' }} align="right" variant="body2" color="text.secondary">
+            <TimelineOppositeContent sx={item.icon ? { m: 'auto 0' } : { }} align="right" variant="body2" color="text.secondary">
                 <Typography variant="h6" component="span">
                     {item.opposite_title}
                 </Typography>
@@ -30,23 +30,27 @@ export function render({ model }) {
             </TimelineOppositeContent>
         )}
         <TimelineSeparator>
-            <TimelineDot
-            color={item.color || 'grey'}
-            variant={item.variant || 'filled'}
-            >
-                {item.icon !== undefined && <Icon sx={{"margin": "2px"}}>{item.icon}</Icon>}
-            </TimelineDot>
+            {(item.disable_dot && item.icon) ? (
+                <Icon sx={{ margin: 1 }} color={item.color || 'grey'}>{item.icon}</Icon>
+            ) : (
+              <TimelineDot
+                color={item.color || 'grey'}
+                variant={item.variant || 'filled'}
+              >
+                {item.icon !== undefined && (
+                  <Icon sx={{ margin: 1 }}>{item.icon}</Icon>
+                )}
+              </TimelineDot>
+            )}
             {idx < items.length - 1 && <TimelineConnector />}
         </TimelineSeparator>
         {(item.content !== undefined || item.content_title !== undefined) && (
-                <TimelineContent sx={{ m: 'auto 0' }}>
-                    <Typography variant="h6" component="span">
-                        {item.content_title}
-                    </Typography>
-                    <Typography>
-                        {item.content}
-                    </Typography>
-                </TimelineContent>
+            <TimelineContent sx={item.icon ? { m: 'auto 0' } : { }}>
+                <Typography variant="h6" component="span">
+                    {item.content_title}
+                </Typography>
+                <Typography>{item.content}</Typography>
+            </TimelineContent>
         )}
         </TimelineItem>
     ))}
