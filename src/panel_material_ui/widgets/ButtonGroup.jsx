@@ -26,7 +26,7 @@ export function render({model}) {
         return (
           <ToggleButton
             aria-label={option}
-	    key={option}
+            key={option}
             onClick={(e) => {
               let newValue
               if (exclusive) {
@@ -39,7 +39,7 @@ export function render({model}) {
               }
               setValue(newValue)
             }}
-	    selected={exclusive ? (value==option) : value.includes(option)}
+            selected={exclusive ? (value==option) : value.includes(option)}
             size={size}
             value={option}
           >

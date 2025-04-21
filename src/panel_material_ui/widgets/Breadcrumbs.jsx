@@ -4,7 +4,7 @@ import Link from "@mui/material/Link"
 import Typography from "@mui/material/Typography"
 import Icon from "@mui/material/Icon"
 import NavigateNextIcon from "@mui/icons-material/NavigateNext"
-import { useTheme, styled } from "@mui/material/styles"
+import {useTheme, styled} from "@mui/material/styles"
 
 const StyledAvatar = styled(Avatar)(({ theme, color }) => ({
   backgroundColor: theme.palette[color]?.main,
@@ -13,7 +13,6 @@ const StyledAvatar = styled(Avatar)(({ theme, color }) => ({
   height: 24,
   marginRight: theme.spacing(0.5)
 }))
-
 
 export function render({model}) {
   const [color] = model.useState("color")
@@ -34,7 +33,7 @@ export function render({model}) {
         setActive(index)
         model.send_msg({type: "click", item: index})
       },
-      sx: {display: 'flex', alignItems: 'center'}
+      sx: {display: "flex", alignItems: "center"}
     }
     if (typeof item === "object" && item !== null) {
       if (item.href && index < items.length - 1) {
@@ -54,7 +53,7 @@ export function render({model}) {
           <Typography {...props}>
             {item.icon ? <Icon color={color_string} sx={{mr: 0.5}}>{item.icon}</Icon> : null}
             {item.avatar ?
-             <StyledAvatar color={color_string} theme={theme}>{item.avatar}</StyledAvatar> : null
+              <StyledAvatar color={color_string} theme={theme}>{item.avatar}</StyledAvatar> : null
             }
             {item.label}
           </Typography>

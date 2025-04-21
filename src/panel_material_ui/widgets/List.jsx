@@ -165,7 +165,7 @@ export function render({model}) {
             onClick={(e) => {
               e.stopPropagation()
               setOpen({...current_open, [key]: !current_open[key]})
-             }}
+            }}
           >
             {current_open[key] ? <ExpandLess/> : <ExpandMore />}
           </IconButton>
