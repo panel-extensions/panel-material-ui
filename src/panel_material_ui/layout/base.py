@@ -464,16 +464,24 @@ class Dialog(MaterialListLike):
 
     _esm_base = "Dialog.jsx"
 
+class Drawer(MaterialListLike):
+    open = param.Boolean(default=False)
+    anchor = param.Selector(default="left", objects=["left", "right", "top", "bottom"])
+    variant = param.Selector(default="temporary", objects=["temporary", "persistent"])
+    _esm_base = "Drawer.jsx"
+
+
 
 __all__ = [
-    "Paper",
-    "Container",
-    "Grid",
-    "Card",
     "Accordion",
-    "Tabs",
-    "Divider",
     "Alert",
     "Backdrop",
-    "Dialog"
+    "Card",
+    "Container",
+    "Dialog",
+    "Divider",
+    "Drawer",
+    "Grid",
+    "Paper",
+    "Tabs",
 ]
