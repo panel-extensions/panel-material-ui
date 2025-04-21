@@ -17,41 +17,49 @@ import MenuItem from "@mui/material/MenuItem"
 import MoreVert from "@mui/icons-material/MoreVert"
 
 export function render({model}) {
+  const [active, setActive] = model.useState("active")
+  const [color] = model.useState("color")
   const [dense] = model.useState("dense")
+  const [highlight] = model.useState("highlight")
   const [label] = model.useState("label")
   const [items] = model.useState("items")
+  const [level_indent] = model.useState("level_indent")
   const [sx] = model.useState("sx")
   const [open, setOpen] = React.useState({})
   const [menu_open, setMenuOpen] = React.useState({})
   const [menu_anchor, setMenuAnchor] = React.useState(null)
-  const keys = Array.isArray(items) ? items.map((_, index) => index) : Object.keys(items)
   const current_open = {...open}
   const current_menu_open = {...menu_open}
+
+  const active_array = Array.isArray(active) ? active : [active]
 
   React.useEffect(() => {
     setOpen(current_open)
     setMenuOpen(current_menu_open)
   }, [])
 
-  const render_item =(name, item, index, path, indent=0) => {
-    if (path == null) {
-      path = [name]
-    } else {
-      path = [...path, name]
+  const render_item = (item, index, path, indent=0) => {
+    if (item == null) {
+      return <Divider key={`divider-${index}`}/>
     }
+    if (path == null) {
+      path = [index]
+    } else {
+      path = [...path, index]
+    }
+    const isActive = path.length === active_array.length && path.every((value, index) => value === active_array[index])
+    const isSelectable = item.selectable ?? true
     const key = path.join(",")
     const isObject = (typeof item === "object" && item !== null)
     const label = isObject ? item.label : item
-    if (label === "---" || label === null) {
-      return <Divider key={`divider-${index}`}/>
-    }
-    const secondary = isObject ? item.secondary : null
-    const actions = isObject ? item.actions : undefined
-    const icon = isObject ? item.icon : undefined
-    const avatar = isObject ? item.avatar : undefined
-    const color = isObject ? item.color : undefined
-    const subitems = isObject ? item.subitems : undefined
-    const item_open = isObject ? item.open: true
+    const secondary = item.secondary || null
+    const actions = item.actions
+    const icon = item.icon
+    const icon_color = item.color || "default"
+    const href = item.href
+    const avatar = item.avatar
+    const subitems = item.items
+    const item_open = item.open || true
     current_open[key] = current_open[key] === undefined ? item_open : current_open[key]
     current_menu_open[key] = current_menu_open[key] === undefined ? false : current_menu_open[key]
 
@@ -61,30 +69,56 @@ export function render({model}) {
     } else if (icon) {
       leadingComponent = (
         <ListItemIcon>
-          <Icon color={color}>{icon}</Icon>
+          <Icon color={icon_color}>{icon}</Icon>
         </ListItemIcon>
       )
     } else {
       leadingComponent = (
         <ListItemAvatar>
-          <Avatar size="small" variant="square" color={color}>{avatar || label[0].toUpperCase()}</Avatar>
+          <Avatar
+            size="small"
+            variant="square"
+            color={icon_color}
+            sx={{
+              bgcolor: icon_color
+            }}
+          >
+            {avatar || label[0].toUpperCase()}
+          </Avatar>
         </ListItemAvatar>
       )
     }
 
     const list_item = (
-      <ListItemButton onClick={() => { model.send_msg({type: "click", item: path}) }} sx={{p: `0 4px 0 ${(indent+1) * 8}px`}}>
+      <ListItemButton
+        disableRipple={!isSelectable}
+        color={color}
+        key={`list-item-${key}`}
+        onClick={() => {
+          if (isSelectable) {
+            setActive(path)
+          }
+          model.send_msg({type: "click", item: path})
+        }}
+        selected={highlight && isActive}
+        sx={{
+          p: `0 4px 0 ${(indent+1) * level_indent}px`,
+          "&.MuiListItemButton-root.Mui-selected": {
+            bgcolor: isActive ? (
+              `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
+            ) : "inherit"
+          }
+        }}
+      >
         {leadingComponent}
         <ListItemText primary={label} secondary={secondary} />
-        {subitems && (
-          <IconButton size="small" onClick={(e) => { setOpen({...current_open, [key]: !current_open[key]}); e.stopPropagation() }}>
-            {current_open[key] ? <ExpandLess/> : <ExpandMore />}
-          </IconButton>
-        )}
         {actions && (
           <React.Fragment>
             <IconButton
               size="small"
+              onMouseDown={(e) => {
+                e.stopPropagation()
+              }}
               onClick={(e) => {
                 current_menu_open[key] = true
                 setMenuOpen(current_menu_open)
@@ -99,19 +133,42 @@ export function render({model}) {
               open={current_menu_open[key]}
               onClose={() => setMenuOpen({...current_menu_open, [key]: false})}
             >
-              {actions.map((action, index) => (
-                <MenuItem
-                  key={index}
-                  onClick={() => {
-                    model.send_msg({type: "action", action: action.action, item: path})
-                  }}
-                >
-                  {action.icon && <Icon>{action.icon}</Icon>}
-                  {action.label}
-                </MenuItem>
-              ))}
+              {actions.map((action, index) => {
+                if (action === null) {
+                  return <Divider key={`action-divider-${index}`}/>
+                }
+                return (
+                  <MenuItem
+                    key={`action-${index}`}
+                    onMouseDown={(e) => {
+                      e.stopPropagation()
+                    }}
+                    onClick={(e) => {
+                      model.send_msg({type: "action", action: action.label, item: path})
+                      e.stopPropagation()
+                    }}
+                  >
+                    {action.icon && <Icon>{action.icon}</Icon>}
+                    {action.label}
+                  </MenuItem>
+                )
+              })}
             </Menu>
           </React.Fragment>
+        )}
+        {subitems && (
+          <IconButton
+            size="small"
+            onMouseDown={(e) => {
+              e.stopPropagation()
+            }}
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpen({...current_open, [key]: !current_open[key]})
+            }}
+          >
+            {current_open[key] ? <ExpandLess/> : <ExpandMore />}
+          </IconButton>
         )}
       </ListItemButton>
     )
@@ -122,7 +179,7 @@ export function render({model}) {
         <Collapse in={current_open[key]} timeout="auto" unmountOnExit>
           <List component="div" disablePadding dense={dense}>
             {subitems.map((subitem, index) => {
-              return render_item(index, subitem, index, path, indent+1)
+              return render_item(subitem, index, path, indent+1)
             })}
           </List>
         </Collapse>
@@ -142,7 +199,7 @@ export function render({model}) {
         </ListSubheader>
       )}
     >
-      {keys.map((name, index) => render_item(name, items[name], index))}
+      {items.map((item, index) => render_item(item, index))}
     </List>
   )
 }
