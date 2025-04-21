@@ -70,7 +70,7 @@ export function render({model}) {
 
   return (
     <Breadcrumbs
-      maxItems={max_items}
+      maxItems={max_items || undefined}
       separator={separator || <NavigateNextIcon fontSize="small" />}
       sx={sx}
     >
