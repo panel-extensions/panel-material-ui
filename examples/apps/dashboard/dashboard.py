@@ -10,11 +10,13 @@ from shared.plots import (
     get_daily_sales_config,
     get_completed_tasks_config,
 )
-from shared.components import create_change_indicator, create_menu
+from shared.components import create_menu
 from shared.page import create_page
 import pandas as pd
 from shared.data import get_project_data
 from panel_material_ui.pane import Timeline
+from panel_material_ui import ChangeIndicator
+from panel_material_ui import Icon
 
 my_theme = {
     "palette": {
@@ -36,9 +38,10 @@ pn.extension(
     "echarts",
     design="material",
     # theme="dark",
-    # css_files=[
-    #     "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=schedule,weekend,person,leaderboard"
-    # ],
+    css_files=[
+        # "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=schedule,weekend,person,leaderboard"
+        # "https://fonts.googleapis.com/icon?family=Material+Icons"
+    ],
 )
 page_title = f"""\
 ## Dashboard
@@ -47,21 +50,18 @@ Check the sales, value and bounce rate by country.\
 """
 
 indicators = pn.Row(
-    create_change_indicator(
-        "Today's Money", "weekend", "$53,000", 55, "since yesterday"
+    ChangeIndicator(
+        title="Today's Money", icon="weekend", value="$53,000", change_percent=55, since="since yesterday", sizing_mode="stretch_width"
     ),
-    create_change_indicator("Today's Users", "person", "2300", 3, "than last month"),
-    create_change_indicator("Ads Views", "leaderboard", "3,462", -2, "since yesterday"),
-    create_change_indicator("Sales", "weekend", "$103,430", 5, "since yesterday"),
+    ChangeIndicator(title="Today's Users", icon="person", value="2300", change_percent=3, since="than last month", sizing_mode="stretch_width"),
+    ChangeIndicator(title="Ads Views", icon="leaderboard", value="3,462", change_percent=-2, since="since yesterday", sizing_mode="stretch_width"),
+    ChangeIndicator(title="Sales", icon="weekend", value="$103,430", change_percent=5, since="since yesterday", sizing_mode="stretch_width"),
 )
 
 
 def last_update(message):
-    # Why is HTML pane hidden?
-    return pn.panel(
-        f"<span class='material-symbols-outlined'>schedule</span> {message}",
-        stylesheets=[ICON_CSS],
-    )
+    schedule = Icon(value="schedule", font_size="small", sizing_mode="fixed", width=20, height=25, margin=(10,5, 10, 5))
+    return pn.Row(schedule, pn.pane.HTML(message, sizing_mode="fixed", margin=(11,0)), sizing_mode="fixed")
 
 def generate_company_html(row, image_width='40px'):
     company_name=row["Company"]
@@ -161,6 +161,7 @@ with pn.config.set(sizing_mode="stretch_width"):
             margin=(0, 5),
         ),
         pn.Spacer(sizing_mode="stretch_height"),
+        pmu.Divider(margin=(10,10,-5,10)),
         last_update("campaign sent 2 days ago"),
     ), styles=PAPER_STYLES, height=400, margin=10, )
 
@@ -170,6 +171,7 @@ with pn.config.set(sizing_mode="stretch_width"):
             get_daily_sales_config(), height=250, margin=(0, 5),
         ),
         pn.Spacer(sizing_mode="stretch_height"),
+        pmu.Divider(margin=(10,10,-5,10)),
         last_update("updated 4 min ago"),
         styles=PAPER_STYLES,
         margin=10,
@@ -183,6 +185,7 @@ with pn.config.set(sizing_mode="stretch_width"):
             margin=(0, 5),
         ),
         pn.Spacer(sizing_mode="stretch_height"),
+        pmu.Divider(margin=(10,10,-5,10)),
         last_update("just updated"),
         styles=PAPER_STYLES,
         margin=10,
