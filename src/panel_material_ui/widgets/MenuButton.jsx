@@ -43,12 +43,12 @@ export function render({model}) {
         open={open}
         onClose={() => setOpen(false)}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
+          vertical: "bottom",
+          horizontal: "right",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
       >
         {items.map((item, index) => {
@@ -62,7 +62,7 @@ export function render({model}) {
               onClick={() => {
                 setOpen(false)
                 model.send_msg({type: "click", item: index})
-               }}
+              }}
             >
               {item.icon && (
                 item.icon.trim().startsWith("<") ?
