@@ -55,7 +55,6 @@ export function render({model}) {
           if (item === null || item.label === "---") {
             return <Divider/>
           }
-          console.log(item)
           return (
             <MenuItem
               key={`menu-item-${index}`}
