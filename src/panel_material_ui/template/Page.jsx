@@ -12,7 +12,7 @@ import LightMode from "@mui/icons-material/LightMode";
 import TocIcon from "@mui/icons-material/Toc";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
-import {render_theme_css} from "./utils"
+import {dark_mode, render_theme_css} from "./utils"
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && prop !== "variant" && prop !== "sidebar_width"})(
   ({sidebar_width, theme, open, variant}) => {
@@ -87,6 +87,8 @@ export function render({model}) {
       document.head.appendChild(page_style_el)
     }
   }
+
+  React.useEffect(() => dark_mode.set_value(dark_theme), [])
 
   React.useEffect(() => {
     global_style_el.textContent = render_theme_css(theme)
