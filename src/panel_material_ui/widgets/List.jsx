@@ -101,6 +101,7 @@ export function render({model}) {
           model.send_msg({type: "click", item: path})
         }}
         selected={highlight && isActive}
+        href={href}
         sx={{
           p: `0 4px 0 ${(indent+1) * level_indent}px`,
           "&.MuiListItemButton-root.Mui-selected": {
