@@ -23,7 +23,7 @@ class _ButtonLike(MaterialWidget):
     button_type = param.Selector(objects=COLORS, default=None, doc="""
         The type of the component (alias for color to match Panel's Button API).""")
 
-    color = param.Selector(objects=COLORS, default="default", doc="""
+    color = param.Selector(objects=COLORS, default="primary", doc="""
         The color of the component.""")
 
     description = param.String(default=None, doc="""
@@ -33,7 +33,7 @@ class _ButtonLike(MaterialWidget):
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
 
-    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
+    variant = param.Selector(objects=["contained", "outlined", "text"], default="text", doc="""
         The variant of the component.""")
 
     _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
@@ -96,8 +96,9 @@ class Button(_ButtonBase, _ClickButton):
     watched to subscribe to click events.
 
     References:
-    - https://panel.holoviz.org/reference/widgets/Button.html
+    - https://holoviz-dev.github.io/panel-material-ui/reference/widgets/Button.html
     - https://mui.com/material-ui/react-button/
+    - https://panel.holoviz.org/reference/widgets/Button.html
 
     :Example:
 
@@ -112,6 +113,8 @@ class Button(_ButtonBase, _ClickButton):
         doc="""
         Size of the icon as a string, e.g. 12px or 1em.""",
     )
+
+    disable_elevation = param.Boolean(default=False)
 
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
 

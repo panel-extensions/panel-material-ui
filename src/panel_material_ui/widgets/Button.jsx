@@ -8,8 +8,10 @@ export function render({model, el}) {
   const [icon_size] = model.useState("icon_size")
   const [label] = model.useState("label")
   const [variant] = model.useState("variant")
+  const [disableElevation] = model.useState("disable_elevation")
   const [sx] = model.useState("sx")
 
+  console.log(label, variant, color, disableElevation)
   return (
     <Button
       color={color}
@@ -24,6 +26,7 @@ export function render({model, el}) {
       )}
       sx={sx}
       variant={variant}
+      disableElevation={disableElevation}
     >
       {label}
     </Button>
