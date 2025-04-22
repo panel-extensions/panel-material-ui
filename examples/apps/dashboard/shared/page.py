@@ -147,10 +147,10 @@ def create_footer():
 def create_fab(settings_callback):
     sx ={
         "position": 'fixed',
-        "bottom": 16,
-        "right": 16,
+        "bottom": "64px",
+        "right": 24,
     }
-    fab_button = pmu.Fab(color='default', label='Click me', icon="settings", size="large", description="Toggle settings drawer", on_click=settings_callback, sx=sx)
+    fab_button = pmu.Fab(color='default', label='Click me', icon="settings", size="large", description="Toggle settings drawer", margin=0, on_click=settings_callback, sx=sx)
     return fab_button
 
 
@@ -171,9 +171,9 @@ def create_page(name: str, main: list):
     main = pn.Column(
         header,
         *main,
-        footer,
-        pn.Spacer(sizing_mode="stretch_height"),
+        pn.layout.VSpacer(),
         fab_row,
+        footer,
         sizing_mode="stretch_width",
         margin=10,
     )

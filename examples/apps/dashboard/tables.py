@@ -1,6 +1,7 @@
 import panel as pn
 import panel_material_ui as pmu
 import pandas as pd
+
 from shared.config import BODY_STYLES, PAPER_STYLES, BODY_BACKGROUND
 from shared.data import get_authors_data
 from shared.page import create_page
@@ -77,23 +78,20 @@ def to_styled_authors_table(data):
 
 
 def get_card_with_jumbo_header(title, content):
-    return pn.Column(
+    return pmu.Paper(
         pn.pane.Markdown(
             title,
             sizing_mode="stretch_width",
             styles={
                 "background": "black",
                 "color": "white",
-                "border_radius": "5px",
+                "border-radius": "5px",
                 "position": "relative",
-                "padding-left": "25px",
-                "top": "-25px",
+                "padding-left": "10px",
             },
-            margin=(10, 50, 10, 50),
-            height=50,
+            margin=10,
         ),
         content,
-        styles=PAPER_STYLES,
         margin=10,
     )
 

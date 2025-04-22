@@ -4,7 +4,14 @@
 import panel_material_ui as pmu
 import panel as pn
 import param
+import pandas as pd
+
+from panel_material_ui.pane import Timeline
+from panel_material_ui import ChangeIndicator
+from panel_material_ui import Icon
+
 from shared.config import BODY_STYLES, PAPER_STYLES, ICON_CSS
+from shared.data import get_project_data
 from shared.plots import (
     get_website_views_config,
     get_daily_sales_config,
@@ -12,11 +19,6 @@ from shared.plots import (
 )
 from shared.components import create_menu
 from shared.page import create_page
-import pandas as pd
-from shared.data import get_project_data
-from panel_material_ui.pane import Timeline
-from panel_material_ui import ChangeIndicator
-from panel_material_ui import Icon
 
 my_theme = {
     "palette": {
@@ -34,15 +36,8 @@ my_theme = {
 }
 
 
-pn.extension(
-    "echarts",
-    design="material",
-    # theme="dark",
-    css_files=[
-        # "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=schedule,weekend,person,leaderboard"
-        # "https://fonts.googleapis.com/icon?family=Material+Icons"
-    ],
-)
+pn.extension("echarts")
+
 page_title = f"""\
 ## Dashboard
 
@@ -115,9 +110,9 @@ def generate_member_images(row, image_size='30px', overlap_offset='-10px'):
     return wrapper_html
 
 def to_styles_projects_table(data: pd.DataFrame):
-    data["Company"]=data.apply(generate_company_html, axis=1)
-    data["Completion"]=data.apply(generate_progress_bar, axis=1)
-    data["Members"]=data.apply(generate_member_images, axis=1)
+    data["Company"] = data.apply(generate_company_html, axis=1)
+    data["Completion"] = data.apply(generate_progress_bar, axis=1)
+    data["Members"] = data.apply(generate_member_images, axis=1)
     data = data.drop(columns=["CompanyImage"])
     styled_df = data.style
     styled_df = (
@@ -152,7 +147,7 @@ def to_styles_projects_table(data: pd.DataFrame):
 
 
 with pn.config.set(sizing_mode="stretch_width"):
-    web_site_views = pn.Column(pn.Column(
+    web_site_views = pmu.Paper(
         "#### Website Views\n\nLast Campaign Performance",
         pn.pane.ECharts(
             get_website_views_config(),
@@ -160,23 +155,25 @@ with pn.config.set(sizing_mode="stretch_width"):
             margin=(0, 5),
         ),
         pn.Spacer(sizing_mode="stretch_height"),
-        pmu.Divider(margin=(10,10,-5,10)),
+        pmu.Divider(margin=(10, 10, -5, 10)),
         last_update("campaign sent 2 days ago"),
-    ), styles=PAPER_STYLES, height=400, margin=10, )
+        height=400, margin=10
+    )
 
-    daily_sales = pn.Column(
+    daily_sales = pmu.Paper(
         "#### Daily Sales\n\n**+15%** increase in todays sales",
         pn.pane.ECharts(
-            get_daily_sales_config(), height=250, margin=(0, 5),
+            get_daily_sales_config(),
+            height=250,
+            margin=(0, 5),
         ),
         pn.Spacer(sizing_mode="stretch_height"),
         pmu.Divider(margin=(10,10,-5,10)),
         last_update("updated 4 min ago"),
-        styles=PAPER_STYLES,
         margin=10,
         height=400,
     )
-    completed_tasks = pn.Column(
+    completed_tasks = pmu.Paper(
         "#### Completed Tasks\n\nLast Campaign Performance",
         pn.pane.ECharts(
             get_completed_tasks_config(),
@@ -186,16 +183,14 @@ with pn.config.set(sizing_mode="stretch_width"):
         pn.Spacer(sizing_mode="stretch_height"),
         pmu.Divider(margin=(10,10,-5,10)),
         last_update("just updated"),
-        styles=PAPER_STYLES,
         margin=10,
         height=400,
     )
 
     plots = pn.Row(web_site_views, daily_sales, completed_tasks, sizing_mode="stretch_both")
-    project_table = pn.Column(
+    project_table = pmu.Paper(
         "#### Projects\n\n**30 done** this month",
-        pn.panel(to_styles_projects_table(get_project_data()), sizing_mode="stretch_width"),
-        styles=PAPER_STYLES,
+        pn.pane.DataFrame(to_styles_projects_table(get_project_data()), sizing_mode="stretch_width"),
         margin=10,
         height=550,
     )
@@ -213,15 +208,16 @@ with pn.config.set(sizing_mode="stretch_width"):
           "padding-left": 10,
         },
     }
-    timeline = pn.Column(
+    timeline = pmu.Paper(
         "#### Orders overview\n\n**24%** this month",
         Timeline(object=timeline_config, sizing_mode="stretch_width", sx=sx),
-        styles=PAPER_STYLES,
         margin=10,
         height=550,
     )
     table_timeline_row = pn.Row(project_table, timeline)
 
-create_page(name="Dashboard", main=[page_title, indicators, plots, table_timeline_row]).servable(
+create_page(
+    name="Dashboard",
+    main=[page_title, indicators, plots, table_timeline_row]).servable(
     title="Dashboard"
 )
