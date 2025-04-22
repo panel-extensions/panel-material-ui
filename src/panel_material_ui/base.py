@@ -206,8 +206,9 @@ class MaterialComponent(ReactComponent):
     def _exports__(cls):
         exports = super()._exports__
         exports.update({
+            "react-is": ["*react_is"],
+            "react/jsx-runtime": [("jsx", "jsxs", "Fragment")],
             "./utils": [("install_theme_hooks",)],
-            "react/jsx-runtime": [("jsx", "jsxs", "Fragment")]
         })
         return exports
 
@@ -355,7 +356,7 @@ class CustomMaterialComponent(MaterialComponent):
         "imports": {
             "panel-material-ui": CDN_DIST,
             "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.9/",
-            "@mui/material/": "https://esm.sh/@mui/material@6.4.9&external=react/",
+            "@mui/material/": "https://esm.sh/@mui/material@6.4.9&external=react,react-is/",
             "material-icons/": "https://esm.sh/material-icons@1.13.14/",
             "react": f"{CDN_BASE}/react-shim.js",
             "react/jsx-runtime": f"{CDN_BASE}/react-jsx-runtime-shim.js",
