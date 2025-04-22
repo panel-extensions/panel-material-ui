@@ -16,7 +16,7 @@ Buttons communicate actions that users can take. They are typically placed throu
 - Cards
 - Toolbars
 
-The `panel-material-ui` button is built on top of the [Material UI `Button`](https://mui.com/material-ui/react-button/).
+The `panel-material-ui` `Button` is built on top of the [Material UI `Button`](https://mui.com/material-ui/react-button/).
 
 ```python
 import panel as pn
