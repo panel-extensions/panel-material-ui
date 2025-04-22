@@ -16,7 +16,7 @@ Buttons communicate actions that users can take. They are typically placed throu
 - Cards
 - Toolbars
 
-Then `panel-material-ui` button is built on top of the [Material UI `Button`](https://mui.com/material-ui/react-button/).
+The `panel-material-ui` button is built on top of the [Material UI `Button`](https://mui.com/material-ui/react-button/).
 
 ```python
 import panel as pn
@@ -105,7 +105,8 @@ button = Button(label="Click Me")
 
 pn.Tabs(
     pn.pane.HTML(button.param, name="Table"),
-    pn.Row(button.controls(jslink=True), button, name="Live Editor")
+    pn.Row(button.controls(jslink=True), button, name="Editor", sizing_mode="stretch_width"),
+    sizing_mode="stretch_width"
 ).servable()
 ```
 
