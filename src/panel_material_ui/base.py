@@ -207,6 +207,7 @@ class MaterialComponent(ReactComponent):
         exports = super()._exports__
         exports.update({
             "react-is": ["*react_is"],
+            "react-dom": ["*react_dom"],
             "react/jsx-runtime": [("jsx", "jsxs", "Fragment")],
             "./utils": [("install_theme_hooks",)],
         })
