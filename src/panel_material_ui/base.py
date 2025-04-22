@@ -46,7 +46,8 @@ STYLE_ALIASES = {"outline": "outlined"}
 
 BASE_PATH = pathlib.Path(__file__).parent
 IS_RELEASE = __version__ == base_version(__version__)
-CDN_DIST = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}/panel-material-ui.bundle.js"
+CDN_BASE = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}"
+CDN_DIST = f"{CDN_BASE}/panel-material-ui.bundle.js"
 
 
 class ESMTransform:
@@ -201,6 +202,15 @@ class MaterialComponent(ReactComponent):
         esm_path = mod_path / cls._esm_base
         return esm_path
 
+    @classproperty  # type: ignore
+    def _exports__(cls):
+        exports = super()._exports__
+        exports.update({
+            "./utils": [("install_theme_hooks",)],
+            "react/jsx-runtime": [("jsx", "jsxs", "Fragment")]
+        })
+        return exports
+
     @classproperty
     def _bundle_css(cls):
         from panel.io.resources import RESOURCE_MODE
@@ -338,3 +348,51 @@ class MaterialComponent(ReactComponent):
             return Tabs(controls.layout[0], style.layout[0])
         elif params:
             return controls.layout[0]
+
+class CustomMaterialComponent(MaterialComponent):
+
+    _importmap = {
+        "imports": {
+            "panel-material-ui": CDN_DIST,
+            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.9/",
+            "@mui/material/": "https://esm.sh/@mui/material@6.4.9&external=react/",
+            "material-icons/": "https://esm.sh/material-icons@1.13.14/",
+            "react": f"{CDN_BASE}/react-shim.js",
+            "react/jsx-runtime": f"{CDN_BASE}/react-jsx-runtime-shim.js",
+            "react-dom/client": f"{CDN_BASE}/react-dom-client-shim.js",
+            "@emotion/cache": f"{CDN_BASE}/emotion-cache-shim.js",
+            "@emotion/react": f"{CDN_BASE}/emotion-react-shim.js",
+        }
+    }
+
+    __abstract = True
+
+    @classmethod
+    def _process_importmap(cls):
+        return cls._importmap
+
+    @classmethod
+    def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
+        return cls._render_esm_base()
+
+    @classmethod
+    def _render_esm_base(cls):
+        esm = cls._esm_base
+        if not esm.endswith(('.js', '.jsx', '.ts', '.tsx')):
+            esm_base = esm
+        else:
+            esm_base = (pathlib.Path(inspect.getfile(cls)).parent / cls._esm_base).read_text()
+        if not cls._esm_transforms:
+            return esm_base
+
+        component_name = f'Panel{cls.__name__}'
+        esm_base = esm_base.replace('export function render', f'function {component_name}')
+        for transform in cls._esm_transforms:
+            esm_base, component_name = transform.apply(cls, esm_base, component_name)
+        esm_base += f'\nexport default {{ render: {component_name} }}'
+        out = textwrap.dedent(
+            esm_base.replace(
+                'import {install_theme_hooks} from "./utils"', 'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks'
+            )
+        )
+        return out
