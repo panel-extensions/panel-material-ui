@@ -184,6 +184,8 @@ class Card(MaterialNamedListLike, PaperMixin):
 
     hide_header = param.Boolean(default=False)
 
+    outlined = param.Boolean(default=True)
+
     title = param.String(doc="""
         A title to be displayed in the Card header, will be overridden
         by the header if defined.""")

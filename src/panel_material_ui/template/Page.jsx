@@ -12,7 +12,7 @@ import LightMode from "@mui/icons-material/LightMode";
 import TocIcon from "@mui/icons-material/Toc";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
-import {render_theme_css} from "./utils"
+import {dark_mode, render_theme_css} from "./utils"
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && prop !== "variant" && prop !== "sidebar_width"})(
   ({sidebar_width, theme, open, variant}) => {
@@ -88,6 +88,8 @@ export function render({model}) {
     }
   }
 
+  React.useEffect(() => dark_mode.set_value(dark_theme), [])
+
   React.useEffect(() => {
     global_style_el.textContent = render_theme_css(theme)
     const style_objs = theme.generateStyleSheets()
@@ -149,11 +151,7 @@ export function render({model}) {
             aria-label="open drawer"
             onClick={() => setOpen(!open)}
             edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-            ]}
+            sx={{mr: 2}}
           >
             {open ? <MenuOpenIcon/> : <MenuIcon />}
           </IconButton>
@@ -164,7 +162,7 @@ export function render({model}) {
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
             {header}
           </Box>
-          <IconButton onClick={toggleTheme} color="inherit" align="right">
+          <IconButton onClick={toggleTheme} color="inherit" align="right" sx={{mr: "1em"}}>
             {dark_theme ? <DarkMode /> : <LightMode />}
           </IconButton>
           { (model.contextbar.length > 0 && !contextbar_open) &&
@@ -173,11 +171,7 @@ export function render({model}) {
             aria-label="open drawer"
             onClick={() => contextOpen(!contextbar_open)}
             edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-            ]}
+            sx={{mr: 2}}
           >
             <TocIcon />
           </IconButton>}

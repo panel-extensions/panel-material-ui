@@ -1,7 +1,7 @@
 import * as React from "react"
 import {grey} from "@mui/material/colors"
-import {createTheme} from "@mui/material/styles";
-import {deepmerge} from "@mui/utils";
+import {createTheme} from "@mui/material/styles"
+import {deepmerge} from "@mui/utils"
 
 export class SessionStore {
   constructor() {
@@ -10,9 +10,12 @@ export class SessionStore {
   }
 
   set_value(value) {
+    const old = this.shared_var
     this.shared_var = value
-    for (const cb of this._callbacks) {
-      cb(value)
+    if (value !== old) {
+      for (const cb of this._callbacks) {
+        cb(value)
+      }
     }
   }
 
@@ -23,6 +26,10 @@ export class SessionStore {
   subscribe(callback) {
     this._callbacks.push(callback)
     return () => this._callbacks.splice(this._callbacks.indexOf(callback), 1)
+  }
+
+  unsubscribe(callback) {
+    this._callbacks.splice(this._callbacks.indexOf(callback), 1)
   }
 }
 
@@ -88,9 +95,9 @@ export function render_theme_config(props, theme_config, dark_theme) {
     palette: {
       mode: dark_theme ? "dark" : "light",
       default: {
-        main: dark_theme ? grey[700] : "#000000",
-        light: grey[dark_theme ? 500 : 100],
-        dark: grey[dark_theme ? 900 : 600],
+        main: dark_theme ? grey[500] : "#000000",
+        light: grey[dark_theme ? 200 : 100],
+        dark: grey[dark_theme ? 800 : 600],
         contrastText: dark_theme ? "#ffffff" : "#ffffff",
       },
       dark: {
@@ -171,7 +178,7 @@ export function render_theme_config(props, theme_config, dark_theme) {
           root: {
             "&.MuiToggleButton-default.Mui-selected": {
               backgroundColor: "var(--mui-palette-default-light)",
-              color: "var(--mui-palette-default-main)",
+              color: "var(--mui-palette-default-dark)",
             },
           },
         },
@@ -202,8 +209,12 @@ export function render_theme_config(props, theme_config, dark_theme) {
               {
                 props: {variant: "contained", color: "default"},
                 style: {
-                  backgroundColor: "var(--mui-palette-default-contrastText)",
-                  color: "var(--mui-palette-default-main)",
+                  backgroundColor: `var(--mui-palette-default-${dark_theme ? "dark": "contrastText"})`,
+                  color: `var(--mui-palette-default-${dark_theme ? "contrastText" : "main"})`,
+                  "&:hover": {
+                    backgroundColor: "var(--mui-palette-default-light)",
+                    color: "var(--mui-palette-default-dark)",
+                  },
                 },
               },
               {
@@ -213,6 +224,7 @@ export function render_theme_config(props, theme_config, dark_theme) {
                   color: "var(--mui-palette-default-main)",
                   "&:hover": {
                     backgroundColor: "var(--mui-palette-default-light)",
+                    color: "var(--mui-palette-default-dark)"
                   },
                 },
               },
@@ -222,6 +234,7 @@ export function render_theme_config(props, theme_config, dark_theme) {
                   color: "var(--mui-palette-default-main)",
                   "&:hover": {
                     backgroundColor: "var(--mui-palette-default-light)",
+                    color: "var(--mui-palette-default-dark)",
                   },
                 },
               },
@@ -260,27 +273,29 @@ export const install_theme_hooks = (props) => {
     }
   }
   const view = found ? current : props.view
-  const theme_config = view.model.data.theme_config
-  const config = render_theme_config(props, theme_config, dark_theme)
-  const [theme, setTheme] = React.useState(createTheme(config))
-  const cb = (theme_config) => {
-    theme_config = theme_config != null ? theme_config :  view.model.data.theme_config
-    const config = render_theme_config(props, theme_config, props.view.model.data.dark_theme)
-    const theme = createTheme(config)
-    setTheme(theme)
-  }
+  const [theme_config, setThemeConfig] = React.useState(own_theme_config ?? view.model.data.theme_config)
+  const theme = React.useMemo(() => {
+    const config = render_theme_config(props, theme_config, dark_theme)
+    return createTheme(config)
+  }, [dark_theme, theme_config])
+
+  const cb = () => setThemeConfig(own_theme_config ?? view.model.data.theme_config)
+
+  // If parent updates theme_config update the theme
   React.useEffect(() => {
     view.model_proxy.on("theme_config", cb)
     return () => view.model_proxy.off("theme_config", cb)
   }, [])
 
-  const deps = [dark_theme]
-  if (view !== props.view) {
-    deps.push(own_theme_config)
-  }
-  React.useEffect(() => cb(props.view.model.data.theme_config), deps)
+  // If local theme_config is updated update theme
+  React.useEffect(() => cb(), [own_theme_config])
+
+  // Sync local dark_mode with global dark mode
+  const isFirstRender = React.useRef(true)
   React.useEffect(() => {
-    if (dark_mode.get_value() === dark_theme) {
+    if (isFirstRender.current && dark_mode.get_value() != null) {
+      isFirstRender.current = false
+      setDarkTheme(dark_mode.get_value())
       return
     }
     dark_mode.set_value(dark_theme)
@@ -288,14 +303,16 @@ export const install_theme_hooks = (props) => {
 
   React.useEffect(() => {
     let style_el = document.querySelector("#global-styles-panel-mui")
+    const cb = (val) => setDarkTheme(val)
     if (style_el) {
-      return dark_mode.subscribe((val) => setDarkTheme(val))
+      return dark_mode.subscribe(cb)
     } else {
       style_el = document.createElement("style")
       style_el.id = "styles-panel-mui"
       props.view.shadow_el.insertBefore(style_el, props.view.container)
       style_el.textContent = render_theme_css(theme)
     }
+    return () => dark_mode.unsubscribe(cb)
   }, [])
 
   React.useEffect(() => {

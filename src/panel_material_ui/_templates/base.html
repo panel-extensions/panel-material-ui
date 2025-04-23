@@ -10,22 +10,22 @@
     {% if app_favicon is not defined %} <link rel="icon" type="image/png" sizes="32x32" href="{{ dist_url }}images/favicon.ico"> {% endif %}
     {% if manifest_url %}<link rel="manifest" href="{{ manifest_url }}">{% endif %}
     {%  block preamble -%}
-    {%- if meta.name %}
+    {%- if meta and meta.name %}
     <meta name="name" content="{{ meta.name }}">
     {% endif -%}
-    {%- if meta.description %}
+    {%- if meta and meta.description %}
     <meta name="description" content="{{ meta.description }}">
     {% endif -%}
-    {%- if meta.keywords %}
+    {%- if meta and meta.keywords %}
     <meta name="keywords" content="{{ meta.keywords }}">
     {% endif -%}
-    {%- if meta.author %}
+    {%- if meta and meta.author %}
     <meta name="author" content="{{ meta.author }}">
     {% endif -%}
-    {%- if meta.refresh %}
+    {%- if meta and meta.refresh %}
     <meta http-equiv="refresh" content="{{ meta.refresh }}">
     {% endif -%}
-    {%- if meta.viewport %}
+    {%- if meta and meta.viewport %}
     <meta name="viewport" content="{{ meta.viewport }}">
     {% endif -%}
     {%- endblock %}
@@ -38,6 +38,9 @@
         margin: 0;
         padding: 0;
       }
+      {% if theme_name == "dark" %}
+      body { background-color: #121212; color: #fff }
+      {% endif %}
       #loading-overlay {
         position: fixed;
         top: 0;
@@ -69,20 +72,9 @@
   {% block js_resources -%}
     {{ bokeh_js if bokeh_js }}
   {%- endblock js_resources %}
-    <style id="template-styles">
-      html, body {
-      	color: var(--mui-palette-text-primary);
-	      font: var(--mui-font-body1);
-      }
-      h1 { font: var(--mui-font-h1) }
-      h2 { font: var(--mui-font-h2) }
-      h3 { font: var(--mui-font-h3) }
-      h4 { font: var(--mui-font-h4) }
-      h5 { font: var(--mui-font-h5) }
-      h6 { font: var(--mui-font-h6) }
-    </style>
   {%  endblock resources %}
-  {%  block postamble %}
+    {%  block postamble %}
+    {% if resources %}
     {% for css in resources.css.values() %}
     <link rel="stylesheet" href="{{ css }}">
     {% endfor %}
@@ -103,7 +95,20 @@
     {% for src in resources.js_modules.values() %}
     <script src="{{ src }}" type="module"></script>
     {% endfor %}
+    {% endif  %}
   {% endblock %}
+    <style id="template-styles">
+      html, body {
+      	color: var(--mui-palette-text-primary);
+	      font: var(--mui-font-body1);
+      }
+      h1 { font: var(--mui-font-h1) }
+      h2 { font: var(--mui-font-h2) }
+      h3 { font: var(--mui-font-h3) }
+      h4 { font: var(--mui-font-h4) }
+      h5 { font: var(--mui-font-h5) }
+      h6 { font: var(--mui-font-h6) }
+    </style>
   {% endblock inner_head %}
   </head>
   {% endblock head%}

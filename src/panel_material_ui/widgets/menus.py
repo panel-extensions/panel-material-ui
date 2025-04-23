@@ -311,7 +311,7 @@ class Pagination(MaterialWidget):
 
     value = param.Integer(default=None, doc="The current zero-indexed page number.")
 
-    variant = param.Selector(default="outlined", objects=["outlined", "text"], doc="The variant of the pagination.")
+    variant = param.Selector(default="text", objects=["outlined", "text"], doc="The variant of the pagination.")
 
     width = param.Integer(default=None, doc="The width of the pagination.")
 

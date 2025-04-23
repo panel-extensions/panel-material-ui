@@ -129,6 +129,7 @@ nbsite_gallery_conf = {
             'sections': [
                 'widgets',
                 'menus',
+                'chat',
                 'indicators',
                 'layouts',
             ],

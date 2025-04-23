@@ -31,3 +31,5 @@ class ChatFeed(_PnChatFeed):
         if layout_params:
             input_layout_params.update(layout_params)
         return layout(step, **input_layout_params)
+
+__all__ = ["ChatFeed"]

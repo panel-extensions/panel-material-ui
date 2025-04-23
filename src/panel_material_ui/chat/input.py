@@ -112,3 +112,6 @@ class ChatAreaInput(TextAreaInput):
         """
         Loading handler handled client-side.
         """
+
+
+__all__ = ["ChatAreaInput"]

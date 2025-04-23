@@ -83,7 +83,8 @@ function isEmoji(str) {
   return emojiRegex.test(str);
 }
 
-export function render({model}) {
+export function render({model, view}) {
+  const [placement] = model.useState("placement")
   const [elevation] = model.useState("elevation")
   const [user] = model.useState("user")
   const [show_avatar] = model.useState("show_avatar")
@@ -106,27 +107,31 @@ export function render({model}) {
   })
 
   const placeholder = show_avatar && (avatar.type === "text" && avatar.text == "PLACEHOLDER")
+  const avatar_component = (placeholder ? (
+    <PlaceholderAvatar />
+  ) : (
+    <Avatar
+      src={avatar.type === "image" ? avatar.src : null}
+      sx={{margin: placement === "left" ? "1em 0.5em 0 0" : "1em 0 0 0.5em", bgcolor: "background.paper", color: "text.primary", boxShadow: 3}}
+    >
+      {avatar.type !== "image" && (avatar.type == "text" ? isEmoji(avatar.text) ? avatar.text : [...avatar.text][0] : <Icon>{avatar.icon}</Icon>)}
+    </Avatar>
+  ))
+
+  const obj_model = view.model.data._object_panel
+  const isResponsive = obj_model.sizing_mode && (obj_model.sizing_mode.includes("width") || obj_model.sizing_mode.includes("both"))
 
   return (
     <Box sx={{flexDirection: "row", display: "flex", maxWidth: "100%"}}>
-      {placeholder ? (
-        <PlaceholderAvatar />
-      ) : (
-        <Avatar
-          src={avatar.type === "image" ? avatar.src : null}
-          sx={{margin: "1em 0.5em 0 0", bgcolor: "background.paper", boxShadow: 3}}
-        >
-          {avatar.type == "text" ? isEmoji(avatar.text) ? avatar.text : [...avatar.text][0] : <Icon>{avatar.icon}</Icon>}
-        </Avatar>
-      )}
-      {!placeholder && <Stack direction="column" spacing={0} sx={{flexGrow: 1, maxWidth: "calc(100% - 60px)"}}>
+      {placement === "left" && avatar_component}
+      {!placeholder && <Stack direction="column" spacing={0} sx={{flexGrow: 1, maxWidth: "calc(100% - 60px)", alignItems: placement === "left" ? "flex-start" : "flex-end"}}>
         {show_user && <Typography variant="caption">
           {user}
         </Typography>}
         <Stack direction="row" spacing={0}>
           {header}
         </Stack>
-        <Paper elevation={elevation} sx={{bgcolor: "background.paper", maxWidth: "calc(100% - 20px)"}}>
+        <Paper elevation={elevation} sx={{bgcolor: "background.paper", width: isResponsive ? "100%" : "fit-content"}}>
           {object}
         </Paper>
         <Stack direction="row" spacing={0}>
@@ -149,6 +154,7 @@ export function render({model}) {
           {timestamp}
         </Typography>}
       </Stack>}
+      {placement === "right" && avatar_component}
     </Box>
   );
 };
