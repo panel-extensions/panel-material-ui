@@ -131,7 +131,7 @@ export function render({model, view}) {
         <Stack direction="row" spacing={0}>
           {header}
         </Stack>
-	      <Paper elevation={elevation} sx={{bgcolor: "background.paper", width: isResponsive ? "100%" : "fit-content"}}>
+        <Paper elevation={elevation} sx={{bgcolor: "background.paper", width: isResponsive ? "100%" : "fit-content"}}>
           {object}
         </Paper>
         <Stack direction="row" spacing={0}>

@@ -47,13 +47,15 @@ class ChatInterface(ChatFeed, ChatInterface):
         if len(self.widgets) > 1:
             raise ValueError("panel_material_ui.ChatInterface.widgets not supported.")
         self._init_button_data()
-        self._widget = ChatAreaInput(
-            sizing_mode="stretch_width",
-            actions={
-                name: {'icon': ICON_MAP.get(data.icon, data.icon), 'callback': partial(data.callback, self), 'label': name.title()}
-                for name, data in self._button_data.items() if name not in ("send", "stop")
-            }
-        )
+        actions = {}
+        for name, data in self._button_data.items():
+            if (
+                name in ("send", "stop") or (name == "rerun" and not self.show_rerun) or
+                (name == "undo" and not self.show_undo) or (name == "clear" and not self.show_clear)
+            ):
+                continue
+            actions[name] = {'icon': ICON_MAP.get(data.icon, data.icon), 'callback': partial(data.callback, self), 'label': name.title()}
+        self._widget = ChatAreaInput(actions=actions, sizing_mode="stretch_width")
         self.link(self._widget, disabled="disabled_enter")
         callback = partial(self._button_data["send"].callback, self)
         self._widget.param.watch(callback, "value")
