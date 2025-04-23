@@ -43,9 +43,9 @@ export function render({model, view}) {
   const inputId = `select-multiple-native-${model.id}`
   return (
     <FormControl disabled={disabled} fullWidth variant={variant}>
-      <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
+      {label && <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
         {label}
-      </InputLabel>
+      </InputLabel>}
       <Select
         color={color}
         input={variant === "outlined" ?
