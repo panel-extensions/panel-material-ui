@@ -4,6 +4,7 @@ import json
 import pathlib
 from typing import TYPE_CHECKING, Literal
 
+import panel
 import param
 from jinja2 import Environment, FileSystemLoader
 from markupsafe import Markup
@@ -42,6 +43,9 @@ _env.lstrip_blocks = True
 _env.filters['json'] = lambda obj: Markup(json.dumps(obj, cls=json_dumps))
 _env.filters['conffilter'] = conffilter
 _env.filters['sorted'] = sorted
+
+BASE_TEMPLATE = _env.get_template('base.html')
+panel.io.resources.BASE_TEMPLATE = panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
 
 
 class Meta(param.Parameterized):
@@ -157,7 +161,7 @@ class Page(MaterialComponent, ResourceComponent):
     ) -> Document:
         doc = super().server_doc(doc, title, location)
         doc.title = title or self.title or self.meta.title or 'Panel Application'
-        doc.template = _env.get_template('base.html')
+        doc.template = BASE_TEMPLATE
         doc.template_variables['meta'] = self.meta
         doc.template_variables['resources'] = self.resolve_resources()
         return doc
