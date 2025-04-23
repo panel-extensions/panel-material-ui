@@ -112,7 +112,7 @@ class ChatMessage(MaterialComponent, ChatMessage):
 
     def _handle_msg(self, msg):
         if msg == 'edit':
-            self._toggle_edit()
+            self._toggle_edit(msg)
         elif msg == 'copy':
             object_panel = self._object_panel
             if isinstance(object_panel, HTMLBasePane):
