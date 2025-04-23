@@ -85,6 +85,7 @@ export function render({model}) {
     <TextField
       color={color}
       disabled={disabled}
+      fullWidth
       label={label}
       onBlur={() => setFocused(false)}
       onChange={() => handleChange()}
