@@ -112,9 +112,9 @@ export function render({model, view}) {
   ) : (
     <Avatar
       src={avatar.type === "image" ? avatar.src : null}
-      sx={{margin: placement === "left" ? "1em 0.5em 0 0" : "1em 0 0 0.5em", bgcolor: "background.paper", boxShadow: 3}}
+      sx={{margin: placement === "left" ? "1em 0.5em 0 0" : "1em 0 0 0.5em", bgcolor: "background.paper", color: "text.primary", boxShadow: 3}}
     >
-      {avatar.type == "text" ? isEmoji(avatar.text) ? avatar.text : [...avatar.text][0] : <Icon>{avatar.icon}</Icon>}
+      {avatar.type !== "image" && (avatar.type == "text" ? isEmoji(avatar.text) ? avatar.text : [...avatar.text][0] : <Icon>{avatar.icon}</Icon>)}
     </Avatar>
   ))
 
