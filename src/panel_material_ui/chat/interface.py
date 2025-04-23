@@ -45,7 +45,7 @@ class ChatInterface(ChatFeed, ChatInterface):
     @param.depends("widgets", "button_properties", watch=True)
     def _init_widgets(self):
         if len(self.widgets) > 1:
-            raise ValueError("Only one widget is supported")
+            raise ValueError("panel_material_ui.ChatInterface.widgets not supported.")
         self._init_button_data()
         self._widget = ChatAreaInput(
             sizing_mode="stretch_width",
@@ -70,3 +70,5 @@ class ChatInterface(ChatFeed, ChatInterface):
             css_classes=["message"],
             **self.placeholder_params
         )
+
+__all__ = ["ChatInterface"]
