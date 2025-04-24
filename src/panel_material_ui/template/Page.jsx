@@ -179,18 +179,18 @@ export function render({model}) {
               </IconButton>
             </Tooltip>
           }
-          { (model.contextbar.length > 0 && !contextbar_open) &&
-          <Tooltip enterDelay={500} title="Toggle contextbar">
-            <IconButton
-              color="inherit"
-              aria-label="toggle contextbar"
-              onClick={() => contextOpen(!contextbar_open)}
-              edge="start"
-              sx={{mr: 2}}
-            >
-              <TocIcon />
-            </IconButton>
-          </Tooltip>
+          {(model.contextbar.length > 0 && !contextbar_open) &&
+            <Tooltip enterDelay={500} title="Toggle contextbar">
+              <IconButton
+                color="inherit"
+                aria-label="toggle contextbar"
+                onClick={() => contextOpen(!contextbar_open)}
+                edge="start"
+                sx={{mr: 2}}
+              >
+                <TocIcon />
+              </IconButton>
+            </Tooltip>
           }
         </Toolbar>
       </AppBar>
