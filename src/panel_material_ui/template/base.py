@@ -101,7 +101,8 @@ class Page(MaterialComponent, ResourceComponent):
 
     sidebar_open = param.Boolean(default=True, doc="Whether the sidebar is open or closed.")
 
-    sidebar_variant = param.Selector(default="persistent", objects=["persistent", "drawer"])
+    sidebar_variant = param.Selector(default="auto", objects=["persistent", "temporary", "auto"], doc="""
+        Whether the sidebar is persistent, a temporary drawer, or automatically switches between the two based on screen size.""")
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
 
