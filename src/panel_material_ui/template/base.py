@@ -164,6 +164,7 @@ class Page(MaterialComponent, ResourceComponent):
         doc.template = BASE_TEMPLATE
         doc.template_variables['meta'] = self.meta
         doc.template_variables['resources'] = self.resolve_resources()
+        doc.template_variables['isolated'] = False
         return doc
 
 
