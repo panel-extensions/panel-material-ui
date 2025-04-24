@@ -107,14 +107,16 @@ export function render({model}) {
     page_style_el.textContent = css
   }, [theme])
 
+  const drawer_variant = variant === "drawer" ? "drawer" : (isMobile ? "temporary": "persistent")
   const drawer = sidebar.length > 0 ? (
     <Drawer
       open={open}
+      onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
       sx={{
         flexShrink: 0,
         [`& .MuiDrawer-paper`]: {width: sidebar_width, boxSizing: "border-box"},
       }}
-      variant={variant === "drawer" || isMobile ? "temporary": "persistent"}
+      variant={drawer_variant}
     >
       <Toolbar/>
       <Divider />

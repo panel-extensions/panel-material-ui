@@ -45,7 +45,12 @@ _env.filters['conffilter'] = conffilter
 _env.filters['sorted'] = sorted
 
 BASE_TEMPLATE = _env.get_template('base.html')
-panel.io.resources.BASE_TEMPLATE = panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
+panel.io.resources.BASE_TEMPLATE = BASE_TEMPLATE
+
+try:
+    panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
+except AttributeError:
+    pass
 
 
 class Meta(param.Parameterized):
@@ -96,7 +101,8 @@ class Page(MaterialComponent, ResourceComponent):
 
     sidebar_open = param.Boolean(default=True, doc="Whether the sidebar is open or closed.")
 
-    sidebar_variant = param.Selector(default="persistent", objects=["persistent", "drawer"])
+    sidebar_variant = param.Selector(default="auto", objects=["persistent", "temporary", "auto"], doc="""
+        Whether the sidebar is persistent, a temporary drawer, or automatically switches between the two based on screen size.""")
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
 
@@ -132,6 +138,8 @@ class Page(MaterialComponent, ResourceComponent):
                 extras[rname] = res
             elif isinstance(res, dict):
                 extras[rname].update(res)  # type: ignore
+            elif isinstance(extras[rname], dict):
+                extras[rname].update({r.split('/')[-1].split('.')[0]: r for r in res})
             else:
                 extras[rname] += [  # type: ignore
                     r for r in res if r not in extras.get(rname, [])  # type: ignore
@@ -164,6 +172,7 @@ class Page(MaterialComponent, ResourceComponent):
         doc.template = BASE_TEMPLATE
         doc.template_variables['meta'] = self.meta
         doc.template_variables['resources'] = self.resolve_resources()
+        doc.template_variables['is_page'] = True
         return doc
 
 
