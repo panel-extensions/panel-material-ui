@@ -45,7 +45,12 @@ _env.filters['conffilter'] = conffilter
 _env.filters['sorted'] = sorted
 
 BASE_TEMPLATE = _env.get_template('base.html')
-panel.io.resources.BASE_TEMPLATE = panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
+panel.io.resources.BASE_TEMPLATE = BASE_TEMPLATE
+
+try:
+    panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
+except AttributeError:
+    pass
 
 
 class Meta(param.Parameterized):
