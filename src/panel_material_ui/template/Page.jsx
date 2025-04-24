@@ -152,7 +152,7 @@ export function render({model}) {
     <Box className={`mui-${dark_theme ? "dark" : "light"}`} sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
       <AppBar position="fixed" color="primary" className="header" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
         <Toolbar>
-          { model.sidebar.length > 0 &&
+          { model.sidebar.length > 0 && drawer_variant !== "permanent" &&
           <IconButton
             color="inherit"
             aria-label="open drawer"
