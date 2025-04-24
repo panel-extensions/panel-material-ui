@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+import base64
+import io
 import json
+import os
 import pathlib
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import panel
 import param
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Template
 from markupsafe import Markup
 from panel.config import _base_config, config
-from panel.io.resources import URL, ResourceComponent
+from panel.io.resources import URL, ResourceComponent, Resources
+from panel.pane import HTML
 from panel.viewable import Children
 
 from ..base import MaterialComponent
@@ -106,17 +110,25 @@ class Page(MaterialComponent, ResourceComponent):
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
 
+    theme_toggle = param.Boolean(default=True, doc="Whether to show a theme toggle button.")
+
     title = param.String(doc="Title of the application.")
 
     _esm_base = "Page.jsx"
     _rename = {"config": None, "meta": None}
+    _source_transforms = {
+        "header": None,
+        "contextbar": None,
+        "sidebar": None,
+        "main": None,
+    }
 
     def __init__(self, **params):
         resources, meta = {}, {}
         for k in list(params):
             if k.startswith('meta_'):
                 meta[k.replace('meta_', '')] = params.pop(k)
-            elif k in _base_config.param:
+            elif k in _base_config.param and k != 'name':
                 resources[k] = params.pop(k)
         if "title" in params and "title" not in meta:
             meta["title"] = params["title"]
@@ -174,6 +186,65 @@ class Page(MaterialComponent, ResourceComponent):
         doc.template_variables['resources'] = self.resolve_resources()
         doc.template_variables['is_page'] = True
         return doc
+
+    def save(
+        self,
+        filename: str | os.PathLike | io.IO,
+        title: str | None = None,
+        resources: Resources | None = None,
+        template: str | Template | None = None,
+        template_variables: dict[str, Any] | None = None,
+        **kwargs
+    ) -> None:
+        if template is None:
+            template = BASE_TEMPLATE
+        if not template_variables:
+            template_variables = {}
+        template_variables['is_page'] = self.meta
+        template_variables['resources'] = self.resolve_resources()
+        template_variables['is_page'] = True
+        super().save(
+            filename,
+            title,
+            resources,
+            template,
+            template_variables,
+            **kwargs
+        )
+
+    def preview(self, width: int = 800, height: int = 600, **kwargs):
+        """
+        Render the page as an iframe.
+
+        Since the Page component assumes it is the root component
+        this approach provides a way to see a preview of the rendered
+        page.
+
+        Parameters
+        ----------
+        width: int
+            The width of the iframe.
+        height: int
+            The height of the iframe.
+        kwargs: dict
+            Additional keyword arguments to pass to the HTML pane.
+
+        Returns
+        -------
+        HTML
+            An HTML pane containing the rendered page.
+        """
+        page_file = io.StringIO()
+        self.save(page_file)
+        page_file.seek(0)
+        html_content = page_file.read()
+        encoded_html = base64.b64encode(
+            html_content.encode('utf-8')
+        ).decode('utf-8')
+        return HTML(
+            f"""
+        <iframe src="data:text/html;base64,{encoded_html}" width="100%" height="100%" style="border:1px solid #ccc;"></iframe>
+        """, width=width, height=height, **kwargs)
 
 
 __all__ = [

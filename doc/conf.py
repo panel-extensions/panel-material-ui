@@ -129,9 +129,10 @@ nbsite_gallery_conf = {
             'sections': [
                 'widgets',
                 'menus',
+                'layouts',
+                'page',
                 'chat',
                 'indicators',
-                'layouts',
             ],
             'as_pyodide': True,
             'normalize_titles': False,

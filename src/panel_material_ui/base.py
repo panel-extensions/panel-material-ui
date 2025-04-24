@@ -46,7 +46,7 @@ STYLE_ALIASES = {"outline": "outlined"}
 
 BASE_PATH = pathlib.Path(__file__).parent
 IS_RELEASE = __version__ == base_version(__version__)
-CDN_DIST = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}/panel-material-ui.bundle.js"
+CDN_DIST = "https://cdn.holoviz.org/panel-material-ui/test19/panel-material-ui.bundle.js"
 
 
 class ESMTransform:
@@ -165,8 +165,8 @@ class MaterialComponent(ReactComponent):
     _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
         "imports": {
-            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.9/",
-            "@mui/material/": "https://esm.sh/@mui/material@6.4.9/",
+            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.11/",
+            "@mui/material/": "https://esm.sh/@mui/material@6.4.11/",
             "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.28.0",
             "mui-color-input": "https://esm.sh/mui-color-input@6.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
