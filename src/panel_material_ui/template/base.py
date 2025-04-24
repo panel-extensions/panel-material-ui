@@ -138,6 +138,8 @@ class Page(MaterialComponent, ResourceComponent):
                 extras[rname] = res
             elif isinstance(res, dict):
                 extras[rname].update(res)  # type: ignore
+            elif isinstance(extras[rname], dict):
+                extras[rname].update({r.split('/')[-1].split('.')[0]: r for r in res})
             else:
                 extras[rname] += [  # type: ignore
                     r for r in res if r not in extras.get(rname, [])  # type: ignore
@@ -170,7 +172,7 @@ class Page(MaterialComponent, ResourceComponent):
         doc.template = BASE_TEMPLATE
         doc.template_variables['meta'] = self.meta
         doc.template_variables['resources'] = self.resolve_resources()
-        doc.template_variables['isolated'] = False
+        doc.template_variables['is_page'] = True
         return doc
 
 
