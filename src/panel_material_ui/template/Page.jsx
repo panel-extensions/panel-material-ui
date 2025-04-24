@@ -10,7 +10,7 @@ import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import DarkMode from "@mui/icons-material/DarkMode";
 import LightMode from "@mui/icons-material/LightMode";
 import TocIcon from "@mui/icons-material/Toc";
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip from "@mui/material/Tooltip";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
 import {dark_mode, render_theme_css} from "./utils"
@@ -153,18 +153,18 @@ export function render({model}) {
     <Box className={`mui-${dark_theme ? "dark" : "light"}`} sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
       <AppBar position="fixed" color="primary" className="header" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
         <Toolbar>
-          { model.sidebar.length > 0 && drawer_variant !== "permanent" &&
-          <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>
-            <IconButton
-              color="inherit"
-              aria-label={open ? "Close drawer" : "Open drawer"}
-              onClick={() => setOpen(!open)}
-              edge="start"
-              sx={{mr: 2}}
-          >
-              {open ? <MenuOpenIcon/> : <MenuIcon />}
-            </IconButton>
-          </Tooltip>
+          {(model.sidebar.length > 0 && drawer_variant !== "permanent") &&
+            <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>
+              <IconButton
+                color="inherit"
+                aria-label={open ? "Close drawer" : "Open drawer"}
+                onClick={() => setOpen(!open)}
+                edge="start"
+                sx={{mr: 2}}
+              >
+                {open ? <MenuOpenIcon/> : <MenuIcon />}
+              </IconButton>
+            </Tooltip>
           }
           <Typography variant="h5" sx={{color: "white"}}>
             {title}
