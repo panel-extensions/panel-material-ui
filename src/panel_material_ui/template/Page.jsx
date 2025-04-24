@@ -10,6 +10,7 @@ import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import DarkMode from "@mui/icons-material/DarkMode";
 import LightMode from "@mui/icons-material/LightMode";
 import TocIcon from "@mui/icons-material/Toc";
+import Tooltip from '@mui/material/Tooltip';
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
 import {dark_mode, render_theme_css} from "./utils"
@@ -153,15 +154,17 @@ export function render({model}) {
       <AppBar position="fixed" color="primary" className="header" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
         <Toolbar>
           { model.sidebar.length > 0 && drawer_variant !== "permanent" &&
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={() => setOpen(!open)}
-            edge="start"
-            sx={{mr: 2}}
+          <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>
+            <IconButton
+              color="inherit"
+              aria-label={open ? "Close drawer" : "Open drawer"}
+              onClick={() => setOpen(!open)}
+              edge="start"
+              sx={{mr: 2}}
           >
-            {open ? <MenuOpenIcon/> : <MenuIcon />}
-          </IconButton>
+              {open ? <MenuOpenIcon/> : <MenuIcon />}
+            </IconButton>
+          </Tooltip>
           }
           <Typography variant="h5" sx={{color: "white"}}>
             {title}
@@ -170,20 +173,25 @@ export function render({model}) {
             {header}
           </Box>
           {theme_toggle &&
-            <IconButton onClick={toggleTheme} color="inherit" align="right" sx={{mr: "1em"}}>
-              {dark_theme ? <DarkMode /> : <LightMode />}
-            </IconButton>
+            <Tooltip enterDelay={500} title="Toggle theme">
+              <IconButton onClick={toggleTheme} aria-label="Toggle theme" color="inherit" align="right" sx={{mr: "1em"}}>
+                {dark_theme ? <DarkMode /> : <LightMode />}
+              </IconButton>
+            </Tooltip>
           }
           { (model.contextbar.length > 0 && !contextbar_open) &&
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={() => contextOpen(!contextbar_open)}
-            edge="start"
-            sx={{mr: 2}}
-          >
-            <TocIcon />
-          </IconButton>}
+          <Tooltip enterDelay={500} title="Toggle contextbar">
+            <IconButton
+              color="inherit"
+              aria-label="toggle contextbar"
+              onClick={() => contextOpen(!contextbar_open)}
+              edge="start"
+              sx={{mr: 2}}
+            >
+              <TocIcon />
+            </IconButton>
+          </Tooltip>
+          }
         </Toolbar>
       </AppBar>
       {drawer &&
