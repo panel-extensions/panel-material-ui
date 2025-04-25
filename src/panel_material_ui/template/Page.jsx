@@ -13,7 +13,7 @@ import TocIcon from "@mui/icons-material/Toc";
 import Tooltip from "@mui/material/Tooltip";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
-import {dark_mode, render_theme_css} from "./utils"
+import {dark_mode, setup_global_styles} from "./utils"
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && prop !== "variant" && prop !== "sidebar_width"})(
   ({sidebar_width, theme, open, variant}) => {
@@ -66,48 +66,10 @@ export function render({model}) {
     setDarkTheme(!dark_theme)
   }
 
-  let global_style_el = document.querySelector("#global-styles-panel-mui")
-  const template_style_el = document.querySelector("#template-styles")
-  if (!global_style_el) {
-    {
-      global_style_el = document.createElement("style")
-      global_style_el.id = "global-styles-panel-mui"
-      if (template_style_el) {
-        document.head.insertBefore(global_style_el, template_style_el)
-      } else {
-        document.head.appendChild(global_style_el)
-      }
-    }
-  }
-  let page_style_el = document.querySelector("#page-style")
-  if (!page_style_el) {
-    page_style_el = document.createElement("style")
-    page_style_el.id = "page-style"
-    if (template_style_el) {
-      document.head.insertBefore(page_style_el, template_style_el)
-    } else {
-      document.head.appendChild(page_style_el)
-    }
-  }
+  setup_global_styles(theme)
 
   React.useEffect(() => dark_mode.set_value(dark_theme), [])
 
-  React.useEffect(() => {
-    global_style_el.textContent = render_theme_css(theme)
-    const style_objs = theme.generateStyleSheets()
-    const css = style_objs
-      .map((obj) => {
-        return Object.entries(obj).map(([selector, vars]) => {
-          const varLines = Object.entries(vars)
-            .map(([key, val]) => `  ${key}: ${val};`)
-            .join("\n");
-          return `:root, ${selector} {\n${varLines}\n}`;
-        })
-          .join("\n\n");
-      })
-      .join("\n\n");
-    page_style_el.textContent = css
-  }, [theme])
   const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
   const drawer = sidebar.length > 0 ? (
     <Drawer

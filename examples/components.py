@@ -17,6 +17,7 @@ pn.config.design = MaterialDesign
 
 primary_color = ColorPicker(value='#404db0', name='Primary', sizing_mode='stretch_width')
 secondary_color = ColorPicker(value='#ee8349', name='Secondary', sizing_mode='stretch_width')
+paper_color = ColorPicker(value='#ffffff', name='Paper', sizing_mode='stretch_width')
 font_size = IntInput(value=14, name='Font Size', step=1, start=2, end=100, sizing_mode='stretch_width')
 
 design_kwargs = dict(
@@ -24,6 +25,7 @@ design_kwargs = dict(
         'palette': {
             'primary': {'main': primary_color},
             'secondary': {'main': secondary_color},
+            'background': {'paper': paper_color},
         },
         'typography': {
             'fontSize': font_size,
@@ -217,7 +219,9 @@ page = Page(
     sidebar=[
         primary_color,
         secondary_color,
+        paper_color,
         font_size,
+        '### Notifications',
         notifications
     ],
     title='panel-material-ui components',

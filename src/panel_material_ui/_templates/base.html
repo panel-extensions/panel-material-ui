@@ -1,6 +1,6 @@
 {% from macros import embed %}
 <!DOCTYPE html>
-<html lang="en" {{ html_attrs | default("", true) }}>
+<html lang="en" {{ html_attrs | default("", true) }} data-theme-managed="{{ 'true' if is_page else 'false' }}">
   {% block head %}
   <head>
   {% block inner_head %}
@@ -103,6 +103,7 @@
     <style id="template-styles">
       html, body {
       	color: var(--mui-palette-text-primary);
+        background-color: var(--mui-palette-background-default);
 	      font: var(--mui-font-body1);
       }
       h1 { font: var(--mui-font-h1) }

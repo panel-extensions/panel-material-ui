@@ -258,37 +258,85 @@ export function render_theme_config(props, theme_config, dark_theme) {
   return config
 }
 
+export const setup_global_styles = (theme) => {
+  let global_style_el = document.querySelector("#global-styles-panel-mui")
+  const template_style_el = document.querySelector("#template-styles")
+  if (!global_style_el) {
+    {
+      global_style_el = document.createElement("style")
+      global_style_el.id = "global-styles-panel-mui"
+      if (template_style_el) {
+        document.head.insertBefore(global_style_el, template_style_el)
+      } else {
+        document.head.appendChild(global_style_el)
+      }
+    }
+  }
+  let page_style_el = document.querySelector("#page-style")
+  if (!page_style_el) {
+    page_style_el = document.createElement("style")
+    page_style_el.id = "page-style"
+    if (template_style_el) {
+      document.head.insertBefore(page_style_el, template_style_el)
+    } else {
+      document.head.appendChild(page_style_el)
+    }
+  }
+
+  React.useEffect(() => {
+    global_style_el.textContent = render_theme_css(theme)
+    const style_objs = theme.generateStyleSheets()
+    const css = style_objs
+      .map((obj) => {
+        return Object.entries(obj).map(([selector, vars]) => {
+          const varLines = Object.entries(vars)
+            .map(([key, val]) => `  ${key}: ${val};`)
+            .join("\n");
+          return `:root, ${selector} {\n${varLines}\n}`;
+        })
+          .join("\n\n");
+      })
+      .join("\n\n");
+    page_style_el.textContent = css
+  }, [theme])
+}
+
 export const install_theme_hooks = (props) => {
   const [dark_theme, setDarkTheme] = props.model.useState("dark_theme")
   const [own_theme_config] = props.model.useState("theme_config")
 
-  let current = props.view
-  let found = false
-  while (current != null) {
-    if (current.model?.data?.theme_config != null) {
-      found = true
-      break
-    } else {
+  // Apply .mui-dark or .mui-light to the container
+  props.view.container.className = `${props.view.model.class_name.toLowerCase().replace(/([a-z])([A-Z])/g, "$1-$2")  } mui-${dark_theme ? "dark" : "light"}`
+
+  // If the page has a data-theme attribute (e.g. from pydata-sphinx-theme), use it to set the dark theme
+  const page_theme = document.documentElement.dataset.theme
+  if (page_theme === "dark") {
+    setDarkTheme(true)
+  } else if (page_theme === "light") {
+    setDarkTheme(false)
+  }
+
+  const merge_theme_configs = (view) => {
+    let current = view
+    const theme_configs = []
+    while (current != null) {
+      if (current.model?.data?.theme_config != null) {
+        const config = current.model.data.theme_config
+        theme_configs.push(config.dark && config.light ? config[dark_theme ? "dark" : "light"] : config)
+      }
       current = current.parent
     }
+    return theme_configs.reverse().reduce((acc, config) => deepmerge(acc, config), {})
   }
-  const view = found ? current : props.view
-  const [theme_config, setThemeConfig] = React.useState(own_theme_config ?? view.model.data.theme_config)
+
+  const [theme_config, setThemeConfig] = React.useState(merge_theme_configs(props.view))
   const theme = React.useMemo(() => {
     const config = render_theme_config(props, theme_config, dark_theme)
     return createTheme(config)
   }, [dark_theme, theme_config])
 
-  const cb = () => setThemeConfig(own_theme_config ?? view.model.data.theme_config)
-
-  // If parent updates theme_config update the theme
-  React.useEffect(() => {
-    view.model_proxy.on("theme_config", cb)
-    return () => view.model_proxy.off("theme_config", cb)
-  }, [])
-
   // If local theme_config is updated update theme
-  React.useEffect(() => cb(), [own_theme_config])
+  React.useEffect(() => setThemeConfig(merge_theme_configs(props.view)), [own_theme_config])
 
   // Sync local dark_mode with global dark mode
   const isFirstRender = React.useRef(true)
@@ -302,12 +350,11 @@ export const install_theme_hooks = (props) => {
   }, [dark_theme])
 
   React.useEffect(() => {
-    let style_el = document.querySelector("#global-styles-panel-mui")
     const cb = (val) => setDarkTheme(val)
-    if (style_el) {
-      return dark_mode.subscribe(cb)
+    if (document.documentElement.dataset.themeManaged === "true") {
+      dark_mode.subscribe(cb)
     } else {
-      style_el = document.createElement("style")
+      const style_el = document.createElement("style")
       style_el.id = "styles-panel-mui"
       props.view.shadow_el.insertBefore(style_el, props.view.container)
       style_el.textContent = render_theme_css(theme)

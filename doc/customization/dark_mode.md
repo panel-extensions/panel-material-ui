@@ -10,7 +10,7 @@ If you want your application to always use dark mode, you can use `dark_mode=Tru
 from panel_material_ui import Button
 
 Button(
-    label="Dark Button", dark_mode=True)
+    label="Dark Button", dark_mode=True
 ).servable()
 ```
 
