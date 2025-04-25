@@ -390,14 +390,20 @@ class MaterialUIComponent(MaterialComponent):
         })
         return importmap
 
+    @classmethod
+    def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
+        return cls._render_esm_base()
+
+    def _get_model(
+        self, doc: Document, root: Model | None = None,
+        parent: Model | None = None, comm: Comm | None = None
+    ) -> Model:
+        return ReactComponent._get_model(self, doc, root, parent, comm)
+
     def _get_properties(self, doc: Document | None) -> dict[str, Any]:
         props = super()._get_properties(doc)
         props['bundle'] = None
         return props
-
-    @classmethod
-    def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
-        return cls._render_esm_base()
 
     @classmethod
     def _render_esm_base(cls):
