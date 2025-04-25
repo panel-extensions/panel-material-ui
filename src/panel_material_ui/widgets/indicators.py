@@ -1,7 +1,7 @@
 import param
 
-from ..base import COLORS
-from .base import MaterialWidget, ThemedTransform
+from ..base import COLORS, ThemedTransform
+from .base import MaterialWidget
 
 
 class LoadingSpinner(MaterialWidget):

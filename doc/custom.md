@@ -76,14 +76,9 @@ export function render({model}) {
   const [index, setIndex] = React.useState(0);
 
   // Function to advance the color
-  const nextColor = () =>
-    setIndex(i => (i + 1) % model.colors.length);
-
-  // On “hover” mode, start cycling on mouse enter
-  React.useEffect(() => {
-    if (mode !== "hover") return;
-    // nothing here — we’ll attach handlers below
-  }, [mode]);
+  const nextColor = () => (
+    setIndex(i => (i + 1) % model.colors.length)
+  );
 
   // On “click” mode, cycle once per click
   const handleClick = () => {
@@ -91,15 +86,15 @@ export function render({model}) {
   };
 
   // On “hover” mode, cycle continuously while hovered
-  let hoverTimer = null;
+  let hoverTimer = React.useRef(null);
   const handleMouseEnter = () => {
     if (mode === "hover") {
-      hoverTimer = setInterval(nextColor, interval);
+      hoverTimer.current = setInterval(nextColor, interval);
     }
   };
   const handleMouseLeave = () => {
     if (mode === "hover") {
-      clearInterval(hoverTimer);
+      clearInterval(hoverTimer.current);
     }
   };
 
@@ -182,14 +177,9 @@ export function render({model}) {
   const [index, setIndex] = React.useState(0);
 
   // Function to advance the color
-  const nextColor = () =>
-    setIndex(i => (i + 1) % model.colors.length);
-
-  // On “hover” mode, start cycling on mouse enter
-  React.useEffect(() => {
-    if (mode !== "hover") return;
-    // nothing here — we’ll attach handlers below
-  }, [mode]);
+  const nextColor = () => (
+    setIndex(i => (i + 1) % model.colors.length)
+  );
 
   // On “click” mode, cycle once per click
   const handleClick = () => {
@@ -197,15 +187,15 @@ export function render({model}) {
   };
 
   // On “hover” mode, cycle continuously while hovered
-  let hoverTimer = null;
+  let hoverTimer = React.useRef(null);
   const handleMouseEnter = () => {
     if (mode === "hover") {
-      hoverTimer = setInterval(nextColor, interval);
+      hoverTimer.current = setInterval(nextColor, interval);
     }
   };
   const handleMouseLeave = () => {
     if (mode === "hover") {
-      clearInterval(hoverTimer);
+      clearInterval(hoverTimer.current);
     }
   };
 
@@ -232,6 +222,8 @@ export function render({model}) {
 
 RainbowButton(name="Unicorn Power!", mode="hover", interval=150)
 ```
+
+Give it a try, hover over the button to see it cycle through the rainbow colors!
 
 ## Summary
 
