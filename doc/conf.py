@@ -133,6 +133,7 @@ nbsite_gallery_conf = {
                 'page',
                 'chat',
                 'indicators',
+                'global'
             ],
             'as_pyodide': True,
             'normalize_titles': False,
