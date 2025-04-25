@@ -166,8 +166,8 @@ class MaterialComponent(ReactComponent):
     _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
         "imports": {
-            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.9/",
-            "@mui/material/": "https://esm.sh/@mui/material@6.4.9/",
+            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.11/",
+            "@mui/material/": "https://esm.sh/@mui/material@6.4.11/",
             "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.28.0",
             "mui-color-input": "https://esm.sh/mui-color-input@6.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
