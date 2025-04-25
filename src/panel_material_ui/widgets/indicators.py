@@ -1,7 +1,7 @@
 import param
 
 from ..base import COLORS
-from .base import MaterialWidget
+from .base import MaterialWidget, ThemedTransform
 
 
 class LoadingSpinner(MaterialWidget):
@@ -41,6 +41,7 @@ class LoadingSpinner(MaterialWidget):
         Whether to show a label indicating the progress.""")
 
     _esm_base = "CircularProgress.jsx"
+    _esm_transforms = [ThemedTransform]
 
 
 class Progress(MaterialWidget):
@@ -73,6 +74,7 @@ class Progress(MaterialWidget):
         The variant of the progress bar.""")
 
     _esm_base = "LinearProgress.jsx"
+    _esm_transforms = [ThemedTransform]
 
     @param.depends("value", watch=True, on_init=True)
     def _update_value(self, *_, **__):
