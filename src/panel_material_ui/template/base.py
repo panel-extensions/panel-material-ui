@@ -261,6 +261,8 @@ class ThemeToggle(MaterialWidget):
 
     variant = param.Selector(default='icon', objects=['icon', 'toggle'], doc="Whether to render just an icon or a toggle")
 
+    width = param.Integer(default=None, doc="The width of the theme toggle.")
+
     _esm_base = "ThemeToggle.jsx"
     _esm_transforms = [ThemedTransform]
     _rename = {"theme_toggle": None}
