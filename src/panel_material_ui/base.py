@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import inspect
 import pathlib
+import re
 import textwrap
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal
@@ -46,8 +47,12 @@ STYLE_ALIASES = {"outline": "outlined"}
 
 BASE_PATH = pathlib.Path(__file__).parent
 IS_RELEASE = __version__ == base_version(__version__)
-CDN_BASE = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}"
+CDN_BASE = f"https://cdn.holoviz.org/panel-material-ui/v{__version__}"
 CDN_DIST = f"{CDN_BASE}/panel-material-ui.bundle.js"
+RE_IMPORT = re.compile(r'import\s+(\w+)\s+from\s+[\'"]@mui/material/(\w+)[\'"]')
+RE_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
+RE_NAMED_IMPORT = re.compile(r'import\s+{([^}]+)}\s+from\s+[\'"]@mui/material[\'"]')
+RE_NAMED_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
 
 
 class ESMTransform:
@@ -100,7 +105,7 @@ function {output}(props) {{
 class LoadingTransform(ESMTransform):
 
     _transform = """\
-import MuiCircularProgress from '@mui/material/CircularProgress'
+import CircularProgress from '@mui/material/CircularProgress'
 import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
 
 {esm}
@@ -129,7 +134,7 @@ function {output}(props) {{
           backgroundColor: overlayColor,
           zIndex: theme.zIndex.modal - 1
         }}}}>
-          <MuiCircularProgress color="primary" />
+          <CircularProgress color="primary" />
         </div>
       )}}
     </div>
@@ -210,6 +215,8 @@ class MaterialComponent(ReactComponent):
             "react-dom": ["*react_dom"],
             "react/jsx-runtime": [("jsx", "jsxs", "Fragment")],
             "./utils": [("install_theme_hooks",)],
+            "@mui/material/styles": ["*material_styles"],
+            "@mui/material": ["*material_ui"],
         })
         return exports
 
@@ -351,19 +358,27 @@ class MaterialComponent(ReactComponent):
         elif params:
             return controls.layout[0]
 
-class CustomMaterialComponent(MaterialComponent):
+
+class MaterialUIComponent(MaterialComponent):
+    """
+    MaterialUIComponent provides an interface for users to build custom
+    Material UI components using Panel.
+
+    The MaterialUIComponent is a subclass of MaterialComponent and uses the
+    Material UI shims to provide a React interface to the Material UI library.
+    """
 
     _importmap = {
         "imports": {
             "panel-material-ui": CDN_DIST,
-            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@6.4.9/",
-            "@mui/material/": "https://esm.sh/@mui/material@6.4.9&external=react,react-is/",
+            "panel-material-ui/mui": f"{CDN_BASE}/material-ui-shim.js",
             "material-icons/": "https://esm.sh/material-icons@1.13.14/",
             "react": f"{CDN_BASE}/react-shim.js",
             "react/jsx-runtime": f"{CDN_BASE}/react-jsx-runtime-shim.js",
             "react-dom/client": f"{CDN_BASE}/react-dom-client-shim.js",
             "@emotion/cache": f"{CDN_BASE}/emotion-cache-shim.js",
             "@emotion/react": f"{CDN_BASE}/emotion-react-shim.js",
+            "@mui/material/styles": f"{CDN_BASE}/material-ui-styles-shim.js"
         }
     }
 
@@ -392,9 +407,9 @@ class CustomMaterialComponent(MaterialComponent):
         for transform in cls._esm_transforms:
             esm_base, component_name = transform.apply(cls, esm_base, component_name)
         esm_base += f'\nexport default {{ render: {component_name} }}'
-        out = textwrap.dedent(
-            esm_base.replace(
-                'import {install_theme_hooks} from "./utils"', 'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks'
-            )
+        esm_base = esm_base.replace(
+            'import {install_theme_hooks} from "./utils"', 'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks'
         )
-        return out
+        esm_base = RE_IMPORT.sub(RE_IMPORT_REPLACE, esm_base)
+        esm_base = RE_NAMED_IMPORT.sub(RE_NAMED_IMPORT_REPLACE, esm_base)
+        return textwrap.dedent(esm_base)
