@@ -253,17 +253,27 @@ class ThemeToggle(MaterialWidget):
     A toggle button to switch between light and dark themes.
     """
 
-    theme = param.Selector(default=config.theme, objects=['dark', 'default'], doc="The theme to use.")
+    color = param.Selector(default='primary', objects=['primary', 'secondary'], doc="The color of the theme toggle.")
 
-    value = param.Boolean(default=config.theme == 'dark', doc="Whether the theme toggle is on or off.")
+    theme = param.Selector(default=None, objects=['dark', 'default'], constant=True, doc="The current theme.")
+
+    value = param.Boolean(default=None, doc="Whether the theme toggle is on or off.")
+
+    variant = param.Selector(default='icon', objects=['icon', 'toggle'], doc="Whether to render just an icon or a toggle")
 
     _esm_base = "ThemeToggle.jsx"
     _esm_transforms = [ThemedTransform]
     _rename = {"theme_toggle": None}
 
+    def __init__(self, **params):
+        params['theme'] = config.theme
+        params['value'] = config.theme == 'dark'
+        super().__init__(**params)
+
     @param.depends('value', watch=True)
     def _update_theme(self):
-        self.theme = config.theme = 'dark' if self.value else 'default'
+        with param.parameterized.edit_constant(self):
+            self.theme = config.theme = 'dark' if self.value else 'default'
 
 
 __all__ = [
