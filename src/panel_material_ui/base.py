@@ -413,3 +413,6 @@ class MaterialUIComponent(MaterialComponent):
         esm_base = RE_IMPORT.sub(RE_IMPORT_REPLACE, esm_base)
         esm_base = RE_NAMED_IMPORT.sub(RE_NAMED_IMPORT_REPLACE, esm_base)
         return textwrap.dedent(esm_base)
+
+
+__all__ = ['MaterialUIComponent']
