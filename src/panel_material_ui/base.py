@@ -46,7 +46,7 @@ STYLE_ALIASES = {"outline": "outlined"}
 
 BASE_PATH = pathlib.Path(__file__).parent
 IS_RELEASE = __version__ == base_version(__version__)
-CDN_DIST = "https://cdn.holoviz.org/panel-material-ui/test19/panel-material-ui.bundle.js"
+CDN_DIST = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}/panel-material-ui.bundle.js"
 
 
 class ESMTransform:
