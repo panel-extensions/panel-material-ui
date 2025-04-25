@@ -1,6 +1,6 @@
 # Dark Mode
 
-Your Mui-for-Panel components automatically integrate with Panel’s dark mode. Simply set `dark_mode=True` at the component level or in your Panel extension to force dark mode.
+The `panel-material-ui` components automatically integrate with Panel’s dark mode configuration and allow you to force dark mode by setting `dark_mode=True` at the component level or in your Panel extension.
 
 ## Dark mode only (no system preference)
 
@@ -20,6 +20,34 @@ or set it globally:
 pn.extension(theme='dark')
 ```
 
+## Managed theme
+
+By default each component will control its own theme, however if you want to manage dark mode globally you have two options:
+
+1. Use the `Page` component, which will automatically include a theme toggle and manage the theme for you.
+
+```{pyodide}
+from panel_material_ui import Page
+
+Page(
+    dark_mode=True,
+    main=[
+        Button(
+            label="Dark Button"
+        )
+    ],
+    title="Dark Mode Demo",
+).preview()
+```
+
+2. Embed the `ThemeToggle` component, which will ensure the theme is managed globally and let you switch between light and dark mode.
+
+```python
+from panel_material_ui import ThemeToggle
+
+ThemeToggle().servable()
+```
+
 ## Overriding dark palette
 
 When `dark_mode=True`, your components automatically swap to a dark palette. To customize that palette further—for instance, to change the primary color—you can use `theme_config`, just like you would for other color overrides:
@@ -28,10 +56,18 @@ When `dark_mode=True`, your components automatically swap to a dark palette. To 
 from panel_material_ui import Button
 
 dark_theme_config = {
-    "palette": {
-        "mode": "dark",
-        "primary": {
-            "main": "#ff5252"
+    "dark": {
+        "palette": {
+            "primary": {
+                "main": "#450c0c"
+            }
+        }
+    },
+    "light": {
+        "palette": {
+            "primary": {
+                "main": "#eb5252"
+            }
         }
     }
 }
@@ -43,7 +79,3 @@ Button(
     theme_config=dark_theme_config
 ).servable()
 ```
-
-## Toggling
-
-When using the `Page` component a theme toggle is automatically included.
