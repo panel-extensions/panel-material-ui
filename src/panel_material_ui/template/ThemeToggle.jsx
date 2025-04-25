@@ -18,7 +18,7 @@ export function render({model}) {
 
   return (
     <Tooltip enterDelay={500} title="Toggle theme">
-      {"switch" === "switch" ? (
+      {variant === "switch" ? (
         <FormControlLabel
       	  control={
             <Switch checked={value} onChange={(e) => { dark_mode.set_value(!value); setDarkTheme(!value); setValue(!value); }} />
@@ -26,7 +26,11 @@ export function render({model}) {
           label={value ? "Dark Theme" : "Light Theme"}
         />
       ) : (
-        <IconButton onClick={() => { dark_mode.set_value(!value); setDarkTheme(!value); setValue(!value); }} aria-label="Toggle theme" color="inherit" align="right">
+        <IconButton
+          aria-label="Toggle theme"
+          color="inherit" align="right"
+          onClick={() => { dark_mode.set_value(!value); setDarkTheme(!value); setValue(!value); }}
+        >
           {value ? <DarkMode /> : <LightMode />}
         </IconButton>
       )}
