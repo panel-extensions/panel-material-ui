@@ -368,8 +368,16 @@ class MaterialUIComponent(MaterialComponent):
     Material UI shims to provide a React interface to the Material UI library.
     """
 
-    _importmap = {
-        "imports": {
+    _importmap = {}
+
+    __abstract = True
+
+    @classmethod
+    def _process_importmap(cls):
+        importmap = dict(cls._importmap)
+        if 'imports' not in importmap:
+            importmap['imports'] = {}
+        importmap['imports'].update({
             "panel-material-ui": CDN_DIST,
             "panel-material-ui/mui": f"{CDN_BASE}/material-ui-shim.js",
             "material-icons/": "https://esm.sh/material-icons@1.13.14/",
@@ -379,14 +387,8 @@ class MaterialUIComponent(MaterialComponent):
             "@emotion/cache": f"{CDN_BASE}/emotion-cache-shim.js",
             "@emotion/react": f"{CDN_BASE}/emotion-react-shim.js",
             "@mui/material/styles": f"{CDN_BASE}/material-ui-styles-shim.js"
-        }
-    }
-
-    __abstract = True
-
-    @classmethod
-    def _process_importmap(cls):
-        return cls._importmap
+        })
+        return importmap
 
     @classmethod
     def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
