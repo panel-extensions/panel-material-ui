@@ -20,7 +20,7 @@ export function render({model}) {
     <Tooltip enterDelay={500} title="Toggle theme">
       {variant === "switch" ? (
         <FormControlLabel
-      	  control={
+         control={
             <Switch checked={value} onChange={(e) => { dark_mode.set_value(!value); setDarkTheme(!value); setValue(!value); }} />
           }
           label={value ? "Dark Theme" : "Light Theme"}
