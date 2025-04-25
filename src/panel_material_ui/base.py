@@ -390,6 +390,11 @@ class MaterialUIComponent(MaterialComponent):
         })
         return importmap
 
+    def _get_properties(self, doc: Document | None) -> dict[str, Any]:
+        props = super()._get_properties(doc)
+        props['bundle'] = None
+        return props
+
     @classmethod
     def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
         return cls._render_esm_base()
@@ -401,16 +406,16 @@ class MaterialUIComponent(MaterialComponent):
             esm_base = esm
         else:
             esm_base = (pathlib.Path(inspect.getfile(cls)).parent / cls._esm_base).read_text()
-        if not cls._esm_transforms:
-            return esm_base
-
-        component_name = f'Panel{cls.__name__}'
-        esm_base = esm_base.replace('export function render', f'function {component_name}')
-        for transform in cls._esm_transforms:
-            esm_base, component_name = transform.apply(cls, esm_base, component_name)
-        esm_base += f'\nexport default {{ render: {component_name} }}'
+        if cls._esm_transforms:
+            component_name = f'Panel{cls.__name__}'
+            esm_base = esm_base.replace('export function render', f'function {component_name}')
+            for transform in cls._esm_transforms:
+                esm_base, component_name = transform.apply(cls, esm_base, component_name)
+            esm_base += f'\nexport default {{ render: {component_name} }}'
         esm_base = esm_base.replace(
             'import {install_theme_hooks} from "./utils"', 'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks'
+        ).replace(
+            'import * as React from "react"', ''
         )
         esm_base = RE_IMPORT.sub(RE_IMPORT_REPLACE, esm_base)
         esm_base = RE_NAMED_IMPORT.sub(RE_NAMED_IMPORT_REPLACE, esm_base)

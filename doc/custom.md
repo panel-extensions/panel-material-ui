@@ -1,4 +1,4 @@
-# Custom Material UI Components
+# Building Custom Components
 
 The `panel-material-ui` package ships with a number of custom Material UI components that are built on top of the Material UI library. However in some cases you may need to create your own custom components.
 
@@ -143,8 +143,11 @@ To see what we have built in action, let's quickly put it all together. We will 
 
 ```{pyodide}
 import param
+import panel as pn
 
 from panel_material_ui import MaterialUIComponent
+
+pn.extension()
 
 RAINBOW = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
 
@@ -235,7 +238,6 @@ export function render({model}) {
     </Button>
   );
 }"""
-
 
 RainbowButton(name="Unicorn Power!", mode="hover", interval=150)
 ```
