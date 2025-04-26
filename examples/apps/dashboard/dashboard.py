@@ -9,7 +9,6 @@ import pandas as pd
 from panel_material_ui import ChangeIndicator
 from panel_material_ui import Icon
 
-from shared.config import BODY_STYLES, PAPER_STYLES, ICON_CSS
 from shared.data import get_project_data
 from shared.plots import (
     get_website_views_config,
@@ -208,7 +207,7 @@ with pn.config.set(sizing_mode="stretch_width"):
         },
     }
     timeline_component = Timeline(object=timeline_config, sizing_mode="stretch_width", sx=sx)
-    timeline_component = pmu.Alert("The `Timeline` component does not work yet due to [#190](https://github.com/panel-extensions/panel-material-ui/issues/190).", alert_type="primary")
+    timeline_component = pmu.Alert("The `Timeline` component does not work yet due to [#190](https://github.com/panel-extensions/panel-material-ui/issues/190).", alert_type="error", margin=10)
     timeline = pmu.Paper(
         "#### Orders overview\n\n**24%** this month",
         timeline_component,

@@ -3,7 +3,6 @@ import param
 from panel_material_ui.base import COLORS as _BUTTON_COLORS, COLOR_ALIASES
 
 BODY_BACKGROUND = "#f5f5f5"
-BODY_STYLES = {"background": BODY_BACKGROUND, "width": "100vw"}  # Hack
 ICON_CSS = """
 .material-symbols-outlined {
     font-size: 12px;
@@ -25,7 +24,8 @@ pn.config.css_files=[
     # "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=schedule,weekend,person,leaderboard"
 ]
 
-_COLOR = {"Dark": "#42424a", "Transparent": "inherit", "White": "white"}
+_SIDEBAR_BACKGROUND = {"Dark": "#42424a", "Transparent": "inherit", "White": "white"}
+_SIDEBAR_COLOR = {"Dark": "white", "Transparent": "inherit", "White": "black"}
 _BUTTON_COLORS = [color for color in _BUTTON_COLORS if color not in COLOR_ALIASES]
 
 class PageSettings(param.Parameterized):
@@ -46,4 +46,10 @@ class PageSettings(param.Parameterized):
 
     @param.depends("sidebar_background_color")
     def sidebar_styles(self):
-        return {"background": _COLOR[self.sidebar_background_color], "border-radius": "5px", "margin": "10px"}
+        return {"background": _SIDEBAR_BACKGROUND[self.sidebar_background_color], "color": "_SIDEBAR_COLOR", "border-radius": "5px", "margin": "10px"}
+
+    @param.depends("dark_theme")
+    def body_styles(self):
+        if not self.dark_theme:
+            return {"background": BODY_BACKGROUND, "width": "100vw"}  # Hack
+        return {"background": "transparent", "width": "100vw"}

@@ -1,7 +1,7 @@
 import panel as pn
 import panel_material_ui as pmu
 from shared.components import create_menu
-from shared.config import PAPER_STYLES, BODY_STYLES, PageSettings
+from shared.config import PageSettings
 
 
 def create_sidebar(name: str, button_color, settings: PageSettings):
@@ -56,7 +56,8 @@ def create_context(settings: PageSettings):
     [button.on_click(click) for button in buttons]
 
 
-    theme_toggle = pmu.ThemeToggle(variant="switch")
+    theme_toggle = pmu.ThemeToggle(value=settings.dark_theme, variant="switch")
+    theme_toggle.rx.watch(lambda v: settings.param.update(dark_theme=v))
 
 
     return pmu.Drawer(
@@ -184,5 +185,5 @@ def create_page(name: str, main: list):
     return pn.Column(
         pn.Row(sidebar, main, context),
         sizing_mode="stretch_both",
-        styles=BODY_STYLES,
+        styles=settings.body_styles,
     )

@@ -3,8 +3,6 @@ from shared.page import create_page
 from panel_material_ui import Button, Alert
 pn.extension(notifications=True)
 
-print(pn.state.notifications.notifications)
-
 with pn.config.set(sizing_mode="stretch_width"):
     alert_card = pn.Column(
         """## Alerts
