@@ -27,6 +27,26 @@ Button(
 ).servable()
 ```
 
+If you need to apply some styling only in either dark or light mode, you can use the `.mui-dark` or `.mui-light` class.
+
+```{pyodide}
+from panel_material_ui import Button
+
+Button(
+    label="Click Me!",
+    sx={
+        "color": "white",
+        "backgroundColor": "black",
+        "&:hover": {
+            "backgroundColor": "gray",
+        }
+        "&.mui-dark:hover": {
+            "backgroundColor": "darkgray",
+        }
+    }
+).servable()
+```
+
 ### Overriding nested component styles
 
 Sometimes you need to target a nested part of a component—for instance, the “thumb” of a slider or the label of a checkbox. Mui-for-Panel components use the same Material UI class names under the hood, so you can target those nested slots by using the relevant selectors in your sx parameter.
@@ -45,6 +65,8 @@ FloatSlider(
 ).servable()
 ```
 
+Here too you can prefix the selector with `&.mui-dark` or `&.mui-light` to apply the styling only in either dark or light mode.
+
 :::note
 Note: Even though Panel Mui components reuse Material UI’s internal class names, these names are subject to change. Make sure to keep an eye on release notes if you override nested classes.
 :::
@@ -56,7 +78,7 @@ Note: Even though Panel Mui components reuse Material UI’s internal class name
 ```{pyodide}
 from panel_material_ui import Button
 
-global_theme = {
+theme_config = {
     "palette": {
         "primary": {"main": "#d219c9"},
         "secondary": {"main": "#dc004e"},
@@ -64,7 +86,32 @@ global_theme = {
 }
 
 Button(
-    label="Global Button", theme_config=global_theme, button_type="primary"
+    label="Themed Button", theme_config=theme_config, button_type="primary"
+).servable()
+```
+
+If you want to provide distinct `theme_config` definitions for dark and light mode, you can do so by providing a dictionary with `dark` and `light` keys.
+
+```{pyodide}
+from panel_material_ui import Button
+
+theme_config = {
+    "light": {
+        "palette": {
+            "primary": {"main": "#d219c9"},
+            "secondary": {"main": "#dc004e"},
+        }
+    },
+    "dark": {
+        "palette": {
+            "primary": {"main": "#d219c9"},
+            "secondary": {"main": "#dc004e"},
+        }
+    }
+}
+
+Button(
+    label="Global Button", theme_config=theme_config, button_type="primary"
 ).servable()
 ```
 
@@ -72,7 +119,7 @@ Button(
 
 Theme inheritance is the most important piece here that allows you to apply a consistent theme at the top-level and have it flow down from there.
 
-Here, the child Button automatically inherits the parent’s primary color setting. However, note these important points:
+Here, the child Button automatically inherits the parent's primary color setting:
 
 ```{pyodide}
 from panel_material_ui import Card, Button
@@ -93,9 +140,8 @@ Here, the child `Button` automatically inherits the parent’s primary color set
 ::::{caution}
 There are some caveats when using theme inheritance:
 
-1. **One-time inheritance**: When the child is first mounted, it checks its immediate parent’s theme.
+1. **One-time inheritance**: When the child is first mounted, it will ascend the parent tree merging the `theme_config` from each parent, and then apply its own `theme_config` on top of that.
 2. **No automatic re-check**: If an intermediate parent (or the same parent) changes its `theme_config` after the child has already mounted, the child’s theme does not automatically update. In other words, children do not continuously observe every parent for performance reasons.
-3 **Own theme overrides**: If the child itself has `theme_config`, that takes precedence, and it will not inherit from the parent.
 
-This approach ensures good performance—otherwise, every child would have to watch for theme changes up the tree. We therefore strongly recommend that if you have specific theming needs, you set those up before initial render or when newly mounting a subcomponent. For one of styling primarily make use of one of customizations using `sx`. If you absolutely need to re-theme a sub-component **and its children** after initial render, remove it, apply the new `theme_config` and re-add it, the children will now automatically pick up the new theme.
+This approach ensures good performance—otherwise, every child would have to watch for theme changes up the tree. We therefore strongly recommend that if you have specific theming needs, you set those up before initial render or when newly mounting a subcomponent. For one-off styling primarily make use of one of `sx` based styling. If you absolutely need to re-theme a sub-component **and its children** after initial render, remove it, apply the new `theme_config` and re-add it, the children will now automatically pick up the new theme.
 ::::

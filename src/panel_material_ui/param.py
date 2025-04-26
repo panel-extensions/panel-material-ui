@@ -1,7 +1,6 @@
+import param
 from panel.param import Param
 from panel.widgets import WidgetBase
-
-import panel_material_ui.param as param
 
 from .widgets import (
     Button,
