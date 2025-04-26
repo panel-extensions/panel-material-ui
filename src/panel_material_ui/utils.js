@@ -306,7 +306,10 @@ export const install_theme_hooks = (props) => {
   const [own_theme_config] = props.model.useState("theme_config")
 
   // Apply .mui-dark or .mui-light to the container
-  props.view.container.className = `${props.view.model.class_name.toLowerCase().replace(/([a-z])([A-Z])/g, "$1-$2")  } mui-${dark_theme ? "dark" : "light"}`
+  const themeClass = `mui-${dark_theme ? "dark" : "light"}`
+  if (!props.view.container.className.includes(themeClass)) {
+    props.view.container.className = `${props.view.container.className} ${themeClass}`.trim()
+  }
 
   // If the page has a data-theme attribute (e.g. from pydata-sphinx-theme), use it to set the dark theme
   const page_theme = document.documentElement.dataset.theme
