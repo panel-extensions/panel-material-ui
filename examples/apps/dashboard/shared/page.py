@@ -19,7 +19,7 @@ def create_sidebar(name: str, button_color, settings: PageSettings):
         sizing_mode="stretch_width",
     )
 
-    return pmu.Column(
+    return pn.Column(
         "#### <img style='margin-bottom: -10px;margin-right: 10px;margin-left:5px;' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAAM1BMVEUAcrUBd7jk6OuoxdsAcrUAbLP08vAAbbUAdLUAcrVQnMm6z99+rM86jcJ5sNElhL10qc1QLvfMAAAACnRSTlPP////////KCjO4FwxLQAAAJNJREFUKJGNktEShCAIRRXCCrX2/792aaYU3YXpTDM+nMQLGtawGIQtmE6s48S+kkRkSBEHMim6rMyYAA7u1EdSTj9kenYWRPGQsVNaWTnjxFzifGhvJbbcTp+V4yCj4gOA19rSImgkmvxAf2Ua5Vw267Ij5xTIbcUdgjc+f/DelenLXu5vTGs/EwNfuo963S23b1+vug28mwd6wAAAAABJRU5ErkJggg=='></img>Panel Material UI",
         pmu.layout.Divider(sizing_mode="stretch_width", margin=(10, 5, 10, 5)),
         create_menu(name, button_color=button_color),
@@ -64,7 +64,7 @@ def create_context(settings: PageSettings):
 
 Choose between different sidenav types.""",
             pn.Row(*buttons, align="center"),
-            pmu.layout.Divider(sizing_mode="stretch_width", margin=5, min_width=500),
+            pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
             pmu.Switch.from_param(settings.param.dark_theme, name="Light/ Dark", disabled=True),
             pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
             pmu.widgets.Button(name="Free Download", href="https://github.com/panel-extensions/panel-material-ui", color="primary", variant="contained", sizing_mode="stretch_width"),
@@ -76,9 +76,9 @@ Choose between different sidenav types.""",
                 pmu.widgets.Button(name="Share", href="https://www.facebook.com/sharer/sharer.php?u=https://holoviz-dev.github.io/panel-material-ui", color="dark", variant="contained"),
                 align="center"
             ),
-            sizing_mode="fixed", width=400,
+            sizing_mode="stretch_width",
         ),
-        anchor="right",
+        anchor="right", size=400
     )
 
 
@@ -178,7 +178,7 @@ def create_page(name: str, main: list):
         margin=10,
     )
 
-    return pmu.Column(
+    return pn.Column(
         pn.Row(sidebar, main, context),
         sizing_mode="stretch_both",
         styles=BODY_STYLES,

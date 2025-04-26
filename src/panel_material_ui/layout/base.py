@@ -467,18 +467,35 @@ class Dialog(MaterialListLike):
     _esm_base = "Dialog.jsx"
 
 class Drawer(MaterialListLike):
-    open = param.Boolean(default=False)
+    """
+    The `Drawer` component can be used to display important content in a modal-like overlay that requires
+    user interaction. It is often used for tasks such as confirmations, forms, or displaying
+    additional information.
+
+    Reference: https://mui.com/material-ui/react-drawer/
+
+    :Example:
+    >>> drawer = Drawer("This is a drawer")
+    >>> button = Button(on_click=lambda _: drawer.param.update(open=True), label='Open Drawer')
+    >>> pn.Column(button, drawer).servable()
+    """
+
     anchor = param.Selector(default="left", objects=["left", "right", "top", "bottom"])
-    variant = param.Selector(default="temporary", objects=["temporary", "persistent"])
+
+    size = param.Integer(default=250, doc="""
+        The width (for left/right anchors) or height (for top/bottom anchors) of the drawer.""")
+
+    open = param.Boolean(default=False, doc="""
+        Whether the drawer is open.""")
+
+    variant = param.Selector(default="temporary", objects=["permanent", "persistent", "temporary"])
 
     _esm_base = "Drawer.jsx"
 
     def __init__(self, *objects, **params):
-        if objects:
-            params["objects"] = objects
         # If the width or height is > 0 it will take up that space when not open
         params.update(width=0, height=0, sizing_mode="fixed",)
-        super().__init__(**params)
+        super().__init__(*objects, **params)
 
 __all__ = [
     "Accordion",

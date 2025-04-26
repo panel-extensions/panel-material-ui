@@ -47,6 +47,8 @@ conda install -c conda-forge panel_material_ui
 
 :::::
 
+Then [discover the components](components/index) and [customization options](customization/index) available in Panel Material UI or build your own [custom components](custom).
+
 ```{toctree}
 :titlesonly:
 :hidden:
@@ -54,5 +56,6 @@ conda install -c conda-forge panel_material_ui
 :caption: FOR USERS
 
 customization/index
+custom
 reference/index
 ```

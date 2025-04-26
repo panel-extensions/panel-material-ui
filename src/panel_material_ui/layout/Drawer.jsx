@@ -1,18 +1,21 @@
 import Drawer from "@mui/material/Drawer"
 
 export function render({model}) {
-  const [sx] = model.useState("sx")
-  const [open, setOpen] = model.useState("open")
   const [anchor] = model.useState("anchor")
+  const [open, setOpen] = model.useState("open")
+  const [size] = model.useState("size")
   const [variant] = model.useState("variant")
+  const [sx] = model.useState("sx")
   const objects = model.get_child("objects")
 
-  const toggleDrawer = (newOpen) => () => {
-    setOpen(newOpen);
-  };
-
+  let dims
+  if (!["top", "bottom"].includes(anchor)) {
+    dims = {width: `${size}px`}
+  } else {
+    dims = {height: `${size}px`}
+  }
   return (
-    <Drawer open={open} anchor={anchor} variant={variant} sx={{"& .MuiPaper-root": {padding: "5px"}, ...sx}} onClose={toggleDrawer(false)}>
+    <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} PaperProps={{sx: dims}} variant={variant} sx={{"& .MuiPaper-root": {padding: "5px"}, ...sx}}>
       {objects}
     </Drawer>
   )

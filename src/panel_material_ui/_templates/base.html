@@ -66,6 +66,9 @@
         100% { transform: rotate(360deg); }
       }
     </style>
+    {% if not is_page %}
+    <link rel="stylesheet" href="{{ dist_url }}bundled/theme/{{theme_name}}.css">
+    {% endif %}
   {% block css_resources -%}
     {{- bokeh_css if bokeh_css }}
   {%-  endblock css_resources %}

@@ -82,7 +82,7 @@ class MaterialDesign(Material):
     _themes = {'dark': MuiDarkTheme, 'default': MaterialDefaultTheme}
 
     @classmethod
-    def _get_modifiers(cls, viewable, theme, isolated=True):
+    def _get_modifiers(cls, viewable, theme, isolated=False):
         modifiers, child_modifiers = super()._get_modifiers(viewable, theme, isolated)
         if hasattr(viewable, '_esm_base'):
             del modifiers['stylesheets']
