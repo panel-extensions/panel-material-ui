@@ -6,7 +6,6 @@ import panel as pn
 import param
 import pandas as pd
 
-from panel_material_ui.pane import Timeline
 from panel_material_ui import ChangeIndicator
 from panel_material_ui import Icon
 
@@ -17,7 +16,7 @@ from shared.plots import (
     get_daily_sales_config,
     get_completed_tasks_config,
 )
-from shared.components import create_menu
+from shared.components import create_menu, Timeline
 from shared.page import create_page
 
 my_theme = {
