@@ -4,7 +4,6 @@ import panel as pn
 import panel_material_ui as pmu
 import holoviews as hv
 import hvplot.pandas
-import seaborn as sns
 import numpy as np
 import colorsys
 import pandas as pd
@@ -179,7 +178,6 @@ def get_continous_plot(color="#9c27b0", font_family: str = "Roboto"):
         colorbar=True,
         title="Continuous Plot",
         tools=[hover_tool],
-        legend_position="bottom_right",  # Does not work!
     ).opts(hooks=[hook])
 
 
