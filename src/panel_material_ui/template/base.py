@@ -16,7 +16,8 @@ from panel.io.resources import URL, ResourceComponent, Resources
 from panel.pane import HTML
 from panel.viewable import Children
 
-from ..base import MaterialComponent
+from ..base import MaterialComponent, ThemedTransform
+from ..widgets.base import MaterialWidget
 
 if TYPE_CHECKING:
     from bokeh.document import Document
@@ -247,6 +248,37 @@ class Page(MaterialComponent, ResourceComponent):
         """, width=width, height=height, **kwargs)
 
 
+class ThemeToggle(MaterialWidget):
+    """
+    A toggle button to switch between light and dark themes.
+    """
+
+    color = param.Selector(default='primary', objects=['primary', 'secondary'], doc="The color of the theme toggle.")
+
+    theme = param.Selector(default=None, objects=['dark', 'default'], constant=True, doc="The current theme.")
+
+    value = param.Boolean(default=None, doc="Whether the theme toggle is on or off.")
+
+    variant = param.Selector(default='icon', objects=['icon', 'toggle'], doc="Whether to render just an icon or a toggle")
+
+    width = param.Integer(default=None, doc="The width of the theme toggle.")
+
+    _esm_base = "ThemeToggle.jsx"
+    _esm_transforms = [ThemedTransform]
+    _rename = {"theme_toggle": None}
+
+    def __init__(self, **params):
+        params['theme'] = config.theme
+        params['value'] = config.theme == 'dark'
+        super().__init__(**params)
+
+    @param.depends('value', watch=True)
+    def _update_theme(self):
+        with param.parameterized.edit_constant(self):
+            self.theme = config.theme = 'dark' if self.value else 'default'
+
+
 __all__ = [
-    "Page"
+    "Page",
+    "ThemeToggle"
 ]
