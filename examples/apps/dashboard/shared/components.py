@@ -17,7 +17,7 @@ def create_menu(selected: str, pages: list[tuple] = PAGES, button_color="primary
         return pages2
     return pmu.List(items=pn.bind(get_pages, button_color), active=active, margin=(0,10), sizing_mode="stretch_width")
 
-class Timeline(MaterialPaneBase):
+class Timeline(pmu.MaterialUIComponent):
     """Material‑UI **Timeline** component for Panel.
 
     References:

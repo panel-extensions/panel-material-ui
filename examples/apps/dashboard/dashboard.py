@@ -207,9 +207,11 @@ with pn.config.set(sizing_mode="stretch_width"):
           "padding-left": 10,
         },
     }
+    timeline_component = Timeline(object=timeline_config, sizing_mode="stretch_width", sx=sx)
+    timeline_component = pmu.Alert("The `Timeline` component does not work yet due to [#190](https://github.com/panel-extensions/panel-material-ui/issues/190).", alert_type="primary")
     timeline = pmu.Paper(
         "#### Orders overview\n\n**24%** this month",
-        Timeline(object=timeline_config, sizing_mode="stretch_width", sx=sx),
+        timeline_component,
         margin=10,
         height=550,
     )

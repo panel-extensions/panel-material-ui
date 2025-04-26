@@ -56,6 +56,9 @@ def create_context(settings: PageSettings):
     [button.on_click(click) for button in buttons]
 
 
+    theme_toggle = pmu.ThemeToggle(variant="switch")
+
+
     return pmu.Drawer(
         pn.Column(
             "## Material UI Configurator",
@@ -65,7 +68,7 @@ def create_context(settings: PageSettings):
 Choose between different sidenav types.""",
             pn.Row(*buttons, align="center"),
             pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
-            pmu.Switch.from_param(settings.param.dark_theme, name="Light/ Dark", disabled=True),
+            theme_toggle,
             pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
             pmu.widgets.Button(name="Free Download", href="https://github.com/panel-extensions/panel-material-ui", color="primary", variant="contained", sizing_mode="stretch_width"),
             pmu.widgets.Button(name="Documentation", href="https://holoviz-dev.github.io/panel-material-ui/", variant="outlined", sizing_mode="stretch_width"),

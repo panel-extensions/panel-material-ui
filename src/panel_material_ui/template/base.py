@@ -259,7 +259,7 @@ class ThemeToggle(MaterialWidget):
 
     value = param.Boolean(default=None, doc="Whether the theme toggle is on or off.")
 
-    variant = param.Selector(default='icon', objects=['icon', 'toggle'], doc="Whether to render just an icon or a toggle")
+    variant = param.Selector(default='icon', objects=['icon', 'switch'], doc="Whether to render just an icon or a toggle")
 
     width = param.Integer(default=None, doc="The width of the theme toggle.")
 
