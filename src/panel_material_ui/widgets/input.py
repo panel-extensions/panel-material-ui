@@ -235,7 +235,7 @@ class FileInput(_ButtonLike, _PnFileInput):
         ----------
         filename (str or list[str]): File path or file-like object
         """
-        _PnFileInput.save(filename)
+        _PnFileInput.save(self, filename)
 
 
 class _NumericInputBase(MaterialInputWidget):
