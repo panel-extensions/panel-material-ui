@@ -7,6 +7,7 @@ from playwright.sync_api import expect
 from panel_material_ui.notifications import NotificationArea
 from panel.config import config
 from panel.io.state import state
+from panel.layout import Row
 from panel.pane import Markdown
 from panel.tests.util import serve_component, wait_until
 from panel.widgets import Button
@@ -59,34 +60,39 @@ def test_notifications_clear(page):
 
 
 def test_notifications_destroy(page):
-    def callback(event):
+
+    notifications = []
+
+    def add_notifications(event):
         notifications.extend([
             state.notifications.error('MyError', duration=0),
             state.notifications.info('MyInfo', duration=0),
         ])
 
-    notifications = []
+    def destroy_notifications(event):
+        notifications.pop(0).destroy()
 
     def app():
         config.notifications = True
         assert isinstance(state.notifications, NotificationArea)
-        button = Button(name='Display error')
-        button.on_click(callback)
-        return button
+        add = Button(name='Add')
+        remove = Button(name='Remove')
+        add.on_click(add_notifications)
+        remove.on_click(destroy_notifications)
+        return Row(add, remove)
 
     serve_component(page, app)
 
-    page.click('.bk-btn')
+    page.locator('.bk-btn').nth(0).click()
 
-    wait_until(lambda: expect(page.locator('.MuiAlert-message')).to_have_count(2), page)
+    messages = page.locator('.MuiAlert-message')
 
-    notifications[0].destroy()
-
-    expect(page.locator('.MuiAlert-message')).to_have_count(1)
-
-    notifications[1].destroy()
-
-    expect(page.locator('.MuiAlert-message')).to_have_count(0)
+    # Add and destroy two notifications
+    expect(messages).to_have_count(2)
+    page.locator('.bk-btn').nth(1).click()
+    expect(messages).to_have_count(1)
+    page.locator('.bk-btn').nth(1).click()
+    expect(messages).to_have_count(0)
 
 
 def test_notifications_custom_background(page):
