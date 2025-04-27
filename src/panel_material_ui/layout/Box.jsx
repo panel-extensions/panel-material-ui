@@ -1,25 +1,19 @@
-import Paper from "@mui/material/Paper"
+import Box from "@mui/material/Box"
 import {apply_flex} from "./utils"
 
 export function render({model, view}) {
-  const [direction] = model.useState("direction")
-  const [elevation] = model.useState("elevation")
-  const [square] = model.useState("square")
   const [sx] = model.useState("sx")
-  const [variant] = model.useState("variant")
   const objects = model.get_child("objects")
+  const direction = model.esm_constants.direction
 
   return (
-    <Paper
-      elevation={elevation}
-      square={square}
+    <Box
       sx={{height: "100%", width: "100%", display: "flex", flexDirection: direction, ...sx}}
-      variant={variant}
     >
       {objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), "column")
         return object
       })}
-    </Paper>
+    </Box>
   )
 }

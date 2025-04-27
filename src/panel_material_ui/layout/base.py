@@ -9,6 +9,7 @@ from panel.layout.base import ListLike, NamedListLike, SizingModeMixin
 from panel.viewable import Child
 
 from ..base import COLORS, MaterialComponent
+from ..widgets import ToggleIcon
 
 if TYPE_CHECKING:
     from bokeh.document import Document
@@ -54,6 +55,24 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
     @param.depends("objects", watch=True)
     def _trigger_names(self):
         self.param.trigger("_names")
+
+
+class Column(MaterialListLike):
+    """
+    The `Column` layout arranges its contents vertically.
+    """
+
+    _esm_base = "Box.jsx"
+    _constants = {"direction": "column"}
+
+
+class Row(MaterialListLike):
+    """
+    The `Row` layout arranges its contents horizontally.
+    """
+
+    _esm_base = "Box.jsx"
+    _constants = {"direction": "row"}
 
 
 class PaperMixin(param.Parameterized):
@@ -493,6 +512,40 @@ class Drawer(MaterialListLike):
 
     _esm_base = "Drawer.jsx"
 
+    def create_toggle(
+        self,
+        container: MaterialComponent | None = None,
+        icon: str = "menu",
+        active_icon: str = "menu_open_icon",
+        color: str = "default",
+        **params
+    ):
+        """
+        Create a ToggleIcon for the drawer.
+
+        Parameters
+        ----------
+        icon: str
+            The icon to display when the drawer is closed.
+        active_icon: str
+            The icon to display when the drawer is open.
+        color: str
+            The color of the icon.
+
+        Returns
+        -------
+        toggle: ToggleIcon
+            A ToggleIcon component that can be used to toggle the drawer.
+        """
+
+        toggle = ToggleIcon(icon=icon, active_icon=active_icon, color=color, value=self.open, **params)
+        toggle.jslink(self, value='open', bidirectional=True)
+        if self.variant == "persistent" and container is not None:
+            container.styles["marginLeft"] = f"{self.size if toggle.value else 0}px"
+            toggle.jscallback(args={'drawer': self, 'container': container}, value="""
+              container.styles = {marginLeft: cb_obj.value ? `${drawer.data.size}px` : "0"};
+            """)
+        return toggle
 
 
 __all__ = [
@@ -500,11 +553,13 @@ __all__ = [
     "Alert",
     "Backdrop",
     "Card",
+    "Column",
     "Container",
     "Dialog",
     "Divider",
     "Drawer",
     "Grid",
     "Paper",
+    "Row",
     "Tabs",
 ]
