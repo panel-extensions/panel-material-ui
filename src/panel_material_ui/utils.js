@@ -344,7 +344,7 @@ export const install_theme_hooks = (props) => {
     }
     return () => {
       for (const view of views) {
-        view.model_proxy.unsubscribe("theme_config", cb)
+        view.model_proxy.off("theme_config", cb)
       }
     }
   }, [])
