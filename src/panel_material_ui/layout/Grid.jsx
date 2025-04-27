@@ -6,6 +6,7 @@ export function render({model, view}) {
   const [columnSpacing] = model.useState("column_spacing")
   const [rowSpacing] = model.useState("row_spacing")
   const [size] = model.useState("size")
+  const [sx] = model.useState("sx")
   const [models] = model.useState("objects")
   const [container] = model.useState("container")
   const [spacing] = model.useState("spacing")
@@ -23,7 +24,7 @@ export function render({model, view}) {
       rowSpacing={rowSpacing}
       size={size}
       spacing={spacing}
-      sx={{height: "100%", width: "100%"}}
+      sx={{height: "100%", width: "100%", ...sx}}
     >
       {models.map((model, index) => {
         const object = objects[index]
