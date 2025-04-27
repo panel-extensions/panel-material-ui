@@ -322,24 +322,36 @@ export const install_theme_hooks = (props) => {
   const merge_theme_configs = (view) => {
     let current = view
     const theme_configs = []
+    const views = []
     while (current != null) {
       if (current.model?.data?.theme_config != null) {
         const config = current.model.data.theme_config
+        views.push(current)
         theme_configs.push(config.dark && config.light ? config[dark_theme ? "dark" : "light"] : config)
       }
       current = current.parent
     }
-    return theme_configs.reverse().reduce((acc, config) => deepmerge(acc, config), {})
+    const merged = theme_configs.reverse().reduce((acc, config) => deepmerge(acc, config), {})
+    return [merged, views]
   }
 
-  const [theme_config, setThemeConfig] = React.useState(merge_theme_configs(props.view))
+  const [merged_config, views] = merge_theme_configs(props.view)
+  const [theme_config, setThemeConfig] = React.useState(merged_config)
+  React.useEffect(() => {
+    const cb = () => setThemeConfig(merge_theme_configs(props.view)[0])
+    for (const view of views) {
+      view.model_proxy.on("theme_config", cb)
+    }
+    return () => {
+      for (const view of views) {
+        view.model_proxy.unsubscribe("theme_config", cb)
+      }
+    }
+  }, [])
   const theme = React.useMemo(() => {
     const config = render_theme_config(props, theme_config, dark_theme)
     return createTheme(config)
   }, [dark_theme, theme_config])
-
-  // If local theme_config is updated update theme
-  React.useEffect(() => setThemeConfig(merge_theme_configs(props.view)), [own_theme_config])
 
   // Sync local dark_mode with global dark mode
   const isFirstRender = React.useRef(true)
