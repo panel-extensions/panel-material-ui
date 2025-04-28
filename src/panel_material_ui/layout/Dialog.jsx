@@ -1,7 +1,6 @@
 import Dialog from "@mui/material/Dialog"
 import DialogContent from "@mui/material/DialogContent"
 import DialogTitle from "@mui/material/DialogTitle"
-import {apply_flex} from "./utils"
 
 export function render({model, view}) {
   const [full_screen] = model.useState("full_screen")
@@ -16,10 +15,7 @@ export function render({model, view}) {
         {title}
       </DialogTitle>
       <DialogContent sx={{display: "flex", flexDirection: "column"}}>
-        {objects.map((object, index) => {
-          apply_flex(view.get_child_view(model.objects[index]), "column")
-          return object
-        })}
+        {objects}
       </DialogContent>
     </Dialog>
   )
