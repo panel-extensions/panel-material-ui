@@ -8,9 +8,6 @@ import panel as pn
 import panel_material_ui as pmu
 import pandas as pd
 
-from bokeh.themes._light_minimal import json as BOKEH_LIGHT
-from bokeh.themes._dark_minimal import json as BOKEH_DARK
-from bokeh.themes import Theme
 import matplotlib.colors as mcolors
 from bokeh.models import HoverTool
 
@@ -18,9 +15,14 @@ pn.extension(sizing_mode="stretch_width")
 
 pmu.Paper.margin = 10
 
+LORUM_IPSUM = """\
+**Lorem Ipsum** is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
+industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type
+and scrambled it to make a type specimen book"""
+
+
 def get_hook(color: str = "salmon"):
     def hook(plot, element, color=color):
-
         fig = plot.handles["plot"]
         toolbar = fig.toolbar
         toolbar.logo = None
@@ -28,23 +30,7 @@ def get_hook(color: str = "salmon"):
         plot.state.toolbar_location = "above"
         fig.add_tools("fullscreen")
 
-        css = f"""
-.bk-right.bk-active, .bk-above.bk-active {{
-    --highlight-color: {color} !important;
-}}
-"""
-        toolbar.stylesheets = [css]
-
     return hook
-
-
-LORUM_IPSUM = """\
-**Lorem Ipsum** is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
-industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type
-and scrambled it to make a type specimen book"""
-
-# General Code: COULD BE PART OF panel_material_ui.theme module?
-
 
 @pn.cache
 def get_categorical_palette(color: str, n_colors: int = 3) -> list[str]:
@@ -69,7 +55,6 @@ def get_continous_color_map(color: str):
         "custom_cmap", ["white", color], N=256
     )
 
-
 # App Code
 
 @pn.cache
@@ -84,32 +69,13 @@ def get_data(n_categories: int, n_rows=100):
 
     return dataframe
 
-
-def get_hover_tool(
-    tooltips: list[tuple], color, font_family: str = "Roboto", font_size="15px"
-):
-    html = f"""<div style="font-family: {font_family};font-size: {font_size};margin-bottom: 5px;">"""
-    for item in tooltips:
-        html += f"""<em style="color:{color}">{item[0]}:</em><span>&nbsp;{item[1]}</span><br/>"""
-    html += """</div>"""
-
-    return HoverTool(tooltips=html)
-
-
 def get_categorical_plot(df, colors, color, font_family="Roboto"):
-    hover_tool = get_hover_tool(
-        [("Category", "@category"), ("X", "@x"), ("Y", "@y")],
-        color=color,
-        font_family=font_family,
-    )
-
     plot = df.hvplot.scatter(
         x="x",
         y="y",
         size=75,
         by="category",
         title="Categorical Plot",
-        tools=[hover_tool],
         color=hv.Cycle(colors),
     )
     hook = get_hook(color)
@@ -127,11 +93,6 @@ def get_continous_plot(color="#9c27b0", font_family: str = "Roboto"):
         }
     )
     custom_cmap = get_continous_color_map(color)
-    hover_tool = get_hover_tool(
-        [("Index", "$index"), ("X", "@x"), ("Y", "@y")],
-        color=color,
-        font_family=font_family,
-    )
 
     hook = get_hook(color)
     return data.hvplot.scatter(
@@ -142,7 +103,6 @@ def get_continous_plot(color="#9c27b0", font_family: str = "Roboto"):
         cmap=custom_cmap,
         colorbar=True,
         title="Continuous Plot",
-        tools=[hover_tool],
     ).opts(hooks=[hook])
 
 
@@ -196,29 +156,21 @@ continous_pane = pn.pane.HoloViews(
     continous_plot, sizing_mode="stretch_width"
 )
 
-action_row = pn.Row(paper, primary_color, n_colors, font_family, pn.HSpacer(), theme)
+action_row = pmu.Row(paper, primary_color, n_colors, font_family, pn.HSpacer(), theme)
 colors_out = pmu.TextInput(
     value=pn.bind(lambda c: ", ".join(c), colors),
     name="Categorical Colors",
     disabled=True,
 )
-button_out = pmu.Button(label="Click Me", color="primary")
+button_out = pmu.Button(label="Click Me", color="primary", on_click=lambda _: row.append(get_continous_plot()))
 column_out = pmu.Column(colors_out, button_out, LORUM_IPSUM)
 
+elevation = paper.rx().rx.where(1, 0)
 
-@pn.depends(paper)
-def get_layout(paper: bool):
-    if paper:
-        return pn.Column(
-            pmu.Paper(action_row),
-            pmu.Paper(categorical_pane),
-            pmu.Paper(continous_pane),
-            pmu.Paper(column_out),
-        )
-    else:
-        return pmu.Column(
-            action_row, categorical_pane, continous_pane, column_out
-        )
-
-
-pmu.Container(get_layout, theme_config=theme_config, width_option='md').servable()
+pmu.Container(
+    pmu.Paper(action_row, elevation=elevation),
+    pmu.Paper(categorical_pane, elevation=elevation),
+    pmu.Paper(continous_pane, elevation=elevation),
+    pmu.Paper(column_out, elevation=elevation),
+    theme_config=theme_config, width_option='md'
+).servable()
