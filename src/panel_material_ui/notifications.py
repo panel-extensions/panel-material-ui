@@ -175,4 +175,4 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
 
 
 _state._notification_type = NotificationArea
-_DATA_MODELS[MuiNotification] = construct_data_model(MuiNotification, 'MuiNotification{uuid.uuid4().hex}')
+_DATA_MODELS[MuiNotification] = construct_data_model(MuiNotification, f'MuiNotification{uuid.uuid4().hex}')
