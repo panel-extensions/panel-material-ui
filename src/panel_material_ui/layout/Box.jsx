@@ -11,7 +11,7 @@ export function render({model, view}) {
       sx={{height: "100%", width: "100%", display: "flex", flexDirection: direction, ...sx}}
     >
       {objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), "column")
+        apply_flex(view.get_child_view(model.objects[index]), direction)
         return object
       })}
     </Box>

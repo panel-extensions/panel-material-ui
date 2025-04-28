@@ -307,6 +307,9 @@ class Tabs(MaterialNamedListLike):
 
     color = param.Selector(default="default", objects=["default", "primary", "secondary"])
 
+    disabled = param.List(default=[], item_type=int, doc="""
+        List of indexes of disabled tabs.""")
+
     dynamic = param.Boolean(default=False, doc="""
         Whether the tab contents should be rendered dynamically,
         i.e. only when the tab is active.""")
@@ -318,8 +321,10 @@ class Tabs(MaterialNamedListLike):
         The location of the tabs relative to the tab contents.""",
     )
 
-    _direction = "vertical"
+    wrapped = param.Boolean(default=False, doc="""
+        Whether the tab labels should be wrapped.""")
 
+    _direction = "vertical"
     _esm_base = "Tabs.jsx"
 
     def __init__(self, *objects, **params):
@@ -482,6 +487,12 @@ class Dialog(MaterialListLike):
 
     title = param.String(default="", doc="""
         The title of the dialog.""")
+
+    scroll = param.Selector(objects=["body", "paper"], default="paper", doc="""
+        Whether the dialog should scroll the content or the paper.""")
+
+    width_option = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="sm", doc="""
+        The width of the dialog.""")
 
     _esm_base = "Dialog.jsx"
 
