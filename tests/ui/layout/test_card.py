@@ -113,8 +113,8 @@ def test_card_nested_components(page):
     serve_component(page, widget)
 
     # Check if button is interactive
-    page.locator('button').click()
-    assert button.clicks == 1
+    page.locator('.bk-btn').click()
+    wait_until(lambda: button.clicks == 1, page)
 
 def test_card_square(page):
     content = Column("Card Content")
