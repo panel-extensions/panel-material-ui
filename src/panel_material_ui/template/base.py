@@ -163,6 +163,7 @@ class Page(MaterialComponent, ResourceComponent):
         self, doc: Document | None = None, title: str | None = None,
         location: bool | LocationAreaBase | None = True
     ) -> Document:
+        title = title or self.title or self.meta.title or 'Panel Application'
         doc = super().server_doc(doc, title, location)
         doc.template_variables['meta'] = self.meta
         doc.template_variables['resources'] = self.resolve_resources()

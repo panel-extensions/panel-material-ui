@@ -13,7 +13,6 @@ export function render({model}) {
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
-  document.documentElement.dataset.themeManaged = "true"
   setup_global_styles(theme)
 
   React.useEffect(() => {
