@@ -45,8 +45,8 @@ export function render({model, view}) {
       TabIndicatorProps={{
         sx: {
           backgroundColor: theme.palette[color].main,
-          ...(location === "right" && {left: 0, right: 'auto', width: 3}),
-          ...(location === "bottom" && {top: 0, bottom: 'auto', height: 3}),
+          ...(location === "right" && {left: 0, right: "auto", width: 3}),
+          ...(location === "bottom" && {top: 0, bottom: "auto", height: 3}),
         },
       }}
       sx={{transition: "height 0.3s", ...sx}}
