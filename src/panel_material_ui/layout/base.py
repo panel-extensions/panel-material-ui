@@ -512,12 +512,18 @@ class Drawer(MaterialListLike):
 
     _esm_base = "Drawer.jsx"
 
+    def _process_param_change(self, params):
+        if self.variant == 'temporary':
+            if 'width' in params:
+                params.pop('width')
+            if 'height' in params:
+                params.pop('height')
+        return super()._process_param_change(params)
+
     def create_toggle(
         self,
-        container: MaterialComponent | None = None,
         icon: str = "menu",
         active_icon: str = "menu_open_icon",
-        color: str = "default",
         **params
     ):
         """
@@ -529,8 +535,6 @@ class Drawer(MaterialListLike):
             The icon to display when the drawer is closed.
         active_icon: str
             The icon to display when the drawer is open.
-        color: str
-            The color of the icon.
 
         Returns
         -------
@@ -538,13 +542,8 @@ class Drawer(MaterialListLike):
             A ToggleIcon component that can be used to toggle the drawer.
         """
 
-        toggle = ToggleIcon(icon=icon, active_icon=active_icon, color=color, value=self.open, **params)
+        toggle = ToggleIcon(icon=icon, active_icon=active_icon, value=self.open, **params)
         toggle.jslink(self, value='open', bidirectional=True)
-        if self.variant == "persistent" and container is not None:
-            container.styles["marginLeft"] = f"{self.size if toggle.value else 0}px"
-            toggle.jscallback(args={'drawer': self, 'container': container}, value="""
-              container.styles = {marginLeft: cb_obj.value ? `${drawer.data.size}px` : "0"};
-            """)
         return toggle
 
 

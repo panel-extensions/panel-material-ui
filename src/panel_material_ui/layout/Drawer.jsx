@@ -12,8 +12,14 @@ export function render({model, view}) {
   let dims
   if (!["top", "bottom"].includes(anchor)) {
     dims = {width: `${size}px`}
+    if (variant !== "temporary") {
+      view.el.style.width = `${open ? size : 0}px`
+    }
   } else {
     dims = {height: `${size}px`}
+    if (variant !== "temporary") {
+      view.el.style.width = `${open ? size : 0}px`
+    }
   }
   return (
     <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} PaperProps={{sx: {...dims, ...sx}}} variant={variant}>
