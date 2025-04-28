@@ -69,6 +69,9 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
               _destroyed: false,
               _uuid: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
             }}
+            notifications.document.event_manager.trigger(
+              {{event_name: 'esm_event', model: notifications, data: {{type: 'enqueue', notification: config}}}}
+            )
             notifications.data.notifications = [...notifications.data.notifications, config]
             """, args={'notifications': model}))
         return model
@@ -124,6 +127,7 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
             if (ntype.data.value === 'custom') {
               config.background = color.data.value
             }
+            notifications.document.event_manager.trigger({event_name: 'esm_event', model: notifications, data: {type: 'enqueue', notification: config}})
             notifications.data.notifications = [...notifications.data.notifications, config]
             """
         )
@@ -171,4 +175,4 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
 
 
 _state._notification_type = NotificationArea
-_DATA_MODELS[MuiNotification] = construct_data_model(MuiNotification)
+_DATA_MODELS[MuiNotification] = construct_data_model(MuiNotification, 'MuiNotification{uuid.uuid4().hex}')
