@@ -87,52 +87,138 @@ export function render_theme_css(theme) {
   `
 }
 
-export function apply_bokeh_theming(theme) {
-  const dark = theme.palette.mode === "dark"
-  const doc = window.Bokeh.documents[0]
-  const font_family = theme.typography.fontFamily.join(", ")
-  doc.all_models.forEach(model => {
-    const model_props = {}
-    if (model.type.endsWith("Axis")) {
-      model_props.axis_label_text_color = theme.palette.text.primary
-      model_props.axis_label_text_font = font_family
-      model_props.axis_line_alpha = dark ? 0 : 1
-      model_props.axis_line_color = theme.palette.text.primary
-      model_props.major_label_text_color = theme.palette.text.primary
-      model_props.major_label_text_font = font_family
-      model_props.major_tick_line_alpha = dark ? 0 : 1
-      model_props.major_tick_line_color = theme.palette.text.primary
-      model_props.minor_tick_line_alpha = dark ? 0 : 1
-      model_props.minor_tick_line_color = theme.palette.text.primary
-    } else if (model.type.endsWith("Legend")) {
-      model_props.background_fill_color = theme.palette.background.paper
-      model_props.border_line_alpha = dark ? 0 : 1
-      model_props.title_text_color = theme.palette.text.primary
-      model_props.title_text_font = font_family
-      model_props.label_text_color = theme.palette.text.primary
-      model_props.label_text_font = font_family
-    } else if (model.type.endsWith("ColorBar")) {
-      model_props.background_fill_color = theme.palette.background.paper
-      model_props.title_text_color = theme.palette.text.primary
-      model_props.title_text_font = font_family
-      model_props.major_label_text_color = theme.palette.text.primary
-      model_props.major_label_text_font = font_family
-    } else if (model.type.endsWith("Title")) {
-      model_props.text_color = theme.palette.text.primary
-      model_props.text_font = font_family
-    } else if (model.type.endsWith("Grid")) {
-      model_props.grid_line_color = theme.palette.text.primary
-      model_props.grid_line_alpha = dark ? 0.25 : 0.1
-    } else if (model.type.endsWith("Figure")) {
-      model_props.background_fill_color = theme.palette.background.default
-      model_props.border_fill_color = theme.palette.background.paper
-      model_props.outline_line_color = theme.palette.text.primary
-      model_props.outline_line_alpha = dark ? 0.25 : 0
+function find_on_parent(view, prop) {
+  let current = view
+  const elevations = []
+  while (current != null) {
+    if (current.model?.data?.[prop] != null) {
+      return current.model.data[prop]
     }
-    if (Object.keys(model_props).length > 0) {
-      model.setv(model_props)
-    }
-  })
+    current = current.parent
+  }
+  return null
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace(/^#/, "");
+  if (hex.length === 3) {
+    hex = hex.split("").map(c => c + c).join("");
+  }
+  const bigint = parseInt(hex, 16);
+  return {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255
+  };
+}
+
+function compositeColors(fg, bg, alpha) {
+  return {
+    r: Math.round((1 - alpha) * bg.r + alpha * fg.r),
+    g: Math.round((1 - alpha) * bg.g + alpha * fg.g),
+    b: Math.round((1 - alpha) * bg.b + alpha * fg.b),
+  };
+}
+
+const overlayOpacities = [
+  0,
+  0.051,
+  0.069,
+  0.082,
+  0.092,
+  0.101,
+  0.108,
+  0.114,
+  0.119,
+  0.124,
+  0.128,
+  0.132,
+  0.135,
+  0.139,
+  0.142,
+  0.145,
+  0.147,
+  0.150,
+  0.152,
+  0.155,
+  0.157,
+  0.159,
+  0.161,
+  0.163,
+  0.165,
+];
+
+function getOverlayOpacity(elevation) {
+  if (elevation < 1) { return 0; }
+  if (elevation >= 24) { return overlayOpacities[24]; }
+  return overlayOpacities[Math.floor(elevation)];
+}
+
+function getMuiElevatedColor(backgroundHex, elevation, isDarkMode = false) {
+  const bg = hexToRgb(backgroundHex);
+  const opacity = getOverlayOpacity(elevation);
+  const fg = isDarkMode ? {r: 255, g: 255, b: 255} : {r: 0, g: 0, b: 0};
+  const result = compositeColors(fg, bg, opacity);
+  return `rgb(${result.r}, ${result.g}, ${result.b})`;
+}
+
+function elevation_color(elevation, theme, dark) {
+  return (dark && elevation) ? getMuiElevatedColor(theme.palette.background.paper, elevation, dark) : theme.palette.background.paper
+}
+
+function apply_bokeh_theme(model, theme, dark, font_family) {
+  const model_props = {}
+  const model_type = model.type
+  if (model_type.endsWith("Axis")) {
+    model_props.axis_label_text_color = theme.palette.text.primary
+    model_props.axis_label_text_font = font_family
+    model_props.axis_line_alpha = dark ? 0 : 1
+    model_props.axis_line_color = theme.palette.text.primary
+    model_props.major_label_text_color = theme.palette.text.primary
+    model_props.major_label_text_font = font_family
+    model_props.major_tick_line_alpha = dark ? 0 : 1
+    model_props.major_tick_line_color = theme.palette.text.primary
+    model_props.minor_tick_line_alpha = dark ? 0 : 1
+    model_props.minor_tick_line_color = theme.palette.text.primary
+  } else if (model_type.endsWith("Legend")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    const elevation = find_on_parent(view, "elevation")
+    model_props.background_fill_color = elevation_color(elevation, theme, dark)
+    model_props.border_line_alpha = dark ? 0 : 1
+    model_props.title_text_color = theme.palette.text.primary
+    model_props.title_text_font = font_family
+    model_props.label_text_color = theme.palette.text.primary
+    model_props.label_text_font = font_family
+  } else if (model_type.endsWith("ColorBar")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    const elevation = find_on_parent(view, "elevation")
+    model_props.background_fill_color = elevation_color(elevation, theme, dark)
+    model_props.title_text_color = theme.palette.text.primary
+    model_props.title_text_font = font_family
+    model_props.major_label_text_color = theme.palette.text.primary
+    model_props.major_label_text_font = font_family
+  } else if (model_type.endsWith("Title")) {
+    model_props.text_color = theme.palette.text.primary
+    model_props.text_font = font_family
+  } else if (model_type.endsWith("Grid")) {
+    model_props.grid_line_color = theme.palette.text.primary
+    model_props.grid_line_alpha = dark ? 0.25 : 0.1
+  } else if (model_type.endsWith("Figure")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    const elevation = find_on_parent(view, "elevation")
+    model_props.background_fill_color = theme.palette.background.paper
+    model_props.border_fill_color = elevation_color(elevation, theme, dark)
+    model_props.outline_line_color = theme.palette.text.primary
+    model_props.outline_line_alpha = dark ? 0.25 : 0
+  } else if (model_type.endsWith("Toolbar")) {
+    const stylesheet = `.bk-right.bk-active, .bk-above.bk-active {
+--highlight-color: ${theme.palette.primary.main} !important;
+    }`
+    model_props.stylesheets = [...model.stylesheets, stylesheet]
+  }
+  if (Object.keys(model_props).length > 0) {
+    model.setv(model_props)
+  }
 }
 
 export function render_theme_config(props, theme_config, dark_theme) {
@@ -310,6 +396,7 @@ export function render_theme_config(props, theme_config, dark_theme) {
 export const setup_global_styles = (theme) => {
   let global_style_el = document.querySelector("#global-styles-panel-mui")
   const template_style_el = document.querySelector("#template-styles")
+  const theme_ref = React.useRef(theme)
   if (!global_style_el) {
     {
       global_style_el = document.createElement("style")
@@ -333,7 +420,45 @@ export const setup_global_styles = (theme) => {
   }
 
   React.useEffect(() => {
-    apply_bokeh_theming(theme)
+    const doc = window.Bokeh.documents[0]
+    const cb = (e) => {
+      if (e.kind !== "ModelChanged") {
+        return
+      }
+      const value = e.value
+      const models = []
+      if (Array.isArray(value)) {
+        value.forEach(v => {
+          if (v.document === doc) {
+            models.push(v)
+          }
+        })
+      } else if (value.document === doc) {
+        models.push(value)
+      }
+      if (models.length === 0) {
+        return
+      }
+      const theme = theme_ref.current
+      const dark = theme.palette.mode === "dark"
+      const font_family = theme.typography.fontFamily.join(", ")
+      models.forEach(model => {
+        model.references().forEach((ref) => {
+          apply_bokeh_theme(ref, theme, dark, font_family)
+        })
+        apply_bokeh_theme(model, theme, dark, font_family)
+      })
+    }
+    doc.on_change(cb)
+    return () => doc.remove_on_change(cb)
+  }, [])
+
+  React.useEffect(() => {
+    theme_ref.current = theme
+    const dark = theme.palette.mode === "dark"
+    const doc = window.Bokeh.documents[0]
+    const font_family = theme.typography.fontFamily.join(", ")
+    doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family))
     global_style_el.textContent = render_theme_css(theme)
     const style_objs = theme.generateStyleSheets()
     const css = style_objs
