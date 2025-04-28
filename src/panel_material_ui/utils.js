@@ -322,24 +322,36 @@ export const install_theme_hooks = (props) => {
   const merge_theme_configs = (view) => {
     let current = view
     const theme_configs = []
+    const views = []
     while (current != null) {
       if (current.model?.data?.theme_config != null) {
         const config = current.model.data.theme_config
+        views.push(current)
         theme_configs.push(config.dark && config.light ? config[dark_theme ? "dark" : "light"] : config)
       }
       current = current.parent
     }
-    return theme_configs.reverse().reduce((acc, config) => deepmerge(acc, config), {})
+    const merged = theme_configs.reverse().reduce((acc, config) => deepmerge(acc, config), {})
+    return [merged, views]
   }
 
-  const [theme_config, setThemeConfig] = React.useState(merge_theme_configs(props.view))
+  const [merged_config, views] = merge_theme_configs(props.view)
+  const [theme_config, setThemeConfig] = React.useState(merged_config)
+  React.useEffect(() => {
+    const cb = () => setThemeConfig(merge_theme_configs(props.view)[0])
+    for (const view of views) {
+      view.model_proxy.on("theme_config", cb)
+    }
+    return () => {
+      for (const view of views) {
+        view.model_proxy.off("theme_config", cb)
+      }
+    }
+  }, [])
   const theme = React.useMemo(() => {
     const config = render_theme_config(props, theme_config, dark_theme)
     return createTheme(config)
   }, [dark_theme, theme_config])
-
-  // If local theme_config is updated update theme
-  React.useEffect(() => setThemeConfig(merge_theme_configs(props.view)), [own_theme_config])
 
   // Sync local dark_mode with global dark mode
   const isFirstRender = React.useRef(true)
@@ -372,4 +384,44 @@ export const install_theme_hooks = (props) => {
     }
   }, [theme])
   return theme
+}
+
+export function apply_flex(view, direction) {
+  const sizing = view.box_sizing()
+  const flex = (() => {
+    const policy = direction == "row" ? sizing.width_policy : sizing.height_policy
+    const size = direction == "row" ? sizing.width : sizing.height
+    const basis = size != null ? px(size) : "auto"
+    switch (policy) {
+      case "auto":
+      case "fixed": return `0 0 ${basis}`
+      case "fit": return "1 1 auto"
+      case "min": return "0 1 auto"
+      case "max": return "1 0 0px"
+    }
+  })()
+
+  const align_self = (() => {
+    const policy = direction == "row" ? sizing.height_policy : sizing.width_policy
+    switch (policy) {
+      case "auto":
+      case "fixed":
+      case "fit":
+      case "min": return direction == "row" ? sizing.valign : sizing.halign
+      case "max": return "stretch"
+    }
+  })()
+
+  view.parent_style.append(":host", {flex, align_self})
+
+  // undo `width/height: 100%` and let `align-self: stretch` do the work
+  if (direction == "row") {
+    if (sizing.height_policy == "max") {
+      view.parent_style.append(":host", {height: "auto"})
+    }
+  } else {
+    if (sizing.width_policy == "max") {
+      view.parent_style.append(":host", {width: "auto"})
+    }
+  }
 }

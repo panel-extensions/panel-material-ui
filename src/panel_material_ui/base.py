@@ -15,19 +15,30 @@ The base module provides core functionality including:
 """
 from __future__ import annotations
 
+import base64
 import inspect
+import io
+import json
+import os
 import pathlib
 import re
 import textwrap
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal
 
+import panel
 import param
+from bokeh.embed.bundle import URL
 from bokeh.settings import settings as _settings
+from jinja2 import Environment, FileSystemLoader, Template
+from markupsafe import Markup
 from panel.config import config
 from panel.custom import ReactComponent
+from panel.io.location import Location
+from panel.io.resources import Resources
 from panel.io.state import state
 from panel.models import ReactComponent as BkReactComponent
+from panel.pane import HTML
 from panel.param import Param
 from panel.util import base_version, classproperty
 from panel.viewable import Viewable
@@ -53,6 +64,38 @@ RE_IMPORT = re.compile(r'import\s+(\w+)\s+from\s+[\'"]@mui/material/(\w+)[\'"]')
 RE_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
 RE_NAMED_IMPORT = re.compile(r'import\s+{([^}]+)}\s+from\s+[\'"]@mui/material[\'"]')
 RE_NAMED_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
+
+def get_env():
+    ''' Get the correct Jinja2 Environment, also for frozen scripts.
+    '''
+    internal_path = pathlib.Path(__file__).parent /  '_templates'
+    return Environment(loader=FileSystemLoader([
+        str(internal_path.resolve())
+    ]))
+
+def conffilter(value):
+    return json.dumps(dict(value)).replace('"', '\'')
+
+class json_dumps(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, URL):
+            return str(obj)
+        return super().default(obj)
+
+_env = get_env()
+_env.trim_blocks = True
+_env.lstrip_blocks = True
+_env.filters['json'] = lambda obj: Markup(json.dumps(obj, cls=json_dumps))
+_env.filters['conffilter'] = conffilter
+_env.filters['sorted'] = sorted
+
+BASE_TEMPLATE = _env.get_template('base.html')
+panel.io.resources.BASE_TEMPLATE = BASE_TEMPLATE
+
+try:
+    panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
+except AttributeError:
+    pass
 
 
 class ESMTransform:
@@ -357,6 +400,75 @@ class MaterialComponent(ReactComponent):
             return Tabs(controls.layout[0], style.layout[0])
         elif params:
             return controls.layout[0]
+
+    def save(
+        self,
+        filename: str | os.PathLike | io.IO,
+        title: str | None = None,
+        resources: Resources | None = None,
+        template: str | Template | None = None,
+        template_variables: dict[str, Any] | None = None,
+        **kwargs
+    ) -> None:
+        from .template import ThemeToggle
+        if template is None:
+            template = BASE_TEMPLATE
+        if not template_variables:
+            template_variables = {}
+        if any(isinstance(c, ThemeToggle) for c in self.select()):
+            template_variables['is_page'] = True
+        super().save(
+            filename,
+            title,
+            resources,
+            template,
+            template_variables,
+            **kwargs
+        )
+
+    def server_doc(
+        self, doc: Document | None = None, title: str | None = None,
+        location: bool | Location | None = True
+    ) -> Document:
+        doc = super().server_doc(doc, title, location)
+        doc.title = title or self.title or self.meta.title or 'Panel Application'
+        doc.template = BASE_TEMPLATE
+        doc.template_variables['is_page'] = True
+        return doc
+
+    def preview(self, width: int = 800, height: int = 600, **kwargs):
+        """
+        Render the page as an iframe.
+
+        Since the Page component assumes it is the root component
+        this approach provides a way to see a preview of the rendered
+        page.
+
+        Parameters
+        ----------
+        width: int
+            The width of the iframe.
+        height: int
+            The height of the iframe.
+        kwargs: dict
+            Additional keyword arguments to pass to the HTML pane.
+
+        Returns
+        -------
+        HTML
+            An HTML pane containing the rendered page.
+        """
+        export = io.StringIO()
+        self.save(export)
+        export.seek(0)
+        html_content = export.read()
+        encoded_html = base64.b64encode(
+            html_content.encode('utf-8')
+        ).decode('utf-8')
+        return HTML(
+            f"""
+        <iframe src="data:text/html;base64,{encoded_html}" width="100%" height="100%" style="border:1px solid #ccc;"></iframe>
+        """, width=width, height=height, **kwargs)
 
 
 class MaterialUIComponent(MaterialComponent):
