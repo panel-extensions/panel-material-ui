@@ -431,7 +431,7 @@ class MaterialComponent(ReactComponent):
         location: bool | Location | None = True
     ) -> Document:
         doc = super().server_doc(doc, title, location)
-        doc.title = title or self.title or self.meta.title or 'Panel Application'
+        doc.title = title or 'Panel Application'
         doc.template = BASE_TEMPLATE
         doc.template_variables['is_page'] = True
         return doc
