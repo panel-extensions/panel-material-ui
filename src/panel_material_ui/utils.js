@@ -215,6 +215,17 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
 --highlight-color: ${theme.palette.primary.main} !important;
     }`
     model_props.stylesheets = [...model.stylesheets, stylesheet]
+  } else if (model_type.endsWith("Tooltip")) {
+    model.stylesheets = [...model.stylesheets, `
+      .bk-tooltip-row-label {
+        color: ${theme.palette.primary.main} !important;
+      `
+    ]
+  } else if (model_type.endsWith("HoverTool")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    view.ttmodels.forEach(ttmodel => {
+      apply_bokeh_theme(ttmodel, theme, dark, font_family)
+    })
   }
   if (Object.keys(model_props).length > 0) {
     model.setv(model_props)
