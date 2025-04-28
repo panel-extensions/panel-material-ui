@@ -155,6 +155,7 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
     def clear(self):
         for notification in self.notifications:
             notification.param.unwatch(self._notification_watchers.pop(notification))
+            self._send_msg({'type': 'destroy', 'uuid': notification._uuid})
         self.notifications = []
 
     def _handle_msg(self, msg):
