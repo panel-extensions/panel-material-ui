@@ -143,6 +143,13 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
         )
         self.notifications.append(notification)
         self.param.trigger('notifications')
+        self._send_msg({
+            'type': 'enqueue',
+            'notification': {
+                k: v for k, v in notification.param.values().items()
+                if k != 'notification_area'
+            }
+        })
         return notification
 
     def clear(self):
@@ -150,11 +157,16 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
             notification.param.unwatch(self._notification_watchers.pop(notification))
         self.notifications = []
 
+    def _handle_msg(self, msg):
+        if msg['type'] == 'destroy':
+            self.notifications = [n for n in self.notifications if n._uuid != msg['uuid']]
+
     def _remove_notification(self, event):
         if event.obj in self.notifications:
             self.notifications.remove(event.obj)
         event.obj.param.unwatch(self._notification_watchers.pop(event.obj))
         self.param.trigger('notifications')
+        self._send_msg({'type': 'destroy', 'uuid': event.obj._uuid})
 
 
 _state._notification_type = NotificationArea

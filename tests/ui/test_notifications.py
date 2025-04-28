@@ -83,11 +83,9 @@ def test_notifications_destroy(page):
 
     serve_component(page, app)
 
-    page.locator('.bk-btn').nth(0).click()
-
-    messages = page.locator('.MuiAlert-message')
-
     # Add and destroy two notifications
+    messages = page.locator('.MuiAlert-message')
+    page.locator('.bk-btn').nth(0).click()
     expect(messages).to_have_count(2)
     page.locator('.bk-btn').nth(1).click()
     expect(messages).to_have_count(1)
