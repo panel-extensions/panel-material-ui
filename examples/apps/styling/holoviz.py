@@ -1,26 +1,22 @@
-# Default options
+from copy import deepcopy
 
-import panel as pn
-import panel_material_ui as pmu
+import colorsys
 import holoviews as hv
 import hvplot.pandas
 import numpy as np
-import colorsys
+import panel as pn
+import panel_material_ui as pmu
 import pandas as pd
+
 from bokeh.themes._light_minimal import json as BOKEH_LIGHT
 from bokeh.themes._dark_minimal import json as BOKEH_DARK
 from bokeh.themes import Theme
-from copy import deepcopy
 import matplotlib.colors as mcolors
 from bokeh.models import HoverTool
 
 pn.extension(sizing_mode="stretch_width")
+
 pmu.Paper.margin = 10
-
-# def disable_logo(plot, element):
-#     plot.state.toolbar.logo = None
-# hv.plotting.bokeh.ElementPlot.hooks.append(disable_logo)
-
 
 def get_hook(color: str = "salmon"):
     def hook(plot, element, color=color):
@@ -74,38 +70,7 @@ def get_continous_color_map(color: str):
     )
 
 
-def get_bokeh_theme(dark_theme: bool, font_family: str = "Helvetica"):
-    if dark_theme:
-        json = BOKEH_DARK
-    else:
-        json = BOKEH_LIGHT
-
-    json = deepcopy(json)
-    for key1, val1 in json.items():
-        for key2, val2 in val1.items():
-            for key3 in val2:
-                if key3.endswith("_font"):
-                    json[key1][key2][key3] = font_family
-
-    return Theme(json=json)
-
-
 # App Code
-
-
-@pn.cache
-def get_theme_config(primary_color, font_family="fantasy"):
-    return {
-        "palette": {
-            "primary": {
-                "main": primary_color,
-            },
-        },
-        "typography": {
-            "fontFamily": (font_family,),
-        },
-    }
-
 
 @pn.cache
 def get_data(n_categories: int, n_rows=100):
@@ -182,19 +147,31 @@ def get_continous_plot(color="#9c27b0", font_family: str = "Roboto"):
 
 
 paper = pmu.Checkbox(value=True, name="Paper", sizing_mode="fixed", align="center")
+
 theme = pmu.ThemeToggle(sizing_mode="fixed", align="center")
+
 font_family = pmu.Select(name="Font", options=["Roboto", "Impact", "Palatino Linotype"])
 
 primary_color = pmu.ColorPicker(
     value="#9c27b0",
     name="Primary Color",
 )
-theme_config = pn.bind(get_theme_config, primary_color, font_family)
+
+theme_config = {
+    "palette": {
+        "primary": {
+            "main": primary_color,
+        },
+    },
+    "typography": {
+        "fontFamily": (font_family,),
+    },
+}
+
 n_colors = pmu.IntSlider(
     value=3,
     start=1,
     end=10,
-    theme_config=theme_config,
     name="Categories",
 )
 
@@ -208,16 +185,15 @@ categorical_plot = pn.bind(
     font_family=font_family,
 )
 
-bokeh_theme = pn.bind(get_bokeh_theme, theme, font_family)
 categorical_pane = pn.pane.HoloViews(
-    categorical_plot, theme=bokeh_theme, sizing_mode="stretch_width"
+    categorical_plot, sizing_mode="stretch_width"
 )
 
 continous_plot = pn.bind(
     get_continous_plot, color=primary_color, font_family=font_family
 )
 continous_pane = pn.pane.HoloViews(
-    continous_plot, theme=bokeh_theme, sizing_mode="stretch_width"
+    continous_plot, sizing_mode="stretch_width"
 )
 
 action_row = pn.Row(paper, primary_color, n_colors, font_family, pn.HSpacer(), theme)
@@ -225,10 +201,9 @@ colors_out = pmu.TextInput(
     value=pn.bind(lambda c: ", ".join(c), colors),
     name="Categorical Colors",
     disabled=True,
-    theme_config=theme_config,
 )
-button_out = pmu.Button(name="Click Me", color="primary", theme_config=theme_config)
-column_out = pn.Column(colors_out, button_out, LORUM_IPSUM)
+button_out = pmu.Button(label="Click Me", color="primary")
+column_out = pmu.Column(colors_out, button_out, LORUM_IPSUM)
 
 
 @pn.depends(paper)
@@ -239,12 +214,11 @@ def get_layout(paper: bool):
             pmu.Paper(categorical_pane),
             pmu.Paper(continous_pane),
             pmu.Paper(column_out),
-            max_width=800,
         )
     else:
-        return pn.Column(
-            action_row, categorical_pane, continous_pane, column_out, max_width=800
+        return pmu.Column(
+            action_row, categorical_pane, continous_pane, column_out
         )
 
 
-pn.panel(get_layout).servable()
+pmu.Container(get_layout, theme_config=theme_config, width_option='md').servable()
