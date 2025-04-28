@@ -39,10 +39,10 @@ export function render({model, view}) {
       value={active}
       onChange={handleChange}
       orientation={orientation}
-      variant="scrollable"
       scrollButtons="auto"
       TabIndicatorProps={{style: {backgroundColor: theme.palette[color].main}}}
       sx={{transition: "height 0.3s", ...sx}}
+      variant="scrollable"
     >
       {names.map((label, index) => (
         <Tab
