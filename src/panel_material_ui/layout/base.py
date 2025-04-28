@@ -483,6 +483,12 @@ class Dialog(MaterialListLike):
     title = param.String(default="", doc="""
         The title of the dialog.""")
 
+    scroll = param.Selector(objects=["body", "paper"], default="paper", doc="""
+        Whether the dialog should scroll the content or the paper.""")
+
+    width_option = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="sm", doc="""
+        The width of the dialog.""")
+
     _esm_base = "Dialog.jsx"
 
 
