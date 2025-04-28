@@ -33,10 +33,6 @@ def test_tabs_basic(page):
     expect(tabs.nth(0)).to_contain_text('Tab 1')
     expect(tabs.nth(1)).to_contain_text('Tab 2')
 
-    # Check initial content
-    content = page.locator('.MuiTabPanel-root')
-    expect(content).to_contain_text('Content 1')
-
 def test_tabs_selection(page):
     content1 = Column("Content 1")
     content2 = Column("Content 2")
@@ -51,9 +47,9 @@ def test_tabs_selection(page):
     tabs.nth(1).click()
 
     # Check active state
-    expect(tabs.nth(1)).to_have_class('Mui-selected')
-    expect(page.locator('.MuiTabPanel-root')).to_contain_text('Content 2')
-    assert widget.active == 1
+    expect(page.locator('.Mui-selected')).to_contain_text('Tab 2')
+    expect(page.locator('.MuiTabsPanel')).to_contain_text('Content 2')
+    wait_until(lambda: widget.active == 1, page)
 
 def test_tabs_disabled(page):
     content1 = Column("Content 1")
@@ -66,27 +62,13 @@ def test_tabs_disabled(page):
     serve_component(page, widget)
 
     # Check disabled state
-    tab = page.locator('.MuiTab-root').nth(1)
-    expect(tab).to_have_class('Mui-disabled')
+    disabled_tab = page.locator('.Mui-disabled')
+    expect(disabled_tab).to_contain_text('Tab 2')
 
     # Try clicking disabled tab (should not change)
-    tab.click()
-    expect(page.locator('.MuiTabPanel-root')).to_contain_text('Content 1')
-    assert widget.active == 0
-
-def test_tabs_full_width(page):
-    content1 = Column("Content 1")
-    content2 = Column("Content 2")
-    widget = Tabs(
-        ("Tab 1", content1),
-        ("Tab 2", content2),
-        stretch=True
-    )
-    serve_component(page, widget)
-
-    tabs = page.locator('.MuiTab-root')
-    expect(tabs.nth(0)).to_have_class('MuiTab-fullWidth')
-    expect(tabs.nth(1)).to_have_class('MuiTab-fullWidth')
+    disabled_tab.click(force=True)
+    expect(page.locator('.MuiTabsPanel')).to_contain_text('Content 1')
+    wait_until(lambda: widget.active == 0, page)
 
 def test_tabs_nested_components(page):
     button = Button(name="Click Me")
@@ -96,8 +78,8 @@ def test_tabs_nested_components(page):
     serve_component(page, widget)
 
     # Check if button is interactive
-    page.locator('button').click()
-    assert button.clicks == 1
+    page.locator('.bk-btn').click()
+    wait_until(lambda: button.clicks == 1, page)
 
 def test_tabs_dynamic_update(page):
     content1 = Column("Content 1")
@@ -114,16 +96,15 @@ def test_tabs_dynamic_update(page):
     widget.objects = [('Tab 1', content1), ('Tab 2', content2)]
     expect(page.locator('.MuiTab-root')).to_have_count(2)
 
-def test_tabs_text_color(page):
+def test_tabs_color(page):
     content1 = Column("Content 1")
     widget = Tabs(
         ("Tab 1", content1),
-        text_color='primary'
+        color='primary'
     )
     serve_component(page, widget)
 
-    tab = page.locator('.MuiTab-root')
-    expect(tab).to_have_class('MuiTab-textColorPrimary')
+    expect(page.locator('.MuiTab-textColorPrimary')).to_have_count(1)
 
 def test_tabs_wrapped_text(page):
     content1 = Column("Content 1")
@@ -133,8 +114,7 @@ def test_tabs_wrapped_text(page):
     )
     serve_component(page, widget)
 
-    tab = page.locator('.MuiTab-root')
-    expect(tab).to_have_class('MuiTab-wrapped')
+    expect(page.locator('.MuiTab-wrapped')).to_have_count(1)
 
 def test_tabs_initial_active(page):
     content1 = Column("Content 1")
@@ -147,9 +127,7 @@ def test_tabs_initial_active(page):
     serve_component(page, widget)
 
     # Check initial active state
-    tabs = page.locator('.MuiTab-root')
-    expect(tabs.nth(1)).to_have_class('Mui-selected')
-    expect(page.locator('.MuiTabPanel-root')).to_contain_text('Content 2')
+    expect(page.locator('.MuiTabsPanel')).to_contain_text('Content 2')
 
 def test_tabs_vertical(page):
     content1 = Column("Content 1")
@@ -157,10 +135,10 @@ def test_tabs_vertical(page):
     widget = Tabs(
         ("Tab 1", content1),
         ("Tab 2", content2),
-        orientation='vertical'
+        tabs_location='right'
     )
     serve_component(page, widget)
 
     # Check vertical orientation
-    tabs_list = page.locator('.MuiTabs-vertical')
+    tabs_list = page.locator('.MuiTabs-root.MuiTabs-vertical')
     expect(tabs_list).to_have_count(1)

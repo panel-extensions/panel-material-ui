@@ -8,9 +8,11 @@ export function render({model, view}) {
   const [centered] = model.useState("centered")
   const [closable] = model.useState("closable")
   const [color] = model.useState("color")
+  const [disabled] = model.useState("disabled")
   const [location] = model.useState("tabs_location")
   const [names] = model.useState("_names")
   const [sx] = model.useState("sx")
+  const [wrapped] = model.useState("wrapped")
   const objects = model.get_child("objects")
 
   const theme = useTheme()
@@ -40,13 +42,20 @@ export function render({model, view}) {
       onChange={handleChange}
       orientation={orientation}
       scrollButtons="auto"
-      TabIndicatorProps={{style: {backgroundColor: theme.palette[color].main}}}
+      TabIndicatorProps={{
+        sx: {
+          backgroundColor: theme.palette[color].main,
+          ...(location === "right" && {left: 0, right: 'auto', width: 3}),
+          ...(location === "bottom" && {top: 0, bottom: 'auto', height: 3}),
+        },
+      }}
       sx={{transition: "height 0.3s", ...sx}}
       variant="scrollable"
     >
       {names.map((label, index) => (
         <Tab
           key={index}
+          disabled={disabled.includes(index)}
           label={
             closable ? (
               <Box sx={{display: "flex", alignItems: "center"}}>
@@ -65,12 +74,13 @@ export function render({model, view}) {
               </Box>
             ) : label
           }
+          wrapped={wrapped}
         />
       ))}
     </Tabs>
   )
   return (
-    <Box sx={{display: "flex", flexDirection: (location === "left" || location === "right") ? "row" : "column", height: "100%", maxWidth: "100%"}}  >
+    <Box className="MuiTabsPanel" sx={{display: "flex", flexDirection: (location === "left" || location === "right") ? "row" : "column", height: "100%", maxWidth: "100%"}}  >
       { (location === "left" || location === "above") && tabs }
       <Box sx={{flexGrow: 1, minWidth: 0}}>
         {objects[active]}
