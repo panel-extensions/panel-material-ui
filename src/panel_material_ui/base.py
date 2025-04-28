@@ -126,7 +126,9 @@ class ThemedTransform(ESMTransform):
 
     _transform = """\
 import * as React from "react"
-import 'material-icons/iconfont/material-icons.css';
+import '@fontsource/material-icons/400.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/700.css';
 import {{ ThemeProvider }} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import {{install_theme_hooks}} from "./utils"
@@ -219,8 +221,10 @@ class MaterialComponent(ReactComponent):
             "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.28.0",
             "mui-color-input": "https://esm.sh/mui-color-input@6.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
-            "material-icons/": "https://esm.sh/material-icons@1.13.14/",
-            "notistack": "https://esm.sh/notistack@3.0.2"
+            "notistack": "https://esm.sh/notistack@3.0.2",
+            "@fontsource/material-icons": "https://esm.sh/@fontsource/material-icons@5.2.5",
+            "@fontsource/material-icons-outlined": "https://esm.sh/@fontsource/material-icons@5.2.5",
+            "@fontsource/roboto/": "https://esm.sh/@fontsource/roboto@5.2.5/"
         }
     }
     _rename = {'loading': 'loading'}
@@ -270,8 +274,13 @@ class MaterialComponent(ReactComponent):
             return [CDN_DIST.replace('.js', '.css')]
         esm_path = cls._esm_path(compiled=True)
         css_path = esm_path.with_suffix('.css')
+        glob = (BASE_PATH / 'dist').glob
         if css_path.is_file():
-            return [str(css_path)] + [str(p) for p in (BASE_PATH / 'dist').glob('material-icons-*.woff*')]
+            return [str(css_path)] + [
+                str(p) for p in glob('material-icons-latin-400-normal*.woff*')
+            ] + [
+                str(p) for p in glob('roboto-latin-*00-normal*.woff*')
+            ]
         return []
 
     @classmethod
