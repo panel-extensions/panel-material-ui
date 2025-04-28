@@ -82,8 +82,57 @@ export function render_theme_css(theme) {
       --light-border-subtle: ${dark ? "#495057" : "#e9ecef"};
       --dark-border-subtle: ${dark ? "#343a40" : "#adb5bd"};
       --bokeh-font-size: ${theme.typography.fontSize}px;
+      --bokeh-base-font: ${theme.typography.fontFamily};
     }
   `
+}
+
+export function apply_bokeh_theming(theme) {
+  const dark = theme.palette.mode === "dark"
+  const doc = window.Bokeh.documents[0]
+  const font_family = theme.typography.fontFamily.join(", ")
+  doc.all_models.forEach(model => {
+    const model_props = {}
+    if (model.type.endsWith("Axis")) {
+      model_props.axis_label_text_color = theme.palette.text.primary
+      model_props.axis_label_text_font = font_family
+      model_props.axis_line_alpha = dark ? 0 : 1
+      model_props.axis_line_color = theme.palette.text.primary
+      model_props.major_label_text_color = theme.palette.text.primary
+      model_props.major_label_text_font = font_family
+      model_props.major_tick_line_alpha = dark ? 0 : 1
+      model_props.major_tick_line_color = theme.palette.text.primary
+      model_props.minor_tick_line_alpha = dark ? 0 : 1
+      model_props.minor_tick_line_color = theme.palette.text.primary
+    } else if (model.type.endsWith("Legend")) {
+      model_props.background_fill_color = theme.palette.background.paper
+      model_props.border_line_alpha = dark ? 0 : 1
+      model_props.title_text_color = theme.palette.text.primary
+      model_props.title_text_font = font_family
+      model_props.label_text_color = theme.palette.text.primary
+      model_props.label_text_font = font_family
+    } else if (model.type.endsWith("ColorBar")) {
+      model_props.background_fill_color = theme.palette.background.paper
+      model_props.title_text_color = theme.palette.text.primary
+      model_props.title_text_font = font_family
+      model_props.major_label_text_color = theme.palette.text.primary
+      model_props.major_label_text_font = font_family
+    } else if (model.type.endsWith("Title")) {
+      model_props.text_color = theme.palette.text.primary
+      model_props.text_font = font_family
+    } else if (model.type.endsWith("Grid")) {
+      model_props.grid_line_color = theme.palette.text.primary
+      model_props.grid_line_alpha = dark ? 0.25 : 0.1
+    } else if (model.type.endsWith("Figure")) {
+      model_props.background_fill_color = theme.palette.background.default
+      model_props.border_fill_color = theme.palette.background.paper
+      model_props.outline_line_color = theme.palette.text.primary
+      model_props.outline_line_alpha = dark ? 0.25 : 0
+    }
+    if (Object.keys(model_props).length > 0) {
+      model.setv(model_props)
+    }
+  })
 }
 
 export function render_theme_config(props, theme_config, dark_theme) {
@@ -284,6 +333,7 @@ export const setup_global_styles = (theme) => {
   }
 
   React.useEffect(() => {
+    apply_bokeh_theming(theme)
     global_style_el.textContent = render_theme_css(theme)
     const style_objs = theme.generateStyleSheets()
     const css = style_objs
@@ -386,12 +436,16 @@ export const install_theme_hooks = (props) => {
   return theme
 }
 
+export function isNumber(obj) {
+  return toString.call(obj) === "[object Number]"
+}
+
 export function apply_flex(view, direction) {
   const sizing = view.box_sizing()
   const flex = (() => {
     const policy = direction == "row" ? sizing.width_policy : sizing.height_policy
     const size = direction == "row" ? sizing.width : sizing.height
-    const basis = size != null ? px(size) : "auto"
+    const basis = size != null ? (isNumber(size) ? `${size}px` : value) : "auto"
     switch (policy) {
       case "auto":
       case "fixed": return `0 0 ${basis}`
