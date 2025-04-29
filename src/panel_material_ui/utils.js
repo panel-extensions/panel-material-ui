@@ -505,14 +505,6 @@ export const install_theme_hooks = (props) => {
     props.view.container.className = `${props.view.container.className} ${themeClass}`.trim()
   }
 
-  // If the page has a data-theme attribute (e.g. from pydata-sphinx-theme), use it to set the dark theme
-  const page_theme = document.documentElement.dataset.theme
-  if (page_theme === "dark") {
-    setDarkTheme(true)
-  } else if (page_theme === "light") {
-    setDarkTheme(false)
-  }
-
   const merge_theme_configs = (view) => {
     let current = view
     const theme_configs = []
@@ -559,6 +551,14 @@ export const install_theme_hooks = (props) => {
   }, [dark_theme])
 
   React.useEffect(() => {
+    // If the page has a data-theme attribute (e.g. from pydata-sphinx-theme), use it to set the dark theme
+    const page_theme = document.documentElement.dataset.theme
+    if (page_theme === "dark") {
+      setDarkTheme(true)
+    } else if (page_theme === "light") {
+      setDarkTheme(false)
+    }
+
     const cb = (val) => setDarkTheme(val)
     if (document.documentElement.dataset.themeManaged === "true") {
       dark_mode.subscribe(cb)
