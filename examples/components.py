@@ -13,8 +13,6 @@ from panel_material_ui.template import Page
 import param
 pn.extension(defer_load=True, notifications=True)
 
-pn.config.design = MaterialDesign
-
 primary_color = ColorPicker(value='#404db0', name='Primary', sizing_mode='stretch_width')
 secondary_color = ColorPicker(value='#ee8349', name='Secondary', sizing_mode='stretch_width')
 paper_color = ColorPicker(value='#ffffff', name='Paper', sizing_mode='stretch_width')
