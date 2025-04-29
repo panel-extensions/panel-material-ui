@@ -540,3 +540,19 @@ class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
 
     _slider_widget = IntSlider
     _input_widget = IntInput
+
+
+__all__ = [
+    "DateSlider",
+    "DatetimeSlider",
+    "DateRangeSlider",
+    "DatetimeRangeSlider",
+    "DiscreteSlider",
+    "EditableFloatSlider",
+    "EditableIntSlider",
+    "FloatSlider",
+    "IntRangeSlider",
+    "IntSlider",
+    "RangeSlider",
+    "Rating"
+]
