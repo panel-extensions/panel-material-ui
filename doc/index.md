@@ -22,6 +22,10 @@ Access a growing collection of Material UI–inspired components (Buttons, Slide
 - **Powerful Theming Inheritance**
   Define a theme at a parent level and let it automatically apply to child components without extra configuration, reducing repetitive code while maintaining consistent branding.
 
+```{notebook} panel ../examples/homepage.ipynb
+:disable_interactivity_warning: True
+```
+
 ## Getting Started
 
 Install Panel Material UI
