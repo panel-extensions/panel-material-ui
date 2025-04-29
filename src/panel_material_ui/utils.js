@@ -215,6 +215,17 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
 --highlight-color: ${theme.palette.primary.main} !important;
     }`
     model_props.stylesheets = [...model.stylesheets, stylesheet]
+  } else if (model_type.endsWith("Tooltip")) {
+    model.stylesheets = [...model.stylesheets, `
+      .bk-tooltip-row-label {
+        color: ${theme.palette.primary.main} !important;
+      `
+    ]
+  } else if (model_type.endsWith("HoverTool")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    view.ttmodels.forEach(ttmodel => {
+      apply_bokeh_theme(ttmodel, theme, dark, font_family)
+    })
   }
   if (Object.keys(model_props).length > 0) {
     model.setv(model_props)
@@ -441,7 +452,11 @@ export const setup_global_styles = (theme) => {
       }
       const theme = theme_ref.current
       const dark = theme.palette.mode === "dark"
-      const font_family = theme.typography.fontFamily.join(", ")
+      const font_family = Array.isArray(theme.typography.fontFamily) ? (
+        theme.typography.fontFamily.join(", ")
+      ) : (
+        theme.typography.fontFamily
+      )
       models.forEach(model => {
         model.references().forEach((ref) => {
           apply_bokeh_theme(ref, theme, dark, font_family)
@@ -457,7 +472,11 @@ export const setup_global_styles = (theme) => {
     theme_ref.current = theme
     const dark = theme.palette.mode === "dark"
     const doc = window.Bokeh.documents[0]
-    const font_family = theme.typography.fontFamily.join(", ")
+    const font_family = Array.isArray(theme.typography.fontFamily) ? (
+      theme.typography.fontFamily.join(", ")
+    ) : (
+      theme.typography.fontFamily
+    )
     doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family))
     global_style_el.textContent = render_theme_css(theme)
     const style_objs = theme.generateStyleSheets()
