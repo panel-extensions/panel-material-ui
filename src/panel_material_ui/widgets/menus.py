@@ -126,7 +126,7 @@ class MenuBase(MaterialWidget):
             index = tuple(index)
         value = self._lookup_item(index)
         if msg['type'] == 'click':
-            if value.get('selectable', True):
+            if not isinstance(value, dict) or value.get('selectable', True):
                 self.param.update(active=index, value=value)
             for fn in self._on_click_callbacks:
                 try:

@@ -72,7 +72,37 @@ Dive into the Material Design color system. Create harmonious palettes, pick acc
 [Learn more »](color)
 :::
 
+:::{grid-item-card} {octicon}`image;2.5em;sd-mr-1` Icons
+:link: icons
+:link-type: doc
+
+Learn how to use icons in **panel-material-ui**.
+
++++
+[Learn more »](icons)
+:::
+
 ::::
+
+## Integrations
+
+Discover **panel-material-ui** integrates with different libraries to create beautiful, theme-aware plots, tables and more.
+
+::::{grid} 1 2 2 3
+:gutter: 1 1 1 2
+
+:::{grid-item-card} {octicon}`project;2.5em;sd-mr-1` Bokeh, hvPlot and HoloViews
+:link: bokeh_holoviews
+:link-type: doc
+
+Integrate **panel-material-ui** with **Bokeh**, **hvPlot** and **HoloViews** to create beautiful, theme-aware plots.
+
++++
+[Learn more »](bokeh_holoviews)
+:::
+
+::::
+
 
 ## Where to go next?
 
@@ -90,4 +120,5 @@ typography
 components
 dark_mode
 color
+bokeh_holoviews
 ```

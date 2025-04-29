@@ -5,78 +5,76 @@ import {useTheme} from "@mui/material/styles"
 
 function NotificationArea({model, view}) {
   const {enqueueSnackbar, closeSnackbar} = useSnackbar()
-  const [notifications, setNotifications] = model.useState("notifications")
   const [position] = model.useState("position")
-  const enqueuedNotifications = React.useRef(new Set())
-  const deletedNotifications = React.useRef(new Set())
   const theme = useTheme()
 
-  React.useEffect(() => {
-    // Delete notifications that are not in the notifications list
-    Array.from(enqueuedNotifications.current.values()).filter(key => !notifications.find(n => n._uuid === key)).forEach(key => {
-      closeSnackbar(key)
-    })
+  const enqueueNotification = (notification) => {
+    let background, icon, type
+    if (model.types.find(t => t.type === notification.notification_type)) {
+      type = model.types.find(t => t.type === notification.notification_type)
+      background = notification.background || type.background
+      icon = notification.icon || type.icon
+    } else {
+      type = notification.notification_type
+      background = notification.background
+      icon = notification.icon
+    }
 
-    // Iterate over notifications and enqueue them
-    notifications.forEach((notification) => {
-      if (deletedNotifications.current.has(notification._uuid)) {
-        setNotifications(notifications.filter(n => n._uuid !== notification._uuid))
-      } else if (!enqueuedNotifications.current.has(notification._uuid)) {
-
-        let background, icon, type
-        if (model.types.find(t => t.type === notification.notification_type)) {
-          type = model.types.find(t => t.type === notification.notification_type)
-          background = notification.background || type.background
-          icon = notification.icon || type.icon
-        } else {
-          type = notification.notification_type
-          background = notification.background
-          icon = notification.icon
-        }
-
-        const color = background ? (theme.palette.augmentColor({
-          color: {
-            main: background,
-          }
-        })) : undefined;
-
-        enqueuedNotifications.current.add(notification._uuid)
-        const [vertical, horizontal] = position.split("-")
-        enqueueSnackbar(notification.message, {
-          anchorOrigin: {vertical, horizontal},
-          autoHideDuration: notification.duration,
-          content: (
-            <Alert
-              icon={icon ? <Icon>{icon}</Icon> : undefined}
-              onClose={() => closeSnackbar(notification._uuid)}
-              severity={notification.notification_type}
-              sx={background ? (
-                {
-                  backgroundColor: color.main,
-                  margin: "0.5em 1em",
-                  color: color.contrastText
-                }
-              ) : {margin: "0.5em 1em"}}
-            >
-              {notification.message}
-            </Alert>
-          ),
-          key: notification._uuid,
-          onClose: () => {
-            deletedNotifications.current.add(notification._uuid)
-            setNotifications(notifications.filter(n => n._uuid !== notification._uuid))
-            enqueuedNotifications.current.delete(notification._uuid)
-          },
-          persist: notification.duration === 0,
-          preventDuplicate: true,
-          style: {
-            margin: "1em",
-          },
-          variant: notification.notification_type,
-        });
+    const color = background ? (theme.palette.augmentColor({
+      color: {
+        main: background,
       }
-    });
-  }, [notifications]);
+    })) : undefined;
+
+    const [vertical, horizontal] = position.split("-")
+    enqueueSnackbar(notification.message, {
+      anchorOrigin: {vertical, horizontal},
+      autoHideDuration: notification.duration,
+      content: (
+        <Alert
+          icon={icon ? <Icon>{icon}</Icon> : undefined}
+          onClose={() => closeSnackbar(notification._uuid)}
+          severity={notification.notification_type}
+          sx={background ? (
+            {
+              backgroundColor: color.main,
+              margin: "0.5em 1em",
+              color: color.contrastText
+            }
+          ) : {margin: "0.5em 1em"}}
+        >
+          {notification.message}
+        </Alert>
+      ),
+      key: notification._uuid,
+      onClose: () => {
+        model.notifications = model.notifications.filter(n => n._uuid !== notification._uuid)
+        model.send_msg({
+          type: "destroy",
+          uuid: notification._uuid,
+        })
+      },
+      persist: notification.duration === 0,
+      preventDuplicate: true,
+      style: {
+        margin: "1em",
+      },
+      variant: notification.notification_type,
+    })
+  }
+
+  React.useEffect(() => {
+    for (const notification of model.notifications) {
+      enqueueNotification(notification)
+    }
+    model.on("msg:custom", (msg) => {
+      if (msg.type === "destroy") {
+        closeSnackbar(msg.uuid)
+      } else if (msg.type === "enqueue") {
+        enqueueNotification(msg.notification)
+      }
+    })
+  }, [])
 }
 
 export function render({model, view}) {

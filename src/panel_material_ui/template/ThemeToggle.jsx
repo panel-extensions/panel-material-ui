@@ -13,15 +13,19 @@ export function render({model}) {
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
-  document.documentElement.dataset.themeManaged = "true"
   setup_global_styles(theme)
+
+  React.useEffect(() => {
+    dark_mode.set_value(value)
+    setDarkTheme(value)
+  }, [value])
 
   return (
     <Tooltip enterDelay={500} title="Toggle theme">
       {variant === "switch" ? (
         <FormControlLabel
           control={
-            <Switch checked={value} onChange={(e) => { dark_mode.set_value(!value); setDarkTheme(!value); setValue(!value); }} />
+            <Switch checked={value} onChange={(e) => setValue(!value)} />
           }
           label={value ? "Dark Theme" : "Light Theme"}
         />
@@ -29,7 +33,7 @@ export function render({model}) {
         <IconButton
           aria-label="Toggle theme"
           color="inherit" align="right"
-          onClick={() => { dark_mode.set_value(!value); setDarkTheme(!value); setValue(!value); }}
+          onClick={() => setValue(!value)}
         >
           {value ? <DarkMode /> : <LightMode />}
         </IconButton>
