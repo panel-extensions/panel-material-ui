@@ -59,7 +59,7 @@ STYLE_ALIASES = {"outline": "outlined"}
 
 BASE_PATH = pathlib.Path(__file__).parent
 IS_RELEASE = __version__ == base_version(__version__)
-CDN_BASE = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}"
+CDN_BASE = "https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}"
 CDN_DIST = f"{CDN_BASE}/panel-material-ui.bundle.js"
 RE_IMPORT = re.compile(r'import\s+(\w+)\s+from\s+[\'"]@mui/material/(\w+)[\'"]')
 RE_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
@@ -459,7 +459,7 @@ class MaterialComponent(ReactComponent):
         doc.template_variables['is_page'] = True
         return doc
 
-    def preview(self, width: int = 800, height: int = 600, **kwargs):
+    def preview(self, width: int = 800, height: int = 600, border: str="1px solid #ccc", **kwargs):
         """
         Render the page as an iframe.
 
@@ -473,6 +473,8 @@ class MaterialComponent(ReactComponent):
             The width of the iframe.
         height: int
             The height of the iframe.
+        border: str
+            The border of the iframe.
         kwargs: dict
             Additional keyword arguments to pass to the HTML pane.
 
@@ -488,9 +490,14 @@ class MaterialComponent(ReactComponent):
         encoded_html = base64.b64encode(
             html_content.encode('utf-8')
         ).decode('utf-8')
+        if sm := kwargs.get('sizing_mode'):
+            if 'width' in sm or 'both' in sm:
+                width = None
+            if 'height' in sm or 'both' in sm:
+                height = None
         return HTML(
             f"""
-        <iframe src="data:text/html;base64,{encoded_html}" width="100%" height="100%" style="border:1px solid #ccc;"></iframe>
+        <iframe src="data:text/html;base64,{encoded_html}" width="100%" height="100%" style="border:{border};"></iframe>
         """, width=width, height=height, **kwargs)
 
 

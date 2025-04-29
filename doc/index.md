@@ -2,6 +2,10 @@
 
 Welcome to Panel Material UI – a library that brings the sleek look and comprehensive component set of Material UI into the world of Panel.
 
+```{notebook} panel ../examples/homepage.ipynb
+:disable_interactivity_warning: True
+```
+
 ## Why Panel Material UI?
 
 - **Consistent Look & Feel**
@@ -56,6 +60,6 @@ Then [discover the components](components/index) and [customization options](cus
 :caption: FOR USERS
 
 customization/index
-custom
 reference/index
+custom
 ```
