@@ -239,6 +239,8 @@ class MaterialComponent(ReactComponent):
             params['design'] = MaterialDesign
         super().__init__(**params)
         for p, value in params.items():
+            if p not in self.param or not self.param[p].allow_refs:
+                continue
             if isinstance(value, param.Parameter):
                 value = value.owner
             if isinstance(value, WidgetBase):
