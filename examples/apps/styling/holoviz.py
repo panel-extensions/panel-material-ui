@@ -42,11 +42,11 @@ def get_categorical_plot(df, palette):
         responsive=True,
         title="Categorical Plot",
         tools=["fullscreen"],
+        legend='top_right',
     ).opts(
         backend_opts={
             'plot.toolbar.autohide': True
         },
-        legend_position='top_right',
         toolbar='above'
     )
 
@@ -132,7 +132,7 @@ colors_out = pmu.TextInput(
     name="Categorical Colors",
     disabled=True,
 )
-button_out = pmu.Button(label="Click Me", color="primary", on_click=lambda _: row.append(get_continous_plot()))
+button_out = pmu.Button(label="Click Me", color="primary")
 column_out = pmu.Column(colors_out, button_out, LORUM_IPSUM)
 
 elevation = paper.rx().rx.where(1, 0)
