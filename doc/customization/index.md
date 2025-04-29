@@ -74,6 +74,26 @@ Dive into the Material Design color system. Create harmonious palettes, pick acc
 
 ::::
 
+## Integrations
+
+Discover **panel-material-ui** integrates with different libraries to create beautiful, theme-aware plots, tables and more.
+
+::::{grid} 1 2 2 3
+:gutter: 1 1 1 2
+
+:::{grid-item-card} {octicon}`project;2.5em;sd-mr-1` Bokeh, hvPlot and HoloViews
+:link: bokeh_holoviews
+:link-type: doc
+
+Integrate **panel-material-ui** with **Bokeh**, **hvPlot** and **HoloViews** to create beautiful, theme-aware plots.
+
++++
+[Learn more »](bokeh_holoviews)
+:::
+
+::::
+
+
 ## Where to go next?
 
 - If you’re new to **Panel**, check out the [Getting Started](https://panel.holoviz.org/getting_started/index.html) guides to learn the basics.
@@ -90,4 +110,5 @@ typography
 components
 dark_mode
 color
+bokeh_holoviews
 ```

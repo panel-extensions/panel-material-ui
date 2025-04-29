@@ -9,6 +9,7 @@ from panel.layout.base import ListLike, NamedListLike, SizingModeMixin
 from panel.viewable import Child
 
 from ..base import COLORS, MaterialComponent
+from ..widgets import ToggleIcon
 
 if TYPE_CHECKING:
     from bokeh.document import Document
@@ -54,6 +55,24 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
     @param.depends("objects", watch=True)
     def _trigger_names(self):
         self.param.trigger("_names")
+
+
+class Column(MaterialListLike):
+    """
+    The `Column` layout arranges its contents vertically.
+    """
+
+    _esm_base = "Box.jsx"
+    _constants = {"direction": "column"}
+
+
+class Row(MaterialListLike):
+    """
+    The `Row` layout arranges its contents horizontally.
+    """
+
+    _esm_base = "Box.jsx"
+    _constants = {"direction": "row"}
 
 
 class PaperMixin(param.Parameterized):
@@ -288,6 +307,9 @@ class Tabs(MaterialNamedListLike):
 
     color = param.Selector(default="default", objects=["default", "primary", "secondary"])
 
+    disabled = param.List(default=[], item_type=int, doc="""
+        List of indexes of disabled tabs.""")
+
     dynamic = param.Boolean(default=False, doc="""
         Whether the tab contents should be rendered dynamically,
         i.e. only when the tab is active.""")
@@ -299,8 +321,10 @@ class Tabs(MaterialNamedListLike):
         The location of the tabs relative to the tab contents.""",
     )
 
-    _direction = "vertical"
+    wrapped = param.Boolean(default=False, doc="""
+        Whether the tab labels should be wrapped.""")
 
+    _direction = "vertical"
     _esm_base = "Tabs.jsx"
 
     def __init__(self, *objects, **params):
@@ -464,6 +488,12 @@ class Dialog(MaterialListLike):
     title = param.String(default="", doc="""
         The title of the dialog.""")
 
+    scroll = param.Selector(objects=["body", "paper"], default="paper", doc="""
+        Whether the dialog should scroll the content or the paper.""")
+
+    width_option = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="sm", doc="""
+        The width of the dialog.""")
+
     _esm_base = "Dialog.jsx"
 
 class Drawer(MaterialListLike):
@@ -492,21 +522,52 @@ class Drawer(MaterialListLike):
 
     _esm_base = "Drawer.jsx"
 
-    def __init__(self, *objects, **params):
-        # If the width or height is > 0 it will take up that space when not open
-        params.update(width=0, height=0, sizing_mode="fixed",)
-        super().__init__(*objects, **params)
+    def _process_param_change(self, params):
+        if self.variant == 'temporary':
+            if 'width' in params:
+                params.pop('width')
+            if 'height' in params:
+                params.pop('height')
+        return super()._process_param_change(params)
+
+    def create_toggle(
+        self,
+        icon: str = "menu",
+        active_icon: str = "menu_open_icon",
+        **params
+    ):
+        """
+        Create a ToggleIcon for the drawer.
+
+        Parameters
+        ----------
+        icon: str
+            The icon to display when the drawer is closed.
+        active_icon: str
+            The icon to display when the drawer is open.
+
+        Returns
+        -------
+        toggle: ToggleIcon
+            A ToggleIcon component that can be used to toggle the drawer.
+        """
+
+        toggle = ToggleIcon(icon=icon, active_icon=active_icon, value=self.open, **params)
+        toggle.jslink(self, value='open', bidirectional=True)
+        return toggle
 
 __all__ = [
     "Accordion",
     "Alert",
     "Backdrop",
     "Card",
+    "Column",
     "Container",
     "Dialog",
     "Divider",
     "Drawer",
     "Grid",
     "Paper",
+    "Row",
     "Tabs",
 ]
