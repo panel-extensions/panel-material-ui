@@ -107,7 +107,7 @@ def generate_member_images(row, image_size='30px', overlap_offset='-10px'):
     '''
     return wrapper_html
 
-def to_styles_projects_table(data: pd.DataFrame):
+def to_styled_projects_table(data: pd.DataFrame):
     data["Company"] = data.apply(generate_company_html, axis=1)
     data["Completion"] = data.apply(generate_progress_bar, axis=1)
     data["Members"] = data.apply(generate_member_images, axis=1)
@@ -188,7 +188,7 @@ with pn.config.set(sizing_mode="stretch_width"):
     plots = pn.Row(web_site_views, daily_sales, completed_tasks, sizing_mode="stretch_both")
     project_table = pmu.Paper(
         "#### Projects\n\n**30 done** this month",
-        pn.pane.DataFrame(to_styles_projects_table(get_project_data()), sizing_mode="stretch_width"),
+        pn.pane.DataFrame(to_styled_projects_table(get_project_data()), sizing_mode="stretch_width"),
         margin=10,
         height=550,
     )

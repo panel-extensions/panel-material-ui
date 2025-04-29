@@ -26,4 +26,4 @@ Notifications on this page use the `SnackbarProvider` from notistack. Read more 
         )
     )
 
-create_page("Notifications", main=[alert_card, notifications_row]).servable(title="Notifications").servable()
+create_page("Notifications", main=[alert_card, notifications_row]).servable(title="Notifications")

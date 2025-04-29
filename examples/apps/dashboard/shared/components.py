@@ -17,6 +17,24 @@ def create_menu(selected: str, pages: list[tuple] = PAGES, button_color="primary
         return pages2
     return pmu.List(items=pn.bind(get_pages, button_color), active=active, margin=(0,10), sizing_mode="stretch_width")
 
+def create_card_with_jumbo_header(title: str, content: str):
+    return pmu.Paper(
+        pn.pane.Markdown(
+            title,
+            sizing_mode="stretch_width",
+            styles={
+                "background": "black",
+                "color": "white",
+                "border-radius": "5px",
+                "position": "relative",
+                "padding-left": "10px",
+            },
+            margin=10,
+        ),
+        content,
+        margin=10,
+    )
+
 class Timeline(pmu.MaterialUIComponent):
     """Material‑UI **Timeline** component for Panel.
 

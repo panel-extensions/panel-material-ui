@@ -105,6 +105,50 @@ _PROJECTS_DATA = [
     }
 ]
 
+_PROJECTS_DATA_2 = [
+    {
+        "Company": "Asana",
+        "CompanyImage": "https://demos.creative-tim.com/material-dashboard/assets/img/small-logos/logo-asana.svg",
+        "Budget": "$2,500",
+        "Status": "working",
+        "Completion": 60,
+    },
+    {
+        "Company": "Add Progress Track",
+        "CompanyImage": "https://demos.creative-tim.com/material-dashboard/assets/img/small-logos/logo-atlassian.svg",
+        "Budget": "$5,000",
+        "Status": "done",
+        "Completion": 10,
+    },
+    {
+        "Company": "Fix Platform Errors",
+        "CompanyImage": "https://demos.creative-tim.com/material-dashboard/assets/img/small-logos/logo-slack.svg",
+        "Budget": "$3,400",
+        "Status": "canceled",
+        "Completion": 100,
+    },
+    {
+        "Company": "Launch our Mobile App",
+        "CompanyImage": "https://demos.creative-tim.com/material-dashboard/assets/img/small-logos/logo-spotify.svg",
+        "Budget": "$14,000",
+        "Status": "working",
+        "Completion": 100,
+    },
+    {
+        "Company": "Add the New Pricing Page",
+        "CompanyImage": "https://demos.creative-tim.com/material-dashboard/assets/img/small-logos/logo-jira.svg",
+        "Budget": "$1,000",
+        "Status": "canceled",
+        "Completion": 25,
+    },
+    {
+        "Company": "Redesign New Online Shop",
+        "CompanyImage": "https://demos.creative-tim.com/material-dashboard/assets/img/small-logos/logo-invision.svg",
+        "Budget": "$2,300",
+        "Status": "done",
+        "Completion": 40,
+    }
+]
 
 
 def get_authors_data():
@@ -112,3 +156,6 @@ def get_authors_data():
 
 def get_project_data():
     return pd.DataFrame(_PROJECTS_DATA)
+
+def get_project_data_2():
+    return pd.DataFrame(_PROJECTS_DATA_2)
