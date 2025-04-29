@@ -42,7 +42,7 @@ from panel.pane import HTML
 from panel.param import Param
 from panel.util import base_version, classproperty
 from panel.viewable import Viewable
-from panel.widgets import WidgetBase
+from panel.widgets.base import CompositeWidget, WidgetBase
 
 from .__version import __version__  # noqa
 from .theme import MaterialDesign
@@ -241,10 +241,12 @@ class MaterialComponent(ReactComponent):
         for p, value in params.items():
             if p not in self.param or not self.param[p].allow_refs:
                 continue
+            name = 'value'
             if isinstance(value, param.Parameter):
+                name = value.name
                 value = value.owner
-            if isinstance(value, WidgetBase):
-                value.jslink(self, value=p)
+            if isinstance(value, WidgetBase) and not isinstance(value, CompositeWidget):
+                value.jslink(self, **{name: p})
 
     async def _watch_esm(self):
         import watchfiles
