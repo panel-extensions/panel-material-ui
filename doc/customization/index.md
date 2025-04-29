@@ -72,6 +72,16 @@ Dive into the Material Design color system. Create harmonious palettes, pick acc
 [Learn more »](color)
 :::
 
+:::{grid-item-card} {octicon}`image;2.5em;sd-mr-1` Icons
+:link: icons
+:link-type: doc
+
+Learn how to use icons in **panel-material-ui**.
+
++++
+[Learn more »](icons)
+:::
+
 ::::
 
 ## Integrations

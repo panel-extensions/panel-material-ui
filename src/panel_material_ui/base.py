@@ -42,6 +42,7 @@ from panel.pane import HTML
 from panel.param import Param
 from panel.util import base_version, classproperty
 from panel.viewable import Viewable
+from panel.widgets.base import CompositeWidget, WidgetBase
 
 from .__version import __version__  # noqa
 from .theme import MaterialDesign
@@ -128,7 +129,8 @@ class ThemedTransform(ESMTransform):
 import * as React from "react"
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/700.css';
-import 'material-icons/iconfont/material-icons.css';
+import 'material-icons/iconfont/filled.css';
+import 'material-icons/iconfont/outlined.css';
 import {{ ThemeProvider }} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import {{install_theme_hooks}} from "./utils"
@@ -236,6 +238,15 @@ class MaterialComponent(ReactComponent):
         if 'design' not in params:
             params['design'] = MaterialDesign
         super().__init__(**params)
+        for p, value in params.items():
+            if p not in self.param or not self.param[p].allow_refs:
+                continue
+            name = 'value'
+            if isinstance(value, param.Parameter):
+                name = value.name
+                value = value.owner
+            if isinstance(value, WidgetBase) and not isinstance(value, CompositeWidget):
+                value.jslink(self, **{name: p})
 
     async def _watch_esm(self):
         import watchfiles
@@ -276,9 +287,7 @@ class MaterialComponent(ReactComponent):
         glob = (BASE_PATH / 'dist').glob
         if css_path.is_file():
             return [str(css_path)] + [
-                str(p) for p in glob('material-icons-outlined-*.woff*')
-            ] + [str(css_path)] + [
-                str(p) for p in glob('material-icons-????????.woff*')
+                str(p) for p in glob('material-icons-*.woff*')
             ] + [
                 str(p) for p in glob('roboto-latin-?00-normal*.woff*')
             ] + [
@@ -450,7 +459,7 @@ class MaterialComponent(ReactComponent):
         doc.template_variables['is_page'] = True
         return doc
 
-    def preview(self, width: int = 800, height: int = 600, **kwargs):
+    def preview(self, width: int = 800, height: int = 600, border: str="1px solid #ccc", **kwargs):
         """
         Render the page as an iframe.
 
@@ -464,6 +473,8 @@ class MaterialComponent(ReactComponent):
             The width of the iframe.
         height: int
             The height of the iframe.
+        border: str
+            The border of the iframe.
         kwargs: dict
             Additional keyword arguments to pass to the HTML pane.
 
@@ -479,9 +490,14 @@ class MaterialComponent(ReactComponent):
         encoded_html = base64.b64encode(
             html_content.encode('utf-8')
         ).decode('utf-8')
+        if sm := kwargs.get('sizing_mode'):
+            if 'width' in sm or 'both' in sm:
+                width = None
+            if 'height' in sm or 'both' in sm:
+                height = None
         return HTML(
             f"""
-        <iframe src="data:text/html;base64,{encoded_html}" width="100%" height="100%" style="border:1px solid #ccc;"></iframe>
+        <iframe src="data:text/html;base64,{encoded_html}" width="100%" height="100%" style="border:{border};"></iframe>
         """, width=width, height=height, **kwargs)
 
 

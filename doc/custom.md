@@ -1,4 +1,4 @@
-# Building Custom Components
+# Custom Components
 
 The `panel-material-ui` package ships with a number of custom Material UI components that are built on top of the Material UI library. However in some cases you may need to create your own custom components.
 
