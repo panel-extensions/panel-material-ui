@@ -554,7 +554,7 @@ export const install_theme_hooks = (props) => {
     // If the page has a data-theme attribute (e.g. from pydata-sphinx-theme), use it to set the dark theme
     const page_theme = document.documentElement.dataset.theme
     const params = new URLSearchParams(window.location.search);
-    if (page_theme === "dark" || params.get('theme') === 'dark') {
+    if (page_theme === "dark" || params.get("theme") === "dark") {
       setDarkTheme(true)
     } else if (page_theme === "light") {
       setDarkTheme(false)
