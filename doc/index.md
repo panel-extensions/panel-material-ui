@@ -2,6 +2,10 @@
 
 Welcome to Panel Material UI – a library that brings the sleek look and comprehensive component set of Material UI into the world of Panel.
 
+```{notebook} panel ../examples/homepage.ipynb
+:disable_interactivity_warning: True
+```
+
 ## Why Panel Material UI?
 
 - **Consistent Look & Feel**
@@ -21,10 +25,6 @@ Access a growing collection of Material UI–inspired components (Buttons, Slide
 
 - **Powerful Theming Inheritance**
   Define a theme at a parent level and let it automatically apply to child components without extra configuration, reducing repetitive code while maintaining consistent branding.
-
-```{notebook} panel ../examples/homepage.ipynb
-:disable_interactivity_warning: True
-```
 
 ## Getting Started
 
