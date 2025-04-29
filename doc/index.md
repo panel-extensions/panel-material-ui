@@ -2,9 +2,14 @@
 
 Welcome to Panel Material UI – a library that brings the sleek look and comprehensive component set of Material UI into the world of Panel.
 
-```{notebook} panel ../examples/homepage.ipynb
-:disable_interactivity_warning: True
-```
+.. raw:: html
+
+    <iframe id="demo-iframe" src="_static/demo.html" width="100%" height="100%" style="border: none;"></iframe>
+    <script>
+      const iframe = document.getElementById("demo-iframe")
+      const page_theme = document.documentElement.dataset.theme
+      iframe.src = `_static/demo.html?theme=${theme}`
+    </script>
 
 ## Why Panel Material UI?
 
