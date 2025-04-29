@@ -1,60 +1,72 @@
-# hvPlot and HoloViews
+# Bokeh, hvPlot and HoloViews
 
-hvPlot and HoloViews are probably the two most used plotting libraries with Panel. So its important to know who to style these.
+Panel Material UI has integrated theming support for Bokeh, hvPlot and HoloViews. This means that the plots will automatically adapt to the active theme, including respecting the primary color, the font family and toggling between dark and light mode.
 
-## Light/ Dark mode
+## Basic Theming
 
-To support light and dark mode you will have to ...
+To enable this behavior you can either use the `Page` component or include a `ThemeToggle` in your app.
 
-```python
+```{pyodide}
 import panel as pn
 import panel_material_ui as pmu
-import polars
-import hvplot.polars
-
-BOKEH_THEMES = {
-    "dark": "dark_minimal",
-    "light": "light_minimal",
-}
-
-url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv"
-df_polars = polars.read_csv(url)
+import pandas as pd
+import hvplot.pandas
 
 pn.extension()
 
-toggle = pmu.ThemeToggle()
+df = pd.read_csv("https://datasets.holoviz.org/penguins/v1/penguins.csv")
 
-def plot():
-    return df_polars.hvplot.scatter(x='bill_length_mm', y='bill_depth_mm', by='species')
+toggle = pmu.ThemeToggle(styles={"margin-left": "auto"})
 
-holoviews_pane = pn.pane.HoloViews(plot())
-
-@pn.depends(toggle, watch=True)
-def bokeh_theme(theme):
-    holoviews_pane.theme=BOKEH_THEMES.get(theme, "light_minimal")
-
-pn.Column(
-    toggle, holoviews_pane,
-).servable()
+pmu.Container(
+    toggle,
+    df.hvplot.scatter(
+        x="bill_length_mm", y="bill_depth_mm", by="species",
+        height=400, responsive=True
+    ),
+    width_option="md"
+).preview()
 ```
 
-## Fonts
-
-You will have to provide a custom bokeh Theme where all font attributes have been updated.
-
-## Colors
-
-:::note
-Unfortunately you cannot style the tooltip or the vertical "selected" tool bar of a hvPlot/ HoloViews/ bokeh plot
-:::
-
-### Categorical
+## Palettes & Colormaps
 
 When visualizing categorical data each color be visibly distinct from all the other colors, not nearby in color space, to make each category separately visible.
 
 You can find existing categorical color maps [here](https://colorcet.holoviz.org/user_guide/Categorical.html) and [here](https://holoviews.org/user_guide/Colormaps.html#categorical-colormaps)
 
-If you want to create categorical color maps aligned with your Material theme, you can generate them using an online tool like [mycolor](https://mycolor.space/) or use custom Python code.
+### Categorical
 
+If you want to create categorical color maps aligned with your Material theme you can use the `pmu.utils.get_palette` function.
+
+```{pyodide}
+import pandas as pd
+import hvplot.pandas
+import panel_material_ui as pmu
+
+df = pd.read_csv("https://datasets.holoviz.org/penguins/v1/penguins.csv")
+
+primary_color = "#6200ea"
+colors = pmu.theme.generate_palette(primary_color)
+toggle = pmu.ThemeToggle(styles={"margin-left": "auto"})
+
+pmu.Container(
+    toggle,
+    df.hvplot.scatter(
+        x="bill_length_mm", y="bill_depth_mm", color="species",
+        height=400, responsive=True, cmap=colors
+    ),
+    theme_config={"palette": {"primary": {"main": primary_color}}},
+    width_option="md"
+).preview()
+```
 
 ### Continuous
+
+Similarly you can use the `pmu.theme.linear_gradient` function to get a colormap aligned with your Material theme.
+
+```python
+import panel_material_ui as pmu
+
+primary_color = "#6200ea"
+cmap = pmu.theme.linear_gradient("#ffffff", primary_color, n=256)
+```

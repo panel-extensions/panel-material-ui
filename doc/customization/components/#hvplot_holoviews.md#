@@ -1,0 +1,56 @@
+# hvPlot and HoloViews
+
+hvPlot and HoloViews are probably the two most used plotting libraries with Panel. So its important to know who to style these.
+
+## Light/ Dark mode
+
+To support light and dark mode you will have to ...
+
+```python
+import panel as pn
+import panel_material_ui as pmu
+import polars
+import hvplot.polars
+
+BOKEH_THEMES = {
+    "dark": "dark_minimal",
+    "light": "light_minimal",
+}
+
+url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv"
+df_polars = polars.read_csv(url)
+
+pn.extension()
+
+toggle = pmu.ThemeToggle()
+
+def plot():
+    return df_polars.hvplot.scatter(x='bill_length_mm', y='bill_depth_mm', by='species')
+
+holoviews_pane = pn.pane.HoloViews(plot())
+
+pn.Column(
+    toggle, holoviews_pane,
+).servable()
+```
+
+## Fonts
+
+You will have to provide a custom bokeh Theme where all font attributes have been updated.
+
+## Colors
+
+:::note
+Unfortunately you cannot style the tooltip or the vertical "selected" tool bar of a hvPlot/ HoloViews/ bokeh plot
+:::
+
+### Categorical
+
+When visualizing categorical data each color be visibly distinct from all the other colors, not nearby in color space, to make each category separately visible.
+
+You can find existing categorical color maps [here](https://colorcet.holoviz.org/user_guide/Categorical.html) and [here](https://holoviews.org/user_guide/Colormaps.html#categorical-colormaps)
+
+If you want to create categorical color maps aligned with your Material theme, you can generate them using an online tool like [mycolor](https://mycolor.space/) or use custom Python code.
+
+
+### Continuous
