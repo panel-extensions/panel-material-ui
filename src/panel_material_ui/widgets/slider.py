@@ -5,6 +5,7 @@ import datetime as dt
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.util import datetime_as_utctimestamp, edit_readonly, value_as_date, value_as_datetime
+from panel.widgets import WidgetBase
 from panel.widgets.slider import DiscreteSlider as _PnDiscreteSlider
 from panel.widgets.slider import _EditableContinuousSlider, _SliderBase
 from param.parameterized import resolve_value
@@ -479,8 +480,19 @@ class Rating(MaterialWidget):
 
 class _EditableContinuousSliderBase(_EditableContinuousSlider):
 
+    bar_color = param.Color(default=None, doc="Color of the bar")
+
+    color = param.Selector(objects=COLORS, default="default")
+
+    track = param.Selector(objects=["normal", "inverted", False], default="normal")
+
+    label = param.String(default="", doc="Label of the slider")
+
     def __init__(self, **params):
         super().__init__(**params)
+        self._slider.param.update(
+            color=self.param.color, track=self.param.track, bar_color=self.param.bar_color
+        )
         self._value_edit.param.update(
             size="small",
             variant="filled",
@@ -490,6 +502,23 @@ class _EditableContinuousSliderBase(_EditableContinuousSlider):
                 ".MuiInputAdornment-positionStart {margin-top: 0 !important;}"
             ]
         )
+        for p, value in params.items():
+            if p not in ('color', 'track', 'bar_color'):
+                continue
+            if isinstance(value, param.Parameter):
+                value = value.owner
+            if isinstance(value, WidgetBase):
+                value.jslink(self._slider, value=p)
+
+    @param.depends('label', watch=True)
+    def _update_name(self):
+        if self.label:
+            label = f'{self.label}:'
+            margin = (0, 10, 0, 0)
+        else:
+            label = ''
+            margin = (0, 0, 0, 0)
+        self._label.param.update(margin=margin, value=label)
 
 
 class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):

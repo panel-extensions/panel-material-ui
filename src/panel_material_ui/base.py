@@ -42,6 +42,7 @@ from panel.pane import HTML
 from panel.param import Param
 from panel.util import base_version, classproperty
 from panel.viewable import Viewable
+from panel.widgets import WidgetBase
 
 from .__version import __version__  # noqa
 from .theme import MaterialDesign
@@ -237,6 +238,11 @@ class MaterialComponent(ReactComponent):
         if 'design' not in params:
             params['design'] = MaterialDesign
         super().__init__(**params)
+        for p, value in params.items():
+            if isinstance(value, param.Parameter):
+                value = value.owner
+            if isinstance(value, WidgetBase):
+                value.jslink(self, value=p)
 
     async def _watch_esm(self):
         import watchfiles
