@@ -1,6 +1,6 @@
 # Dark Mode
 
-The `panel-material-ui` components automatically integrate with Panel’s dark mode configuration and allow you to force dark mode by setting `dark_mode=True` at the component level or in your Panel extension.
+The `panel-material-ui` components automatically integrate with Panel’s dark mode configuration and allow you to force dark mode by setting `dark_theme=True` at the component level or in your Panel extension.
 
 ## Dark mode only (no system preference)
 
@@ -10,7 +10,7 @@ If you want your application to always use dark mode, you can use `dark_mode=Tru
 from panel_material_ui import Button
 
 Button(
-    label="Dark Button", dark_mode=True
+    label="Dark Button", dark_theme=True
 ).servable()
 ```
 
@@ -30,7 +30,7 @@ By default each component will control its own theme, however if you want to man
 from panel_material_ui import Page
 
 Page(
-    dark_mode=True,
+    dark_theme=True,
     main=[
         Button(
             label="Dark Button"
