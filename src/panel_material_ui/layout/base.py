@@ -557,7 +557,6 @@ class Drawer(MaterialListLike):
         toggle.jslink(self, value='open', bidirectional=True)
         return toggle
 
-
 __all__ = [
     "Accordion",
     "Alert",
