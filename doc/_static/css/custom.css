@@ -95,3 +95,7 @@ video {
 #panel-material-ui .output.text_html {
   overflow: hidden;
 }
+
+.cell.tag_hide-input.docutils.container > .cell_output > .text_html {
+  padding: 0px;
+}
