@@ -8,9 +8,6 @@ import panel as pn
 import panel_material_ui as pmu
 import pandas as pd
 
-import matplotlib.colors as mcolors
-from bokeh.models import HoverTool
-
 pn.extension(sizing_mode="stretch_width")
 
 pmu.Paper.margin = 10
@@ -19,41 +16,6 @@ LORUM_IPSUM = """\
 **Lorem Ipsum** is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
 industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type
 and scrambled it to make a type specimen book"""
-
-
-def get_hook(color: str = "salmon"):
-    def hook(plot, element, color=color):
-        fig = plot.handles["plot"]
-        toolbar = fig.toolbar
-        toolbar.logo = None
-        plot.state.toolbar.autohide = True
-        plot.state.toolbar_location = "above"
-        fig.add_tools("fullscreen")
-
-    return hook
-
-@pn.cache
-def get_categorical_palette(color: str, n_colors: int = 3) -> list[str]:
-    hex_color = color.lstrip("#")
-    r, g, b = tuple(int(hex_color[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
-    h, l, s = colorsys.rgb_to_hls(r, g, b)
-
-    hues = np.linspace(0, 1, int(n_colors) + 1)[:-1]
-    hues += h
-    hues %= 1
-    hues -= hues.astype(int)
-    rgb_palette = [colorsys.hls_to_rgb(h_i, l, s) for h_i in hues]
-    hex_palette = [
-        "#{:02x}{:02x}{:02x}".format(int(r_i * 255), int(g_i * 255), int(b_i * 255))
-        for r_i, g_i, b_i in rgb_palette
-    ]
-    return hex_palette
-
-
-def get_continous_color_map(color: str):
-    return mcolors.LinearSegmentedColormap.from_list(
-        "custom_cmap", ["white", color], N=256
-    )
 
 # App Code
 
@@ -65,25 +27,30 @@ def get_data(n_categories: int, n_rows=100):
     categories = [f"Category {i+1}" for i in range(n_categories)]
     category = np.random.choice(categories, n_rows)
 
-    dataframe = pd.DataFrame({"x": x, "y": y, "category": category})
+    dataframe = pd.DataFrame({"x": x, "y": y, "category": category}).sort_values('category')
 
     return dataframe
 
-def get_categorical_plot(df, colors, color, font_family="Roboto"):
-    plot = df.hvplot.scatter(
+def get_categorical_plot(df, palette):
+    return df.hvplot.scatter(
         x="x",
         y="y",
         size=75,
-        by="category",
+        color="category",
+        cmap=palette,
+        height=350,
+        responsive=True,
         title="Categorical Plot",
-        color=hv.Cycle(colors),
+        tools=["fullscreen"],
+    ).opts(
+        backend_opts={
+            'plot.toolbar.autohide': True
+        },
+        legend_position='top_right',
+        toolbar='above'
     )
-    hook = get_hook(color)
-    plot.opts(hooks=[hook])
-    return plot
 
-
-def get_continous_plot(color="#9c27b0", font_family: str = "Roboto"):
+def get_continous_plot(color="#9c27b0"):
     np.random.seed(42)
     data = pd.DataFrame(
         {
@@ -92,9 +59,7 @@ def get_continous_plot(color="#9c27b0", font_family: str = "Roboto"):
             "value": np.random.rand(100) * 100,
         }
     )
-    custom_cmap = get_continous_color_map(color)
-
-    hook = get_hook(color)
+    custom_cmap = pmu.theme.linear_gradient("#ffffff", color, n=256)
     return data.hvplot.scatter(
         x="x",
         y="y",
@@ -102,16 +67,24 @@ def get_continous_plot(color="#9c27b0", font_family: str = "Roboto"):
         size=75,
         cmap=custom_cmap,
         colorbar=True,
+        height=350,
+        responsive=True,
         title="Continuous Plot",
-    ).opts(hooks=[hook])
+        tools=['fullscreen'],
+    ).opts(
+        backend_opts={
+            'plot.toolbar.autohide': True
+        },
+        toolbar='above'
+    )
 
-
-paper = pmu.Checkbox(value=True, name="Paper", sizing_mode="fixed", align="center")
-
-theme = pmu.ThemeToggle(sizing_mode="fixed", align="center")
-
-font_family = pmu.Select(name="Font", options=["Roboto", "Impact", "Palatino Linotype"])
-
+# Configure theme
+paper = pmu.Checkbox(
+    value=True, label="Paper", sizing_mode="fixed", align="center"
+)
+font_family = pmu.Select(
+    label="Font", options=["Roboto", "Impact", "Palatino Linotype"]
+)
 primary_color = pmu.ColorPicker(
     value="#9c27b0",
     name="Primary Color",
@@ -135,30 +108,27 @@ n_colors = pmu.IntSlider(
     name="Categories",
 )
 
+theme = pmu.ThemeToggle(sizing_mode="fixed", align="center")
+action_row = pmu.Row(paper, primary_color, n_colors, font_family, pn.HSpacer(), theme)
+
+
+# Set up  plots
 data = pn.bind(get_data, n_colors)
-colors = pn.bind(get_categorical_palette, primary_color, n_colors)
-categorical_plot = pn.bind(
+palette = pn.bind(pmu.theme.generate_palette, primary_color, n_colors)
+
+categorical_plot = hv.DynamicMap(pn.bind(
     get_categorical_plot,
     df=data,
-    colors=colors,
-    color=primary_color,
-    font_family=font_family,
-)
+    palette=palette
+))
 
-categorical_pane = pn.pane.HoloViews(
-    categorical_plot, sizing_mode="stretch_width"
-)
+continous_plot = hv.DynamicMap(pn.bind(
+    get_continous_plot, color=primary_color
+))
 
-continous_plot = pn.bind(
-    get_continous_plot, color=primary_color, font_family=font_family
-)
-continous_pane = pn.pane.HoloViews(
-    continous_plot, sizing_mode="stretch_width"
-)
 
-action_row = pmu.Row(paper, primary_color, n_colors, font_family, pn.HSpacer(), theme)
 colors_out = pmu.TextInput(
-    value=pn.bind(lambda c: ", ".join(c), colors),
+    value=pn.rx(', ').join(palette),
     name="Categorical Colors",
     disabled=True,
 )
@@ -169,8 +139,8 @@ elevation = paper.rx().rx.where(1, 0)
 
 pmu.Container(
     pmu.Paper(action_row, elevation=elevation),
-    pmu.Paper(categorical_pane, elevation=elevation),
-    pmu.Paper(continous_pane, elevation=elevation),
+    pmu.Paper(categorical_plot, elevation=elevation),
+    pmu.Paper(continous_plot, elevation=elevation),
     pmu.Paper(column_out, elevation=elevation),
     theme_config=theme_config, width_option='md'
 ).servable()
