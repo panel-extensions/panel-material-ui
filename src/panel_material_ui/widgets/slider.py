@@ -502,6 +502,7 @@ class _EditableContinuousSliderBase(_EditableContinuousSlider):
                 ".MuiInputAdornment-positionStart {margin-top: 0 !important;}"
             ]
         )
+        self._slider.jslink(self._value_edit, value='value')
         for p, value in params.items():
             if p not in ('color', 'track', 'bar_color'):
                 continue
