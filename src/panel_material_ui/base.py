@@ -128,7 +128,8 @@ class ThemedTransform(ESMTransform):
 import * as React from "react"
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/700.css';
-import 'material-icons/iconfont/material-icons.css';
+import 'material-icons/iconfont/filled.css';
+import 'material-icons/iconfont/outlined.css';
 import {{ ThemeProvider }} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import {{install_theme_hooks}} from "./utils"
@@ -276,9 +277,7 @@ class MaterialComponent(ReactComponent):
         glob = (BASE_PATH / 'dist').glob
         if css_path.is_file():
             return [str(css_path)] + [
-                str(p) for p in glob('material-icons-outlined-*.woff*')
-            ] + [str(css_path)] + [
-                str(p) for p in glob('material-icons-????????.woff*')
+                str(p) for p in glob('material-icons-*.woff*')
             ] + [
                 str(p) for p in glob('roboto-latin-?00-normal*.woff*')
             ] + [
