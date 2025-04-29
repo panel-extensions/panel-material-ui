@@ -35,7 +35,9 @@
 </tbody>
 </table>
 
-Welcome to Panel Material UI – a library that brings the sleek look and comprehensive component set of Material UI into the world of Panel.
+Welcome to Panel Material UI – a library that brings the sleek design and comprehensive component set of [Material UI](https://mui.com/material-ui/) into the world of Panel.
+
+![Panel Material UI Showcase](assets/panel-material-ui-showcase.gif)
 
 ## Why Panel Material UI?
 
