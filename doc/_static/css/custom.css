@@ -91,3 +91,7 @@ button.copybtn:hover {
 video {
   max-width: 100%;
 }
+
+#panel-material-ui .output.text_html {
+  overflow: hidden;
+}
