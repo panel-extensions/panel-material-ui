@@ -281,6 +281,10 @@ class MaterialComponent(ReactComponent):
                 str(p) for p in glob('material-icons-????????.woff*')
             ] + [
                 str(p) for p in glob('roboto-latin-?00-normal*.woff*')
+            ] + [
+                str(p) for p in glob('roboto-latin-ext-?00-normal*.woff*')
+            ] + [
+                str(p) for p in glob('roboto-math-?00-normal*.woff*')
             ]
         return []
 
