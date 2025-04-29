@@ -60,6 +60,6 @@ Then [discover the components](components/index) and [customization options](cus
 :caption: FOR USERS
 
 customization/index
-custom
 reference/index
+custom
 ```
