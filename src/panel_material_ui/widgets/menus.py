@@ -204,6 +204,7 @@ class List(MenuBase):
       - actions: Actions to display on the list item (optional)
       - items: Nested items (optional)
       - selectable: Whether the list item is selectable (optional)
+      - href: The URL to navigate to when the list item is clicked (optional)
 
     Reference: https://mui.com/material-ui/react-list/
     """
@@ -224,7 +225,7 @@ class List(MenuBase):
 
     _esm_base = "List.jsx"
 
-    _item_keys = ['label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable']
+    _item_keys = ['label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable', 'href']
 
     @param.depends('items', watch=True, on_init=True)
     def _sync_items(self):

@@ -523,6 +523,7 @@ class MaterialUIComponent(MaterialComponent):
             "panel-material-ui": CDN_DIST,
             "panel-material-ui/mui": f"{CDN_BASE}/material-ui-shim.js",
             "material-icons/": "https://esm.sh/material-icons@1.13.14/",
+            "@fontsource/roboto/": "https://esm.sh/@fontsource/roboto@5.2.5/",
             "react": f"{CDN_BASE}/react-shim.js",
             "react/jsx-runtime": f"{CDN_BASE}/react-jsx-runtime-shim.js",
             "react-dom/client": f"{CDN_BASE}/react-dom-client-shim.js",

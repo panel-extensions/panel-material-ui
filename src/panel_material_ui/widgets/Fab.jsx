@@ -16,7 +16,7 @@ export function render({model}) {
       color={color}
       disabled={disabled}
       href={href}
-      onClick={() => model.send_msg({type: "click"})}
+      onClick={() => model.send_event("click", {})}
       size={size}
       sx={sx}
       variant={variant}

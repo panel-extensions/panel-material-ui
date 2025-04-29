@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, TypeVar
+
 import param
 from panel._param import Margin
 from panel.widgets.base import WidgetBase
 
 from ..base import ESMTransform, MaterialComponent
+
+if TYPE_CHECKING:
+    T = TypeVar('T')
 
 
 class TooltipTransform(ESMTransform):
@@ -37,6 +42,9 @@ function {output}(props) {{
 
 
 class MaterialWidget(MaterialComponent, WidgetBase):
+    """
+    MaterialWidget is a base class for all Material UI widgets.
+    """
 
     description = param.String(default=None)
 
@@ -67,3 +75,23 @@ class MaterialWidget(MaterialComponent, WidgetBase):
         if description:
             props["description"] = description
         return props
+
+    @classmethod
+    def from_param(cls: type[T], parameter: param.Parameter, **params) -> T:
+        """
+        Construct a widget from a Parameter and link the two
+        bi-directionally.
+
+        Parameters
+        ----------
+        parameter: param.Parameter
+          A parameter to create the widget from.
+
+        Returns
+        -------
+        Widget instance linked to the supplied parameter
+        """
+        widget = super().from_param(parameter, **params)
+        if isinstance(parameter.owner, MaterialComponent):
+            widget.jslink(parameter.owner, value=parameter.name)
+        return widget
