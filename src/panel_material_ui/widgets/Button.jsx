@@ -12,7 +12,6 @@ export function render({model, el}) {
   const [disableElevation] = model.useState("disable_elevation")
   const [sx] = model.useState("sx")
 
-  console.log(label, variant, color, disableElevation)
   return (
     <Button
       color={color}
