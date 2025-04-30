@@ -431,6 +431,16 @@ export const setup_global_styles = (theme) => {
   }
 
   React.useEffect(() => {
+    // If the page has a data-theme attribute (e.g. from pydata-sphinx-theme)
+    // or theme=dark is set as a query parameter use it to set the dark theme
+    const page_theme = document.documentElement.dataset.theme
+    const params = new URLSearchParams(window.location.search);
+    if (page_theme === "dark" || params.get("theme") === "dark") {
+      setDarkTheme(true)
+    } else if (page_theme === "light") {
+      setDarkTheme(false)
+    }
+
     const doc = window.Bokeh.documents[0]
     const cb = (e) => {
       if (e.kind !== "ModelChanged") {
@@ -551,15 +561,6 @@ export const install_theme_hooks = (props) => {
   }, [dark_theme])
 
   React.useEffect(() => {
-    // If the page has a data-theme attribute (e.g. from pydata-sphinx-theme), use it to set the dark theme
-    const page_theme = document.documentElement.dataset.theme
-    const params = new URLSearchParams(window.location.search);
-    if (page_theme === "dark" || params.get("theme") === "dark") {
-      setDarkTheme(true)
-    } else if (page_theme === "light") {
-      setDarkTheme(false)
-    }
-
     const cb = (val) => setDarkTheme(val)
     if (document.documentElement.dataset.themeManaged === "true") {
       dark_mode.subscribe(cb)

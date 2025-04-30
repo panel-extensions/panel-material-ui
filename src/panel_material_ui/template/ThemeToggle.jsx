@@ -20,6 +20,10 @@ export function render({model}) {
     setDarkTheme(value)
   }, [value])
 
+  React.useEffect(() => {
+    setValue(dark_theme)
+  }, [dark_theme])
+
   return (
     <Tooltip enterDelay={500} title="Toggle theme">
       {variant === "switch" ? (
