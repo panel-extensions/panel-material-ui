@@ -37,7 +37,7 @@
 
 Welcome to Panel Material UI – a library that brings the sleek design and comprehensive component set of [Material UI](https://mui.com/material-ui/) into the world of Panel.
 
-![Panel Material UI Showcase](assets/panel-material-ui-components.gif)
+![Panel Material UI Showcase](assets/panel-material-ui-components.png)
 
 ## Why Panel Material UI?
 
@@ -66,6 +66,10 @@ Install `panel-material-ui` via `pip`:
 ```bash
 pip install panel-material-ui
 ```
+
+## Documentation
+
+You can find the documentation [here](https://panel-material-ui.holoviz.org/).
 
 ## ❤️ Contributions
 
