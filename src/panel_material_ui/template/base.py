@@ -8,7 +8,8 @@ import param
 from jinja2 import Template
 from panel.config import _base_config, config
 from panel.io.resources import ResourceComponent, Resources
-from panel.viewable import Children
+from panel.util import edit_readonly
+from panel.viewable import Child, Children
 
 from ..base import MaterialComponent, ThemedTransform
 from ..widgets.base import MaterialWidget
@@ -200,7 +201,40 @@ class ThemeToggle(MaterialWidget):
             self.theme = config.theme = 'dark' if self.value else 'default'
 
 
+class BreakpointSwitcher(MaterialWidget):
+    """
+    The `BreakpointSwitcher` component allows switching between two component implementations
+    based on the declared breakpoint or media_query.
+
+    :Example:
+
+    >>> BreakpointSwitcher(breakpoint='sm', small=..., large=...)
+    """
+
+    current = param.Parameter(allow_refs=False, readonly=True, doc="""
+        The current object.""")
+
+    breakpoint = param.Selector(default='md', objects=["xs", "sm", "md", "lg", "xl"], doc="""
+        Breakpoint at which switcher toggles between.""")
+
+    media_query = param.String(default=None, doc="""
+        Media query to use for the breakpoint (takes precedence over breakpoint).""")
+
+    small = Child(doc="Items rendered in the small breakpoint.")
+
+    large = Child(doc="Items rendered in the large breakpoint.")
+
+    _esm_base = "BreakpointSwitcher.jsx"
+    _rename = {"current": None}
+
+    def _handle_msg(self, msg):
+        if msg['type'] == 'switch':
+            with edit_readonly(self):
+                self.current = getattr(self, msg['current'])
+
+
 __all__ = [
+    "BreakpointSwitcher",
     "Page",
     "ThemeToggle"
 ]

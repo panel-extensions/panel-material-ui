@@ -5,10 +5,6 @@ import hvplot.pandas
 import panel as pn
 import panel_material_ui as pmui
 
-color = pmui.RadioButtonGroup(options=pmui.COLORS[:-3], value='primary')
-
-color.jslink(color, value='color')
-
 df = pd.read_csv('https://datasets.holoviz.org/penguins/v1/penguins.csv')
 
 WIDTH = 260
@@ -21,12 +17,23 @@ menu_items = [
     {"label": "Checkout", "icon": "shopping_cart"},
 ]
 
-drawer = pmui.Drawer()
+color = pmui.RadioButtonGroup(options=pmui.COLORS[:-3], value='primary')
+color_select = pmui.Select(options=pmui.COLORS[:-3], value='primary', color=color)
+color.jslink(color, value='color')
+color.jslink(color_select, value='value', bidirectional=True)
+
+switch = pmui.BreakpointSwitcher(
+    breakpoint='lg',
+    small=color_select,
+    large=color
+)
+
+drawer = pmui.Drawer('## Drawer')
 
 pmui.Paper(
     pmui.Row(
         pmui.Typography('Components', variant='h4'),
-        color,
+        switch,
         pmui.ThemeToggle(styles={'margin-left': 'auto'}),
         sizing_mode='stretch_width'
     ),
