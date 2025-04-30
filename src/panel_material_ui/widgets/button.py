@@ -112,6 +112,7 @@ class Button(_ButtonBase, _ClickButton):
         The URL to navigate to when the button is clicked.""")
 
     disable_elevation = param.Boolean(default=False)
+    size = param.Selector(default="medium", objects=["small", "medium", "large"])
 
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
 

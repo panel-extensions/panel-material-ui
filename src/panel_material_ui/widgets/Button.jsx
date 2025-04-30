@@ -4,6 +4,7 @@ export function render({model, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [href] = model.useState("href")
+  const [size] = model.useState("size")
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [label] = model.useState("label")
@@ -17,6 +18,7 @@ export function render({model, el}) {
       color={color}
       disabled={disabled}
       fullWidth
+      size={size}
       href={href}
       onClick={() => model.send_event("click", {})}
       startIcon={icon && (
