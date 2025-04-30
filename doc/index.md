@@ -1,9 +1,9 @@
 # Panel Material UI
 
-Welcome to Panel Material UI – a library that brings the sleek look and comprehensive component set of Material UI into the world of Panel.
+Welcome to Panel Material UI – a library that brings the sleek design and comprehensive component set of [Material UI](https://mui.com/material-ui/) into the world of Panel.
 
 :::{raw} html
-<iframe id="demo-iframe" src="_static/demo.html" width="100%" height="600px" style="border: none;"></iframe>
+<iframe id="demo-iframe" src="_static/demo.html" width="100%" height="800px" style="border: none;"></iframe>
 <script>
   const iframe = document.getElementById("demo-iframe")
   const theme = document.documentElement.dataset.theme
@@ -52,6 +52,7 @@ pip install panel_material_ui
 ```bash
 conda install -c conda-forge panel_material_ui
 ```
+
 ::::
 
 :::::
@@ -64,7 +65,7 @@ Then [discover the components](components/index) and [customization options](cus
 :maxdepth: 2
 :caption: FOR USERS
 
-customization/index
 reference/index
+customization/index
 custom
 ```
