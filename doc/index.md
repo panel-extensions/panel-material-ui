@@ -2,6 +2,15 @@
 
 Welcome to Panel Material UI – a library that brings the sleek look and comprehensive component set of Material UI into the world of Panel.
 
+:::{raw} html
+<iframe id="demo-iframe" src="_static/demo.html" width="100%" height="600px" style="border: none;"></iframe>
+<script>
+  const iframe = document.getElementById("demo-iframe")
+  const theme = document.documentElement.dataset.theme
+  iframe.src = `_static/demo.html?theme=${theme}`
+</script>
+:::
+
 ## Why Panel Material UI?
 
 - **Consistent Look & Feel**
@@ -47,6 +56,8 @@ conda install -c conda-forge panel_material_ui
 
 :::::
 
+Then [discover the components](components/index) and [customization options](customization/index) available in Panel Material UI or build your own [custom components](custom).
+
 ```{toctree}
 :titlesonly:
 :hidden:
@@ -55,4 +66,5 @@ conda install -c conda-forge panel_material_ui
 
 customization/index
 reference/index
+custom
 ```

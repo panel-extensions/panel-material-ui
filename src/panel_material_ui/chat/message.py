@@ -6,6 +6,7 @@ from pathlib import PurePath
 from zoneinfo import ZoneInfo
 
 import param
+from panel.chat.message import DEFAULT_AVATARS as DEFAULT_AVATARS_PANEL
 from panel.chat.message import ChatMessage, ChatReactionIcons
 from panel.io import state
 from panel.layout import Panel, Row
@@ -21,6 +22,11 @@ from ..base import MaterialComponent
 from .input import ChatAreaInput
 
 _MESSAGE_BG = ":host(.message), .message { background-color: unset !important; box-shadow: unset !important; }"
+
+DEFAULT_AVATARS = {
+    "system": {"type": "icon", "icon": "settings"},
+    **DEFAULT_AVATARS_PANEL
+}
 
 
 class MessageState(param.Parameterized):
@@ -53,9 +59,16 @@ class ChatMessage(MaterialComponent, ChatMessage):
     css_classes = param.List(default=[],doc="""
         The CSS classes to apply to the widget.""")
 
+    default_avatars = param.Dict(default=DEFAULT_AVATARS, doc="""
+        A default mapping of user names to their corresponding avatars
+        to use when the user is specified but the avatar is. You can
+        modify, but not replace the dictionary.""")
+
     default_layout = param.ClassSelector(class_=(Panel), precedence=-1)
 
     elevation = param.Integer(default=2, doc="The elevation of the message.")
+
+    placement = param.Selector(default="left", objects=["left", "right"], doc="The placement of the message.")
 
     _internal_state = param.ClassSelector(class_=MessageState, default=MessageState())
     _object_panel = Child()
@@ -70,6 +83,9 @@ class ChatMessage(MaterialComponent, ChatMessage):
 
     def __init__(self, object=None, **params):
         self._exit_stack = ExitStack()
+        if 'placement' not in params and ChatMessage.placement is None:
+            user = params.get('user', ChatMessage.user).lower()
+            params['placement'] = 'right' if user == 'user' else 'left'
         if params.get("timestamp") is None:
             tz = params.get("timestamp_tz")
             if tz is not None:
@@ -110,9 +126,18 @@ class ChatMessage(MaterialComponent, ChatMessage):
         else:
             self._internal_state.avatar = {"type": "text", "text": self.avatar}
 
+    @property
+    def _synced_params(self) -> list[str]:
+        """
+        Parameters which are synced with properties using transforms
+        applied in the _process_param_change method.
+        """
+        ignored = ['default_layout', 'loading', 'background']
+        return [p for p in self.param if p not in self._manual_params+ignored]
+
     def _handle_msg(self, msg):
         if msg == 'edit':
-            self._toggle_edit()
+            self._toggle_edit(msg)
         elif msg == 'copy':
             object_panel = self._object_panel
             if isinstance(object_panel, HTMLBasePane):
@@ -161,5 +186,7 @@ class ChatMessage(MaterialComponent, ChatMessage):
     def _process_param_change(self, params):
         params = super()._process_param_change(params)
         if 'stylesheets' in params:
-            params['stylesheets'] += [".message { font-size: 1.25em; overflow-wrap: anywhere; word-break: break-word; }"]
+            params['stylesheets'] += [".message { font-size: 1.25em; overflow-wrap: anywhere; word-break: break-word; width; max-width: calc(100% - 20px); }"]
         return params
+
+__all__ = ["ChatMessage"]

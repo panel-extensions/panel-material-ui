@@ -1,47 +1,22 @@
 from __future__ import annotations
 
-import json
-import pathlib
-from typing import TYPE_CHECKING, Literal
+import io
+import os
+from typing import TYPE_CHECKING, Any, Literal
 
 import param
-from jinja2 import Environment, FileSystemLoader
-from markupsafe import Markup
+from jinja2 import Template
 from panel.config import _base_config, config
-from panel.io.resources import URL, ResourceComponent
+from panel.io.resources import ResourceComponent, Resources
 from panel.viewable import Children
 
-from ..base import MaterialComponent
+from ..base import MaterialComponent, ThemedTransform
+from ..widgets.base import MaterialWidget
 
 if TYPE_CHECKING:
     from bokeh.document import Document
     from panel.io.location import LocationAreaBase
     from panel.io.resources import ResourcesType
-
-
-def get_env():
-    ''' Get the correct Jinja2 Environment, also for frozen scripts.
-    '''
-    internal_path = pathlib.Path(__file__).parent / '..' / '_templates'
-    return Environment(loader=FileSystemLoader([
-        str(internal_path.resolve())
-    ]))
-
-def conffilter(value):
-    return json.dumps(dict(value)).replace('"', '\'')
-
-class json_dumps(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, URL):
-            return str(obj)
-        return super().default(obj)
-
-_env = get_env()
-_env.trim_blocks = True
-_env.lstrip_blocks = True
-_env.filters['json'] = lambda obj: Markup(json.dumps(obj, cls=json_dumps))
-_env.filters['conffilter'] = conffilter
-_env.filters['sorted'] = sorted
 
 
 class Meta(param.Parameterized):
@@ -92,21 +67,30 @@ class Page(MaterialComponent, ResourceComponent):
 
     sidebar_open = param.Boolean(default=True, doc="Whether the sidebar is open or closed.")
 
-    sidebar_variant = param.Selector(default="persistent", objects=["persistent", "drawer"])
+    sidebar_variant = param.Selector(default="auto", objects=["persistent", "temporary", "permanent", "auto"], doc="""
+        Whether the sidebar is persistent, a temporary drawer, a permanent drawer, or automatically switches between the two based on screen size.""")
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
+
+    theme_toggle = param.Boolean(default=True, doc="Whether to show a theme toggle button.")
 
     title = param.String(doc="Title of the application.")
 
     _esm_base = "Page.jsx"
     _rename = {"config": None, "meta": None}
+    _source_transforms = {
+        "header": None,
+        "contextbar": None,
+        "sidebar": None,
+        "main": None,
+    }
 
     def __init__(self, **params):
         resources, meta = {}, {}
         for k in list(params):
             if k.startswith('meta_'):
                 meta[k.replace('meta_', '')] = params.pop(k)
-            elif k in _base_config.param:
+            elif k in _base_config.param and k != 'name':
                 resources[k] = params.pop(k)
         if "title" in params and "title" not in meta:
             meta["title"] = params["title"]
@@ -128,6 +112,8 @@ class Page(MaterialComponent, ResourceComponent):
                 extras[rname] = res
             elif isinstance(res, dict):
                 extras[rname].update(res)  # type: ignore
+            elif isinstance(extras[rname], dict):
+                extras[rname].update({r.split('/')[-1].split('.')[0]: r for r in res})
             else:
                 extras[rname] += [  # type: ignore
                     r for r in res if r not in extras.get(rname, [])  # type: ignore
@@ -151,18 +137,70 @@ class Page(MaterialComponent, ResourceComponent):
         resources["raw_css"] += raw_css
         return resources
 
+    def save(
+        self,
+        filename: str | os.PathLike | io.IO,
+        title: str | None = None,
+        resources: Resources | None = None,
+        template: str | Template | None = None,
+        template_variables: dict[str, Any] | None = None,
+        **kwargs
+    ) -> None:
+        if not template_variables:
+            template_variables = {}
+        template_variables['meta'] = self.meta
+        template_variables['resources'] = self.resolve_resources()
+        super().save(
+            filename,
+            title,
+            resources,
+            template,
+            template_variables,
+            **kwargs
+        )
+
     def server_doc(
         self, doc: Document | None = None, title: str | None = None,
         location: bool | LocationAreaBase | None = True
     ) -> Document:
+        title = title or self.title or self.meta.title or 'Panel Application'
         doc = super().server_doc(doc, title, location)
-        doc.title = title or self.title or self.meta.title or 'Panel Application'
-        doc.template = _env.get_template('base.html')
         doc.template_variables['meta'] = self.meta
         doc.template_variables['resources'] = self.resolve_resources()
         return doc
 
 
+class ThemeToggle(MaterialWidget):
+    """
+    A toggle button to switch between light and dark themes.
+    """
+
+    color = param.Selector(default='primary', objects=['primary', 'secondary'], doc="The color of the theme toggle.")
+
+    theme = param.Selector(default=None, objects=['dark', 'default'], constant=True, doc="The current theme.")
+
+    value = param.Boolean(default=None, doc="Whether the theme toggle is on or off.")
+
+    variant = param.Selector(default='icon', objects=['icon', 'switch'], doc="Whether to render just an icon or a toggle")
+
+    width = param.Integer(default=None, doc="The width of the theme toggle.")
+
+    _esm_base = "ThemeToggle.jsx"
+    _esm_transforms = [ThemedTransform]
+    _rename = {"theme_toggle": None}
+
+    def __init__(self, **params):
+        params['theme'] = config.theme
+        params['value'] = config.theme == 'dark'
+        super().__init__(**params)
+
+    @param.depends('value', watch=True)
+    def _update_theme(self):
+        with param.parameterized.edit_constant(self):
+            self.theme = config.theme = 'dark' if self.value else 'default'
+
+
 __all__ = [
-    "Page"
+    "Page",
+    "ThemeToggle"
 ]

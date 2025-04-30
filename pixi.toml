@@ -10,7 +10,7 @@ serve-example = { cmd = "echo ", depends-on = ["install", "serve-dev"] }
 
 [dependencies]
 python = ">=3.10"
-panel = ">=1.6.3a1"
+panel = ">=1.6.3"
 bokeh = ">=3.7.2"
 packaging = "*"
 watchfiles = "*"
@@ -63,7 +63,7 @@ test = { cmd = "pytest", depends-on = ["_install"] }
 test-coverage = { cmd = "pytest --cov=panel_material_ui --cov-report=xml --cov-report=term-missing", depends-on = ["_install"] }
 
 [feature.test-example.tasks]
-test-example = 'pytest -n logical --dist loadscope --nbval-lax examples'
+test-example = 'pytest -n logical --dist loadscope --nbval-lax examples --ignore examples/homepage.ipynb'
 
 [feature.test-example.dependencies]
 nbval = "*"
@@ -94,11 +94,10 @@ OBJC_DISABLE_INITIALIZE_FORK_SAFETY = "YES"
 SPHINX_APIDOC_OPTIONS = "members,show-inheritance"
 
 [feature.doc.dependencies]
-# lxml = "*"
 nbsite = ">=0.9.0a1"
 numpydoc = "*"
 matplotlib = "*"  # not optional in nbsite
-holoviews = "*"  # nbsite needs holoviews somehow
+hvplot = "*"
 bokeh_sampledata = "*"
 
 [feature.doc.tasks]

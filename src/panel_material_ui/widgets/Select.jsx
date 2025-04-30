@@ -18,7 +18,7 @@ import Input from "@mui/material/Input"
 import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
 
-export function render({model, view}) {
+export function render({model, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -121,12 +121,9 @@ export function render({model, view}) {
   }, [filterStr])
 
   const MenuProps = {
+    container: el,
     disablePortal: true,
     getContentAnchorEl: null,
-    anchorOrigin: {
-      vertical: "bottom",
-      horizontal: "left",
-    },
     sx: {height: dropdown_height},
     MenuListProps: {
       ref: menuRef,
@@ -400,17 +397,17 @@ export function render({model, view}) {
 
           return (
             <MenuItem
-              key={opt}
-              value={opt}
-              disableGutters
-              onClick={handleClick}
               data-matched={matched}
+              disableGutters
+              key={opt}
+              onClick={handleClick}
               sx={{
                 backgroundColor: matched ? "action.selected" : "inherit",
                 "&:hover": {
                   backgroundColor: matched ? "action.selected" : "action.hover",
                 }
               }}
+              value={opt}
             >
               {multi && searchable && <Checkbox color={color} checked={value.includes(opt)} onClick={handleClick} />}
               <ListItemText primary={label} sx={{margin: 2}} />
@@ -422,7 +419,7 @@ export function render({model, view}) {
   }
 
   return (
-    <FormControl disabled={disabled} fullWidth>
+    <FormControl disabled={disabled} fullWidth variant={variant}>
       {label && <InputLabel color={color} id={`select-label-${model.id}`}>{label}</InputLabel>}
       <Select
         color={color}

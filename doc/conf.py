@@ -128,15 +128,18 @@ nbsite_gallery_conf = {
             'extensions': ['*.ipynb', '*.py', '*.md'],
             'sections': [
                 'widgets',
+                'menus',
                 'layouts',
+                'page',
+                'chat',
+                'indicators',
+                'global'
             ],
             'as_pyodide': True,
             'normalize_titles': False,
         }
     },
     'thumbnail_url': 'https://assets.holoviz.org/panel-material-ui/thumbnails',
-    # 'deployment_url': gallery_url,
-    # 'jupyterlite_url': jlite_url,
     'only_use_existing': True,
 }
 
@@ -264,6 +267,8 @@ def setup_mystnb(app):
     HideCodeCellNode.add_to_app(app)
 
 
+def generate_demo(app):
+    subprocess.run(["python", pathlib.Path(__file__).parent / "_scripts" / "demo.py"], check=True)
 
 def setup(app) -> None:
     try:
@@ -274,6 +279,7 @@ def setup(app) -> None:
         print('no param_formatter (no param?)')
 
     app.connect('builder-inited', setup_mystnb)
+    app.connect("builder-inited", generate_demo)
 
     app.connect('source-read', update_versions)
     nbbuild.setup(app)

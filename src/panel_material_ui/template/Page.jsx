@@ -10,9 +10,10 @@ import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import DarkMode from "@mui/icons-material/DarkMode";
 import LightMode from "@mui/icons-material/LightMode";
 import TocIcon from "@mui/icons-material/Toc";
+import Tooltip from "@mui/material/Tooltip";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
-import {render_theme_css} from "./utils"
+import {dark_mode, setup_global_styles} from "./utils"
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && prop !== "variant" && prop !== "sidebar_width"})(
   ({sidebar_width, theme, open, variant}) => {
@@ -53,6 +54,7 @@ export function render({model}) {
   const [open, setOpen] = model.useState("sidebar_open")
   const [variant] = model.useState("sidebar_variant")
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
+  const [theme_toggle] = model.useState("theme_toggle")
   const [sx] = model.useState("sx")
   const [contextbar_open, contextOpen] = model.useState("contextbar_open")
   const [contextbar_width] = model.useState("contextbar_width")
@@ -64,55 +66,23 @@ export function render({model}) {
     setDarkTheme(!dark_theme)
   }
 
-  let global_style_el = document.querySelector("#global-styles-panel-mui")
-  const template_style_el = document.querySelector("#template-styles")
-  if (!global_style_el) {
-    {
-      global_style_el = document.createElement("style")
-      global_style_el.id = "global-styles-panel-mui"
-      if (template_style_el) {
-        document.head.insertBefore(global_style_el, template_style_el)
-      } else {
-        document.head.appendChild(global_style_el)
-      }
-    }
-  }
-  let page_style_el = document.querySelector("#page-style")
-  if (!page_style_el) {
-    page_style_el = document.createElement("style")
-    page_style_el.id = "page-style"
-    if (template_style_el) {
-      document.head.insertBefore(page_style_el, template_style_el)
-    } else {
-      document.head.appendChild(page_style_el)
-    }
-  }
+  setup_global_styles(theme)
 
-  React.useEffect(() => {
-    global_style_el.textContent = render_theme_css(theme)
-    const style_objs = theme.generateStyleSheets()
-    const css = style_objs
-      .map((obj) => {
-        return Object.entries(obj).map(([selector, vars]) => {
-          const varLines = Object.entries(vars)
-            .map(([key, val]) => `  ${key}: ${val};`)
-            .join("\n");
-          return `:root, ${selector} {\n${varLines}\n}`;
-        })
-          .join("\n\n");
-      })
-      .join("\n\n");
-    page_style_el.textContent = css
-  }, [theme])
+  React.useEffect(() => dark_mode.set_value(dark_theme), [])
 
+  const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
   const drawer = sidebar.length > 0 ? (
     <Drawer
+      PaperProps={{className: "sidebar"}}
+      anchor="left"
+      disablePortal
       open={open}
+      onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
       sx={{
         flexShrink: 0,
         [`& .MuiDrawer-paper`]: {width: sidebar_width, boxSizing: "border-box"},
       }}
-      variant={variant === "drawer" || isMobile ? "temporary": "persistent"}
+      variant={drawer_variant}
     >
       <Toolbar/>
       <Divider />
@@ -124,12 +94,14 @@ export function render({model}) {
 
   const context_drawer = contextbar.length > 0 ? (
     <Drawer
+      PaperProps={{className: "contextbar"}}
       anchor="right"
+      disablePortal
       open={contextbar_open}
       onClose={() => contextOpen(false)}
       sx={{
-        width: contextbar_width,
         flexShrink: 0,
+        width: contextbar_width,
         zIndex: (theme) => theme.zIndex.drawer + 2,
         [`& .MuiDrawer-paper`]: {width: contextbar_width, padding: "0.5em", boxSizing: "border-box"},
       }}
@@ -140,23 +112,21 @@ export function render({model}) {
   ) : null
 
   return (
-    <Box sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
-      <AppBar position="fixed" color="primary" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
+    <Box className={`mui-${dark_theme ? "dark" : "light"}`} sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
+      <AppBar position="fixed" color="primary" className="header" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
         <Toolbar>
-          { model.sidebar.length > 0 &&
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={() => setOpen(!open)}
-            edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-            ]}
-          >
-            {open ? <MenuOpenIcon/> : <MenuIcon />}
-          </IconButton>
+          {(model.sidebar.length > 0 && drawer_variant !== "permanent") &&
+            <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>
+              <IconButton
+                color="inherit"
+                aria-label={open ? "Close drawer" : "Open drawer"}
+                onClick={() => setOpen(!open)}
+                edge="start"
+                sx={{mr: 2}}
+              >
+                {open ? <MenuOpenIcon/> : <MenuIcon />}
+              </IconButton>
+            </Tooltip>
           }
           <Typography variant="h5" sx={{color: "white"}}>
             {title}
@@ -164,33 +134,42 @@ export function render({model}) {
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
             {header}
           </Box>
-          <IconButton onClick={toggleTheme} color="inherit" align="right">
-            {dark_theme ? <DarkMode /> : <LightMode />}
-          </IconButton>
-          { (model.contextbar.length > 0 && !contextbar_open) &&
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={() => contextOpen(!contextbar_open)}
-            edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-            ]}
-          >
-            <TocIcon />
-          </IconButton>}
+          {theme_toggle &&
+            <Tooltip enterDelay={500} title="Toggle theme">
+              <IconButton onClick={toggleTheme} aria-label="Toggle theme" color="inherit" align="right" sx={{mr: "1em"}}>
+                {dark_theme ? <DarkMode /> : <LightMode />}
+              </IconButton>
+            </Tooltip>
+          }
+          {(model.contextbar.length > 0 && !contextbar_open) &&
+            <Tooltip enterDelay={500} title="Toggle contextbar">
+              <IconButton
+                color="inherit"
+                aria-label="toggle contextbar"
+                onClick={() => contextOpen(!contextbar_open)}
+                edge="start"
+                sx={{mr: 2}}
+              >
+                <TocIcon />
+              </IconButton>
+            </Tooltip>
+          }
         </Toolbar>
       </AppBar>
       {drawer &&
       <Box
         component="nav"
-        sx={variant === "drawer" || isMobile ? {width: 0, flexShrink: {xs: 0}} : {width: {sm: sidebar_width}, flexShrink: {sm: 0}}}
+        sx={
+          drawer_variant === "temporary" ? (
+            {width: 0, flexShrink: {xs: 0}}
+          ) : (
+            {width: {sm: sidebar_width}, flexShrink: {sm: 0}}
+          )
+        }
       >
         {drawer}
       </Box>}
-      <Main open={open} sidebar_width={sidebar_width} variant={isMobile ? "drawer" : variant}>
+      <Main className="main" open={open} sidebar_width={sidebar_width} variant={drawer_variant}>
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
           <Toolbar/>
           <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column"}}>

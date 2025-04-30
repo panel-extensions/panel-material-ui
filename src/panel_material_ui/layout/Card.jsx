@@ -6,6 +6,7 @@ import Collapse from "@mui/material/Collapse"
 import IconButton from "@mui/material/IconButton"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
+import {apply_flex} from "./utils"
 
 const ExpandMore = styled((props) => {
   const {expand, ...other} = props;
@@ -109,7 +110,10 @@ export function render({model, view}) {
             },
           }}
         >
-          {objects}
+          {objects.map((object, index) => {
+            apply_flex(view.get_child_view(model.objects[index]), "column")
+            return object
+          })}
         </CardContent>
       </Collapse>
     </Card>

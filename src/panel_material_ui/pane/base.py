@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 import param
 from panel.pane.markup import Markdown
 
@@ -105,3 +107,12 @@ class Typography(MaterialPaneBase, Markdown):
 
     _esm_base = "Typography.jsx"
     _rename = {"object": "object"}
+
+    @classmethod
+    def applies(cls, obj: Any) -> float | bool | None:
+        if hasattr(obj, '_repr_markdown_'):
+            return 0.29
+        elif isinstance(obj, str):
+            return 0.09
+        else:
+            return False

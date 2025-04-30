@@ -75,6 +75,9 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
         icon name which is loaded from Material Icons.""",
     )
 
+    icon_size = param.String(default="1em", doc="""
+        Size of the icon as a string, e.g. 12px or 1em.""")
+
     width = param.Integer(default=None)
 
     _rename: ClassVar[Mapping[str, str | None]] = {
@@ -107,12 +110,6 @@ class Button(_ButtonBase, _ClickButton):
 
     href = param.String(default=None, doc="""
         The URL to navigate to when the button is clicked.""")
-
-    icon_size = param.String(
-        default="1em",
-        doc="""
-        Size of the icon as a string, e.g. 12px or 1em.""",
-    )
 
     disable_elevation = param.Boolean(default=False)
 

@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any
 
 import param
 from bokeh.models.callbacks import CustomJS
-from panel.config import config
 from panel.io.datamodel import _DATA_MODELS, construct_data_model
 from panel.io.notifications import Notification as _Notification
 from panel.io.notifications import NotificationAreaBase
@@ -70,6 +69,9 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
               _destroyed: false,
               _uuid: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
             }}
+            notifications.document.event_manager.trigger(
+              {{event_name: 'esm_event', model: notifications, data: {{type: 'enqueue', notification: config}}}}
+            )
             notifications.data.notifications = [...notifications.data.notifications, config]
             """, args={'notifications': model}))
         return model
@@ -125,6 +127,7 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
             if (ntype.data.value === 'custom') {
               config.background = color.data.value
             }
+            notifications.document.event_manager.trigger({event_name: 'esm_event', model: notifications, data: {type: 'enqueue', notification: config}})
             notifications.data.notifications = [...notifications.data.notifications, config]
             """
         )
@@ -144,20 +147,32 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
         )
         self.notifications.append(notification)
         self.param.trigger('notifications')
+        self._send_msg({
+            'type': 'enqueue',
+            'notification': {
+                k: v for k, v in notification.param.values().items()
+                if k != 'notification_area'
+            }
+        })
         return notification
 
     def clear(self):
         for notification in self.notifications:
             notification.param.unwatch(self._notification_watchers.pop(notification))
+            self._send_msg({'type': 'destroy', 'uuid': notification._uuid})
         self.notifications = []
+
+    def _handle_msg(self, msg):
+        if msg['type'] == 'destroy':
+            self.notifications = [n for n in self.notifications if n._uuid != msg['uuid']]
 
     def _remove_notification(self, event):
         if event.obj in self.notifications:
             self.notifications.remove(event.obj)
         event.obj.param.unwatch(self._notification_watchers.pop(event.obj))
         self.param.trigger('notifications')
+        self._send_msg({'type': 'destroy', 'uuid': event.obj._uuid})
 
 
 _state._notification_type = NotificationArea
-if not config.autoreload:
-    _DATA_MODELS[MuiNotification] = construct_data_model(MuiNotification)
+_DATA_MODELS[MuiNotification] = construct_data_model(MuiNotification, f'MuiNotification{uuid.uuid4().hex}')

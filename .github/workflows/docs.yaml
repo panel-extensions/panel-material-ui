@@ -53,7 +53,8 @@ jobs:
       - uses: holoviz-dev/holoviz_tasks/pixi_install@v0
         with:
           environments: docs
-          opengl: true
+      - name: Fetch full Git history
+        run: git fetch --unshallow
       - name: Build documentation
         run: pixi run -e docs docs-build
       - uses: actions/upload-artifact@v4

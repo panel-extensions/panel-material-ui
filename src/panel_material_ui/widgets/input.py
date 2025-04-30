@@ -226,6 +226,17 @@ class FileInput(_ButtonLike, _PnFileInput):
         )
         self._buffer.clear()
 
+    def save(self, filename):
+        """
+        Saves the uploaded FileInput data object(s) to file(s) or
+        BytesIO object(s).
+
+        Parameters
+        ----------
+        filename (str or list[str]): File path or file-like object
+        """
+        _PnFileInput.save(self, filename)
+
 
 class _NumericInputBase(MaterialInputWidget):
 
