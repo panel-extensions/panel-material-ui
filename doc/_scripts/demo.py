@@ -33,7 +33,7 @@ drawer = pmui.Drawer('## Drawer')
 pmui.Paper(
     pmui.Row(
         pmui.Typography('Components', variant='h4'),
-        color,
+        switch,
         pmui.ThemeToggle(styles={'margin-left': 'auto'}),
         sizing_mode='stretch_width'
     ),
