@@ -1,6 +1,6 @@
-import Box from '@mui/material/Box'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { useTheme } from '@mui/material/styles'
+import Box from "@mui/material/Box"
+import useMediaQuery from "@mui/material/useMediaQuery"
+import {useTheme} from "@mui/material/styles"
 
 export function render({model}) {
   const theme = useTheme();
@@ -11,15 +11,15 @@ export function render({model}) {
   const isLarge = media_query ? useMediaQuery(media_query) : useMediaQuery(theme.breakpoints.up(breakpoint))
 
   React.useEffect(() => {
-    model.send_msg({type: 'switch', current: isLarge ? 'large' : 'small'})
+    model.send_msg({type: "switch", current: isLarge ? "large" : "small"})
   }, [isLarge])
 
   return (
-    <Box sx={{width: '100%', height: '100%'}}>
-      <div style={{display: isLarge ? 'block' : 'none'}}>
+    <Box sx={{width: "100%", height: "100%"}}>
+      <div style={{display: isLarge ? "block" : "none"}}>
         {large}
       </div>
-      <div style={{display: isLarge ? 'none' : 'block'}}>
+      <div style={{display: isLarge ? "none" : "block"}}>
         {small}
       </div>
     </Box>
