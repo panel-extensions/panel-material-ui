@@ -23,7 +23,7 @@ color.jslink(color, value='color')
 color.jslink(color_select, value='value', bidirectional=True)
 
 switch = pmui.BreakpointSwitcher(
-    breakpoint='lg',
+    breakpoint='md',
     small=color_select,
     large=color
 )
