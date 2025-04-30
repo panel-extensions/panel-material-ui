@@ -37,7 +37,12 @@
 
 Welcome to Panel Material UI – a library that brings the sleek design and comprehensive component set of [Material UI](https://mui.com/material-ui/) into the world of Panel.
 
-![Panel Material UI Showcase](assets/panel-material-ui-components.png)
+<a href="https://panel-material-ui.holoviz.org/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/panel-extensions/panel-material-ui/raw/main/doc/_static/panel-material-ui-components-dark.png">
+    <img src="https://github.com/panel-extensions/panel-material-ui/raw/main/doc/_static/panel-material-ui-components.png" alt="Panel Material UI Components" width="100%"/>
+  </picture>
+</a>
 
 ## Why Panel Material UI?
 
