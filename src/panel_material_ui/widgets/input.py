@@ -79,7 +79,8 @@ class TextInput(_TextInputBase):
     """
     The `TextInput` widget allows entering any string using a text input box.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/widgets/TextInput.html
     - https://mui.com/material-ui/react-text-field/
 
@@ -101,7 +102,8 @@ class PasswordInput(_TextInputBase):
     """
     The `PasswordInput` widget allows entering any string using an obfuscated text input box.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/widgets/PasswordInput.html
     - https://mui.com/material-ui/react-text-field/#input-adornments
 
@@ -120,7 +122,8 @@ class TextAreaInput(_TextInputBase):
 
     Lines are joined with the newline character `\n`.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/widgets/TextAreaInput.html
     - https://mui.com/material-ui/react-text-field/
 
@@ -174,7 +177,8 @@ class FileInput(_ButtonLike, _PnFileInput):
 
     It makes the filename, MIME type and (bytes) content available in Python.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/widgets/FileInput.html
     - https://mui.com/material-ui/react-button/#file-upload
 
@@ -465,7 +469,8 @@ class DatePicker(_DatePickerBase):
     The `DatePicker` allows selecting a `date` value using a text box
     and a date-picking utility.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/widgets/DatePicker.html
     - https://mui.com/x/react-date-pickers/
 
@@ -663,7 +668,8 @@ class DatetimePicker(_DatetimePickerBase):
     The `DatetimePicker` allows selecting selecting a `datetime` value using a
     textbox and a datetime-picking utility.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/widgets/DatetimePicker.html
     - https://mui.com/x/react-date-pickers/
 
@@ -828,7 +834,9 @@ class Checkbox(MaterialWidget):
 
     This widget is interchangeable with the `Switch` widget.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Checkbox.html
     - https://panel.holoviz.org/reference/widgets/Checkbox.html
     - https://mui.com/material-ui/react-checkbox/
 
@@ -862,7 +870,8 @@ class Switch(MaterialWidget):
 
     This widget is interchangeable with the `Checkbox` widget.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/widgets/Switch.html
     - https://mui.com/material-ui/react-switch/
 
@@ -892,6 +901,16 @@ class Switch(MaterialWidget):
 class ColorPicker(MaterialWidget):
     """
     The `ColorPicker` allows selecting a color value using a color picker utility.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/ColorPicker.html
+    - https://panel.holoviz.org/reference/widgets/ColorPicker.html
+    - https://viclafouch.github.io/mui-color-input/
+
+    :Example:
+
+    >>> pmui.ColorPicker(name='Color Picker', value='#99ef78')
     """
 
     alpha = param.Boolean(default=False, doc="Whether to allow alpha transparency.")
@@ -913,7 +932,8 @@ class LiteralInput(TextInput, _PnLiteralInput):
     """
     The `LiteralInput` allows entering any string using a text input box.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/widgets/LiteralInput.html
     """
 

@@ -110,7 +110,9 @@ class Container(MaterialListLike):
     """
     The `Container` layout centers your content horizontally. It's the most basic layout element.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Container.html
     - https://mui.com/material-ui/react-container/
 
     :Example:
@@ -137,7 +139,8 @@ class Grid(MaterialListLike):
     """
     The `Grid` layout is a two-dimensional layout that allows arranging items in a grid.
 
-    References:
+    :References:
+
     - https://mui.com/material-ui/react-grid/
 
     :Example:
@@ -173,7 +176,8 @@ class Card(MaterialNamedListLike, PaperMixin):
     A `Card` layout allows arranging multiple panel objects in a
     collapsible, vertical container with a header bar.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/layouts/Card.html
     - https://mui.com/material-ui/react-card/
 
@@ -233,7 +237,8 @@ class Accordion(MaterialNamedListLike, PaperMixin):
     interactively updating and modifying the cards using the methods `append`,
     `extend`, `clear`, `insert`, `pop`, `remove` and `__setitem__`.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/layouts/Accordion.html
     - https://mui.com/material-ui/react-accordion/
 
@@ -286,7 +291,8 @@ class Tabs(MaterialNamedListLike):
     `append`, `extend`, `clear`, `insert`, `pop`, `remove` and `__setitem__`,
     which make it possible to interactively update and modify the tabs.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/layouts/Tabs.html
     - https://mui.com/material-ui/react-tabs/
 
@@ -390,7 +396,8 @@ class Divider(MaterialListLike):
     A `Divider` draws a horizontal rule (a `<hr>` tag in HTML) to separate
     multiple components in a layout.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/layouts/Divider.html
     - https://mui.com/material-ui/react-divider/
 

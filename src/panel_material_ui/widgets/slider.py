@@ -281,7 +281,11 @@ class DateRangeSlider(_RangeSliderBase):
     slider with two handles. Supports datetime.datetime, datetime.date
     and np.datetime64 ranges.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DateRangeSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DateRangeSlider.html
+    - https://panel.holoviz.org/reference/widgets/DateRangeSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
