@@ -66,9 +66,9 @@ Access a growing collection of Material UI–inspired components (Buttons, Slide
 
 ## Disclaimer
 
-Panel Material UI is a relatively new project, having been first released in May 2025. As with any young project, there may be some growing pains as we continue to develop and improve the library.
+Panel Material UI is a relatively new project, having been first released in May 2025. As with any young project, there may be some pains as we continue to develop and improve the library.
 
-We are actively using this library in production environments, which means you can expect regular updates and improvements. Our team is committed to addressing any issues that arise promptly, ensuring a stable and reliable experience for all users.
+We are actively using this library in production environments, which means you can expect regular updates and improvements.
 
 We appreciate your understanding and support as we work to make Panel Material UI the best it can be!
 
