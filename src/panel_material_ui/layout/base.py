@@ -428,6 +428,7 @@ class Alert(MaterialListLike):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/global/Notifications.html
     - https://mui.com/material-ui/react-alert/
 
     :Example:
