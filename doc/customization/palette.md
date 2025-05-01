@@ -1,6 +1,6 @@
 # Palette
 
-The panel-material-ui palette system allows you to customize component colors to suit your brand. Colors are grouped into default categories (primary, secondary, error, warning, info, success) or custom categories that you define yourself.
+The `panel-material-ui` palette system allows you to customize component colors to suit your brand. Colors are grouped into default categories (primary, secondary, error, warning, info, success) or custom categories that you define yourself.
 
 ## Color tokens
 
@@ -52,7 +52,7 @@ from panel_material_ui import Button
 my_theme = {
     "palette": {
         "primary": {
-            "main": "#1976d2",
+            "main": "#ff69b4", # Changed to pink
             "light": "#42a5f5",
             "dark": "#1565c0",
             "contrastText": "#fff",
@@ -70,11 +70,11 @@ Button(label="Custom Themed Button", theme_config=my_theme, button_type='primary
 
 You don’t need to use a predefined palette. For each palette entry (e.g., primary), you can specify `main` (required), and optionally `light`, `dark`, and `contrastText`:
 
-```python
+```{pyodide}
 my_theme = {
     "palette": {
         "primary": {
-            "main": "#FF5733",
+            "main": "#ff69b4", # Changed to pink
             # light, dark, and contrastText can be automatically computed
         },
         "secondary": {
@@ -85,6 +85,7 @@ my_theme = {
         }
     }
 }
+Button(label="Custom Themed Button", theme_config=my_theme, button_type='primary')
 ```
 
 ### Contrast threshold
