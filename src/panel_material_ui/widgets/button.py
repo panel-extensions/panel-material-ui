@@ -161,8 +161,8 @@ class Fab(Button):
 
     :References:
 
-    - https://panel.holoviz.org/reference/widgets/Fab.html
-    - https://mui.com/material-ui/react-fab/
+    - https://panel-material-ui.holoviz.org/reference/widgets/Fab.html
+    - https://mui.com/material-ui/react-floating-action-button/
 
     :Example:
 
@@ -188,6 +188,7 @@ class Toggle(_ButtonBase):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/widgets/Toggle.html
     - https://panel.holoviz.org/reference/widgets/Toggle.html
     - https://mui.com/material-ui/react-toggle-button/
 

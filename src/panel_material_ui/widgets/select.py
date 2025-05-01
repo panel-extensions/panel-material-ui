@@ -181,6 +181,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/widgets/Select.html
     - https://panel.holoviz.org/reference/widgets/Select.html
     - https://mui.com/material-ui/react-select/
 
@@ -243,6 +244,7 @@ class RadioBoxGroup(_RadioGroup, MaterialSingleSelectBase):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/widgets/RadioBoxGroup.html
     - https://panel.holoviz.org/reference/widgets/RadioBoxGroup.html
     - https://mui.com/material-ui/react-radio-button/
 
@@ -330,6 +332,7 @@ class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/widgets/RadioButtonGroup.html
     - https://panel.holoviz.org/reference/widgets/RadioButtonGroup.html
     - https://mui.com/material-ui/react-toggle-button/
 
@@ -382,8 +385,12 @@ class MultiSelect(MaterialMultiSelectBase):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/widgets/MultiSelect.html
     - https://panel.holoviz.org/reference/widgets/MultiSelect.html
     - https://mui.com/material-ui/react-select/#multiple-select
+
+    >>> pmui.MultiSelect(label='MultiSelect', value=['Apple', 'Pear'],
+    ...     options=['Apple', 'Banana', 'Pear', 'Strawberry'], size=8)
     """
 
     color = param.Selector(objects=COLORS, default="primary")
@@ -414,6 +421,7 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
     `MultiSelect`.
 
     :References:
+
     - https://panel-material-ui.holoviz.org/reference/widgets/MultiChoice.html
     - https://panel.holoviz.org/reference/widgets/MultiChoice.html
     - https://mui.com/material-ui/react-select/#multiple-select
@@ -421,7 +429,7 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
     :Example:
 
     >>> MultiChoice(
-    ...     name='Favourites', value=['Panel', 'hvPlot'],
+    ...     label='Favourites', value=['Panel', 'hvPlot'],
     ...     options=['Panel', 'hvPlot', 'HoloViews', 'GeoViews', 'Datashader', 'Param', 'Colorcet'],
     ...     max_items=2
     ... )
@@ -454,7 +462,11 @@ class NestedSelect(_PnNestedSelect):
     The `NestedSelect` widget is composed of multiple widgets, where subsequent select options
     depend on the parent's value.
 
-    Reference: https://panel.holoviz.org/reference/widgets/NestedSelect.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/NestedSelect.html
+    - https://panel.holoviz.org/reference/widgets/NestedSelect.html
+    - https://mui.com/material-ui/react-select/
 
     :Example:
 

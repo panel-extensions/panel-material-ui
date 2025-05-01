@@ -95,7 +95,10 @@ class Paper(MaterialListLike, PaperMixin):
     """
     Paper implements a container for displaying content on an elevated surface.
 
-    Reference: https://mui.com/material-ui/react-paper/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Paper.html
+    - https://mui.com/material-ui/react-paper/
 
     :Example:
     >>> Paper(name="Paper", objects=[1, 2, 3], elevation=10, width=200, height=200)
@@ -141,6 +144,7 @@ class Grid(MaterialListLike):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/layouts/Grid.html
     - https://mui.com/material-ui/react-grid/
 
     :Example:
@@ -178,6 +182,7 @@ class Card(MaterialNamedListLike, PaperMixin):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/layouts/Card.html
     - https://panel.holoviz.org/reference/layouts/Card.html
     - https://mui.com/material-ui/react-card/
 
@@ -239,6 +244,7 @@ class Accordion(MaterialNamedListLike, PaperMixin):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html
     - https://panel.holoviz.org/reference/layouts/Accordion.html
     - https://mui.com/material-ui/react-accordion/
 
@@ -293,6 +299,7 @@ class Tabs(MaterialNamedListLike):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html
     - https://panel.holoviz.org/reference/layouts/Tabs.html
     - https://mui.com/material-ui/react-tabs/
 
@@ -419,7 +426,9 @@ class Alert(MaterialListLike):
     or informational updates. It provides a visually distinct way to inform users about
     the system's status.
 
-    Reference: https://mui.com/material-ui/react-alert/
+    :References:
+
+    - https://mui.com/material-ui/react-alert/
 
     :Example:
 
@@ -456,7 +465,10 @@ class Backdrop(MaterialListLike):
     It is often used to focus attention on a specific part of the interface,
     such as during loading states or while a modal dialog is open.
 
-    Reference: https://mui.com/material-ui/react-backdrop/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Backdrop.html
+    - https://mui.com/material-ui/react-backdrop/
 
     :Example:
     >>> close = Button(on_click=lambda _: backdrop.param.update(open=False), label='Close')  # type: ignore
@@ -477,7 +489,10 @@ class Dialog(MaterialListLike):
     user interaction. It is often used for tasks such as confirmations, forms, or displaying
     additional information.
 
-    Reference: https://mui.com/material-ui/react-dialog/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Dialog.html
+    - https://mui.com/material-ui/react-dialog/
 
     :Example:
     >>> close = Button(on_click=lambda _: dialog.param.update(open=False), label='Close')  # type: ignore
@@ -510,7 +525,10 @@ class Drawer(MaterialListLike):
     user interaction. It is often used for tasks such as confirmations, forms, or displaying
     additional information.
 
-    Reference: https://mui.com/material-ui/react-drawer/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html
+    - https://mui.com/material-ui/react-drawer/
 
     :Example:
     >>> drawer = Drawer("This is a drawer")

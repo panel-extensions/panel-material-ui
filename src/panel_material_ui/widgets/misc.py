@@ -13,7 +13,11 @@ class FileDownload(_ButtonBase, _FileDownload):
     It works either by sending the file data to the browser on initialization
     (`embed`=True), or when the button is clicked.
 
-    Reference: https://panel.holoviz.org/reference/widgets/FileDownload.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/FileDownload.html
+    - https://panel.holoviz.org/reference/widgets/FileDownload.html
+    - https://mui.com/material-ui/react-button/
 
     :Example:
 

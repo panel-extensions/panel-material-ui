@@ -49,6 +49,7 @@ class ToggleIcon(_ClickableIcon):
 
     :References:
 
+    - https://panel-material-ui.holoviz.org/reference/widgets/ToggleIcon.html
     - https://panel.holoviz.org/reference/widgets/ToggleIcon.html
     - https://mui.com/material-ui/react-checkbox/#icon
 

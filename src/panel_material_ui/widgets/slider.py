@@ -60,7 +60,11 @@ class IntSlider(_ContinuousSlider):
     The IntSlider widget allows selecting an integer value within a
     set of bounds using a slider.
 
-    Reference: https://panel.holoviz.org/reference/widgets/IntSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/IntSlider.html
+    - https://panel.holoviz.org/reference/widgets/IntSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -86,7 +90,11 @@ class FloatSlider(_ContinuousSlider):
     The FloatSlider widget allows selecting a floating-point value
     within a set of bounds using a slider.
 
-    Reference: https://panel.holoviz.org/reference/widgets/FloatSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/FloatSlider.html
+    - https://panel.holoviz.org/reference/widgets/FloatSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -102,7 +110,9 @@ class DateSlider(_ContinuousSlider):
     bounds using a slider.  Supports datetime.datetime, datetime.date
     and np.datetime64 values. The step size is fixed at 1 day.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DateSlider.html
+    :References:
+
+    - https://panel.holoviz.org/reference/widgets/DateSlider.html
 
     :Example:
 
@@ -170,7 +180,11 @@ class DatetimeSlider(DateSlider):
     bounds using a slider. Supports datetime.date, datetime.datetime
     and np.datetime64 values. The step size is fixed at 1 minute.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DatetimeSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DatetimeSlider.html
+    - https://panel.holoviz.org/reference/widgets/DatetimeSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -237,7 +251,11 @@ class RangeSlider(_RangeSliderBase):
     The RangeSlider widget allows selecting a floating-point range
     using a slider with two handles.
 
-    Reference: https://panel.holoviz.org/reference/widgets/RangeSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/RangeSlider.html
+    - https://panel.holoviz.org/reference/widgets/RangeSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -252,7 +270,11 @@ class IntRangeSlider(_RangeSliderBase):
     The IntRangeSlider widget allows selecting an integer range using
     a slider with two handles.
 
-    Reference: https://panel.holoviz.org/reference/widgets/IntRangeSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/IntRangeSlider.html
+    - https://panel.holoviz.org/reference/widgets/IntRangeSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -368,7 +390,11 @@ class DatetimeRangeSlider(DateRangeSlider):
     using a slider with two handles. Supports datetime.datetime and
     np.datetime64 ranges.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DatetimeRangeSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DatetimeRangeSlider.html
+    - https://panel.holoviz.org/reference/widgets/DatetimeRangeSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -378,7 +404,7 @@ class DatetimeRangeSlider(DateRangeSlider):
     ...     start=dt.datetime(2025, 1, 1),
     ...     end=dt.datetime(2025, 1, 31),
     ...     step=60*60,
-    ...     name="A tuple of datetimes"
+    ...     label="A tuple of datetimes"
     ... )
     """
 
@@ -394,7 +420,11 @@ class DiscreteSlider(_PnDiscreteSlider):
     """
     The DiscreteSlider widget allows selecting a discrete value using a slider.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DiscreteSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DiscreteSlider.html
+    - https://panel.holoviz.org/reference/widgets/DiscreteSlider.html
+    - https://mui.com/material-ui/react-slider/
     """
 
     color = param.Selector(objects=COLORS, default="default")
@@ -455,7 +485,9 @@ class Rating(MaterialWidget):
     """
     The Rating slider widget allows users to select a rating value of their own.
 
-    Reference: https://mui.com/material-ui/react-rating/
+    :References:
+
+    - https://mui.com/material-ui/react-rating/
 
     :Example:
 
@@ -528,16 +560,19 @@ class _EditableContinuousSliderBase(_EditableContinuousSlider):
 
 class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
     """
-    The EditableFloatSlider widget allows selecting selecting a
+    The EditableFloatSlider widget allows selecting a
     numeric floating-point value within a set of bounds using a slider
     and for more precise control offers an editable number input box.
 
-    Reference: https://panel.holoviz.org/reference/widgets/EditableFloatSlider.html
+    :References:
+    - https://panel-material-ui.holoviz.org/reference/widgets/EditableFloatSlider.html
+    - https://panel.holoviz.org/reference/widgets/EditableFloatSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
     >>> EditableFloatSlider(
-    ...     value=1.0, start=0.0, end=2.0, step=0.25, name="A float value"
+    ...     value=1.0, start=0.0, end=2.0, step=0.25, label="A float value"
     ... )
     """
 
@@ -553,16 +588,20 @@ class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
 
 class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
     """
-    The EditableIntSlider widget allows selecting selecting an integer
+    The EditableIntSlider widget allows selecting an integer
     value within a set of bounds using a slider and for more precise
     control offers an editable integer input box.
 
-    Reference: https://panel.holoviz.org/reference/widgets/EditableIntSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/EditableIntSlider.html
+    - https://panel.holoviz.org/reference/widgets/EditableIntSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
     >>> EditableIntSlider(
-    ...     value=2, start=0, end=5, step=1, name="An integer value"
+    ...     value=2, start=0, end=5, step=1, label="An integer value"
     ... )
     """
 

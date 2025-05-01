@@ -42,6 +42,10 @@ class Page(MaterialComponent, ResourceComponent):
     Unlike a `Template` the `Page` component is implemented entirely
     in Javascript, making it possible to dynamically update components.
 
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/page/Page.html
+
     :Example:
 
     >>> Page(main=['# Content'], title='My App')
@@ -205,6 +209,10 @@ class BreakpointSwitcher(MaterialWidget):
     """
     The `BreakpointSwitcher` component allows switching between two component implementations
     based on the declared breakpoint or media_query.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/page/BreakpointSwitcher.html
 
     :Example:
 
