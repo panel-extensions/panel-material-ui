@@ -497,7 +497,13 @@ export const setup_global_styles = (theme) => {
 
 export const install_theme_hooks = (props) => {
   const [dark_theme, setDarkTheme] = props.model.useState("dark_theme")
-  const [own_theme_config] = props.model.useState("theme_config")
+
+  // ALERT: Unclear why this is needed, the dark_theme state variable
+  // on it's own does not seem stable
+  const dark_ref = React.useRef(dark_theme)
+  React.useEffect(() => {
+    dark_ref.current = dark_theme
+  }, [dark_theme])
 
   // Apply .mui-dark or .mui-light to the container
   const themeClass = `mui-${dark_theme ? "dark" : "light"}`
@@ -513,7 +519,7 @@ export const install_theme_hooks = (props) => {
       if (current.model?.data?.theme_config != null) {
         const config = current.model.data.theme_config
         views.push(current)
-        theme_configs.push(config.dark && config.light ? config[dark_theme ? "dark" : "light"] : config)
+        theme_configs.push((config.dark && config.light) ? config[dark_ref.current ? "dark" : "light"] : config)
       }
       current = current.parent
     }
@@ -521,10 +527,12 @@ export const install_theme_hooks = (props) => {
     return [merged, views]
   }
 
-  const [merged_config, views] = merge_theme_configs(props.view)
-  const [theme_config, setThemeConfig] = React.useState(merged_config)
+  const [theme_config, setThemeConfig] = React.useState(() => merge_theme_configs(props.view, dark_ref.current)[0])
+  const update_views = () => setThemeConfig(merge_theme_configs(props.view)[0])
+
   React.useEffect(() => {
-    const cb = () => setThemeConfig(merge_theme_configs(props.view)[0])
+    const [_, views] = merge_theme_configs(props.view)
+    const cb = () => update_views()
     for (const view of views) {
       view.model_proxy.on("theme_config", cb)
     }
@@ -534,6 +542,7 @@ export const install_theme_hooks = (props) => {
       }
     }
   }, [])
+  React.useEffect(() => update_views(), [dark_theme])
   const theme = React.useMemo(() => {
     const config = render_theme_config(props, theme_config, dark_theme)
     return createTheme(config)
