@@ -1,12 +1,12 @@
 # Custom Components
 
-The `panel-material-ui` package ships with a number of custom Material UI components that are built on top of the Material UI library. However in some cases you may need to create your own custom components.
+The `panel-material-ui` package ships with a number of custom Material UI components that are built on top of the Material UI library. However, in some cases, you may need to create your own custom components.
 
-The `MaterialUIComponent` provides a convenient entrypoint for building custom Material UI components using Panel, that will inherit the functionality of `panel-material-ui` while building on the existing JS bundle.
+The `MaterialUIComponent` provides a convenient entry point for building custom Material UI components using Panel, that will inherit the functionality of `panel-material-ui` while building on the existing JS bundle.
 
-To understand the basics of about building custom components in Panel, see the documentation for the [ReactComponent](https://panel.holoviz.org/reference/custom_components/ReactComponent.html), which the `MaterialUIComponent` is built on top of.
+To understand the basics of building custom components in Panel, see the documentation for the [ReactComponent](https://panel.holoviz.org/reference/custom_components/ReactComponent.html), which the `MaterialUIComponent` is built on top of.
 
-## What we are making?
+## What are we making?
 
 Let’s build something delightfully colorful: a `RainbowButton` that cycles through the colors of the rainbow when you hover or click it! You’ll get hands-on practice with:
 
@@ -16,7 +16,7 @@ Let’s build something delightfully colorful: a `RainbowButton` that cycles thr
 
 ### The Python Side
 
-First we need to define the `RainbowButton` class, which subclasses `MaterialUIComponent`.
+First, we need to define the `RainbowButton` class, which subclasses `MaterialUIComponent`.
 
 ```python
 import param
@@ -62,7 +62,7 @@ Here we:
 - Subclass `MaterialUIComponent`
 - Define five parameters: `label`, `size`, `mode`, `interval`, and `colors`
 - Point at our React file `RainbowButton.jsx`
-- Add an importmap to load the `canvas-confetti` library
+- Add an import map to load the `canvas-confetti` library
 
 ### The React Side
 
@@ -246,4 +246,4 @@ Give it a try, hover over the button to see it cycle through the rainbow colors 
 
 ## Summary
 
-Hopefully this has given you a good introduction to building custom Material UI components using Panel. The `MaterialUIComponent` class not only allows you to build custom components leveraging the powerful `@mui/material` library, but handles theming and styling out of the box and lets you extend it by importing additional libraries to add completely novel functionality.
+Hopefully, this has given you a good introduction to building custom Material UI components using Panel. The `MaterialUIComponent` class not only allows you to build custom components leveraging the powerful `@mui/material` library, but handles theming and styling out of the box and lets you extend it by importing additional libraries to add completely novel functionality.

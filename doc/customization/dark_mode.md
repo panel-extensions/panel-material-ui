@@ -27,7 +27,7 @@ By default each component will control its own theme, however if you want to man
 1. Use the `Page` component, which will automatically include a theme toggle and manage the theme for you.
 
 ```{pyodide}
-from panel_material_ui import Page
+from panel_material_ui import Page, Button
 
 Page(
     dark_theme=True,
@@ -42,10 +42,10 @@ Page(
 
 2. Embed the `ThemeToggle` component, which will ensure the theme is managed globally and let you switch between light and dark mode.
 
-```python
-from panel_material_ui import ThemeToggle
+```{pyodide}
+from panel_material_ui import Button, Row, ThemeToggle
 
-ThemeToggle().servable()
+Row(Button(name="Hello"), ThemeToggle()).preview()
 ```
 
 ## Overriding dark palette
