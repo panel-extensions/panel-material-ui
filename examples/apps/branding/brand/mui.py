@@ -49,11 +49,14 @@ THEME_CONFIG = {
     "dark": _DARK_THEME_CONFIG,
 }
 
-# @pn.cache
-def configure():
-    """
-    Configure the theme for the application.
-    """
+_DISCONNECT_NOTIFICATION="""The connection to the server was lost. Please refresh to \
+reconnect."""
+
+def _configure_session():
+    pn.config.disconnect_notification=_DISCONNECT_NOTIFICATION
+
+@pn.cache
+def _configure_general():
     pmui.Page.param.theme_config.default = THEME_CONFIG["light"]
 
     pmui.Page.config.raw_css.append(RAW_CSS)
@@ -62,4 +65,11 @@ def configure():
     # pmui.Page.param.logo.default = LOGO_SVG_URL
     # pmui.Page.param.favicon.default = FAVICON_URL
     pmui.Page.meta.icon = FAVICON_URL
-    pmui.Page.meta.name = "Company"
+    pmui.Page.meta.name = "Orbitron"
+
+def configure():
+    """
+    Configure the theme for the application.
+    """
+    _configure_general()
+    _configure_session()

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-FAVICON_URL = "brand/assets/favicon.ico" # Source: https://favicon.io/favicon-generator/
+FAVICON_URL = "https://holoviz.org/_static/favicon.ico"
 LOGO_SVG_URL = "brand/assets/logo.svg" # Source: https://text-to-svg.com/montserrat-font-to-svg
 LOGO_PNG_URL = "brand/assets/logo.png" # Source: https://svgtopng.com/
 STYLE_CSS_URL = "brand/assets/style.css" # Source: https://www.w3schools.com/w3css/w3css_templates.asp
