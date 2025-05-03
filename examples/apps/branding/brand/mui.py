@@ -18,7 +18,7 @@ _LIGHT_THEME_CONFIG = {
         "typography": {
             "fontFamily": ("Montserrat", "Helvetica Neue", "Arial", "sans-serif"),
             "fontSize": 16,
-            # The values below don't seem to be used
+            # Not Working
             "fontWeight": 700,
             "letterSpacing": 10.2,
             "lineHeight": 1.5,
@@ -30,6 +30,7 @@ _LIGHT_THEME_CONFIG = {
             "MuiButtonBase": {
             "defaultProps": {
                 "disableRipple": True,
+                # Not Working
                 "disableElevation": True,
             },
             },
@@ -57,7 +58,7 @@ def configure():
 
     pmui.Page.config.raw_css.append(RAW_CSS)
     pmui.Page.config.css_files.append("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap")
-    # The below DOES NOT WORK YET
+    # Not Working
     # pmui.Page.param.logo.default = LOGO_SVG_URL
     # pmui.Page.param.favicon.default = FAVICON_URL
     pmui.Page.meta.icon = FAVICON_URL
