@@ -57,13 +57,12 @@ def _configure_session():
 
 @pn.cache
 def _configure_general():
-    pmui.Page.param.theme_config.default = THEME_CONFIG["light"]
+    pmui.Page.param.theme_config.default = THEME_CONFIG
 
     pmui.Page.config.raw_css.append(RAW_CSS)
     pmui.Page.config.css_files.append("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap")
     # Not Working
     # pmui.Page.param.logo.default = LOGO_SVG_URL
-    # pmui.Page.param.favicon.default = FAVICON_URL
     pmui.Page.meta.icon = FAVICON_URL
     pmui.Page.meta.name = "Orbitron"
 
