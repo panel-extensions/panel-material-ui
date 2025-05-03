@@ -16,27 +16,45 @@ def get_quarters():
     start = datetime.datetime.now().year - 1
     dates = {}
     for year in range(start, start+10):
-        dates[f"{year} - Q1"]=datetime.date(year-1,12,31)
-        dates[f"{year} - Q2"]=datetime.date(year,3,31)
-        dates[f"{year} - Q3"]=datetime.date(year,6,30)
-        dates[f"{year} - Q4"]=datetime.date(year,9,30)
+        dates[f"{year} Q1"]=datetime.date(year-1,12,31)
+        dates[f"{year} Q2"]=datetime.date(year,3,31)
+        dates[f"{year} Q3"]=datetime.date(year,6,30)
+        dates[f"{year} Q4"]=datetime.date(year,9,30)
     return dates
 
 
 class State(pn.viewable.Viewer):
     currency = param.Selector(default="EUR", objects=["EUR", "GBP", "USD"], label="Currency")
-    time_range = param.CalendarDateRange()
-    notationtime_range = param.CalendarDateRange()
+    time_start = param.CalendarDate()
+    time_end = param.CalendarDate()
+
+    notation_time_start = param.CalendarDate()
+    notation_time_end = param.CalendarDate()
+
+    def __init__(self, **params):
+        super().__init__(**params)
+        last_update = datetime.datetime.now().date() - datetime.timedelta(days=1)
+
+        current_year = last_update.year
+        end_year = datetime.date(current_year-1, 12, 31)
+        self.time_start = end_year
+        self.time_end = datetime.date(current_year+1, 12, 31)
+        self.notation_time_start = self.time_start
+        self.notation_time_end = last_update
 
     def __panel__(self):
         quarters = get_quarters()
-        time_range_start = pmui.Select(name='Time Start', options=quarters)
-        time_range_end = pmui.Select(name='Time End', options=quarters)
+
+        time_range_start = pmui.Select.from_param(self.param.time_start, options=quarters)
+        time_range_end = pmui.Select.from_param(self.param.time_end, options=quarters)
+
+        notation_time_start = pmui.DatePicker.from_param(self.param.notation_time_start)
+        notation_time_end = pmui.DatePicker.from_param(self.param.notation_time_end)
 
         return pn.Column(
             self.param.currency,
-            pn.Row(time_range_start, time_range_end),
-            self.param.notationtime_range,
+            pmui.Row(time_range_start, time_range_end),
+            pmui.Column(notation_time_start, notation_time_end),
         )
 
 state = State()
@@ -51,8 +69,8 @@ open_drawer.js_on_click(args={'drawer': drawer}, code='drawer.data.open = !drawe
 page = pmui.Page(
     title="Orbitron",
     header=[pn.HSpacer(), open_drawer],
-    sidebar=["# Settings", state, pn.VSpacer(), github_link, docs_link],
-    sidebar_width=350,
+    sidebar=[pmui.Column("# Settings", state, pn.VSpacer(min_height=25), "### References", github_link, docs_link, sizing_mode="stretch_both", margin=(10,10), styles={"border": "1px solid gray"})],
+    sidebar_width=425,
     main=[pmui.Container("<h2>Buttons</h2>", example_buttons, drawer)],
 )
 
