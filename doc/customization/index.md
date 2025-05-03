@@ -120,5 +120,6 @@ typography
 components
 dark_mode
 color
+icons
 bokeh_holoviews
 ```

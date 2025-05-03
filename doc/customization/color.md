@@ -1,6 +1,6 @@
 # Color
 
-Convey meaning through color. By default, `panel-material-ui` provides access to the Material Design color system, allowing you to choose from a broad set of hue and shade combinations.
+Convey meaning through color. By default, `panel-material-ui` provides access to the [Material Design color system](https://m2.material.io/design/color/the-color-system.html#color-usage-and-palettes), allowing you to choose from a broad set of hues and shade combinations.
 
 The Material Design color system can be used to create a cohesive color theme that matches your brand or style.
 
@@ -17,10 +17,10 @@ The Material Design team provides a powerful palette configuration tool at [mate
 
 ### Using the palette in panel-material-ui
 
-In `panel-material-ui`, you specify colors in a `theme_config` dictionary. Below is a simple example of customizing both the primary and secondary color in your UI:
+In `panel-material-ui`, you specify colors in a `theme_config` dictionary. Below is a simple example of customizing both the primary and secondary colors in your UI:
 
 ```{pyodide}
-from panel_material_ui import Button
+from panel_material_ui import Button, Row
 
 my_theme = {
     "palette": {
@@ -30,7 +30,7 @@ my_theme = {
             "dark": "#002884",
             "contrastText": "#fff"
         },
-        "primary": {
+        "secondary": {
             "light": "#ff7961",
             "main": "#f44336",
             "dark": "#ba000d",
@@ -39,15 +39,18 @@ my_theme = {
     }
 }
 
-Button(label="Brand Button", theme_config=my_theme, button_type="primary").servable()
+Row(
+    Button(label="Primary Button", theme_config=my_theme, button_type="primary"),
+    Button(label="Secondary Button", theme_config=my_theme, button_type="secondary"),
+).servable()
 ```
 
-- If you only provide main, `panel-material-ui` may calculate light, dark, and contrastText automatically (note this does not work for the default, dark and light palettes).
+- If you only provide main, `panel-material-ui` may calculate light, dark, and contrastText automatically (note this does not work for the default, dark, and light palettes).
 - Defining all four explicitly lets you fine-tune exactly how your components appear.
 
 ### Playground
 
-The [material.io/design/color](https://material.io/design/color) site includes interactive sliders and hex fields for picking primary and secondary colors. Once you find colors you like:
+The [material.io/design/color](https://m2.material.io/design/color/the-color-system.html#tools-for-picking-colors) site includes interactive sliders and hex fields for picking primary and secondary colors. Once you find colors you like:
 
 1. Copy the resulting hex codes.
 2. Plug them into your `theme_config["palette"]` for primary and secondary.
@@ -56,8 +59,7 @@ The [material.io/design/color](https://material.io/design/color) site includes i
 For example, if you settle on purple for primary and a certain red for secondary, do:
 
 ```{pyodide}
-import panel as pn
-import panel_material_ui as pmui
+from panel_material_ui import Button, Row
 
 my_theme = {
     "palette": {
@@ -70,20 +72,22 @@ my_theme = {
     }
 }
 
-button = pmui.Button(label="Purply-Red", theme_config=my_theme, button_type="primary")
-pn.Column(button).servable()
+Row(
+    Button(label="Purple", theme_config=my_theme, button_type="primary"),
+    Button(label="Red", theme_config=my_theme, button_type="secondary"),
+).servable()
 ```
 
 ### Tools by the community
 
-- mui-theme-creator ([demo](https://zenoo.github.io/mui-theme-creator/)): A web UI for picking colors, showing how components appear under various palettes.
-- Material palette generator [material.io/inline-tools/color/](https://material.io/inline-tools/color/): Google’s official tool for generating harmonious palettes.
+- [mui-theme-creator](https://zenoo.github.io/mui-theme-creator/): A web UI for picking colors, showing how components appear under various palettes.
+- [Material palette generator](https://material.io/inline-tools/color/): Google’s official tool for generating harmonious palettes.
 
 ### Accessibility
 
-According to WCAG 2.1 Rule 1.4.3, text should have at least a 4.5:1 contrast ratio. Material UI’s default palette enforces a 3:1 contrast. If you need higher contrast (AA-level compliance), you can override the default color contrast behavior in your theme:
+According to [WCAG 2.1 Rule 1.4.3](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html), text should have at least a 4.5:1 contrast ratio. Material UI’s default palette enforces a 3:1 contrast. If you need higher contrast (AA-level compliance), you can override the default color contrast behavior in your theme:
 
-```
+```python
 my_theme = {
     "palette": {
         "primary": {"main": "#3f50b5"},
@@ -92,4 +96,4 @@ my_theme = {
 }
 ```
 
-If you’d like more details, refer to the Material UI Palette Accessibility docs (the same principles apply in `panel-material-ui`).
+If you’d like more details, refer to the [Material UI Palette Accessibility docs](https://mui.com/material-ui/customization/palette/#accessibility) (the same principles apply in `panel-material-ui`).

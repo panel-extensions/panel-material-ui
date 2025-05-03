@@ -60,7 +60,9 @@ class AutocompleteInput(MaterialSingleSelectBase):
     that provide a compatible API and include the  `Select`,
     `RadioBoxGroup` and `RadioButtonGroup` widgets.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/AutocompleteInput.html
     - https://panel.holoviz.org/reference/widgets/AutocompleteInput.html
     - https://mui.com/material-ui/react-autocomplete/
 
@@ -177,7 +179,9 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     that provide a compatible API and include the  `AutocompleteInput`,
     `RadioBoxGroup` and `RadioButtonGroup` widgets.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Select.html
     - https://panel.holoviz.org/reference/widgets/Select.html
     - https://mui.com/material-ui/react-select/
 
@@ -238,7 +242,9 @@ class RadioBoxGroup(_RadioGroup, MaterialSingleSelectBase):
     that provide a compatible API and include the  `AutocompleteInput`,
     `Select` and `RadioButtonGroup` widgets.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/RadioBoxGroup.html
     - https://panel.holoviz.org/reference/widgets/RadioBoxGroup.html
     - https://mui.com/material-ui/react-radio-button/
 
@@ -265,7 +271,9 @@ class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
     It falls into the broad category of multi-option selection widgets that
     provide a compatible API that also include the `CheckButtonGroup` widget.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/CheckBoxGroup.html
     - https://panel.holoviz.org/reference/widgets/CheckBoxGroup.html
     - https://mui.com/material-ui/react-radio-button/
 
@@ -322,7 +330,9 @@ class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
     that provide a compatible API and include the `AutocompleteInput`, `Select`,
     and `RadioBoxGroup` widgets.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/RadioButtonGroup.html
     - https://panel.holoviz.org/reference/widgets/RadioButtonGroup.html
     - https://mui.com/material-ui/react-toggle-button/
 
@@ -346,14 +356,16 @@ class CheckButtonGroup(_ButtonGroup, MaterialMultiSelectBase):
     It falls into the broad category of multi-option selection widgets that
     provide a compatible API that also include the `CheckBoxGroup` widget.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/CheckButtonGroup.html
     - https://panel.holoviz.org/reference/widgets/CheckButtonGroup.html
     - https://mui.com/material-ui/react-toggle-button/
 
     :Example:
 
     >>> CheckButtonGroup(
-    ...     name='Regression Models', value=['Lasso', 'Ridge'],
+    ...     label='Regression Models', value=['Lasso', 'Ridge'],
     ...     options=['Lasso', 'Linear', 'Ridge', 'Polynomial']
     ... )
 
@@ -371,9 +383,14 @@ class MultiSelect(MaterialMultiSelectBase):
     that provide a compatible API and include the `MultiSelect`,
     `CrossSelector`, `CheckBoxGroup` and `CheckButtonGroup` widgets.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/MultiSelect.html
     - https://panel.holoviz.org/reference/widgets/MultiSelect.html
     - https://mui.com/material-ui/react-select/#multiple-select
+
+    >>> pmui.MultiSelect(label='MultiSelect', value=['Apple', 'Pear'],
+    ...     options=['Apple', 'Banana', 'Pear', 'Strawberry'], size=8)
     """
 
     color = param.Selector(objects=COLORS, default="primary")
@@ -403,14 +420,16 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
     The `MultiChoice` widget provides a much more compact UI than
     `MultiSelect`.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/MultiChoice.html
     - https://panel.holoviz.org/reference/widgets/MultiChoice.html
     - https://mui.com/material-ui/react-select/#multiple-select
 
     :Example:
 
     >>> MultiChoice(
-    ...     name='Favourites', value=['Panel', 'hvPlot'],
+    ...     label='Favourites', value=['Panel', 'hvPlot'],
     ...     options=['Panel', 'hvPlot', 'HoloViews', 'GeoViews', 'Datashader', 'Param', 'Colorcet'],
     ...     max_items=2
     ... )
@@ -443,7 +462,11 @@ class NestedSelect(_PnNestedSelect):
     The `NestedSelect` widget is composed of multiple widgets, where subsequent select options
     depend on the parent's value.
 
-    Reference: https://panel.holoviz.org/reference/widgets/NestedSelect.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/NestedSelect.html
+    - https://panel.holoviz.org/reference/widgets/NestedSelect.html
+    - https://mui.com/material-ui/react-select/
 
     :Example:
 
