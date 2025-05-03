@@ -25,13 +25,14 @@ class Meta(param.Parameterized):
     Meta allows controlling meta tags and other HTML head elements.
     """
 
-    name = param.String(default=None, doc="The name of the page.")
+    name = param.String(default="Panel App", doc="The name of the page.")
     title = param.String(default=None, doc="The title of the page.")
     description = param.String(default=None, doc="The description of the page.")
     keywords = param.String(default=None, doc="The keywords of the page.")
     author = param.String(default=None, doc="The author of the page.")
-    viewport = param.String(default=None, doc="The viewport of the page.")
-    icon = param.String(default=None, doc="The icon of the page.")
+    viewport = param.String(default="width=device-width, initial-scale=1.0", doc="The viewport of the page.")
+    icon = param.String(default=None, doc="The 32x32 icon of the page.")
+    apple_touch_icon = param.String(default=None, doc="The apple 180x180 touch icon of the page.")
     refresh = param.String(default=None, doc="The refresh of the page.")
 
 

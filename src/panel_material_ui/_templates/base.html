@@ -6,27 +6,29 @@
   {% block inner_head %}
     <meta charset="utf-8">
     <title>{% block title %}{{ title | e if title else "Panel App" }}{% endblock %}</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ dist_url }}images/apple-touch-icon.png">
-    {% if app_favicon is not defined %} <link rel="icon" type="image/png" sizes="32x32" href="{{ dist_url }}images/favicon.ico"> {% endif %}
     {% if manifest_url %}<link rel="manifest" href="{{ manifest_url }}">{% endif %}
     {%  block preamble -%}
-    {%- if meta and meta.name %}
-    <meta name="name" content="{{ meta.name }}">
-    {% endif -%}
-    {%- if meta and meta.description %}
-    <meta name="description" content="{{ meta.description }}">
-    {% endif -%}
-    {%- if meta and meta.keywords %}
-    <meta name="keywords" content="{{ meta.keywords }}">
-    {% endif -%}
-    {%- if meta and meta.author %}
-    <meta name="author" content="{{ meta.author }}">
-    {% endif -%}
-    {%- if meta and meta.refresh %}
-    <meta http-equiv="refresh" content="{{ meta.refresh }}">
-    {% endif -%}
-    {%- if meta and meta.viewport %}
-    <meta name="viewport" content="{{ meta.viewport }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% if meta and meta.apple_touch_icon %}{{ meta.apple_touch_icon }}{% else %}{{ dist_url }}images/apple-touch-icon.png{% endif %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% if meta and meta.icon %}{{ meta.icon }}{% else %}{{ dist_url }}images/favicon.ico{% endif %}">
+    {%- if meta  %}
+      {%- if meta.name %}
+      <meta name="name" content="{{ meta.name }}">
+      {% endif -%}
+      {%- if meta.description %}
+      <meta name="description" content="{{ meta.description }}">
+      {% endif -%}
+      {%- if meta.keywords %}
+      <meta name="keywords" content="{{ meta.keywords }}">
+      {% endif -%}
+      {%- if meta.author %}
+      <meta name="author" content="{{ meta.author }}">
+      {% endif -%}
+      {%- if meta.refresh %}
+      <meta http-equiv="refresh" content="{{ meta.refresh }}">
+      {% endif -%}
+      {%- if meta.viewport %}
+      <meta name="viewport" content="{{ meta.viewport }}">
+      {% endif -%}
     {% endif -%}
     {%- endblock %}
   {% block resources %}
