@@ -142,9 +142,18 @@ class Page(MaterialComponent, ResourceComponent):
                 ]
 
     def _process_param_change(self, params):
-        if 'logo' in params:
-            params['logo'] = _read_icon(params['logo'])
-        return super()._process_param_change(params)
+        params = super()._process_param_change(params)
+        if logo := params.get('logo'):
+            params['logo'] = _read_icon(logo)
+        return params
+
+    def _populate_template_variables(self, template_variables):
+        template_variables['meta'] = self.meta
+        if favicon := self.favicon or self.meta.icon:
+            template_variables['favicon'] = _read_icon(favicon)
+        if apple_touch_icon := self.meta.apple_touch_icon:
+            template_variables['apple_touch_icon'] = _read_icon(apple_touch_icon)
+        template_variables['resources'] = self.resolve_resources()
 
     def resolve_resources(
         self,
@@ -173,10 +182,11 @@ class Page(MaterialComponent, ResourceComponent):
         template_variables: dict[str, Any] | None = None,
         **kwargs
     ) -> None:
-        if not template_variables:
+        if template_variables:
+            template_variables = dict(template_variables)
+        else:
             template_variables = {}
-        template_variables['meta'] = self.meta
-        template_variables['resources'] = self.resolve_resources()
+        self._populate_template_variables(template_variables)
         super().save(
             filename,
             title,
@@ -192,12 +202,7 @@ class Page(MaterialComponent, ResourceComponent):
     ) -> Document:
         title = title or self.title or self.meta.title or 'Panel Application'
         doc = super().server_doc(doc, title, location)
-        doc.template_variables['meta'] = self.meta
-        if favicon := self.favicon or self.meta.icon:
-            doc.template_variables['favicon'] = _read_icon(favicon)
-        if apple_touch_icon := self.meta.apple_touch_icon:
-            doc.template_variables['apple_touch_icon'] = _read_icon(apple_touch_icon)
-        doc.template_variables['resources'] = self.resolve_resources()
+        self._populate_template_variables(doc.template_variables)
         return doc
 
 

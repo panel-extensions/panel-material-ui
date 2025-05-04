@@ -23,11 +23,11 @@ def test_default_page_parameters():
     html = _render_page()
 
     assert (
-        f"""<link rel="icon" type="image/png" sizes="32x32" href="{CDN_DIST}images/favicon.ico">"""
+        f"""<link rel="icon" href="{CDN_DIST}images/favicon.ico">"""
         in html
     )
     assert (
-        f"""<link rel="apple-touch-icon" sizes="180x180" href="{CDN_DIST}images/apple-touch-icon.png">"""
+        f"""<link rel="apple-touch-icon" href="{CDN_DIST}images/apple-touch-icon.png">"""
         in html
     )
     assert """<meta name="name" content="Meta00""" in html
@@ -62,12 +62,12 @@ def test_default_page_parameters():
         (
             "meta_icon",
             "https://www.wikipedia.org/static/favicon/wikipedia.ico",
-            """<link rel="icon" type="image/png" sizes="32x32" href="https://www.wikipedia.org/static/favicon/wikipedia.ico">""",
+            """<link rel="icon" href="https://www.wikipedia.org/static/favicon/wikipedia.ico">""",
         ),
         (
             "meta_apple_touch_icon",
             "https://www.wikipedia.org/static/apple-touch/wikipedia.png",
-            """<link rel="apple-touch-icon" sizes="180x180" href="https://www.wikipedia.org/static/apple-touch/wikipedia.png">""",
+            """<link rel="apple-touch-icon" href="https://www.wikipedia.org/static/apple-touch/wikipedia.png">""",
         ),
     ],
 )
