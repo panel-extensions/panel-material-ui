@@ -5,6 +5,7 @@ import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
+import LinearProgress from "@mui/material/LinearProgress";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import DarkMode from "@mui/icons-material/DarkMode";
@@ -48,7 +49,9 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
 
 export function render({model}) {
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const [busy] = model.useState("busy")
+  const [busy_indicator] = model.useState("busy_indicator")
   const [sidebar_width] = model.useState("sidebar_width")
   const [title] = model.useState("title")
   const [open, setOpen] = model.useState("sidebar_open")
@@ -83,7 +86,7 @@ export function render({model}) {
       }}
       variant={drawer_variant}
     >
-      <Toolbar/>
+      <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}/>
       <Divider />
       <Box sx={{overflow: "auto"}}>
         {sidebar}
@@ -147,13 +150,30 @@ export function render({model}) {
                 aria-label="toggle contextbar"
                 onClick={() => contextOpen(!contextbar_open)}
                 edge="start"
-                sx={{mr: 2}}
+                sx={{mr: 1}}
               >
                 <TocIcon />
               </IconButton>
             </Tooltip>
           }
+          {busy_indicator === "circular" &&
+            <CircularProgress
+              disableShrink
+              size="1.4em"
+              sx={{color: "white"}}
+              thickness={4}
+              variant={busy ? "indeterminate" : "determinate"}
+              value={busy ? 100 : 0}
+            />}
         </Toolbar>
+        {busy_indicator === "linear" &&
+          <LinearProgress
+            sx={{width: "100%"}}
+            variant={busy ? "indeterminate" : "determinate"}
+            color="primary"
+            value={busy ? 100 : 0}
+          />
+        }
       </AppBar>
       {drawer &&
       <Box
@@ -170,7 +190,7 @@ export function render({model}) {
       </Box>}
       <Main className="main" open={open} sidebar_width={sidebar_width} variant={drawer_variant}>
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
-          <Toolbar/>
+          <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}/>
           <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column"}}>
             {model.get_child("main")}
           </Box>

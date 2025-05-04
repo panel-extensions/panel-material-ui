@@ -8,6 +8,7 @@ import param
 from jinja2 import Template
 from panel.config import _base_config, config
 from panel.io.resources import ResourceComponent, Resources
+from panel.io.state import state
 from panel.util import edit_readonly
 from panel.viewable import Child, Children
 
@@ -51,6 +52,11 @@ class Page(MaterialComponent, ResourceComponent):
 
     >>> Page(main=['# Content'], title='My App')
     """
+
+    busy = param.Boolean(default=False, readonly=True, doc="Whether the page is busy.")
+
+    busy_indicator = param.Selector(default="linear", objects=["circular", "linear", None], doc="""
+        The type of busy indicator to show.""")
 
     config = param.ClassSelector(default=_base_config(), class_=_base_config,
                                  constant=True, doc="""
@@ -103,6 +109,8 @@ class Page(MaterialComponent, ResourceComponent):
         super().__init__(**params)
         self.meta.param.update(**meta)
         self.config.param.update(**resources)
+        with edit_readonly(self):
+            self.busy = state.param.busy
 
     @param.depends('dark_theme', watch=True)
     def _update_config(self):
