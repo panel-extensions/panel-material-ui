@@ -164,7 +164,7 @@ class _SelectDropdownBase(MaterialWidget):
 
     placeholder = param.String(default="", doc="Placeholder text for the dropdown")
 
-    searchable = param.Boolean(default=True, doc="Whether the dropdown is searchable")
+    searchable = param.Boolean(default=False, doc="Whether the dropdown is searchable")
 
     value_label = param.String(doc="Custom label to describe the current option(s).")
 
