@@ -55,7 +55,7 @@ reconnect."""
 def _configure_session():
     pn.config.disconnect_notification=_DISCONNECT_NOTIFICATION
 
-@pn.cache
+# @pn.cache
 def _configure_general():
     pmui.Page.param.theme_config.default = THEME_CONFIG
 
@@ -65,6 +65,8 @@ def _configure_general():
     # pmui.Page.param.logo.default = LOGO_SVG_URL
     pmui.Page.meta.icon = FAVICON_URL
     pmui.Page.meta.name = "Orbitron"
+
+    pn.pane.Image._stylesheets.append("img {border-radius: 2px")
 
 def configure():
     """

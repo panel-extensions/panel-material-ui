@@ -66,12 +66,26 @@ drawer = pmui.Drawer(pn.Spacer(height=75), stop_server, anchor="right", size=300
 open_drawer = pmui.ButtonIcon(icon="settings", sizing_mode="fixed", color="light")
 open_drawer.js_on_click(args={'drawer': drawer}, code='drawer.data.open = !drawer.data.open')
 
+cards = pmui.Row(
+    pmui.Paper(
+        pn.pane.Image("https://cdn.britannica.com/94/192794-050-3F3F3DDD/panels-electricity-order-sunlight.jpg", margin=0, sizing_mode="stretch_both"),
+        "# Reports\n\nDownload our annual report and see all our reports and presentations",
+        width=300, sizing_mode="fixed", margin=10
+    ),
+    pmui.Paper(
+        pn.pane.Image("https://cdn.britannica.com/94/192794-050-3F3F3DDD/panels-electricity-order-sunlight.jpg", margin=0, sizing_mode="stretch_both"),
+        "# Reports\n\nDownload our annual report and see all our reports and presentations",
+        width=300, sizing_mode="fixed", margin=10
+    ),
+    sizing_mode="fixed", align="center", margin=25
+)
+
 page = pmui.Page(
     title="Orbitron",
     header=[pn.HSpacer(), open_drawer],
-    sidebar=[pn.pane.Image("https://cdn.britannica.com/94/192794-050-3F3F3DDD/panels-electricity-order-sunlight.jpg", margin=(20,10,10,10), stylesheets=["img {border-radius: var(--mui-shape-borderRadius);}"]), pmui.Column("# Settings", state, pn.VSpacer(min_height=25), "### References", github_link, docs_link, sizing_mode="stretch_both", margin=(10,10), styles={"border": "1px solid gray"})],
+    sidebar=[pn.pane.Image("https://cdn.britannica.com/94/192794-050-3F3F3DDD/panels-electricity-order-sunlight.jpg", margin=(20,10,10,10),), pmui.Column("# Settings", state, pn.VSpacer(min_height=25), "### References", github_link, docs_link, sizing_mode="stretch_both", margin=(10,10), styles={"border": "1px solid gray"})],
     sidebar_width=425,
-    main=[pmui.Container("<h2>Buttons</h2>", example_buttons, drawer)],
+    main=[pmui.Container("<h2>Buttons</h2>", example_buttons, cards, drawer)],
 )
 
 page.servable()

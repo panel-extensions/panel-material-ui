@@ -69,9 +69,11 @@ def test_default_page_parameters():
             "https://www.wikipedia.org/static/apple-touch/wikipedia.png",
             """<link rel="apple-touch-icon" sizes="180x180" href="https://www.wikipedia.org/static/apple-touch/wikipedia.png">""",
         ),
+        (
+            "raw_css", ["body { background-color: red; }"], """body { background-color: red; }"""
+        ),
     ],
 )
 def test_custom_page_parameters(key, value, expected):
     html = _render_page(**{key: value})
-
     assert expected in html
