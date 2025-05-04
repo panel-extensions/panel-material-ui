@@ -65,6 +65,21 @@ export function render({model}) {
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
 
+  // Set up debouncing of busy indicator
+  const [idle, setIdle] = React.useState(true);
+  const timerRef = React.useRef(undefined)
+  React.useEffect(() => {
+    if (busy) {
+      timerRef.current = setTimeout(() => {
+        setIdle(false)
+      }, 1000)
+    } else {
+      setIdle(true)
+      clearTimeout(timerRef.current)
+    }
+  }, [busy])
+  React.useEffect(() => () => clearTimeout(timerRef.current), [])
+
   const toggleTheme = () => {
     setDarkTheme(!dark_theme)
   }
@@ -161,17 +176,17 @@ export function render({model}) {
               disableShrink
               size="1.4em"
               sx={{color: "white"}}
-              thickness={4}
-              variant={busy ? "indeterminate" : "determinate"}
-              value={busy ? 100 : 0}
+              thickness={5}
+              variant={idle ? "determinate" : "indeterminate"}
+              value={idle ? 100 : 0}
             />}
         </Toolbar>
         {busy_indicator === "linear" &&
           <LinearProgress
             sx={{width: "100%"}}
-            variant={busy ? "indeterminate" : "determinate"}
+            variant={idle ? "determinate" : "indeterminate"}
             color="primary"
-            value={busy ? 100 : 0}
+            value={idle ? 100 : 0}
           />
         }
       </AppBar>
