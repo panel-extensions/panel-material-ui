@@ -8,8 +8,8 @@
     <title>{% block title %}{{ title | e if title else "Panel App" }}{% endblock %}</title>
     {% if manifest_url %}<link rel="manifest" href="{{ manifest_url }}">{% endif %}
     {%  block preamble -%}
-    <link rel="apple-touch-icon" sizes="180x180" href="{% if meta and meta.apple_touch_icon %}{{ meta.apple_touch_icon }}{% else %}{{ dist_url }}images/apple-touch-icon.png{% endif %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% if meta and meta.icon %}{{ meta.icon }}{% else %}{{ dist_url }}images/favicon.ico{% endif %}">
+    <link rel="apple-touch-icon" href="{% if apple_touch_icon %}{{ apple_touch_icon }}{% else %}{{ dist_url }}images/apple-touch-icon.png{% endif %}">
+    <link rel="icon" href="{% if favicon %}{{ favicon }}{% else %}{{ dist_url }}images/favicon.ico{% endif %}">
     {%- if meta  %}
       {%- if meta.name %}
       <meta name="name" content="{{ meta.name }}">
