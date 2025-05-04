@@ -101,7 +101,9 @@ export function render({model}) {
       }}
       variant={drawer_variant}
     >
-      <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}/>
+      <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
+        <Typography variant="h5">&nbsp;</Typography>
+      </Toolbar>
       <Divider />
       <Box sx={{overflow: "auto"}}>
         {sidebar}
@@ -205,7 +207,9 @@ export function render({model}) {
       </Box>}
       <Main className="main" open={open} sidebar_width={sidebar_width} variant={drawer_variant}>
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
-          <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}/>
+          <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
+            <Typography variant="h5">&nbsp;</Typography>
+          </Toolbar>
           <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column"}}>
             {model.get_child("main")}
           </Box>
