@@ -58,10 +58,29 @@ export function render({model, el}) {
   }
 
   // Offset notebook node
-  let [left, top] = [0, 0]
-  const notebook = findNotebook(el)
-  if (notebook) {
-    ({left, top} = notebook.getBoundingClientRect())
+  const [notebook, feed] = findNotebook(el)
+  let nb_menu_props = {}
+  if (notebook !== null) {
+    const {x, y} = notebook.getBoundingClientRect()
+    let [left, top] = [-x, feed.scrollTop - y]
+    const [position, setPosition] = React.useState([left, top])
+    nb_menu_props = {
+      PaperProps: {
+        style: {transform: `translate(${position[0]}px, ${position[1]}px)`}
+      },
+      TransitionComponent: React.Fragment
+    }
+    React.useEffect(() => {
+      if (open) {
+        feed.style.overflow = "hidden"
+        const {x, y, height} = notebook.getBoundingClientRect()
+        left = -x
+        top = ((feed.scrollTop > (0.67*height)) ? y : (feed.scrollTop - y))
+        setPosition([left, top])
+      } else {
+        feed.style.overflow = "auto"
+      }
+    }, [open])
   }
 
   // Select specific props
@@ -133,14 +152,11 @@ export function render({model, el}) {
   const MenuProps = {
     container: el,
     disablePortal: true,
-    getContentAnchorEl: null,
     sx: {height: dropdown_height},
     MenuListProps: {
       ref: menuRef,
     },
-    PaperProps: {
-      style: {transform: `translate(-${left}px, -${top}px)`}
-    }
+    ...nb_menu_props
   }
 
   const getInput = () => {
@@ -440,7 +456,6 @@ export function render({model, el}) {
       {label && <InputLabel color={color} id={`select-label-${model.id}`}>{label}</InputLabel>}
       <Select
         color={color}
-        disableScrollLock={notebook !== null}
         disabled={disabled}
         input={getInput()}
         labelId={`select-label-${model.id}`}

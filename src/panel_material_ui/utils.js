@@ -639,9 +639,13 @@ export function apply_flex(view, direction) {
 }
 
 export function findNotebook(el) {
+  let feed = null
   while (el) {
     if (el.classList && el.classList.contains("jp-Notebook")) {
-      return el
+      return [el, feed]
+    }
+    if (el.classList && el.classList.contains("jp-WindowedPanel-outer")) {
+      feed = el
     }
     if (el.parentNode) {
       el = el.parentNode
@@ -651,5 +655,5 @@ export function findNotebook(el) {
       el = null
     }
   }
-  return null
+  return [null, null]
 }
