@@ -432,7 +432,7 @@ class DiscreteSlider(_PnDiscreteSlider):
     options = param.ClassSelector(default=[], class_=(dict, list), doc="""
         A list or dictionary of valid options.""")
 
-    track = param.Selector(objects=["normal", "inverted", False], default="normal")
+    track = param.Selector(objects=["inverted", "normal", False], default="normal")
 
     value = param.Parameter(doc="""
         The selected value of the slider. Updated when the handle is
@@ -440,6 +440,11 @@ class DiscreteSlider(_PnDiscreteSlider):
 
     value_throttled = param.Parameter(constant=True, doc="""
         The value of the slider. Updated when the handle is released.""")
+
+    marks = param.ClassSelector(class_=(bool, list), default=False, doc="""
+    Marks indicate predetermined values to which the user can move the slider.
+    If True the `options` are shown as marks. If a list, it should contain dicts with 'value'
+    and an optional 'label' keys.""")
 
     width = param.Integer(default=300, bounds=(0, None), allow_None=True)
 
