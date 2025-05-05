@@ -95,7 +95,10 @@ class Paper(MaterialListLike, PaperMixin):
     """
     Paper implements a container for displaying content on an elevated surface.
 
-    Reference: https://mui.com/material-ui/react-paper/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Paper.html
+    - https://mui.com/material-ui/react-paper/
 
     :Example:
     >>> Paper(name="Paper", objects=[1, 2, 3], elevation=10, width=200, height=200)
@@ -110,7 +113,9 @@ class Container(MaterialListLike):
     """
     The `Container` layout centers your content horizontally. It's the most basic layout element.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Container.html
     - https://mui.com/material-ui/react-container/
 
     :Example:
@@ -137,7 +142,9 @@ class Grid(MaterialListLike):
     """
     The `Grid` layout is a two-dimensional layout that allows arranging items in a grid.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Grid.html
     - https://mui.com/material-ui/react-grid/
 
     :Example:
@@ -173,7 +180,9 @@ class Card(MaterialNamedListLike, PaperMixin):
     A `Card` layout allows arranging multiple panel objects in a
     collapsible, vertical container with a header bar.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Card.html
     - https://panel.holoviz.org/reference/layouts/Card.html
     - https://mui.com/material-ui/react-card/
 
@@ -233,7 +242,9 @@ class Accordion(MaterialNamedListLike, PaperMixin):
     interactively updating and modifying the cards using the methods `append`,
     `extend`, `clear`, `insert`, `pop`, `remove` and `__setitem__`.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html
     - https://panel.holoviz.org/reference/layouts/Accordion.html
     - https://mui.com/material-ui/react-accordion/
 
@@ -286,7 +297,9 @@ class Tabs(MaterialNamedListLike):
     `append`, `extend`, `clear`, `insert`, `pop`, `remove` and `__setitem__`,
     which make it possible to interactively update and modify the tabs.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html
     - https://panel.holoviz.org/reference/layouts/Tabs.html
     - https://mui.com/material-ui/react-tabs/
 
@@ -390,7 +403,8 @@ class Divider(MaterialListLike):
     A `Divider` draws a horizontal rule (a `<hr>` tag in HTML) to separate
     multiple components in a layout.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/layouts/Divider.html
     - https://mui.com/material-ui/react-divider/
 
@@ -412,7 +426,10 @@ class Alert(MaterialListLike):
     or informational updates. It provides a visually distinct way to inform users about
     the system's status.
 
-    Reference: https://mui.com/material-ui/react-alert/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/global/Notifications.html
+    - https://mui.com/material-ui/react-alert/
 
     :Example:
 
@@ -449,7 +466,10 @@ class Backdrop(MaterialListLike):
     It is often used to focus attention on a specific part of the interface,
     such as during loading states or while a modal dialog is open.
 
-    Reference: https://mui.com/material-ui/react-backdrop/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Backdrop.html
+    - https://mui.com/material-ui/react-backdrop/
 
     :Example:
     >>> close = Button(on_click=lambda _: backdrop.param.update(open=False), label='Close')  # type: ignore
@@ -470,7 +490,10 @@ class Dialog(MaterialListLike):
     user interaction. It is often used for tasks such as confirmations, forms, or displaying
     additional information.
 
-    Reference: https://mui.com/material-ui/react-dialog/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Dialog.html
+    - https://mui.com/material-ui/react-dialog/
 
     :Example:
     >>> close = Button(on_click=lambda _: dialog.param.update(open=False), label='Close')  # type: ignore
@@ -503,7 +526,10 @@ class Drawer(MaterialListLike):
     user interaction. It is often used for tasks such as confirmations, forms, or displaying
     additional information.
 
-    Reference: https://mui.com/material-ui/react-drawer/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html
+    - https://mui.com/material-ui/react-drawer/
 
     :Example:
     >>> drawer = Drawer("This is a drawer")

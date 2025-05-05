@@ -98,14 +98,15 @@ class Button(_ButtonBase, _ClickButton):
     It also provides an additional `clicks` parameter, that can be
     watched to subscribe to click events.
 
-    References:
+    :References:
+
     - https://panel-material-ui.holoviz.org/reference/widgets/Button.html
-    - https://mui.com/material-ui/react-button/
     - https://panel.holoviz.org/reference/widgets/Button.html
+    - https://mui.com/material-ui/react-button/
 
     :Example:
 
-    >>> Button(name='Click me', icon='caret-right', button_type='primary')
+    >>> Button(label='Click me', icon='caret-right', button_type='primary')
     """
 
     href = param.String(default=None, doc="""
@@ -161,9 +162,10 @@ class Fab(Button):
     The `Fab` is a so called floating action button that allows triggering events when the button is
     clicked.
 
-    References:
-    - https://panel.holoviz.org/reference/widgets/Fab.html
-    - https://mui.com/material-ui/react-fab/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Fab.html
+    - https://mui.com/material-ui/react-floating-action-button/
 
     :Example:
 
@@ -188,7 +190,9 @@ class Toggle(_ButtonBase):
 
     This widget is interchangeable with the `Checkbox` widget.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Toggle.html
     - https://panel.holoviz.org/reference/widgets/Toggle.html
     - https://mui.com/material-ui/react-toggle-button/
 

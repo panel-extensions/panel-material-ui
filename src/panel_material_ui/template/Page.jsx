@@ -5,6 +5,7 @@ import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
+import LinearProgress from "@mui/material/LinearProgress";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import DarkMode from "@mui/icons-material/DarkMode";
@@ -48,7 +49,10 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
 
 export function render({model}) {
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const [logo] = model.useState("logo")
+  const [busy] = model.useState("busy")
+  const [busy_indicator] = model.useState("busy_indicator")
   const [sidebar_width] = model.useState("sidebar_width")
   const [title] = model.useState("title")
   const [open, setOpen] = model.useState("sidebar_open")
@@ -62,13 +66,27 @@ export function render({model}) {
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
 
+  // Set up debouncing of busy indicator
+  const [idle, setIdle] = React.useState(true);
+  const timerRef = React.useRef(undefined)
+  React.useEffect(() => {
+    if (busy) {
+      timerRef.current = setTimeout(() => {
+        setIdle(false)
+      }, 1000)
+    } else {
+      setIdle(true)
+      clearTimeout(timerRef.current)
+    }
+  }, [busy])
+  React.useEffect(() => () => clearTimeout(timerRef.current), [])
+
   const toggleTheme = () => {
     setDarkTheme(!dark_theme)
   }
 
   setup_global_styles(theme)
-
-  React.useEffect(() => dark_mode.set_value(dark_theme), [])
+  React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
 
   const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
   const drawer = sidebar.length > 0 ? (
@@ -84,7 +102,9 @@ export function render({model}) {
       }}
       variant={drawer_variant}
     >
-      <Toolbar/>
+      <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
+        <Typography variant="h5">&nbsp;</Typography>
+      </Toolbar>
       <Divider />
       <Box sx={{overflow: "auto"}}>
         {sidebar}
@@ -128,6 +148,7 @@ export function render({model}) {
               </IconButton>
             </Tooltip>
           }
+          {logo && <img src={logo} alt="Logo" style={{height: "2.5em", paddingRight: "1em"}} />}
           <Typography variant="h5" sx={{color: "white"}}>
             {title}
           </Typography>
@@ -148,13 +169,30 @@ export function render({model}) {
                 aria-label="toggle contextbar"
                 onClick={() => contextOpen(!contextbar_open)}
                 edge="start"
-                sx={{mr: 2}}
+                sx={{mr: 1}}
               >
                 <TocIcon />
               </IconButton>
             </Tooltip>
           }
+          {busy_indicator === "circular" &&
+            <CircularProgress
+              disableShrink
+              size="1.4em"
+              sx={{color: "white"}}
+              thickness={5}
+              variant={idle ? "determinate" : "indeterminate"}
+              value={idle ? 100 : 0}
+            />}
         </Toolbar>
+        {busy_indicator === "linear" &&
+          <LinearProgress
+            sx={{width: "100%"}}
+            variant={idle ? "determinate" : "indeterminate"}
+            color="primary"
+            value={idle ? 100 : 0}
+          />
+        }
       </AppBar>
       {drawer &&
       <Box
@@ -171,7 +209,9 @@ export function render({model}) {
       </Box>}
       <Main className="main" open={open} sidebar_width={sidebar_width} variant={drawer_variant}>
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
-          <Toolbar/>
+          <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
+            <Typography variant="h5">&nbsp;</Typography>
+          </Toolbar>
           <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column"}}>
             {model.get_child("main")}
           </Box>

@@ -23,7 +23,10 @@ class ChatInterface(ChatFeed, ChatInterface):
     """
     A chat interface that uses Material UI components.
 
-    Reference: https://panel.holoviz.org/reference/chat/ChatInterface.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/chat/ChatInterface.html
+    - https://panel.holoviz.org/reference/chat/ChatInterface.html
 
     :Example:
 

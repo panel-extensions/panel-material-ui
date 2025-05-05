@@ -101,3 +101,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./builtdocs
           force_orphan: true
+          cname: panel-material-ui.holoviz.org

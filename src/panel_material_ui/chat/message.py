@@ -49,7 +49,10 @@ class ChatMessage(MaterialComponent, ChatMessage):
     - Associating reactions with messages and mapping them to icons.
     - Rendering various content types including text, images, audio, video, and more.
 
-    Reference: https://panel.holoviz.org/reference/chat/ChatMessage.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/chat/ChatMessage.html
+    - https://panel.holoviz.org/reference/chat/ChatMessage.html
 
     :Example:
 
