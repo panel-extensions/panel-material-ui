@@ -1,9 +1,11 @@
 import os
 
+from panel.io.cache import cache
 from panel.pane.base import panel
 from panel.pane.image import ImageBase
 
 
+@cache
 def _read_icon(icon):
     """
     Read an icon from a file or URL and return a base64 encoded string.
