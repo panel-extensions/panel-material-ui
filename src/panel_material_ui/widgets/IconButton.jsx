@@ -36,7 +36,15 @@ export function render({model, el}) {
       sx={{color: color_variant, width: "100%", ...sx}}
     >
       {current_icon.trim().startsWith("<") ?
-        <img src={`data:image/svg+xml;base64,${btoa(current_icon)}`} style={{width: size, height: size}} /> :
+        <span style={{
+          maskImage: `url("data:image/svg+xml;base64,${btoa(current_icon)}")`,
+          backgroundColor: "currentColor",
+          maskRepeat: "no-repeat",
+          maskSize: "contain",
+          width: size,
+          height: size,
+          display: "inline-block"}}
+          /> :
         <Icon style={{fontSize: size}}>{current_icon}</Icon>
       }
     </IconButton>

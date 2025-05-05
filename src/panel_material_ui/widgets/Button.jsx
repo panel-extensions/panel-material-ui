@@ -26,7 +26,15 @@ export function render({model, el}) {
       onClick={() => model.send_event("click", {})}
       startIcon={icon && (
         icon.trim().startsWith("<") ?
-          <img src={`data:image/svg+xml;base64,${btoa(icon)}`} style={{width: icon_size, height: icon_size, paddingRight: "0.5em"}} /> :
+          <span style={{
+            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+            backgroundColor: "currentColor",
+            maskRepeat: "no-repeat",
+            maskSize: "contain",
+            width: icon_size,
+            height: icon_size,
+            display: "inline-block"}}
+          /> :
           <Icon style={{fontSize: icon_size}}>{icon}</Icon>
       )}
       sx={sx}
