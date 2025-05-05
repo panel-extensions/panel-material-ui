@@ -44,7 +44,7 @@ export function render({model, el}) {
           width: size,
           height: size,
           display: "inline-block"}}
-          /> :
+        /> :
         <Icon style={{fontSize: size}}>{current_icon}</Icon>
       }
     </IconButton>

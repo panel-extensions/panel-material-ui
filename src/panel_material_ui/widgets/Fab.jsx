@@ -24,15 +24,15 @@ export function render({model}) {
       {
         icon && (
           icon.trim().startsWith("<") ?
-          <span style={{
-            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-            backgroundColor: "currentColor",
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
-            display: "inline-block"}}
-          /> :
+            <span style={{
+              maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+              backgroundColor: "currentColor",
+              maskRepeat: "no-repeat",
+              maskSize: "contain",
+              width: icon_size,
+              height: icon_size,
+              display: "inline-block"}}
+            /> :
             <Icon>{icon}</Icon>
         )
       }
