@@ -33,7 +33,7 @@ class _ButtonLike(MaterialWidget):
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
 
-    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
+    variant = param.Selector(objects=["contained", "outlined", "text"], default="text", doc="""
         The variant of the component.""")
 
     _esm_transforms = [TooltipTransform, ThemedTransform]
