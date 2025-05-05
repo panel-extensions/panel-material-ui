@@ -61,11 +61,11 @@ export function render({model}) {
   const ticks = React.useMemo(() => {
     if (!marks) {
       return undefined
-    } else if (typeof marks === 'boolean') {
+    } else if (typeof marks === "boolean") {
       return true
     } else if (Array.isArray(marks)) {
       return marks.map(tick => {
-        if (typeof tick === 'object' && tick !== null) {
+        if (typeof tick === "object" && tick !== null) {
           return tick
         }
         return {
