@@ -23,7 +23,7 @@ class _ButtonLike(MaterialWidget):
     button_type = param.Selector(objects=COLORS, default=None, doc="""
         The type of the component (alias for color to match Panel's Button API).""")
 
-    color = param.Selector(objects=COLORS, default="default", doc="""
+    color = param.Selector(objects=COLORS, default="primary", doc="""
         The color of the component.""")
 
     description = param.String(default=None, doc="""
@@ -33,10 +33,10 @@ class _ButtonLike(MaterialWidget):
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
 
-    variant = param.Selector(default="contained", objects=["contained", "outlined", "text"], doc="""
+    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
         The variant of the component.""")
 
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
+    _esm_transforms = [TooltipTransform, ThemedTransform]
     _rename = {"button_style": None, "button_type": None}
     _source_transforms = {"button_style": None, "button_type": None}
 
@@ -70,6 +70,11 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
 
     clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
 
+    end_icon = param.String(default=None, doc="""
+        An icon to render to the right of the button label. Either an SVG or an
+        icon name which is loaded from Material Icons.""",
+    )
+
     icon = param.String(default=None, doc="""
         An icon to render to the left of the button label. Either an SVG or an
         icon name which is loaded from Material Icons.""",
@@ -98,22 +103,26 @@ class Button(_ButtonBase, _ClickButton):
     It also provides an additional `clicks` parameter, that can be
     watched to subscribe to click events.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Button.html
     - https://panel.holoviz.org/reference/widgets/Button.html
     - https://mui.com/material-ui/react-button/
 
     :Example:
 
-    >>> Button(name='Click me', icon='caret-right', button_type='primary')
+    >>> Button(label='Click me', icon='caret-right', button_type='primary')
     """
 
-    icon_size = param.String(
-        default="1em",
-        doc="""
-        Size of the icon as a string, e.g. 12px or 1em.""",
-    )
+    disable_elevation = param.Boolean(default=False)
+
+    href = param.String(default=None, doc="""
+        The URL to navigate to when the button is clicked.""")
+
+    size = param.Selector(default="medium", objects=["small", "medium", "large"])
+
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
-    href = param.String(doc="A url. Turns the Button into a link button.")
+
     _esm_base = "Button.jsx"
     _event = "dom_event"
 
@@ -159,9 +168,10 @@ class Fab(Button):
     The `Fab` is a so called floating action button that allows triggering events when the button is
     clicked.
 
-    References:
-    - https://panel.holoviz.org/reference/widgets/Fab.html
-    - https://mui.com/material-ui/react-fab/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Fab.html
+    - https://mui.com/material-ui/react-floating-action-button/
 
     :Example:
 
@@ -178,6 +188,7 @@ class Fab(Button):
         The variant of the button.""")
 
     _esm_base = "Fab.jsx"
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
 
 class Toggle(_ButtonBase):
@@ -185,7 +196,9 @@ class Toggle(_ButtonBase):
 
     This widget is interchangeable with the `Checkbox` widget.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Toggle.html
     - https://panel.holoviz.org/reference/widgets/Toggle.html
     - https://mui.com/material-ui/react-toggle-button/
 
@@ -200,6 +213,7 @@ class Toggle(_ButtonBase):
     value = param.Boolean(default=False)
 
     _esm_base = "ToggleButton.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
 
 
 __all__ = [

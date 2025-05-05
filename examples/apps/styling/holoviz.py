@@ -139,8 +139,8 @@ elevation = paper.rx().rx.where(1, 0)
 
 pmu.Container(
     pmu.Paper(action_row, elevation=elevation),
-    pmu.Paper(categorical_plot, elevation=elevation),
     pmu.Paper(continous_plot, elevation=elevation),
+    pmu.Paper(categorical_plot, elevation=elevation),
     pmu.Paper(column_out, elevation=elevation),
     theme_config=theme_config, width_option='md'
 ).servable()

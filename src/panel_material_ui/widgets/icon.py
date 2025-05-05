@@ -47,7 +47,9 @@ class ToggleIcon(_ClickableIcon):
 
     This widget incorporates a `value` attribute, which alternates between `False` and `True`.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/ToggleIcon.html
     - https://panel.holoviz.org/reference/widgets/ToggleIcon.html
     - https://mui.com/material-ui/react-checkbox/#icon
 
@@ -85,10 +87,11 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
     Furthermore, it includes an `clicks` attribute, enabling subscription to click events for
     further actions or monitoring.
 
-    References:
-    - https://holoviz-dev.github.io/panel-material-ui/reference/widgets/ButtonIcon.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/ButtonIcon.html
     - https://panel.holoviz.org/reference/widgets/ButtonIcon.html
-    - https://mui.com/material-ui/icons/
+    - https://mui.com/material-ui/api/icon-button/
 
     :Example:
 

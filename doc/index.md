@@ -1,10 +1,15 @@
 # Panel Material UI
 
-Welcome to Panel Material UI – a library that brings the sleek look and comprehensive component set of Material UI into the world of Panel.
+Welcome to Panel Material UI – a library that brings the sleek design and comprehensive component set of [Material UI](https://mui.com/material-ui/) into the world of Panel.
 
-```{notebook} panel ../examples/homepage.ipynb
-:disable_interactivity_warning: True
-```
+:::{raw} html
+<iframe id="demo-iframe" src="_static/demo.html" width="100%" height="800px" style="border: none;"></iframe>
+<script>
+  const iframe = document.getElementById("demo-iframe")
+  const theme = document.documentElement.dataset.theme
+  iframe.src = `_static/demo.html?theme=${theme}`
+</script>
+:::
 
 ## Why Panel Material UI?
 
@@ -25,6 +30,14 @@ Access a growing collection of Material UI–inspired components (Buttons, Slide
 
 - **Powerful Theming Inheritance**
   Define a theme at a parent level and let it automatically apply to child components without extra configuration, reducing repetitive code while maintaining consistent branding.
+
+Panel Material UI is still fairly new—first released in May 2025. As with any young library, you might run into a few rough edges as we continue to shape and improve it.
+
+We’re already using it in production, so development is active and updates are ongoing.
+
+Thanks for your support as we (and maybe you?) keep making Panel Material UI even better!
+
+Want to get involved? [Contribute on GitHub](https://github.com/panel-extensions/panel-material-ui/blob/main/DEVELOPER_GUIDE.md) or share your feedback, we’d love to hear from you.
 
 ## Getting Started
 
@@ -47,6 +60,7 @@ pip install panel_material_ui
 ```bash
 conda install -c conda-forge panel_material_ui
 ```
+
 ::::
 
 :::::
@@ -59,7 +73,7 @@ Then [discover the components](components/index) and [customization options](cus
 :maxdepth: 2
 :caption: FOR USERS
 
-customization/index
 reference/index
+customization/index
 custom
 ```

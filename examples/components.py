@@ -1,5 +1,6 @@
 import datetime as dt
 import inspect
+import time
 
 from itertools import chain, product
 from typing import Type
@@ -13,24 +14,32 @@ from panel_material_ui.template import Page
 import param
 pn.extension(defer_load=True, notifications=True)
 
-pn.config.design = MaterialDesign
-
 primary_color = ColorPicker(value='#404db0', name='Primary', sizing_mode='stretch_width')
 secondary_color = ColorPicker(value='#ee8349', name='Secondary', sizing_mode='stretch_width')
 paper_color = ColorPicker(value='#ffffff', name='Paper', sizing_mode='stretch_width')
 font_size = IntInput(value=14, name='Font Size', step=1, start=2, end=100, sizing_mode='stretch_width')
 
+busy = Button(label='Busy', on_click=lambda e: time.sleep(2))
+
 design_kwargs = dict(
     theme_config={
-        'palette': {
-            'primary': {'main': primary_color},
-            'secondary': {'main': secondary_color},
-            'background': {'paper': paper_color},
+        "light": {
+            'palette': {
+                'primary': {'main': primary_color},
+                'secondary': {'main': secondary_color},
+                'background': {'paper': paper_color},
+            },
+            'typography': {
+                'fontSize': font_size,
+            },
         },
-        'typography': {
-            'fontSize': font_size,
-        },
-    },
+        "dark": {
+            'palette': {
+                'primary': {'main': primary_color},
+                'secondary': {'main': secondary_color},
+            }
+        }
+    }
 )
 
 def insert_at_nth_position(main_list, insert_list, n):
@@ -215,6 +224,7 @@ page = Page(
     contextbar=[
         '### Context'
     ],
+    busy_indicator='linear',
     main=[render_spec(spec)],
     sidebar=[
         primary_color,
@@ -222,7 +232,8 @@ page = Page(
         paper_color,
         font_size,
         '### Notifications',
-        notifications
+        notifications,
+        busy
     ],
     title='panel-material-ui components',
     **design_kwargs

@@ -103,6 +103,16 @@ def test_select_variant(page, variant):
     expect(page.locator(".select")).to_have_count(1)
     expect(page.locator(f".MuiSelect-{variant}")).to_have_count(1)
 
+def test_select_disabled_options(page):
+    widget = Select(name='Select test', options=["Option 1", "Option 2", "Option 3"], disabled_options=["Option 2"])
+    serve_component(page, widget)
+
+    expect(page.locator(".select")).to_have_count(1)
+
+    page.locator(".select").click(force=True)
+    expect(page.locator(".MuiMenuItem-root")).to_have_count(3)
+    expect(page.locator(".MuiMenuItem-root.Mui-disabled")).to_have_text("Option 2")
+
 @pytest.mark.parametrize('color', ["primary", "secondary", "error", "info", "success", "warning"])
 def test_radio_box_group_color(page, color):
     widget = RadioBoxGroup(name='RadioBoxGroup test', options=["Option 1", "Option 2", "Option 3"], color=color)

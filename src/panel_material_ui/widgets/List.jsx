@@ -93,6 +93,7 @@ export function render({model}) {
       <ListItemButton
         disableRipple={!isSelectable}
         color={color}
+        href={href}
         key={`list-item-${key}`}
         onClick={() => {
           if (isSelectable) {

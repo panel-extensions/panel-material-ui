@@ -203,6 +203,9 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
   } else if (model_type.endsWith("Grid")) {
     model_props.grid_line_color = theme.palette.text.primary
     model_props.grid_line_alpha = dark ? 0.25 : 0.1
+  } else if (model_type.endsWith("Canvas")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    model_props.stylesheets = [...model.stylesheets, ":host { --highlight-color: none }"]
   } else if (model_type.endsWith("Figure")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = find_on_parent(view, "elevation")
@@ -210,6 +213,7 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     model_props.border_fill_color = elevation_color(elevation, theme, dark)
     model_props.outline_line_color = theme.palette.text.primary
     model_props.outline_line_alpha = dark ? 0.25 : 0
+    apply_bokeh_theme(view.canvas_view.model, theme, dark, font_family)
   } else if (model_type.endsWith("Toolbar")) {
     const stylesheet = `.bk-right.bk-active, .bk-above.bk-active {
 --highlight-color: ${theme.palette.primary.main} !important;
@@ -497,7 +501,13 @@ export const setup_global_styles = (theme) => {
 
 export const install_theme_hooks = (props) => {
   const [dark_theme, setDarkTheme] = props.model.useState("dark_theme")
-  const [own_theme_config] = props.model.useState("theme_config")
+
+  // ALERT: Unclear why this is needed, the dark_theme state variable
+  // on it's own does not seem stable
+  const dark_ref = React.useRef(dark_theme)
+  React.useEffect(() => {
+    dark_ref.current = dark_theme
+  }, [dark_theme])
 
   // Apply .mui-dark or .mui-light to the container
   const themeClass = `mui-${dark_theme ? "dark" : "light"}`
@@ -513,7 +523,7 @@ export const install_theme_hooks = (props) => {
       if (current.model?.data?.theme_config != null) {
         const config = current.model.data.theme_config
         views.push(current)
-        theme_configs.push(config.dark && config.light ? config[dark_theme ? "dark" : "light"] : config)
+        theme_configs.push((config.dark && config.light) ? config[dark_ref.current ? "dark" : "light"] : config)
       }
       current = current.parent
     }
@@ -521,10 +531,12 @@ export const install_theme_hooks = (props) => {
     return [merged, views]
   }
 
-  const [merged_config, views] = merge_theme_configs(props.view)
-  const [theme_config, setThemeConfig] = React.useState(merged_config)
+  const [theme_config, setThemeConfig] = React.useState(() => merge_theme_configs(props.view, dark_ref.current)[0])
+  const update_views = () => setThemeConfig(merge_theme_configs(props.view)[0])
+
   React.useEffect(() => {
-    const cb = () => setThemeConfig(merge_theme_configs(props.view)[0])
+    const [_, views] = merge_theme_configs(props.view)
+    const cb = () => update_views()
     for (const view of views) {
       view.model_proxy.on("theme_config", cb)
     }
@@ -534,6 +546,7 @@ export const install_theme_hooks = (props) => {
       }
     }
   }, [])
+  React.useEffect(() => update_views(), [dark_theme])
   const theme = React.useMemo(() => {
     const config = render_theme_config(props, theme_config, dark_theme)
     return createTheme(config)
@@ -553,7 +566,8 @@ export const install_theme_hooks = (props) => {
   React.useEffect(() => {
     // If the page has a data-theme attribute (e.g. from pydata-sphinx-theme), use it to set the dark theme
     const page_theme = document.documentElement.dataset.theme
-    if (page_theme === "dark") {
+    const params = new URLSearchParams(window.location.search);
+    if (page_theme === "dark" || params.get("theme") === "dark") {
       setDarkTheme(true)
     } else if (page_theme === "light") {
       setDarkTheme(false)
@@ -622,4 +636,24 @@ export function apply_flex(view, direction) {
       view.parent_style.append(":host", {width: "auto"})
     }
   }
+}
+
+export function findNotebook(el) {
+  let feed = null
+  while (el) {
+    if (el.classList && el.classList.contains("jp-Notebook")) {
+      return [el, feed]
+    }
+    if (el.classList && el.classList.contains("jp-WindowedPanel-outer")) {
+      feed = el
+    }
+    if (el.parentNode) {
+      el = el.parentNode
+    } else if (el instanceof ShadowRoot) {
+      el = el.host
+    } else {
+      el = null
+    }
+  }
+  return [null, null]
 }

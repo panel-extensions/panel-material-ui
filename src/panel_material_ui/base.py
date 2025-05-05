@@ -508,6 +508,10 @@ class MaterialUIComponent(MaterialComponent):
 
     The MaterialUIComponent is a subclass of MaterialComponent and uses the
     Material UI shims to provide a React interface to the Material UI library.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/custom.html
     """
 
     _importmap = {}
@@ -523,6 +527,7 @@ class MaterialUIComponent(MaterialComponent):
             "panel-material-ui": CDN_DIST,
             "panel-material-ui/mui": f"{CDN_BASE}/material-ui-shim.js",
             "material-icons/": "https://esm.sh/material-icons@1.13.14/",
+            "@fontsource/roboto/": "https://esm.sh/@fontsource/roboto@5.2.5/",
             "react": f"{CDN_BASE}/react-shim.js",
             "react/jsx-runtime": f"{CDN_BASE}/react-jsx-runtime-shim.js",
             "react-dom/client": f"{CDN_BASE}/react-dom-client-shim.js",
