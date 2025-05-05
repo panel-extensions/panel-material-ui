@@ -449,7 +449,7 @@ class DiscreteSlider(_PnDiscreteSlider):
 
     bar_color = param.Color(default=None, doc="Color of the bar")
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     label = param.String(default="")
 
