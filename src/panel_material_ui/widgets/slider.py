@@ -427,7 +427,7 @@ class DiscreteSlider(_PnDiscreteSlider):
     - https://mui.com/material-ui/react-slider/
     """
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     options = param.ClassSelector(default=[], class_=(dict, list), doc="""
         A list or dictionary of valid options.""")

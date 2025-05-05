@@ -6,6 +6,7 @@ import dayjs from "dayjs"
 export function render({model}) {
   const [bar_color] = model.useState("bar_color")
   const [color] = model.useState("color")
+  console.log(bar_color, color)
   const [disabled] = model.useState("disabled")
   const [end] = model.useState("end")
   const [format] = model.useState("format")
