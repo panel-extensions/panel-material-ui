@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import datetime as dt
+import uuid
 
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
+from panel.io.datamodel import _DATA_MODELS, construct_data_model
 from panel.util import datetime_as_utctimestamp, edit_readonly, value_as_date, value_as_datetime
 from panel.widgets import WidgetBase
 from panel.widgets.select import SelectBase
@@ -18,7 +20,7 @@ from .input import FloatInput, IntInput
 
 class _ContinuousSlider(MaterialWidget, _SliderBase):
 
-    bar_color = param.Color(default=None, doc="Color of the bar")
+    bar_color = param.Color(default=None, allow_None=True, doc="Color of the bar")
 
     color = param.Selector(objects=COLORS, default="default")
 
@@ -33,11 +35,14 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
     format = param.ClassSelector(default='0[.]00', class_=(str, TickFormatter,), doc="""
         A custom format string or Bokeh TickFormatter.""")
 
+    marks = param.ClassSelector(class_=(bool, list), default=False, doc="""
+        Marks indicate predetermined values to which the user can move the slider.
+        If True the `options` are shown as marks. If a list, it should contain dicts with 'value'
+        and an optional 'label' keys.""")
+
     size = param.Selector(objects=["small", "medium", "large"], default="medium")
 
     step = param.Number(default=1)
-
-    ticks = param.List(default=[])
 
     track = param.Selector(objects=["normal", "inverted", False], default="normal")
 
@@ -428,6 +433,8 @@ class _LabelHolder(param.Parameterized):
 
     labels = param.List()
 
+_DATA_MODELS[_LabelHolder] = construct_data_model(_LabelHolder, f'LabelHolder{uuid.uuid4().hex}')
+
 
 class DiscreteSlider(_PnDiscreteSlider):
     """
@@ -439,6 +446,8 @@ class DiscreteSlider(_PnDiscreteSlider):
     - https://panel.holoviz.org/reference/widgets/DiscreteSlider.html
     - https://mui.com/material-ui/react-slider/
     """
+
+    bar_color = param.Color(default=None, doc="Color of the bar")
 
     color = param.Selector(objects=COLORS, default="default")
 
@@ -470,16 +479,17 @@ class DiscreteSlider(_PnDiscreteSlider):
 
     _slider_style_params = [
         "bar_color", "direction", "disabled", "orientation", "color", "track",
-        "size", "label"
+        "size", "label", "marks"
     ]
 
     def __init__(self, **params):
         if 'label' not in params and 'name' in params:
             params['label'] = params['name']
+        self._labels = _LabelHolder()
         super().__init__(**params)
-        self._labels = _LabelHolder(labels=self.labels)
+        self._init_slider()
 
-    def _update_options(self, *events):
+    def _init_slider(self):
         values, labels = self.values, self.labels
         label = None
         if not self.options and self.value is None:
@@ -491,12 +501,16 @@ class DiscreteSlider(_PnDiscreteSlider):
         else:
             value = values.index(self.value)
             label = labels[value]
-        disabled = True if len(values) in (0, 1) else self.disabled
-        end = 1 if disabled else len(self.options)-1
+        self._labels.labels = labels
+        marks = []
+        if self.marks is True:
+            marks = [{"value": i, "label": mark} for i, mark in enumerate(labels)]
+        elif self.marks:
+            marks = self.marks
         self._slider = IntSlider(
-            start=0, end=end, value=value, margin=(0, 5, 5, 5),
-            _supports_embed=False, disabled=disabled, value_label=label,
-            **{p: getattr(self, p) for p in self._slider_style_params if p != 'disabled'}
+            start=0, end=len(self.options)-1, value=value,
+            _supports_embed=False, value_label=label, marks=marks,
+            **{p: getattr(self, p) for p in self._slider_style_params if p != 'marks'}
         )
         self._update_style()
         self._jslink = self._slider.jscallback(args={'labels': self._labels}, value="cb_obj.value_label = labels.labels[cb_obj.value]")
@@ -505,8 +519,22 @@ class DiscreteSlider(_PnDiscreteSlider):
         self.param.watch(self._update_slider_params, self._slider_style_params)
         self._composite[:] = [self._slider]
 
+    def _update_options(self, *events):
+        return
+
+    def _update_slider_params(self, *events):
+        style = {e.name: e.new for e in events}
+        if "marks" in style:
+            marks = style["marks"]
+            if marks is True:
+                marks = [{"value": i, "label": mark} for i, mark in enumerate(self.labels)]
+            elif not marks:
+                marks = []
+        self._slider.param.update(**style)
+
     @param.depends('options', watch=True)
     def _update_labels(self):
+        self._slider.end = len(self.labels)-1
         self._labels.labels = self.labels
 
     @property
