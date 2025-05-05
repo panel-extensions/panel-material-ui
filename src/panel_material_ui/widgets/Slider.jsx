@@ -12,6 +12,7 @@ export function render({model}) {
   const [label] = model.useState("label")
   const [orientation] = model.useState("orientation")
   const [show_value] = model.useState("show_value")
+  const [size] = model.useState("size")
   const [start] = model.useState("start")
   const [step] = model.useState("step")
   const [sx] = model.useState("sx")
@@ -19,13 +20,16 @@ export function render({model}) {
   const [tooltips] = model.useState("tooltips")
   const [track] = model.useState("track")
   const [value, setValue] = model.useState("value")
+  const [valueLabel] = model.useState("value_label")
   const [_, setValueThrottled] = model.useState("value_throttled")
   const [value_label, setValueLabel] = React.useState()
   const date = model.esm_constants.date
   const datetime = model.esm_constants.datetime
 
   function format_value(d) {
-    if (datetime) {
+    if (valueLabel && d == value) {
+      return valueLabel
+    } else if (datetime) {
       return dayjs.unix(d / 1000).format(format || "YYYY-MM-DD HH:mm:ss");
     } else if (date) {
       return dayjs.unix(d / 1000).format(format || "YYYY-MM-DD");
@@ -42,14 +46,16 @@ export function render({model}) {
   }
 
   React.useEffect(() => {
-    if (Array.isArray(value)) {
+    if (valueLabel) {
+      setValueLabel(valueLabel)
+    } else if (Array.isArray(value)) {
       let [v1, v2] = value;
       [v1, v2] = [format_value(v1), format_value(v2)];
       setValueLabel(`${v1} .. ${v2}`)
     } else {
       setValueLabel(format_value(value))
     }
-  }, [format, value])
+  }, [format, value, valueLabel])
 
   const marks = React.useMemo(() => {
     if (!ticks) {
@@ -81,6 +87,7 @@ export function render({model}) {
         orientation={orientation}
         onChange={(_, newValue) => setValue(newValue)}
         onChangeCommitted={(_, newValue) => setValueThrottled(newValue)}
+        size={size}
         step={date ? step*86400000 : (datetime ? step*1000 : step)}
         sx={{
           "& .MuiSlider-track": {
