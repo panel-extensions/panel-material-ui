@@ -17,6 +17,7 @@ import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
 import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
+import {findNotebook} from "./utils"
 
 export function render({model, el}) {
   const [color] = model.useState("color")
@@ -54,6 +55,32 @@ export function render({model, el}) {
     max_items = max_items_state === undefined ? null : max_items_state
     solid = solid_state === undefined ? true : solid_state
     placeholder = placeholder_state === undefined ? null : placeholder_state
+  }
+
+  // Offset notebook node
+  const [notebook, feed] = findNotebook(el)
+  let nb_menu_props = {}
+  if (notebook !== null) {
+    const {x, y} = notebook.getBoundingClientRect()
+    let [left, top] = [-x, feed.scrollTop - y]
+    const [position, setPosition] = React.useState([left, top])
+    nb_menu_props = {
+      PaperProps: {
+        style: {transform: `translate(${position[0]}px, ${position[1]}px)`}
+      },
+      TransitionComponent: React.Fragment
+    }
+    React.useEffect(() => {
+      if (open) {
+        feed.style.overflow = "hidden"
+        const {x, y, height} = notebook.getBoundingClientRect()
+        left = -x
+        top = ((feed.scrollTop > (0.67*height)) ? y : (feed.scrollTop - y))
+        setPosition([left, top])
+      } else {
+        feed.style.overflow = "auto"
+      }
+    }, [open])
   }
 
   // Select specific props
@@ -125,11 +152,11 @@ export function render({model, el}) {
   const MenuProps = {
     container: el,
     disablePortal: true,
-    getContentAnchorEl: null,
     sx: {height: dropdown_height},
     MenuListProps: {
       ref: menuRef,
     },
+    ...nb_menu_props
   }
 
   const getInput = () => {

@@ -637,3 +637,23 @@ export function apply_flex(view, direction) {
     }
   }
 }
+
+export function findNotebook(el) {
+  let feed = null
+  while (el) {
+    if (el.classList && el.classList.contains("jp-Notebook")) {
+      return [el, feed]
+    }
+    if (el.classList && el.classList.contains("jp-WindowedPanel-outer")) {
+      feed = el
+    }
+    if (el.parentNode) {
+      el = el.parentNode
+    } else if (el instanceof ShadowRoot) {
+      el = el.host
+    } else {
+      el = null
+    }
+  }
+  return [null, null]
+}
