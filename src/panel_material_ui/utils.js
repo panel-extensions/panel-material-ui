@@ -511,9 +511,8 @@ export const install_theme_hooks = (props) => {
 
   // Apply .mui-dark or .mui-light to the container
   const themeClass = `mui-${dark_theme ? "dark" : "light"}`
-  if (!props.view.container.className.includes(themeClass)) {
-    props.view.container.className = `${props.view.container.className} ${themeClass}`.trim()
-  }
+  const inverseClass = `mui-${dark_theme ? "light" : "dark"}`
+  props.view.container.className = `${props.view.container.className.replace(inverseClass, "").replace(themeClass, "").trim()} ${themeClass}`.trim()
 
   const merge_theme_configs = (view) => {
     let current = view
