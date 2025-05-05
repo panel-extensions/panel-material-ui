@@ -17,6 +17,8 @@ def _read_icon(icon):
         imgdata = img._data(img.object)
         if imgdata:
             icon_string = img._b64(imgdata)
+            if str(icon).endswith('.ico'):
+                icon_string = icon_string.replace("data:image/ico;", "data:image/x-icon;")
         else:
             raise ValueError(f"Could not embed logo {icon}.")
     else:
