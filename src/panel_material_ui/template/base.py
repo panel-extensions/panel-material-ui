@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import os
+import pathlib
 from typing import TYPE_CHECKING, Any, Literal
 
 import param
@@ -72,7 +73,7 @@ class Page(MaterialComponent, ResourceComponent):
 
     contextbar_width = param.Integer(default=250, doc="Width of the contextbar")
 
-    favicon = param.String(default=None, doc="The favicon of the page.")
+    favicon = param.ClassSelector(default=None, class_=(str, pathlib.Path), doc="The favicon of the page.")
 
     header = Children(doc="Items rendered in the header.")
 
@@ -80,7 +81,7 @@ class Page(MaterialComponent, ResourceComponent):
 
     meta = param.ClassSelector(default=Meta(), class_=Meta, doc="Meta tags and other HTML head elements.")
 
-    logo = param.String(default=None, doc="The logo of the page.")
+    logo = param.ClassSelector(default=None, class_=(str, pathlib.Path), doc="The logo of the page.")
 
     sidebar = Children(doc="Items rendered in the sidebar.")
 
@@ -97,7 +98,7 @@ class Page(MaterialComponent, ResourceComponent):
     title = param.String(doc="Title of the application.")
 
     _esm_base = "Page.jsx"
-    _rename = {"config": None, "meta": None}
+    _rename = {"config": None, "meta": None, "favicon": None, "apple_touch_icon": None}
     _source_transforms = {
         "header": None,
         "contextbar": None,

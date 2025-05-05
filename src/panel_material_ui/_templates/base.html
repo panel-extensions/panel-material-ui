@@ -7,28 +7,28 @@
     <meta charset="utf-8">
     <title>{% block title %}{{ title | e if title else "Panel App" }}{% endblock %}</title>
     {% if manifest_url %}<link rel="manifest" href="{{ manifest_url }}">{% endif %}
-    {%  block preamble -%}
+    {%- block preamble %}
     <link rel="apple-touch-icon" href="{% if apple_touch_icon %}{{ apple_touch_icon }}{% else %}{{ dist_url }}images/apple-touch-icon.png{% endif %}">
     <link rel="icon" href="{% if favicon %}{{ favicon }}{% else %}{{ dist_url }}images/favicon.ico{% endif %}">
-    {%- if meta  %}
-      {%- if meta.name %}
-      <meta name="name" content="{{ meta.name }}">
-      {% endif -%}
-      {%- if meta.description %}
-      <meta name="description" content="{{ meta.description }}">
-      {% endif -%}
-      {%- if meta.keywords %}
-      <meta name="keywords" content="{{ meta.keywords }}">
-      {% endif -%}
-      {%- if meta.author %}
-      <meta name="author" content="{{ meta.author }}">
-      {% endif -%}
-      {%- if meta.refresh %}
-      <meta http-equiv="refresh" content="{{ meta.refresh }}">
-      {% endif -%}
-      {%- if meta.viewport %}
-      <meta name="viewport" content="{{ meta.viewport }}">
-      {% endif -%}
+    {% if meta -%}
+    {% if meta.name %}
+    <meta name="name" content="{{ meta.name }}">
+    {% endif -%}
+    {%- if meta.description %}
+    <meta name="description" content="{{ meta.description }}">
+    {% endif -%}
+    {%- if meta.keywords %}
+    <meta name="keywords" content="{{ meta.keywords }}">
+    {% endif -%}
+    {%- if meta.author %}
+    <meta name="author" content="{{ meta.author }}">
+    {% endif -%}
+    {%- if meta.refresh %}
+    <meta http-equiv="refresh" content="{{ meta.refresh }}">
+    {% endif -%}
+    {%- if meta.viewport %}
+    <meta name="viewport" content="{{ meta.viewport }}">
+    {% endif -%}
     {% endif -%}
     {%- endblock %}
   {% block resources %}
@@ -78,30 +78,29 @@
     {{ bokeh_js if bokeh_js }}
   {%- endblock js_resources %}
   {%  endblock resources %}
-    {%  block postamble %}
+    {% block postamble %}
     {% if resources %}
     {% for css in resources.css.values() %}
     <link rel="stylesheet" href="{{ css }}">
     {% endfor %}
 
-    {% block custom_css %}
-    {% endblock %}
+    {%- block custom_css -%}
+    {%- endblock -%}
 
-    {% for raw_css in resources.raw_css %}
+    {%- for raw_css in resources.raw_css %}
     <style type="text/css">
     {{ raw_css }}
     </style>
-    {% endfor %}
+    {% endfor -%}
 
-    <!-- Template JS -->
-    {% for src in resources.js.values() %}
+    {%- for src in resources.js.values() %}
     <script src="{{ src }}"></script>
-    {% endfor %}
-    {% for src in resources.js_modules.values() %}
+    {% endfor -%}
+    {%- for src in resources.js_modules.values() %}
     <script src="{{ src }}" type="module"></script>
-    {% endfor %}
-    {% endif  %}
-  {% endblock %}
+    {%- endfor %}
+    {%- endif  %}
+  {%- endblock %}
     <style id="template-styles">
       html, body {
       	color: var(--mui-palette-text-primary);

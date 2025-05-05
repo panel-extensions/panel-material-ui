@@ -1,12 +1,19 @@
-import panel_material_ui as pmui
+import pathlib
 from io import StringIO
+
 import pytest
+
+import panel_material_ui as pmui
+from panel.config import config
 from panel.io.resources import CDN_DIST
+
+STATIC_PATH = pathlib.Path(__file__).parent.parent / "doc" / "_static"
 
 
 def _to_html(page: pmui.Page):
     export = StringIO()
-    page.save(export)
+    with config.set(inline=False):
+        page.save(export)
     export.seek(0)
     return export.read()
 
@@ -60,7 +67,7 @@ def test_default_page_parameters():
             "meta_refresh", "30", """<meta http-equiv="refresh" content="30">"""
         ),
         (
-            "meta_icon",
+        "meta_icon",
             "https://www.wikipedia.org/static/favicon/wikipedia.ico",
             """<link rel="icon" href="https://www.wikipedia.org/static/favicon/wikipedia.ico">""",
         ),
@@ -73,5 +80,14 @@ def test_default_page_parameters():
 )
 def test_custom_page_parameters(key, value, expected):
     html = _render_page(**{key: value})
-
     assert expected in html
+
+
+def test_favicon():
+    html = _render_page(favicon=STATIC_PATH / "icons" / "icon-16x16.png")
+    assert """<link rel="icon" href="data:image/png;""" in html
+
+def test_logo():
+    page = pmui.Page(logo=STATIC_PATH / "logo_horizontal_light_theme.png")
+    model = page.get_root()
+    assert model.data.logo.startswith("data:image/png;")
