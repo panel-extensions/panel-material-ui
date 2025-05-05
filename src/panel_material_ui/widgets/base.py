@@ -109,6 +109,10 @@ class MaterialWidget(MaterialComponent, WidgetBase):
             Sizing mode for the component.
         kwargs: dict
             Additional arguments to pass to the component.
+
+        Example:
+        --------
+        >>> pmui.Button(name="Open").api()
         """
         import panel as pn
 
