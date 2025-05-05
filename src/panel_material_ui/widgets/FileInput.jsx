@@ -62,6 +62,7 @@ export function render({model}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [directory] = model.useState("directory")
+  const [loading] = model.useState("loading")
   const [multiple] = model.useState("multiple")
   const [label] = model.useState("label")
   const [variant] = model.useState("variant")
@@ -111,6 +112,8 @@ export function render({model}) {
       component="label"
       disabled={disabled}
       fullWidth
+      loading={loading}
+      loadingPosition="start"
       role={undefined}
       startIcon={icon}
       sx={sx}

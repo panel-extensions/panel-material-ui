@@ -36,7 +36,7 @@ class _ButtonLike(MaterialWidget):
     variant = param.Selector(objects=["contained", "outlined", "text"], default="text", doc="""
         The variant of the component.""")
 
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
+    _esm_transforms = [TooltipTransform, ThemedTransform]
     _rename = {"button_style": None, "button_type": None}
     _source_transforms = {"button_style": None, "button_type": None}
 
@@ -180,6 +180,7 @@ class Fab(Button):
         The variant of the button.""")
 
     _esm_base = "Fab.jsx"
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
 
 class Toggle(_ButtonBase):
@@ -202,6 +203,7 @@ class Toggle(_ButtonBase):
     value = param.Boolean(default=False)
 
     _esm_base = "ToggleButton.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
 
 
 __all__ = [
