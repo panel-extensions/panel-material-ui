@@ -99,7 +99,7 @@ class Button(_ButtonBase, _ClickButton):
     watched to subscribe to click events.
 
     References:
-    - https://holoviz-dev.github.io/panel-material-ui/reference/widgets/Button.html
+    - https://panel-material-ui.holoviz.org/reference/widgets/Button.html
     - https://mui.com/material-ui/react-button/
     - https://panel.holoviz.org/reference/widgets/Button.html
 
