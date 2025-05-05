@@ -549,13 +549,10 @@ class Drawer(MaterialListLike):
 
     _esm_base = "Drawer.jsx"
 
-    def _process_param_change(self, params):
-        if self.variant == 'temporary':
-            if 'width' in params:
-                params.pop('width')
-            if 'height' in params:
-                params.pop('height')
-        return super()._process_param_change(params)
+    @param.depends("variant", watch=True, on_init=True)
+    def _force_zero_dimensions(self):
+        if self.variant == "temporary":
+            self.param.update(width=0, height=0, sizing_mode="fixed")
 
     def create_toggle(
         self,
