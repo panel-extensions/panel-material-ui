@@ -380,6 +380,7 @@ export function render({model, el}) {
           const handleClick = (e) => {
             if (!multi) {
               setValue(opt)
+	      setOpen(false)
               return
             }
             const isChecked = !value.includes(opt)
@@ -398,6 +399,7 @@ export function render({model, el}) {
           return (
             <MenuItem
               data-matched={matched}
+	      disabled={disabled_options?.includes(opt)}
               disableGutters
               key={opt}
               onClick={handleClick}
