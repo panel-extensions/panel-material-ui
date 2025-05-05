@@ -479,7 +479,7 @@ class DiscreteSlider(_PnDiscreteSlider):
 
     _slider_style_params = [
         "bar_color", "direction", "disabled", "orientation", "color", "track",
-        "size", "label", "marks"
+        "size", "label", "marks", "show_value"
     ]
 
     def __init__(self, **params):
