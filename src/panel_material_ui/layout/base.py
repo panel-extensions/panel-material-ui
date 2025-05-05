@@ -519,7 +519,6 @@ class Dialog(MaterialListLike):
 
     _esm_base = "Dialog.jsx"
 
-
 class Drawer(MaterialListLike):
     """
     The `Drawer` component can be used to display important content in a modal-like overlay that requires
@@ -549,12 +548,13 @@ class Drawer(MaterialListLike):
 
     _esm_base = "Drawer.jsx"
 
+    def __init__(self, *objects, **params):
+        params.update(width=0, height=0, sizing_mode="fixed")
+        super().__init__(*objects, **params)
+
     def _process_param_change(self, params):
         if self.variant == 'temporary':
-            if 'width' in params:
-                params.pop('width')
-            if 'height' in params:
-                params.pop('height')
+            params.update(width=0, height=0, sizing_mode="fixed")
         return super()._process_param_change(params)
 
     def create_toggle(
@@ -582,7 +582,6 @@ class Drawer(MaterialListLike):
         toggle = ToggleIcon(icon=icon, active_icon=active_icon, value=self.open, **params)
         toggle.jslink(self, value='open', bidirectional=True)
         return toggle
-
 
 __all__ = [
     "Accordion",
