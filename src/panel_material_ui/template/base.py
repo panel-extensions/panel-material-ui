@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import os
+import pathlib
 from typing import TYPE_CHECKING, Any, Literal
 
 import param
@@ -12,6 +13,7 @@ from panel.io.state import state
 from panel.util import edit_readonly
 from panel.viewable import Child, Children
 
+from .._utils import _read_icon
 from ..base import MaterialComponent, ThemedTransform
 from ..widgets.base import MaterialWidget
 
@@ -19,6 +21,8 @@ if TYPE_CHECKING:
     from bokeh.document import Document
     from panel.io.location import LocationAreaBase
     from panel.io.resources import ResourcesType
+
+SIDEBAR_VARIANTS = ["persistent", "temporary", "permanent", "auto"]
 
 
 class Meta(param.Parameterized):
@@ -69,18 +73,23 @@ class Page(MaterialComponent, ResourceComponent):
 
     contextbar_width = param.Integer(default=250, doc="Width of the contextbar")
 
+    favicon = param.ClassSelector(default=None, class_=(str, pathlib.Path), doc="The favicon of the page.")
+
     header = Children(doc="Items rendered in the header.")
 
     main = Children(doc="Items rendered in the main area.")
 
     meta = param.ClassSelector(default=Meta(), class_=Meta, doc="Meta tags and other HTML head elements.")
 
+    logo = param.ClassSelector(default=None, class_=(str, pathlib.Path), doc="The logo of the page.")
+
     sidebar = Children(doc="Items rendered in the sidebar.")
 
     sidebar_open = param.Boolean(default=True, doc="Whether the sidebar is open or closed.")
 
-    sidebar_variant = param.Selector(default="auto", objects=["persistent", "temporary", "permanent", "auto"], doc="""
-        Whether the sidebar is persistent, a temporary drawer, a permanent drawer, or automatically switches between the two based on screen size.""")
+    sidebar_variant = param.Selector(default="auto", objects=SIDEBAR_VARIANTS, doc="""
+        Whether the sidebar is persistent, a temporary drawer, a permanent drawer, or automatically
+        switches between the two based on screen size.""")
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
 
@@ -89,7 +98,7 @@ class Page(MaterialComponent, ResourceComponent):
     title = param.String(doc="Title of the application.")
 
     _esm_base = "Page.jsx"
-    _rename = {"config": None, "meta": None}
+    _rename = {"config": None, "meta": None, "favicon": None, "apple_touch_icon": None}
     _source_transforms = {
         "header": None,
         "contextbar": None,
@@ -133,6 +142,20 @@ class Page(MaterialComponent, ResourceComponent):
                     r for r in res if r not in extras.get(rname, [])  # type: ignore
                 ]
 
+    def _process_param_change(self, params):
+        params = super()._process_param_change(params)
+        if logo := params.get('logo'):
+            params['logo'] = _read_icon(logo)
+        return params
+
+    def _populate_template_variables(self, template_variables):
+        template_variables['meta'] = self.meta
+        if favicon := self.favicon or self.meta.icon:
+            template_variables['favicon'] = _read_icon(favicon)
+        if apple_touch_icon := self.meta.apple_touch_icon:
+            template_variables['apple_touch_icon'] = _read_icon(apple_touch_icon)
+        template_variables['resources'] = self.resolve_resources()
+
     def resolve_resources(
         self,
         cdn: bool | Literal['auto'] = 'auto',
@@ -160,10 +183,11 @@ class Page(MaterialComponent, ResourceComponent):
         template_variables: dict[str, Any] | None = None,
         **kwargs
     ) -> None:
-        if not template_variables:
+        if template_variables:
+            template_variables = dict(template_variables)
+        else:
             template_variables = {}
-        template_variables['meta'] = self.meta
-        template_variables['resources'] = self.resolve_resources()
+        self._populate_template_variables(template_variables)
         super().save(
             filename,
             title,
@@ -179,8 +203,7 @@ class Page(MaterialComponent, ResourceComponent):
     ) -> Document:
         title = title or self.title or self.meta.title or 'Panel Application'
         doc = super().server_doc(doc, title, location)
-        doc.template_variables['meta'] = self.meta
-        doc.template_variables['resources'] = self.resolve_resources()
+        self._populate_template_variables(doc.template_variables)
         return doc
 
 

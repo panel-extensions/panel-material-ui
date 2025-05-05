@@ -50,6 +50,7 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
 export function render({model}) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const [logo] = model.useState("logo")
   const [busy] = model.useState("busy")
   const [busy_indicator] = model.useState("busy_indicator")
   const [sidebar_width] = model.useState("sidebar_width")
@@ -147,6 +148,7 @@ export function render({model}) {
               </IconButton>
             </Tooltip>
           }
+          {logo && <img src={logo} alt="Logo" style={{height: "2.5em", paddingRight: "1em"}} />}
           <Typography variant="h5" sx={{color: "white"}}>
             {title}
           </Typography>
