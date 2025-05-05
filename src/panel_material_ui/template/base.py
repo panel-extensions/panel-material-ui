@@ -155,6 +155,7 @@ class Page(MaterialComponent, ResourceComponent):
         if apple_touch_icon := self.meta.apple_touch_icon:
             template_variables['apple_touch_icon'] = _read_icon(apple_touch_icon)
         template_variables['resources'] = self.resolve_resources()
+        template_variables['is_page'] = True
 
     def resolve_resources(
         self,
