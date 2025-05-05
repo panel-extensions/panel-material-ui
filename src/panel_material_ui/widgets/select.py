@@ -162,8 +162,6 @@ class _SelectDropdownBase(MaterialWidget):
 
     dropdown_open = param.Boolean(default=False, doc="Whether the dropdown is open")
 
-    placeholder = param.String(default="", doc="Placeholder text for the dropdown")
-
     searchable = param.Boolean(default=False, doc="Whether the dropdown is searchable")
 
     value_label = param.String(doc="Custom label to describe the current option(s).")
@@ -201,7 +199,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     size = param.Integer(default=1, bounds=(1, None), doc="""
         Declares how many options are displayed at the same time.
         If set to 1 displays options as dropdown otherwise displays
-        scrollable area.""")
+        scrollable area (not currently supported).""")
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 

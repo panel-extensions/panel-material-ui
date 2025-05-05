@@ -24,7 +24,6 @@ export function render({model, el}) {
   const [label] = model.useState("label")
   const [options] = model.useState("options")
   const [sx] = model.useState("sx")
-  const [placeholder] = model.useState("placeholder")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
@@ -43,15 +42,18 @@ export function render({model, el}) {
   let delete_button = false
   let max_items = 1
   let solid = false
+  let placeholder = null
   if (multi) {
     const [chip_state] = model.useState("chip")
     const [delete_button_state] = model.useState("delete_button")
     const [max_items_state] = model.useState("max_items")
+    const [placeholder_state] = model.useState("placeholder")
     const [solid_state] = model.useState("solid")
     chip = chip_state === undefined ? true : chip_state
     delete_button = delete_button_state === undefined ? true : delete_button_state
     max_items = max_items_state === undefined ? null : max_items_state
     solid = solid_state === undefined ? true : solid_state
+    placeholder = placeholder_state === undefined ? null : placeholder_state
   }
 
   // Select specific props
@@ -147,7 +149,9 @@ export function render({model, el}) {
   }
 
   const renderValue = (selected) => {
-    if (value_label) {
+    if (multi && placeholder && selected.length === 0) {
+      return placeholder
+    } else if (value_label) {
       return value_label
     }
     if (multi && chip) {
@@ -441,7 +445,6 @@ export function render({model, el}) {
         open={open}
         renderValue={renderValue}
         sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
-        placeholder={placeholder}
         value={value}
         variant={variant}
         MenuProps={MenuProps}
