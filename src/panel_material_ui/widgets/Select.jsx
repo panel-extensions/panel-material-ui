@@ -17,6 +17,7 @@ import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
 import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
+import {findNotebook} from "./utils"
 
 export function render({model, el}) {
   const [color] = model.useState("color")
@@ -24,7 +25,6 @@ export function render({model, el}) {
   const [label] = model.useState("label")
   const [options] = model.useState("options")
   const [sx] = model.useState("sx")
-  const [placeholder] = model.useState("placeholder")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
@@ -43,15 +43,44 @@ export function render({model, el}) {
   let delete_button = false
   let max_items = 1
   let solid = false
+  let placeholder = null
   if (multi) {
     const [chip_state] = model.useState("chip")
     const [delete_button_state] = model.useState("delete_button")
     const [max_items_state] = model.useState("max_items")
+    const [placeholder_state] = model.useState("placeholder")
     const [solid_state] = model.useState("solid")
     chip = chip_state === undefined ? true : chip_state
     delete_button = delete_button_state === undefined ? true : delete_button_state
     max_items = max_items_state === undefined ? null : max_items_state
     solid = solid_state === undefined ? true : solid_state
+    placeholder = placeholder_state === undefined ? null : placeholder_state
+  }
+
+  // Offset notebook node
+  const [notebook, feed] = findNotebook(el)
+  let nb_menu_props = {}
+  if (notebook !== null) {
+    const {x, y} = notebook.getBoundingClientRect()
+    let [left, top] = [-x, feed.scrollTop - y]
+    const [position, setPosition] = React.useState([left, top])
+    nb_menu_props = {
+      PaperProps: {
+        style: {transform: `translate(${position[0]}px, ${position[1]}px)`}
+      },
+      TransitionComponent: React.Fragment
+    }
+    React.useEffect(() => {
+      if (open) {
+        feed.style.overflow = "hidden"
+        const {x, y, height} = notebook.getBoundingClientRect()
+        left = -x
+        top = ((feed.scrollTop > (0.67*height)) ? y : (feed.scrollTop - y))
+        setPosition([left, top])
+      } else {
+        feed.style.overflow = "auto"
+      }
+    }, [open])
   }
 
   // Select specific props
@@ -123,11 +152,11 @@ export function render({model, el}) {
   const MenuProps = {
     container: el,
     disablePortal: true,
-    getContentAnchorEl: null,
     sx: {height: dropdown_height},
     MenuListProps: {
       ref: menuRef,
     },
+    ...nb_menu_props
   }
 
   const getInput = () => {
@@ -147,7 +176,9 @@ export function render({model, el}) {
   }
 
   const renderValue = (selected) => {
-    if (value_label) {
+    if (multi && placeholder && selected.length === 0) {
+      return placeholder
+    } else if (value_label) {
       return value_label
     }
     if (multi && chip) {
@@ -380,6 +411,7 @@ export function render({model, el}) {
           const handleClick = (e) => {
             if (!multi) {
               setValue(opt)
+              setOpen(false)
               return
             }
             const isChecked = !value.includes(opt)
@@ -398,6 +430,7 @@ export function render({model, el}) {
           return (
             <MenuItem
               data-matched={matched}
+              disabled={disabled_options?.includes(opt)}
               disableGutters
               key={opt}
               onClick={handleClick}
@@ -439,7 +472,6 @@ export function render({model, el}) {
         open={open}
         renderValue={renderValue}
         sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
-        placeholder={placeholder}
         value={value}
         variant={variant}
         MenuProps={MenuProps}
