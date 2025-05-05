@@ -17,6 +17,7 @@ import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
 import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
+import {findNotebook} from "./utils"
 
 export function render({model, el}) {
   const [color] = model.useState("color")
@@ -54,6 +55,13 @@ export function render({model, el}) {
     max_items = max_items_state === undefined ? null : max_items_state
     solid = solid_state === undefined ? true : solid_state
     placeholder = placeholder_state === undefined ? null : placeholder_state
+  }
+
+  // Offset notebook node
+  let [left, top] = [0, 0]
+  const notebook = findNotebook(el)
+  if (notebook) {
+    ({left, top} = notebook.getBoundingClientRect())
   }
 
   // Select specific props
@@ -130,6 +138,9 @@ export function render({model, el}) {
     MenuListProps: {
       ref: menuRef,
     },
+    PaperProps: {
+      style: {transform: `translate(-${left}px, -${top}px)`}
+    }
   }
 
   const getInput = () => {
@@ -429,6 +440,7 @@ export function render({model, el}) {
       {label && <InputLabel color={color} id={`select-label-${model.id}`}>{label}</InputLabel>}
       <Select
         color={color}
+        disableScrollLock={notebook !== null}
         disabled={disabled}
         input={getInput()}
         labelId={`select-label-${model.id}`}

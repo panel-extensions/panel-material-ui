@@ -637,3 +637,19 @@ export function apply_flex(view, direction) {
     }
   }
 }
+
+export function findNotebook(el) {
+  while (el) {
+    if (el.classList && el.classList.contains("jp-Notebook")) {
+      return el
+    }
+    if (el.parentNode) {
+      el = el.parentNode
+    } else if (el instanceof ShadowRoot) {
+      el = el.host
+    } else {
+      el = null
+    }
+  }
+  return null
+}
