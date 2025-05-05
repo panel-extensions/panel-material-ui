@@ -70,6 +70,11 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
 
     clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
 
+    end_icon = param.String(default=None, doc="""
+        An icon to render to the right of the button label. Either an SVG or an
+        icon name which is loaded from Material Icons.""",
+    )
+
     icon = param.String(default=None, doc="""
         An icon to render to the left of the button label. Either an SVG or an
         icon name which is loaded from Material Icons.""",
@@ -109,10 +114,11 @@ class Button(_ButtonBase, _ClickButton):
     >>> Button(label='Click me', icon='caret-right', button_type='primary')
     """
 
+    disable_elevation = param.Boolean(default=False)
+
     href = param.String(default=None, doc="""
         The URL to navigate to when the button is clicked.""")
 
-    disable_elevation = param.Boolean(default=False)
     size = param.Selector(default="medium", objects=["small", "medium", "large"])
 
     value = param.Event(doc="Toggles from False to True while the event is being processed.")

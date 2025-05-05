@@ -4,6 +4,7 @@ export function render({model, el}) {
   const [color] = model.useState("color")
   const [disableElevation] = model.useState("disable_elevation")
   const [disabled] = model.useState("disabled")
+  const [end_icon] = model.useState("end_icon")
   const [href] = model.useState("href")
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
@@ -18,8 +19,20 @@ export function render({model, el}) {
       color={color}
       disableElevation={disableElevation}
       disabled={disabled}
+      endIcon={end_icon && (
+        end_icon.trim().startsWith("<") ?
+          <span style={{
+            maskImage: `url("data:image/svg+xml;base64,${btoa(end_icon)}")`,
+            backgroundColor: "currentColor",
+            maskRepeat: "no-repeat",
+            maskSize: "contain",
+            width: icon_size,
+            height: icon_size,
+            display: "inline-block"}}
+          /> :
+          <Icon style={{fontSize: icon_size}}>{end_icon}</Icon>
+      )}
       fullWidth
-      size={size}
       href={href}
       loading={loading}
       loadingPosition="start"
@@ -37,6 +50,7 @@ export function render({model, el}) {
           /> :
           <Icon style={{fontSize: icon_size}}>{icon}</Icon>
       )}
+      size={size}
       sx={sx}
       variant={variant}
     >
