@@ -71,14 +71,14 @@ class ToggleIcon(_ClickableIcon):
     _esm_base = "ToggleIcon.jsx"
 
 
-class ButtonIcon(_ClickableIcon, _ButtonBase):
+class IconButton(_ClickableIcon, _ButtonBase):
     """
-    The `ButtonIcon` widget facilitates event triggering upon button clicks.
+    The `IconButton` widget facilitates event triggering upon button clicks.
 
     This widget displays a default `icon` initially. Upon being clicked, an `active_icon` appears
     for a specified `toggle_duration`.
 
-    For instance, the `ButtonIcon` can be effectively utilized to implement a feature akin to
+    For instance, the `IconButton` can be effectively utilized to implement a feature akin to
     ChatGPT's copy-to-clipboard button.
 
     The button incorporates a `value` attribute, which alternates between `False` and `True` as the
@@ -89,13 +89,13 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
 
     :References:
 
-    - https://panel-material-ui.holoviz.org/reference/widgets/ButtonIcon.html
+    - https://panel-material-ui.holoviz.org/reference/widgets/IconButton.html
     - https://panel.holoviz.org/reference/widgets/ButtonIcon.html
     - https://mui.com/material-ui/api/icon-button/
 
     :Example:
 
-    >>> button_icon = ButtonIcon(
+    >>> button_icon = IconButton(
     ...     icon='favorite',
     ...     active_icon='check',
     ...     description='Copy',
@@ -201,7 +201,11 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
                 callbacks[k] = val
         return Callback(self, code=callbacks, args=args)
 
+
+ButtonIcon = IconButton
+
 __all__ = [
-    "ToggleIcon",
-    "ButtonIcon"
+    "ButtonIcon",
+    "IconButton",
+    "ToggleIcon"
 ]
