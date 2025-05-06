@@ -119,6 +119,9 @@ class Button(_ButtonBase, _ClickButton):
     href = param.String(default=None, doc="""
         The URL to navigate to when the button is clicked.""")
 
+    target = param.Selector(default="_self", objects=["_blank", "_parent", "_self", "_top"],
+                            doc="Where to open the linked document.")
+
     size = param.Selector(default="medium", objects=["small", "medium", "large"])
 
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
