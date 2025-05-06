@@ -451,6 +451,7 @@ class DiscreteSlider(IntSlider, _PnSingleSelectBase):
     end = param.Integer(default=100, readonly=True)
     step = param.Integer(default=1, readonly=True)
 
+    _allows_values = False
     _constants = {"discrete": True}
 
     @param.depends("options", watch=True)
@@ -462,13 +463,13 @@ class DiscreteSlider(IntSlider, _PnSingleSelectBase):
         if 'options' in msg:
             msg['options'] = self.labels
         if 'value' in msg:
-            msg['value'] = self.values.index(msg['value'])
+            msg['value'] = self.labels.index(msg['value'])
         return msg
 
     def _process_property_change(self, msg):
-        msg = super()._process_property_change(msg)
         if 'value' in msg:
             msg['value'] = self.values[msg['value']]
+        msg = super()._process_property_change(msg)
         return msg
 
 
