@@ -83,7 +83,7 @@ cards = pmui.Row(
 page = pmui.Page(
     title="Orbitron",
     header=[pn.HSpacer(), open_drawer],
-    sidebar=[pn.pane.Image("https://cdn.britannica.com/94/192794-050-3F3F3DDD/panels-electricity-order-sunlight.jpg", margin=(20,10,10,10),), pmui.Column("# Settings", state, pn.VSpacer(min_height=25), "### References", github_link, docs_link, sizing_mode="stretch_both", margin=(10,10), styles={"border": "1px solid gray"})],
+    sidebar=[pn.pane.Image("examples/apps/branding/brand/assets/orbitron_products.png", margin=(20,10,10,10), sizing_mode="scale_width"), pmui.Column("# Settings", state, pn.VSpacer(min_height=25), "### References", github_link, docs_link, sizing_mode="stretch_both", margin=(10,10), styles={"border": "1px solid gray"})],
     sidebar_width=425,
     main=[pmui.Container("<h2>Buttons</h2>", example_buttons, cards, drawer)],
 )

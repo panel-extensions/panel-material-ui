@@ -1,8 +1,18 @@
 from pathlib import Path
 
-FAVICON_URL = "https://holoviz.org/_static/favicon.ico"
-LOGO_SVG_URL = "brand/assets/logo.svg" # Source: https://text-to-svg.com/montserrat-font-to-svg
-LOGO_PNG_URL = "brand/assets/logo.png" # Source: https://svgtopng.com/
-STYLE_CSS_URL = "brand/assets/style.css" # Source: https://www.w3schools.com/w3css/w3css_templates.asp
+ROOT = Path(__file__).parent
 
-RAW_CSS = (Path(__file__).parent / "style.css").read_text()
+def _absolute(path):
+    """
+    Convert a path to a string.
+    """
+    return str(Path(ROOT/path).absolute())
+
+# We need to convert to absolute paths because meta.icon etc does not support `Path` objects
+FAVICON_PATH = _absolute("favicon.ico") # Source: https://favicon.io/favicon-generator/
+LOGO_SVG_URL = ROOT / "brand/assets/logo.svg" # Source: https://text-to-svg.com/montserrat-font-to-svg
+LOGO_PNG_URL = ROOT / "brand/assets/logo.png" # Source: https://svgtopng.com/
+PRODUCT_URL = ROOT / "brand/assets/orbitron_products.png" # Source: ChatGPT
+STYLE_CSS_URL = ROOT / "brand/assets/style.css" # Source: https://www.w3schools.com/w3css/w3css_templates.asp
+
+RAW_CSS = (ROOT/ "style.css").read_text()
