@@ -28,11 +28,11 @@ _LIGHT_THEME_CONFIG = {
         },
         "components": {
             "MuiButtonBase": {
-            "defaultProps": {
-                "disableRipple": True,
-                # Not Working
-                "disableElevation": True,
-            },
+                "defaultProps": {
+                    "disableRipple": True,
+                    # Not Working
+                    "disableElevation": True,
+                },
             },
         },
 }
