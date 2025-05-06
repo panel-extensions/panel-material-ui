@@ -78,10 +78,10 @@ class State(pn.viewable.Viewer):
 
 state = State()
 example_buttons = pn.FlexBox(
-    *[
+    *(
         pmui.Button(name=color.capitalize(), color=color, width=120)
         for color in pmui.Button.param.color.objects
-    ]
+    )
 )
 github_link = pmui.Button(
     name="GitHub",

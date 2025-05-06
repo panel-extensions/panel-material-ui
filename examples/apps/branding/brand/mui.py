@@ -66,7 +66,7 @@ def _configure_general():
     pmui.Page.meta.apple_touch_icon = ""
     pmui.Page.meta.name = "Orbitron"
 
-    pn.pane.Image._stylesheets.append("img {border-radius: 2px")
+    pn.pane.Image.stylesheets = ["img {border-radius: 2px"]
 
 def configure():
     """
