@@ -166,7 +166,7 @@ export function render({model, view}) {
             {header.map((object, index) => {
               apply_flex(view.get_child_view(model.header[index]), "row")
               return object
-	    })}
+            })}
           </Box>
           {theme_toggle &&
             <Tooltip enterDelay={500} title="Toggle theme">
