@@ -97,8 +97,8 @@ export function render({model, view}) {
       open={open}
       onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
       sx={{
-	display: "flex",
-	flexDirection: "column",
+        display: "flex",
+        flexDirection: "column",
         flexShrink: 0,
         [`& .MuiDrawer-paper`]: {width: sidebar_width, boxSizing: "border-box"},
       }}
@@ -112,7 +112,7 @@ export function render({model, view}) {
         {sidebar.map((object, index) => {
           apply_flex(view.get_child_view(model.sidebar[index]), "column")
           return object
-	})}
+        })}
       </Box>
     </Drawer>
   ) : null
@@ -125,8 +125,8 @@ export function render({model, view}) {
       open={contextbar_open}
       onClose={() => contextOpen(false)}
       sx={{
-	display: "flex",
-	flexDirection: "column",
+        display: "flex",
+        flexDirection: "column",
         flexShrink: 0,
         width: contextbar_width,
         zIndex: (theme) => theme.zIndex.drawer + 2,
