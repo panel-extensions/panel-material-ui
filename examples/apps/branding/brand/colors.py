@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import panel_material_ui as pmui
 
 @dataclass(frozen=True)
 class ThemeColors:
@@ -25,4 +26,28 @@ def get_colors(dark_theme: bool = True) -> ThemeColors:
     """
     if dark_theme:
         return DARK_THEME
-    LIGHT_THEME
+    return LIGHT_THEME
+
+LIGHT_CMAP = pmui.theme.linear_gradient("#ffffff", LIGHT_THEME.primary, n=256)
+DARK_CMAP = pmui.theme.linear_gradient("#ffffff", DARK_THEME.primary, n=256)
+
+def get_continous_cmap(dark_theme: bool = False) -> str:
+    """
+    Get the color map based on the dark theme flag.
+
+    Args:
+        dark_theme (bool): If True, return dark theme color map. Otherwise, return light theme color map.
+    """
+    if dark_theme:
+        return DARK_CMAP
+    return LIGHT_CMAP
+
+def get_categorical_palette(dark_theme: bool=False, n_colors=20):
+    """
+    Get the categorical color palette based on the dark theme flag.
+    Args:
+        dark_theme (bool): If True, return dark theme color palette. Otherwise, return light theme color palette.
+        n_colors (int): Number of colors in the palette.
+    """
+    colors = get_colors(dark_theme)
+    return pmui.theme.generate_palette(colors.primary, n_colors=n_colors)

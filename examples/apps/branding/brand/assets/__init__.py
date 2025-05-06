@@ -10,9 +10,8 @@ def _absolute(path):
 
 # We need to convert to absolute paths because meta.icon etc does not support `Path` objects
 FAVICON_PATH = _absolute("favicon.ico") # Source: https://favicon.io/favicon-generator/
-LOGO_SVG_URL = ROOT / "brand/assets/logo.svg" # Source: https://text-to-svg.com/montserrat-font-to-svg
-LOGO_PNG_URL = ROOT / "brand/assets/logo.png" # Source: https://svgtopng.com/
-PRODUCT_URL = ROOT / "brand/assets/orbitron_products.png" # Source: ChatGPT
+LOGO_PATH = _absolute("logo.png") # Source: ChatGPT
+VISION_PATH = _absolute("vision.png")
 STYLE_CSS_URL = ROOT / "brand/assets/style.css" # Source: https://www.w3schools.com/w3css/w3css_templates.asp
 
 RAW_CSS = (ROOT/ "style.css").read_text()

@@ -1,7 +1,7 @@
 import panel_material_ui as pmui
 import panel as pn
 from .colors import DARK_THEME, LIGHT_THEME
-from .assets import FAVICON_PATH, LOGO_SVG_URL, RAW_CSS
+from .assets import FAVICON_PATH, LOGO_PATH, RAW_CSS
 from copy import deepcopy
 
 _LIGHT_THEME_CONFIG = {
@@ -61,8 +61,7 @@ def _configure_general():
 
     pmui.Page.config.raw_css.append(RAW_CSS)
     pmui.Page.config.css_files.append("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap")
-    # Not Working
-    # pmui.Page.param.logo.default = LOGO_SVG_URL
+    pmui.Page.param.logo.default = LOGO_PATH
     pmui.Page.favicon = FAVICON_PATH
     pmui.Page.meta.apple_touch_icon = ""
     pmui.Page.meta.name = "Orbitron"
