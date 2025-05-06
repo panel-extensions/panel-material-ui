@@ -14,7 +14,7 @@ import TocIcon from "@mui/icons-material/Toc";
 import Tooltip from "@mui/material/Tooltip";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
-import {dark_mode, setup_global_styles} from "./utils"
+import {apply_flex, dark_mode, setup_global_styles} from "./utils"
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && prop !== "variant" && prop !== "sidebar_width"})(
   ({sidebar_width, theme, open, variant}) => {
@@ -47,7 +47,7 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
   }
 )
 
-export function render({model}) {
+export function render({model, view}) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
   const [logo] = model.useState("logo")
@@ -97,6 +97,8 @@ export function render({model}) {
       open={open}
       onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
       sx={{
+	display: "flex",
+	flexDirection: "column",
         flexShrink: 0,
         [`& .MuiDrawer-paper`]: {width: sidebar_width, boxSizing: "border-box"},
       }}
@@ -106,8 +108,11 @@ export function render({model}) {
         <Typography variant="h5">&nbsp;</Typography>
       </Toolbar>
       <Divider />
-      <Box sx={{overflow: "auto"}}>
-        {sidebar}
+      <Box sx={{overflow: "auto", flexGrow: 1, display: "flex", flexDirection: "column"}}>
+        {sidebar.map((object, index) => {
+          apply_flex(view.get_child_view(model.sidebar[index]), "column")
+          return object
+	})}
       </Box>
     </Drawer>
   ) : null
@@ -120,6 +125,8 @@ export function render({model}) {
       open={contextbar_open}
       onClose={() => contextOpen(false)}
       sx={{
+	display: "flex",
+	flexDirection: "column",
         flexShrink: 0,
         width: contextbar_width,
         zIndex: (theme) => theme.zIndex.drawer + 2,
@@ -127,7 +134,10 @@ export function render({model}) {
       }}
       variant="temporary"
     >
-      {contextbar}
+      {contextbar.map((object, index) => {
+        apply_flex(view.get_child_view(model.contextbar[index]), "column")
+        return object
+      })}
     </Drawer>
   ) : null
 
@@ -153,7 +163,10 @@ export function render({model}) {
             {title}
           </Typography>
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
-            {header}
+            {header.map((object, index) => {
+              apply_flex(view.get_child_view(model.header[index]), "row")
+              return object
+	    })}
           </Box>
           {theme_toggle &&
             <Tooltip enterDelay={500} title="Toggle theme">
