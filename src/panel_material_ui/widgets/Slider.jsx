@@ -8,28 +8,40 @@ export function render({model}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [direction] = model.useState("direction")
-  const [end] = model.useState("end")
   const [format] = model.useState("format")
   const [label] = model.useState("label")
   const [marks] = model.useState("marks")
   const [orientation] = model.useState("orientation")
   const [show_value] = model.useState("show_value")
   const [size] = model.useState("size")
-  const [start] = model.useState("start")
   const [step] = model.useState("step")
   const [sx] = model.useState("sx")
   const [tooltips] = model.useState("tooltips")
   const [track] = model.useState("track")
-  const [value, setValue] = model.useState("value")
   const [valueLabel] = model.useState("value_label")
   const [_, setValueThrottled] = model.useState("value_throttled")
   const [value_label, setValueLabel] = React.useState()
+  let [end] = model.useState("end")
+  let [start] = model.useState("start")
+  let [value, setValue] = model.useState("value")
+
   const date = model.esm_constants.date
   const datetime = model.esm_constants.datetime
+  const discrete = model.esm_constants.discrete
 
-  function format_value(d, old, useLabel=true) {
+  let labels = null
+  if (discrete) {
+    const [labels_state] = model.useState("options")
+    labels = labels_state === undefined ? [] : labels_state
+    start = 0
+    end = labels.length - 1
+  }
+
+  function format_value(d, _, useLabel=true) {
     if (valueLabel && useLabel) {
       return valueLabel
+    } else if (discrete) {
+      return labels[d]
     } else if (datetime) {
       return dayjs.unix(d / 1000).format(format || "YYYY-MM-DD HH:mm:ss");
     } else if (date) {
@@ -49,6 +61,8 @@ export function render({model}) {
   React.useEffect(() => {
     if (valueLabel) {
       setValueLabel(valueLabel)
+    } else if (discrete) {
+      setValueLabel(labels[value])
     } else if (Array.isArray(value)) {
       let [v1, v2] = value;
       [v1, v2] = [format_value(v1), format_value(v2)];
@@ -56,7 +70,7 @@ export function render({model}) {
     } else {
       setValueLabel(format_value(value))
     }
-  }, [format, value, valueLabel])
+  }, [format, value, labels])
 
   const ticks = React.useMemo(() => {
     if (!marks) {
@@ -74,7 +88,7 @@ export function render({model}) {
         }
       })
     }
-  }, [marks, format, date])
+  }, [marks, format, labels])
 
   return (
     <FormControl disabled={disabled} fullWidth sx={orientation === "vertical" ? {height: "100%"} : {}}>
@@ -112,7 +126,7 @@ export function render({model}) {
         }}
         track={track}
         value={value}
-        valueLabelDisplay={tooltips ? "auto" : "off"}
+        valueLabelDisplay={tooltips === "auto" ? "auto" : tooltips ? "on" : "off"}
         valueLabelFormat={format_value}
       />
     </FormControl>
