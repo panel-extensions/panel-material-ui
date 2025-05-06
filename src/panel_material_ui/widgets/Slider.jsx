@@ -18,12 +18,12 @@ export function render({model}) {
   const [sx] = model.useState("sx")
   const [tooltips] = model.useState("tooltips")
   const [track] = model.useState("track")
+  const [value, setValue] = model.useState("value")
   const [valueLabel] = model.useState("value_label")
   const [_, setValueThrottled] = model.useState("value_throttled")
   const [value_label, setValueLabel] = React.useState()
   let [end] = model.useState("end")
   let [start] = model.useState("start")
-  let [value, setValue] = model.useState("value")
 
   const date = model.esm_constants.date
   const datetime = model.esm_constants.datetime
