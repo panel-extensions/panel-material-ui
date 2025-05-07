@@ -1,13 +1,17 @@
-from brand import mui, colors, assets
-import panel as pn
-import panel_material_ui as pmui
-import param
 import datetime
-import pandas as pd
-import numpy as np
+
 import hvplot.pandas  # noqa: F401
+import numpy as np
+import pandas as pd
+import panel_material_ui as pmui
+import panel as pn
+import param
+from panel.viewable import Viewer
+
+from brand import mui, colors, assets
 
 mui.configure()
+
 pn.extension(sizing_mode="stretch_width")
 
 stop_server = pmui.Button(
@@ -34,7 +38,7 @@ def get_quarters():
     return dates
 
 
-class State(pn.viewable.Viewer):
+class State(Viewer):
     currency = param.Selector(
         default="EUR", objects=["EUR", "GBP", "USD"], label="Currency"
     )
@@ -44,7 +48,7 @@ class State(pn.viewable.Viewer):
     notation_time_start = param.CalendarDate()
     notation_time_end = param.CalendarDate()
 
-    dark_theme = param.Boolean(default=False, label="Dark Theme")
+    dark_theme = param.Boolean(default=False, label="Dark Theme", allow_refs=True)
 
     def __init__(self, **params):
         super().__init__(**params)
@@ -65,11 +69,10 @@ class State(pn.viewable.Viewer):
             self.param.time_start, options=quarters
         )
         time_range_end = pmui.Select.from_param(self.param.time_end, options=quarters)
-
         notation_time_start = pmui.DatePicker.from_param(self.param.notation_time_start)
         notation_time_end = pmui.DatePicker.from_param(self.param.notation_time_end)
 
-        return pn.Column(
+        return pmui.Column(
             self.param.currency,
             pmui.Row(time_range_start, time_range_end),
             pmui.Column(notation_time_start, notation_time_end),
@@ -77,11 +80,12 @@ class State(pn.viewable.Viewer):
 
 
 state = State()
+
 example_buttons = pn.FlexBox(
-    *[
+    *(
         pmui.Button(name=color.capitalize(), color=color, width=120)
-        for color in pmui.Button.param.color.objects
-    ]
+        for color in pmui.COLORS[:-1]
+    )
 )
 github_link = pmui.Button(
     name="GitHub",
@@ -102,10 +106,7 @@ docs_link = pmui.Button(
 )
 
 drawer = pmui.Drawer(pn.Spacer(height=75), stop_server, anchor="right", size=300)
-open_drawer = pmui.ButtonIcon(icon="settings", sizing_mode="fixed", color="light")
-open_drawer.js_on_click(
-    args={"drawer": drawer}, code="drawer.data.open = !drawer.data.open"
-)
+open_drawer = drawer.create_toggle(icon="settings", sizing_mode="fixed", color="light", styles={"margin-left": "auto"})
 
 cards = pmui.Row(
     pmui.Paper(
@@ -195,7 +196,7 @@ categorical_plot = pn.bind(get_categorical_plot, dark_theme=state.param.dark_the
 continous_plot = pn.bind(get_continous_plot, dark_theme=state.param.dark_theme)
 
 page = pmui.Page(
-    header=[pn.HSpacer(), open_drawer],
+    header=[open_drawer],
     sidebar=[
         pn.pane.Image(
             assets.VISION_PATH,
@@ -214,9 +215,9 @@ page = pmui.Page(
         ),
     ],
     sidebar_width=425,
-    main=[pmui.Container("<h2>Buttons</h2>", example_buttons, "<h2>Plots</h2>", categorical_plot, continous_plot, drawer)],
+    main=[pmui.Container("## Buttons", example_buttons, "## Plots", categorical_plot, continous_plot, drawer)],
 )
 
-page.param.dark_theme.rx.watch(lambda value: state.param.update(dark_theme=value))
+state.dark_theme = page.param.dark_theme
 
 page.servable()

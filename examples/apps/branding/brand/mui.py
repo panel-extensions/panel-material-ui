@@ -28,11 +28,9 @@ _LIGHT_THEME_CONFIG = {
         },
         "components": {
             "MuiButtonBase": {
-            "defaultProps": {
-                "disableRipple": True,
-                # Not Working
-                "disableElevation": True,
-            },
+                "defaultProps": {
+                    "disableRipple": True,
+                },
             },
         },
 }
@@ -66,8 +64,8 @@ def _configure_general():
     pmui.Page.meta.apple_touch_icon = ""
     pmui.Page.meta.name = "Orbitron"
 
-    pn.pane.Image._stylesheets.append("img {border-radius: 2px")
     pmui.Button.param.disable_elevation.default = True
+    pn.pane.Image.stylesheets = ["img {border-radius: 2px"]
 
 def configure():
     """
