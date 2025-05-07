@@ -7,12 +7,12 @@ import panel_material_ui as pmui
 import panel as pn
 import param
 from panel.viewable import Viewer
-
+import datetime as dt
 from brand import mui, colors, assets
 
 mui.configure()
 
-pn.extension(sizing_mode="stretch_width")
+pn.extension("tabulator", sizing_mode="stretch_width")
 
 stop_server = pmui.Button(
     name="Drop the Connection",
@@ -83,7 +83,14 @@ state = State()
 
 example_buttons = pn.FlexBox(
     *(
-        pmui.Button(name=color.capitalize(), color=color, width=120)
+        pmui.Button(
+            name=color.capitalize(),
+            color=color,
+            width=120,
+            on_click=lambda e, color=color: pn.state.notifications.success(
+                f"Clicked the {color.upper()} button"
+            ),
+        )
         for color in pmui.COLORS[:-1]
     )
 )
@@ -106,7 +113,9 @@ docs_link = pmui.Button(
 )
 
 drawer = pmui.Drawer(pn.Spacer(height=75), stop_server, anchor="right", size=300)
-open_drawer = drawer.create_toggle(icon="settings", sizing_mode="fixed", color="light", styles={"margin-left": "auto"})
+open_drawer = drawer.create_toggle(
+    icon="settings", sizing_mode="fixed", color="light", styles={"margin-left": "auto"}
+)
 
 cards = pmui.Row(
     pmui.Paper(
@@ -152,7 +161,7 @@ def get_data(n_categories: int, n_rows=100):
     return dataframe
 
 
-def get_categorical_plot(dark_theme: bool=False):
+def get_categorical_plot(dark_theme: bool = False):
     df = get_data(n_categories=3, n_rows=30)
     cmap = colors.get_categorical_palette(n_colors=3, dark_theme=dark_theme)
     return df.hvplot.scatter(
@@ -192,8 +201,54 @@ def get_continous_plot(dark_theme):
         tools=["fullscreen"],
     ).opts(backend_opts={"plot.toolbar.autohide": True}, toolbar="above")
 
+
 categorical_plot = pn.bind(get_categorical_plot, dark_theme=state.param.dark_theme)
 continous_plot = pn.bind(get_continous_plot, dark_theme=state.param.dark_theme)
+
+df = pd.DataFrame(
+    {
+        "int": [1, 2, 3],
+        "float": [3.14, 6.28, 9.42],
+        "str": ["A", "B", "C"],
+        "bool": [True, False, True],
+        "date": [dt.date(2019, 1, 1), dt.date(2020, 1, 1), dt.date(2020, 1, 10)],
+        "datetime": [
+            dt.datetime(2019, 1, 1, 10),
+            dt.datetime(2020, 1, 1, 12),
+            dt.datetime(2020, 1, 10, 13),
+        ],
+    },
+    index=[1, 2, 3],
+)
+tabulator_formatters = {
+    "float": {
+        "type": "progress",
+        "max": 10,
+        "color": [
+            colors.LIGHT_THEME.success,
+            colors.LIGHT_THEME.warning,
+            colors.LIGHT_THEME.error,
+        ],
+    },
+    "bool": {
+        "type": "tickCross",
+        "tickElement": f'<span class="material-icons-outlined" style="color: {colors.LIGHT_THEME.error}">check</span>',
+        "crossElement": f'<span class="material-icons-outlined" style="color: {colors.LIGHT_THEME.success}">clear</span>',
+    },
+}
+
+df_widget = pn.widgets.Tabulator(
+    df,
+    buttons={
+        "Print": '<span class="material-icons-outlined">print</span>'
+    },
+    theme="materialize",
+    sizing_mode="stretch_both",
+    width=800,
+    height=300,
+    formatters=tabulator_formatters,
+    show_index=False,
+)
 
 page = pmui.Page(
     header=[open_drawer],
@@ -215,7 +270,18 @@ page = pmui.Page(
         ),
     ],
     sidebar_width=425,
-    main=[pmui.Container("## Buttons", example_buttons, "## Plots", categorical_plot, continous_plot, drawer)],
+    main=[
+        pmui.Container(
+            "## Buttons",
+            example_buttons,
+            "## Plots",
+            categorical_plot,
+            continous_plot,
+            drawer,
+            "## Table",
+            df_widget,
+        )
+    ],
 )
 
 state.dark_theme = page.param.dark_theme
