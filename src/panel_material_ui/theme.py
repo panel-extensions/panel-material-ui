@@ -6,17 +6,13 @@ import numpy as np
 import param
 from bokeh.themes import Theme as _BkTheme
 from panel.config import config
-from panel.pane import HTML, Markdown
 from panel.theme.material import Material, MaterialDarkTheme, MaterialDefaultTheme
+from panel.viewable import Viewable
 
 MATERIAL_UI_ICONS = """
 .material-icons { font-family: 'Material Icons'; }
 .material-icons-outlined { font-family: 'Material Icons Outlined'; }
 """
-if MATERIAL_UI_ICONS not in HTML._stylesheets:
-    HTML._stylesheets.append(MATERIAL_UI_ICONS)
-if MATERIAL_UI_ICONS not in Markdown._stylesheets:
-    Markdown._stylesheets.append(MATERIAL_UI_ICONS)
 
 MATERIAL_THEME = {
     "attrs": {
@@ -145,6 +141,13 @@ class MuiDarkTheme(MaterialDarkTheme):
 
 
 class MaterialDesign(Material):
+
+    modifiers = {
+        **Material.modifiers,
+        Viewable: {
+            'stylesheets': Material.modifiers[Viewable]['stylesheets'] + [MATERIAL_UI_ICONS]
+        }
+    }
 
     _resources = {}
     _themes = {'dark': MuiDarkTheme, 'default': MuiDefaultTheme}
