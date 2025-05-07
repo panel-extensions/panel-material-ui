@@ -13,6 +13,7 @@ export function render({model, el}) {
   const [size] = model.useState("size")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
+  const [target] = model.useState("target")
 
   return (
     <Button
@@ -52,6 +53,7 @@ export function render({model, el}) {
       )}
       size={size}
       sx={sx}
+      target={target}
       variant={variant}
     >
       {label}
