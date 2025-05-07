@@ -50,4 +50,7 @@ def get_categorical_palette(dark_theme: bool=False, n_colors=20):
         n_colors (int): Number of colors in the palette.
     """
     colors = get_colors(dark_theme)
+    palette = [colors.primary, colors.secondary, colors.success, colors.warning, colors.error]
+    if n_colors <= len(palette):
+        return palette[:n_colors]
     return pmui.theme.generate_palette(colors.primary, n_colors=n_colors)

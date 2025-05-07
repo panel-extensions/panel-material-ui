@@ -285,8 +285,7 @@ page = pmui.Page(
     sidebar_width=425,
     main=[
         pmui.Container(
-            "## Text",
-            state.text,
+            "## Text", state.text,
             "## Buttons",
             example_buttons,
             "## Plots",
