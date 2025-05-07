@@ -78,6 +78,19 @@ class State(Viewer):
             pmui.Column(notation_time_start, notation_time_end),
         )
 
+    def text(self):
+        """Returns a markdown string with the current state of the parameters."""
+        return f"""
+        The current selections are:
+
+        - Currency: {self.currency}
+        - Time: {self.time_start} to {self.time_end}
+        - Notation Time: {self.notation_time_start} to {self.notation_time_end}
+        - Dark Theme: {'Enabled' if self.dark_theme else 'Disabled'}
+
+        Learn more about [panel-material-ui](https://panel-material-ui.holoviz.org/).
+        """
+
 
 state = State()
 
@@ -87,7 +100,7 @@ example_buttons = pn.FlexBox(
             name=color.capitalize(),
             color=color,
             width=120,
-            on_click=lambda e, color=color: pn.state.notifications.success(
+            on_click=lambda e, color=color: pn.state.notifications.info(
                 f"Clicked the {color.upper()} button"
             ),
         )
@@ -272,6 +285,8 @@ page = pmui.Page(
     sidebar_width=425,
     main=[
         pmui.Container(
+            "## Text",
+            state.text,
             "## Buttons",
             example_buttons,
             "## Plots",
