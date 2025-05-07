@@ -88,6 +88,7 @@ github_link = pmui.Button(
     color="default",
     variant="outlined",
     href="https://github.com/panel-extensions/panel-material-ui",
+    target="_blank",
     icon="open_in_new",
 )
 docs_link = pmui.Button(
@@ -96,6 +97,7 @@ docs_link = pmui.Button(
     variant="outlined",
     href="https://panel-material-ui.holoviz.org/",
     align="end",
+    target="_blank",
     icon="open_in_new",
 )
 
@@ -209,7 +211,6 @@ page = pmui.Page(
             docs_link,
             sizing_mode="stretch_both",
             margin=(10, 10),
-            styles={"border": "1px solid gray"},
         ),
     ],
     sidebar_width=425,

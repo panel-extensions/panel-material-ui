@@ -67,6 +67,7 @@ def _configure_general():
     pmui.Page.meta.name = "Orbitron"
 
     pn.pane.Image._stylesheets.append("img {border-radius: 2px")
+    pmui.Button.param.disable_elevation.default = True
 
 def configure():
     """
