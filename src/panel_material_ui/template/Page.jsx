@@ -225,7 +225,7 @@ export function render({model, view}) {
           <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
             <Typography variant="h5">&nbsp;</Typography>
           </Toolbar>
-          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column"}}>
+          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column", overflowY: "auto"}}>
             {model.get_child("main")}
           </Box>
         </Box>
