@@ -65,14 +65,14 @@ export function render({model, view}) {
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
 
-  const isXl = useMediaQuery(theme.breakpoints.up('xl'))
-  const isLg = useMediaQuery(theme.breakpoints.up('lg'))
-  const isMd = useMediaQuery(theme.breakpoints.up('md'))
-  const isSm = useMediaQuery(theme.breakpoints.up('sm'))
+  const isXl = useMediaQuery(theme.breakpoints.up("xl"))
+  const isLg = useMediaQuery(theme.breakpoints.up("lg"))
+  const isMd = useMediaQuery(theme.breakpoints.up("md"))
+  const isSm = useMediaQuery(theme.breakpoints.up("sm"))
 
   const logoContent = React.useMemo(() => {
     if (!logo) return null;
-    if (typeof logo === 'string') return logo;
+    if (typeof logo === "string") return logo;
 
     if (isXl && logo.xl) return logo.xl;
     if (isLg && logo.lg) return logo.lg;
