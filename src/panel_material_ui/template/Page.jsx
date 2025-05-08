@@ -71,14 +71,14 @@ export function render({model, view}) {
   const isSm = useMediaQuery(theme.breakpoints.up("sm"))
 
   const logoContent = React.useMemo(() => {
-    if (!logo) return null;
-    if (typeof logo === "string") return logo;
+    if (!logo) { return null }
+    if (typeof logo === "string") { return logo }
 
-    if (isXl && logo.xl) return logo.xl;
-    if (isLg && logo.lg) return logo.lg;
-    if (isMd && logo.md) return logo.md;
-    if (isSm && logo.sm) return logo.sm;
-    if (logo.xs) return logo.xs;
+    if (isXl && logo.xl) { return logo.xl }
+    if (isLg && logo.lg) { return logo.lg }
+    if (isMd && logo.md) { return logo.md }
+    if (isSm && logo.sm) { return logo.sm }
+    if (logo.xs) { return logo.xs }
 
     return logo.default || Object.values(logo)[0];
   }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm]);
