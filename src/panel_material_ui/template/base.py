@@ -81,7 +81,9 @@ class Page(MaterialComponent, ResourceComponent):
 
     meta = param.ClassSelector(default=Meta(), class_=Meta, doc="Meta tags and other HTML head elements.")
 
-    logo = param.ClassSelector(default=None, class_=(str, pathlib.Path), doc="The logo of the page.")
+    logo = param.ClassSelector(default=None, class_=(str, pathlib.Path, dict), doc="""
+        Logo to render in the header. Can be a string, a pathlib.Path, or a dictionary with
+        breakpoints as keys, e.g. {'sm': 'logo_mobile.png', 'md': 'logo.png'}.""")
 
     sidebar = Children(doc="Items rendered in the sidebar.")
 
@@ -145,7 +147,11 @@ class Page(MaterialComponent, ResourceComponent):
     def _process_param_change(self, params):
         params = super()._process_param_change(params)
         if logo := params.get('logo'):
-            params['logo'] = _read_icon(logo)
+            if isinstance(logo, dict):
+                logo = {bp: _read_icon(lg) for bp, lg in logo.items()}
+            else:
+                logo = _read_icon(logo)
+            params['logo'] = logo
         return params
 
     def _populate_template_variables(self, template_variables):
