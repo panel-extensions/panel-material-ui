@@ -20,12 +20,28 @@ export function render({model, el}) {
       onClick={(e, newValue) => setValue(!value)}
       icon={
         icon.trim().startsWith("<") ?
-          <img src={`data:image/svg+xml;base64,${btoa(icon)}`}/> :
+          <span style={{
+            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+            backgroundColor: "currentColor",
+            maskRepeat: "no-repeat",
+            maskSize: "contain",
+            width: icon_size,
+            height: icon_size,
+            display: "inline-block"}}
+          /> :
           <Icon color={color}>{icon}</Icon>
       }
       checkedIcon={
         active_icon.trim().startsWith("<") ?
-          <img src={`data:image/svg+xml;base64,${btoa(active_icon || icon)}`}/> :
+          <span style={{
+            maskImage: `url("data:image/svg+xml;base64,${btoa(active_icon || icon)}")`,
+            backgroundColor: "currentColor",
+            maskRepeat: "no-repeat",
+            maskSize: "contain",
+            width: icon_size,
+            height: icon_size,
+            display: "inline-block"}}
+          /> :
           <Icon color={color}>{active_icon || icon}</Icon>
       }
       sx={sx}

@@ -6,7 +6,7 @@ import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.util import datetime_as_utctimestamp, edit_readonly, value_as_date, value_as_datetime
 from panel.widgets import WidgetBase
-from panel.widgets.slider import DiscreteSlider as _PnDiscreteSlider
+from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
 from panel.widgets.slider import _EditableContinuousSlider, _SliderBase
 from param.parameterized import resolve_value
 
@@ -17,7 +17,7 @@ from .input import FloatInput, IntInput
 
 class _ContinuousSlider(MaterialWidget, _SliderBase):
 
-    bar_color = param.Color(default=None, doc="Color of the bar")
+    bar_color = param.Color(default=None, allow_None=True, doc="Color of the bar")
 
     color = param.Selector(objects=COLORS, default="default")
 
@@ -32,13 +32,23 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
     format = param.ClassSelector(default='0[.]00', class_=(str, TickFormatter,), doc="""
         A custom format string or Bokeh TickFormatter.""")
 
+    marks = param.ClassSelector(class_=(bool, list), default=False, doc="""
+        Marks indicate predetermined values to which the user can move the slider.
+        If True the `options` are shown as marks. If a list, it should contain dicts with 'value'
+        and an optional 'label' keys.""")
+
+    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+
     step = param.Number(default=1)
 
-    ticks = param.List(default=[])
+    tooltips = param.Selector(objects=[True, False, "auto"], default="auto", doc="""
+        Whether the slider handle should display tooltips (if auto will render on hover).""")
 
     track = param.Selector(objects=["normal", "inverted", False], default="normal")
 
     value = param.Number(default=0)
+
+    value_label = param.String(default=None)
 
     value_throttled = param.Number(default=0, constant=True)
 
@@ -416,7 +426,7 @@ class DatetimeRangeSlider(DateRangeSlider):
     _constants = {"datetime": True}
 
 
-class DiscreteSlider(_PnDiscreteSlider):
+class DiscreteSlider(IntSlider, _PnSingleSelectBase):
     """
     The DiscreteSlider widget allows selecting a discrete value using a slider.
 
@@ -427,12 +437,8 @@ class DiscreteSlider(_PnDiscreteSlider):
     - https://mui.com/material-ui/react-slider/
     """
 
-    color = param.Selector(objects=COLORS, default="default")
-
     options = param.ClassSelector(default=[], class_=(dict, list), doc="""
         A list or dictionary of valid options.""")
-
-    track = param.Selector(objects=["normal", "inverted", False], default="normal")
 
     value = param.Parameter(doc="""
         The selected value of the slider. Updated when the handle is
@@ -441,44 +447,30 @@ class DiscreteSlider(_PnDiscreteSlider):
     value_throttled = param.Parameter(constant=True, doc="""
         The value of the slider. Updated when the handle is released.""")
 
-    width = param.Integer(default=300, bounds=(0, None), allow_None=True)
+    start = param.Integer(default=0, readonly=True)
+    end = param.Integer(default=100, readonly=True)
+    step = param.Integer(default=1, readonly=True)
 
-    _slider_style_params = [
-        'bar_color', 'direction', 'disabled', 'orientation', "color", "track"
-    ]
+    _allows_values = False
+    _constants = {"discrete": True}
 
-    def _update_options(self, *events):
-        values, labels = self.values, self.labels
-        if not self.options and self.value is None:
-            value = 0
-            label = (f'{self.name}: ' if self.name else '') + '<b>-</b>'
-        elif self.value not in values:
-            value = 0
-            self.value = values[0]
-            label = labels[value]
-        else:
-            value = values.index(self.value)
-            label = labels[value]
-        disabled = True if len(values) in (0, 1) else self.disabled
-        end = 1 if disabled else len(self.options)-1
+    @param.depends("options", watch=True)
+    def _update_bounds(self):
+        self.param.update(start=0, end=len(self.options)-1)
 
-        self._slider = IntSlider(
-            start=0, end=end, value=value, tooltips=False,
-            show_value=False, margin=(0, 5, 5, 5),
-            _supports_embed=False, disabled=disabled,
-            **{p: getattr(self, p) for p in self._slider_style_params if p != 'disabled'}
-        )
-        self._update_style()
-        js_code = self._text_link.format(
-            labels='['+', '.join([repr(lbl) for lbl in labels])+']'
-        )
-        self._jslink = self._slider.jslink(self._text, code={'value': js_code})
-        self._slider.param.watch(self._sync_value, 'value')
-        self._slider.param.watch(self._sync_value, 'value_throttled')
-        self.param.watch(self._update_slider_params, self._slider_style_params)
-        self._text.value = label
-        self._composite[1] = self._slider
+    def _process_param_change(self, msg):
+        msg = super()._process_param_change(msg)
+        if 'options' in msg:
+            msg['options'] = self.labels
+        if 'value' in msg:
+            msg['value'] = self.labels.index(msg['value'])
+        return msg
 
+    def _process_property_change(self, msg):
+        if 'value' in msg:
+            msg['value'] = self.values[msg['value']]
+        msg = super()._process_property_change(msg)
+        return msg
 
 
 class Rating(MaterialWidget):

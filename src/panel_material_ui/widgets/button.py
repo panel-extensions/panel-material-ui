@@ -23,7 +23,7 @@ class _ButtonLike(MaterialWidget):
     button_type = param.Selector(objects=COLORS, default=None, doc="""
         The type of the component (alias for color to match Panel's Button API).""")
 
-    color = param.Selector(objects=COLORS, default="default", doc="""
+    color = param.Selector(objects=COLORS, default="primary", doc="""
         The color of the component.""")
 
     description = param.String(default=None, doc="""
@@ -33,10 +33,10 @@ class _ButtonLike(MaterialWidget):
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
 
-    variant = param.Selector(default="contained", objects=["contained", "outlined", "text"], doc="""
+    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
         The variant of the component.""")
 
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
+    _esm_transforms = [TooltipTransform, ThemedTransform]
     _rename = {"button_style": None, "button_type": None}
     _source_transforms = {"button_style": None, "button_type": None}
 
@@ -69,6 +69,11 @@ class _ButtonLike(MaterialWidget):
 class _ButtonBase(_ButtonLike, _PnButtonBase):
 
     clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
+
+    end_icon = param.String(default=None, doc="""
+        An icon to render to the right of the button label. Either an SVG or an
+        icon name which is loaded from Material Icons.""",
+    )
 
     icon = param.String(default=None, doc="""
         An icon to render to the left of the button label. Either an SVG or an
@@ -109,8 +114,15 @@ class Button(_ButtonBase, _ClickButton):
     >>> Button(label='Click me', icon='caret-right', button_type='primary')
     """
 
+    disable_elevation = param.Boolean(default=False)
+
     href = param.String(default=None, doc="""
         The URL to navigate to when the button is clicked.""")
+
+    target = param.Selector(default="_self", objects=["_blank", "_parent", "_self", "_top"],
+                            doc="Where to open the linked document.")
+
+    size = param.Selector(default="medium", objects=["small", "medium", "large"])
 
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
 
@@ -179,6 +191,7 @@ class Fab(Button):
         The variant of the button.""")
 
     _esm_base = "Fab.jsx"
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
 
 class Toggle(_ButtonBase):
@@ -203,6 +216,7 @@ class Toggle(_ButtonBase):
     value = param.Boolean(default=False)
 
     _esm_base = "ToggleButton.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
 
 
 __all__ = [
