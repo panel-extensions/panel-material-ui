@@ -27,6 +27,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal
 
 import panel
+import panel.io.convert
 import param
 from bokeh.embed.bundle import URL
 from bokeh.settings import settings as _settings
