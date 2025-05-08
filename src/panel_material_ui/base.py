@@ -344,10 +344,10 @@ class MaterialComponent(ReactComponent):
             params['color'] = COLOR_ALIASES.get(color, color)
         return super()._process_param_change(params)
 
-    def _set_on_model(self, msg: Mapping[str, Any], root: Model, model: Model) -> None:
+    def _set_on_model(self, msg: Mapping[str, Any], root: Model, model: Model) -> list[str]:
         if 'loading' in msg and isinstance(model, BkReactComponent):
             model.data.loading = msg.pop('loading')
-        super()._set_on_model(msg, root, model)
+        return super()._set_on_model(msg, root, model)
 
     def _get_properties(self, doc: Document | None) -> dict[str, Any]:
         props = super()._get_properties(doc)
