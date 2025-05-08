@@ -29,6 +29,8 @@ class ChatStep(Card, _PnChatStep):
 
     margin = Margin(default=(5, 0, 0, 0))
 
+    sizing_mode = param.Selector(default="stretch_width")
+
     _esm_base = "ChatStep.jsx"
     _rename = {
         "objects": "objects", "title": "title", "status": "status"

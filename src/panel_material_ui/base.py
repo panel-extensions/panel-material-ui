@@ -27,6 +27,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal
 
 import panel
+import panel.io.convert
 import param
 from bokeh.embed.bundle import URL
 from bokeh.settings import settings as _settings
@@ -91,7 +92,7 @@ _env.filters['conffilter'] = conffilter
 _env.filters['sorted'] = sorted
 
 BASE_TEMPLATE = _env.get_template('base.html')
-panel.io.resources.BASE_TEMPLATE = BASE_TEMPLATE
+panel.io.convert.BASE_TEMPLATE = panel.io.resources.BASE_TEMPLATE = BASE_TEMPLATE
 
 try:
     panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
@@ -344,10 +345,10 @@ class MaterialComponent(ReactComponent):
             params['color'] = COLOR_ALIASES.get(color, color)
         return super()._process_param_change(params)
 
-    def _set_on_model(self, msg: Mapping[str, Any], root: Model, model: Model) -> None:
+    def _set_on_model(self, msg: Mapping[str, Any], root: Model, model: Model) -> list[str]:
         if 'loading' in msg and isinstance(model, BkReactComponent):
             model.data.loading = msg.pop('loading')
-        super()._set_on_model(msg, root, model)
+        return super()._set_on_model(msg, root, model)
 
     def _get_properties(self, doc: Document | None) -> dict[str, Any]:
         props = super()._get_properties(doc)

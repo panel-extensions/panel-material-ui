@@ -447,11 +447,11 @@ export const setup_global_styles = (theme) => {
       const models = []
       if (Array.isArray(value)) {
         value.forEach(v => {
-          if (v.document === doc) {
+          if (v && v.document === doc) {
             models.push(v)
           }
         })
-      } else if (value.document === doc) {
+      } else if (value && value.document === doc) {
         models.push(value)
       }
       if (models.length === 0) {
