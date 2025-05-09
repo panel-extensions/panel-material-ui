@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import Button, ButtonIcon, Toggle
+from panel_material_ui.widgets import Button, IconButton, Toggle
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -47,14 +47,14 @@ def test_button_handle_click(page):
     assert widget.clicks == 1
 
 
-def test_button_icon(page):
-    widget = ButtonIcon(
+def test_icon_button(page):
+    widget = IconButton(
         icon='favorite',
         active_icon='check',
         toggle_duration=3000,
     )
     serve_component(page, widget)
-    button_icon = page.locator('.button-icon')
+    button_icon = page.locator('.icon-button')
     icon = page.locator('.material-icons')
 
     expect(button_icon).to_have_count(1)
@@ -65,8 +65,8 @@ def test_button_icon(page):
 
 
 @pytest.mark.parametrize('button_type', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
-def test_button_icon_format(page, button_type):
-    widget = ButtonIcon(
+def test_icon_button_format(page, button_type):
+    widget = IconButton(
         icon='favorite',
         active_icon='check',
         button_type=button_type,

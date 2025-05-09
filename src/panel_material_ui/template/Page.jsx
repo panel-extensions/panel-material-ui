@@ -49,7 +49,6 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
 
 export function render({model, view}) {
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
   const [logo] = model.useState("logo")
   const [busy] = model.useState("busy")
   const [busy_indicator] = model.useState("busy_indicator")
@@ -65,6 +64,24 @@ export function render({model, view}) {
   const sidebar = model.get_child("sidebar")
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
+
+  const isXl = useMediaQuery(theme.breakpoints.up("xl"))
+  const isLg = useMediaQuery(theme.breakpoints.up("lg"))
+  const isMd = useMediaQuery(theme.breakpoints.up("md"))
+  const isSm = useMediaQuery(theme.breakpoints.up("sm"))
+
+  const logoContent = React.useMemo(() => {
+    if (!logo) { return null }
+    if (typeof logo === "string") { return logo }
+
+    if (isXl && logo.xl) { return logo.xl }
+    if (isLg && logo.lg) { return logo.lg }
+    if (isMd && logo.md) { return logo.md }
+    if (isSm && logo.sm) { return logo.sm }
+    if (logo.xs) { return logo.xs }
+
+    return logo.default || Object.values(logo)[0];
+  }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm]);
 
   // Set up debouncing of busy indicator
   const [idle, setIdle] = React.useState(true);
@@ -88,7 +105,7 @@ export function render({model, view}) {
   setup_global_styles(theme)
   React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
 
-  const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
+  const drawer_variant = variant === "auto" ? (isSm ? "temporary": "persistent") : variant
   const drawer = sidebar.length > 0 ? (
     <Drawer
       PaperProps={{className: "sidebar"}}
@@ -158,7 +175,7 @@ export function render({model, view}) {
               </IconButton>
             </Tooltip>
           }
-          {logo && <img src={logo} alt="Logo" style={{height: "2.5em", paddingRight: "1em"}} />}
+          {logo && <img src={logoContent} alt="Logo" style={{height: "2.5em", paddingRight: "1em"}} />}
           <Typography variant="h5" sx={{color: "white"}}>
             {title}
           </Typography>
