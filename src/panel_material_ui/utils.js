@@ -438,7 +438,7 @@ export const setup_global_styles = (theme) => {
   }
 
   React.useEffect(() => {
-    const doc = window.Bokeh.documents[0]
+    const doc = window.Bokeh.documents[window.Bokeh.documents.length-1]
     const cb = (e) => {
       if (e.kind !== "ModelChanged") {
         return
@@ -478,7 +478,7 @@ export const setup_global_styles = (theme) => {
   React.useEffect(() => {
     theme_ref.current = theme
     const dark = theme.palette.mode === "dark"
-    const doc = window.Bokeh.documents[0]
+    const doc = window.Bokeh.documents[window.Bokeh.documents.length-1]
     const font_family = Array.isArray(theme.typography.fontFamily) ? (
       theme.typography.fontFamily.join(", ")
     ) : (
