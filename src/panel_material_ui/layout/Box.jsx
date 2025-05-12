@@ -29,7 +29,7 @@ export function render({model, view}) {
         height: "100%",
         width: "100%",
         display: "flex",
-        flexDirection: flexDirection,
+        flexDirection,
         ...props,
         ...sx
       }}
