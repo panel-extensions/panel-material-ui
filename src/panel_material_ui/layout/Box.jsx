@@ -4,7 +4,7 @@ import {apply_flex} from "./utils"
 export function render({model, view}) {
   const [sx] = model.useState("sx")
   const objects = model.get_child("objects")
-  let flexDirection = model.esm_constants.direction
+  const flexDirection = model.esm_constants.direction
 
   let props = {}
   if (flexDirection === "flex") {
@@ -12,13 +12,13 @@ export function render({model, view}) {
     const [justifyContent] = model.useState("justify_content")
     const [gap] = model.useState("gap")
     const [flexWrap] = model.useState("flex_wrap")
-    const [flexDirection] = model.useState("flex_direction")
+    const [flex_direction] = model.useState("flex_direction")
     props = {
       alignItems,
       justifyContent,
       gap,
       flexWrap,
-      flexDirection,
+      flexDirection: flex_direction,
     }
   }
 
