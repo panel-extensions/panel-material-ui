@@ -88,7 +88,7 @@ export function render({model}) {
       fullWidth
       label={label}
       onBlur={() => setFocused(false)}
-      onChange={() => handleChange()}
+      onChange={handleChange}
       onFocus={() => setFocused(true)}
       onKeyDown={handleKeyDown}
       placeholder={placeholder}
