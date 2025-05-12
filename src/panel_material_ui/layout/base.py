@@ -75,6 +75,46 @@ class Row(MaterialListLike):
     _constants = {"direction": "row"}
 
 
+class FlexBox(MaterialListLike):
+    """
+    The `FlexBox` layout arranges its contents in a flex container.
+    """
+
+    align_content = param.Selector(default='flex-start', objects=[
+        'normal', 'flex-start', 'flex-end', 'center', 'space-between',
+        'space-around', 'space-evenly', 'stretch', 'start', 'end',
+        'baseline', 'first baseline', 'last baseline'], doc="""
+        Defines how a flex container's lines align when there is extra
+        space in the cross-axis.""")
+
+    align_items = param.Selector(default='flex-start', objects=[
+        'stretch', 'flex-start', 'flex-end', 'center', 'baseline',
+        'first baseline', 'last baseline', 'start', 'end',
+        'self-start', 'self-end'], doc="""
+        Defines the default behavior for how flex items are laid
+        out along the cross axis on the current line.""")
+
+    flex_direction = param.Selector(default='row', objects=[
+        'row', 'row-reverse', 'column', 'column-reverse'], doc="""
+        This establishes the main-axis, thus defining the direction
+        flex items are placed in the flex container.""")
+
+    flex_wrap = param.Selector(default='wrap', objects=[
+        'nowrap', 'wrap', 'wrap-reverse'], doc="""
+        Whether and how to wrap items in the flex container.""")
+
+    gap = param.String(default='', doc="""
+        Defines the spacing between flex items, supporting various units (px, em, rem, %, vw/vh).""")
+
+    justify_content = param.Selector(default='flex-start', objects=[
+        'flex-start', 'flex-end', 'center', 'space-between', 'space-around',
+        'space-evenly', 'start', 'end', 'left', 'right'], doc="""
+        Defines the alignment along the main axis.""")
+
+    _esm_base = "Box.jsx"
+    _constants = {"direction": "flex"}
+
+
 class PaperMixin(param.Parameterized):
     """
     Baseclass adding Paper parameters to a layout.
@@ -591,6 +631,7 @@ __all__ = [
     "Dialog",
     "Divider",
     "Drawer",
+    "FlexBox",
     "Grid",
     "Paper",
     "Row",
