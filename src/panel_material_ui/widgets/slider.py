@@ -5,14 +5,12 @@ import datetime as dt
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.util import datetime_as_utctimestamp, edit_readonly, value_as_date, value_as_datetime
-from panel.widgets import WidgetBase
 from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
-from panel.widgets.slider import _EditableContinuousSlider, _SliderBase
+from panel.widgets.slider import _SliderBase
 from param.parameterized import resolve_value
 
 from ..base import COLORS
 from .base import MaterialWidget
-from .input import FloatInput, IntInput
 
 
 class _ContinuousSlider(MaterialWidget, _SliderBase):
@@ -506,48 +504,10 @@ class Rating(MaterialWidget):
         return super()._process_property_change(msg)
 
 
-class _EditableContinuousSliderBase(_EditableContinuousSlider):
+class _EditableContinuousSliderBase(_ContinuousSlider):
 
-    bar_color = param.Color(default=None, doc="Color of the bar")
-
-    color = param.Selector(objects=COLORS, default="default")
-
-    track = param.Selector(objects=["normal", "inverted", False], default="normal")
-
-    label = param.String(default="", doc="Label of the slider")
-
-    def __init__(self, **params):
-        super().__init__(**params)
-        self._slider.param.update(
-            color=self.param.color, track=self.param.track, bar_color=self.param.bar_color
-        )
-        self._value_edit.param.update(
-            size="small",
-            variant="filled",
-            sizing_mode="stretch_width",
-            stylesheets=[
-                ".MuiFilledInput-input { padding-top: 4px !important;}"
-                ".MuiInputAdornment-positionStart {margin-top: 0 !important;}"
-            ]
-        )
-        self._slider.jslink(self._value_edit, value='value')
-        for p, value in params.items():
-            if p not in ('color', 'track', 'bar_color'):
-                continue
-            if isinstance(value, param.Parameter):
-                value = value.owner
-            if isinstance(value, WidgetBase):
-                value.jslink(self._slider, value=p)
-
-    @param.depends('label', watch=True)
-    def _update_name(self):
-        if self.label:
-            label = f'{self.label}:'
-            margin = (0, 10, 0, 0)
-        else:
-            label = ''
-            margin = (0, 0, 0, 0)
-        self._label.param.update(margin=margin, value=label)
+    _constants = {"editable": True}
+    _esm_base = "Slider.jsx"
 
 
 class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
@@ -574,9 +534,6 @@ class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
     fixed_end = param.Number(default=None, doc="""
         A fixed upper bound for the slider and input.""")
 
-    _slider_widget = FloatSlider
-    _input_widget = FloatInput
-
 
 class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
     """
@@ -602,9 +559,6 @@ class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
 
     fixed_end = param.Integer(default=None, doc="""
        A fixed upper bound for the slider and input.""")
-
-    _slider_widget = IntSlider
-    _input_widget = IntInput
 
 
 __all__ = [
