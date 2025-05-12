@@ -22,7 +22,6 @@ export function render({model, view}) {
     }
   }
 
-  console.log(props)
   return (
     <Box
       sx={{
