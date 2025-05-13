@@ -542,6 +542,9 @@ class Dialog(MaterialListLike):
     >>> pn.Column(button, dialog).servable()
     """
 
+    close_on_click = param.Boolean(default=False, doc="""
+        Close when clicking outside the Dialog area.""")
+
     full_screen = param.Boolean(default=False, doc="""
         Whether the dialog should be full screen.""")
 
