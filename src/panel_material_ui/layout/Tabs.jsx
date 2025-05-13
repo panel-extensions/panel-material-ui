@@ -73,7 +73,7 @@ export function render({model, view}) {
                   ✕
                 </Box>
               </Box>
-            ) : <span dangerouslySetInnerHTML={{__html: label}} />
+            ) : label
           }
           wrapped={wrapped}
         />
