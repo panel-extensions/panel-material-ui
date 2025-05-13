@@ -64,6 +64,7 @@ export function render({model, view}) {
   const sidebar = model.get_child("sidebar")
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
+  const main = model.get_child("main")
 
   const isXl = useMediaQuery(theme.breakpoints.up("xl"))
   const isLg = useMediaQuery(theme.breakpoints.up("lg"))
@@ -158,6 +159,8 @@ export function render({model, view}) {
     </Drawer>
   ) : null
 
+  const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both"))
+
   return (
     <Box className={`mui-${dark_theme ? "dark" : "light"}`} sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
       <AppBar position="fixed" color="primary" className="header" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
@@ -242,8 +245,11 @@ export function render({model, view}) {
           <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
             <Typography variant="h5">&nbsp;</Typography>
           </Toolbar>
-          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column", overflowY: "auto"}}>
-            {model.get_child("main")}
+          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column", overflowY: main_stretch ? "hidden" : "auto"}}>
+            {main.map((object, index) => {
+              apply_flex(view.get_child_view(model.main[index]), "column")
+              return object
+            })}
           </Box>
         </Box>
       </Main>
