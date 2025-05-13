@@ -27,7 +27,8 @@ class _ClickableIcon(MaterialWidget):
         https://mui.com/material-ui/material-icons or an SVG.""",
     )
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.String(default="medium", doc="""
+        Size of the icon as a string, e.g. 12px or 1em.""",)
 
     value = param.Boolean(
         default=False,
@@ -108,9 +109,6 @@ class IconButton(_ClickableIcon, _ButtonBase):
 
     edge = param.Selector(objects=["start", "end", False], default=False, doc="""
         Whether the icon should be on the start or end of the button.""")
-
-    size = param.String(default="1em", doc="""
-        Size of the icon as a string, e.g. 12px or 1em.""",)
 
     toggle_duration = param.Integer(default=75, doc="""
         The number of milliseconds the active_icon should be shown for
