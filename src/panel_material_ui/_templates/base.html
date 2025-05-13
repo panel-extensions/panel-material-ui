@@ -43,6 +43,7 @@
       {% if theme_name == "dark" %}
       body { background-color: #121212; color: #fff }
       {% endif %}
+      {% block loader_css %}
       #loading-overlay {
         position: fixed;
         top: 0;
@@ -67,6 +68,7 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
+      {% endblock %}
     </style>
     {% if not is_page %}
     <link rel="stylesheet" href="{{ dist_url }}bundled/theme/{{theme_name}}.css">
@@ -119,10 +121,12 @@
   {% endblock head%}
   {% block body %}
   <body>
-  {%  block inner_body %}
-    <div id="loading-overlay" style="display: none;">
+  {% block inner_body %}
+    {% block loader %}
+    <div id="loader" style="display: none;">
       <div class="spinner"></div>
     </div>
+    {% endblock %}
   {%    block contents %}
   {%      for doc in docs %}
   {{        embed(doc) if doc.elementid }}
@@ -134,21 +138,23 @@
   {%      endfor %}
   {%    endblock contents %}
   {{ plot_script | indent(4) }}
+  {% block loader_script %}
   <script>
     let timeout = 0;
     function checkIdle() {
       if (Bokeh.index && Bokeh.index.roots[0] && Bokeh.index.roots[0].model.document.is_idle) {
-        document.getElementById('loading-overlay').style.display = 'none';
+        document.getElementById('loader').style.display = 'none';
       } else {
         timeout += 100;
         if (timeout > 500) {
-          document.getElementById('loading-overlay').style.display = 'flex';
+          document.getElementById('loader').style.display = 'flex';
         }
         setTimeout(checkIdle, 100);
       }
     }
     setTimeout(checkIdle, 100)
   </script>
+  {% endblock %}
   {%  endblock inner_body %}
   </body>
   {% endblock body%}

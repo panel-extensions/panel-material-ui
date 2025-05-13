@@ -14,7 +14,7 @@ from panel.util import edit_readonly
 from panel.viewable import Child, Children
 
 from .._utils import _read_icon
-from ..base import MaterialComponent, ThemedTransform
+from ..base import BASE_TEMPLATE, MaterialComponent, ThemedTransform, _env
 from ..widgets.base import MaterialWidget
 
 if TYPE_CHECKING:
@@ -95,6 +95,10 @@ class Page(MaterialComponent, ResourceComponent):
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
 
+    template = param.ClassSelector(default=None, class_=(str, pathlib.Path, Template), doc="""
+        Overrides the default jinja2 template. Template can be provided as a string,
+        Path or jinja2.Template instance.""")
+
     theme_toggle = param.Boolean(default=True, doc="Whether to show a theme toggle button.")
 
     title = param.String(doc="Title of the application.")
@@ -122,6 +126,17 @@ class Page(MaterialComponent, ResourceComponent):
         self.config.param.update(**resources)
         with edit_readonly(self):
             self.busy = state.param.busy
+
+    @param.depends('template', watch=True, on_init=True)
+    def _update_template(self):
+        if self.template is None:
+            self._template = BASE_TEMPLATE
+        elif os.path.isfile(self.template):
+            self._template = _env.get_template(self.template.absolute())
+        elif isinstance(self.template, str):
+            self._template = _env.from_string(self.template)
+        else:
+            self._template = self.template
 
     @param.depends('dark_theme', watch=True)
     def _update_config(self):
@@ -194,6 +209,8 @@ class Page(MaterialComponent, ResourceComponent):
             template_variables = dict(template_variables)
         else:
             template_variables = {}
+        if template is None:
+            template = self._template
         self._populate_template_variables(template_variables)
         super().save(
             filename,
@@ -211,6 +228,7 @@ class Page(MaterialComponent, ResourceComponent):
         title = title or self.title or self.meta.title or 'Panel Application'
         doc = super().server_doc(doc, title, location)
         self._populate_template_variables(doc.template_variables)
+        doc.template = self._template
         return doc
 
 
