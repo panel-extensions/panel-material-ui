@@ -17,7 +17,7 @@ export function render({model}) {
           disabled={disabled}
           size={size}
           onChange={(event) => setChecked(event.target.checked)}
-          sx={{p: "0 9px", ...sx}}
+          sx={{p: "6px", ...sx}}
         />
       }
       label={label}

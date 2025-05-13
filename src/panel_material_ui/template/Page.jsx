@@ -70,6 +70,7 @@ export function render({model, view}) {
   const isLg = useMediaQuery(theme.breakpoints.up("lg"))
   const isMd = useMediaQuery(theme.breakpoints.up("md"))
   const isSm = useMediaQuery(theme.breakpoints.up("sm"))
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
   const logoContent = React.useMemo(() => {
     if (!logo) { return null }
@@ -106,7 +107,7 @@ export function render({model, view}) {
   setup_global_styles(theme)
   React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
 
-  const drawer_variant = variant === "auto" ? (isSm ? "temporary": "persistent") : variant
+  const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
   const drawer = sidebar.length > 0 ? (
     <Drawer
       PaperProps={{className: "sidebar"}}
@@ -125,7 +126,6 @@ export function render({model, view}) {
       <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
         <Typography variant="h5">&nbsp;</Typography>
       </Toolbar>
-      <Divider />
       <Box sx={{overflow: "auto", flexGrow: 1, display: "flex", flexDirection: "column"}}>
         {sidebar.map((object, index) => {
           apply_flex(view.get_child_view(model.sidebar[index]), "column")
