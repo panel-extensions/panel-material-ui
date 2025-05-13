@@ -79,7 +79,7 @@ export function render({model, view}) {
             </ExpandMore>
           }
           classes={header_css_classes}
-          title={model.header ? header : <Typography classes={title_css_classes} variant="h6">{title}</Typography>}
+          title={model.header ? header : <Typography classes={title_css_classes} variant="h6" dangerouslySetInnerHTML={{__html: title}} sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} />}
           sx={{
             backgroundColor: header_background,
             color: header_color,

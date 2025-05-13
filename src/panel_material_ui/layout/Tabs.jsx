@@ -2,6 +2,7 @@ import Tabs from "@mui/material/Tabs"
 import Tab from "@mui/material/Tab"
 import Box from "@mui/material/Box"
 import {useTheme} from "@mui/material/styles"
+import {apply_flex} from "./utils"
 
 export function render({model, view}) {
   const [active, setActive] = model.useState("active")
@@ -59,7 +60,7 @@ export function render({model, view}) {
           label={
             closable ? (
               <Box sx={{display: "flex", alignItems: "center"}}>
-                {label}
+                <span dangerouslySetInnerHTML={{__html: label}} />
                 <Box
                   component="span"
                   sx={{
@@ -72,7 +73,7 @@ export function render({model, view}) {
                   ✕
                 </Box>
               </Box>
-            ) : label
+            ) : <span dangerouslySetInnerHTML={{__html: label}} />
           }
           wrapped={wrapped}
         />
@@ -82,9 +83,7 @@ export function render({model, view}) {
   return (
     <Box className="MuiTabsPanel" sx={{display: "flex", flexDirection: (location === "left" || location === "right") ? "row" : "column", height: "100%", maxWidth: "100%"}}  >
       { (location === "left" || location === "above") && tabs }
-      <Box sx={{flexGrow: 1, minWidth: 0}}>
-        {objects[active]}
-      </Box>
+      {apply_flex(view.get_child_view(model.objects[active]), "column") || objects[active]}
       { (location === "right" || location === "below") && tabs }
     </Box>
   );
