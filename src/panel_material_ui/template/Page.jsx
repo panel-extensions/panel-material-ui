@@ -178,8 +178,8 @@ export function render({model, view}) {
               </IconButton>
             </Tooltip>
           }
-          {logo && <img src={logoContent} alt="Logo" style={{height: "2.5em", paddingRight: "1em"}} />}
-          <Typography variant="h5" sx={{color: "white"}}>
+          {logo && <img src={logoContent} alt="Logo" className="logo" style={{height: "2.5em", paddingRight: "1em"}} />}
+          <Typography variant="h5" className="title" sx={{color: "white"}}>
             {title}
           </Typography>
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
