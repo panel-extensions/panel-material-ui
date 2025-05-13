@@ -10,6 +10,9 @@ export function render({model, el}) {
   const [value, setValue] = model.useState("value")
   const [sx] = model.useState("sx")
 
+  const standard_size = ["small", "medium", "large"].includes(size)
+  const font_size = standard_size ? null : size
+
   return (
     <Checkbox
       checked={value}
@@ -25,11 +28,11 @@ export function render({model, el}) {
             backgroundColor: "currentColor",
             maskRepeat: "no-repeat",
             maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
+            width: font_size,
+            height: font_size,
             display: "inline-block"}}
           /> :
-          <Icon color={color}>{icon}</Icon>
+          <Icon color={color} style={{fontSize: font_size}}>{icon}</Icon>
       }
       checkedIcon={
         active_icon.trim().startsWith("<") ?
@@ -38,11 +41,11 @@ export function render({model, el}) {
             backgroundColor: "currentColor",
             maskRepeat: "no-repeat",
             maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
+            width: font_size,
+            height: font_size,
             display: "inline-block"}}
           /> :
-          <Icon color={color}>{active_icon || icon}</Icon>
+          <Icon color={color} style={{fontSize: font_size}}>{active_icon || icon}</Icon>
       }
       sx={sx}
     />
