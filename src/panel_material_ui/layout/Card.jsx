@@ -83,7 +83,7 @@ export function render({model, view}) {
           sx={{
             backgroundColor: header_background,
             color: header_color,
-	    p: "12px 16px"
+            p: "12px 16px"
           }}
         />
       )}
@@ -106,7 +106,7 @@ export function render({model, view}) {
             width: "100%",
             display: "flex",
             flexDirection: "column",
-	    p: "0px 16px 12px 16px",
+            p: "0px 16px 12px 16px",
             "&:last-child": {
               pb: "12px",
             },
