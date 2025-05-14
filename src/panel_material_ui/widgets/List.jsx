@@ -6,7 +6,6 @@ import ExpandMore from "@mui/icons-material/ExpandMore"
 import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
 import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemAvatar from "@mui/material/ListItemAvatar"
@@ -89,6 +88,9 @@ export function render({model}) {
       )
     }
 
+    const inline_actions = actions ? actions.filter(b => b.inline) : []
+    const menu_actions = actions ? actions.filter(b => !b.inline) : []
+
     const list_item = (
       <ListItemButton
         disableRipple={!isSelectable}
@@ -113,7 +115,27 @@ export function render({model}) {
       >
         {leadingComponent}
         <ListItemText primary={label} secondary={secondary} />
-        {actions && (
+        {inline_actions.map((action, index) => {
+          return <IconButton
+            color={action.color}
+            key={`action-button-${index}`}
+            size="small"
+            title={action.label}
+            onMouseDown={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+            }}
+            onClick={(e) => {
+              model.send_msg({type: "action", action: action.label, item: path})
+              e.stopPropagation()
+              e.preventDefault()
+            }}
+            sx={{ml: index > 0 ? "0" : "0.5em"}}
+          >
+            {action.icon && <Icon>{action.icon}</Icon>}
+          </IconButton>
+        })}
+        {menu_actions.length > 0 && (
           <React.Fragment>
             <IconButton
               size="small"
@@ -126,6 +148,7 @@ export function render({model}) {
                 setMenuAnchor(e.currentTarget)
                 e.stopPropagation()
               }}
+              sx={{ml: "0.5em"}}
             >
               <MoreVert />
             </IconButton>
@@ -134,7 +157,7 @@ export function render({model}) {
               open={current_menu_open[key]}
               onClose={() => setMenuOpen({...current_menu_open, [key]: false})}
             >
-              {actions.map((action, index) => {
+              {menu_actions.map((action, index) => {
                 if (action === null) {
                   return <Divider key={`action-divider-${index}`}/>
                 }
@@ -149,7 +172,7 @@ export function render({model}) {
                       e.stopPropagation()
                     }}
                   >
-                    {action.icon && <Icon>{action.icon}</Icon>}
+                    {action.icon && <Icon sx={{mr: "1em"}}>{action.icon}</Icon>}
                     {action.label}
                   </MenuItem>
                 )
