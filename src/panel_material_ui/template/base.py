@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import io
 import os
 import pathlib
@@ -23,6 +24,12 @@ if TYPE_CHECKING:
     from panel.io.resources import ResourcesType
 
 SIDEBAR_VARIANTS = ["persistent", "temporary", "permanent", "auto"]
+
+@functools.cache
+def parse_template(tmpl, *args, **kwargs):
+    if os.path.isfile(tmpl):
+        tmpl = pathlib.Path(tmpl).read_text(encoding='utf-8')
+    return _env.from_string(tmpl, *args, **kwargs)
 
 
 class Meta(param.Parameterized):
@@ -107,7 +114,7 @@ class Page(MaterialComponent, ResourceComponent):
     title = param.String(doc="Title of the application.")
 
     _esm_base = "Page.jsx"
-    _rename = {"config": None, "meta": None, "favicon": None, "apple_touch_icon": None}
+    _rename = {"config": None, "meta": None, "favicon": None, "apple_touch_icon": None, "template": None}
     _source_transforms = {
         "header": None,
         "contextbar": None,
@@ -134,10 +141,8 @@ class Page(MaterialComponent, ResourceComponent):
     def _update_template(self):
         if self.template is None:
             self._template = BASE_TEMPLATE
-        elif os.path.isfile(self.template):
-            self._template = _env.get_template(self.template.absolute())
-        elif isinstance(self.template, str):
-            self._template = _env.from_string(self.template)
+        elif isinstance(self.template, (str, pathlib.Path)):
+            self._template = parse_template(self.template)
         else:
             self._template = self.template
 

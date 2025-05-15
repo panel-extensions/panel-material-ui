@@ -29,7 +29,6 @@ from typing import TYPE_CHECKING, Any, Literal
 import panel
 import panel.io.convert
 import param
-from bokeh.embed.bundle import URL
 from bokeh.settings import settings as _settings
 from jinja2 import Environment, FileSystemLoader, Template
 from markupsafe import Markup
@@ -46,6 +45,7 @@ from panel.viewable import Viewable
 from panel.widgets.base import CompositeWidget, WidgetBase
 
 from .__version import __version__  # noqa
+from ._utils import conffilter, json_dumps
 from .theme import MaterialDesign
 
 if TYPE_CHECKING:
@@ -74,15 +74,6 @@ def get_env():
     return Environment(loader=FileSystemLoader([
         str(internal_path.resolve())
     ]))
-
-def conffilter(value):
-    return json.dumps(dict(value)).replace('"', '\'')
-
-class json_dumps(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, URL):
-            return str(obj)
-        return super().default(obj)
 
 _env = get_env()
 _env.trim_blocks = True
