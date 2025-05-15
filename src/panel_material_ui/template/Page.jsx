@@ -49,18 +49,19 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
 
 export function render({model, view}) {
   const theme = useTheme()
-  const [logo] = model.useState("logo")
   const [busy] = model.useState("busy")
   const [busy_indicator] = model.useState("busy_indicator")
-  const [sidebar_width] = model.useState("sidebar_width")
-  const [title] = model.useState("title")
-  const [open, setOpen] = model.useState("sidebar_open")
-  const [variant] = model.useState("sidebar_variant")
-  const [dark_theme, setDarkTheme] = model.useState("dark_theme")
-  const [theme_toggle] = model.useState("theme_toggle")
-  const [sx] = model.useState("sx")
   const [contextbar_open, contextOpen] = model.useState("contextbar_open")
   const [contextbar_width] = model.useState("contextbar_width")
+  const [dark_theme, setDarkTheme] = model.useState("dark_theme")
+  const [logo] = model.useState("logo")
+  const [open, setOpen] = model.useState("sidebar_open")
+  const [sidebar_width] = model.useState("sidebar_width")
+  const [theme_toggle] = model.useState("theme_toggle")
+  const [site_url] = model.useState("site_url")
+  const [title] = model.useState("title")
+  const [variant] = model.useState("sidebar_variant")
+  const [sx] = model.useState("sx")
   const sidebar = model.get_child("sidebar")
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
@@ -178,10 +179,14 @@ export function render({model, view}) {
               </IconButton>
             </Tooltip>
           }
-          {logo && <img src={logoContent} alt="Logo" className="logo" style={{height: "2.5em", paddingRight: "1em"}} />}
-          <Typography variant="h5" className="title" sx={{color: "white"}}>
-            {title}
-          </Typography>
+          {logo && <a href={site_url}><img src={logoContent} alt="Logo" className="logo" style={{height: "2.5em", paddingRight: "1em"}} /></a>}
+          {title && (
+            <a href={site_url} style={{textDecoration: "none"}}>
+              <Typography variant="h5" className="title" sx={{color: "white"}}>
+                {title}
+              </Typography>
+            </a>
+          )}
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
             {header.map((object, index) => {
               apply_flex(view.get_child_view(model.header[index]), "row")
