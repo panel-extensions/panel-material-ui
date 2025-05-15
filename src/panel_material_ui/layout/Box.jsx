@@ -23,7 +23,7 @@ export function render({model, view}) {
   }
 
   React.useEffect(() => {
-    React.on("lifecycle:update_layout", () => {
+    model.on("lifecycle:update_layout", () => {
       objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), flexDirection)
       })

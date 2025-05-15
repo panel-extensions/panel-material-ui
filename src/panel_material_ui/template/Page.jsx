@@ -87,7 +87,7 @@ export function render({model, view}) {
   }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm])
 
   React.useEffect(() => {
-    React.on("lifecycle:update_layout", () => {
+    model.on("lifecycle:update_layout", () => {
       sidebar.map((object, index) => {
         apply_flex(view.get_child_view(model.sidebar[index]), "column")
       })
