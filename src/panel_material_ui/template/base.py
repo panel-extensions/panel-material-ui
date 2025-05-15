@@ -95,6 +95,9 @@ class Page(MaterialComponent, ResourceComponent):
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
 
+    site_url = param.String(default="/", doc="""
+        URL of the site and logo. Default is '/'.""")
+
     template = param.ClassSelector(default=None, class_=(str, pathlib.Path, Template), doc="""
         Overrides the default jinja2 template. Template can be provided as a string,
         Path or jinja2.Template instance.""")
