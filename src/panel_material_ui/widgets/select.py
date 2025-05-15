@@ -76,7 +76,7 @@ class AutocompleteInput(MaterialSingleSelectBase):
     case_sensitive = param.Boolean(default=True, doc="""
         Enable or disable case sensitivity.""")
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     min_characters = param.Integer(default=2, doc="""
         The number of characters a user must type before
@@ -188,7 +188,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     >>> Select(label='Study', options=['Biology', 'Chemistry', 'Physics'])
     """
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     groups = param.Dict(default=None, nested_refs=True, doc="""
         Dictionary whose keys are used to visually group the options
