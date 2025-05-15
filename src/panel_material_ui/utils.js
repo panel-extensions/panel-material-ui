@@ -638,7 +638,7 @@ export function apply_flex(view, direction) {
     }
   })()
 
-  view.parent_style.append(":host", {flex, align_self})
+  view.parent_style.replace(":host", {flex, align_self})
 
   // undo `width/height: 100%` and let `align-self: stretch` do the work
   if (direction == "row") {
