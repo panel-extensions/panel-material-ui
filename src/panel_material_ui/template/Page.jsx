@@ -84,7 +84,24 @@ export function render({model, view}) {
     if (logo.xs) { return logo.xs }
 
     return logo.default || Object.values(logo)[0];
-  }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm]);
+  }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm])
+
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      sidebar.map((object, index) => {
+        apply_flex(view.get_child_view(model.sidebar[index]), "column")
+      })
+      contextbar.map((object, index) => {
+        apply_flex(view.get_child_view(model.contextbar[index]), "column")
+      })
+      header.map((object, index) => {
+        apply_flex(view.get_child_view(model.header[index]), "row")
+      })
+      main.map((object, index) => {
+        apply_flex(view.get_child_view(model.main[index]), "column")
+      })
+    })
+  }, [])
 
   // Set up debouncing of busy indicator
   const [idle, setIdle] = React.useState(true);

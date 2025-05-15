@@ -22,6 +22,14 @@ export function render({model, view}) {
     }
   }
 
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      objects.map((object, index) => {
+        apply_flex(view.get_child_view(model.objects[index]), flexDirection)
+      })
+    })
+  }, [])
+
   return (
     <Box
       sx={{

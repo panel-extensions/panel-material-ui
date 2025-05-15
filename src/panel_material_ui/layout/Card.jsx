@@ -49,13 +49,13 @@ export function render({model, view}) {
   const header = model.get_child("header")
   const objects = model.get_child("objects")
 
-  model.on("after_layout", () => {
-    for (const child_view of view.layoutable_views) {
-      if (child_view.el) {
-        child_view.el.style.minHeight = "auto"
-      }
-    }
-  })
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      objects.map((object, index) => {
+        apply_flex(view.get_child_view(model.objects[index]), "column")
+      })
+    })
+  }, [])
 
   return (
     <Card
