@@ -295,6 +295,8 @@ class MaterialComponent(ReactComponent):
                 str(p) for p in glob('roboto-latin-ext-?00-normal*.woff*')
             ] + [
                 str(p) for p in glob('roboto-math-?00-normal*.woff*')
+            ] + [
+                str(p) for p in glob('roboto-symbols-?00-normal*.woff*')
             ]
         return []
 

@@ -237,7 +237,7 @@ class List(MenuBase):
     active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
         The index of the currently selected item. Can be a tuple of indices for nested items.""")
 
-    color = param.Selector(default="default", objects=COLORS, doc="The color of the selected list item.")
+    color = param.Selector(default="primary", objects=COLORS, doc="The color of the selected list item.")
 
     dense = param.Boolean(default=False, doc="Whether to show the list items in a dense format.")
 
@@ -250,7 +250,7 @@ class List(MenuBase):
 
     _esm_base = "List.jsx"
 
-    _item_keys = ['label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable', 'href']
+    _item_keys = ['label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable', 'href', 'buttons']
 
     @param.depends('items', watch=True, on_init=True)
     def _sync_items(self):
@@ -339,7 +339,7 @@ class Pagination(MaterialWidget):
 
     boundary_count = param.Integer(default=1, bounds=(0, None), doc="The number of boundary pages to show.")
 
-    color = param.Selector(default="default", objects=COLORS, doc="The color of the pagination.")
+    color = param.Selector(default="primary", objects=COLORS, doc="The color of the pagination.")
 
     count = param.Integer(default=1, bounds=(0, None), doc="The total number of pages.")
 
@@ -423,7 +423,7 @@ class SpeedDial(MenuBase):
     ... ], active=2, margin=(50, 20))
     """
 
-    color = param.Selector(default="default", objects=COLORS, doc="""
+    color = param.Selector(default="primary", objects=COLORS, doc="""
         The color of the menu.""")
 
     direction = param.Selector(default="right", objects=["right", "left", "up", "down"], doc="""

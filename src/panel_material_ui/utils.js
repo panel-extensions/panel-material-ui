@@ -204,8 +204,10 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     model_props.text_color = theme.palette.text.primary
     model_props.text_font = font_family
   } else if (model_type.endsWith("Grid")) {
-    model_props.grid_line_color = theme.palette.text.primary
-    model_props.grid_line_alpha = dark ? 0.25 : 0.1
+    if (model_props.grid_line_color != null) {
+      model_props.grid_line_color = theme.palette.text.primary
+      model_props.grid_line_alpha = dark ? 0.25 : 0.5
+    }
   } else if (model_type.endsWith("Canvas")) {
     model_props.stylesheets = [...model.stylesheets, ":host { --highlight-color: none }"]
   } else if (model_type.endsWith("Figure")) {
@@ -229,6 +231,10 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
         color: ${theme.palette.primary.main} !important;
       `
     ]
+  } else if (model_type.endsWith("AcePlot")) {
+    model_props.theme = dark ? "github_dark" : "github_light_default"
+  } else if (model_type.endsWith("VegaPlot")) {
+    model_props.theme = dark ? "dark" : null
   } else if (model_type.endsWith("HoverTool")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     if (view) {
@@ -604,6 +610,9 @@ export function isNumber(obj) {
 }
 
 export function apply_flex(view, direction) {
+  if (view == null) {
+    return
+  }
   const sizing = view.box_sizing()
   const flex = (() => {
     const policy = direction == "row" ? sizing.width_policy : sizing.height_policy
