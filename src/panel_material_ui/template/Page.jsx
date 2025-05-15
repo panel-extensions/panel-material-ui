@@ -180,13 +180,13 @@ export function render({model, view}) {
             </Tooltip>
           }
           {logo && <a href={site_url}><img src={logoContent} alt="Logo" className="logo" style={{height: "2.5em", paddingRight: "1em"}} /></a>}
-	  {title && (
-	    <a href={site_url} style={{textDecoration: "none"}}>
-	      <Typography variant="h5" className="title" sx={{color: "white"}}>
-		{title}
+          {title && (
+            <a href={site_url} style={{textDecoration: "none"}}>
+              <Typography variant="h5" className="title" sx={{color: "white"}}>
+                {title}
               </Typography>
-	    </a>
-	  )}
+            </a>
+          )}
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
             {header.map((object, index) => {
               apply_flex(view.get_child_view(model.header[index]), "row")
