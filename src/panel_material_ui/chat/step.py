@@ -17,7 +17,10 @@ class ChatStep(Card, _PnChatStep):
     A component that makes it easy to provide status updates and the
     ability to stream updates to both the output(s) and the title.
 
-    Reference: https://panel.holoviz.org/reference/chat/ChatStep.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/chat/ChatStep.html
+    - https://panel.holoviz.org/reference/chat/ChatStep.html
 
     :Example:
 
@@ -25,6 +28,8 @@ class ChatStep(Card, _PnChatStep):
     """
 
     margin = Margin(default=(5, 0, 0, 0))
+
+    sizing_mode = param.Selector(default="stretch_width")
 
     _esm_base = "ChatStep.jsx"
     _rename = {

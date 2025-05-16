@@ -75,6 +75,46 @@ class Row(MaterialListLike):
     _constants = {"direction": "row"}
 
 
+class FlexBox(MaterialListLike):
+    """
+    The `FlexBox` layout arranges its contents in a flex container.
+    """
+
+    align_content = param.Selector(default='flex-start', objects=[
+        'normal', 'flex-start', 'flex-end', 'center', 'space-between',
+        'space-around', 'space-evenly', 'stretch', 'start', 'end',
+        'baseline', 'first baseline', 'last baseline'], doc="""
+        Defines how a flex container's lines align when there is extra
+        space in the cross-axis.""")
+
+    align_items = param.Selector(default='flex-start', objects=[
+        'stretch', 'flex-start', 'flex-end', 'center', 'baseline',
+        'first baseline', 'last baseline', 'start', 'end',
+        'self-start', 'self-end'], doc="""
+        Defines the default behavior for how flex items are laid
+        out along the cross axis on the current line.""")
+
+    flex_direction = param.Selector(default='row', objects=[
+        'row', 'row-reverse', 'column', 'column-reverse'], doc="""
+        This establishes the main-axis, thus defining the direction
+        flex items are placed in the flex container.""")
+
+    flex_wrap = param.Selector(default='wrap', objects=[
+        'nowrap', 'wrap', 'wrap-reverse'], doc="""
+        Whether and how to wrap items in the flex container.""")
+
+    gap = param.String(default='', doc="""
+        Defines the spacing between flex items, supporting various units (px, em, rem, %, vw/vh).""")
+
+    justify_content = param.Selector(default='flex-start', objects=[
+        'flex-start', 'flex-end', 'center', 'space-between', 'space-around',
+        'space-evenly', 'start', 'end', 'left', 'right'], doc="""
+        Defines the alignment along the main axis.""")
+
+    _esm_base = "Box.jsx"
+    _constants = {"direction": "flex"}
+
+
 class PaperMixin(param.Parameterized):
     """
     Baseclass adding Paper parameters to a layout.
@@ -95,7 +135,10 @@ class Paper(MaterialListLike, PaperMixin):
     """
     Paper implements a container for displaying content on an elevated surface.
 
-    Reference: https://mui.com/material-ui/react-paper/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Paper.html
+    - https://mui.com/material-ui/react-paper/
 
     :Example:
     >>> Paper(name="Paper", objects=[1, 2, 3], elevation=10, width=200, height=200)
@@ -110,7 +153,9 @@ class Container(MaterialListLike):
     """
     The `Container` layout centers your content horizontally. It's the most basic layout element.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Container.html
     - https://mui.com/material-ui/react-container/
 
     :Example:
@@ -137,7 +182,9 @@ class Grid(MaterialListLike):
     """
     The `Grid` layout is a two-dimensional layout that allows arranging items in a grid.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Grid.html
     - https://mui.com/material-ui/react-grid/
 
     :Example:
@@ -173,7 +220,9 @@ class Card(MaterialNamedListLike, PaperMixin):
     A `Card` layout allows arranging multiple panel objects in a
     collapsible, vertical container with a header bar.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Card.html
     - https://panel.holoviz.org/reference/layouts/Card.html
     - https://mui.com/material-ui/react-card/
 
@@ -233,7 +282,9 @@ class Accordion(MaterialNamedListLike, PaperMixin):
     interactively updating and modifying the cards using the methods `append`,
     `extend`, `clear`, `insert`, `pop`, `remove` and `__setitem__`.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html
     - https://panel.holoviz.org/reference/layouts/Accordion.html
     - https://mui.com/material-ui/react-accordion/
 
@@ -286,7 +337,9 @@ class Tabs(MaterialNamedListLike):
     `append`, `extend`, `clear`, `insert`, `pop`, `remove` and `__setitem__`,
     which make it possible to interactively update and modify the tabs.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html
     - https://panel.holoviz.org/reference/layouts/Tabs.html
     - https://mui.com/material-ui/react-tabs/
 
@@ -305,7 +358,7 @@ class Tabs(MaterialNamedListLike):
     centered = param.Boolean(default=False, doc="""
         Whether the tabs should be centered.""")
 
-    color = param.Selector(default="default", objects=["default", "primary", "secondary"])
+    color = param.Selector(default="primary", objects=["default", "primary", "secondary"])
 
     disabled = param.List(default=[], item_type=int, doc="""
         List of indexes of disabled tabs.""")
@@ -390,7 +443,8 @@ class Divider(MaterialListLike):
     A `Divider` draws a horizontal rule (a `<hr>` tag in HTML) to separate
     multiple components in a layout.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/layouts/Divider.html
     - https://mui.com/material-ui/react-divider/
 
@@ -412,7 +466,10 @@ class Alert(MaterialListLike):
     or informational updates. It provides a visually distinct way to inform users about
     the system's status.
 
-    Reference: https://mui.com/material-ui/react-alert/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/global/Notifications.html
+    - https://mui.com/material-ui/react-alert/
 
     :Example:
 
@@ -449,7 +506,10 @@ class Backdrop(MaterialListLike):
     It is often used to focus attention on a specific part of the interface,
     such as during loading states or while a modal dialog is open.
 
-    Reference: https://mui.com/material-ui/react-backdrop/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Backdrop.html
+    - https://mui.com/material-ui/react-backdrop/
 
     :Example:
     >>> close = Button(on_click=lambda _: backdrop.param.update(open=False), label='Close')  # type: ignore
@@ -470,7 +530,10 @@ class Dialog(MaterialListLike):
     user interaction. It is often used for tasks such as confirmations, forms, or displaying
     additional information.
 
-    Reference: https://mui.com/material-ui/react-dialog/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Dialog.html
+    - https://mui.com/material-ui/react-dialog/
 
     :Example:
     >>> close = Button(on_click=lambda _: dialog.param.update(open=False), label='Close')  # type: ignore
@@ -478,6 +541,9 @@ class Dialog(MaterialListLike):
     >>> button = Button(on_click=lambda _: dialog.param.update(open=True), label=f'Open {Dialog.name}')
     >>> pn.Column(button, dialog).servable()
     """
+
+    close_on_click = param.Boolean(default=False, doc="""
+        Close when clicking outside the Dialog area.""")
 
     full_screen = param.Boolean(default=False, doc="""
         Whether the dialog should be full screen.""")
@@ -503,7 +569,10 @@ class Drawer(MaterialListLike):
     user interaction. It is often used for tasks such as confirmations, forms, or displaying
     additional information.
 
-    Reference: https://mui.com/material-ui/react-drawer/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html
+    - https://mui.com/material-ui/react-drawer/
 
     :Example:
     >>> drawer = Drawer("This is a drawer")
@@ -523,13 +592,10 @@ class Drawer(MaterialListLike):
 
     _esm_base = "Drawer.jsx"
 
-    def _process_param_change(self, params):
-        if self.variant == 'temporary':
-            if 'width' in params:
-                params.pop('width')
-            if 'height' in params:
-                params.pop('height')
-        return super()._process_param_change(params)
+    @param.depends("variant", watch=True, on_init=True)
+    def _force_zero_dimensions(self):
+        if self.variant == "temporary":
+            self.param.update(width=0, height=0, sizing_mode="fixed")
 
     def create_toggle(
         self,
@@ -568,6 +634,7 @@ __all__ = [
     "Dialog",
     "Divider",
     "Drawer",
+    "FlexBox",
     "Grid",
     "Paper",
     "Row",

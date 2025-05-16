@@ -5,19 +5,17 @@ import datetime as dt
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.util import datetime_as_utctimestamp, edit_readonly, value_as_date, value_as_datetime
-from panel.widgets import WidgetBase
-from panel.widgets.slider import DiscreteSlider as _PnDiscreteSlider
-from panel.widgets.slider import _EditableContinuousSlider, _SliderBase
+from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
+from panel.widgets.slider import _SliderBase
 from param.parameterized import resolve_value
 
 from ..base import COLORS
 from .base import MaterialWidget
-from .input import FloatInput, IntInput
 
 
 class _ContinuousSlider(MaterialWidget, _SliderBase):
 
-    bar_color = param.Color(default=None, doc="Color of the bar")
+    bar_color = param.Color(default=None, allow_None=True, doc="Color of the bar")
 
     color = param.Selector(objects=COLORS, default="default")
 
@@ -32,13 +30,23 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
     format = param.ClassSelector(default='0[.]00', class_=(str, TickFormatter,), doc="""
         A custom format string or Bokeh TickFormatter.""")
 
+    marks = param.ClassSelector(class_=(bool, list), default=False, doc="""
+        Marks indicate predetermined values to which the user can move the slider.
+        If True the `options` are shown as marks. If a list, it should contain dicts with 'value'
+        and an optional 'label' keys.""")
+
+    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+
     step = param.Number(default=1)
 
-    ticks = param.List(default=[])
+    tooltips = param.Selector(objects=[True, False, "auto"], default="auto", doc="""
+        Whether the slider handle should display tooltips (if auto will render on hover).""")
 
     track = param.Selector(objects=["normal", "inverted", False], default="normal")
 
     value = param.Number(default=0)
+
+    value_label = param.String(default=None)
 
     value_throttled = param.Number(default=0, constant=True)
 
@@ -60,7 +68,11 @@ class IntSlider(_ContinuousSlider):
     The IntSlider widget allows selecting an integer value within a
     set of bounds using a slider.
 
-    Reference: https://panel.holoviz.org/reference/widgets/IntSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/IntSlider.html
+    - https://panel.holoviz.org/reference/widgets/IntSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -86,7 +98,11 @@ class FloatSlider(_ContinuousSlider):
     The FloatSlider widget allows selecting a floating-point value
     within a set of bounds using a slider.
 
-    Reference: https://panel.holoviz.org/reference/widgets/FloatSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/FloatSlider.html
+    - https://panel.holoviz.org/reference/widgets/FloatSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -102,7 +118,9 @@ class DateSlider(_ContinuousSlider):
     bounds using a slider.  Supports datetime.datetime, datetime.date
     and np.datetime64 values. The step size is fixed at 1 day.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DateSlider.html
+    :References:
+
+    - https://panel.holoviz.org/reference/widgets/DateSlider.html
 
     :Example:
 
@@ -170,7 +188,11 @@ class DatetimeSlider(DateSlider):
     bounds using a slider. Supports datetime.date, datetime.datetime
     and np.datetime64 values. The step size is fixed at 1 minute.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DatetimeSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DatetimeSlider.html
+    - https://panel.holoviz.org/reference/widgets/DatetimeSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -237,7 +259,11 @@ class RangeSlider(_RangeSliderBase):
     The RangeSlider widget allows selecting a floating-point range
     using a slider with two handles.
 
-    Reference: https://panel.holoviz.org/reference/widgets/RangeSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/RangeSlider.html
+    - https://panel.holoviz.org/reference/widgets/RangeSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -252,7 +278,11 @@ class IntRangeSlider(_RangeSliderBase):
     The IntRangeSlider widget allows selecting an integer range using
     a slider with two handles.
 
-    Reference: https://panel.holoviz.org/reference/widgets/IntRangeSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/IntRangeSlider.html
+    - https://panel.holoviz.org/reference/widgets/IntRangeSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -281,7 +311,11 @@ class DateRangeSlider(_RangeSliderBase):
     slider with two handles. Supports datetime.datetime, datetime.date
     and np.datetime64 ranges.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DateRangeSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DateRangeSlider.html
+    - https://panel.holoviz.org/reference/widgets/DateRangeSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -364,7 +398,11 @@ class DatetimeRangeSlider(DateRangeSlider):
     using a slider with two handles. Supports datetime.datetime and
     np.datetime64 ranges.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DatetimeRangeSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DatetimeRangeSlider.html
+    - https://panel.holoviz.org/reference/widgets/DatetimeRangeSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
@@ -374,7 +412,7 @@ class DatetimeRangeSlider(DateRangeSlider):
     ...     start=dt.datetime(2025, 1, 1),
     ...     end=dt.datetime(2025, 1, 31),
     ...     step=60*60,
-    ...     name="A tuple of datetimes"
+    ...     label="A tuple of datetimes"
     ... )
     """
 
@@ -386,19 +424,19 @@ class DatetimeRangeSlider(DateRangeSlider):
     _constants = {"datetime": True}
 
 
-class DiscreteSlider(_PnDiscreteSlider):
+class DiscreteSlider(IntSlider, _PnSingleSelectBase):
     """
     The DiscreteSlider widget allows selecting a discrete value using a slider.
 
-    Reference: https://panel.holoviz.org/reference/widgets/DiscreteSlider.html
-    """
+    :References:
 
-    color = param.Selector(objects=COLORS, default="default")
+    - https://panel-material-ui.holoviz.org/reference/widgets/DiscreteSlider.html
+    - https://panel.holoviz.org/reference/widgets/DiscreteSlider.html
+    - https://mui.com/material-ui/react-slider/
+    """
 
     options = param.ClassSelector(default=[], class_=(dict, list), doc="""
         A list or dictionary of valid options.""")
-
-    track = param.Selector(objects=["normal", "inverted", False], default="normal")
 
     value = param.Parameter(doc="""
         The selected value of the slider. Updated when the handle is
@@ -407,51 +445,39 @@ class DiscreteSlider(_PnDiscreteSlider):
     value_throttled = param.Parameter(constant=True, doc="""
         The value of the slider. Updated when the handle is released.""")
 
-    width = param.Integer(default=300, bounds=(0, None), allow_None=True)
+    start = param.Integer(default=0, readonly=True)
+    end = param.Integer(default=100, readonly=True)
+    step = param.Integer(default=1, readonly=True)
 
-    _slider_style_params = [
-        'bar_color', 'direction', 'disabled', 'orientation', "color", "track"
-    ]
+    _allows_values = False
+    _constants = {"discrete": True}
 
-    def _update_options(self, *events):
-        values, labels = self.values, self.labels
-        if not self.options and self.value is None:
-            value = 0
-            label = (f'{self.name}: ' if self.name else '') + '<b>-</b>'
-        elif self.value not in values:
-            value = 0
-            self.value = values[0]
-            label = labels[value]
-        else:
-            value = values.index(self.value)
-            label = labels[value]
-        disabled = True if len(values) in (0, 1) else self.disabled
-        end = 1 if disabled else len(self.options)-1
+    @param.depends("options", watch=True)
+    def _update_bounds(self):
+        self.param.update(start=0, end=len(self.options)-1)
 
-        self._slider = IntSlider(
-            start=0, end=end, value=value, tooltips=False,
-            show_value=False, margin=(0, 5, 5, 5),
-            _supports_embed=False, disabled=disabled,
-            **{p: getattr(self, p) for p in self._slider_style_params if p != 'disabled'}
-        )
-        self._update_style()
-        js_code = self._text_link.format(
-            labels='['+', '.join([repr(lbl) for lbl in labels])+']'
-        )
-        self._jslink = self._slider.jslink(self._text, code={'value': js_code})
-        self._slider.param.watch(self._sync_value, 'value')
-        self._slider.param.watch(self._sync_value, 'value_throttled')
-        self.param.watch(self._update_slider_params, self._slider_style_params)
-        self._text.value = label
-        self._composite[1] = self._slider
+    def _process_param_change(self, msg):
+        msg = super()._process_param_change(msg)
+        if 'options' in msg:
+            msg['options'] = self.labels
+        if 'value' in msg:
+            msg['value'] = self.labels.index(msg['value'])
+        return msg
 
+    def _process_property_change(self, msg):
+        if 'value' in msg:
+            msg['value'] = self.values[msg['value']]
+        msg = super()._process_property_change(msg)
+        return msg
 
 
 class Rating(MaterialWidget):
     """
     The Rating slider widget allows users to select a rating value of their own.
 
-    Reference: https://mui.com/material-ui/react-rating/
+    :References:
+
+    - https://mui.com/material-ui/react-rating/
 
     :Example:
 
@@ -478,62 +504,27 @@ class Rating(MaterialWidget):
         return super()._process_property_change(msg)
 
 
-class _EditableContinuousSliderBase(_EditableContinuousSlider):
+class _EditableContinuousSliderBase(_ContinuousSlider):
 
-    bar_color = param.Color(default=None, doc="Color of the bar")
-
-    color = param.Selector(objects=COLORS, default="default")
-
-    track = param.Selector(objects=["normal", "inverted", False], default="normal")
-
-    label = param.String(default="", doc="Label of the slider")
-
-    def __init__(self, **params):
-        super().__init__(**params)
-        self._slider.param.update(
-            color=self.param.color, track=self.param.track, bar_color=self.param.bar_color
-        )
-        self._value_edit.param.update(
-            size="small",
-            variant="filled",
-            sizing_mode="stretch_width",
-            stylesheets=[
-                ".MuiFilledInput-input { padding-top: 4px !important;}"
-                ".MuiInputAdornment-positionStart {margin-top: 0 !important;}"
-            ]
-        )
-        self._slider.jslink(self._value_edit, value='value')
-        for p, value in params.items():
-            if p not in ('color', 'track', 'bar_color'):
-                continue
-            if isinstance(value, param.Parameter):
-                value = value.owner
-            if isinstance(value, WidgetBase):
-                value.jslink(self._slider, value=p)
-
-    @param.depends('label', watch=True)
-    def _update_name(self):
-        if self.label:
-            label = f'{self.label}:'
-            margin = (0, 10, 0, 0)
-        else:
-            label = ''
-            margin = (0, 0, 0, 0)
-        self._label.param.update(margin=margin, value=label)
+    _constants = {"editable": True}
+    _esm_base = "Slider.jsx"
 
 
 class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
     """
-    The EditableFloatSlider widget allows selecting selecting a
+    The EditableFloatSlider widget allows selecting a
     numeric floating-point value within a set of bounds using a slider
     and for more precise control offers an editable number input box.
 
-    Reference: https://panel.holoviz.org/reference/widgets/EditableFloatSlider.html
+    :References:
+    - https://panel-material-ui.holoviz.org/reference/widgets/EditableFloatSlider.html
+    - https://panel.holoviz.org/reference/widgets/EditableFloatSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
     >>> EditableFloatSlider(
-    ...     value=1.0, start=0.0, end=2.0, step=0.25, name="A float value"
+    ...     value=1.0, start=0.0, end=2.0, step=0.25, label="A float value"
     ... )
     """
 
@@ -543,22 +534,23 @@ class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
     fixed_end = param.Number(default=None, doc="""
         A fixed upper bound for the slider and input.""")
 
-    _slider_widget = FloatSlider
-    _input_widget = FloatInput
-
 
 class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
     """
-    The EditableIntSlider widget allows selecting selecting an integer
+    The EditableIntSlider widget allows selecting an integer
     value within a set of bounds using a slider and for more precise
     control offers an editable integer input box.
 
-    Reference: https://panel.holoviz.org/reference/widgets/EditableIntSlider.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/EditableIntSlider.html
+    - https://panel.holoviz.org/reference/widgets/EditableIntSlider.html
+    - https://mui.com/material-ui/react-slider/
 
     :Example:
 
     >>> EditableIntSlider(
-    ...     value=2, start=0, end=5, step=1, name="An integer value"
+    ...     value=2, start=0, end=5, step=1, label="An integer value"
     ... )
     """
 
@@ -567,9 +559,6 @@ class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
 
     fixed_end = param.Integer(default=None, doc="""
        A fixed upper bound for the slider and input.""")
-
-    _slider_widget = IntSlider
-    _input_widget = IntInput
 
 
 __all__ = [

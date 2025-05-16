@@ -1,17 +1,21 @@
 from __future__ import annotations
 
+import functools
 import io
 import os
+import pathlib
 from typing import TYPE_CHECKING, Any, Literal
 
 import param
 from jinja2 import Template
 from panel.config import _base_config, config
 from panel.io.resources import ResourceComponent, Resources
+from panel.io.state import state
 from panel.util import edit_readonly
 from panel.viewable import Child, Children
 
-from ..base import MaterialComponent, ThemedTransform
+from .._utils import _read_icon
+from ..base import BASE_TEMPLATE, MaterialComponent, ThemedTransform, _env
 from ..widgets.base import MaterialWidget
 
 if TYPE_CHECKING:
@@ -19,19 +23,28 @@ if TYPE_CHECKING:
     from panel.io.location import LocationAreaBase
     from panel.io.resources import ResourcesType
 
+SIDEBAR_VARIANTS = ["persistent", "temporary", "permanent", "auto"]
+
+@functools.cache
+def parse_template(tmpl, *args, **kwargs):
+    if os.path.isfile(tmpl):
+        tmpl = pathlib.Path(tmpl).read_text(encoding='utf-8')
+    return _env.from_string(tmpl, *args, **kwargs)
+
 
 class Meta(param.Parameterized):
     """
     Meta allows controlling meta tags and other HTML head elements.
     """
 
-    name = param.String(default=None, doc="The name of the page.")
+    name = param.String(default="Panel App", doc="The name of the page.")
     title = param.String(default=None, doc="The title of the page.")
     description = param.String(default=None, doc="The description of the page.")
     keywords = param.String(default=None, doc="The keywords of the page.")
     author = param.String(default=None, doc="The author of the page.")
-    viewport = param.String(default=None, doc="The viewport of the page.")
-    icon = param.String(default=None, doc="The icon of the page.")
+    viewport = param.String(default="width=device-width, initial-scale=1.0", doc="The viewport of the page.")
+    icon = param.String(default=None, doc="The 32x32 icon of the page.")
+    apple_touch_icon = param.String(default=None, doc="The apple 180x180 touch icon of the page.")
     refresh = param.String(default=None, doc="The refresh of the page.")
 
 
@@ -42,10 +55,19 @@ class Page(MaterialComponent, ResourceComponent):
     Unlike a `Template` the `Page` component is implemented entirely
     in Javascript, making it possible to dynamically update components.
 
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/page/Page.html
+
     :Example:
 
     >>> Page(main=['# Content'], title='My App')
     """
+
+    busy = param.Boolean(default=False, readonly=True, doc="Whether the page is busy.")
+
+    busy_indicator = param.Selector(default="linear", objects=["circular", "linear", None], doc="""
+        The type of busy indicator to show.""")
 
     config = param.ClassSelector(default=_base_config(), class_=_base_config,
                                  constant=True, doc="""
@@ -58,27 +80,41 @@ class Page(MaterialComponent, ResourceComponent):
 
     contextbar_width = param.Integer(default=250, doc="Width of the contextbar")
 
+    favicon = param.ClassSelector(default=None, class_=(str, pathlib.Path), doc="The favicon of the page.")
+
     header = Children(doc="Items rendered in the header.")
 
     main = Children(doc="Items rendered in the main area.")
 
     meta = param.ClassSelector(default=Meta(), class_=Meta, doc="Meta tags and other HTML head elements.")
 
+    logo = param.ClassSelector(default=None, class_=(str, pathlib.Path, dict), doc="""
+        Logo to render in the header. Can be a string, a pathlib.Path, or a dictionary with
+        breakpoints as keys, e.g. {'sm': 'logo_mobile.png', 'md': 'logo.png'}.""")
+
     sidebar = Children(doc="Items rendered in the sidebar.")
 
     sidebar_open = param.Boolean(default=True, doc="Whether the sidebar is open or closed.")
 
-    sidebar_variant = param.Selector(default="auto", objects=["persistent", "temporary", "permanent", "auto"], doc="""
-        Whether the sidebar is persistent, a temporary drawer, a permanent drawer, or automatically switches between the two based on screen size.""")
+    sidebar_variant = param.Selector(default="auto", objects=SIDEBAR_VARIANTS, doc="""
+        Whether the sidebar is persistent, a temporary drawer, a permanent drawer, or automatically
+        switches between the two based on screen size.""")
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
+
+    site_url = param.String(default="/", doc="""
+        URL of the site and logo. Default is '/'.""")
+
+    template = param.ClassSelector(default=None, class_=(str, pathlib.Path, Template), doc="""
+        Overrides the default jinja2 template. Template can be provided as a string,
+        Path or jinja2.Template instance.""")
 
     theme_toggle = param.Boolean(default=True, doc="Whether to show a theme toggle button.")
 
     title = param.String(doc="Title of the application.")
 
     _esm_base = "Page.jsx"
-    _rename = {"config": None, "meta": None}
+    _rename = {"config": None, "meta": None, "favicon": None, "apple_touch_icon": None, "template": None}
     _source_transforms = {
         "header": None,
         "contextbar": None,
@@ -98,6 +134,17 @@ class Page(MaterialComponent, ResourceComponent):
         super().__init__(**params)
         self.meta.param.update(**meta)
         self.config.param.update(**resources)
+        with edit_readonly(self):
+            self.busy = state.param.busy
+
+    @param.depends('template', watch=True, on_init=True)
+    def _update_template(self):
+        if self.template is None:
+            self._template = BASE_TEMPLATE
+        elif isinstance(self.template, (str, pathlib.Path)):
+            self._template = parse_template(self.template)
+        else:
+            self._template = self.template
 
     @param.depends('dark_theme', watch=True)
     def _update_config(self):
@@ -119,6 +166,25 @@ class Page(MaterialComponent, ResourceComponent):
                 extras[rname] += [  # type: ignore
                     r for r in res if r not in extras.get(rname, [])  # type: ignore
                 ]
+
+    def _process_param_change(self, params):
+        params = super()._process_param_change(params)
+        if logo := params.get('logo'):
+            if isinstance(logo, dict):
+                logo = {bp: _read_icon(lg) for bp, lg in logo.items()}
+            else:
+                logo = _read_icon(logo)
+            params['logo'] = logo
+        return params
+
+    def _populate_template_variables(self, template_variables):
+        template_variables['meta'] = self.meta
+        if favicon := self.favicon or self.meta.icon:
+            template_variables['favicon'] = _read_icon(favicon)
+        if apple_touch_icon := self.meta.apple_touch_icon:
+            template_variables['apple_touch_icon'] = _read_icon(apple_touch_icon)
+        template_variables['resources'] = self.resolve_resources()
+        template_variables['is_page'] = True
 
     def resolve_resources(
         self,
@@ -147,10 +213,13 @@ class Page(MaterialComponent, ResourceComponent):
         template_variables: dict[str, Any] | None = None,
         **kwargs
     ) -> None:
-        if not template_variables:
+        if template_variables:
+            template_variables = dict(template_variables)
+        else:
             template_variables = {}
-        template_variables['meta'] = self.meta
-        template_variables['resources'] = self.resolve_resources()
+        if template is None:
+            template = self._template
+        self._populate_template_variables(template_variables)
         super().save(
             filename,
             title,
@@ -166,8 +235,8 @@ class Page(MaterialComponent, ResourceComponent):
     ) -> Document:
         title = title or self.title or self.meta.title or 'Panel Application'
         doc = super().server_doc(doc, title, location)
-        doc.template_variables['meta'] = self.meta
-        doc.template_variables['resources'] = self.resolve_resources()
+        self._populate_template_variables(doc.template_variables)
+        doc.template = self._template
         return doc
 
 
@@ -205,6 +274,10 @@ class BreakpointSwitcher(MaterialWidget):
     """
     The `BreakpointSwitcher` component allows switching between two component implementations
     based on the declared breakpoint or media_query.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/page/BreakpointSwitcher.html
 
     :Example:
 

@@ -26,9 +26,14 @@ export function render({model}) {
         ref={anchorEl}
         startIcon={icon && (
           icon.trim().startsWith("<") ?
-            <img
-              src={`data:image/svg+xml;base64,${btoa(icon)}`}
-              style={{width: icon_size, height: icon_size, paddingRight: "0.5em"}}
+            <span style={{
+              maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+              backgroundColor: "currentColor",
+              maskRepeat: "no-repeat",
+              maskSize: "contain",
+              width: icon_size,
+              height: icon_size,
+              display: "inline-block"}}
             /> :
             <Icon style={{fontSize: icon_size}}>{icon}</Icon>
         )}
@@ -64,9 +69,14 @@ export function render({model}) {
             >
               {item.icon && (
                 item.icon.trim().startsWith("<") ?
-                  <img
-                    src={`data:image/svg+xml;base64,${btoa(item.icon)}`}
-                    style={{width: icon_size, height: icon_size, paddingRight: "1.5em"}}
+                  <span style={{
+                    maskImage: `url("data:image/svg+xml;base64,${btoa(item.icon)}")`,
+                    backgroundColor: "currentColor",
+                    maskRepeat: "no-repeat",
+                    maskSize: "contain",
+                    width: icon_size,
+                    height: icon_size,
+                    display: "inline-block"}}
                   /> :
                   <Icon style={{fontSize: icon_size, paddingRight: "1.5em"}}>{item.icon}</Icon>
               )}

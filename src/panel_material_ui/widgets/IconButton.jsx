@@ -26,6 +26,9 @@ export function render({model, el}) {
     }
   }
 
+  const standard_size = ["small", "medium", "large"].includes(size)
+  const font_size = standard_size ? null : size
+
   return (
     <IconButton
       color={color}
@@ -36,8 +39,16 @@ export function render({model, el}) {
       sx={{color: color_variant, width: "100%", ...sx}}
     >
       {current_icon.trim().startsWith("<") ?
-        <img src={`data:image/svg+xml;base64,${btoa(current_icon)}`} style={{width: size, height: size}} /> :
-        <Icon style={{fontSize: size}}>{current_icon}</Icon>
+        <span style={{
+          maskImage: `url("data:image/svg+xml;base64,${btoa(current_icon)}")`,
+          backgroundColor: "currentColor",
+          maskRepeat: "no-repeat",
+          maskSize: "contain",
+          width: font_size,
+          height: font_size,
+          display: "inline-block"}}
+        /> :
+        <Icon style={{fontSize: font_size}}>{current_icon}</Icon>
       }
     </IconButton>
   )

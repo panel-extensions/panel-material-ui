@@ -5,6 +5,7 @@ import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
+import LinearProgress from "@mui/material/LinearProgress";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import DarkMode from "@mui/icons-material/DarkMode";
@@ -13,7 +14,7 @@ import TocIcon from "@mui/icons-material/Toc";
 import Tooltip from "@mui/material/Tooltip";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
-import {dark_mode, setup_global_styles} from "./utils"
+import {apply_flex, dark_mode, setup_global_styles} from "./utils"
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && prop !== "variant" && prop !== "sidebar_width"})(
   ({sidebar_width, theme, open, variant}) => {
@@ -46,29 +47,83 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
   }
 )
 
-export function render({model}) {
+export function render({model, view}) {
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [sidebar_width] = model.useState("sidebar_width")
-  const [title] = model.useState("title")
-  const [open, setOpen] = model.useState("sidebar_open")
-  const [variant] = model.useState("sidebar_variant")
-  const [dark_theme, setDarkTheme] = model.useState("dark_theme")
-  const [theme_toggle] = model.useState("theme_toggle")
-  const [sx] = model.useState("sx")
+  const [busy] = model.useState("busy")
+  const [busy_indicator] = model.useState("busy_indicator")
   const [contextbar_open, contextOpen] = model.useState("contextbar_open")
   const [contextbar_width] = model.useState("contextbar_width")
+  const [dark_theme, setDarkTheme] = model.useState("dark_theme")
+  const [logo] = model.useState("logo")
+  const [open, setOpen] = model.useState("sidebar_open")
+  const [sidebar_width] = model.useState("sidebar_width")
+  const [theme_toggle] = model.useState("theme_toggle")
+  const [site_url] = model.useState("site_url")
+  const [title] = model.useState("title")
+  const [variant] = model.useState("sidebar_variant")
+  const [sx] = model.useState("sx")
   const sidebar = model.get_child("sidebar")
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
+  const main = model.get_child("main")
+
+  const isXl = useMediaQuery(theme.breakpoints.up("xl"))
+  const isLg = useMediaQuery(theme.breakpoints.up("lg"))
+  const isMd = useMediaQuery(theme.breakpoints.up("md"))
+  const isSm = useMediaQuery(theme.breakpoints.up("sm"))
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+
+  const logoContent = React.useMemo(() => {
+    if (!logo) { return null }
+    if (typeof logo === "string") { return logo }
+
+    if (isXl && logo.xl) { return logo.xl }
+    if (isLg && logo.lg) { return logo.lg }
+    if (isMd && logo.md) { return logo.md }
+    if (isSm && logo.sm) { return logo.sm }
+    if (logo.xs) { return logo.xs }
+
+    return logo.default || Object.values(logo)[0];
+  }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm])
+
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      sidebar.map((object, index) => {
+        apply_flex(view.get_child_view(model.sidebar[index]), "column")
+      })
+      contextbar.map((object, index) => {
+        apply_flex(view.get_child_view(model.contextbar[index]), "column")
+      })
+      header.map((object, index) => {
+        apply_flex(view.get_child_view(model.header[index]), "row")
+      })
+      main.map((object, index) => {
+        apply_flex(view.get_child_view(model.main[index]), "column")
+      })
+    })
+  }, [])
+
+  // Set up debouncing of busy indicator
+  const [idle, setIdle] = React.useState(true);
+  const timerRef = React.useRef(undefined)
+  React.useEffect(() => {
+    if (busy) {
+      timerRef.current = setTimeout(() => {
+        setIdle(false)
+      }, 1000)
+    } else {
+      setIdle(true)
+      clearTimeout(timerRef.current)
+    }
+  }, [busy])
+  React.useEffect(() => () => clearTimeout(timerRef.current), [])
 
   const toggleTheme = () => {
     setDarkTheme(!dark_theme)
   }
 
   setup_global_styles(theme)
-
-  React.useEffect(() => dark_mode.set_value(dark_theme), [])
+  React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
 
   const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
   const drawer = sidebar.length > 0 ? (
@@ -79,15 +134,21 @@ export function render({model}) {
       open={open}
       onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
       sx={{
+        display: "flex",
+        flexDirection: "column",
         flexShrink: 0,
         [`& .MuiDrawer-paper`]: {width: sidebar_width, boxSizing: "border-box"},
       }}
       variant={drawer_variant}
     >
-      <Toolbar/>
-      <Divider />
-      <Box sx={{overflow: "auto"}}>
-        {sidebar}
+      <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
+        <Typography variant="h5">&nbsp;</Typography>
+      </Toolbar>
+      <Box sx={{overflow: "auto", flexGrow: 1, display: "flex", flexDirection: "column"}}>
+        {sidebar.map((object, index) => {
+          apply_flex(view.get_child_view(model.sidebar[index]), "column")
+          return object
+        })}
       </Box>
     </Drawer>
   ) : null
@@ -100,6 +161,8 @@ export function render({model}) {
       open={contextbar_open}
       onClose={() => contextOpen(false)}
       sx={{
+        display: "flex",
+        flexDirection: "column",
         flexShrink: 0,
         width: contextbar_width,
         zIndex: (theme) => theme.zIndex.drawer + 2,
@@ -107,9 +170,14 @@ export function render({model}) {
       }}
       variant="temporary"
     >
-      {contextbar}
+      {contextbar.map((object, index) => {
+        apply_flex(view.get_child_view(model.contextbar[index]), "column")
+        return object
+      })}
     </Drawer>
   ) : null
+
+  const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both"))
 
   return (
     <Box className={`mui-${dark_theme ? "dark" : "light"}`} sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
@@ -128,11 +196,19 @@ export function render({model}) {
               </IconButton>
             </Tooltip>
           }
-          <Typography variant="h5" sx={{color: "white"}}>
-            {title}
-          </Typography>
+          {logo && <a href={site_url}><img src={logoContent} alt="Logo" className="logo" style={{height: "2.5em", paddingRight: "1em"}} /></a>}
+          {title && (
+            <a href={site_url} style={{textDecoration: "none"}}>
+              <Typography variant="h5" className="title" sx={{color: "white"}}>
+                {title}
+              </Typography>
+            </a>
+          )}
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
-            {header}
+            {header.map((object, index) => {
+              apply_flex(view.get_child_view(model.header[index]), "row")
+              return object
+            })}
           </Box>
           {theme_toggle &&
             <Tooltip enterDelay={500} title="Toggle theme">
@@ -148,13 +224,30 @@ export function render({model}) {
                 aria-label="toggle contextbar"
                 onClick={() => contextOpen(!contextbar_open)}
                 edge="start"
-                sx={{mr: 2}}
+                sx={{mr: 1}}
               >
                 <TocIcon />
               </IconButton>
             </Tooltip>
           }
+          {busy_indicator === "circular" &&
+            <CircularProgress
+              disableShrink
+              size="1.4em"
+              sx={{color: "white"}}
+              thickness={5}
+              variant={idle ? "determinate" : "indeterminate"}
+              value={idle ? 100 : 0}
+            />}
         </Toolbar>
+        {busy_indicator === "linear" &&
+          <LinearProgress
+            sx={{width: "100%"}}
+            variant={idle ? "determinate" : "indeterminate"}
+            color="primary"
+            value={idle ? 100 : 0}
+          />
+        }
       </AppBar>
       {drawer &&
       <Box
@@ -171,9 +264,14 @@ export function render({model}) {
       </Box>}
       <Main className="main" open={open} sidebar_width={sidebar_width} variant={drawer_variant}>
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
-          <Toolbar/>
-          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column"}}>
-            {model.get_child("main")}
+          <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
+            <Typography variant="h5">&nbsp;</Typography>
+          </Toolbar>
+          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column", overflowY: main_stretch ? "hidden" : "auto"}}>
+            {main.map((object, index) => {
+              apply_flex(view.get_child_view(model.main[index]), "column")
+              return object
+            })}
           </Box>
         </Box>
       </Main>

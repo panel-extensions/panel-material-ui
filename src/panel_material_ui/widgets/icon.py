@@ -27,7 +27,8 @@ class _ClickableIcon(MaterialWidget):
         https://mui.com/material-ui/material-icons or an SVG.""",
     )
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.String(default="medium", doc="""
+        Size of the icon as a string, e.g. 12px or 1em.""",)
 
     value = param.Boolean(
         default=False,
@@ -47,7 +48,9 @@ class ToggleIcon(_ClickableIcon):
 
     This widget incorporates a `value` attribute, which alternates between `False` and `True`.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/ToggleIcon.html
     - https://panel.holoviz.org/reference/widgets/ToggleIcon.html
     - https://mui.com/material-ui/react-checkbox/#icon
 
@@ -69,14 +72,14 @@ class ToggleIcon(_ClickableIcon):
     _esm_base = "ToggleIcon.jsx"
 
 
-class ButtonIcon(_ClickableIcon, _ButtonBase):
+class IconButton(_ClickableIcon, _ButtonBase):
     """
-    The `ButtonIcon` widget facilitates event triggering upon button clicks.
+    The `IconButton` widget facilitates event triggering upon button clicks.
 
     This widget displays a default `icon` initially. Upon being clicked, an `active_icon` appears
     for a specified `toggle_duration`.
 
-    For instance, the `ButtonIcon` can be effectively utilized to implement a feature akin to
+    For instance, the `IconButton` can be effectively utilized to implement a feature akin to
     ChatGPT's copy-to-clipboard button.
 
     The button incorporates a `value` attribute, which alternates between `False` and `True` as the
@@ -85,13 +88,15 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
     Furthermore, it includes an `clicks` attribute, enabling subscription to click events for
     further actions or monitoring.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/IconButton.html
     - https://panel.holoviz.org/reference/widgets/ButtonIcon.html
-    - https://mui.com/material-ui/icons/
+    - https://mui.com/material-ui/api/icon-button/
 
     :Example:
 
-    >>> button_icon = ButtonIcon(
+    >>> button_icon = IconButton(
     ...     icon='favorite',
     ...     active_icon='check',
     ...     description='Copy',
@@ -104,9 +109,6 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
 
     edge = param.Selector(objects=["start", "end", False], default=False, doc="""
         Whether the icon should be on the start or end of the button.""")
-
-    size = param.String(default="1em", doc="""
-        Size of the icon as a string, e.g. 12px or 1em.""",)
 
     toggle_duration = param.Integer(default=75, doc="""
         The number of milliseconds the active_icon should be shown for
@@ -197,7 +199,11 @@ class ButtonIcon(_ClickableIcon, _ButtonBase):
                 callbacks[k] = val
         return Callback(self, code=callbacks, args=args)
 
+
+ButtonIcon = IconButton
+
 __all__ = [
-    "ToggleIcon",
-    "ButtonIcon"
+    "ButtonIcon",
+    "IconButton",
+    "ToggleIcon"
 ]

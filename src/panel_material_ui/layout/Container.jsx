@@ -8,6 +8,14 @@ export function render({model, view}) {
   const [sx] = model.useState("sx")
   const objects = model.get_child("objects")
 
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      objects.map((object, index) => {
+        apply_flex(view.get_child_view(model.objects[index]), "column")
+      })
+    })
+  }, [])
+
   return (
     <Container
       disableGutters={disableGutters}

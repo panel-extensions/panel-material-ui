@@ -10,6 +10,9 @@ export function render({model, el}) {
   const [value, setValue] = model.useState("value")
   const [sx] = model.useState("sx")
 
+  const standard_size = ["small", "medium", "large"].includes(size)
+  const font_size = standard_size ? null : size
+
   return (
     <Checkbox
       checked={value}
@@ -20,13 +23,29 @@ export function render({model, el}) {
       onClick={(e, newValue) => setValue(!value)}
       icon={
         icon.trim().startsWith("<") ?
-          <img src={`data:image/svg+xml;base64,${btoa(icon)}`}/> :
-          <Icon color={color}>{icon}</Icon>
+          <span style={{
+            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+            backgroundColor: "currentColor",
+            maskRepeat: "no-repeat",
+            maskSize: "contain",
+            width: font_size,
+            height: font_size,
+            display: "inline-block"}}
+          /> :
+          <Icon color={color} style={{fontSize: font_size}}>{icon}</Icon>
       }
       checkedIcon={
         active_icon.trim().startsWith("<") ?
-          <img src={`data:image/svg+xml;base64,${btoa(active_icon || icon)}`}/> :
-          <Icon color={color}>{active_icon || icon}</Icon>
+          <span style={{
+            maskImage: `url("data:image/svg+xml;base64,${btoa(active_icon || icon)}")`,
+            backgroundColor: "currentColor",
+            maskRepeat: "no-repeat",
+            maskSize: "contain",
+            width: font_size,
+            height: font_size,
+            display: "inline-block"}}
+          /> :
+          <Icon color={color} style={{fontSize: font_size}}>{active_icon || icon}</Icon>
       }
       sx={sx}
     />

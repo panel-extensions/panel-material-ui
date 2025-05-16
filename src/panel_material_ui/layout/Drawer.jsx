@@ -21,6 +21,15 @@ export function render({model, view}) {
       view.el.style.width = `${open ? size : 0}px`
     }
   }
+
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      objects.map((object, index) => {
+        apply_flex(view.get_child_view(model.objects[index]), "column")
+      })
+    })
+  }, [])
+
   return (
     <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} PaperProps={{sx: {...dims, ...sx}}} variant={variant}>
       {objects.map((object, index) => {

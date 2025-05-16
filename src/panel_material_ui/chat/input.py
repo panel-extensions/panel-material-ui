@@ -19,7 +19,10 @@ class ChatAreaInput(TextAreaInput):
 
     Lines are joined with the newline character `\\n`.
 
-    Reference: https://panel.holoviz.org/reference/chat/ChatAreaInput.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/chat/ChatAreaInput.html
+    - https://panel.holoviz.org/reference/chat/ChatAreaInput.html
 
     :Example:
 

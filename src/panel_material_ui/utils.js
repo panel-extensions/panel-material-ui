@@ -3,6 +3,9 @@ import {grey} from "@mui/material/colors"
 import {createTheme} from "@mui/material/styles"
 import {deepmerge} from "@mui/utils"
 
+export const int_regex = /^[-+]?\d*$/
+export const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
+
 export class SessionStore {
   constructor() {
     this.shared_var = null
@@ -182,7 +185,7 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     model_props.minor_tick_line_color = theme.palette.text.primary
   } else if (model_type.endsWith("Legend")) {
     const view = Bokeh.index.find_one_by_id(model.id)
-    const elevation = find_on_parent(view, "elevation")
+    const elevation = view ? find_on_parent(view, "elevation") : 0
     model_props.background_fill_color = elevation_color(elevation, theme, dark)
     model_props.border_line_alpha = dark ? 0 : 1
     model_props.title_text_color = theme.palette.text.primary
@@ -191,7 +194,7 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     model_props.label_text_font = font_family
   } else if (model_type.endsWith("ColorBar")) {
     const view = Bokeh.index.find_one_by_id(model.id)
-    const elevation = find_on_parent(view, "elevation")
+    const elevation = view ? find_on_parent(view, "elevation") : 0
     model_props.background_fill_color = elevation_color(elevation, theme, dark)
     model_props.title_text_color = theme.palette.text.primary
     model_props.title_text_font = font_family
@@ -201,15 +204,22 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     model_props.text_color = theme.palette.text.primary
     model_props.text_font = font_family
   } else if (model_type.endsWith("Grid")) {
-    model_props.grid_line_color = theme.palette.text.primary
-    model_props.grid_line_alpha = dark ? 0.25 : 0.1
+    if (model_props.grid_line_color != null) {
+      model_props.grid_line_color = theme.palette.text.primary
+      model_props.grid_line_alpha = dark ? 0.25 : 0.5
+    }
+  } else if (model_type.endsWith("Canvas")) {
+    model_props.stylesheets = [...model.stylesheets, ":host { --highlight-color: none }"]
   } else if (model_type.endsWith("Figure")) {
     const view = Bokeh.index.find_one_by_id(model.id)
-    const elevation = find_on_parent(view, "elevation")
+    const elevation = view ? find_on_parent(view, "elevation") : 0
     model_props.background_fill_color = theme.palette.background.paper
     model_props.border_fill_color = elevation_color(elevation, theme, dark)
     model_props.outline_line_color = theme.palette.text.primary
     model_props.outline_line_alpha = dark ? 0.25 : 0
+    if (view) {
+      apply_bokeh_theme(view.canvas_view.model, theme, dark, font_family)
+    }
   } else if (model_type.endsWith("Toolbar")) {
     const stylesheet = `.bk-right.bk-active, .bk-above.bk-active {
 --highlight-color: ${theme.palette.primary.main} !important;
@@ -221,11 +231,17 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
         color: ${theme.palette.primary.main} !important;
       `
     ]
+  } else if (model_type.endsWith("AcePlot")) {
+    model_props.theme = dark ? "github_dark" : "github_light_default"
+  } else if (model_type.endsWith("VegaPlot")) {
+    model_props.theme = dark ? "dark" : null
   } else if (model_type.endsWith("HoverTool")) {
     const view = Bokeh.index.find_one_by_id(model.id)
-    view.ttmodels.forEach(ttmodel => {
-      apply_bokeh_theme(ttmodel, theme, dark, font_family)
-    })
+    if (view) {
+      view.ttmodels.forEach(ttmodel => {
+        apply_bokeh_theme(ttmodel, theme, dark, font_family)
+      })
+    }
   }
   if (Object.keys(model_props).length > 0) {
     model.setv(model_props)
@@ -431,7 +447,7 @@ export const setup_global_styles = (theme) => {
   }
 
   React.useEffect(() => {
-    const doc = window.Bokeh.documents[0]
+    const doc = window.Bokeh.documents[window.Bokeh.documents.length-1]
     const cb = (e) => {
       if (e.kind !== "ModelChanged") {
         return
@@ -440,11 +456,11 @@ export const setup_global_styles = (theme) => {
       const models = []
       if (Array.isArray(value)) {
         value.forEach(v => {
-          if (v.document === doc) {
+          if (v && v.document === doc) {
             models.push(v)
           }
         })
-      } else if (value.document === doc) {
+      } else if (value && value.document === doc) {
         models.push(value)
       }
       if (models.length === 0) {
@@ -471,7 +487,7 @@ export const setup_global_styles = (theme) => {
   React.useEffect(() => {
     theme_ref.current = theme
     const dark = theme.palette.mode === "dark"
-    const doc = window.Bokeh.documents[0]
+    const doc = window.Bokeh.documents[window.Bokeh.documents.length-1]
     const font_family = Array.isArray(theme.typography.fontFamily) ? (
       theme.typography.fontFamily.join(", ")
     ) : (
@@ -497,13 +513,18 @@ export const setup_global_styles = (theme) => {
 
 export const install_theme_hooks = (props) => {
   const [dark_theme, setDarkTheme] = props.model.useState("dark_theme")
-  const [own_theme_config] = props.model.useState("theme_config")
+
+  // ALERT: Unclear why this is needed, the dark_theme state variable
+  // on it's own does not seem stable
+  const dark_ref = React.useRef(dark_theme)
+  React.useEffect(() => {
+    dark_ref.current = dark_theme
+  }, [dark_theme])
 
   // Apply .mui-dark or .mui-light to the container
   const themeClass = `mui-${dark_theme ? "dark" : "light"}`
-  if (!props.view.container.className.includes(themeClass)) {
-    props.view.container.className = `${props.view.container.className} ${themeClass}`.trim()
-  }
+  const inverseClass = `mui-${dark_theme ? "light" : "dark"}`
+  props.view.container.className = `${props.view.container.className.replace(inverseClass, "").replace(themeClass, "").trim()} ${themeClass}`.trim()
 
   const merge_theme_configs = (view) => {
     let current = view
@@ -513,7 +534,7 @@ export const install_theme_hooks = (props) => {
       if (current.model?.data?.theme_config != null) {
         const config = current.model.data.theme_config
         views.push(current)
-        theme_configs.push(config.dark && config.light ? config[dark_theme ? "dark" : "light"] : config)
+        theme_configs.push((config.dark && config.light) ? config[dark_ref.current ? "dark" : "light"] : config)
       }
       current = current.parent
     }
@@ -521,10 +542,12 @@ export const install_theme_hooks = (props) => {
     return [merged, views]
   }
 
-  const [merged_config, views] = merge_theme_configs(props.view)
-  const [theme_config, setThemeConfig] = React.useState(merged_config)
+  const [theme_config, setThemeConfig] = React.useState(() => merge_theme_configs(props.view, dark_ref.current)[0])
+  const update_views = () => setThemeConfig(merge_theme_configs(props.view)[0])
+
   React.useEffect(() => {
-    const cb = () => setThemeConfig(merge_theme_configs(props.view)[0])
+    const [_, views] = merge_theme_configs(props.view)
+    const cb = () => update_views()
     for (const view of views) {
       view.model_proxy.on("theme_config", cb)
     }
@@ -534,6 +557,7 @@ export const install_theme_hooks = (props) => {
       }
     }
   }, [])
+  React.useEffect(() => update_views(), [dark_theme])
   const theme = React.useMemo(() => {
     const config = render_theme_config(props, theme_config, dark_theme)
     return createTheme(config)
@@ -586,6 +610,9 @@ export function isNumber(obj) {
 }
 
 export function apply_flex(view, direction) {
+  if (view == null) {
+    return
+  }
   const sizing = view.box_sizing()
   const flex = (() => {
     const policy = direction == "row" ? sizing.width_policy : sizing.height_policy
@@ -611,7 +638,7 @@ export function apply_flex(view, direction) {
     }
   })()
 
-  view.parent_style.append(":host", {flex, align_self})
+  view.parent_style.replace(":host", {flex, align_self})
 
   // undo `width/height: 100%` and let `align-self: stretch` do the work
   if (direction == "row") {
@@ -623,4 +650,24 @@ export function apply_flex(view, direction) {
       view.parent_style.append(":host", {width: "auto"})
     }
   }
+}
+
+export function findNotebook(el) {
+  let feed = null
+  while (el) {
+    if (el.classList && el.classList.contains("jp-Notebook")) {
+      return [el, feed]
+    }
+    if (el.classList && el.classList.contains("jp-WindowedPanel-outer")) {
+      feed = el
+    }
+    if (el.parentNode) {
+      el = el.parentNode
+    } else if (el instanceof ShadowRoot) {
+      el = el.host
+    } else {
+      el = null
+    }
+  }
+  return [null, null]
 }

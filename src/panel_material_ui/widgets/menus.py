@@ -170,12 +170,25 @@ class Breadcrumbs(MenuBase):
     It improves usability by allowing users to track their location and navigate back easily.
 
     Breadcrumb items can be strings or objects with properties:
-      - label: The label of the breadcrumb item (required)
-      - icon: The icon of the breadcrumb item (optional)
-      - avatar: The avatar of the breadcrumb item (optional)
-      - href: Link to navigate to when clicking the breadcrumb item (optional)
 
-    Reference: https://mui.com/material-ui/react-breadcrumbs/
+    - `label`: The label of the breadcrumb item (required)
+    - `icon`: The icon of the breadcrumb item (optional)
+    - `avatar`: The avatar of the breadcrumb item (optional)
+    - `href`: Link to navigate to when clicking the breadcrumb item (optional)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/Breadcrumbs.html
+    - https://mui.com/material-ui/react-breadcrumbs/
+
+    :Example:
+
+    >>> pmui.Breadcrumbs(items=[
+    ...     {'label': 'Documentation', 'icon': 'article'},
+    ...     {'label': 'Reference Gallery', 'icon': 'category'},
+    ...     {'label': 'Menus', 'icon': 'menu'},
+    ...     {'label': 'Breadcrumbs', 'icon': 'grain'},
+    ... ], active=3)
     """
 
     color = param.Selector(objects=COLORS, default="primary")
@@ -196,23 +209,35 @@ class List(MenuBase):
     navigation links, or settings.
 
     List items can be strings or objects with properties:
-      - label: The label of the list item (required)
-      - secondary: The secondary text of the list item (optional)
-      - icon: The icon of the list item (optional)
-      - avatar: The avatar of the list item (optional)
-      - color: The color of the list item (optional)
-      - actions: Actions to display on the list item (optional)
-      - items: Nested items (optional)
-      - selectable: Whether the list item is selectable (optional)
-      - href: The URL to navigate to when the list item is clicked (optional)
+      - `label`: The label of the list item (required)
+      - `secondary`: The secondary text of the list item (optional)
+      - `icon`: The icon of the list item (optional)
+      - `avatar`: The avatar of the list item (optional)
+      - `color`: The color of the list item (optional)
+      - `actions`: Actions to display on the list item (optional)
+      - `items`: Nested items (optional)
+      - `selectable`: Whether the list item is selectable (optional)
+      - `href`: The URL to navigate to when the list item is clicked (optional)
 
-    Reference: https://mui.com/material-ui/react-list/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/List.html
+    - https://mui.com/material-ui/react-list/
+
+    :Example:
+
+    >>> pmui.List(items=[
+    ...     {'label': 'Home', 'icon': 'home', 'secondary': 'Overview page'},
+    ...     {'label': 'Gallery', 'icon': 'image', 'secondary': 'Visual overview'},
+    ...     {'label': 'API', 'icon': 'code', 'secondary': 'API Reference'},
+    ...     {'label': 'About', 'icon': 'info'},
+    ... ], active=3)
     """
 
     active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
         The index of the currently selected item. Can be a tuple of indices for nested items.""")
 
-    color = param.Selector(default="default", objects=COLORS, doc="The color of the selected list item.")
+    color = param.Selector(default="primary", objects=COLORS, doc="The color of the selected list item.")
 
     dense = param.Boolean(default=False, doc="Whether to show the list items in a dense format.")
 
@@ -225,7 +250,7 @@ class List(MenuBase):
 
     _esm_base = "List.jsx"
 
-    _item_keys = ['label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable', 'href']
+    _item_keys = ['label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable', 'href', 'buttons']
 
     @param.depends('items', watch=True, on_init=True)
     def _sync_items(self):
@@ -273,7 +298,18 @@ class MenuButton(MenuBase, _ButtonBase):
       - icon: The icon of the menu button item (optional)
       - color: The color of the menu button item (optional)
 
-    Reference: https://mui.com/material-ui/react-menu-button/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/MenuButton.html
+    - https://mui.com/material-ui/react-menu-button/
+
+    :Example:
+
+    >>> pmui.MenuButton(items=[
+    ...     {'label': 'Open', 'icon': 'description'},
+    ...     {'label': 'Save', 'icon': 'save'},
+    ...     {'label': 'Exit', 'icon': 'close'},
+    ... ], label='File', icon='storage')
     """
 
     margin = Margin(default=5)
@@ -291,12 +327,19 @@ class Pagination(MaterialWidget):
     """
     The `Pagination` component allows selecting from a list of pages.
 
-    Reference: https://mui.com/material-ui/react-pagination/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/Pagination.html
+    - https://mui.com/material-ui/react-pagination/
+
+    :Example:
+
+    >>> pmui.Pagination(count=100)
     """
 
     boundary_count = param.Integer(default=1, bounds=(0, None), doc="The number of boundary pages to show.")
 
-    color = param.Selector(default="default", objects=COLORS, doc="The color of the pagination.")
+    color = param.Selector(default="primary", objects=COLORS, doc="The color of the pagination.")
 
     count = param.Integer(default=1, bounds=(0, None), doc="The total number of pages.")
 
@@ -360,15 +403,27 @@ class SpeedDial(MenuBase):
     list of items.
 
     SpeedDial items can be strings or objects with properties:
-      - label: The label of the speed dial item (required)
-      - icon: The icon of the speed dial item (optional)
-      - avatar: The avatar of the speed dial item (optional)
-      - color: The color of the speed dial item (optional)
 
-    Reference: https://mui.com/material-ui/react-speed-dial/
+    - `label`: The label of the speed dial item (required)
+    - `icon`: The icon of the speed dial item (optional)
+    - `avatar`: The avatar of the speed dial item (optional)
+    - `color`: The color of the speed dial item (optional)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/SpeedDial.html
+    - https://mui.com/material-ui/react-speed-dial/
+
+    :Example:
+
+    >>> pmui.SpeedDial(items=[
+    ...     {'label': 'Camera', 'icon': 'camera'},
+    ...     {'label': 'Photos', 'icon': 'photo'},
+    ...     {'label': 'Documents', 'icon': 'article'},
+    ... ], active=2, margin=(50, 20))
     """
 
-    color = param.Selector(default="default", objects=COLORS, doc="""
+    color = param.Selector(default="primary", objects=COLORS, doc="""
         The color of the menu.""")
 
     direction = param.Selector(default="right", objects=["right", "left", "up", "down"], doc="""

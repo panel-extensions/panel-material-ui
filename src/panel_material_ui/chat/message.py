@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 from contextlib import ExitStack
+from io import BytesIO
 from pathlib import PurePath
 from zoneinfo import ZoneInfo
 
@@ -49,12 +50,20 @@ class ChatMessage(MaterialComponent, ChatMessage):
     - Associating reactions with messages and mapping them to icons.
     - Rendering various content types including text, images, audio, video, and more.
 
-    Reference: https://panel.holoviz.org/reference/chat/ChatMessage.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/chat/ChatMessage.html
+    - https://panel.holoviz.org/reference/chat/ChatMessage.html
 
     :Example:
 
     >>> ChatMessage(object="Hello world!", user="New User", avatar="😊")
     """
+
+    avatar = param.ClassSelector(default="", class_=(str, BytesIO, bytes, ImageBase, dict), doc="""
+        The avatar to use for the user. Can be a single character text, an emoji, or anything
+        supported by `pn.pane.Image`. If not set, checks if the user is available in the
+        default_avatars mapping; else uses the first character of the name.""")
 
     css_classes = param.List(default=[],doc="""
         The CSS classes to apply to the widget.""")

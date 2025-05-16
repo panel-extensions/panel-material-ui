@@ -9,6 +9,14 @@ export function render({model, view}) {
   const [variant] = model.useState("variant")
   const objects = model.get_child("objects")
 
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      objects.map((object, index) => {
+        apply_flex(view.get_child_view(model.objects[index]), "column")
+      })
+    })
+  }, [])
+
   return (
     <Paper
       elevation={elevation}

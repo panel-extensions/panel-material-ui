@@ -23,7 +23,9 @@ class Avatar(MaterialPaneBase):
     The `Avatar` component is used to display profile pictures, user initials, icons,
     or custom images.
 
-    Reference: https://mui.com/material-ui/react-avatar/
+    :References:
+
+    - https://mui.com/material-ui/react-avatar/
 
     :Example:
     >>> Avatar("path/to/image.jpg")
@@ -52,7 +54,9 @@ class Chip(MaterialPaneBase):
     A `Chip` can be used to display information, labels, tags, or actions. It can include text,
     an avatar, an icon, or a delete button.
 
-    Reference: https://mui.com/material-ui/react-chip/
+    :References:
+
+    - https://mui.com/material-ui/react-chip/
 
     :Example:
     >>> Chip("Log Time", icon="clock")
@@ -84,7 +88,9 @@ class Skeleton(MaterialPaneBase):
     It provides a visual indication that data is being fetched, improving perceived performance
     and user experience.
 
-    Reference: https://mui.com/material-ui/react-skeleton/
+    :References:
+
+    - https://mui.com/material-ui/react-skeleton/
     """
 
     variant = param.Selector(objects=["circular", "rectangular", "rounded"], default="rounded")
@@ -100,7 +106,9 @@ class Typography(MaterialPaneBase, Markdown):
     """
     The `Typography` component is used to display text with different styles and weights.
 
-    Reference: https://mui.com/material-ui/react-typography/
+    :References:
+
+    - https://mui.com/material-ui/react-typography/
     """
 
     variant = param.String(default=None, doc="The typography variant, e.g. h1, h2, body1.")

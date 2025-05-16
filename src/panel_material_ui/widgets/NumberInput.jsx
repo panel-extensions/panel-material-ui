@@ -3,9 +3,7 @@ import InputAdornment from "@mui/material/InputAdornment"
 import IconButton from "@mui/material/IconButton"
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
-
-const int_regex = /^[-+]?\d*$/
-const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
+import {int_regex, float_regex} from "./utils"
 
 export function render({model}) {
   const [color] = model.useState("color")
@@ -88,7 +86,7 @@ export function render({model}) {
       fullWidth
       label={label}
       onBlur={() => setFocused(false)}
-      onChange={() => handleChange()}
+      onChange={handleChange}
       onFocus={() => setFocused(true)}
       onKeyDown={handleKeyDown}
       placeholder={placeholder}
