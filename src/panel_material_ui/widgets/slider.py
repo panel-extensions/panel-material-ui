@@ -17,7 +17,7 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
 
     bar_color = param.Color(default=None, allow_None=True, doc="Color of the bar")
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     direction = param.Selector(default='ltr', objects=['ltr', 'rtl'], doc="""
         Whether the slider should go from left-to-right ('ltr') or
