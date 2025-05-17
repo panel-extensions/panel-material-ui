@@ -1,28 +1,23 @@
 from __future__ import annotations
 
 import datetime as dt
-import uuid
 
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
-from panel.io.datamodel import _DATA_MODELS, construct_data_model
 from panel.util import datetime_as_utctimestamp, edit_readonly, value_as_date, value_as_datetime
-from panel.widgets import WidgetBase
-from panel.widgets.select import SelectBase
-from panel.widgets.slider import DiscreteSlider as _PnDiscreteSlider
-from panel.widgets.slider import _EditableContinuousSlider, _SliderBase
+from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
+from panel.widgets.slider import _SliderBase
 from param.parameterized import resolve_value
 
 from ..base import COLORS
 from .base import MaterialWidget
-from .input import FloatInput, IntInput
 
 
 class _ContinuousSlider(MaterialWidget, _SliderBase):
 
     bar_color = param.Color(default=None, allow_None=True, doc="Color of the bar")
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     direction = param.Selector(default='ltr', objects=['ltr', 'rtl'], doc="""
         Whether the slider should go from left-to-right ('ltr') or
@@ -43,6 +38,9 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
     size = param.Selector(objects=["small", "medium", "large"], default="medium")
 
     step = param.Number(default=1)
+
+    tooltips = param.Selector(objects=[True, False, "auto"], default="auto", doc="""
+        Whether the slider handle should display tooltips (if auto will render on hover).""")
 
     track = param.Selector(objects=["normal", "inverted", False], default="normal")
 
@@ -426,17 +424,7 @@ class DatetimeRangeSlider(DateRangeSlider):
     _constants = {"datetime": True}
 
 
-class _LabelHolder(param.Parameterized):
-    """
-    Allows syncing DiscreteSlider.labels with Slider.value_label.
-    """
-
-    labels = param.List()
-
-_DATA_MODELS[_LabelHolder] = construct_data_model(_LabelHolder, f'LabelHolder{uuid.uuid4().hex}')
-
-
-class DiscreteSlider(_PnDiscreteSlider):
+class DiscreteSlider(IntSlider, _PnSingleSelectBase):
     """
     The DiscreteSlider widget allows selecting a discrete value using a slider.
 
@@ -447,26 +435,8 @@ class DiscreteSlider(_PnDiscreteSlider):
     - https://mui.com/material-ui/react-slider/
     """
 
-    bar_color = param.Color(default=None, doc="Color of the bar")
-
-    color = param.Selector(objects=COLORS, default="default")
-
-    label = param.String(default="")
-
-    marks = param.ClassSelector(class_=(bool, list), default=False, doc="""
-        Marks indicate predetermined values to which the user can move the slider.
-        If True the `options` are shown as marks. If a list, it should contain dicts with 'value'
-        and an optional 'label' keys.""")
-
     options = param.ClassSelector(default=[], class_=(dict, list), doc="""
         A list or dictionary of valid options.""")
-
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
-
-    tooltips = param.Boolean(default=True, doc="""
-        Whether to show tooltips for the slider.""")
-
-    track = param.Selector(objects=["inverted", "normal", False], default="normal")
 
     value = param.Parameter(doc="""
         The selected value of the slider. Updated when the handle is
@@ -475,71 +445,30 @@ class DiscreteSlider(_PnDiscreteSlider):
     value_throttled = param.Parameter(constant=True, doc="""
         The value of the slider. Updated when the handle is released.""")
 
-    width = param.Integer(default=300, bounds=(0, None), allow_None=True)
+    start = param.Integer(default=0, readonly=True)
+    end = param.Integer(default=100, readonly=True)
+    step = param.Integer(default=1, readonly=True)
 
-    _slider_style_params = [
-        "bar_color", "direction", "disabled", "orientation", "color", "track",
-        "size", "label", "marks", "show_value"
-    ]
+    _allows_values = False
+    _constants = {"discrete": True}
 
-    def __init__(self, **params):
-        if 'label' not in params and 'name' in params:
-            params['label'] = params['name']
-        self._labels = _LabelHolder()
-        super().__init__(**params)
-        self._init_slider()
+    @param.depends("options", watch=True)
+    def _update_bounds(self):
+        self.param.update(start=0, end=len(self.options)-1)
 
-    def _init_slider(self):
-        values, labels = self.values, self.labels
-        label = None
-        if not self.options and self.value is None:
-            value = 0
-        elif self.value not in values:
-            value = 0
-            self.value = values[0]
-            label = labels[0]
-        else:
-            value = values.index(self.value)
-            label = labels[value]
-        self._labels.labels = labels
-        marks = []
-        if self.marks is True:
-            marks = [{"value": i, "label": mark} for i, mark in enumerate(labels)]
-        elif self.marks:
-            marks = self.marks
-        self._slider = IntSlider(
-            start=0, end=len(self.options)-1, value=value,
-            _supports_embed=False, value_label=label, marks=marks,
-            **{p: getattr(self, p) for p in self._slider_style_params if p != 'marks'}
-        )
-        self._update_style()
-        self._jslink = self._slider.jscallback(args={'labels': self._labels}, value="cb_obj.value_label = labels.labels[cb_obj.value]")
-        self._slider.param.watch(self._sync_value, 'value')
-        self._slider.param.watch(self._sync_value, 'value_throttled')
-        self.param.watch(self._update_slider_params, self._slider_style_params)
-        self._composite[:] = [self._slider]
+    def _process_param_change(self, msg):
+        msg = super()._process_param_change(msg)
+        if 'options' in msg:
+            msg['options'] = self.labels
+        if 'value' in msg:
+            msg['value'] = self.labels.index(msg['value'])
+        return msg
 
-    def _update_options(self, *events):
-        return
-
-    def _update_slider_params(self, *events):
-        style = {e.name: e.new for e in events}
-        if "marks" in style:
-            marks = style["marks"]
-            if marks is True:
-                marks = [{"value": i, "label": mark} for i, mark in enumerate(self.labels)]
-            elif not marks:
-                marks = []
-        self._slider.param.update(**style)
-
-    @param.depends('options', watch=True)
-    def _update_labels(self):
-        self._slider.end = len(self.labels)-1
-        self._labels.labels = self.labels
-
-    @property
-    def labels(self):
-        return SelectBase.labels.__get__(self)
+    def _process_property_change(self, msg):
+        if 'value' in msg:
+            msg['value'] = self.values[msg['value']]
+        msg = super()._process_property_change(msg)
+        return msg
 
 
 class Rating(MaterialWidget):
@@ -575,48 +504,10 @@ class Rating(MaterialWidget):
         return super()._process_property_change(msg)
 
 
-class _EditableContinuousSliderBase(_EditableContinuousSlider):
+class _EditableContinuousSliderBase(_ContinuousSlider):
 
-    bar_color = param.Color(default=None, doc="Color of the bar")
-
-    color = param.Selector(objects=COLORS, default="default")
-
-    track = param.Selector(objects=["normal", "inverted", False], default="normal")
-
-    label = param.String(default="", doc="Label of the slider")
-
-    def __init__(self, **params):
-        super().__init__(**params)
-        self._slider.param.update(
-            color=self.param.color, track=self.param.track, bar_color=self.param.bar_color
-        )
-        self._value_edit.param.update(
-            size="small",
-            variant="filled",
-            sizing_mode="stretch_width",
-            stylesheets=[
-                ".MuiFilledInput-input { padding-top: 4px !important;}"
-                ".MuiInputAdornment-positionStart {margin-top: 0 !important;}"
-            ]
-        )
-        self._slider.jslink(self._value_edit, value='value')
-        for p, value in params.items():
-            if p not in ('color', 'track', 'bar_color'):
-                continue
-            if isinstance(value, param.Parameter):
-                value = value.owner
-            if isinstance(value, WidgetBase):
-                value.jslink(self._slider, value=p)
-
-    @param.depends('label', watch=True)
-    def _update_name(self):
-        if self.label:
-            label = f'{self.label}:'
-            margin = (0, 10, 0, 0)
-        else:
-            label = ''
-            margin = (0, 0, 0, 0)
-        self._label.param.update(margin=margin, value=label)
+    _constants = {"editable": True}
+    _esm_base = "Slider.jsx"
 
 
 class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
@@ -643,9 +534,6 @@ class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
     fixed_end = param.Number(default=None, doc="""
         A fixed upper bound for the slider and input.""")
 
-    _slider_widget = FloatSlider
-    _input_widget = FloatInput
-
 
 class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
     """
@@ -671,9 +559,6 @@ class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
 
     fixed_end = param.Integer(default=None, doc="""
        A fixed upper bound for the slider and input.""")
-
-    _slider_widget = IntSlider
-    _input_widget = IntInput
 
 
 __all__ = [

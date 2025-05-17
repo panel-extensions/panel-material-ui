@@ -49,10 +49,11 @@ export function render({model}) {
             sx={{
               backgroundColor: active.includes(index) ? active_header_background || header_background : header_background,
               color: active.includes(index) ? active_header_color || header_color : header_color,
+              ...sx
             }}
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />} onClick={handle_expand(index)}>
-              <Typography variant="h6">{names[index]}</Typography>
+              <Typography className="title" variant="h6" sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
             </AccordionSummary>
             <AccordionDetails>{obj}</AccordionDetails>
           </Accordion>

@@ -75,6 +75,46 @@ class Row(MaterialListLike):
     _constants = {"direction": "row"}
 
 
+class FlexBox(MaterialListLike):
+    """
+    The `FlexBox` layout arranges its contents in a flex container.
+    """
+
+    align_content = param.Selector(default='flex-start', objects=[
+        'normal', 'flex-start', 'flex-end', 'center', 'space-between',
+        'space-around', 'space-evenly', 'stretch', 'start', 'end',
+        'baseline', 'first baseline', 'last baseline'], doc="""
+        Defines how a flex container's lines align when there is extra
+        space in the cross-axis.""")
+
+    align_items = param.Selector(default='flex-start', objects=[
+        'stretch', 'flex-start', 'flex-end', 'center', 'baseline',
+        'first baseline', 'last baseline', 'start', 'end',
+        'self-start', 'self-end'], doc="""
+        Defines the default behavior for how flex items are laid
+        out along the cross axis on the current line.""")
+
+    flex_direction = param.Selector(default='row', objects=[
+        'row', 'row-reverse', 'column', 'column-reverse'], doc="""
+        This establishes the main-axis, thus defining the direction
+        flex items are placed in the flex container.""")
+
+    flex_wrap = param.Selector(default='wrap', objects=[
+        'nowrap', 'wrap', 'wrap-reverse'], doc="""
+        Whether and how to wrap items in the flex container.""")
+
+    gap = param.String(default='', doc="""
+        Defines the spacing between flex items, supporting various units (px, em, rem, %, vw/vh).""")
+
+    justify_content = param.Selector(default='flex-start', objects=[
+        'flex-start', 'flex-end', 'center', 'space-between', 'space-around',
+        'space-evenly', 'start', 'end', 'left', 'right'], doc="""
+        Defines the alignment along the main axis.""")
+
+    _esm_base = "Box.jsx"
+    _constants = {"direction": "flex"}
+
+
 class PaperMixin(param.Parameterized):
     """
     Baseclass adding Paper parameters to a layout.
@@ -318,7 +358,7 @@ class Tabs(MaterialNamedListLike):
     centered = param.Boolean(default=False, doc="""
         Whether the tabs should be centered.""")
 
-    color = param.Selector(default="default", objects=["default", "primary", "secondary"])
+    color = param.Selector(default="primary", objects=["default", "primary", "secondary"])
 
     disabled = param.List(default=[], item_type=int, doc="""
         List of indexes of disabled tabs.""")
@@ -502,6 +542,9 @@ class Dialog(MaterialListLike):
     >>> pn.Column(button, dialog).servable()
     """
 
+    close_on_click = param.Boolean(default=False, doc="""
+        Close when clicking outside the Dialog area.""")
+
     full_screen = param.Boolean(default=False, doc="""
         Whether the dialog should be full screen.""")
 
@@ -548,14 +591,10 @@ class Drawer(MaterialListLike):
 
     _esm_base = "Drawer.jsx"
 
-    def __init__(self, *objects, **params):
-        params.update(width=0, height=0, sizing_mode="fixed")
-        super().__init__(*objects, **params)
-
-    def _process_param_change(self, params):
-        if self.variant == 'temporary':
-            params.update(width=0, height=0, sizing_mode="fixed")
-        return super()._process_param_change(params)
+    @param.depends("variant", watch=True, on_init=True)
+    def _force_zero_dimensions(self):
+        if self.variant == "temporary":
+            self.param.update(width=0, height=0, sizing_mode="fixed")
 
     def create_toggle(
         self,
@@ -593,6 +632,7 @@ __all__ = [
     "Dialog",
     "Divider",
     "Drawer",
+    "FlexBox",
     "Grid",
     "Paper",
     "Row",

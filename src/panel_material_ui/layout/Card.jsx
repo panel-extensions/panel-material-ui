@@ -49,13 +49,13 @@ export function render({model, view}) {
   const header = model.get_child("header")
   const objects = model.get_child("objects")
 
-  model.on("after_layout", () => {
-    for (const child_view of view.layoutable_views) {
-      if (child_view.el) {
-        child_view.el.style.minHeight = "auto"
-      }
-    }
-  })
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      objects.map((object, index) => {
+        apply_flex(view.get_child_view(model.objects[index]), "column")
+      })
+    })
+  }, [])
 
   return (
     <Card
@@ -79,10 +79,11 @@ export function render({model, view}) {
             </ExpandMore>
           }
           classes={header_css_classes}
-          title={model.header ? header : <Typography classes={title_css_classes} variant="h6">{title}</Typography>}
+          title={model.header ? header : <Typography classes={title_css_classes} variant="h6" dangerouslySetInnerHTML={{__html: title}} sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} />}
           sx={{
             backgroundColor: header_background,
             color: header_color,
+            p: "12px 16px"
           }}
         />
       )}
@@ -105,8 +106,9 @@ export function render({model, view}) {
             width: "100%",
             display: "flex",
             flexDirection: "column",
+            p: "0px 16px 12px 16px",
             "&:last-child": {
-              pb: "16px",
+              pb: "12px",
             },
           }}
         >

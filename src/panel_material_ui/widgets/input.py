@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 class MaterialInputWidget(MaterialWidget):
 
-    color = param.Selector(objects=COLORS, default="default", doc="""
+    color = param.Selector(objects=COLORS, default="primary", doc="""
         The color variant of the input.""")
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="""
@@ -762,7 +762,7 @@ class TimePicker(_TimeCommon):
     ... )
     """
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     value = param.ClassSelector(default=None, class_=(dt_time, str), doc="""
         The current value""")
@@ -862,7 +862,7 @@ class Checkbox(MaterialWidget):
     >>> Checkbox(label='Works with the tools you know and love', value=True)
     """
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
@@ -898,7 +898,7 @@ class Switch(MaterialWidget):
     >>> Switch(label='Works with the tools you know and love', value=True)
     """
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
@@ -933,7 +933,7 @@ class ColorPicker(MaterialWidget):
 
     alpha = param.Boolean(default=False, doc="Whether to allow alpha transparency.")
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex")
 

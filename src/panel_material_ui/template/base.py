@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import io
 import os
 import pathlib
@@ -14,7 +15,7 @@ from panel.util import edit_readonly
 from panel.viewable import Child, Children
 
 from .._utils import _read_icon
-from ..base import MaterialComponent, ThemedTransform
+from ..base import BASE_TEMPLATE, MaterialComponent, ThemedTransform, _env
 from ..widgets.base import MaterialWidget
 
 if TYPE_CHECKING:
@@ -23,6 +24,12 @@ if TYPE_CHECKING:
     from panel.io.resources import ResourcesType
 
 SIDEBAR_VARIANTS = ["persistent", "temporary", "permanent", "auto"]
+
+@functools.cache
+def parse_template(tmpl, *args, **kwargs):
+    if os.path.isfile(tmpl):
+        tmpl = pathlib.Path(tmpl).read_text(encoding='utf-8')
+    return _env.from_string(tmpl, *args, **kwargs)
 
 
 class Meta(param.Parameterized):
@@ -81,7 +88,9 @@ class Page(MaterialComponent, ResourceComponent):
 
     meta = param.ClassSelector(default=Meta(), class_=Meta, doc="Meta tags and other HTML head elements.")
 
-    logo = param.ClassSelector(default=None, class_=(str, pathlib.Path), doc="The logo of the page.")
+    logo = param.ClassSelector(default=None, class_=(str, pathlib.Path, dict), doc="""
+        Logo to render in the header. Can be a string, a pathlib.Path, or a dictionary with
+        breakpoints as keys, e.g. {'sm': 'logo_mobile.png', 'md': 'logo.png'}.""")
 
     sidebar = Children(doc="Items rendered in the sidebar.")
 
@@ -93,12 +102,19 @@ class Page(MaterialComponent, ResourceComponent):
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
 
+    site_url = param.String(default="/", doc="""
+        URL of the site and logo. Default is '/'.""")
+
+    template = param.ClassSelector(default=None, class_=(str, pathlib.Path, Template), doc="""
+        Overrides the default jinja2 template. Template can be provided as a string,
+        Path or jinja2.Template instance.""")
+
     theme_toggle = param.Boolean(default=True, doc="Whether to show a theme toggle button.")
 
     title = param.String(doc="Title of the application.")
 
     _esm_base = "Page.jsx"
-    _rename = {"config": None, "meta": None, "favicon": None, "apple_touch_icon": None}
+    _rename = {"config": None, "meta": None, "favicon": None, "apple_touch_icon": None, "template": None}
     _source_transforms = {
         "header": None,
         "contextbar": None,
@@ -120,6 +136,15 @@ class Page(MaterialComponent, ResourceComponent):
         self.config.param.update(**resources)
         with edit_readonly(self):
             self.busy = state.param.busy
+
+    @param.depends('template', watch=True, on_init=True)
+    def _update_template(self):
+        if self.template is None:
+            self._template = BASE_TEMPLATE
+        elif isinstance(self.template, (str, pathlib.Path)):
+            self._template = parse_template(self.template)
+        else:
+            self._template = self.template
 
     @param.depends('dark_theme', watch=True)
     def _update_config(self):
@@ -145,7 +170,11 @@ class Page(MaterialComponent, ResourceComponent):
     def _process_param_change(self, params):
         params = super()._process_param_change(params)
         if logo := params.get('logo'):
-            params['logo'] = _read_icon(logo)
+            if isinstance(logo, dict):
+                logo = {bp: _read_icon(lg) for bp, lg in logo.items()}
+            else:
+                logo = _read_icon(logo)
+            params['logo'] = logo
         return params
 
     def _populate_template_variables(self, template_variables):
@@ -155,6 +184,7 @@ class Page(MaterialComponent, ResourceComponent):
         if apple_touch_icon := self.meta.apple_touch_icon:
             template_variables['apple_touch_icon'] = _read_icon(apple_touch_icon)
         template_variables['resources'] = self.resolve_resources()
+        template_variables['is_page'] = True
 
     def resolve_resources(
         self,
@@ -187,6 +217,8 @@ class Page(MaterialComponent, ResourceComponent):
             template_variables = dict(template_variables)
         else:
             template_variables = {}
+        if template is None:
+            template = self._template
         self._populate_template_variables(template_variables)
         super().save(
             filename,
@@ -204,6 +236,7 @@ class Page(MaterialComponent, ResourceComponent):
         title = title or self.title or self.meta.title or 'Panel Application'
         doc = super().server_doc(doc, title, location)
         self._populate_template_variables(doc.template_variables)
+        doc.template = self._template
         return doc
 
 

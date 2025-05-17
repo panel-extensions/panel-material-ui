@@ -50,6 +50,9 @@ Row(
 ).preview()
 ```
 
+
+Learn more about the [`sx` parameter in the Mui docs](https://mui.com/system/getting-started/the-sx-prop/).
+
 ### Overriding Nested Component Styles
 
 Sometimes you need to target a nested part of a component—for instance, the *thumb* of a slider or the label of a checkbox. Mui-for-Panel components use the same Material UI class names under the hood, so you can target those nested slots by using the relevant selectors in your `sx` parameter.
