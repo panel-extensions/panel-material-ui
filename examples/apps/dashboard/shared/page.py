@@ -43,18 +43,12 @@ def create_github_star_count():
     )
 
 def create_context(settings: PageSettings):
-    buttons = [pmu.widgets.Button(name=name, variant="outlined", color="dark") for name in settings.param.sidebar_background_color.objects]
-    def update_buttons(buttons=buttons):
-        for but in buttons:
-            but.variant = "contained" if but.name==settings.sidebar_background_color else "outlined"
-    update_buttons()
-
-    def click(event, buttons=buttons):
+    def click(event):
         button = event.obj
-        settings.sidebar_background_color=button.name
-        update_buttons()
-    [button.on_click(click) for button in buttons]
+        settings.sidebar_button_color=button.name
 
+    colors = list(settings.param.sidebar_button_color.objects)[1:7]
+    buttons = [pmu.IconButton(color=color, name=color, icon='circle', description='Select color', margin=0, on_click=click) for color in colors]
 
     theme_toggle = pmu.ThemeToggle(value=settings.dark_theme, variant="switch")
     theme_toggle.rx.watch(lambda v: settings.param.update(dark_theme=v))
@@ -63,11 +57,11 @@ def create_context(settings: PageSettings):
     return pmu.Drawer(
         pn.Column(
             "## Material UI Configurator",
-            pmu.widgets.RadioBoxGroup.from_param(settings.param.sidebar_button_color),
+            pn.Row(*buttons, align="center"),
             """### Sidenav Type
 
 Choose between different sidenav types.""",
-            pn.Row(*buttons, align="center"),
+            pmu.widgets.RadioButtonGroup.from_param(settings.param.sidebar_background_color, align="center"),
             pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
             theme_toggle,
             pmu.layout.Divider(sizing_mode="stretch_width", margin=5),
