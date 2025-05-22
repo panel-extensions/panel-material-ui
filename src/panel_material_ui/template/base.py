@@ -270,7 +270,7 @@ class ThemeToggle(MaterialWidget):
             self.theme = config.theme = 'dark' if self.value else 'default'
 
 
-class BreakpointSwitcher(MaterialWidget):
+class BreakpointSwitcher(MaterialComponent):
     """
     The `BreakpointSwitcher` component allows switching between two component implementations
     based on the declared breakpoint or media_query.
