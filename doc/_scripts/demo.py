@@ -143,7 +143,6 @@ pmui.Paper(
         )),
         color=color, sizing_mode='stretch_both',
     ),
-    margin=5,
     sizing_mode="stretch_both",
     styles={'overflow': 'hidden'}
 ).save(
