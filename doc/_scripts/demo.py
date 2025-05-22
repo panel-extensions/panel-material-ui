@@ -5,6 +5,8 @@ import hvplot.pandas
 import panel as pn
 import panel_material_ui as pmui
 
+pn.extension(inline=False)
+
 df = pd.read_csv('https://datasets.holoviz.org/penguins/v1/penguins.csv')
 
 WIDTH = 260
