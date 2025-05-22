@@ -177,7 +177,7 @@ export function render({model, view}) {
     </Drawer>
   ) : null
 
-  const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both"))
+  const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && (model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both")))
 
   return (
     <Box className={`mui-${dark_theme ? "dark" : "light"}`} sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
