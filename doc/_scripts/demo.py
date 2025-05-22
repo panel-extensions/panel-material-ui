@@ -34,12 +34,12 @@ title = pmui.BreakpointSwitcher(
     small=pmui.Column(
         pmui.Typography('pmui', variant='h4', sx=NO_PAD, margin=0),
         pmui.Typography('Components', variant='h6', sx=dict(NO_PAD, color='gray'), margin=0),
-        width=145
+        width=145, margin=(0, 10)
     ),
     large=pmui.Column(
         pmui.Typography('panel-material-ui', variant='h4', sx=NO_PAD, margin=0),
         pmui.Typography('Components', variant='h5', margin=0, sx=dict(NO_PAD, color='gray')),
-        width=None
+        width=None, margin=(0, 10)
     ), width=None
 )
 
