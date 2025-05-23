@@ -3,7 +3,7 @@ import {styled} from "@mui/material/styles"
 import CircularProgress from "@mui/material/CircularProgress"
 import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import ErrorIcon from "@mui/icons-material/Error"
-import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import TaskAltIcon from "@mui/icons-material/TaskAlt"
 import {useTheme} from "@mui/material/styles"
 
 const VisuallyHiddenInput = styled("input")({
@@ -92,7 +92,7 @@ export function render({model}) {
       case "uploading":
         return <CircularProgress color={theme.palette[color].contrastText} size={15} />;
       case "completed":
-        return <CheckCircleIcon color="success" />;
+        return <TaskAltIcon />;
       default:
         return null;
     }
