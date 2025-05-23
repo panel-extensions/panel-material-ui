@@ -80,6 +80,7 @@ export function render({model}) {
         setStatus("idle")
       }, 2000)
     } else if (msg.status === "error") {
+      console.error(msg.error)
       setStatus("error")
     }
   })
