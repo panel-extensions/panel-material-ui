@@ -3,6 +3,7 @@ import {styled} from "@mui/material/styles"
 import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import ErrorIcon from "@mui/icons-material/Error"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import CircularProgress from '@mui/material/CircularProgress';
 import {useTheme} from "@mui/material/styles"
 
 const VisuallyHiddenInput = styled("input")({
@@ -79,6 +80,7 @@ export function render({model}) {
         setStatus("idle")
       }, 2000)
     } else if (msg.status === "error") {
+      console.error(msg.error)
       setStatus("error")
     }
   })

@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from datetime import date, datetime, timezone
 from datetime import time as dt_time
+from logging import getLogger
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -21,6 +22,7 @@ from .button import _ButtonLike
 if TYPE_CHECKING:
     from bokeh.document import Document
 
+logger = getLogger(__name__)
 
 class MaterialInputWidget(MaterialWidget):
 
@@ -215,6 +217,7 @@ class FileInput(_ButtonLike, _PnFileInput):
                 self._flush_buffer()
                 self._send_msg({"status": "finished"})
             except Exception as e:
+                logger.exception(str(e))
                 self._send_msg({"status": "error", "error": str(e)})
         else:
             raise ValueError(f"Unknown status: {status}")
