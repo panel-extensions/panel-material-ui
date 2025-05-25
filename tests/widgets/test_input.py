@@ -1,11 +1,14 @@
-import numpy as np
+import base64
 import pytest
 
 from pathlib import Path
 from panel import config
-from datetime import date, datetime, time as dt_time
+from datetime import date
 
 from panel_material_ui.widgets import FileInput, IntInput, FloatInput, DatePicker
+from panel_material_ui.layout import Column
+from panel.pane import Markdown
+from panel.widgets import Tabulator, CodeEditor
 
 
 
@@ -116,3 +119,106 @@ def test_date_picker_options():
     )
     assert datetime_picker.value == date(2018, 9, 2)
     assert datetime_picker.enabled_dates == options
+
+
+def test_file_input_view():
+    """Test the view method of FileInput widget."""
+    file_input = FileInput(accept='.txt,.csv')
+
+    # When no files are uploaded, the view should be invisible
+    view = file_input.view()
+    assert not view().visible
+
+
+    # When custom layout is provided, it should be used
+    view_with_layout = file_input.view(layout=Column)
+    assert isinstance(view_with_layout(), Column)
+
+    # Test view with uploaded file
+    csv_content = "name,value\ntest1,10\ntest2,20\n"
+    csv_bytes = csv_content.encode('utf-8')
+    csv_b64 = base64.b64encode(csv_bytes).decode('utf-8')
+
+    file_input._process_events({
+        'mime_type': 'text/csv',
+        'value': csv_b64,
+        'filename': 'test.csv'
+    })
+
+    view_with_file = file_input.view()
+    result = view_with_file()
+    assert result.name == 'test.csv'
+    assert isinstance(result, Tabulator)
+    assert result.value.to_csv(index=False)==csv_content
+
+    # Test view_if_none parameter
+    fallback_component = Markdown("No files uploaded")
+    view_with_fallback = file_input.view(view_if_none=fallback_component)
+    file_input.clear()
+    fallback_result = view_with_fallback()
+    assert fallback_result is fallback_component
+
+
+def test_file_input_view_multiple():
+    """Test the view method of FileInput with multiple=True."""
+    file_input = FileInput(multiple=True, accept='.txt,.csv')
+    file_view = file_input.view(layout=Column)
+
+    # Test view with uploaded files
+    csv_content = "name,value\ntest1,10\ntest2,20\n"
+    csv_bytes = csv_content.encode('utf-8')
+    csv_b64 = base64.b64encode(csv_bytes).decode('utf-8')
+
+    file_input._process_events({
+        'mime_type': ['text/csv']*2,
+        'value': [csv_b64]*2,
+        'filename': ['test0.csv', 'test1.csv']
+    })
+
+    result = file_view()
+    assert isinstance(result, Column)
+
+    result_0 = result[0]
+    assert result_0.name == 'test0.csv'
+    assert isinstance(result_0, Tabulator)
+    assert result_0.value.to_csv(index=False)==csv_content
+
+    result_1 = result[1]
+    assert result_1.name == 'test1.csv'
+    assert isinstance(result_1, Tabulator)
+    assert result_1.value.to_csv(index=False)==csv_content
+
+
+def test_file_input_view_code_mime_types():
+    """Test FileInput view method code MIME types"""
+    # Test CSS file
+    for mime_type, config in FileInput._code_mime_types.items():
+        css_content = b"test value"
+        result = FileInput._single_view(css_content, "some.file", mime_type=mime_type)
+        assert isinstance(result, CodeEditor)
+        assert result.value == "test value"
+        assert result.language == config['language']
+        assert result.disabled
+
+
+def test_file_input_view_other_mime_types():
+    """Test FileInput view method other MIME types"""
+    # Test Microsoft Word document
+    doc_content = b"mock word document content"
+    result = FileInput._single_view(doc_content, "document.docx",
+                                   "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    assert hasattr(result, 'object')
+    assert "Microsoft Word Document" in result.object
+
+    # Test PowerPoint presentation
+    ppt_content = b"mock powerpoint content"
+    result = FileInput._single_view(ppt_content, "presentation.pptx",
+                                   "application/vnd.openxmlformats-officedocument.presentationml.presentation")
+    assert hasattr(result, 'object')
+    assert "Microsoft PowerPoint Presentation" in result.object
+
+    # Test OpenDocument Text
+    odt_content = b"mock odt content"
+    result = FileInput._single_view(odt_content, "document.odt", "application/vnd.oasis.opendocument.text")
+    assert hasattr(result, 'object')
+    assert "OpenDocument Text" in result.object

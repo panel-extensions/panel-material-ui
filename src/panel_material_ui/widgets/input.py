@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import io
+import tempfile
 from base64 import b64decode
 from collections.abc import Iterable
 from datetime import date, datetime, timezone
@@ -24,6 +26,28 @@ if TYPE_CHECKING:
     from bokeh.document import Document
 
 logger = getLogger(__name__)
+
+def _save_to_tempfile(data: bytes, filename: str) -> str:
+    """
+    Save bytes data to a temporary file and return the file path.
+
+    Parameters
+    ----------
+    data : bytes
+        The bytes data to save.
+    filename : str
+        The name of the file to save the data as.
+
+    Returns
+    -------
+    str
+        The path to the temporary file.
+    """
+    suffix = "." + filename.split('.')[-1]
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
+        temp_file.write(data)
+        return temp_file.name
+
 
 class MaterialInputWidget(MaterialWidget):
 
@@ -201,6 +225,21 @@ class FileInput(_ButtonLike, _PnFileInput):
         'filename': None,
         'value': "'data:' + source.mime_type + ';base64,' + value"
     }
+    _code_mime_types = {
+        "text/javascript": {"language": "javascript"},
+        "application/javascript": {"language": "javascript"},
+        "text/x-python": {"language": "python"},
+        "application/x-python": {"language": "python"},
+        "text/css": {"language": "css"},
+        "application/x-httpd-php": {"language": "php"},
+        "application/x-sh": {"language": "bash"},
+        "application/sql": {"language": "sql"},
+        "application/x-yaml": {"language": "yaml"},
+        "text/yaml": {"language": "yaml"},
+        "text/x-yaml": {"language": "yaml"},
+        "application/xml": {"language": "xml"},
+        "text/xml": {"language": "xml"},
+    }
 
     def __init__(self, **params):
         super().__init__(**params)
@@ -272,6 +311,199 @@ class FileInput(_ButtonLike, _PnFileInput):
         Clear the file(s) in the FileInput widget
         """
         self.param.update(value=None, filename=None, mime_type=None)
+
+    @classmethod
+    def _single_view(cls, value, filename, mime_type, **kwargs):
+        """
+        Create a Panel component to view a single uploaded file.
+
+        Parameters
+        ----------
+        value : bytes
+            The file content as bytes.
+        filename : str
+            The name of the uploaded file.
+        mime_type : str
+            The MIME type of the uploaded file.
+        **kwargs
+            Additional layout keyword arguments passed to the Panel component.
+
+        Returns
+        -------
+        Panel component
+            A Tabulator widget for CSV files, or a Markdown pane with an error message
+            for unsupported file types.
+        """
+        import panel as pn
+        kwargs["name"]=filename
+
+        # Spreadsheet files (CSV and Excel)
+        if mime_type == "text/csv":
+            import pandas as pd
+            df = pd.read_csv(io.BytesIO(value))
+            return pn.widgets.Tabulator(df, **kwargs)
+        elif mime_type in ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                          "application/vnd.ms-excel"]:
+            try:
+                import pandas as pd
+                df = pd.read_excel(io.BytesIO(value))
+                return pn.widgets.Tabulator(df, **kwargs)
+            except Exception:
+                return pn.pane.Markdown(f"Could not read Excel file '{filename}'. Ensure pandas and openpyxl are installed.", **kwargs)
+        elif mime_type == "application/vnd.oasis.opendocument.spreadsheet":
+            try:
+                import pandas as pd
+                df = pd.read_excel(io.BytesIO(value), engine='odf')
+                return pn.widgets.Tabulator(df, **kwargs)
+            except Exception:
+                return pn.pane.Markdown(f"Could not read ODS file '{filename}'. Ensure pandas and odfpy are installed.", **kwargs)
+
+        # Microsoft Office Documents
+        elif mime_type in ["application/msword",
+                          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]:
+            return pn.pane.Markdown(f"**Microsoft Word Document:** {filename}\n\nFile preview not supported.", **kwargs)
+        elif mime_type in ["application/vnd.ms-powerpoint",
+                          "application/vnd.openxmlformats-officedocument.presentationml.presentation"]:
+            return pn.pane.Markdown(f"**Microsoft PowerPoint Presentation:** {filename}\n\nFile preview not supported.", **kwargs)
+
+        # OpenDocument files
+        elif mime_type == "application/vnd.oasis.opendocument.text":
+            return pn.pane.Markdown(f"**OpenDocument Text:** {filename}\n\nFile preview not supported.", **kwargs)
+        elif mime_type == "application/vnd.oasis.opendocument.presentation":
+            return pn.pane.Markdown(f"**OpenDocument Presentation:** {filename}\n\nFile preview not supported.", **kwargs)
+
+        # Text-based files
+        elif mime_type == "text/plain":
+            try:
+                text_content = value.decode('utf-8')
+                return pn.pane.Markdown(f"```\n{text_content}\n```", **kwargs)
+            except UnicodeDecodeError:
+                return pn.pane.Markdown(f"Binary file '{filename}' cannot be displayed as text.", **kwargs)
+        elif mime_type in ["text/markdown", "text/x-markdown"]:
+            try:
+                text_content = value.decode('utf-8')
+                return pn.pane.Markdown(text_content, **kwargs)
+            except UnicodeDecodeError:
+                return pn.pane.Markdown(f"Could not decode markdown file '{filename}'.", **kwargs)
+        elif mime_type == "text/html":
+            try:
+                html_content = value.decode('utf-8')
+                return pn.pane.HTML(html_content, **kwargs)
+            except UnicodeDecodeError:
+                return pn.pane.Markdown(f"Could not decode HTML file '{filename}'.", **kwargs)
+        elif mime_type == "application/json":
+            try:
+                import json
+                json_data = json.loads(value.decode('utf-8'))
+                return pn.pane.JSON(json_data, **kwargs)
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                return pn.pane.Markdown(f"Could not parse JSON file '{filename}'.", **kwargs)
+        elif mime_type == "application/rtf":
+            return pn.pane.Markdown(f"**Rich Text Format:** {filename}\n\nRTF files require specialized viewer.", **kwargs)
+
+        # Code files
+        elif mime_type in cls._code_mime_types:
+            try:
+                code_content = value.decode('utf-8')
+                return pn.widgets.CodeEditor(value=code_content, disabled=True, **kwargs, **cls._code_mime_types[mime_type])
+            except UnicodeDecodeError:
+                return pn.pane.Markdown(f"Could not decode '{mime_type}' file '{filename}'.", **kwargs)
+
+        # Media files
+        elif mime_type.startswith("image/"):
+            return pn.pane.Image(value, **kwargs)
+        elif mime_type.startswith("audio/"):
+            temp_file = _save_to_tempfile(value, filename=filename)
+            return pn.pane.Audio(temp_file, **kwargs)
+        elif mime_type.startswith("video/"):
+            temp_file = _save_to_tempfile(value, filename=filename)
+            return pn.pane.Video(temp_file, **kwargs)
+
+        # PDF files
+        elif mime_type == "application/pdf":
+            temp_file = _save_to_tempfile(value, filename=filename)
+            return pn.pane.PDF(temp_file, **kwargs)
+
+        # Fallback for unsupported types
+        else:
+            return pn.pane.Markdown(f"Cannot display file '{filename}' of MIME type '{mime_type}'.", **kwargs)
+
+    def _list_view(self, value, filename, mime_type, view_if_none, layout, **kwargs):
+        """
+        Create a Panel layout to view multiple uploaded files or handle empty state.
+
+        Parameters
+        ----------
+        value : list or bytes or None
+            The file content(s). Can be a list of bytes for multiple files,
+            bytes for a single file, or None for no files.
+        filename : list or str or None
+            The filename(s) corresponding to the uploaded files.
+        mime_type : list or str or None
+            The MIME type(s) corresponding to the uploaded files.
+        view_if_none : Panel component, optional
+            Component to display when no files are uploaded.
+        layout : Panel layout class
+            The layout class to use for organizing multiple file views.
+        **kwargs
+            Additional layout keyword arguments passed to the layout component.
+
+        Returns
+        -------
+        Panel component
+            A layout containing file views, the view_if_none component,
+            or an invisible layout if no files and no view_if_none is provided.
+        """
+        if not value:
+            if view_if_none is not None:
+                return view_if_none
+            return layout(visible=False)
+
+        if not isinstance(value, list):
+            return self._single_view(value, filename, mime_type, **kwargs)
+
+        single_view_sizing_mode="stretch_both" if "sizing_mode" in kwargs else None
+        from panel_material_ui.layout import Tabs
+        if isinstance(layout, Tabs) and "dynamic" not in kwargs:
+            kwargs['dynamic'] = True
+        return layout(
+            *[self._single_view(v, f, m, sizing_mode=single_view_sizing_mode) for v, f, m in zip(value, filename, mime_type, strict=False)], **kwargs
+        )
+
+    def view(self, *, view_if_none=None, layout=None, **kwargs):
+        """
+        Create a bound Panel component for viewing the uploaded file(s).
+
+        This method creates a view of the currently uploaded file(s). It updates
+        when the uploaded file value changes.
+
+        Parameters
+        ----------
+        view_if_none : Panel component, optional
+            Component to display when no files are uploaded. If None,
+            an invisible layout will be shown when no files are present.
+        layout : Panel layout class, optional
+            The layout class to use for organizing multiple file views.
+            If None, defaults to panel_material_ui.Tabs.
+        **kwargs
+            Additional layout keyword arguments passed to the layout component.
+
+        Returns
+        -------
+        Panel bound function
+            A Panel bind object that reactively updates the file view
+            when the FileInput parameters change.
+
+        Examples
+        --------
+        >>> file_input = FileInput()
+        >>> file_view = file_input.view(layout=pmui.Column)
+        >>> # The view will automatically update when files are uploaded
+        """
+        if not layout:
+            from panel_material_ui.layout import Tabs
+            layout = Tabs
+        return param.bind(self._list_view, self.param.value, self.param.filename, self.param.mime_type, view_if_none, layout, **kwargs)
 
 
 class _NumericInputBase(MaterialInputWidget):
