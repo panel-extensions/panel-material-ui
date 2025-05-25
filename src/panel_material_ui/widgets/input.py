@@ -244,8 +244,11 @@ class FileInput(_ButtonLike, _PnFileInput):
             value.append(file_data["value"])
             filename.append(file_data["filename"])
             mime_type.append(file_data["mime_type"])
-        if not (self.multiple or self.directory):
-            value, filename, mime_type = value[0], filename[0], mime_type[0]
+        if value:
+            if not (self.multiple or self.directory):
+                value, filename, mime_type = value[0], filename[0], mime_type[0]
+        else:
+            value, filename, mime_type = None, None, None
         self.param.update(
             filename=filename,
             mime_type=mime_type,
@@ -263,6 +266,12 @@ class FileInput(_ButtonLike, _PnFileInput):
         filename (str or list[str]): File path or file-like object
         """
         _PnFileInput.save(self, filename)
+
+    def clear(self):
+        """
+        Clear the file(s) in the FileInput widget
+        """
+        self.param.update(value=None, filename=None, mime_type=None)
 
 
 class _NumericInputBase(MaterialInputWidget):
