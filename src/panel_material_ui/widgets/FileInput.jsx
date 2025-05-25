@@ -71,6 +71,7 @@ export function render({model}) {
 
   const [status, setStatus] = React.useState("idle")
   const [n, setN] = React.useState(0)
+  const [errorMessage, setErrorMessage] = React.useState("")
   const theme = useTheme()
 
   model.on("msg:custom", (msg) => {
@@ -80,14 +81,18 @@ export function render({model}) {
         setStatus("idle")
       }, 2000)
     } else if (msg.status === "error") {
-      console.error(msg.error)
+      setErrorMessage(msg.error)
       setStatus("error")
     }
   })
   const icon = (() => {
     switch (status) {
       case "error":
-        return <ErrorIcon color="error" />;
+        return (
+          <Tooltip title={errorMessage} arrow>
+            <ErrorIcon color="error" />
+          </Tooltip>
+        );
       case "idle":
         return <CloudUploadIcon />;
       case "uploading":
@@ -132,7 +137,7 @@ export function render({model}) {
             model.send_msg({status: "initializing"})
             for (let i = 0; i < values.length; i++) {
               model.send_msg({
-                data: values[i],
+                value: values[i],
                 mime_type: mime_types[i],
                 filename: filenames[i],
                 part: i,

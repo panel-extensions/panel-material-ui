@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from base64 import b64decode
 from collections.abc import Iterable
 from datetime import date, datetime, timezone
 from datetime import time as dt_time
@@ -205,9 +206,24 @@ class FileInput(_ButtonLike, _PnFileInput):
         super().__init__(**params)
         self._buffer = []
 
+    @staticmethod
+    def _b64decode(msg: dict) -> dict:
+        """Decode base64 encoded data in the message."""
+        if 'value' in msg:
+            if isinstance(msg['value'], str):
+                msg['value'] = b64decode(msg['value']) if msg['value'] else None
+            else:
+                msg['value'] = [b64decode(content) for content in msg['value']]
+        if 'filename' in msg and len(msg['filename']) == 0:
+            msg['filename'] = None
+        if 'mime_type' in msg and len(msg['mime_type']) == 0:
+            msg['mime_type'] = None
+        return msg
+
     def _handle_msg(self, msg: Any) -> None:
         status = msg["status"]
         if status == "in_progress":
+            msg = self._b64decode(msg)
             self._buffer.append(msg)
             return
         elif status == "initializing":
@@ -225,7 +241,7 @@ class FileInput(_ButtonLike, _PnFileInput):
     def _flush_buffer(self):
         value, mime_type, filename = [], [], []
         for file_data in self._buffer:
-            value.append(file_data["data"])
+            value.append(file_data["value"])
             filename.append(file_data["filename"])
             mime_type.append(file_data["mime_type"])
         if not (self.multiple or self.directory):
