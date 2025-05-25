@@ -348,6 +348,8 @@ class FileInput(_ButtonLike, _PnFileInput):
                 return pn.widgets.Tabulator(df, **kwargs)
             except ImportError:
                 return pn.pane.Markdown(f"Could not read csv file '{filename}'. Ensure pandas is installed.", **kwargs)
+            except Exception as ex:
+                return pn.pane.Markdown(f"Could not read csv file '{filename}'. {ex}.", **kwargs)
         elif mime_type in ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                           "application/vnd.ms-excel"]:
             try:

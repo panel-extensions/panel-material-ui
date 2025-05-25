@@ -3,7 +3,7 @@ import {styled} from "@mui/material/styles"
 import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import ErrorIcon from "@mui/icons-material/Error"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import CircularProgress from '@mui/material/CircularProgress';
+import CircularProgress from "@mui/material/CircularProgress";
 import {useTheme} from "@mui/material/styles"
 
 const VisuallyHiddenInput = styled("input")({
@@ -37,19 +37,19 @@ function isFileAccepted(file, accept) {
   if (!accept || accept.length === 0) {
     return true
   }
-  const acceptedTypes = accept.split(',').map(type => type.trim())
+  const acceptedTypes = accept.split(",").map(type => type.trim())
   const fileName = file.name
   const fileType = file.type
 
   return acceptedTypes.some(acceptedType => {
     // Handle file extensions (e.g., ".jpg", ".png")
-    if (acceptedType.startsWith('.')) {
+    if (acceptedType.startsWith(".")) {
       return fileName.toLowerCase().endsWith(acceptedType.toLowerCase())
     }
 
     // Handle MIME types (e.g., "image/*", "image/jpeg")
-    if (acceptedType.includes('/')) {
-      if (acceptedType.endsWith('/*')) {
+    if (acceptedType.includes("/")) {
+      if (acceptedType.endsWith("/*")) {
         // Handle wildcard MIME types (e.g., "image/*")
         const baseType = acceptedType.slice(0, -2)
         return fileType.startsWith(baseType)
@@ -136,7 +136,7 @@ export function render({model}) {
 
     // During dragenter/dragover, we can't reliably check file types
     // So we'll show the drag state and validate on drop
-    if (e.dataTransfer.types && e.dataTransfer.types.includes('Files')) {
+    if (e.dataTransfer.types && e.dataTransfer.types.includes("Files")) {
       setIsDragOver(true)
     }
   }
@@ -152,10 +152,10 @@ export function render({model}) {
     e.stopPropagation()
 
     // Set drag effect to indicate files can be dropped
-    if (e.dataTransfer.types && e.dataTransfer.types.includes('Files')) {
-      e.dataTransfer.dropEffect = 'copy'
+    if (e.dataTransfer.types && e.dataTransfer.types.includes("Files")) {
+      e.dataTransfer.dropEffect = "copy"
     } else {
-      e.dataTransfer.dropEffect = 'none'
+      e.dataTransfer.dropEffect = "none"
     }
   }
 
@@ -164,7 +164,7 @@ export function render({model}) {
     e.stopPropagation()
     setIsDragOver(false)
 
-    if (disabled) return
+    if (disabled) { return }
 
     const files = e.dataTransfer.files
     if (files && files.length > 0) {
@@ -237,9 +237,9 @@ export function render({model}) {
       sx={{
         ...sx,
         ...(isDragOver && {
-          borderStyle: 'dashed',
-          transform: 'scale(1.02)',
-          transition: 'all 0.2s ease-in-out'
+          borderStyle: "dashed",
+          transform: "scale(1.02)",
+          transition: "all 0.2s ease-in-out"
         })
       }}
       tabIndex={-1}
