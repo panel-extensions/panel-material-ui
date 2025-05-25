@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import json
 import tempfile
 from base64 import b64decode
 from collections.abc import Iterable
@@ -239,6 +240,7 @@ class FileInput(_ButtonLike, _PnFileInput):
         "text/x-yaml": {"language": "yaml"},
         "application/xml": {"language": "xml"},
         "text/xml": {"language": "xml"},
+        "text/html": {"language": "html"}
     }
 
     def __init__(self, **params):
@@ -339,23 +341,27 @@ class FileInput(_ButtonLike, _PnFileInput):
 
         # Spreadsheet files (CSV and Excel)
         if mime_type == "text/csv":
-            import pandas as pd
-            df = pd.read_csv(io.BytesIO(value))
-            return pn.widgets.Tabulator(df, **kwargs)
+
+            try:
+                import pandas as pd
+                df = pd.read_csv(io.BytesIO(value))
+                return pn.widgets.Tabulator(df, **kwargs)
+            except ImportError:
+                return pn.pane.Markdown(f"Could not read csv file '{filename}'. Ensure pandas is installed.", **kwargs)
         elif mime_type in ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                           "application/vnd.ms-excel"]:
             try:
                 import pandas as pd
                 df = pd.read_excel(io.BytesIO(value))
                 return pn.widgets.Tabulator(df, **kwargs)
-            except Exception:
+            except ImportError:
                 return pn.pane.Markdown(f"Could not read Excel file '{filename}'. Ensure pandas and openpyxl are installed.", **kwargs)
         elif mime_type == "application/vnd.oasis.opendocument.spreadsheet":
             try:
                 import pandas as pd
                 df = pd.read_excel(io.BytesIO(value), engine='odf')
                 return pn.widgets.Tabulator(df, **kwargs)
-            except Exception:
+            except ImportError:
                 return pn.pane.Markdown(f"Could not read ODS file '{filename}'. Ensure pandas and odfpy are installed.", **kwargs)
 
         # Microsoft Office Documents
@@ -385,15 +391,8 @@ class FileInput(_ButtonLike, _PnFileInput):
                 return pn.pane.Markdown(text_content, **kwargs)
             except UnicodeDecodeError:
                 return pn.pane.Markdown(f"Could not decode markdown file '{filename}'.", **kwargs)
-        elif mime_type == "text/html":
-            try:
-                html_content = value.decode('utf-8')
-                return pn.pane.HTML(html_content, **kwargs)
-            except UnicodeDecodeError:
-                return pn.pane.Markdown(f"Could not decode HTML file '{filename}'.", **kwargs)
         elif mime_type == "application/json":
             try:
-                import json
                 json_data = json.loads(value.decode('utf-8'))
                 return pn.pane.JSON(json_data, **kwargs)
             except (json.JSONDecodeError, UnicodeDecodeError):
@@ -462,9 +461,8 @@ class FileInput(_ButtonLike, _PnFileInput):
         if not isinstance(value, list):
             return self._single_view(value, filename, mime_type, **kwargs)
 
-        single_view_sizing_mode="stretch_both" if "sizing_mode" in kwargs else None
-        from panel_material_ui.layout import Tabs
-        if isinstance(layout, Tabs) and "dynamic" not in kwargs:
+        single_view_sizing_mode="stretch_both"
+        if hasattr(layout, "dynamic") and "dynamic" not in kwargs:
             kwargs['dynamic'] = True
         return layout(
             *[self._single_view(v, f, m, sizing_mode=single_view_sizing_mode) for v, f, m in zip(value, filename, mime_type, strict=False)], **kwargs
