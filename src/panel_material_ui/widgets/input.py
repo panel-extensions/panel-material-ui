@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import io
 import json
 import tempfile
@@ -7,10 +8,12 @@ from base64 import b64decode
 from collections.abc import Iterable
 from datetime import date, datetime, timezone
 from datetime import time as dt_time
+from functools import partial
 from logging import getLogger
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+import panel as pn
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.models.reactive_html import DOMEvent
@@ -28,7 +31,7 @@ if TYPE_CHECKING:
 
 logger = getLogger(__name__)
 
-def _save_to_tempfile(data: bytes, filename: str) -> str:
+def _save_to_tempfile(data: bytes, suffix: str) -> str:
     """
     Save bytes data to a temporary file and return the file path.
 
@@ -44,8 +47,7 @@ def _save_to_tempfile(data: bytes, filename: str) -> str:
     str
         The path to the temporary file.
     """
-    suffix = "." + filename.split('.')[-1]
-    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
+    with tempfile.NamedTemporaryFile(delete=False, suffix="." + suffix) as temp_file:
         temp_file.write(data)
         return temp_file.name
 
@@ -201,6 +203,100 @@ class TextAreaInput(_TextInputBase):
 
     _esm_base = "TextArea.jsx"
 
+class NoConverter(Exception):
+    """Exception raised when no converter is available for a MIME type."""
+
+def _csv_to_dataframe(value: bytes):
+    """
+    Reads a CSV file from bytes data using pandas.
+
+    Parameters
+    ----------
+    value : bytes
+        The bytes data of the CSV file.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The DataFrame containing the CSV data.
+    """
+    import pandas as pd
+    if not value:
+        return pd.DataFrame()
+    return pd.read_csv(io.BytesIO(value))
+
+def _to_string(value: bytes) -> str:
+    return value.decode('utf-8')
+
+def _excel_to_dataframe(value: bytes):
+    """
+    Reads an Excel file from bytes data using pandas.
+
+    Parameters
+    ----------
+    value : bytes
+        The bytes data of the Excel file.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The DataFrame containing the Excel data.
+    """
+    import pandas as pd
+    if not value:
+        return pd.DataFrame()
+    return pd.read_excel(io.BytesIO(value))
+
+def _ods_to_dataframe(value: bytes):
+    """
+    Reads an ODS spreadsheet file from bytes data using pandas.
+
+    Parameters
+    ----------
+    value : bytes
+        The bytes data of the ODS file.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The DataFrame containing the ODS data.
+    """
+    import pandas as pd
+    if not value:
+        return pd.DataFrame()
+    return pd.read_excel(io.BytesIO(value), engine='odf')
+
+def _json_to_dict(value: bytes) -> dict:
+    """
+    Converts bytes data to a dictionary by decoding JSON.
+
+    Parameters
+    ----------
+    value : bytes
+        The bytes data containing JSON.
+
+    Returns
+    -------
+    dict
+        The dictionary representation of the JSON data.
+    """
+    return json.loads(value.decode('utf-8'))
+
+def _no_conversion(value: bytes) -> bytes:
+    """
+    Returns the bytes data without any conversion.
+
+    Parameters
+    ----------
+    value : bytes
+        The bytes data to return.
+
+    Returns
+    -------
+    bytes
+        The original bytes data.
+    """
+    return value
 
 class FileInput(_ButtonLike, _PnFileInput):
     """
@@ -226,26 +322,51 @@ class FileInput(_ButtonLike, _PnFileInput):
         'filename': None,
         'value': "'data:' + source.mime_type + ';base64,' + value"
     }
-    _code_mime_types = {
-        "text/javascript": {"language": "javascript"},
-        "application/javascript": {"language": "javascript"},
-        "text/x-python": {"language": "python"},
-        "application/x-python": {"language": "python"},
-        "text/css": {"language": "css"},
-        "application/x-httpd-php": {"language": "php"},
-        "application/x-sh": {"language": "bash"},
-        "application/sql": {"language": "sql"},
-        "application/x-yaml": {"language": "yaml"},
-        "text/yaml": {"language": "yaml"},
-        "text/x-yaml": {"language": "yaml"},
-        "application/xml": {"language": "xml"},
-        "text/xml": {"language": "xml"},
-        "text/html": {"language": "html"}
+
+    _mime_types = {
+        # Text Files
+        "text/plain": {"converter": _to_string, "view": pn.pane.Markdown},
+        "text/markdown": {"converter": _to_string, "view": pn.pane.Markdown},
+        "text/x-markdown": {"converter": _to_string, "view": pn.pane.Markdown},
+        # Dataframe Files
+        "text/csv": {"converter": _csv_to_dataframe, "view": pn.widgets.Tabulator},
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {"converter": _excel_to_dataframe, "view": pn.widgets.Tabulator},
+        "application/vnd.ms-excel": {"converter": _excel_to_dataframe, "view": pn.widgets.Tabulator},
+        "application/vnd.oasis.opendocument.spreadsheet": {"converter": _ods_to_dataframe, "view": pn.widgets.Tabulator},
+        # Code Files
+        "text/javascript": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "javascript", "disabled": True}},
+        "application/javascript": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "javascript", "disabled": True}},
+        "text/x-python": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "python", "disabled": True}},
+        "application/x-python": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "python", "disabled": True}},
+        "text/css": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "css", "disabled": True}},
+        "application/x-httpd-php": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "php", "disabled": True}},
+        "application/x-sh": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "bash", "disabled": True}},
+        "application/sql": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "sql", "disabled": True}},
+        "application/x-yaml": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "yaml", "disabled": True}},
+        "text/yaml": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "yaml", "disabled": True}},
+        "text/x-yaml": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "yaml", "disabled": True}},
+        "application/xml": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "xml", "disabled": True}},
+        "text/xml": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "xml", "disabled": True}},
+        "text/html": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "html", "disabled": True}},
+        # # Media files
+        "image/svg+xml": {"converter":partial(_save_to_tempfile, suffix="svg"), "view": pn.pane.image.SVG},
+        "image/png": {"converter": _no_conversion, "view": pn.pane.PNG},
+        "image/jpeg": {"converter": _no_conversion, "view": pn.pane.JPG},
+        "image/gif": {"converter": _no_conversion, "view": pn.pane.GIF},
+        "image/webp": {"converter": _no_conversion, "view": pn.pane.image.WebP},
+        "audio/wav": {"converter": partial(_save_to_tempfile, suffix="wav"), "view": pn.pane.Audio},
+        "audio/mpeg": {"converter": partial(_save_to_tempfile, suffix="mp3"), "view": pn.pane.Audio},
+        "audio/ogg": {"converter": partial(_save_to_tempfile, suffix="ogg"), "view": pn.pane.Audio},
+        "video/mp4": {"converter": partial(_save_to_tempfile, suffix="mp4"), "view": pn.pane.Video},
+        # Other files
+        "application/pdf": {"converter": partial(_save_to_tempfile, suffix="pdf"), "view": pn.pane.PDF},
+        "application/json": {"converter": _json_to_dict, "view": pn.pane.JSON},
     }
 
     def __init__(self, **params):
         super().__init__(**params)
         self._buffer = []
+        self._object = None
 
     @staticmethod
     def _b64decode(msg: dict) -> dict:
@@ -314,8 +435,64 @@ class FileInput(_ButtonLike, _PnFileInput):
         """
         self.param.update(value=None, filename=None, mime_type=None)
 
+    @param.depends('value', 'filename', 'mime_type', watch=True)
+    def _reset_object(self):
+        self._object = None
+
     @classmethod
-    def _single_view(cls, value, filename, mime_type, **kwargs):
+    def _single_object(cls, value: bytes, filename: str, mime_type: str):
+        """
+        Create a single viewable Python object from the uploaded file.
+
+        Parameters
+        ----------
+        value : bytes
+            The file content as bytes.
+        filename : str
+            The name of the uploaded file.
+        mime_type : str
+            The MIME type of the uploaded file.
+
+        Returns
+        -------
+        Panel component
+            A viewable Python object or Panel component for the uploaded file.
+        """
+        if mime_type in cls._mime_types:
+            config = cls._mime_types[mime_type]
+            if "converter" in config:
+                to_object_func = config['converter']
+                try:
+                    return to_object_func(value)
+                except Exception as exc:
+                    breakpoint()
+                    return exc
+
+        msg = f"No specific converter available for '{filename}' of mime type '{mime_type}'."
+        return NoConverter(msg)
+
+
+    @param.depends('value', 'filename', 'mime_type')
+    def object(self):
+        """Returns the currently uploaded file(s) as a viewable Python object or list of viewable Python objects.
+
+        For example an uploaded CSV file will return a Pandas DataFrame, an uploaded MP3 file will return the path to a temporary file etc.
+        """
+        if not self._object:
+            value = self.value
+            filename = self.filename
+            mime_type = self.mime_type
+            if not value:
+                self._object = value
+            elif not isinstance(value, list):
+                self._object = self._single_object(value, filename, mime_type)
+            else:
+                self._object = [self._single_object(v, f, m) for v, f, m in zip(value, filename, mime_type, strict=False)]
+
+        return self._object
+
+    @classmethod
+    def _single_view(cls, object, filename, mime_type, **kwargs):
         """
         Create a Panel component to view a single uploaded file.
 
@@ -336,98 +513,27 @@ class FileInput(_ButtonLike, _PnFileInput):
             A Tabulator widget for CSV files, or a Markdown pane with an error message
             for unsupported file types.
         """
-        import panel as pn
         kwargs["name"]=filename
 
-        # Spreadsheet files (CSV and Excel)
-        if mime_type == "text/csv":
+        view = pn.panel
 
-            try:
-                import pandas as pd
-                df = pd.read_csv(io.BytesIO(value))
-                return pn.widgets.Tabulator(df, **kwargs)
-            except ImportError:
-                return pn.pane.Markdown(f"Could not read csv file '{filename}'. Ensure pandas is installed.", **kwargs)
-            except Exception as ex:
-                return pn.pane.Markdown(f"Could not read csv file '{filename}'. {ex}.", **kwargs)
-        elif mime_type in ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                          "application/vnd.ms-excel"]:
-            try:
-                import pandas as pd
-                df = pd.read_excel(io.BytesIO(value))
-                return pn.widgets.Tabulator(df, **kwargs)
-            except ImportError:
-                return pn.pane.Markdown(f"Could not read Excel file '{filename}'. Ensure pandas and openpyxl are installed.", **kwargs)
-        elif mime_type == "application/vnd.oasis.opendocument.spreadsheet":
-            try:
-                import pandas as pd
-                df = pd.read_excel(io.BytesIO(value), engine='odf')
-                return pn.widgets.Tabulator(df, **kwargs)
-            except ImportError:
-                return pn.pane.Markdown(f"Could not read ODS file '{filename}'. Ensure pandas and odfpy are installed.", **kwargs)
+        if isinstance(object, Exception):
+            from panel_material_ui.layout import Alert
+            view = Alert
+            kwargs["severity"] = "error"
+            kwargs["margin"]=10
+            object = str(object)
+        elif mime_type in cls._mime_types:
+            config = cls._mime_types[mime_type]
+            if "view" in config:
+                view = config['view']
+            if "view_kwargs" in config:
+                kwargs.update(config['view_kwargs'])
 
-        # Microsoft Office Documents
-        elif mime_type in ["application/msword",
-                          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]:
-            return pn.pane.Markdown(f"**Microsoft Word Document:** {filename}\n\nFile preview not supported.", **kwargs)
-        elif mime_type in ["application/vnd.ms-powerpoint",
-                          "application/vnd.openxmlformats-officedocument.presentationml.presentation"]:
-            return pn.pane.Markdown(f"**Microsoft PowerPoint Presentation:** {filename}\n\nFile preview not supported.", **kwargs)
+        if inspect.isclass(view) and issubclass(view, pn.widgets.Widget):
+            return view(value=object, **kwargs)
+        return view(object, **kwargs)
 
-        # OpenDocument files
-        elif mime_type == "application/vnd.oasis.opendocument.text":
-            return pn.pane.Markdown(f"**OpenDocument Text:** {filename}\n\nFile preview not supported.", **kwargs)
-        elif mime_type == "application/vnd.oasis.opendocument.presentation":
-            return pn.pane.Markdown(f"**OpenDocument Presentation:** {filename}\n\nFile preview not supported.", **kwargs)
-
-        # Text-based files
-        elif mime_type == "text/plain":
-            try:
-                text_content = value.decode('utf-8')
-                return pn.pane.Markdown(f"```\n{text_content}\n```", **kwargs)
-            except UnicodeDecodeError:
-                return pn.pane.Markdown(f"Binary file '{filename}' cannot be displayed as text.", **kwargs)
-        elif mime_type in ["text/markdown", "text/x-markdown"]:
-            try:
-                text_content = value.decode('utf-8')
-                return pn.pane.Markdown(text_content, **kwargs)
-            except UnicodeDecodeError:
-                return pn.pane.Markdown(f"Could not decode markdown file '{filename}'.", **kwargs)
-        elif mime_type == "application/json":
-            try:
-                json_data = json.loads(value.decode('utf-8'))
-                return pn.pane.JSON(json_data, **kwargs)
-            except (json.JSONDecodeError, UnicodeDecodeError):
-                return pn.pane.Markdown(f"Could not parse JSON file '{filename}'.", **kwargs)
-        elif mime_type == "application/rtf":
-            return pn.pane.Markdown(f"**Rich Text Format:** {filename}\n\nRTF files require specialized viewer.", **kwargs)
-
-        # Code files
-        elif mime_type in cls._code_mime_types:
-            try:
-                code_content = value.decode('utf-8')
-                return pn.widgets.CodeEditor(value=code_content, disabled=True, **kwargs, **cls._code_mime_types[mime_type])
-            except UnicodeDecodeError:
-                return pn.pane.Markdown(f"Could not decode '{mime_type}' file '{filename}'.", **kwargs)
-
-        # Media files
-        elif mime_type.startswith("image/"):
-            return pn.pane.Image(value, **kwargs)
-        elif mime_type.startswith("audio/"):
-            temp_file = _save_to_tempfile(value, filename=filename)
-            return pn.pane.Audio(temp_file, **kwargs)
-        elif mime_type.startswith("video/"):
-            temp_file = _save_to_tempfile(value, filename=filename)
-            return pn.pane.Video(temp_file, **kwargs)
-
-        # PDF files
-        elif mime_type == "application/pdf":
-            temp_file = _save_to_tempfile(value, filename=filename)
-            return pn.pane.PDF(temp_file, **kwargs)
-
-        # Fallback for unsupported types
-        else:
-            return pn.pane.Markdown(f"Cannot display file '{filename}' of MIME type '{mime_type}'.", **kwargs)
 
     def _list_view(self, value, filename, mime_type, view_if_none, layout, **kwargs):
         """
@@ -459,15 +565,16 @@ class FileInput(_ButtonLike, _PnFileInput):
             if view_if_none is not None:
                 return view_if_none
             return layout(visible=False)
-
         if not isinstance(value, list):
-            return self._single_view(value, filename, mime_type, **kwargs)
+            return self._single_view(self.object(), filename=self.filename, mime_type=self.mime_type, **kwargs)
 
         single_view_sizing_mode="stretch_both"
         if hasattr(layout, "dynamic") and "dynamic" not in kwargs:
             kwargs['dynamic'] = True
         return layout(
-            *[self._single_view(v, f, m, sizing_mode=single_view_sizing_mode) for v, f, m in zip(value, filename, mime_type, strict=False)], **kwargs
+            *[
+                self._single_view(object=o, filename=f, mime_type=m, sizing_mode=single_view_sizing_mode)
+                for o, f, m in zip(self.object(), self.filename, self.mime_type, strict=True)], **kwargs
         )
 
     def view(self, *, view_if_none=None, layout=None, **kwargs):
@@ -503,7 +610,15 @@ class FileInput(_ButtonLike, _PnFileInput):
         if not layout:
             from panel_material_ui.layout import Tabs
             layout = Tabs
-        return param.bind(self._list_view, self.param.value, self.param.filename, self.param.mime_type, view_if_none, layout, **kwargs)
+        return param.bind(
+            self._list_view,
+            value=self.param.value,
+            filename=self.param.filename,
+            mime_type=self.param.mime_type,
+            view_if_none=view_if_none,
+            layout=layout,
+            **kwargs
+        )
 
 
 class _NumericInputBase(MaterialInputWidget):

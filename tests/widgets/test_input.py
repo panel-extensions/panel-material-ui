@@ -187,38 +187,3 @@ def test_file_input_view_multiple():
     assert result_1.name == 'test1.csv'
     assert isinstance(result_1, Tabulator)
     assert result_1.value.to_csv(index=False)==csv_content
-
-
-def test_file_input_view_code_mime_types():
-    """Test FileInput view method code MIME types"""
-    # Test CSS file
-    for mime_type, config in FileInput._code_mime_types.items():
-        css_content = b"test value"
-        result = FileInput._single_view(css_content, "some.file", mime_type=mime_type)
-        assert isinstance(result, CodeEditor)
-        assert result.value == "test value"
-        assert result.language == config['language']
-        assert result.disabled
-
-
-def test_file_input_view_other_mime_types():
-    """Test FileInput view method other MIME types"""
-    # Test Microsoft Word document
-    doc_content = b"mock word document content"
-    result = FileInput._single_view(doc_content, "document.docx",
-                                   "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-    assert hasattr(result, 'object')
-    assert "Microsoft Word Document" in result.object
-
-    # Test PowerPoint presentation
-    ppt_content = b"mock powerpoint content"
-    result = FileInput._single_view(ppt_content, "presentation.pptx",
-                                   "application/vnd.openxmlformats-officedocument.presentationml.presentation")
-    assert hasattr(result, 'object')
-    assert "Microsoft PowerPoint Presentation" in result.object
-
-    # Test OpenDocument Text
-    odt_content = b"mock odt content"
-    result = FileInput._single_view(odt_content, "document.odt", "application/vnd.oasis.opendocument.text")
-    assert hasattr(result, 'object')
-    assert "OpenDocument Text" in result.object
