@@ -149,7 +149,7 @@ def test_file_input_view():
     result = view_with_file()
     assert result.name == 'test.csv'
     assert isinstance(result, Tabulator)
-    assert result.value.to_csv(index=False)==csv_content
+    assert result.value.to_csv(index=False, lineterminator='\n')==csv_content
 
     # Test object_if_no_value parameter
     fallback_component = Markdown("No files uploaded")
@@ -181,9 +181,9 @@ def test_file_input_view_multiple():
     result_0 = result[0]
     assert result_0.name == 'test0.csv'
     assert isinstance(result_0, Tabulator)
-    assert result_0.value.to_csv(index=False)==csv_content
+    assert result_0.value.to_csv(index=False, lineterminator='\n')==csv_content
 
     result_1 = result[1]
     assert result_1.name == 'test1.csv'
     assert isinstance(result_1, Tabulator)
-    assert result_1.value.to_csv(index=False)==csv_content
+    assert result_1.value.to_csv(index=False, lineterminator='\n')==csv_content
