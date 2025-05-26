@@ -282,6 +282,23 @@ def _json_to_dict(value: bytes) -> dict:
     """
     return json.loads(value.decode('utf-8'))
 
+def _to_pil_image(value: bytes):
+    """
+    Converts bytes data to a PIL Image.
+
+    Parameters
+    ----------
+    value : bytes
+        The bytes data of the image.
+
+    Returns
+    -------
+    PIL.Image.Image
+        The PIL Image object.
+    """
+    from PIL import Image
+    return Image.open(io.BytesIO(value))
+
 def _no_conversion(value: bytes) -> bytes:
     """
     Returns the bytes data without any conversion.
@@ -350,8 +367,8 @@ class FileInput(_ButtonLike, _PnFileInput):
         "text/html": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "html", "disabled": True}},
         # # Media files
         "image/svg+xml": {"converter":partial(_save_to_tempfile, suffix="svg"), "view": pn.pane.image.SVG},
-        "image/png": {"converter": _no_conversion, "view": pn.pane.PNG},
-        "image/jpeg": {"converter": _no_conversion, "view": pn.pane.JPG},
+        "image/png": {"converter": _to_pil_image, "view": pn.pane.PNG},
+        "image/jpeg": {"converter": _to_pil_image, "view": pn.pane.JPG},
         "image/gif": {"converter": _no_conversion, "view": pn.pane.GIF},
         "image/webp": {"converter": _no_conversion, "view": pn.pane.image.WebP},
         "audio/wav": {"converter": partial(_save_to_tempfile, suffix="wav"), "view": pn.pane.Audio},
@@ -488,7 +505,6 @@ class FileInput(_ButtonLike, _PnFileInput):
                 self._object = self._single_object(value, filename, mime_type)
             else:
                 self._object = [self._single_object(v, f, m) for v, f, m in zip(value, filename, mime_type, strict=False)]
-
         return self._object
 
     @classmethod
@@ -535,7 +551,7 @@ class FileInput(_ButtonLike, _PnFileInput):
         return view(object, **kwargs)
 
 
-    def _list_view(self, value, filename, mime_type, view_if_none, layout, **kwargs):
+    def _list_view(self, value, filename, mime_type, object_if_no_value, layout, **kwargs):
         """
         Create a Panel layout to view multiple uploaded files or handle empty state.
 
@@ -548,7 +564,7 @@ class FileInput(_ButtonLike, _PnFileInput):
             The filename(s) corresponding to the uploaded files.
         mime_type : list or str or None
             The MIME type(s) corresponding to the uploaded files.
-        view_if_none : Panel component, optional
+        object_if_no_value : Panel component, optional
             Component to display when no files are uploaded.
         layout : Panel layout class
             The layout class to use for organizing multiple file views.
@@ -558,12 +574,12 @@ class FileInput(_ButtonLike, _PnFileInput):
         Returns
         -------
         Panel component
-            A layout containing file views, the view_if_none component,
-            or an invisible layout if no files and no view_if_none is provided.
+            A layout containing file views, the object_if_no_value component,
+            or an invisible layout if no files and no object_if_no_value is provided.
         """
         if not value:
-            if view_if_none is not None:
-                return view_if_none
+            if object_if_no_value is not None:
+                return object_if_no_value
             return layout(visible=False)
         if not isinstance(value, list):
             return self._single_view(self.object(), filename=self.filename, mime_type=self.mime_type, **kwargs)
@@ -577,7 +593,7 @@ class FileInput(_ButtonLike, _PnFileInput):
                 for o, f, m in zip(self.object(), self.filename, self.mime_type, strict=True)], **kwargs
         )
 
-    def view(self, *, view_if_none=None, layout=None, **kwargs):
+    def view(self, *, object_if_no_value=None, layout=None, **kwargs):
         """
         Create a bound Panel component for viewing the uploaded file(s).
 
@@ -586,14 +602,14 @@ class FileInput(_ButtonLike, _PnFileInput):
 
         Parameters
         ----------
-        view_if_none : Panel component, optional
-            Component to display when no files are uploaded. If None,
+        object_if_no_value : Displayble Python object, optional
+            Object to display when no files are uploaded. If None,
             an invisible layout will be shown when no files are present.
         layout : Panel layout class, optional
             The layout class to use for organizing multiple file views.
             If None, defaults to panel_material_ui.Tabs.
         **kwargs
-            Additional layout keyword arguments passed to the layout component.
+            Additional keyword arguments passed to the layout component.
 
         Returns
         -------
@@ -615,7 +631,7 @@ class FileInput(_ButtonLike, _PnFileInput):
             value=self.param.value,
             filename=self.param.filename,
             mime_type=self.param.mime_type,
-            view_if_none=view_if_none,
+            object_if_no_value=object_if_no_value,
             layout=layout,
             **kwargs
         )

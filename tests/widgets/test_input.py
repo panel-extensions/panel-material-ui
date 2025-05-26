@@ -8,7 +8,7 @@ from datetime import date
 from panel_material_ui.widgets import FileInput, IntInput, FloatInput, DatePicker
 from panel_material_ui.layout import Column
 from panel.pane import Markdown
-from panel.widgets import Tabulator, CodeEditor
+from panel.widgets import Tabulator
 
 
 
@@ -151,9 +151,9 @@ def test_file_input_view():
     assert isinstance(result, Tabulator)
     assert result.value.to_csv(index=False)==csv_content
 
-    # Test view_if_none parameter
+    # Test object_if_no_value parameter
     fallback_component = Markdown("No files uploaded")
-    view_with_fallback = file_input.view(view_if_none=fallback_component)
+    view_with_fallback = file_input.view(object_if_no_value=fallback_component)
     file_input.clear()
     fallback_result = view_with_fallback()
     assert fallback_result is fallback_component
