@@ -482,7 +482,6 @@ class FileInput(_ButtonLike, _PnFileInput):
                 try:
                     return to_object_func(value)
                 except Exception as exc:
-                    breakpoint()
                     return exc
 
         msg = f"No specific converter available for '{filename}' of mime type '{mime_type}'."
