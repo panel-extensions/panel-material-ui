@@ -189,6 +189,12 @@ spec = {
                 {"label": "Checkout", "icon": "shopping_cart"},
                 {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
             ])),
+            (SplitButton, (['color'],), dict(items=[
+                {"label": "Home"},
+                {"label": "Catalog", "icon": "category"},
+                {"label": "Checkout",},
+                {"label": "Accessories"},
+            ])),
         ],
         'Selection': [
             (AutocompleteInput, (['variant'], ['disabled']), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Autocomplete')),
