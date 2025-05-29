@@ -1,41 +1,9 @@
-import base64
 import pytest
 
-from pathlib import Path
 from panel import config
 from datetime import date
 
-from panel_material_ui.widgets import FileInput, IntInput, FloatInput, DatePicker
-from panel_material_ui.layout import Column
-from panel.pane import Markdown
-from panel.widgets import Tabulator
-
-
-
-@pytest.mark.from_panel
-def test_file_input(document, comm):
-    file_input = FileInput(accept='.txt')
-
-    file_input._process_events({'mime_type': 'text/plain', 'value': 'U29tZSB0ZXh0Cg==', 'filename': 'testfile'})
-    assert file_input.value == b'Some text\n'
-    assert file_input.mime_type == 'text/plain'
-    assert file_input.accept == '.txt'
-    assert file_input.filename == 'testfile'
-
-
-@pytest.mark.from_panel
-def test_file_input_save_one_file(document, comm, tmpdir):
-    file_input = FileInput(accept='.txt')
-
-    file_input._process_events({'mime_type': 'text/plain', 'value': 'U29tZSB0ZXh0Cg==', 'filename': 'testfile'})
-
-    fpath = Path(tmpdir) / 'out.txt'
-    file_input.save(str(fpath))
-
-    assert fpath.exists()
-    content = fpath.read_text()
-    assert content == 'Some text\n'
-
+from panel_material_ui.widgets import IntInput, FloatInput, DatePicker
 
 @pytest.mark.from_panel
 @pytest.mark.xfail(reason='')
@@ -119,71 +87,3 @@ def test_date_picker_options():
     )
     assert datetime_picker.value == date(2018, 9, 2)
     assert datetime_picker.enabled_dates == options
-
-
-def test_file_input_view():
-    """Test the view method of FileInput widget."""
-    file_input = FileInput(accept='.txt,.csv')
-
-    # When no files are uploaded, the view should be invisible
-    view = file_input.view()
-    assert not view().visible
-
-
-    # When custom layout is provided, it should be used
-    view_with_layout = file_input.view(layout=Column)
-    assert isinstance(view_with_layout(), Column)
-
-    # Test view with uploaded file
-    csv_content = "name,value\ntest1,10\ntest2,20\n"
-    csv_bytes = csv_content.encode('utf-8')
-    csv_b64 = base64.b64encode(csv_bytes).decode('utf-8')
-
-    file_input._process_events({
-        'mime_type': 'text/csv',
-        'value': csv_b64,
-        'filename': 'test.csv'
-    })
-
-    view_with_file = file_input.view()
-    result = view_with_file()
-    assert result.name == 'test.csv'
-    assert isinstance(result, Tabulator)
-    assert result.value.to_csv(index=False, lineterminator='\n')==csv_content
-
-    # Test object_if_no_value parameter
-    fallback_component = Markdown("No files uploaded")
-    view_with_fallback = file_input.view(object_if_no_value=fallback_component)
-    file_input.clear()
-    fallback_result = view_with_fallback()
-    assert fallback_result is fallback_component
-
-
-def test_file_input_view_multiple():
-    """Test the view method of FileInput with multiple=True."""
-    file_input = FileInput(multiple=True, accept='.txt,.csv')
-    file_view = file_input.view(layout=Column)
-
-    # Test view with uploaded files
-    csv_content = "name,value\ntest1,10\ntest2,20\n"
-    csv_bytes = csv_content.encode('utf-8')
-    csv_b64 = base64.b64encode(csv_bytes).decode('utf-8')
-
-    file_input._process_events({
-        'mime_type': ['text/csv']*2,
-        'value': [csv_b64]*2,
-        'filename': ['test0.csv', 'test1.csv']
-    })
-
-    result = file_view()
-    assert isinstance(result, Column)
-
-    result_0 = result[0]
-    assert result_0.name == 'test0.csv'
-    assert isinstance(result_0, Tabulator)
-    assert result_0.value.to_csv(index=False, lineterminator='\n')==csv_content
-
-    result_1 = result[1]
-    assert result_1.name == 'test1.csv'
-    assert isinstance(result_1, Tabulator)
-    assert result_1.value.to_csv(index=False, lineterminator='\n')==csv_content

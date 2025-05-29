@@ -4,7 +4,6 @@ import inspect
 import io
 import json
 import tempfile
-from base64 import b64decode
 from collections.abc import Iterable
 from datetime import date, datetime, timezone
 from datetime import time as dt_time
@@ -315,6 +314,9 @@ def _no_conversion(value: bytes) -> bytes:
     """
     return value
 
+class MissingFileChunkError(Exception):
+    """Exception raised when a chunk is missing during file upload processing."""
+
 class FileInput(_ButtonLike, _PnFileInput):
     """
     The `FileInput` allows the user to upload one or more files to the server.
@@ -331,6 +333,19 @@ class FileInput(_ButtonLike, _PnFileInput):
 
     >>> FileInput(accept='.png,.jpeg', multiple=True)
     """
+
+    chunk_size = param.Integer(default=10_485_760, bounds=(1, None), doc="""
+        Maximum size (in bytes) of each chunk for chunked file uploads.
+        Defaults to 10 MB. Files will be uploaded in chunks of this size to
+        avoid WebSocket message size limitations.""")
+
+    max_file_size = param.Integer(default=None, bounds=(1, None), doc="""
+        Maximum size (in bytes) for individual files. If specified, files
+        larger than this limit will be rejected on the frontend before upload.""")
+
+    max_total_file_size = param.Integer(default=None, bounds=(1, None), doc="""
+        Maximum total size (in bytes) for all files combined. If specified,
+        uploads will be rejected if the total size exceeds this limit.""")
 
     width = param.Integer(default=None)
 
@@ -383,27 +398,13 @@ class FileInput(_ButtonLike, _PnFileInput):
     def __init__(self, **params):
         super().__init__(**params)
         self._buffer = []
+        self._file_buffer = {}  # Buffer for chunked file uploads
         self._object = None
-
-    @staticmethod
-    def _b64decode(msg: dict) -> dict:
-        """Decode base64 encoded data in the message."""
-        if 'value' in msg:
-            if isinstance(msg['value'], str):
-                msg['value'] = b64decode(msg['value']) if msg['value'] else None
-            else:
-                msg['value'] = [b64decode(content) for content in msg['value']]
-        if 'filename' in msg and len(msg['filename']) == 0:
-            msg['filename'] = None
-        if 'mime_type' in msg and len(msg['mime_type']) == 0:
-            msg['mime_type'] = None
-        return msg
 
     def _handle_msg(self, msg: Any) -> None:
         status = msg["status"]
-        if status == "in_progress":
-            msg = self._b64decode(msg)
-            self._buffer.append(msg)
+        if status == "upload_event":
+            self._process_chunk(msg)
             return
         elif status == "initializing":
             return
@@ -416,6 +417,41 @@ class FileInput(_ButtonLike, _PnFileInput):
                 self._send_msg({"status": "error", "error": str(e)})
         else:
             raise ValueError(f"Unknown status: {status}")
+
+    def _process_chunk(self, msg: dict) -> None:
+        """Process a single chunk of a chunked file upload."""
+        name = msg["name"]
+        chunk = msg["chunk"]
+        total_chunks = msg["total_chunks"]
+        mime_type = msg["type"]
+
+        data = msg["data"]
+        data = bytes(data)
+
+        if name not in self._file_buffer:
+            self._file_buffer[name] = {
+                "chunks": {},
+                "total_chunks": total_chunks,
+                "mime_type": mime_type,
+                "filename": name
+            }
+
+        self._file_buffer[name]["chunks"][chunk] = data
+
+        # Check if all chunks are received for this file
+        if len(self._file_buffer[name]["chunks"]) == total_chunks:
+            # Reassemble the file
+            file_data = b""
+            for i in range(1, total_chunks + 1):  # Chunks are 1-indexed
+                file_data += self._file_buffer[name]["chunks"][i]
+
+            self._buffer.append({
+                "value": file_data,
+                "filename": name,
+                "mime_type": mime_type
+            })
+
+            del self._file_buffer[name]
 
     def _flush_buffer(self):
         value, mime_type, filename = [], [], []
