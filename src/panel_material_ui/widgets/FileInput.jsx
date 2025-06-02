@@ -75,15 +75,15 @@ async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 1024) {
 
   for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
     const start = chunkIndex * chunkSize;
-    const end = Math.min(start + chunkSize, file.size);
-    const chunk = file.slice(start, end);
+    const end = Math.min(start + chunkSize, file.size)
+    const chunk = file.slice(start, end)
 
     // Read chunk as ArrayBuffer
     const arrayBuffer = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(chunk);
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsArrayBuffer(chunk)
     });
 
     // Send chunk using FileDropper's protocol
@@ -94,7 +94,7 @@ async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 1024) {
       name: file.name,
       total_chunks: totalChunks,
       type: file.type
-    });
+    })
   }
 }
 
@@ -105,24 +105,24 @@ async function processFilesChunked(files, model, maxFileSize, maxTotalFileSize, 
 
     // Validate file sizes on frontend
     for (const file of fileArray) {
-      const sizeErrors = validateFileSize(file, maxFileSize, maxTotalFileSize, fileArray);
+      const sizeErrors = validateFileSize(file, model.max_file_size, model.max_total_file_size, fileArray);
       if (sizeErrors.length > 0) {
-        throw new Error(sizeErrors.join("; "));
+        throw new Error(sizeErrors.join("; "))
       }
     }
 
-    model.send_msg({status: "initializing"});
+    model.send_msg({status: "initializing"})
 
     // Upload all files using chunked protocol
     for (const file of fileArray) {
-      await uploadFileChunked(file, model, chunkSize);
+      await uploadFileChunked(file, model, chunkSize)
     }
 
-    model.send_msg({status: "finished"});
-    return fileArray.length;
+    model.send_msg({status: "finished"})
+    return fileArray.length
   } catch (error) {
-    model.send_msg({status: "error", error: error.message});
-    throw error;
+    model.send_msg({status: "error", error: error.message})
+    throw error
   }
 }
 
@@ -205,9 +205,6 @@ export function render({model})  {
   const [label] = model.useState("label")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
-  const [maxFileSize] = model.useState("max_file_size")
-  const [maxTotalFileSize] = model.useState("max_total_file_size")
-  const [chunkSize] = model.useState("chunk_size")
 
   const [status, setStatus] = React.useState("idle")
   const [n, setN] = React.useState(0)
@@ -227,23 +224,38 @@ export function render({model})  {
       setStatus("uploading")
       setErrorMessage("")
 
+      let validFiles = files
+      if (accept) {
+	validFiles = Array.from(files).filter(file => isFileAccepted(file, accept))
+        // Show error for invalid file type(s)
+	if (!validFiles.length) {
+	  const invalid = Array.from(files).filter(file => !isFileAccepted(file, accept)).map(file => file.name).join(", ")
+          setErrorMessage(`The file(s) ${invalid} have invalid file types. Accepted types: ${accept}`)
+          setStatus("error")
+          setTimeout(() => {
+            setStatus("idle")
+          }, 5000)
+	  return
+	}
+      }
+
       // Use chunked upload with frontend validation
       const count = await processFilesChunked(
-        files,
+        validFiles,
         model,
-        maxFileSize,
-        maxTotalFileSize,
-        chunkSize || 10 * 1024 * 1024
-      );
+        model.max_file_size,
+        model.max_total_file_size,
+        model.chunk_size || 10 * 1024 * 1024
+      )
 
-      setN(count);
+      setN(count)
     } catch (error) {
-      console.error("Upload error:", error);
-      setErrorMessage(error.message);
-      setStatus("error");
+      console.error("Upload error:", error)
+      setErrorMessage(error.message)
+      setStatus("error")
       setTimeout(() => {
-        setStatus("idle");
-      }, 5000);
+        setStatus("idle")
+      }, 5000)
     }
   }
 
@@ -285,19 +297,7 @@ export function render({model})  {
 
     const files = e.dataTransfer.files
     if (files && files.length > 0) {
-      // Filter valid files before processing
-      const validFiles = Array.from(files).filter(file => isFileAccepted(file, accept))
-
-      if (validFiles.length > 0) {
-        processFiles(validFiles)
-      } else if (accept) {
-        // Show error for invalid file types
-        setErrorMessage(`Invalid file type. Accepted types: ${accept}`)
-        setStatus("error")
-        setTimeout(() => {
-          setStatus("idle")
-        }, 5000)
-      }
+      processFiles(validFiles)
     }
   }
 
