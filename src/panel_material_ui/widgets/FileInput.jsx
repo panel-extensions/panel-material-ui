@@ -226,9 +226,9 @@ export function render({model})  {
 
       let validFiles = files
       if (accept) {
-	validFiles = Array.from(files).filter(file => isFileAccepted(file, accept))
+        validFiles = Array.from(files).filter(file => isFileAccepted(file, accept))
         // Show error for invalid file type(s)
-	if (!validFiles.length) {
+        if (!validFiles.length) {
 	  const invalid = Array.from(files).filter(file => !isFileAccepted(file, accept)).map(file => file.name).join(", ")
           setErrorMessage(`The file(s) ${invalid} have invalid file types. Accepted types: ${accept}`)
           setStatus("error")
@@ -236,7 +236,7 @@ export function render({model})  {
             setStatus("idle")
           }, 5000)
 	  return
-	}
+        }
       }
 
       // Use chunked upload with frontend validation
