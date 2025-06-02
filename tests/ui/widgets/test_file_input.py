@@ -21,10 +21,10 @@ def test_fileinput_text_file(page):
     page.set_input_files('input[type="file"]', file)
 
     wait_until(lambda: isinstance(widget.value, bytes), page)
-    data = file.read_bytes()
+    data = file.read_text()
     if sys.platform == 'win32':
-        data = data.replace(b"\n", b"\r\n")
-    assert widget.value == data
+        data = data.replace("\n", "\r\n")
+    assert widget.value.decode('utf-8') == data
 
 def test_fileinput_wrong_filetype_error(page):
     widget = FileInput(accept=".png")
@@ -54,11 +54,11 @@ def test_fileinput_multiple_files(page):
     file2 = file1.parent / 'test_input.py'
 
     page.set_input_files('input[type="file"]', [file1, file2])
-    data1 = file1.read_bytes()
-    data2 = file2.read_bytes()
+    data1 = file1.read_text()
+    data2 = file2.read_text()
     if sys.platform == 'win32':
-        data1 = data1.replace(b"\n", b"\r\n")
-        data2 = data2.replace(b"\n", b"\r\n")
+        data1 = data1.replace("\n", "\r\n")
+        data2 = data2.replace("\n", "\r\n")
 
     wait_until(lambda: isinstance(widget.value, list), page)
-    assert widget.value == [data1, data2]
+    assert [v.decode('utf-8') for v in widget.value] == [data1, data2]
