@@ -221,7 +221,7 @@ MIME_TYPES = {
         "view": CodeEditor,
         "view_kwargs": {"language": "html", "disabled": True}},
     # # Media files
-    "image/svg+xml": {"converter": partial(_save_to_tempfile, suffix="svg"), "view": SVG},
+    "image/svg+xml": {"converter": _to_string, "view": SVG},
     "image/png": {"converter": _to_pil_image, "view": PNG},
     "image/jpeg": {"converter": _to_pil_image, "view": JPG},
     "image/gif": {"converter": _no_conversion, "view": GIF},
