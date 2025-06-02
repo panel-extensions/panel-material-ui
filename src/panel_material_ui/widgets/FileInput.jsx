@@ -3,7 +3,6 @@ import {styled} from "@mui/material/styles"
 import CircularProgress from "@mui/material/CircularProgress"
 import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import ErrorIcon from "@mui/icons-material/Error"
-import CircularProgress from "@mui/material/CircularProgress";
 import TaskAltIcon from "@mui/icons-material/TaskAlt"
 import {useTheme} from "@mui/material/styles"
 
