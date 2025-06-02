@@ -229,13 +229,13 @@ export function render({model})  {
         validFiles = Array.from(files).filter(file => isFileAccepted(file, accept))
         // Show error for invalid file type(s)
         if (!validFiles.length) {
-	  const invalid = Array.from(files).filter(file => !isFileAccepted(file, accept)).map(file => file.name).join(", ")
+          const invalid = Array.from(files).filter(file => !isFileAccepted(file, accept)).map(file => file.name).join(", ")
           setErrorMessage(`The file(s) ${invalid} have invalid file types. Accepted types: ${accept}`)
           setStatus("error")
           setTimeout(() => {
             setStatus("idle")
           }, 5000)
-	  return
+          return
         }
       }
 
