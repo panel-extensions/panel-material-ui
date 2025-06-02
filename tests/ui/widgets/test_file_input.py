@@ -23,7 +23,7 @@ def test_fileinput_text_file(page):
     wait_until(lambda: isinstance(widget.value, bytes), page)
     data = file.read_bytes()
     if sys.platform == 'win32':
-        data = data.replace("\n", "\r\n")
+        data = data.replace(b"\n", b"\r\n")
     assert widget.value == data
 
 def test_fileinput_wrong_filetype_error(page):
@@ -57,8 +57,8 @@ def test_fileinput_multiple_files(page):
     data1 = file1.read_bytes()
     data2 = file2.read_bytes()
     if sys.platform == 'win32':
-        data1 = data1.replace("\n", "\r\n")
-        data2 = data2.replace("\n", "\r\n")
+        data1 = data1.replace(b"\n", b"\r\n")
+        data2 = data2.replace(b"\n", b"\r\n")
 
     wait_until(lambda: isinstance(widget.value, list), page)
     assert widget.value == [data1, data2]
