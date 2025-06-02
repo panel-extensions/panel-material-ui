@@ -1,13 +1,9 @@
 from __future__ import annotations
 
 import inspect
-import io
-import json
-import tempfile
 from collections.abc import Iterable
 from datetime import date, datetime, timezone
 from datetime import time as dt_time
-from functools import partial
 from logging import getLogger
 from typing import TYPE_CHECKING, Any
 
@@ -22,6 +18,7 @@ from panel.widgets.input import FileInput as _PnFileInput
 from panel.widgets.input import LiteralInput as _PnLiteralInput
 
 from ..base import COLORS, LoadingTransform, ThemedTransform
+from ._mime import MIME_TYPES, NoConverter
 from .base import MaterialWidget, TooltipTransform
 from .button import _ButtonLike
 
@@ -29,26 +26,6 @@ if TYPE_CHECKING:
     from bokeh.document import Document
 
 logger = getLogger(__name__)
-
-def _save_to_tempfile(data: bytes, suffix: str) -> str:
-    """
-    Save bytes data to a temporary file and return the file path.
-
-    Parameters
-    ----------
-    data : bytes
-        The bytes data to save.
-    filename : str
-        The name of the file to save the data as.
-
-    Returns
-    -------
-    str
-        The path to the temporary file.
-    """
-    with tempfile.NamedTemporaryFile(delete=False, suffix="." + suffix) as temp_file:
-        temp_file.write(data)
-        return temp_file.name
 
 
 class MaterialInputWidget(MaterialWidget):
@@ -202,120 +179,10 @@ class TextAreaInput(_TextInputBase):
 
     _esm_base = "TextArea.jsx"
 
-class NoConverter(Exception):
-    """Exception raised when no converter is available for a MIME type."""
 
-def _csv_to_dataframe(value: bytes):
-    """
-    Reads a CSV file from bytes data using pandas.
-
-    Parameters
-    ----------
-    value : bytes
-        The bytes data of the CSV file.
-
-    Returns
-    -------
-    pandas.DataFrame
-        The DataFrame containing the CSV data.
-    """
-    import pandas as pd
-    if not value:
-        return pd.DataFrame()
-    return pd.read_csv(io.BytesIO(value))
-
-def _to_string(value: bytes) -> str:
-    return value.decode('utf-8')
-
-def _excel_to_dataframe(value: bytes):
-    """
-    Reads an Excel file from bytes data using pandas.
-
-    Parameters
-    ----------
-    value : bytes
-        The bytes data of the Excel file.
-
-    Returns
-    -------
-    pandas.DataFrame
-        The DataFrame containing the Excel data.
-    """
-    import pandas as pd
-    if not value:
-        return pd.DataFrame()
-    return pd.read_excel(io.BytesIO(value))
-
-def _ods_to_dataframe(value: bytes):
-    """
-    Reads an ODS spreadsheet file from bytes data using pandas.
-
-    Parameters
-    ----------
-    value : bytes
-        The bytes data of the ODS file.
-
-    Returns
-    -------
-    pandas.DataFrame
-        The DataFrame containing the ODS data.
-    """
-    import pandas as pd
-    if not value:
-        return pd.DataFrame()
-    return pd.read_excel(io.BytesIO(value), engine='odf')
-
-def _json_to_dict(value: bytes) -> dict:
-    """
-    Converts bytes data to a dictionary by decoding JSON.
-
-    Parameters
-    ----------
-    value : bytes
-        The bytes data containing JSON.
-
-    Returns
-    -------
-    dict
-        The dictionary representation of the JSON data.
-    """
-    return json.loads(value.decode('utf-8'))
-
-def _to_pil_image(value: bytes):
-    """
-    Converts bytes data to a PIL Image.
-
-    Parameters
-    ----------
-    value : bytes
-        The bytes data of the image.
-
-    Returns
-    -------
-    PIL.Image.Image
-        The PIL Image object.
-    """
-    from PIL import Image
-    return Image.open(io.BytesIO(value))
-
-def _no_conversion(value: bytes) -> bytes:
-    """
-    Returns the bytes data without any conversion.
-
-    Parameters
-    ----------
-    value : bytes
-        The bytes data to return.
-
-    Returns
-    -------
-    bytes
-        The original bytes data.
-    """
-    return value
-
-class MissingFileChunkError(Exception):
+class MissingFileChunkError(RuntimeError):
     """Exception raised when a chunk is missing during file upload processing."""
+
 
 class FileInput(_ButtonLike, _PnFileInput):
     """
@@ -355,45 +222,7 @@ class FileInput(_ButtonLike, _PnFileInput):
         'value': "'data:' + source.mime_type + ';base64,' + value"
     }
 
-    _mime_types = {
-        # Text Files
-        "text/plain": {"converter": _to_string, "view": pn.pane.Markdown},
-        "text/markdown": {"converter": _to_string, "view": pn.pane.Markdown},
-        "text/x-markdown": {"converter": _to_string, "view": pn.pane.Markdown},
-        # Dataframe Files
-        "text/csv": {"converter": _csv_to_dataframe, "view": pn.widgets.Tabulator},
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {"converter": _excel_to_dataframe, "view": pn.widgets.Tabulator},
-        "application/vnd.ms-excel": {"converter": _excel_to_dataframe, "view": pn.widgets.Tabulator},
-        "application/vnd.oasis.opendocument.spreadsheet": {"converter": _ods_to_dataframe, "view": pn.widgets.Tabulator},
-        # Code Files
-        "text/javascript": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "javascript", "disabled": True}},
-        "application/javascript": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "javascript", "disabled": True}},
-        "text/x-python": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "python", "disabled": True}},
-        "application/x-python": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "python", "disabled": True}},
-        "text/css": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "css", "disabled": True}},
-        "application/x-httpd-php": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "php", "disabled": True}},
-        "application/x-sh": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "bash", "disabled": True}},
-        "application/sql": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "sql", "disabled": True}},
-        "application/x-yaml": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "yaml", "disabled": True}},
-        "text/yaml": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "yaml", "disabled": True}},
-        "text/x-yaml": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "yaml", "disabled": True}},
-        "application/xml": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "xml", "disabled": True}},
-        "text/xml": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "xml", "disabled": True}},
-        "text/html": {"converter": _to_string, "view": pn.widgets.CodeEditor, "view_kwargs": {"language": "html", "disabled": True}},
-        # # Media files
-        "image/svg+xml": {"converter":partial(_save_to_tempfile, suffix="svg"), "view": pn.pane.image.SVG},
-        "image/png": {"converter": _to_pil_image, "view": pn.pane.PNG},
-        "image/jpeg": {"converter": _to_pil_image, "view": pn.pane.JPG},
-        "image/gif": {"converter": _no_conversion, "view": pn.pane.GIF},
-        "image/webp": {"converter": _no_conversion, "view": pn.pane.image.WebP},
-        "audio/wav": {"converter": partial(_save_to_tempfile, suffix="wav"), "view": pn.pane.Audio},
-        "audio/mpeg": {"converter": partial(_save_to_tempfile, suffix="mp3"), "view": pn.pane.Audio},
-        "audio/ogg": {"converter": partial(_save_to_tempfile, suffix="ogg"), "view": pn.pane.Audio},
-        "video/mp4": {"converter": partial(_save_to_tempfile, suffix="mp4"), "view": pn.pane.Video},
-        # Other files
-        "application/pdf": {"converter": partial(_save_to_tempfile, suffix="pdf"), "view": pn.pane.PDF},
-        "application/json": {"converter": _json_to_dict, "view": pn.pane.JSON},
-    }
+    _mime_types = MIME_TYPES
 
     def __init__(self, **params):
         super().__init__(**params)
@@ -523,7 +352,6 @@ class FileInput(_ButtonLike, _PnFileInput):
         msg = f"No specific converter available for '{filename}' of mime type '{mime_type}'."
         return NoConverter(msg)
 
-
     @param.depends('value', 'filename', 'mime_type')
     def object(self):
         """Returns the currently uploaded file(s) as a viewable Python object or list of viewable Python objects.
@@ -564,15 +392,14 @@ class FileInput(_ButtonLike, _PnFileInput):
             A Tabulator widget for CSV files, or a Markdown pane with an error message
             for unsupported file types.
         """
-        kwargs["name"]=filename
-
+        kwargs["name"] = filename
         view = pn.panel
 
         if isinstance(object, Exception):
             from panel_material_ui.layout import Alert
             view = Alert
             kwargs["severity"] = "error"
-            kwargs["margin"]=10
+            kwargs["margin"] = 10
             object = str(object)
         elif mime_type in cls._mime_types:
             config = cls._mime_types[mime_type]
@@ -584,7 +411,6 @@ class FileInput(_ButtonLike, _PnFileInput):
         if inspect.isclass(view) and issubclass(view, pn.widgets.Widget):
             return view(value=object, **kwargs)
         return view(object, **kwargs)
-
 
     def _list_view(self, value, filename, mime_type, object_if_no_value, layout, **kwargs):
         """
