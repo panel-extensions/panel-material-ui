@@ -20,18 +20,18 @@ const VisuallyHiddenInput = styled("input")({
 
 // Size parsing function matching FileDropper
 function parseSizeString(sizeStr) {
-  if (!sizeStr) return null;
+  if (!sizeStr) { return null }
   const match = sizeStr.match(/^(\d+(?:\.\d+)?)\s*(KB|MB|GB)$/i);
-  if (!match) return null;
+  if (!match) { return null }
 
-  const value = parseFloat(match[1]);
-  const unit = match[2].toUpperCase();
+  const value = parseFloat(match[1])
+  const unit = match[2].toUpperCase()
 
   switch (unit) {
-    case 'KB': return value * 1024;
-    case 'MB': return value * 1024 * 1024;
-    case 'GB': return value * 1024 * 1024 * 1024;
-    default: return null;
+    case "KB": return value * 1024
+    case "MB": return value * 1024 * 1024
+    case "GB": return value * 1024 * 1024 * 1024
+    default: return null
   }
 }
 
@@ -40,19 +40,19 @@ function validateFileSize(file, maxFileSize, maxTotalFileSize, existingFiles = [
   const errors = [];
 
   if (maxFileSize) {
-    const maxFileSizeBytes = typeof maxFileSize === 'string' ? parseSizeString(maxFileSize) : maxFileSize;
+    const maxFileSizeBytes = typeof maxFileSize === "string" ? parseSizeString(maxFileSize) : maxFileSize
     if (maxFileSizeBytes && file.size > maxFileSizeBytes) {
       errors.push(`File "${file.name}" (${formatBytes(file.size)}) exceeds maximum file size of ${formatBytes(maxFileSizeBytes)}`);
     }
   }
 
   if (maxTotalFileSize) {
-    const maxTotalSizeBytes = typeof maxTotalFileSize === 'string' ? parseSizeString(maxTotalFileSize) : maxTotalFileSize;
+    const maxTotalSizeBytes = typeof maxTotalFileSize === "string" ? parseSizeString(maxTotalFileSize) : maxTotalFileSize
     if (maxTotalSizeBytes) {
-      const existingSize = existingFiles.reduce((sum, f) => sum + f.size, 0);
-      const totalSize = existingSize + file.size;
+      const existingSize = existingFiles.reduce((sum, f) => sum + f.size, 0)
+      const totalSize = existingSize + file.size
       if (totalSize > maxTotalSizeBytes) {
-        errors.push(`Adding "${file.name}" would exceed maximum total size of ${formatBytes(maxTotalSizeBytes)}`);
+        errors.push(`Adding "${file.name}" would exceed maximum total size of ${formatBytes(maxTotalSizeBytes)}`)
       }
     }
   }
@@ -62,11 +62,11 @@ function validateFileSize(file, maxFileSize, maxTotalFileSize, existingFiles = [
 
 // Format bytes for display
 function formatBytes(bytes) {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  if (bytes === 0) { return "0 B" }
+  const k = 1024
+  const sizes = ["B", "KB", "MB", "GB"]
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
 }
 
 // Chunked upload function using FileDropper's protocol
@@ -107,7 +107,7 @@ async function processFilesChunked(files, model, maxFileSize, maxTotalFileSize, 
     for (const file of fileArray) {
       const sizeErrors = validateFileSize(file, maxFileSize, maxTotalFileSize, fileArray);
       if (sizeErrors.length > 0) {
-        throw new Error(sizeErrors.join('; '));
+        throw new Error(sizeErrors.join("; "));
       }
     }
 
