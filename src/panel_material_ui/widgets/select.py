@@ -196,10 +196,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
         to select from. Mutually exclusive with ``options``  and valid only
         if ``size`` is 1.""")
 
-    size = param.Integer(default=1, bounds=(1, None), doc="""
-        Declares how many options are displayed at the same time.
-        If set to 1 displays options as dropdown otherwise displays
-        scrollable area (not currently supported).""")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium")
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 
@@ -207,6 +204,12 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     _esm_base = "Select.jsx"
     _rename = {"name": "name", "groups": None}
 
+    def _validate_options_groups(self, *events):
+        if self.options and self.groups:
+            raise ValueError(
+                f'{type(self).__name__} options and groups parameters '
+                'are mutually exclusive.'
+            )
 
 class _RadioGroup(MaterialWidget):
     """

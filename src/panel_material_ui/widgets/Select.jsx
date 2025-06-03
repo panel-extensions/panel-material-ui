@@ -25,6 +25,7 @@ export function render({model, el}) {
   const [label] = model.useState("label")
   const [options] = model.useState("options")
   const [sx] = model.useState("sx")
+  const [size] = model.useState("size")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
@@ -471,6 +472,7 @@ export function render({model, el}) {
         onOpen={() => setOpen(true)}
         open={open}
         renderValue={renderValue}
+        size={size}
         sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
         value={value}
         variant={variant}

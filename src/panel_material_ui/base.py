@@ -15,7 +15,6 @@ The base module provides core functionality including:
 """
 from __future__ import annotations
 
-import base64
 import inspect
 import io
 import json
@@ -481,9 +480,7 @@ class MaterialComponent(ReactComponent):
         self.save(export)
         export.seek(0)
         html_content = export.read()
-        encoded_html = base64.b64encode(
-            html_content.encode('utf-8')
-        ).decode('utf-8')
+        escaped_html = html_content.replace('&', '&amp;').replace('"', '&quot;')
         if sm := kwargs.get('sizing_mode'):
             if 'width' in sm or 'both' in sm:
                 width = None
@@ -491,7 +488,7 @@ class MaterialComponent(ReactComponent):
                 height = None
         return HTML(
             f"""
-        <iframe src="data:text/html;base64,{encoded_html}" width="100%" height="100%" style="border:{border};"></iframe>
+        <iframe srcdoc="{escaped_html}" width="100%" height="100%" style="border:{border};"></iframe>
         """, width=width, height=height, **kwargs)
 
 
