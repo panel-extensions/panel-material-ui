@@ -204,6 +204,12 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     _esm_base = "Select.jsx"
     _rename = {"name": "name", "groups": None}
 
+    def _validate_options_groups(self, *events):
+        if self.options and self.groups:
+            raise ValueError(
+                f'{type(self).__name__} options and groups parameters '
+                'are mutually exclusive.'
+            )
 
 class _RadioGroup(MaterialWidget):
     """
