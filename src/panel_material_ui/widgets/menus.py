@@ -338,9 +338,9 @@ class SplitButton(MenuBase, _ButtonBase):
     :Example:
 
     >>> pmui.SplitButton(items=[
-    ...     {'label': 'Raw data'},
-    ...     {'label': 'Filtered data'},
-    ... ], label='Download data')
+    ...     {'label': 'Open'},
+    ...     {'label': 'Save'},
+    ... ], label='File')
     """
 
     margin = Margin(default=5)
@@ -351,8 +351,7 @@ class SplitButton(MenuBase, _ButtonBase):
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label', 'icon', 'color', 'items']
-
+    _item_keys = ['label']
 
 
 class Pagination(MaterialWidget):
