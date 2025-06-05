@@ -297,7 +297,7 @@ export function render({model})  {
 
     const files = e.dataTransfer.files
     if (files && files.length > 0) {
-      processFiles(validFiles)
+      processFiles(files)
     }
   }
 
