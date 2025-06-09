@@ -25,6 +25,12 @@ jobs:
         run: pixi run -e build build-wheel
       - name: Check package
         run: pixi run -e build check-wheel
+      - name: Upload bundle size to codecov
+        run: |
+	  python scripts/bundle_size.py
+	  curl --data-binary @size.json \
+            -H "Content-Type: application/json" \
+            "https://codecov.io/upload/v4?token=${{ secrets.CODECOV_TOKEN }}&bundle=1"
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
