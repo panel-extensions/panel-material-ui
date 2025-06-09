@@ -1114,15 +1114,18 @@ class Checkbox(MaterialWidget):
     >>> Checkbox(label='Works with the tools you know and love', value=True)
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="""
+        The color of the checkbox.""")
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 1000ms.""")
 
-    indeterminate = param.Boolean(default=False)
+    indeterminate = param.Boolean(default=False, doc="""
+        Whether the checkbox is in an indeterminate state.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
+        The size of the checkbox.""")
 
     value = param.Boolean(default=False)
 
