@@ -239,7 +239,8 @@ class _RadioGroup(MaterialWidget):
     a list of options, such as radio buttons and checkboxes.
     """
 
-    color = param.Selector(default="primary", objects=COLORS)
+    color = param.Selector(default="primary", objects=COLORS, doc="""
+        The color of the widget.""")
 
     inline = param.Boolean(default=False, doc="""
         Whether the items be arrange vertically (``False``) or
@@ -308,7 +309,7 @@ class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
         default="horizontal",
         objects=["horizontal", "vertical"],
         doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""",
+        Checkbox group orientation, either 'horizontal' (default) or 'vertical'.""",
     )
 
     value = param.List(default=None, allow_None=True)
