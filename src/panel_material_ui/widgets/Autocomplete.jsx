@@ -69,7 +69,6 @@ export function render({model, el}) {
                   return
                 }
               }
-              console.log(new_value)
               event.target.value = new_value
               model.send_event("enter", event)
               setValue(new_value)
