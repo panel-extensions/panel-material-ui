@@ -296,7 +296,7 @@ class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
 
     - https://panel-material-ui.holoviz.org/reference/widgets/CheckBoxGroup.html
     - https://panel.holoviz.org/reference/widgets/CheckBoxGroup.html
-    - https://mui.com/material-ui/react-radio-button/
+    - https://mui.com/material-ui/react-checkbox/#formgroup
 
     :Example:
 
