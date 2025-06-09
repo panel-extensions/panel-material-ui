@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Self
-
 import param
 from panel.util import edit_readonly, isIn
 from panel.util.parameters import get_params_to_inherit
@@ -10,6 +8,7 @@ from panel.widgets.select import NestedSelect as _PnNestedSelect
 from panel.widgets.select import Select as _PnSelect
 from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
 from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
+from typing_extensions import Self
 
 from ..base import COLORS
 from .base import MaterialWidget
