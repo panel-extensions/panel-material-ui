@@ -52,6 +52,11 @@ class MaterialMultiSelectBase(MaterialWidget, _PnMultiSelectBase):
 
     __abstract = True
 
+    def __init__(self, **params):
+        if params.get('value') is None:
+            params['value'] = []
+        super().__init__(**params)
+
 
 class AutocompleteInput(MaterialSingleSelectBase):
     """
@@ -242,6 +247,9 @@ class _RadioGroup(MaterialWidget):
     color = param.Selector(default="primary", objects=COLORS, doc="""
         The color of the widget.""")
 
+    label_placement = param.Selector(default="end", objects=["bottom", "start", "top", "end"], doc="""
+        Placement of the option labels.""")
+
     inline = param.Boolean(default=False, doc="""
         Whether the items be arrange vertically (``False``) or
         horizontally in-line (``True``).""")
@@ -276,9 +284,6 @@ class RadioBoxGroup(_RadioGroup, MaterialSingleSelectBase):
     ... )
     """
 
-    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""")
-
     value = param.Parameter(default=None, allow_None=True)
 
     _constants = {"exclusive": True}
@@ -304,13 +309,6 @@ class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
     ...     name='Fruits', value=['Apple', 'Pear'], options=['Apple', 'Banana', 'Pear', 'Strawberry'],
     ... )
     """
-
-    orientation = param.Selector(
-        default="horizontal",
-        objects=["horizontal", "vertical"],
-        doc="""
-        Checkbox group orientation, either 'horizontal' (default) or 'vertical'.""",
-    )
 
     value = param.List(default=None, allow_None=True)
 
