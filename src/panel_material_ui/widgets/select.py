@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from typing import Self
+
 import param
 from panel.util import edit_readonly, isIn
+from panel.util.parameters import get_params_to_inherit
 from panel.widgets.base import Widget
 from panel.widgets.select import NestedSelect as _PnNestedSelect
 from panel.widgets.select import Select as _PnSelect
@@ -115,14 +118,14 @@ class AutocompleteInput(MaterialSingleSelectBase):
     _rename = {"name": "name"}
 
     def _process_property_change(self, msg):
-        if 'value' in msg and msg['value'] is None:
-            return msg
-        if not self.restrict and 'value' in msg:
-            try:
-                return super()._process_property_change(msg)
-            except Exception:
-                return Widget._process_property_change(self, msg)
-        return super()._process_property_change(msg)
+        is_none = 'value' in msg and not msg['value']
+        try:
+            params = super()._process_property_change(msg)
+        except Exception:
+            params = Widget._process_property_change(self, msg)
+        if is_none:
+            params['value'] = None if self.restrict else ''
+        return params
 
     def _process_param_change(self, msg):
         if 'value' in msg and not self.restrict and not isIn(msg['value'], self.values):
@@ -136,7 +139,23 @@ class AutocompleteInput(MaterialSingleSelectBase):
     @param.depends('value', watch=True, on_init=True)
     def _sync_value_input(self):
         with edit_readonly(self):
-            self.value_input = self.value
+            self.value_input = '' if self.value is None else self.value
+
+    def clone(self, **params) -> Self:
+        """
+        Makes a copy of the object sharing the same parameters.
+
+        Parameters
+        ----------
+        params: Keyword arguments override the parameters on the clone.
+
+        Returns
+        -------
+        Cloned Viewable object
+        """
+        inherited = get_params_to_inherit(self)
+        del inherited['value_input']
+        return type(self)(**dict(inherited, **params))
 
 
 class _SelectDropdownBase(MaterialWidget):
