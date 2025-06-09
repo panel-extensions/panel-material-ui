@@ -29,7 +29,7 @@ export function render({model, el}) {
   }
 
   const filt_func = (options, state) => {
-    let input = state.inputValue
+    const input = state.inputValue
     if (input.length < model.min_characters) {
       return []
     }
