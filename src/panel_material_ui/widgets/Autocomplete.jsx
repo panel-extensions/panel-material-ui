@@ -21,8 +21,8 @@ export function render({model, el}) {
   const filter_op = (input) => {
     return (opt) => {
       if (!model.case_sensitive) {
-	opt = opt.toLowerCase()
-	input = input.toLowerCase()
+        opt = opt.toLowerCase()
+        input = input.toLowerCase()
       }
       return model.search_strategy == "includes" ? opt.includes(input) : opt.startsWith(input)
     }
@@ -49,29 +49,29 @@ export function render({model, el}) {
       renderInput={(params) => (
         <TextField
           {...params}
-	  color={color}
+          color={color}
           label={label}
           placeholder={placeholder}
           onChange={(event) => {
-	    setValueInput(event.target.value)
-	  }}
+            setValueInput(event.target.value)
+          }}
           onKeyDown={(event) => {
-	    if (restrict && ((value_input || "").length < model.min_characters)) {
-	      return
+            if (restrict && ((value_input || "").length < model.min_characters)) {
+              return
             } else if (event.key === "Enter") {
-	      let new_value = value_input
-	      if (restrict) {
-		const filtered = options.filter(filter_op(new_value))
-		if (filtered.length > 0) {
-		  new_value = filtered[0]
-		  setValueInput(filtered[0])
-		} else {
-		  return
-		}
-	      }
-	      console.log(new_value)
-	      event.target.value = new_value
-	      model.send_event("enter", event)
+              let new_value = value_input
+              if (restrict) {
+                const filtered = options.filter(filter_op(new_value))
+                if (filtered.length > 0) {
+                  new_value = filtered[0]
+                  setValueInput(filtered[0])
+                } else {
+                  return
+                }
+              }
+              console.log(new_value)
+              event.target.value = new_value
+              model.send_event("enter", event)
               setValue(new_value)
             }
           }}
