@@ -16,7 +16,7 @@ export function render({model}) {
           color={color}
           checked={checked}
           disabled={disabled}
-	  indeterminate={indeterminate}
+          indeterminate={indeterminate}
           size={size}
           onChange={(event) => setChecked(event.target.checked)}
           sx={{p: "6px", ...sx}}
