@@ -68,6 +68,7 @@ jobs:
           filters: |
             code:
               - 'src/**'
+              - 'tests/**'
               - 'examples/**'
               - 'pyproject.toml'
               - '.github/workflows/ci.yaml'
