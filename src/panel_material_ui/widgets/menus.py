@@ -218,6 +218,7 @@ class List(MenuBase):
       - `items`: Nested items (optional)
       - `selectable`: Whether the list item is selectable (optional)
       - `href`: The URL to navigate to when the list item is clicked (optional)
+      - `target`: Where to open the linked document specified in href (optional)
 
     :References:
 
@@ -250,7 +251,10 @@ class List(MenuBase):
 
     _esm_base = "List.jsx"
 
-    _item_keys = ['label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable', 'href', 'buttons']
+    _item_keys = [
+        'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
+        'href', 'target', 'buttons'
+    ]
 
     @param.depends('items', watch=True, on_init=True)
     def _sync_items(self):
