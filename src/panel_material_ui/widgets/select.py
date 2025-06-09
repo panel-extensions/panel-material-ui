@@ -153,7 +153,8 @@ class AutocompleteInput(MaterialSingleSelectBase):
         Cloned Viewable object
         """
         inherited = get_params_to_inherit(self)
-        del inherited['value_input']
+        if 'value_input' in inherited:
+            del inherited['value_input']
         return type(self)(**dict(inherited, **params))
 
 
