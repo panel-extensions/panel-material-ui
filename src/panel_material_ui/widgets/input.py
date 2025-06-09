@@ -1122,7 +1122,8 @@ class Checkbox(MaterialWidget):
         hovered over the Button, default is 1000ms.""")
 
     indeterminate = param.Boolean(default=False, doc="""
-        Whether the checkbox is in an indeterminate state.""")
+        Whether the checkbox can be in an indeterminate state. The indeterminate state
+        may only be set in Python.""")
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
         The size of the checkbox.""")
@@ -1132,7 +1133,28 @@ class Checkbox(MaterialWidget):
     width = param.Integer(default=None)
 
     _esm_base = "Checkbox.jsx"
-    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _esm_transforms = [TooltipTransform, LoadingTransform, ThemedTransform]
+
+    def __init__(self, **params):
+        is_indeterminate = 'indeterminate' in params and 'value' in params and params['value'] is None
+        if is_indeterminate:
+            params.pop('value')
+        super().__init__(**params)
+        if is_indeterminate:
+            self.value = None
+
+    def _process_param_change(self, params):
+        props = super()._process_param_change(params)
+        if 'value' in props and self.indeterminate:
+            is_none = props['value'] is None
+            props['indeterminate'] = is_none
+            if is_none:
+                del props['value']
+        return props
+
+    @param.depends('indeterminate', watch=True, on_init=True)
+    def _set_allow_none(self):
+        self.param.value.allow_None = self.indeterminate
 
 
 class Switch(MaterialWidget):
