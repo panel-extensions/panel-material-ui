@@ -30,7 +30,7 @@ jobs:
           python scripts/bundle_size.py
           curl --data-binary @size.json \
             -H "Content-Type: application/json" \
-            "https://codecov.io/upload/v4?token=${{ secrets.CODECOV_TOKEN }}&bundle=1&commit=$(git rev-parse HEAD)&branch=$(git rev-parse --abbrev-ref HEAD)&owner=panel-extensions&repo=panel-material-ui""
+            "https://codecov.io/upload/v4?token=${{ secrets.CODECOV_TOKEN }}&bundle=1&commit=$(git rev-parse HEAD)&branch=$(git rev-parse --abbrev-ref HEAD)&owner=panel-extensions&repo=panel-material-ui"
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
