@@ -51,7 +51,6 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
     value_throttled = param.Number(default=0, constant=True)
 
     _esm_base = "Slider.jsx"
-
     _rename = {"name": "name"}
 
     __abstract = True
@@ -91,6 +90,8 @@ class IntSlider(_ContinuousSlider):
     value = param.Integer(default=0)
 
     value_throttled = param.Integer(default=0, constant=True)
+
+    _constants = {"int": True}
 
 
 class FloatSlider(_ContinuousSlider):
@@ -304,6 +305,8 @@ class IntRangeSlider(_RangeSliderBase):
 
     value_end = param.Integer(default=100, readonly=True, doc="""The upper value of the selected range.""")
 
+    _constants = {"int": True}
+
 
 class DateRangeSlider(_RangeSliderBase):
     """
@@ -507,7 +510,6 @@ class Rating(MaterialWidget):
 class _EditableContinuousSliderBase(_ContinuousSlider):
 
     _constants = {"editable": True}
-    _esm_base = "Slider.jsx"
 
 
 class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
@@ -560,6 +562,53 @@ class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
     fixed_end = param.Integer(default=None, doc="""
        A fixed upper bound for the slider and input.""")
 
+    _constants = {"editable": True, "int": True}
+
+
+class _EditableRangeSliderBase(_RangeSliderBase):
+
+    value = param.Range(default=(0, 100))
+
+    _constants = {"editable": True}
+
+
+class EditableRangeSlider(_EditableRangeSliderBase, RangeSlider):
+    """
+    The EditableRangeSlider widget allows selecting a floating-point range
+    using a slider with two handles and for more precise control offers an editable
+    number input box.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/EditableFloatRangeSlider.html
+    """
+
+    fixed_start = param.Number(default=None, doc="""
+        A fixed lower bound for the slider and input.""")
+
+    fixed_end = param.Number(default=None, doc="""
+        A fixed upper bound for the slider and input.""")
+
+
+class EditableIntRangeSlider(_EditableRangeSliderBase, IntRangeSlider):
+    """
+    The EditableIntRangeSlider widget allows selecting an integer range using
+    a slider with two handles and for more precise control offers an editable
+    integer input box.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/EditableIntRangeSlider.html
+    """
+
+    fixed_start = param.Integer(default=None, doc="""
+        A fixed lower bound for the slider and input.""")
+
+    fixed_end = param.Integer(default=None, doc="""
+        A fixed upper bound for the slider and input.""")
+
+    _constants = {"editable": True, "int": True}
+
 
 __all__ = [
     "DateSlider",
@@ -567,7 +616,9 @@ __all__ = [
     "DateRangeSlider",
     "DatetimeRangeSlider",
     "DiscreteSlider",
+    "EditableRangeSlider",
     "EditableFloatSlider",
+    "EditableIntRangeSlider",
     "EditableIntSlider",
     "FloatSlider",
     "IntRangeSlider",
