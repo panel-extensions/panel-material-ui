@@ -56,6 +56,7 @@ export function render({model}) {
     const icon = item.icon
     const icon_color = item.color || "default"
     const href = item.href
+    const target = item.target
     const avatar = item.avatar
     const subitems = item.items
     const item_open = item.open || true
@@ -96,6 +97,7 @@ export function render({model}) {
         disableRipple={!isSelectable}
         color={color}
         href={href}
+        target={target}
         key={`list-item-${key}`}
         onClick={() => {
           if (isSelectable) {
