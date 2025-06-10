@@ -10,8 +10,8 @@ from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
 from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
 from typing_extensions import Self
 
-from ..base import COLORS
-from .base import MaterialWidget
+from ..base import COLORS, LoadingTransform, ThemedTransform
+from .base import MaterialWidget, TooltipTransform
 from .button import _ButtonLike
 
 
@@ -334,6 +334,8 @@ class _ButtonGroup(_ButtonLike):
     width = param.Integer(default=None)
 
     _esm_base = "ButtonGroup.jsx"
+
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
     _rename = {"name": "name"}
 
