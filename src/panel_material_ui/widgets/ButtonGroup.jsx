@@ -19,32 +19,32 @@ export function render({model}) {
     <FormControl component="fieldset" disabled={disabled} fullWidth>
       {label && <FormLabel id="toggle-buttons-group-label">{label}</FormLabel>}
       <ToggleButtonGroup
-	aria-labelledby="toggle-buttons-group-label"
-	aria-label={label}
-	color={color}
-	disabled={disabled}
-	fullWidth
-	orientation={orientation}
-	value={value}
-	variant={variant}
-	sx={sx}
+        aria-labelledby="toggle-buttons-group-label"
+        aria-label={label}
+        color={color}
+        disabled={disabled}
+        fullWidth
+        orientation={orientation}
+        value={value}
+        variant={variant}
+        sx={sx}
       >
-	{options.map((option, index) => {
+        {options.map((option, index) => {
           return (
             <ToggleButton
               aria-label={option}
               key={option}
               onClick={(e) => {
-		let newValue
-		if (exclusive) {
+                let newValue
+                if (exclusive) {
                   newValue = option
-		} else if (value.includes(option)) {
+                } else if (value.includes(option)) {
                   newValue = value.filter((v) => v !== option)
-		} else {
+                } else {
                   newValue = [...value]
                   newValue.push(option)
-		}
-		setValue(newValue)
+                }
+                setValue(newValue)
               }}
               selected={exclusive ? (value==option) : value.includes(option)}
               size={size}
@@ -53,7 +53,7 @@ export function render({model}) {
               {option}
             </ToggleButton>
           )
-	})}
+        })}
       </ToggleButtonGroup>
     </FormControl>
   )
