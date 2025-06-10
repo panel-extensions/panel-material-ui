@@ -78,7 +78,7 @@ export function render({model}) {
       if (value === "") {
         return null
       } else if (regex.test(value)) {
-        return model.mode == "int" ? Math.round(Number(value)) : Number(value)
+        return int ? Math.round(Number(value)) : Number(value)
       } else if (Array.isArray(oldValue)) {
         return oldValue[index]
       } else {
@@ -87,7 +87,7 @@ export function render({model}) {
     }
 
     handleChange = (event, index) => {
-      if (event.target.value === "-" || event.target.value === "" || event.target.value.endsWith(".")) {
+      if (event.target.value === "-" || event.target.value === "") {
         if (Array.isArray(value)) {
           setEditableValue(index === 0 ? [event.target.value, value[1]] : [value[0], event.target.value])
         } else {
@@ -95,10 +95,15 @@ export function render({model}) {
         }
         return
       }
-      const newValue = validate(int ? Math.round(Number(event.target.value)) : event.target.value, index)
+      let newValue = validate(int ? Math.round(Number(event.target.value)) : event.target.value, index)
       setOldValue(value)
       if (Array.isArray(value)) {
-        if (fixed_start != null && newValue < fixed_start) {
+	if (index === 0 && newValue > value[1]) {
+	  newValue = value[1]
+	} else if (index == 1 && newValue < value[0]) {
+	  newValue = value[0]
+	}
+	if (fixed_start != null && newValue < fixed_start) {
           setEditableValue(index === 0 ? [fixed_start, value[1]] : [value[0], fixed_start])
         } else if (fixed_end != null && newValue > fixed_end) {
           setEditableValue(index === 0 ? [fixed_end, value[1]] : [value[0], fixed_end])
@@ -106,11 +111,6 @@ export function render({model}) {
           let clipped = fixed_start != null ? Math.max(fixed_start, newValue) : newValue
           clipped = fixed_end != null ? Math.min(fixed_end, clipped) : clipped
           setEditableValue(index === 0 ? [clipped, value[1]] : [value[0], clipped])
-          if (clipped < start) {
-            setStart(clipped)
-          } else if (clipped > end) {
-            setEnd(clipped)
-          }
         }
       } else {
         if (fixed_start != null && newValue < fixed_start) {
@@ -121,11 +121,6 @@ export function render({model}) {
           let clipped = fixed_start != null ? Math.max(fixed_start, newValue) : newValue
           clipped = fixed_end != null ? Math.min(fixed_end, clipped) : clipped
           setEditableValue(clipped)
-          if (clipped < start) {
-            setStart(clipped)
-          } else if (clipped > end) {
-            setEnd(clipped)
-          }
         }
       }
     }
@@ -150,10 +145,19 @@ export function render({model}) {
     }
 
     commitValue = (index) => {
+      let new_value
       if (Array.isArray(value)) {
-        setValue(index === 0 ? [validate(editableValue[0], 0), value[1]] : [value[0], validate(editableValue[1], 1)])
+	new_value = index === 0 ? [validate(editableValue[0], 0), value[1]] : [value[0], validate(editableValue[1], 1)]
+        setValue(new_value)
+	new_value = new_value[index]
       } else {
-        setValue(validate(editableValue, 0))
+	new_value = validate(editableValue, 0)
+        setValue(new_value)
+      }
+      if (new_value < start) {
+        setStart(new_value)
+      } else if (new_value > end) {
+        setEnd(new_value)
       }
     }
 
@@ -238,9 +242,10 @@ export function render({model}) {
     <FormControl disabled={disabled} fullWidth sx={orientation === "vertical" ? {height: "100%", ...sx} : {...sx}}>
       {editable ? (
         <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", width: "100%"}}>
-          <FormLabel>
+          <FormLabel sx={{whiteSpace: "nowrap"}}>
             {label && `${label}: `}
           </FormLabel>
+	  <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
           <TextField
             color={color}
             disabled={disabled}
@@ -249,23 +254,22 @@ export function render({model}) {
             onFocus={() => setFocused(true)}
             onKeyDown={(e) => handleKeyDown(e, 0)}
             size="small"
-            sx={{width: "100%"}}
+	    sx={{flexGrow: 1, minWidth: 0}}
             value={Array.isArray(value) ? (editableValue ? editableValue[0] : "") : editableValue}
             variant="standard"
             InputProps={{
               disableUnderline: true,
-              inputMode: "decimal",
-              sx: {ml: "0.5em", mt: "0.2em", flexGrow: 1},
+              sx: {ml: "0.5em", mt: "0.2em"},
               startAdornment: (
                 <InputAdornment position="start">
-                  <IconButton onClick={(e) => { increment(0, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default">
+                  <IconButton onClick={(e) => { increment(0, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
                     <RemoveIcon fontSize="small" />
                   </IconButton>
                 </InputAdornment>
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={(e) => { increment(0, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default">
+                  <IconButton onClick={(e) => { increment(0, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
                     <AddIcon fontSize="small" />
                   </IconButton>
                 </InputAdornment>
@@ -274,7 +278,7 @@ export function render({model}) {
           />
           {Array.isArray(value) && (
             <>
-              <Typography>...</Typography>
+              <Typography sx={{alignSelf: "end", fontWeight: 600}}>...</Typography>
               <TextField
                 color={color}
                 disabled={disabled}
@@ -283,23 +287,22 @@ export function render({model}) {
                 onFocus={() => setFocused(true)}
                 onKeyDown={(e) => handleKeyDown(e, 1)}
                 size="small"
-                sx={{width: "100%"}}
+	        sx={{flexGrow: 1, minWidth: 0}}
                 value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
                 variant="standard"
                 InputProps={{
                   disableUnderline: true,
-                  inputMode: "decimal",
-                  sx: {ml: "0.5em", mt: "0.2em", flexGrow: 1},
+                  sx: {ml: "0.5em", mt: "0.2em"},
                   startAdornment: (
                     <InputAdornment position="start">
-                      <IconButton onClick={(e) => { increment(1, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default">
+                      <IconButton onClick={(e) => { increment(1, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
                         <RemoveIcon fontSize="small" />
                       </IconButton>
                     </InputAdornment>
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton onClick={(e) => { increment(1, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default">
+                      <IconButton onClick={(e) => { increment(1, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
                         <AddIcon fontSize="small" />
                       </IconButton>
                     </InputAdornment>
@@ -308,6 +311,7 @@ export function render({model}) {
               />
             </>
           )}
+	    </Box>
         </Box>
       ) : (
         <FormLabel>

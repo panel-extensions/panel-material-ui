@@ -48,11 +48,13 @@ def test_editable_range_slider_input_validation(page):
     # Test out of bounds input
     inputs.nth(0).fill("15")  # Above end
     inputs.nth(0).blur()
-    expect(inputs.nth(0)).to_have_value("10")  # Should clamp to end
+    expect(inputs.nth(0)).to_have_value("8")  # Should clamp to end
 
+    inputs.nth(0).fill("2")  # Above end
+    inputs.nth(0).blur()
     inputs.nth(1).fill("-5")  # Below start
     inputs.nth(1).blur()
-    expect(inputs.nth(1)).to_have_value("0")  # Should clamp to start
+    expect(inputs.nth(1)).to_have_value("2")  # Should clamp to start
 
 def test_editable_range_slider_fixed_bounds(page):
     widget = EditableRangeSlider(

@@ -51,7 +51,6 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
     value_throttled = param.Number(default=0, constant=True)
 
     _esm_base = "Slider.jsx"
-
     _rename = {"name": "name"}
 
     __abstract = True
@@ -512,8 +511,6 @@ class _EditableContinuousSliderBase(_ContinuousSlider):
 
     _constants = {"editable": True}
 
-    _esm_base = "Slider.jsx"
-
 
 class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
     """
@@ -573,8 +570,6 @@ class _EditableRangeSliderBase(_RangeSliderBase):
     value = param.Range(default=(0, 100))
 
     _constants = {"editable": True}
-
-    _esm_base = "Slider.jsx"
 
 
 class EditableRangeSlider(_EditableRangeSliderBase, RangeSlider):
