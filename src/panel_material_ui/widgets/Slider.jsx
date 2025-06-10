@@ -49,7 +49,6 @@ export function render({model}) {
   let editableValue = null
   let handleKeyDown = null
   let increment = null
-  let decrement = null
   let setFocused = null
   let focused = false
   let handleChange = null
@@ -173,7 +172,7 @@ export function render({model}) {
       } else if (value === null) {
         setValue(fixed_start != null ? fixed_start : 0)
       } else {
-	const incremented = Math.round((value + (step * multiplier)) * 100000000000) / 100000000000
+        const incremented = Math.round((value + (step * multiplier)) * 100000000000) / 100000000000
         setValue(fixed_end != null ? Math.min(fixed_end, incremented) : incremented)
       }
     }
@@ -272,38 +271,38 @@ export function render({model}) {
           />
           {Array.isArray(value) && (
             <>
-            <Typography>...</Typography>
-            <TextField
-              color={color}
-              disabled={disabled}
-              onBlur={() => { setFocused(false); commitValue(1) }}
-              onChange={(e) => handleChange(e, 1)}
-              onFocus={() => setFocused(true)}
-              onKeyDown={(e) => handleKeyDown(e, 1)}
-              size="small"
-              sx={{width: "100%"}}
-              value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
-              variant="standard"
-              InputProps={{
-                disableUnderline: true,
-                inputMode: "decimal",
-                sx: {ml: "0.5em", mt: "0.2em", flexGrow: 1},
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <IconButton onClick={(e) => { decrement(1, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default">
-                      <RemoveIcon fontSize="small" />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={(e) => { increment(1, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default">
-                      <AddIcon fontSize="small" />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
+              <Typography>...</Typography>
+              <TextField
+                color={color}
+                disabled={disabled}
+                onBlur={() => { setFocused(false); commitValue(1) }}
+                onChange={(e) => handleChange(e, 1)}
+                onFocus={() => setFocused(true)}
+                onKeyDown={(e) => handleKeyDown(e, 1)}
+                size="small"
+                sx={{width: "100%"}}
+                value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
+                variant="standard"
+                InputProps={{
+                  disableUnderline: true,
+                  inputMode: "decimal",
+                  sx: {ml: "0.5em", mt: "0.2em", flexGrow: 1},
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <IconButton onClick={(e) => { increment(1, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default">
+                        <RemoveIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={(e) => { increment(1, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default">
+                        <AddIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
             </>
           )}
         </Box>
