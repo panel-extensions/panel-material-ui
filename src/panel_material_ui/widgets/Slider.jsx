@@ -98,12 +98,12 @@ export function render({model}) {
       let newValue = validate(int ? Math.round(Number(event.target.value)) : event.target.value, index)
       setOldValue(value)
       if (Array.isArray(value)) {
-	if (index === 0 && newValue > value[1]) {
-	  newValue = value[1]
-	} else if (index == 1 && newValue < value[0]) {
-	  newValue = value[0]
-	}
-	if (fixed_start != null && newValue < fixed_start) {
+        if (index === 0 && newValue > value[1]) {
+          newValue = value[1]
+        } else if (index == 1 && newValue < value[0]) {
+          newValue = value[0]
+        }
+        if (fixed_start != null && newValue < fixed_start) {
           setEditableValue(index === 0 ? [fixed_start, value[1]] : [value[0], fixed_start])
         } else if (fixed_end != null && newValue > fixed_end) {
           setEditableValue(index === 0 ? [fixed_end, value[1]] : [value[0], fixed_end])
@@ -147,11 +147,11 @@ export function render({model}) {
     commitValue = (index) => {
       let new_value
       if (Array.isArray(value)) {
-	new_value = index === 0 ? [validate(editableValue[0], 0), value[1]] : [value[0], validate(editableValue[1], 1)]
+        new_value = index === 0 ? [validate(editableValue[0], 0), value[1]] : [value[0], validate(editableValue[1], 1)]
         setValue(new_value)
-	new_value = new_value[index]
+        new_value = new_value[index]
       } else {
-	new_value = validate(editableValue, 0)
+        new_value = validate(editableValue, 0)
         setValue(new_value)
       }
       if (new_value < start) {
@@ -245,73 +245,73 @@ export function render({model}) {
           <FormLabel sx={{whiteSpace: "nowrap"}}>
             {label && `${label}: `}
           </FormLabel>
-	  <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
-          <TextField
-            color={color}
-            disabled={disabled}
-            onBlur={() => { setFocused(false); commitValue(0) }}
-            onChange={(e) => handleChange(e, 0)}
-            onFocus={() => setFocused(true)}
-            onKeyDown={(e) => handleKeyDown(e, 0)}
-            size="small"
-	    sx={{flexGrow: 1, minWidth: 0}}
-            value={Array.isArray(value) ? (editableValue ? editableValue[0] : "") : editableValue}
-            variant="standard"
-            InputProps={{
-              disableUnderline: true,
-              sx: {ml: "0.5em", mt: "0.2em"},
-              startAdornment: (
-                <InputAdornment position="start">
-                  <IconButton onClick={(e) => { increment(0, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                    <RemoveIcon fontSize="small" />
-                  </IconButton>
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={(e) => { increment(0, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                    <AddIcon fontSize="small" />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          {Array.isArray(value) && (
-            <>
-              <Typography sx={{alignSelf: "end", fontWeight: 600}}>...</Typography>
-              <TextField
-                color={color}
-                disabled={disabled}
-                onBlur={() => { setFocused(false); commitValue(1) }}
-                onChange={(e) => handleChange(e, 1)}
-                onFocus={() => setFocused(true)}
-                onKeyDown={(e) => handleKeyDown(e, 1)}
-                size="small"
-	        sx={{flexGrow: 1, minWidth: 0}}
-                value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
-                variant="standard"
-                InputProps={{
-                  disableUnderline: true,
-                  sx: {ml: "0.5em", mt: "0.2em"},
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <IconButton onClick={(e) => { increment(1, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                        <RemoveIcon fontSize="small" />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={(e) => { increment(1, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                        <AddIcon fontSize="small" />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </>
-          )}
-	    </Box>
+          <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
+            <TextField
+              color={color}
+              disabled={disabled}
+              onBlur={() => { setFocused(false); commitValue(0) }}
+              onChange={(e) => handleChange(e, 0)}
+              onFocus={() => setFocused(true)}
+              onKeyDown={(e) => handleKeyDown(e, 0)}
+              size="small"
+              sx={{flexGrow: 1, minWidth: 0}}
+              value={Array.isArray(value) ? (editableValue ? editableValue[0] : "") : editableValue}
+              variant="standard"
+              InputProps={{
+                disableUnderline: true,
+                sx: {ml: "0.5em", mt: "0.2em"},
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <IconButton onClick={(e) => { increment(0, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
+                      <RemoveIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={(e) => { increment(0, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
+                      <AddIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            {Array.isArray(value) && (
+              <>
+                <Typography sx={{alignSelf: "end", fontWeight: 600}}>...</Typography>
+                <TextField
+                  color={color}
+                  disabled={disabled}
+                  onBlur={() => { setFocused(false); commitValue(1) }}
+                  onChange={(e) => handleChange(e, 1)}
+                  onFocus={() => setFocused(true)}
+                  onKeyDown={(e) => handleKeyDown(e, 1)}
+                  size="small"
+                  sx={{flexGrow: 1, minWidth: 0, mr: "0.5em"}}
+                  value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
+                  variant="standard"
+                  InputProps={{
+                    disableUnderline: true,
+                    sx: {ml: "0.5em", mt: "0.2em"},
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <IconButton onClick={(e) => { increment(1, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={(e) => { increment(1, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </>
+            )}
+          </Box>
         </Box>
       ) : (
         <FormLabel>
