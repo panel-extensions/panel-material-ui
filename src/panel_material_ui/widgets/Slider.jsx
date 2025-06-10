@@ -37,6 +37,7 @@ export function render({model}) {
   const datetime = model.esm_constants.datetime
   const discrete = model.esm_constants.discrete
   const editable = model.esm_constants.editable
+  const int = model.esm_constants.int
 
   let labels = null
   if (discrete) {
@@ -72,12 +73,14 @@ export function render({model}) {
       }
     }, [format, value, focused])
 
-    const validate = (value) => {
-      const regex = model.mode == "int" ? int_regex : float_regex
+    const validate = (value, index) => {
+      const regex = int ? int_regex : float_regex
       if (value === "") {
         return null
       } else if (regex.test(value)) {
-        return Number(value)
+        return model.mode == "int" ? Math.round(Number(value)) : Number(value)
+      } else if (Array.isArray(oldValue)) {
+        return oldValue[index]
       } else {
         return oldValue
       }
@@ -92,7 +95,7 @@ export function render({model}) {
         }
         return
       }
-      const newValue = validate(event.target.value)
+      const newValue = validate(int ? Math.round(Number(event.target.value)) : event.target.value, index)
       setOldValue(value)
       if (Array.isArray(value)) {
         if (fixed_start != null && newValue < fixed_start) {
@@ -148,9 +151,9 @@ export function render({model}) {
 
     commitValue = (index) => {
       if (Array.isArray(value)) {
-        setValue(index === 0 ? [validate(editableValue[0]), value[1]] : [value[0], validate(editableValue[1])])
+        setValue(index === 0 ? [validate(editableValue[0], 0), value[1]] : [value[0], validate(editableValue[1], 1)])
       } else {
-        setValue(validate(editableValue))
+        setValue(validate(editableValue, 0))
       }
     }
 

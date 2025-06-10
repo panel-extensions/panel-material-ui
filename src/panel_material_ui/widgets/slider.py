@@ -92,6 +92,8 @@ class IntSlider(_ContinuousSlider):
 
     value_throttled = param.Integer(default=0, constant=True)
 
+    _constants = {"int": True}
+
 
 class FloatSlider(_ContinuousSlider):
     """
@@ -303,6 +305,8 @@ class IntRangeSlider(_RangeSliderBase):
     value_start = param.Integer(default=0, readonly=True, doc="""The lower value of the selected range.""")
 
     value_end = param.Integer(default=100, readonly=True, doc="""The upper value of the selected range.""")
+
+    _constants = {"int": True}
 
 
 class DateRangeSlider(_RangeSliderBase):
@@ -561,6 +565,8 @@ class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
     fixed_end = param.Integer(default=None, doc="""
        A fixed upper bound for the slider and input.""")
 
+    _constants = {"editable": True, "int": True}
+
 
 class _EditableRangeSliderBase(_RangeSliderBase):
 
@@ -605,6 +611,8 @@ class EditableIntRangeSlider(_EditableRangeSliderBase, IntRangeSlider):
 
     fixed_end = param.Integer(default=None, doc="""
         A fixed upper bound for the slider and input.""")
+
+    _constants = {"editable": True, "int": True}
 
 
 __all__ = [
