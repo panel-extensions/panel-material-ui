@@ -10,8 +10,8 @@ from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
 from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
 from typing_extensions import Self
 
-from ..base import COLORS
-from .base import MaterialWidget
+from ..base import COLORS, LoadingTransform, ThemedTransform
+from .base import MaterialWidget, TooltipTransform
 from .button import _ButtonLike
 
 
@@ -51,6 +51,11 @@ class MaterialMultiSelectBase(MaterialWidget, _PnMultiSelectBase):
     _allows_values = False
 
     __abstract = True
+
+    def __init__(self, **params):
+        if params.get('value') is None:
+            params['value'] = []
+        super().__init__(**params)
 
 
 class AutocompleteInput(MaterialSingleSelectBase):
@@ -239,7 +244,11 @@ class _RadioGroup(MaterialWidget):
     a list of options, such as radio buttons and checkboxes.
     """
 
-    color = param.Selector(default="primary", objects=COLORS)
+    color = param.Selector(default="primary", objects=COLORS, doc="""
+        The color of the widget.""")
+
+    label_placement = param.Selector(default="end", objects=["bottom", "start", "top", "end"], doc="""
+        Placement of the option labels.""")
 
     inline = param.Boolean(default=False, doc="""
         Whether the items be arrange vertically (``False``) or
@@ -275,9 +284,6 @@ class RadioBoxGroup(_RadioGroup, MaterialSingleSelectBase):
     ... )
     """
 
-    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""")
-
     value = param.Parameter(default=None, allow_None=True)
 
     _constants = {"exclusive": True}
@@ -295,7 +301,7 @@ class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
 
     - https://panel-material-ui.holoviz.org/reference/widgets/CheckBoxGroup.html
     - https://panel.holoviz.org/reference/widgets/CheckBoxGroup.html
-    - https://mui.com/material-ui/react-radio-button/
+    - https://mui.com/material-ui/react-checkbox/#formgroup
 
     :Example:
 
@@ -303,13 +309,6 @@ class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
     ...     name='Fruits', value=['Apple', 'Pear'], options=['Apple', 'Banana', 'Pear', 'Strawberry'],
     ... )
     """
-
-    orientation = param.Selector(
-        default="horizontal",
-        objects=["horizontal", "vertical"],
-        doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""",
-    )
 
     value = param.List(default=None, allow_None=True)
 
@@ -335,6 +334,8 @@ class _ButtonGroup(_ButtonLike):
     width = param.Integer(default=None)
 
     _esm_base = "ButtonGroup.jsx"
+
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
     _rename = {"name": "name"}
 

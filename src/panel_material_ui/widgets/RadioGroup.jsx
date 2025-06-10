@@ -1,3 +1,4 @@
+import Checkbox from "@mui/material/Checkbox"
 import Radio from "@mui/material/Radio"
 import RadioGroup from "@mui/material/RadioGroup"
 import FormControlLabel from "@mui/material/FormControlLabel"
@@ -9,16 +10,19 @@ export function render({model}) {
   const [disabled] = model.useState("disabled")
   const [inline] = model.useState("inline")
   const [label] = model.useState("label")
+  const [label_placement] = model.useState("label_placement")
   const [options] = model.useState("options")
   const [sx] = model.useState("sx")
   const [value, setValue] = model.useState("value")
   const exclusive = model.esm_constants.exclusive
 
+  const RadioButton = exclusive ? Radio : Checkbox
+
   return (
     <FormControl component="fieldset" disabled={disabled} fullWidth>
-      {label && <FormLabel id="radio-buttons-group-label">{label}</FormLabel>}
+      {label && <FormLabel id="radio-group-label">{label}</FormLabel>}
       <RadioGroup
-        aria-labelledby="radio-buttons-group-label"
+        aria-labelledby="radio-group-label"
         fullWidth
         row={inline}
         sx={sx}
@@ -30,9 +34,9 @@ export function render({model}) {
               key={option}
               value={option}
               label={option}
-              labelPlacement={inline ? "bottom" : "right"}
+              labelPlacement={label_placement}
               control={
-                <Radio
+                <RadioButton
                   checked={exclusive ? (value==option) : value.includes(option)}
                   color={color}
                   onClick={(e) => {
