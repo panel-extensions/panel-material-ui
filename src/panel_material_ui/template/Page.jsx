@@ -178,10 +178,11 @@ export function render({model, view}) {
   ) : null
 
   const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && (model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both")))
+  const header_sx = model.theme_config.palette?.primary?.main == null ? {backgroundColor: "#0072b5", color: "#ffffff"} : {}
 
   return (
     <Box className={`mui-${dark_theme ? "dark" : "light"}`} sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
-      <AppBar position="fixed" color="primary" className="header" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
+      <AppBar position="fixed" color="primary" className="header" sx={{zIndex: (theme) => theme.zIndex.drawer + 1, ...header_sx}}>
         <Toolbar>
           {(model.sidebar.length > 0 && drawer_variant !== "permanent") &&
             <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>

@@ -262,7 +262,6 @@ export function render_theme_config(props, theme_config, dark_theme) {
         dark: grey[dark_theme ? 800 : 600],
         contrastText: dark_theme ? "#ffffff" : "#ffffff",
       },
-      primary: {main: "#0072b5"},
       dark: {
         main: grey[dark_theme ? 800 : 600],
         light: grey[dark_theme ? 700 : 400],
