@@ -218,7 +218,7 @@ class List(MenuBase):
       - `items`: Nested items (optional)
       - `selectable`: Whether the list item is selectable (optional)
       - `href`: The URL to navigate to when the list item is clicked (optional)
-      - `target`: Where to open the linked document specified in href (optional)
+      - `target`: The target to open the URL in (optional)
 
     :References:
 
@@ -298,9 +298,11 @@ class MenuButton(MenuBase, _ButtonBase):
     The `MenuButton` component is a button component that allows selecting from a list of items.
 
     MenuButton items can be strings or objects with properties:
-      - label: The label of the menu button item (required)
-      - icon: The icon of the menu button item (optional)
-      - color: The color of the menu button item (optional)
+      - `label`: The label of the menu button item (required)
+      - `icon`: The icon of the menu button item (optional)
+      - `color`: The color of the menu button item (optional)
+      - `href`: The URL to navigate to when the menu button item is clicked (optional)
+      - `target`: The target to open the URL in (optional)
 
     :References:
 
@@ -324,7 +326,7 @@ class MenuButton(MenuBase, _ButtonBase):
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label', 'icon', 'color', 'items']
+    _item_keys = ['label', 'icon', 'color', 'items', 'href', 'target']
 
 
 class Pagination(MaterialWidget):

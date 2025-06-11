@@ -197,3 +197,86 @@ def test_menu_button_menu_position(page):
     assert menu_box['y'] > button_box['y']
     # Menu should be aligned with the right side of the button
     assert abs(menu_box['x'] + menu_box['width'] - (button_box['x'] + button_box['width'])) < 1
+
+def test_menu_button_with_links(page):
+    widget = MenuButton(
+        label='Menu Button',
+        items=[
+            {'label': 'Internal Link', 'href': '/internal'},
+            {'label': 'External Link', 'href': 'https://example.com', 'target': '_blank'},
+            {'label': 'Regular Item'}
+        ]
+    )
+    serve_component(page, widget)
+
+    # Open menu
+    page.locator('.MuiButton-root').click()
+    menu_items = page.locator('.MuiMenuItem-root')
+
+    # Check internal link
+    expect(menu_items.nth(0)).to_have_attribute('href', '/internal')
+
+    # Check external link
+    expect(menu_items.nth(1)).to_have_attribute('href', 'https://example.com')
+    expect(menu_items.nth(1)).to_have_attribute('target', '_blank')
+
+    # Check regular item
+    assert menu_items.nth(2).get_attribute('href') is None
+    assert menu_items.nth(2).get_attribute('target') is None
+
+def test_menu_button_link_click_behavior(page):
+    widget = MenuButton(
+        label='Menu Button',
+        items=[
+            {'label': 'Internal Link', 'href': '/internal'},
+            {'label': 'External Link', 'href': 'https://example.com', 'target': '_blank'}
+        ]
+    )
+    serve_component(page, widget)
+
+    # Open menu
+    page.locator('.MuiButton-root').click()
+
+    # Click internal link and verify menu closes
+    page.locator('.MuiMenuItem-root').first.click()
+    expect(page.locator('.MuiMenu-root')).not_to_be_visible()
+
+    # Reopen menu
+    page.locator('.MuiButton-root').click()
+
+    # Click external link and verify menu closes
+    page.locator('.MuiMenuItem-root').nth(1).click()
+    expect(page.locator('.MuiMenu-root')).not_to_be_visible()
+
+def test_menu_button_mixed_items(page):
+    widget = MenuButton(
+        label='Menu Button',
+        items=[
+            {'label': 'Regular Item'},
+            {'label': '---'},  # Divider
+            {'label': 'Internal Link', 'href': '/internal'},
+            {'label': 'External Link', 'href': 'https://example.com', 'target': '_blank'},
+            {'label': 'Item with Icon', 'icon': 'home'},
+            {'label': '---'},  # Divider
+            {'label': 'Last Item'}
+        ]
+    )
+    serve_component(page, widget)
+
+    # Open menu
+    page.locator('.MuiButton-root').click()
+
+    # Verify all elements are present
+    expect(page.locator('.MuiMenuItem-root')).to_have_count(5)  # 5 menu items
+    expect(page.locator('.MuiDivider-root')).to_have_count(2)   # 2 dividers
+
+    # Verify link attributes
+    menu_items = page.locator('.MuiMenuItem-root')
+    expect(menu_items.nth(1)).to_have_attribute('href', '/internal')
+    expect(menu_items.nth(2)).to_have_attribute('href', 'https://example.com')
+    expect(menu_items.nth(2)).to_have_attribute('target', '_blank')
+
+    # Verify non-link items
+    assert menu_items.nth(0).get_attribute('href') is None
+    assert menu_items.nth(3).get_attribute('href') is None
+    assert menu_items.nth(4).get_attribute('href') is None
