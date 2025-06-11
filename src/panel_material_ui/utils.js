@@ -415,7 +415,7 @@ export function render_theme_config(props, theme_config, dark_theme) {
     }
   }
   if (theme_config != null) {
-    return deepmerge(theme_config, config)
+    return deepmerge(config, theme_config)
   }
   return config
 }
@@ -531,10 +531,12 @@ export const install_theme_hooks = (props) => {
     const theme_configs = []
     const views = []
     while (current != null) {
-      if (current.model?.data?.theme_config != null) {
+      if (current.model?.data?.theme_config !== undefined) {
         const config = current.model.data.theme_config
         views.push(current)
-        theme_configs.push((config.dark && config.light) ? config[dark_ref.current ? "dark" : "light"] : config)
+        if (config !== null) {
+          theme_configs.push((config.dark && config.light) ? config[dark_ref.current ? "dark" : "light"] : config)
+        }
       }
       current = current.parent
     }
