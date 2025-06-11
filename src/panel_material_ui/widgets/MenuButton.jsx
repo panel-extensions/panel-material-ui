@@ -62,10 +62,12 @@ export function render({model}) {
           return (
             <MenuItem
               key={`menu-item-${index}`}
+              href={item.href}
               onClick={() => {
                 setOpen(false)
                 model.send_msg({type: "click", item: index})
               }}
+              target={item.target}
             >
               {item.icon && (
                 item.icon.trim().startsWith("<") ?
