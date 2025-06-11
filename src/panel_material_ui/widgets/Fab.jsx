@@ -4,11 +4,15 @@ export function render({model}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
+  const [icon_size] = model.useState("icon_size")
   const [href] = model.useState("href")
   const [label] = model.useState("label")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
+  const [target] = model.useState("target")
   const [variant] = model.useState("variant")
+
+  const padding = variant === "extended" ? "1.2em" : "0"
 
   return (
     <Fab
@@ -19,6 +23,7 @@ export function render({model}) {
       onClick={() => model.send_event("click", {})}
       size={size}
       sx={sx}
+      target={target}
       variant={variant}
     >
       {
@@ -31,9 +36,10 @@ export function render({model}) {
               maskSize: "contain",
               width: icon_size,
               height: icon_size,
+              paddingRight: padding,
               display: "inline-block"}}
             /> :
-            <Icon>{icon}</Icon>
+            <Icon style={{fontSize: icon_size}} sx={{pr: padding}}>{icon}</Icon>
         )
       }
       {variant === "extended" && label}

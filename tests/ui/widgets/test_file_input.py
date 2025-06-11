@@ -11,6 +11,10 @@ from panel_material_ui.widgets import FileInput
 
 pytestmark = pytest.mark.ui
 
+def test_fileinput(page):
+    widget = FileInput(accept='.png,.jpeg', multiple=True)
+    serve_component(page, widget)
+    expect(page.locator('.file-input')).to_have_count(1)
 
 def test_fileinput_text_file(page):
     widget = FileInput()

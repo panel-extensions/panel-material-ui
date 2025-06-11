@@ -15,14 +15,14 @@ export function render({model, el}) {
     <MuiColorInput
       color={color}
       disabled={disabled}
-      format={format}
+      format={alpha && format === "hex" ? "hex8" : format}
       fullWidth
       isAlphaHidden={!alpha}
       label={label}
       onChange={setValue}
       size={size}
       sx={sx}
-      value={value}
+      value={value || ""}
       variant={variant}
       PopoverProps={{
         container: el,

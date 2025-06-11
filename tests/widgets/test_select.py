@@ -83,6 +83,12 @@ def test_autocomplete_unrestricted(document, comm):
     select.value = 'bar'
     assert widget.data.value == 'bar'
 
+def test_autocomplete_clone_with_value():
+    autocomplete = AutocompleteInput(
+        value='Biology', options=['Biology', 'Chemistry', 'Physics'],
+    )
+    autocomplete.clone(value='Mathematics', restrict=False)
+
 def test_select(document, comm):
     opts = {'A': 'a', '1': 1}
     select = Select(options=opts, value=opts['1'], name='Select')

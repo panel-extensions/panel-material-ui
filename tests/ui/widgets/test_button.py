@@ -24,7 +24,6 @@ def test_button_type(page, button_type):
     button_format = page.locator(f'.MuiButton-contained{button_type.capitalize()}')
     expect(button_format).to_have_count(1)
 
-
 def test_button_on_click(page):
     events = []
     def cb(event):
@@ -37,7 +36,6 @@ def test_button_on_click(page):
     button.click()
     wait_until(lambda: len(events) == 1, page)
 
-
 def test_button_handle_click(page):
     widget = Button(name='Click')
     assert widget.clicks == 0
@@ -45,7 +43,6 @@ def test_button_handle_click(page):
     button = page.locator('.button')
     button.click()
     assert widget.clicks == 1
-
 
 def test_icon_button(page):
     widget = IconButton(
@@ -63,7 +60,6 @@ def test_icon_button(page):
     button_icon.click(force=True)
     expect(icon).to_have_text('check')
 
-
 @pytest.mark.parametrize('button_type', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
 def test_icon_button_format(page, button_type):
     widget = IconButton(
@@ -75,7 +71,6 @@ def test_icon_button_format(page, button_type):
     serve_component(page, widget)
     button_color = page.locator(f'.MuiIconButton-color{button_type.capitalize()}')
     expect(button_color).to_have_count(1)
-
 
 def test_toggle(page):
     widget = Toggle()
@@ -90,7 +85,6 @@ def test_toggle(page):
     toggle_pressed = page.locator("button[aria-pressed='true']")
     expect(toggle_pressed).to_have_count(1)
     wait_until(lambda: widget.value, page=page)
-
 
 @pytest.mark.parametrize('button_type', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
 def test_toggle_format(page, button_type):

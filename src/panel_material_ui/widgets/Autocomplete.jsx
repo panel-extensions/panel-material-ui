@@ -18,18 +18,22 @@ export function render({model, el}) {
     return <Popper {...props} container={el} />
   }
 
-  const filt_func = (options, state) => {
-    let input = state.inputValue
-    if (input.length < model.min_characters) {
-      return []
-    }
-    return options.filter((opt) => {
+  const filter_op = (input) => {
+    return (opt) => {
       if (!model.case_sensitive) {
         opt = opt.toLowerCase()
         input = input.toLowerCase()
       }
       return model.search_strategy == "includes" ? opt.includes(input) : opt.startsWith(input)
-    })
+    }
+  }
+
+  const filt_func = (options, state) => {
+    const input = state.inputValue
+    if (input.length < model.min_characters) {
+      return []
+    }
+    return options.filter(filter_op(input))
   }
 
   return (
@@ -39,18 +43,35 @@ export function render({model, el}) {
       filterOptions={filt_func}
       freeSolo={!restrict}
       fullWidth
+      inputValue={value_input || ""}
       onChange={(event, newValue) => setValue(newValue)}
       options={options}
       renderInput={(params) => (
         <TextField
           {...params}
+          color={color}
           label={label}
           placeholder={placeholder}
-          onChange={(event) => setValueInput(event.target.value)}
+          onChange={(event) => {
+            setValueInput(event.target.value)
+          }}
           onKeyDown={(event) => {
-            if (event.key === "Enter") {
+            if (restrict && ((value_input || "").length < model.min_characters)) {
+              return
+            } else if (event.key === "Enter") {
+              let new_value = value_input
+              if (restrict) {
+                const filtered = options.filter(filter_op(new_value))
+                if (filtered.length > 0) {
+                  new_value = filtered[0]
+                  setValueInput(filtered[0])
+                } else {
+                  return
+                }
+              }
+              event.target.value = new_value
               model.send_event("enter", event)
-              setValue(value_input)
+              setValue(new_value)
             }
           }}
           variant={variant}

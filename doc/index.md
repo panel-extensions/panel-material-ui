@@ -58,7 +58,7 @@ pip install panel_material_ui
 :sync: conda
 
 ```bash
-conda install -c conda-forge panel_material_ui
+conda install -c conda-forge panel-material-ui
 ```
 
 ::::

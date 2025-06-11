@@ -191,7 +191,7 @@ class MaterialComponent(ReactComponent):
         global theme setting.""")
 
     loading = param.Boolean(default=False, doc="""
-        Displays loading spinner on top of the component.""")
+        If True displays a loading spinner on top of the component.""")
 
     theme_config = param.Dict(default=None, nested_refs=True, doc="""
         Options to configure the ThemeProvider.

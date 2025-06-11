@@ -181,8 +181,11 @@ class Fab(Button):
     >>> Fab(icon='add')
     """
 
-    icon = param.String(default="add", doc="""
+    icon = param.String(default="add", allow_None=True, doc="""
         The icon to display on the button.""")
+
+    icon_size = param.String(default="1.5em", doc="""
+        Size of the icon as a string, e.g. 12px or 1em.""")
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
         The size of the button.""")
@@ -210,7 +213,7 @@ class Toggle(_ButtonBase):
     >>> Toggle(label='Toggle', color='success')
     """
 
-    icon_size = param.String(default="1em", doc="""
+    icon_size = param.String(default="1.8em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
 
     value = param.Boolean(default=False)
