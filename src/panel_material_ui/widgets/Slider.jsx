@@ -131,7 +131,6 @@ export function render({model}) {
       let new_value
       if (Array.isArray(value)) {
         new_value = index === 0 ? [validate(edited_value, 0), value[1]] : [value[0], validate(edited_value, 1)]
-        console.log(new_value)
         setValue(new_value)
         new_value = new_value[index]
       } else {
