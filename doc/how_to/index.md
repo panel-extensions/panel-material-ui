@@ -82,6 +82,16 @@ Learn how to use icons in **panel-material-ui**.
 [Learn more »](icons)
 :::
 
+:::{grid-item-card} {octicon}`code;2.5em;sd-mr-1` Custom Components
+:link: custom
+:link-type: doc
+
+Learn how to build custom components extending **panel-material-ui**.
+
++++
+[Learn more »](custom)
+:::
+
 ::::
 
 ## Integrations
