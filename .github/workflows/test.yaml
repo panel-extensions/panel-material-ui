@@ -31,6 +31,9 @@ defaults:
   run:
     shell: bash -e {0}
 
+env:
+  COV: "--cov=./src/panel_material_ui --cov-report=xml --cov-append"
+
 jobs:
   pre_commit:
     name: Run pre-commit
@@ -131,7 +134,7 @@ jobs:
           install: false
         id: install
       - name: Unit tests with coverage
-        run: pixi run -e ${{ matrix.environment }} test-coverage --color=yes
+        run: pixi run -e ${{ matrix.environment }} test-coverage --color=yes $COV
       - name: Example tests
         run: pixi run -e ${{ matrix.environment }} test-example
       - name: Upload coverage reports to Codecov
@@ -160,8 +163,11 @@ jobs:
         id: install
       - name: Test UI
         run: |
+          # Create a .uicoveragerc file to set the concurrency library to greenlet
+          # https://github.com/microsoft/playwright-python/issues/313
+          echo "[run]\nconcurrency = greenlet" > .uicoveragerc
           FAIL="--screenshot only-on-failure --full-page-screenshot --output ui_screenshots --tracing retain-on-failure"
-          pixi run -e ${{ matrix.environment }} test-ui --cov-config=.uicoveragerc $FAIL
+          pixi run -e ${{ matrix.environment }} test-ui $COV --cov-config=.uicoveragerc $FAIL
       - name: Upload UI Screenshots
         uses: actions/upload-artifact@v4
         if: always()

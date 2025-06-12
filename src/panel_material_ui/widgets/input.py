@@ -1212,7 +1212,13 @@ class ColorPicker(MaterialWidget):
 
     color = param.Selector(objects=COLORS, default="primary")
 
-    format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex")
+    format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex", doc="""
+        The format of the color value.
+        - `hex`: The hex color value.
+        - `rgb`: The rgb color value.
+        - `rgba`: The rgba color value.
+        - `hsl`: The hsl color value.
+        - `hsv`: The hsv color value.""")
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium")
 

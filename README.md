@@ -83,7 +83,7 @@ pip install panel-material-ui
 or from conda-forge:
 
 ```bash
-conda install -c conda-forge panel_material_ui
+conda install -c conda-forge panel-material-ui
 ```
 
 ## Documentation
