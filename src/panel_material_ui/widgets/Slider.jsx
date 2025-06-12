@@ -61,7 +61,7 @@ export function render({model}) {
 
     const [editable_value, setEditableValue] = React.useState()
 
-    editableValue = editable_value ?? editable_value
+    editableValue = editable_value ?? editableValue
     setFocused = set_focused ?? setFocused
     focused = focus ?? focused
     React.useEffect(() => {
@@ -113,14 +113,15 @@ export function render({model}) {
     }
 
     commitValue = (index) => {
+      if (!focus) { return }
       let edited_value = Array.isArray(value) ? editableValue[index] : editableValue
       edited_value = int ? Math.round(Number(edited_value)) : edited_value
       if (Array.isArray(value)) {
-	if (index === 0 && edited_value > value[1]) {
+        if (index === 0 && edited_value > value[1]) {
           edited_value = value[1]
-	} else if (index == 1 && edited_value < value[0]) {
+        } else if (index == 1 && edited_value < value[0]) {
           edited_value = value[0]
-	}
+        }
       }
       if (fixed_start != null && edited_value < fixed_start) {
         edited_value = fixed_start
