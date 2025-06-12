@@ -72,12 +72,12 @@ export function render({model}) {
       }
     }, [format, value, focused])
 
-    const validate = (value, index) => {
+    const validate = (new_value, index) => {
       const regex = int ? int_regex : float_regex
-      if (value === "") {
+      if (new_value === "") {
         return null
-      } else if (regex.test(value)) {
-        return int ? Math.round(Number(value)) : Number(value)
+      } else if (regex.test(new_value)) {
+        return int ? Math.round(Number(new_value)) : Number(new_value)
       } else if (Array.isArray(value)) {
         return value[index]
       } else {
@@ -131,6 +131,7 @@ export function render({model}) {
       let new_value
       if (Array.isArray(value)) {
         new_value = index === 0 ? [validate(edited_value, 0), value[1]] : [value[0], validate(edited_value, 1)]
+        console.log(new_value)
         setValue(new_value)
         new_value = new_value[index]
       } else {
