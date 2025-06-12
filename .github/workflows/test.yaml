@@ -32,7 +32,7 @@ defaults:
     shell: bash -e {0}
 
 env:
-  COV: "--cov=./src/panel-material-ui --cov-report=xml --cov-append"
+  COV: "--cov=./src/panel_material_ui --cov-report=xml --cov-append"
 
 jobs:
   pre_commit:
