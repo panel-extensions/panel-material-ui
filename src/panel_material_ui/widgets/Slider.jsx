@@ -57,7 +57,6 @@ export function render({model}) {
   if (editable) {
     const [fixed_start] = model.useState("fixed_start")
     const [fixed_end] = model.useState("fixed_end")
-    const [oldValue, setOldValue] = React.useState(value)
     const [focus, set_focused] = React.useState(false)
 
     const [editable_value, setEditableValue] = React.useState()
@@ -79,49 +78,18 @@ export function render({model}) {
         return null
       } else if (regex.test(value)) {
         return int ? Math.round(Number(value)) : Number(value)
-      } else if (Array.isArray(oldValue)) {
-        return oldValue[index]
+      } else if (Array.isArray(value)) {
+        return value[index]
       } else {
-        return oldValue
+        return value
       }
     }
 
     handleChange = (event, index) => {
-      if (event.target.value === "-" || event.target.value === "") {
-        if (Array.isArray(value)) {
-          setEditableValue(index === 0 ? [event.target.value, value[1]] : [value[0], event.target.value])
-        } else {
-          setEditableValue(event.target.value)
-        }
-        return
-      }
-      let newValue = validate(int ? Math.round(Number(event.target.value)) : event.target.value, index)
-      setOldValue(value)
       if (Array.isArray(value)) {
-        if (index === 0 && newValue > value[1]) {
-          newValue = value[1]
-        } else if (index == 1 && newValue < value[0]) {
-          newValue = value[0]
-        }
-        if (fixed_start != null && newValue < fixed_start) {
-          setEditableValue(index === 0 ? [fixed_start, value[1]] : [value[0], fixed_start])
-        } else if (fixed_end != null && newValue > fixed_end) {
-          setEditableValue(index === 0 ? [fixed_end, value[1]] : [value[0], fixed_end])
-        } else if (newValue != null) {
-          let clipped = fixed_start != null ? Math.max(fixed_start, newValue) : newValue
-          clipped = fixed_end != null ? Math.min(fixed_end, clipped) : clipped
-          setEditableValue(index === 0 ? [clipped, value[1]] : [value[0], clipped])
-        }
+        setEditableValue(index === 0 ? [event.target.value, value[1]] : [value[0], event.target.value])
       } else {
-        if (fixed_start != null && newValue < fixed_start) {
-          setEditableValue(fixed_start)
-        } else if (fixed_end != null && newValue > fixed_end) {
-          setEditableValue(fixed_end)
-        } else if (newValue != null) {
-          let clipped = fixed_start != null ? Math.max(fixed_start, newValue) : newValue
-          clipped = fixed_end != null ? Math.min(fixed_end, clipped) : clipped
-          setEditableValue(clipped)
-        }
+        setEditableValue(event.target.value)
       }
     }
 
@@ -145,13 +113,27 @@ export function render({model}) {
     }
 
     commitValue = (index) => {
+      let edited_value = Array.isArray(value) ? editableValue[index] : editableValue
+      edited_value = int ? Math.round(Number(edited_value)) : edited_value
+      if (Array.isArray(value)) {
+	if (index === 0 && edited_value > value[1]) {
+          edited_value = value[1]
+	} else if (index == 1 && edited_value < value[0]) {
+          edited_value = value[0]
+	}
+      }
+      if (fixed_start != null && edited_value < fixed_start) {
+        edited_value = fixed_start
+      } else if (fixed_end != null && edited_value > fixed_end) {
+        edited_value = fixed_end
+      }
       let new_value
       if (Array.isArray(value)) {
-        new_value = index === 0 ? [validate(editableValue[0], 0), value[1]] : [value[0], validate(editableValue[1], 1)]
+        new_value = index === 0 ? [validate(edited_value, 0), value[1]] : [value[0], validate(edited_value, 1)]
         setValue(new_value)
         new_value = new_value[index]
       } else {
-        new_value = validate(editableValue, 0)
+        new_value = validate(edited_value, 0)
         setValue(new_value)
       }
       if (new_value < start) {
@@ -162,7 +144,6 @@ export function render({model}) {
     }
 
     increment = (index, multiplier = 1) => {
-      setOldValue(value)
       if (Array.isArray(value)) {
         let val = value[index]
         const fixed = index === 0 ? fixed_start : fixed_end
