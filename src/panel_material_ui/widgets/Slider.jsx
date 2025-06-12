@@ -228,10 +228,10 @@ export function render({model}) {
     } else if (Array.isArray(marks)) {
       return marks.map(tick => {
         if (typeof tick === "object" && tick !== null) {
-	  if (date || datetime) {
-	    tick = {...tick, value: dayjs.unix(tick.value / 1000)}
-	  }
-	  return tick
+          if (date || datetime) {
+            tick = {...tick, value: dayjs.unix(tick.value / 1000)}
+          }
+          return tick
         }
         return {
           value: date || datetime ? dayjs.unix(tick / 1000) : tick,
