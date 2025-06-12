@@ -20,7 +20,7 @@
 </tr>
 <tr>
 <td>Latest release</td>
-<td><a href="https://github.com/panel-extensions/panel-material-ui/releases"><img src="https://img.shields.io/github/release/panel-extensions/panel-material-uiel.svg?label=tag&amp;colorB=11ccbb" alt="Github release"></a> <a href="https://pypi.python.org/pypi/panel-material-ui"><img src="https://img.shields.io/pypi/v/panel-material-ui.svg?colorB=cc77dd" alt="PyPI version"></a> <a href="https://anaconda.org/conda-forge/panel-material-ui"><img src="https://img.shields.io/conda/v/conda-forge/panel-material-ui.svg?label=conda%7Cconda-forge&amp;colorB=4488ff" alt="conda-forge version"></a> <a href="https://anaconda.org/anaconda/panel-material-ui"><img src="https://img.shields.io/conda/v/anaconda/panel-material-ui.svg?label=conda%7Cdefaults&amp;style=flat&amp;colorB=4488ff" alt="defaults version"></a></td>
+<td><a href="https://github.com/panel-extensions/panel-material-ui/releases"><img src="https://img.shields.io/github/release/panel-extensions/panel-material-ui.svg?label=tag&amp;colorB=11ccbb" alt="Github release"></a> <a href="https://pypi.python.org/pypi/panel-material-ui"><img src="https://img.shields.io/pypi/v/panel-material-ui.svg?colorB=cc77dd" alt="PyPI version"></a> <a href="https://anaconda.org/conda-forge/panel-material-ui"><img src="https://img.shields.io/conda/v/conda-forge/panel-material-ui.svg?label=conda%7Cconda-forge&amp;colorB=4488ff" alt="conda-forge version"></a> <a href="https://anaconda.org/anaconda/panel-material-ui"><img src="https://img.shields.io/conda/v/anaconda/panel-material-ui.svg?label=conda%7Cdefaults&amp;style=flat&amp;colorB=4488ff" alt="defaults version"></a></td>
 </tr>
 <tr>
 <td>Docs</td>
