@@ -1208,9 +1208,9 @@ class ColorPicker(MaterialWidget):
     >>> pmui.ColorPicker(name='Color Picker', value='#99ef78')
     """
 
-    alpha = param.Boolean(default=False, doc="Whether to allow alpha transparency.")
+    alpha = param.Boolean(default=False, doc="Whether to display input controls for a color's alpha (transparency) channel.")
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="The accent color of the color picker when active or focused.")
 
     format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex", doc="""
         The format of the color value.
@@ -1220,9 +1220,9 @@ class ColorPicker(MaterialWidget):
         - `hsl`: The hsl color value.
         - `hsv`: The hsv color value.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="The visual size of the input field")
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The visual style variant of the input field")
 
     value = param.String(default=None, doc="The current color value.")
 
