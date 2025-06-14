@@ -87,3 +87,11 @@ def test_date_picker_options():
     )
     assert datetime_picker.value == date(2018, 9, 2)
     assert datetime_picker.enabled_dates == options
+
+def test_datepicker_accepts_strings():
+    DatePicker(
+        label='Date Picker',
+        start="2024-04-01",
+        end="2024-04-07",
+        value="2024-04-01"
+    )

@@ -211,7 +211,6 @@ export function render({model, view}) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Component
-        clearable={clearable}
         disabled={disabled}
         disableFuture={disable_future}
         disablePast={disable_past}
@@ -231,6 +230,7 @@ export function render({model, view}) {
         value={internalValue}
         views={views}
         slotProps={{
+          field: {clearable: clearable},
           textField: {
             variant,
             color,
