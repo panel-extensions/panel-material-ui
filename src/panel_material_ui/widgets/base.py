@@ -118,7 +118,7 @@ class MaterialWidget(MaterialComponent, WidgetBase):
 
         import panel_material_ui as pmui
         return pmui.Tabs(
-            pn.pane.HTML(self.param, name="Table", sizing_mode="stretch_width"),
-            pmui.Row(self.controls(jslink=jslink), self, name="Editor", sizing_mode="stretch_width"),
+            pn.pane.HTML(self.param, name="Parameter Table", sizing_mode="stretch_width"),
+            pmui.Row(self.controls(jslink=jslink), self, name="Parameter Editor", sizing_mode="stretch_width"),
             sizing_mode=sizing_mode, **kwargs
         )
