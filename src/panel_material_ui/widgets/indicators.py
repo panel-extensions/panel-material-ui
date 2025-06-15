@@ -85,8 +85,43 @@ class Progress(MaterialWidget):
         if self.value == -1 and self.variant == "determinate":
             self.variant = "indeterminate"
 
+# Generalize or move to dashboard example
+# Could not get icon from ReactComponent so included it here
+
+class ChangeIndicator(MaterialWidget):
+    value = param.String(default="")
+    title = param.String()
+    icon = param.String()
+    change_percent = param.Number()
+    since = param.String()
+
+    _esm_base = "ChangeIndicator.jsx"
+
+    _importmap = {
+        "imports": {
+            "@mui/material": "https://esm.sh/@mui/material@6.4.9",
+        }
+    }
+
+class Icon(MaterialWidget):
+    """The Icon component will display an icon from the Material UI Icon set.
+
+    References:
+
+    - https://mui.com/material-ui/icons/#icon-font-icons
+    - https://mui.com/material-ui/api/icon/
+    """
+    value = param.String(default="", doc="The snake cased name of the icon font ligature.")
+    color = param.String(default="inherit", doc="""The color of the component.
+    It supports both default and custom theme colors""")
+    font_size= param.String(default="medium", doc="""The fontSize applied to the icon.
+    Defaults to medium, but can be configured to inherit font size.""")
+
+    _esm_base="Icon.jsx"
 
 __all__ = [
+    "ChangeIndicator",
+    "Icon",
     "LoadingSpinner",
-    "Progress"
+    "Progress",
 ]
