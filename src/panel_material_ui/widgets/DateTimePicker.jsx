@@ -230,7 +230,7 @@ export function render({model, view}) {
         value={internalValue}
         views={views}
         slotProps={{
-          field: {clearable: clearable},
+          field: {clearable},
           textField: {
             variant,
             color,
