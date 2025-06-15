@@ -660,7 +660,7 @@ class _DatePickerBase(MaterialInputWidget):
         Whether to return values as numpy.datetime64. If left unset,
         will be True if value is a numpy.datetime64, else False.""")
 
-    clearable = param.Boolean(default=True, doc="If true, allows the date to be cleared.")
+    clearable = param.Boolean(default=False, doc="If True, allows the date to be cleared.")
 
     disabled_dates = param.List(default=None, item_type=(date, str), doc="""
       Dates to make unavailable for selection.""")
@@ -674,7 +674,7 @@ class _DatePickerBase(MaterialInputWidget):
 
     end = param.Date(default=None, doc="The maximum selectable date.")
 
-    format = param.String(default='YYYY-MM-DD', doc="The format of the date displayed in the input.")
+    format = param.String(default='YYYY-MM-DD', doc="Format of the date when rendered in the input(s). Defaults to localized format based on the used views.")
 
     open_to = param.Selector(objects=['year', 'month', 'day'], default='day', doc="The default view to open the calendar to.")
 
@@ -684,7 +684,7 @@ class _DatePickerBase(MaterialInputWidget):
 
     value = param.Date(default=None, doc="The selected date.")
 
-    views = param.List(default=['year', 'month', 'day'], doc="The views that are available for the date picker.")
+    views = param.List(default=['year', 'day'], doc="The views that are available for the date picker.")
 
     width = param.Integer(default=300, allow_None=True, doc="""
       Width of this component. If sizing_mode is set to stretch
@@ -736,7 +736,7 @@ class DatePicker(_DatePickerBase):
 
     - https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html
     - https://panel.holoviz.org/reference/widgets/DatePicker.html
-    - https://mui.com/x/react-date-pickers/
+    - https://mui.com/x/react-date-pickers/date-picker/
 
     :Example:
 
@@ -936,7 +936,7 @@ class DatetimePicker(_DatetimePickerBase):
 
     - https://panel-material-ui.holoviz.org/reference/widgets/DatetimePicker.html
     - https://panel.holoviz.org/reference/widgets/DatetimePicker.html
-    - https://mui.com/x/react-date-pickers/
+    - https://mui.com/x/react-date-pickers/date-time-picker/
 
     :Example:
 
@@ -1208,9 +1208,9 @@ class ColorPicker(MaterialWidget):
     >>> pmui.ColorPicker(name='Color Picker', value='#99ef78')
     """
 
-    alpha = param.Boolean(default=False, doc="Whether to allow alpha transparency.")
+    alpha = param.Boolean(default=False, doc="Whether to display input controls for a color's alpha (transparency) channel.")
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="The accent color of the color picker when active or focused.")
 
     format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex", doc="""
         The format of the color value.
@@ -1220,9 +1220,9 @@ class ColorPicker(MaterialWidget):
         - `hsl`: The hsl color value.
         - `hsv`: The hsv color value.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="The visual size of the input field")
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The visual style variant of the input field")
 
     value = param.String(default=None, doc="The current color value.")
 
