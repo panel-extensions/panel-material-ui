@@ -17,7 +17,7 @@ from panel.widgets.input import DatetimeInput as _PnDatetimeInput
 from panel.widgets.input import FileInput as _PnFileInput
 from panel.widgets.input import LiteralInput as _PnLiteralInput
 
-from .._param import Date, Datetime
+from .._param import Date, DateList, Datetime
 from ..base import COLORS, LoadingTransform, ThemedTransform
 from ._mime import MIME_TYPES, NoConverter
 from .base import MaterialWidget, TooltipTransform
@@ -663,14 +663,14 @@ class _DatePickerBase(MaterialInputWidget):
 
     clearable = param.Boolean(default=False, doc="If True, allows the date to be cleared.")
 
-    disabled_dates = param.List(default=None, item_type=(date, str), doc="""
+    disabled_dates = DateList(default=None, doc="""
       Dates to make unavailable for selection.""")
 
     disable_future = param.Boolean(default=False, doc="If true, future dates are disabled.")
 
     disable_past = param.Boolean(default=False, doc="If true, past dates are disabled.")
 
-    enabled_dates = param.List(default=None, item_type=(date, str), doc="""
+    enabled_dates = DateList(default=None, doc="""
       Dates to make available for selection.""")
 
     end = Date(default=None, doc="The maximum selectable date.")
