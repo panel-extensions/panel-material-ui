@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 from typing import Any
 
+import numpy as np
 from param import CalendarDate as _CalendarDate
 from param import Date as _Date
 from param import List
@@ -27,6 +28,8 @@ def to_date(value: Any) -> datetime.date | None:
     ValueError
         If the value could not be converted to a datetime.date.
     """
+    if isinstance(value, np.datetime64):
+        value = value.astype(datetime.date)
     if isinstance(value, str):
         value = datetime.datetime.strptime(value, "%Y-%m-%d").date()
     elif isinstance(value, datetime.datetime):
@@ -57,6 +60,8 @@ def to_datetime(value) -> datetime.datetime | None:
     ValueError
         If the value could not be converted to a datetime.datetime.
     """
+    if isinstance(value, np.datetime64):
+        value = value.astype(datetime.datetime)
     if isinstance(value, str):
         if value.count(':') == 2:
             value = datetime.datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
