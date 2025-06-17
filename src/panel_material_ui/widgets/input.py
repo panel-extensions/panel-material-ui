@@ -679,8 +679,6 @@ class _DatePickerBase(MaterialInputWidget):
 
     open_to = param.Selector(objects=['year', 'month', 'day'], default='day', doc="The default view to open the calendar to.")
 
-    show_today_button = param.Boolean(default=False, doc="If true, shows a button to select today's date.")
-
     start = Date(default=None, doc="The minimum selectable date.")
 
     value = Date(default=None, doc="The selected date.")

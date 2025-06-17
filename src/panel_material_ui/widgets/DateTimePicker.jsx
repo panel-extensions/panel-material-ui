@@ -17,7 +17,6 @@ export function render({model, view}) {
   const [max_date] = model.useState("end")
   const [min_date] = model.useState("start")
   const [open_to] = model.useState("open_to")
-  const [show_today_button] = model.useState("show_today_button")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
   const [modelValue] = model.useState("value")
@@ -225,7 +224,6 @@ export function render({model, view}) {
         onClose={handleClose}
         onOpen={handleOpen}
         shouldDisableDate={shouldDisableDate}
-        showTodayButton={show_today_button}
         sx={{width: "100%", ...sx}}
         value={internalValue}
         views={views}
