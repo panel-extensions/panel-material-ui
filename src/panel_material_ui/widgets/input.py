@@ -748,7 +748,7 @@ class DatePicker(_DatePickerBase):
 
     _constants = {'range': False, 'time': False}
 
-    value = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
+    value = Date(default=None, doc="""
         The current value. Can be a datetime object or a string in ISO format.""")
 
     def _serialize_value(self, value):
