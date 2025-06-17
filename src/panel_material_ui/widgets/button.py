@@ -131,9 +131,13 @@ class Button(_ButtonBase, _ClickButton):
 
     def __init__(self, **params):
         click_handler = params.pop("on_click", None)
+        js_click_code = params.pop("js_on_click", None)
+
         super().__init__(**params)
         if click_handler:
             self.on_click(click_handler)
+        if js_click_code:
+            self.js_on_click(code=js_click_code)
 
     def on_click(self, callback: Callable[[param.parameterized.Event], None | Awaitable[None]]) -> param.parameterized.Watcher:
         """
