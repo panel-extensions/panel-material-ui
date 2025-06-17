@@ -17,6 +17,7 @@ from panel.widgets.input import DatetimeInput as _PnDatetimeInput
 from panel.widgets.input import FileInput as _PnFileInput
 from panel.widgets.input import LiteralInput as _PnLiteralInput
 
+from .._param import Date, Datetime
 from ..base import COLORS, LoadingTransform, ThemedTransform
 from ._mime import MIME_TYPES, NoConverter
 from .base import MaterialWidget, TooltipTransform
@@ -672,7 +673,7 @@ class _DatePickerBase(MaterialInputWidget):
     enabled_dates = param.List(default=None, item_type=(date, str), doc="""
       Dates to make available for selection.""")
 
-    end = param.Date(default=None, doc="The maximum selectable date.")
+    end = Date(default=None, doc="The maximum selectable date.")
 
     format = param.String(default='YYYY-MM-DD', doc="Format of the date when rendered in the input(s). Defaults to localized format based on the used views.")
 
@@ -680,9 +681,9 @@ class _DatePickerBase(MaterialInputWidget):
 
     show_today_button = param.Boolean(default=False, doc="If true, shows a button to select today's date.")
 
-    start = param.Date(default=None, doc="The minimum selectable date.")
+    start = Date(default=None, doc="The minimum selectable date.")
 
-    value = param.Date(default=None, doc="The selected date.")
+    value = Date(default=None, doc="The selected date.")
 
     views = param.List(default=['year', 'day'], doc="The views that are available for the date picker.")
 
@@ -954,7 +955,11 @@ class DatetimePicker(_DatetimePickerBase):
     ... )
     """
 
-    value = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
+    end = Datetime(default=None, doc="The maximum selectable datetime.")
+
+    start = Datetime(default=None, doc="The minimum selectable datetime.")
+
+    value = Datetime(default=None, doc="""
         The current value. Can be a datetime object or a string in ISO format.""")
 
     _source_transforms = {
