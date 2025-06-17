@@ -69,7 +69,7 @@ def to_datetime(value) -> datetime.datetime | None:
             value = datetime.datetime.strptime(value, "%Y-%m-%d %H:%M")
         else:
             value = datetime.datetime.strptime(value, "%Y-%m-%d")
-    elif isinstance(value, datetime.date):
+    elif isinstance(value, datetime.date) and not isinstance(value, datetime.datetime):
         value = datetime.datetime.combine(value, datetime.datetime.min.time())
     elif hasattr(value, 'to_pydatetime'):
         value = value.to_pydatetime()
