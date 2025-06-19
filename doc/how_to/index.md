@@ -1,6 +1,6 @@
-# Customization
+# How-To
 
-Welcome to the **Panel Material UI** customization guides. These guides walk you through:
+Welcome to the **Panel Material UI** how-to guides. These guides walk you through:
 
 - Fine-tuning **component-level** styles using `sx`, class names, and reusable components
 - Applying **global theming** or **palette** overrides for consistent branding
@@ -80,6 +80,16 @@ Learn how to use icons in **panel-material-ui**.
 
 +++
 [Learn more »](icons)
+:::
+
+:::{grid-item-card} {octicon}`code;2.5em;sd-mr-1` Custom Components
+:link: custom
+:link-type: doc
+
+Learn how to build custom components extending **panel-material-ui**.
+
++++
+[Learn more »](custom)
 :::
 
 ::::

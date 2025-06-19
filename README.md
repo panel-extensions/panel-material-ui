@@ -20,7 +20,7 @@
 </tr>
 <tr>
 <td>Latest release</td>
-<td><a href="https://github.com/panel-extensions/panel-material-ui/releases"><img src="https://img.shields.io/github/release/panel-extensions/panel-material-uiel.svg?label=tag&amp;colorB=11ccbb" alt="Github release"></a> <a href="https://pypi.python.org/pypi/panel-material-ui"><img src="https://img.shields.io/pypi/v/panel-material-ui.svg?colorB=cc77dd" alt="PyPI version"></a> <a href="https://anaconda.org/conda-forge/panel-material-ui"><img src="https://img.shields.io/conda/v/conda-forge/panel-material-ui.svg?label=conda%7Cconda-forge&amp;colorB=4488ff" alt="conda-forge version"></a> <a href="https://anaconda.org/anaconda/panel-material-ui"><img src="https://img.shields.io/conda/v/anaconda/panel-material-ui.svg?label=conda%7Cdefaults&amp;style=flat&amp;colorB=4488ff" alt="defaults version"></a></td>
+<td><a href="https://github.com/panel-extensions/panel-material-ui/releases"><img src="https://img.shields.io/github/release/panel-extensions/panel-material-ui.svg?label=tag&amp;colorB=11ccbb" alt="Github release"></a> <a href="https://pypi.python.org/pypi/panel-material-ui"><img src="https://img.shields.io/pypi/v/panel-material-ui.svg?colorB=cc77dd" alt="PyPI version"></a> <a href="https://anaconda.org/conda-forge/panel-material-ui"><img src="https://img.shields.io/conda/v/conda-forge/panel-material-ui.svg?label=conda%7Cconda-forge&amp;colorB=4488ff" alt="conda-forge version"></a> <a href="https://anaconda.org/anaconda/panel-material-ui"><img src="https://img.shields.io/conda/v/anaconda/panel-material-ui.svg?label=conda%7Cdefaults&amp;style=flat&amp;colorB=4488ff" alt="defaults version"></a></td>
 </tr>
 <tr>
 <td>Docs</td>
@@ -64,13 +64,13 @@ Access a growing collection of Material UI–inspired components (Buttons, Slide
 - **Powerful Theming Inheritance**
   Define a theme at a parent level and let it automatically apply to child components without extra configuration, reducing repetitive code while maintaining consistent branding.
 
-Panel Material UI is still fairly new—first released in May 2025. As with any young library, you might run into a few rough edges as we continue to shape and improve it.
+Panel Material UI is still fairly new—first announced in June 2025. As with any young library, you might run into **rough edges** as we continue to shape and improve it.
 
 We’re already using it in production, so development is active and updates are ongoing.
 
 Thanks for your support as we (and maybe you?) keep making Panel Material UI even better!
 
-Want to get involved? [Contribute on GitHub](https://github.com/panel-extensions/panel-material-ui/blob/main/DEVELOPER_GUIDE.md) or share your feedback, we’d love to hear from you.
+Want to get involved? [Contribute on GitHub](https://github.com/panel-extensions/panel-material-ui/blob/main/DEVELOPER_GUIDE.md) or share your feedback—we’d love to hear from you. A good starting point for contributions is [GitHub #290 | Review Reference Guides](https://github.com/panel-extensions/panel-material-ui/issues/290).
 
 ## Installation
 
@@ -83,7 +83,7 @@ pip install panel-material-ui
 or from conda-forge:
 
 ```bash
-conda install -c conda-forge panel_material_ui
+conda install -c conda-forge panel-material-ui
 ```
 
 ## Documentation

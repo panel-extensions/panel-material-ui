@@ -469,7 +469,7 @@ class DiscreteSlider(IntSlider, _PnSingleSelectBase):
 
     def _process_property_change(self, msg):
         if 'value' in msg:
-            msg['value'] = self.values[msg['value']]
+            msg['value'] = self.labels[msg['value']]
         msg = super()._process_property_change(msg)
         return msg
 

@@ -145,12 +145,3 @@ Card(
 ```
 
 Here, the child `Button` automatically inherits the parent’s primary color setting. We generally recommend you style your top-level container, be that a `Page`, a `Container`, or something else (though it does have to be a Panel Mui component).
-
-::::{caution}
-There are some caveats when using theme inheritance:
-
-1. **One-time inheritance**: When the child is first mounted, it will ascend the parent tree merging the `theme_config` from each parent, and then apply its own `theme_config` on top of that.
-2. **No automatic re-check**: If an intermediate parent (or the same parent) changes its `theme_config` after the child has already mounted, the child’s theme does not automatically update. In other words, children do not continuously observe every parent for performance reasons.
-
-This approach ensures good performance—otherwise, every child would have to watch for theme changes up the tree. We therefore strongly recommend that if you have specific theming needs, you set those up before initial render or when newly mounting a subcomponent. For one-off styling primarily make use of one of `sx` based styling. If you absolutely need to re-theme a sub-component **and its children** after initial render, remove it, apply the new `theme_config` and re-add it, the children will now automatically pick up the new theme.
-::::

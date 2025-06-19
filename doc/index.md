@@ -49,7 +49,7 @@ Install Panel Material UI
 :sync: pip
 
 ```bash
-pip install panel_material_ui
+pip install panel-material-ui
 ```
 
 ::::
@@ -65,7 +65,7 @@ conda install -c conda-forge panel-material-ui
 
 :::::
 
-Then [discover the components](components/index) and [customization options](customization/index) available in Panel Material UI or build your own [custom components](custom).
+Then [discover the components](reference/index) and [how-to customize and extend panel-material-ui](how_to/index)
 
 ```{toctree}
 :titlesonly:
@@ -73,7 +73,6 @@ Then [discover the components](components/index) and [customization options](cus
 :maxdepth: 2
 :caption: FOR USERS
 
+how_to/index
 reference/index
-customization/index
-custom
 ```
