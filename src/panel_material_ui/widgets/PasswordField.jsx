@@ -22,6 +22,20 @@ export function render({model}) {
     <TextField
       color={color}
       disabled={disabled}
+      error={error_state}
+      fullWidth
+      inputProps={{maxLength: max_length}}
+      label={label}
+      onBlur={() => setValue(value_input)}
+      onChange={(event) => setValueInput(event.target.value)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          model.send_event("enter", event)
+          setValue(value_input)
+        }
+      }}
+      placeholder={placeholder}
+      size={size}
       slotProps={{
         input: {
           endAdornment: (
@@ -40,19 +54,6 @@ export function render({model}) {
           )
         }
       }}
-      fullWidth
-      inputProps={{maxLength: max_length}}
-      label={label}
-      onBlur={() => setValue(value_input)}
-      onChange={(event) => setValueInput(event.target.value)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter") {
-          model.send_event("enter", event)
-          setValue(value_input)
-        }
-      }}
-      placeholder={placeholder}
-      size={size}
       sx={sx}
       type={showPassword ? "text" : "password"}
       variant={variant}
