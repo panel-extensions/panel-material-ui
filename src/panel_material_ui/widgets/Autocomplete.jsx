@@ -75,7 +75,7 @@ export function render({model, el}) {
               setValue(new_value)
             }
           }}
-	  size={size}
+          size={size}
           variant={variant}
         />
       )}
