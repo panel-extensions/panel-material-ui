@@ -60,7 +60,7 @@ class _TextInputBase(MaterialInputWidget):
         Placeholder for empty input field.""",
     )
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium"], default="medium")
 
     value = param.String(default="")
 
@@ -121,7 +121,13 @@ class PasswordInput(_TextInputBase):
     >>> PasswordInput(label='Password', placeholder='Enter your password here ...')
     """
 
+    enter_pressed = param.Event(doc="""
+        Event when the enter key has been pressed.""")
+
     _esm_base = "PasswordField.jsx"
+
+    def _handle_enter(self, event: DOMEvent):
+        self.param.trigger('enter_pressed')
 
 
 class TextAreaInput(_TextInputBase):
