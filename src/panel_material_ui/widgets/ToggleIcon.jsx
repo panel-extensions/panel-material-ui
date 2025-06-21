@@ -26,13 +26,13 @@ export function render({model, el}) {
   return (
     <Box sx={{display: "flex", alignItems: "center", flexDirection: "row"}}>
       <Checkbox
-	checked={value}
-	color={color_state}
-	disabled={disabled}
-	selected={value}
-	size={size}
-	onClick={(e, newValue) => setValue(!value)}
-	icon={
+        checked={value}
+        color={color_state}
+        disabled={disabled}
+        selected={value}
+        size={size}
+        onClick={(e, newValue) => setValue(!value)}
+        icon={
           icon.trim().startsWith("<") ?
             <span style={{
               maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
@@ -43,7 +43,13 @@ export function render({model, el}) {
               height: text_size,
               display: "inline-block"}}
             /> :
-            <Icon color={color_state} style={{fontSize: font_size}}>{icon}</Icon>
+            <Icon
+              baseClassName={"material-icons-outlined"}
+              color={color_state}
+              style={{fontSize: font_size}}
+            >
+              {icon}
+            </Icon>
         }
         checkedIcon={
           active_icon.trim().startsWith("<") ?
