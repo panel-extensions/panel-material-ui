@@ -34,7 +34,7 @@ export function render({model}) {
           setValue(value_input)
         }
       }}
-      placeholder={placeholder}
+      maxLength={max_length}
       size={size}
       slotProps={{
         input: {
@@ -57,7 +57,7 @@ export function render({model}) {
       sx={sx}
       type={showPassword ? "text" : "password"}
       variant={variant}
-      value={value}
+      value={value_input}
     />
   )
 }
