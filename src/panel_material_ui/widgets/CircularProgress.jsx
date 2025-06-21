@@ -3,7 +3,7 @@ import CircularProgress from "@mui/material/CircularProgress"
 import Typography from "@mui/material/Typography"
 import {useTheme} from "@mui/material/styles"
 
-export function render({model}) {
+export function render({model, el}) {
   const [bgcolor] = model.useState("bgcolor")
   const [color] = model.useState("color")
   const [label] = model.useState("label")
@@ -14,12 +14,13 @@ export function render({model}) {
   const [variant] = model.useState("variant")
   const [with_label] = model.useState("with_label")
 
+  //el.style.overflow = "hidden"
   const theme = useTheme()
 
   const idle = (variant == "indeterminate" && !value)
   return (
     <Box sx={{display: "flex", alignItems: "center", flexDirection: "row"}}>
-      <Box sx={{position: "relative"}}>
+      <Box sx={{position: "relative", width: `${size}px`, height: `${size}px`, overflow: "hidden"}}>
         {bgcolor && (
           <CircularProgress
             sx={{
