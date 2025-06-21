@@ -1,5 +1,11 @@
 import Checkbox from "@mui/material/Checkbox"
 
+const SIZES = {
+  "small": "1.5em",
+  "medium": "2.5em",
+  "large": "3.5em",
+}
+
 export function render({model, el}) {
   const [active_icon] = model.useState("active_icon")
   const [color] = model.useState("color")
@@ -12,11 +18,12 @@ export function render({model, el}) {
 
   const standard_size = ["small", "medium", "large"].includes(size)
   const font_size = standard_size ? null : size
+  const color_state = disabled ? "disabled" : color
 
   return (
     <Checkbox
       checked={value}
-      color={color}
+      color={color_state}
       disabled={disabled}
       selected={value}
       size={size}
@@ -28,11 +35,11 @@ export function render({model, el}) {
             backgroundColor: "currentColor",
             maskRepeat: "no-repeat",
             maskSize: "contain",
-            width: font_size,
-            height: font_size,
+            width: standard_size ? SIZES[size] : font_size,
+            height: standard_size ? SIZES[size] : font_size,
             display: "inline-block"}}
           /> :
-          <Icon color={color} style={{fontSize: font_size}}>{icon}</Icon>
+          <Icon color={color_state} style={{fontSize: font_size}}>{icon}</Icon>
       }
       checkedIcon={
         active_icon.trim().startsWith("<") ?
@@ -41,11 +48,11 @@ export function render({model, el}) {
             backgroundColor: "currentColor",
             maskRepeat: "no-repeat",
             maskSize: "contain",
-            width: font_size,
-            height: font_size,
+            width: standard_size ? SIZES[size] : font_size,
+            height: standard_size ? SIZES[size] : font_size,
             display: "inline-block"}}
           /> :
-          <Icon color={color} style={{fontSize: font_size}}>{active_icon || icon}</Icon>
+          <Icon color={color_state} style={{fontSize: font_size}}>{active_icon || icon}</Icon>
       }
       sx={sx}
     />
