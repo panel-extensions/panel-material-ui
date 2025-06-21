@@ -86,7 +86,6 @@ def _configure_general() -> None:
     """
     # Page configuration
     pmui.Page.param.theme_config.default = THEME_CONFIG
-
     # CSS and font configuration
     if RAW_CSS:
         pmui.Page.config.raw_css.append(RAW_CSS)
