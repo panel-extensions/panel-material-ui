@@ -17,10 +17,10 @@ from .base import MaterialWidget, TooltipTransform
 
 class _ButtonLike(MaterialWidget):
 
-    button_style = param.Selector(objects=["contained", "outlined", "text"], default=None, doc="""
+    button_style = param.Selector(objects=["contained", "outlined", "text"], default=None, precedence=-1, doc="""
         The variant of the component (alias for variant to match Panel's Button API).""")
 
-    button_type = param.Selector(objects=COLORS, default=None, doc="""
+    button_type = param.Selector(objects=COLORS, default=None, precedence=-1, doc="""
         The type of the component (alias for color to match Panel's Button API).""")
 
     color = param.Selector(objects=COLORS, default="primary", doc="""
