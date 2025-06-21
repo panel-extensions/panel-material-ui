@@ -1,7 +1,7 @@
 # Copilot Instructions
 
 This file provides custom instructions for GitHub Copilot based on our Best Practice Coding Guidelines.
-Write code as a very experienced lead Python and Javascript developer would do.
+Write code as a very experienced lead developer proficient in Python, Javascript  and React would do.
 Enable users to use the code in notebooks and python scripts with minimal effort, while ensuring it is maintainable, secure, and high-quality.
 
 ## Core Coding Standards
