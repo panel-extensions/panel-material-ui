@@ -44,11 +44,6 @@ class _ButtonLike(MaterialWidget):
         if self.button_type:
             self.color = self.button_type
 
-    @param.depends("variant", watch=True, on_init=True)
-    def _update_variant(self):
-        if self.button_style:
-            self.variant = self.button_style
-
     def _process_param_change(self, params):
         params = super()._process_param_change(params)
         if "color" in params:
@@ -80,6 +75,9 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
     icon_size = param.String(default="1em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
 
+    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
+        The variant of the component.""")
+
     width = param.Integer(default=None)
 
     _rename: ClassVar[Mapping[str, str | None]] = {
@@ -87,6 +85,11 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
     }
 
     __abstract = True
+
+    @param.depends("variant", watch=True, on_init=True)
+    def _update_variant(self):
+        if self.button_style:
+            self.variant = self.button_style
 
 
 class Button(_ButtonBase, _ClickButton):
@@ -122,9 +125,6 @@ class Button(_ButtonBase, _ClickButton):
     size = param.Selector(default="medium", objects=["small", "medium", "large"])
 
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
-
-    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
-        The variant of the component.""")
 
     _esm_base = "Button.jsx"
     _event = "dom_event"
