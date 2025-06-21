@@ -3,9 +3,9 @@ import Checkbox from "@mui/material/Checkbox"
 import Typography from "@mui/material/Typography"
 
 const SIZES = {
-  "small": "1.5em",
-  "medium": "2.5em",
-  "large": "3.5em",
+  small: "1.5em",
+  medium: "2.5em",
+  large: "3.5em",
 }
 
 export function render({model, el}) {
