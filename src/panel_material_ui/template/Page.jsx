@@ -178,7 +178,7 @@ export function render({model, view}) {
   ) : null
 
   const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && (model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both")))
-  const header_sx = model.theme_config.palette?.primary?.main == null ? {backgroundColor: "#0072b5", color: "#ffffff"} : {}
+  const header_sx = model.theme_config?.palette?.primary?.main == null ? {backgroundColor: "#0072b5", color: "#ffffff"} : {}
 
   return (
     <Box className={`mui-${dark_theme ? "dark" : "light"}`} sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
