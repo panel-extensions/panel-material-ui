@@ -33,9 +33,6 @@ class _ButtonLike(MaterialWidget):
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
 
-    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
-        The variant of the component.""")
-
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _rename = {"button_style": None, "button_type": None}
     _source_transforms = {"button_style": None, "button_type": None}
@@ -125,6 +122,9 @@ class Button(_ButtonBase, _ClickButton):
     size = param.Selector(default="medium", objects=["small", "medium", "large"])
 
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
+
+    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
+        The variant of the component.""")
 
     _esm_base = "Button.jsx"
     _event = "dom_event"

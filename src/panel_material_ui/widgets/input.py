@@ -215,6 +215,9 @@ class FileInput(_ButtonLike, _PnFileInput):
         Maximum total size (in bytes) for all files combined. If specified,
         uploads will be rejected if the total size exceeds this limit.""")
 
+    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
+        The variant of the component.""")
+
     width = param.Integer(default=None)
 
     _esm_base = "FileInput.jsx"
