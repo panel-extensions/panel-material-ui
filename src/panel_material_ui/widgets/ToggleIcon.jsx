@@ -1,4 +1,6 @@
+import Box from "@mui/material/Box"
 import Checkbox from "@mui/material/Checkbox"
+import Typography from "@mui/material/Typography"
 
 const SIZES = {
   "small": "1.5em",
@@ -19,42 +21,46 @@ export function render({model, el}) {
   const standard_size = ["small", "medium", "large"].includes(size)
   const font_size = standard_size ? null : size
   const color_state = disabled ? "disabled" : color
+  const text_size = standard_size ? SIZES[size] : font_size
 
   return (
-    <Checkbox
-      checked={value}
-      color={color_state}
-      disabled={disabled}
-      selected={value}
-      size={size}
-      onClick={(e, newValue) => setValue(!value)}
-      icon={
-        icon.trim().startsWith("<") ?
-          <span style={{
-            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-            backgroundColor: "currentColor",
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            width: standard_size ? SIZES[size] : font_size,
-            height: standard_size ? SIZES[size] : font_size,
-            display: "inline-block"}}
-          /> :
-          <Icon color={color_state} style={{fontSize: font_size}}>{icon}</Icon>
-      }
-      checkedIcon={
-        active_icon.trim().startsWith("<") ?
-          <span style={{
-            maskImage: `url("data:image/svg+xml;base64,${btoa(active_icon || icon)}")`,
-            backgroundColor: "currentColor",
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            width: standard_size ? SIZES[size] : font_size,
-            height: standard_size ? SIZES[size] : font_size,
-            display: "inline-block"}}
-          /> :
-          <Icon color={color_state} style={{fontSize: font_size}}>{active_icon || icon}</Icon>
-      }
-      sx={sx}
-    />
+    <Box sx={{display: "flex", alignItems: "center", flexDirection: "row"}}>
+      <Checkbox
+	checked={value}
+	color={color_state}
+	disabled={disabled}
+	selected={value}
+	size={size}
+	onClick={(e, newValue) => setValue(!value)}
+	icon={
+          icon.trim().startsWith("<") ?
+            <span style={{
+              maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+              backgroundColor: "currentColor",
+              maskRepeat: "no-repeat",
+              maskSize: "contain",
+              width: text_size,
+              height: text_size,
+              display: "inline-block"}}
+            /> :
+            <Icon color={color_state} style={{fontSize: font_size}}>{icon}</Icon>
+        }
+        checkedIcon={
+          active_icon.trim().startsWith("<") ?
+            <span style={{
+              maskImage: `url("data:image/svg+xml;base64,${btoa(active_icon || icon)}")`,
+              backgroundColor: "currentColor",
+              maskRepeat: "no-repeat",
+              maskSize: "contain",
+              width: text_size,
+              height: text_size,
+              display: "inline-block"}}
+            /> :
+            <Icon color={color_state} style={{fontSize: font_size}}>{active_icon || icon}</Icon>
+        }
+        sx={sx}
+      />
+      {label && <Typography sx={{color: "text.primary", fontSize: `calc(${text_size} / 2)`}}>{label}</Typography>}
+    </Box>
   )
 }
