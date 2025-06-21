@@ -21,7 +21,7 @@ from .._param import Date, DateList, Datetime
 from ..base import COLORS, LoadingTransform, ThemedTransform
 from ._mime import MIME_TYPES, NoConverter
 from .base import MaterialWidget, TooltipTransform
-from .button import _ButtonLike
+from .button import _ButtonBase
 
 if TYPE_CHECKING:
     from bokeh.document import Document
@@ -191,7 +191,7 @@ class MissingFileChunkError(RuntimeError):
     """Exception raised when a chunk is missing during file upload processing."""
 
 
-class FileInput(_ButtonLike, _PnFileInput):
+class FileInput(_ButtonBase, _PnFileInput):
     """
     The `FileInput` allows the user to upload one or more files to the server.
 
@@ -1192,7 +1192,7 @@ class Switch(MaterialWidget):
 
     edge = param.Selector(objects=["start", "end", False], default=False)
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium"], default="medium")
 
     value = param.Boolean(default=False)
 

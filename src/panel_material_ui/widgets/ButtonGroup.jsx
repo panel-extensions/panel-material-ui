@@ -12,7 +12,6 @@ export function render({model}) {
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [value, setValue] = model.useState("value")
-  const [variant] = model.useState("variant")
   const exclusive = model.esm_constants.exclusive
 
   return (
@@ -26,7 +25,6 @@ export function render({model}) {
         fullWidth
         orientation={orientation}
         value={value}
-        variant={variant}
         sx={sx}
       >
         {options.map((option, index) => {
