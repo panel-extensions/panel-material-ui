@@ -179,7 +179,7 @@ export function render({model, view}) {
 
   const color_scheme = dark_theme ? "dark" : "light"
   const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && (model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both")))
-  const primary_color = model.theme_config?.palette?.primary?.main ?? model.theme_config[color_scheme]?.palette?.primary?.main
+  const primary_color = model.theme_config?.palette?.primary?.main ?? model.theme_config?.[color_scheme]?.palette?.primary?.main
   const header_sx = primary_color == null ? {backgroundColor: "#0072b5", color: "#ffffff"} : {}
 
   return (
