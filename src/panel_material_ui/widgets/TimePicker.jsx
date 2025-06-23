@@ -4,26 +4,26 @@ import {TimePicker} from "@mui/x-date-pickers/TimePicker"
 import dayjs from "dayjs"
 
 export function render({model, view}) {
-  const [label] = model.useState("label")
+  const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [clock] = model.useState("clock")
-  const [seconds] = model.useState("seconds")
-  const [minute_increment] = model.useState("minute_increment")
-  const [hour_increment] = model.useState("hour_increment")
-  const [second_increment] = model.useState("second_increment")
-  const [min_time] = model.useState("start")
-  const [max_time] = model.useState("end")
-  const [color] = model.useState("color")
-  const [variant] = model.useState("variant")
   const [format] = model.useState("format")
+  const [hour_increment] = model.useState("hour_increment")
+  const [label] = model.useState("label")
+  const [max_time] = model.useState("end")
+  const [min_time] = model.useState("start")
+  const [minute_increment] = model.useState("minute_increment")
+  const [mode] = model.useState("mode")
+  const [seconds] = model.useState("seconds")
+  const [second_increment] = model.useState("second_increment")
   const [sx] = model.useState("sx")
   const [modelValue, setModelValue] = model.useState("value")
+  const [variant] = model.useState("variant")
 
   function parseTime(timeString) {
     if (!timeString) { return null; }
 
     if (typeof timeString === "string") {
-      dayjs(timeString, format)
       const [hours, minutes, seconds] = timeString.split(":").map(Number);
       return dayjs().hour(hours).minute(minutes).second(seconds || 0);
     } else {
@@ -37,7 +37,6 @@ export function render({model, view}) {
     const parsedTime = parseTime(modelValue)
     setValue(parsedTime)
   }, [modelValue])
-
   const handleChange = (newValue) => {
     if (newValue) {
       const timeString = newValue.format("HH:mm:ss")
@@ -48,21 +47,21 @@ export function render({model, view}) {
   };
 
   const views = seconds ? ["hours", "minutes", "seconds"] : ["hours", "minutes"];
+  const media_query = mode === "auto" ? "@media (pointer:fine)" : (mode === "digital" ? "@media all" : "@media (width: 0px)");
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <TimePicker
         ampm={clock === "12h"}
+        desktopModeMediaQuery={media_query}
         disabled={disabled}
         format={format}
-        hoursStep={hour_increment}
         label={label}
-        minutesStep={minute_increment}
         onChange={handleChange}
-        secondsStep={second_increment}
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}
         slotProps={{textField: {variant, color}, popper: {container: view.container}}}
+        timeSteps={{hours: hour_increment, minute: minute_increment, second: second_increment}}
         sx={{width: "100%", ...sx}}
         value={value}
         views={views}
