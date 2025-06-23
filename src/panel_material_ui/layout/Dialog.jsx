@@ -27,7 +27,7 @@ export function render({model, view}) {
       scroll={scroll}
       sx={sx}
     >
-      <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between" }>
+      <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
         <DialogTitle>{title}</DialogTitle>
         {show_close_button && (
           <IconButton
