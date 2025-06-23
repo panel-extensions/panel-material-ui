@@ -13,6 +13,7 @@ from panel.io.resources import ResourceComponent, Resources
 from panel.io.state import state
 from panel.util import edit_readonly
 from panel.viewable import Child, Children
+from param.parameterized import edit_constant
 
 from .._utils import _read_icon
 from ..base import BASE_TEMPLATE, MaterialComponent, ThemedTransform, _env
@@ -37,15 +38,20 @@ class Meta(param.Parameterized):
     Meta allows controlling meta tags and other HTML head elements.
     """
 
-    name = param.String(default="Panel App", doc="The name of the page.")
-    title = param.String(default=None, doc="The title of the page.")
-    description = param.String(default=None, doc="The description of the page.")
-    keywords = param.String(default=None, doc="The keywords of the page.")
-    author = param.String(default=None, doc="The author of the page.")
-    viewport = param.String(default="width=device-width, initial-scale=1.0", doc="The viewport of the page.")
-    icon = param.String(default=None, doc="The 32x32 icon of the page.")
-    apple_touch_icon = param.String(default=None, doc="The apple 180x180 touch icon of the page.")
-    refresh = param.String(default=None, doc="The refresh of the page.")
+    name = param.String(default="Panel App", doc="The name of the page.", constant=True)
+    title = param.String(default=None, doc="The title of the page.", constant=True)
+    description = param.String(default=None, doc="The description of the page.", constant=True)
+    keywords = param.String(default=None, doc="The keywords of the page.", constant=True)
+    author = param.String(default=None, doc="The author of the page.", constant=True)
+    viewport = param.String(default="width=device-width, initial-scale=1.0", doc="The viewport of the page.", constant=True)
+    icon = param.String(default=None, doc="The 32x32 icon of the page.", constant=True)
+    apple_touch_icon = param.String(default=None, doc="The apple 180x180 touch icon of the page.", constant=True)
+    refresh = param.String(default=None, doc="The refresh of the page.", constant=True)
+
+    def __init__(self, **params):
+        if 'name' not in params:
+            params["name"] = ""
+        super().__init__(**params)
 
 
 class Page(MaterialComponent, ResourceComponent):
@@ -86,7 +92,7 @@ class Page(MaterialComponent, ResourceComponent):
 
     main = Children(doc="Items rendered in the main area.")
 
-    meta = param.ClassSelector(default=Meta(), class_=Meta, doc="Meta tags and other HTML head elements.")
+    meta = param.ClassSelector(default=None, class_=Meta, doc="Meta tags and other HTML head elements.")
 
     logo = param.ClassSelector(default=None, class_=(str, pathlib.Path, dict), doc="""
         Logo to render in the header. Can be a string, a pathlib.Path, or a dictionary with
@@ -131,8 +137,11 @@ class Page(MaterialComponent, ResourceComponent):
                 resources[k] = params.pop(k)
         if "title" in params and "title" not in meta:
             meta["title"] = params["title"]
+        if "meta" not in params:
+            params["meta"] = Meta(**meta)
         super().__init__(**params)
-        self.meta.param.update(**meta)
+        with edit_constant(self.meta):
+            self.meta.param.update(**meta)
         self.config.param.update(**resources)
         with edit_readonly(self):
             self.busy = state.param.busy
