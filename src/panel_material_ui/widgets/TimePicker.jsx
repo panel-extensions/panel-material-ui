@@ -8,14 +8,11 @@ export function render({model, view}) {
   const [disabled] = model.useState("disabled")
   const [clock] = model.useState("clock")
   const [format] = model.useState("format")
-  const [hour_increment] = model.useState("hour_increment")
   const [label] = model.useState("label")
   const [max_time] = model.useState("end")
   const [min_time] = model.useState("start")
-  const [minute_increment] = model.useState("minute_increment")
   const [mode] = model.useState("mode")
   const [seconds] = model.useState("seconds")
-  const [second_increment] = model.useState("second_increment")
   const [sx] = model.useState("sx")
   const [modelValue, setModelValue] = model.useState("value")
   const [variant] = model.useState("variant")
@@ -61,7 +58,6 @@ export function render({model, view}) {
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}
         slotProps={{textField: {variant, color}, popper: {container: view.container}}}
-        timeSteps={{hours: hour_increment, minute: minute_increment, second: second_increment}}
         sx={{width: "100%", ...sx}}
         value={value}
         views={views}
