@@ -11,6 +11,9 @@
     <link rel="apple-touch-icon" href="{% if apple_touch_icon %}{{ apple_touch_icon }}{% else %}{{ dist_url }}images/apple-touch-icon.png{% endif %}">
     <link rel="icon" href="{% if favicon %}{{ favicon }}{% else %}{{ dist_url }}images/favicon.ico{% endif %}">
     {% if meta -%}
+    {% if meta.title %}
+    <meta name="title" content="{{ meta.title }}">
+    {% endif -%}
     {% if meta.name %}
     <meta name="name" content="{{ meta.name }}">
     {% endif -%}
