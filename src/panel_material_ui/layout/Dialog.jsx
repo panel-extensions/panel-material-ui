@@ -1,6 +1,9 @@
 import Dialog from "@mui/material/Dialog"
 import DialogContent from "@mui/material/DialogContent"
 import DialogTitle from "@mui/material/DialogTitle"
+import IconButton from "@mui/material/IconButton"
+import CloseIcon from "@mui/icons-material/Close"
+import Box from "@mui/material/Box"
 
 export function render({model, view}) {
   const [close_on_click] = model.useState("close_on_click")
@@ -8,6 +11,7 @@ export function render({model, view}) {
   const [open, setOpen] = model.useState("open")
   const [title] = model.useState("title")
   const [scroll] = model.useState("scroll")
+  const [show_close_button] = model.useState("show_close_button")
   const [sx] = model.useState("sx")
   const [width_option] = model.useState("width_option")
   const objects = model.get_child("objects")
@@ -23,9 +27,17 @@ export function render({model, view}) {
       scroll={scroll}
       sx={sx}
     >
-      <DialogTitle>
-        {title}
-      </DialogTitle>
+      <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+        <DialogTitle>{title}</DialogTitle>
+        {show_close_button && (
+          <IconButton
+            aria-label="close"
+            onClick={() => setOpen(false)}
+          >
+            <CloseIcon />
+          </IconButton>
+        )}
+      </Box>
       <DialogContent sx={{display: "flex", flexDirection: "column"}}>
         {objects}
       </DialogContent>
