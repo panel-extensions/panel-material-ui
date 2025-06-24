@@ -37,7 +37,7 @@ def test_default_page_parameters():
         f"""<link rel="apple-touch-icon" href="{CDN_DIST}images/apple-touch-icon.png">"""
         in html
     )
-    assert """<meta name="name" content="Meta00""" in html
+    assert not """<meta name="name" """ in html
     assert not """<meta name="description" """ in html
     assert not """<meta name="keywords" """ in html
     assert not """<meta name="author" """ in html

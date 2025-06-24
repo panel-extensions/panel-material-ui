@@ -7,11 +7,11 @@ export function render({model}) {
   const [label] = model.useState("label")
   const [max_length] = model.useState("max_length")
   const [placeholder] = model.useState("placeholder")
-  const [value_input, setValueInput] = model.useState("value_input")
-  const [value, setValue] = model.useState("value")
-  const [variant] = model.useState("variant")
-  const [sx] = model.useState("sx")
   const [size] = model.useState("size")
+  const [sx] = model.useState("sx")
+  const [value, setValue] = model.useState("value")
+  const [value_input, setValueInput] = model.useState("value_input")
+  const [variant] = model.useState("variant")
 
   return (
     <TextField

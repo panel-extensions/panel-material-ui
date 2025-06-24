@@ -200,6 +200,9 @@ export function render({model})  {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [directory] = model.useState("directory")
+  const [end_icon] = model.useState("end_icon")
+  const [icon] = model.useState("icon")
+  const [icon_size] = model.useState("icon_size")
   const [loading] = model.useState("loading")
   const [multiple] = model.useState("multiple")
   const [label] = model.useState("label")
@@ -313,7 +316,7 @@ export function render({model})  {
       setStatus("error")
     }
   })
-  const icon = (() => {
+  const dynamic_icon = (() => {
     switch (status) {
       case "error":
         return (
@@ -346,11 +349,36 @@ export function render({model})  {
       color={color}
       component="label"
       disabled={disabled}
+      endIcon={end_icon && (
+        end_icon.trim().startsWith("<") ?
+          <span style={{
+            maskImage: `url("data:image/svg+xml;base64,${btoa(end_icon)}")`,
+            backgroundColor: "currentColor",
+            maskRepeat: "no-repeat",
+            maskSize: "contain",
+            width: icon_size,
+            height: icon_size,
+            display: "inline-block"}}
+          /> :
+          <Icon style={{fontSize: icon_size}}>{end_icon}</Icon>
+      )}
       fullWidth
       loading={loading}
       loadingPosition="start"
       role={undefined}
-      startIcon={icon}
+      startIcon={icon ? (
+        icon.trim().startsWith("<") ?
+          <span style={{
+            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+            backgroundColor: "currentColor",
+            maskRepeat: "no-repeat",
+            maskSize: "contain",
+            width: icon_size,
+            height: icon_size,
+            display: "inline-block"}}
+          /> :
+          <Icon style={{fontSize: icon_size}}>{icon}</Icon>
+      ) : dynamic_icon}
       sx={{
         ...sx,
         ...(isDragOver && {

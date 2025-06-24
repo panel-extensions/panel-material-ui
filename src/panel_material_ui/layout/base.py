@@ -557,6 +557,9 @@ class Dialog(MaterialListLike):
     scroll = param.Selector(objects=["body", "paper"], default="paper", doc="""
         Whether the dialog should scroll the content or the paper.""")
 
+    show_close_button = param.Boolean(default=False, doc="""
+        Whether to show the close button.""")
+
     width_option = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="sm", doc="""
         The width of the dialog.""")
 

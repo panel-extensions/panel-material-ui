@@ -457,7 +457,8 @@ class DiscreteSlider(IntSlider, _PnSingleSelectBase):
 
     @param.depends("options", watch=True)
     def _update_bounds(self):
-        self.param.update(start=0, end=len(self.options)-1)
+        with edit_readonly(self):
+            self.param.update(start=0, end=len(self.options)-1)
 
     def _process_param_change(self, msg):
         msg = super()._process_param_change(msg)

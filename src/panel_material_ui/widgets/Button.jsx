@@ -2,7 +2,7 @@ import Button from "@mui/material/Button"
 
 export function render({model, el}) {
   const [color] = model.useState("color")
-  const [disableElevation] = model.useState("disable_elevation")
+  const [disable_elevation] = model.useState("disable_elevation")
   const [disabled] = model.useState("disabled")
   const [end_icon] = model.useState("end_icon")
   const [href] = model.useState("href")
@@ -18,7 +18,7 @@ export function render({model, el}) {
   return (
     <Button
       color={color}
-      disableElevation={disableElevation}
+      disableElevation={disable_elevation}
       disabled={disabled}
       endIcon={end_icon && (
         end_icon.trim().startsWith("<") ?
