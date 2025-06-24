@@ -3,6 +3,7 @@ import Fab from "@mui/material/Fab"
 export function render({model}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
+  const [end_icon] = model.useState("end_icon")
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [href] = model.useState("href")
@@ -12,7 +13,7 @@ export function render({model}) {
   const [target] = model.useState("target")
   const [variant] = model.useState("variant")
 
-  const padding = variant === "extended" ? "1.2em" : "0"
+  const padding = variant === "extended" ? "1.2em" : "0.2em"
 
   return (
     <Fab
@@ -43,6 +44,22 @@ export function render({model}) {
         )
       }
       {variant === "extended" && label}
+      {
+        end_icon && (
+          end_icon.trim().startsWith("<") ?
+            <span style={{
+              maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+              backgroundColor: "currentColor",
+              maskRepeat: "no-repeat",
+              maskSize: "contain",
+              width: icon_size,
+              height: icon_size,
+              paddingRight: padding,
+              display: "inline-block"}}
+            /> :
+            <Icon style={{fontSize: icon_size}} sx={{pr: padding}}>{end_icon}</Icon>
+        )
+      }
     </Fab>
   )
 }
