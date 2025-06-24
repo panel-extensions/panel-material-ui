@@ -1054,6 +1054,10 @@ class TimePicker(_TimeCommon):
 
     """)
 
+    mode = param.Selector(objects=["digital", "analog", "auto"], default="auto", doc="""
+        Whether to render a digital or analog clock. By default automatically
+        switches between digital clock on desktop to analog clock on mobile.""")
+
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 
     _esm_base = "TimePicker.jsx"
