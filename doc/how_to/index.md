@@ -89,6 +89,16 @@ Learn how to use icons in **panel-material-ui**.
 Learn how to build custom components extending **panel-material-ui**.
 
 +++
+[Learn more »](branding)
+:::
+
+:::{grid-item-card} {octicon}`paintbrush;2.5em;sd-mr-1` Branding
+:link: branding
+:link-type: doc
+
+Learn how to brand your **panel-material-ui** apps.
+
++++
 [Learn more »](custom)
 :::
 
@@ -131,5 +141,6 @@ components
 dark_mode
 color
 icons
+branding
 bokeh_holoviews
 ```

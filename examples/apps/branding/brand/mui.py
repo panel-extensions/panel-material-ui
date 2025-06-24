@@ -86,7 +86,6 @@ def _configure_general() -> None:
     """
     # Page configuration
     pmui.Page.param.theme_config.default = THEME_CONFIG
-
     # CSS and font configuration
     if RAW_CSS:
         pmui.Page.config.raw_css.append(RAW_CSS)
@@ -97,14 +96,13 @@ def _configure_general() -> None:
     pmui.Page.param.logo.default = LOGO_PATH
     pmui.Page.favicon = FAVICON_PATH
     pmui.Page.meta.apple_touch_icon = ""  # Intentionally left empty
-    pmui.Page.meta.name = "Orbitron"
+    pmui.Page.meta.title = "Orbitron"
 
     # Component-specific configurations
     pmui.Button.param.disable_elevation.default = True
 
     # Fix missing closing bracket in stylesheets
     pn.pane.Image.stylesheets = ["img {border-radius: 2px}"]
-    pn.widgets.Tabulator.param.theme = "materialize"
 
 
 def configure() -> None:
