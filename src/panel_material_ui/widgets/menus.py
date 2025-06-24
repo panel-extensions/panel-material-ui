@@ -203,9 +203,9 @@ class Breadcrumbs(MenuBase):
     _item_keys = ['label', 'icon', 'avatar', 'href']
 
 
-class List(MenuBase):
+class MenuList(MenuBase):
     """
-    The `List` component is used to display a structured group of items, such as menus,
+    The `MenuList` component is used to display a structured group of items, such as menus,
     navigation links, or settings.
 
     List items can be strings or objects with properties:
@@ -292,6 +292,7 @@ class List(MenuBase):
         """
         self._on_action_callbacks[action].remove(callback)
 
+List = MenuList
 
 class MenuButton(MenuBase, _ButtonBase):
     """
@@ -452,8 +453,8 @@ class SpeedDial(MenuBase):
 
 __all__ = [
     "Breadcrumbs",
-    "List",
     "MenuButton",
+    "MenuList",
     "Pagination",
     "SpeedDial"
 ]
