@@ -181,7 +181,7 @@ spec = {
                 {"label": "Checkout", "icon": "shopping_cart"},
                 {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
             ])),
-            (List, (['color'],), dict(items=[
+            (MenuList, (['color'],), dict(items=[
                 {"label": "Home"},
                 {"label": "Catalog", "icon": "category"},
                 {"label": "Checkout", "icon": "shopping_cart"},
