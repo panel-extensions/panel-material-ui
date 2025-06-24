@@ -17,10 +17,10 @@ from .base import MaterialWidget, TooltipTransform
 
 class _ButtonLike(MaterialWidget):
 
-    button_style = param.Selector(objects=["contained", "outlined", "text"], default=None, doc="""
+    button_style = param.Selector(objects=["contained", "outlined", "text"], default=None, precedence=-1, doc="""
         The variant of the component (alias for variant to match Panel's Button API).""")
 
-    button_type = param.Selector(objects=COLORS, default=None, doc="""
+    button_type = param.Selector(objects=COLORS, default=None, precedence=-1, doc="""
         The type of the component (alias for color to match Panel's Button API).""")
 
     color = param.Selector(objects=COLORS, default="primary", doc="""
@@ -33,9 +33,6 @@ class _ButtonLike(MaterialWidget):
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
 
-    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
-        The variant of the component.""")
-
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _rename = {"button_style": None, "button_type": None}
     _source_transforms = {"button_style": None, "button_type": None}
@@ -46,11 +43,6 @@ class _ButtonLike(MaterialWidget):
     def _update_color(self):
         if self.button_type:
             self.color = self.button_type
-
-    @param.depends("variant", watch=True, on_init=True)
-    def _update_variant(self):
-        if self.button_style:
-            self.variant = self.button_style
 
     def _process_param_change(self, params):
         params = super()._process_param_change(params)
@@ -83,6 +75,9 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
     icon_size = param.String(default="1em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
 
+    variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
+        The variant of the component.""")
+
     width = param.Integer(default=None)
 
     _rename: ClassVar[Mapping[str, str | None]] = {
@@ -90,6 +85,11 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
     }
 
     __abstract = True
+
+    @param.depends("variant", watch=True, on_init=True)
+    def _update_variant(self):
+        if self.button_style:
+            self.variant = self.button_style
 
 
 class Button(_ButtonBase, _ClickButton):
@@ -223,7 +223,7 @@ class Toggle(_ButtonBase):
     value = param.Boolean(default=False)
 
     _esm_base = "ToggleButton.jsx"
-    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
 
 __all__ = [

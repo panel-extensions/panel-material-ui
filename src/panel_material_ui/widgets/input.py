@@ -21,7 +21,7 @@ from .._param import Date, DateList, Datetime
 from ..base import COLORS, LoadingTransform, ThemedTransform
 from ._mime import MIME_TYPES, NoConverter
 from .base import MaterialWidget, TooltipTransform
-from .button import _ButtonLike
+from .button import _ButtonBase
 
 if TYPE_CHECKING:
     from bokeh.document import Document
@@ -60,7 +60,7 @@ class _TextInputBase(MaterialInputWidget):
         Placeholder for empty input field.""",
     )
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium"], default="medium")
 
     value = param.String(default="")
 
@@ -121,7 +121,13 @@ class PasswordInput(_TextInputBase):
     >>> PasswordInput(label='Password', placeholder='Enter your password here ...')
     """
 
+    enter_pressed = param.Event(doc="""
+        Event when the enter key has been pressed.""")
+
     _esm_base = "PasswordField.jsx"
+
+    def _handle_enter(self, event: DOMEvent):
+        self.param.trigger('enter_pressed')
 
 
 class TextAreaInput(_TextInputBase):
@@ -185,7 +191,7 @@ class MissingFileChunkError(RuntimeError):
     """Exception raised when a chunk is missing during file upload processing."""
 
 
-class FileInput(_ButtonLike, _PnFileInput):
+class FileInput(_ButtonBase, _PnFileInput):
     """
     The `FileInput` allows the user to upload one or more files to the server.
 
@@ -1048,6 +1054,10 @@ class TimePicker(_TimeCommon):
 
     """)
 
+    mode = param.Selector(objects=["digital", "analog", "auto"], default="auto", doc="""
+        Whether to render a digital or analog clock. By default automatically
+        switches between digital clock on desktop to analog clock on mobile.""")
+
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
 
     _esm_base = "TimePicker.jsx"
@@ -1186,7 +1196,7 @@ class Switch(MaterialWidget):
 
     edge = param.Selector(objects=["start", "end", False], default=False)
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium"], default="medium")
 
     value = param.Boolean(default=False)
 

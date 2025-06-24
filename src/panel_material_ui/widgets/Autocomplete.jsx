@@ -11,6 +11,7 @@ export function render({model, el}) {
   const [options] = model.useState("options")
   const [placeholder] = model.useState("placeholder")
   const [restrict] = model.useState("restrict")
+  const [size] = model.useState("size")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
@@ -74,9 +75,11 @@ export function render({model, el}) {
               setValue(new_value)
             }
           }}
+          size={size}
           variant={variant}
         />
       )}
+      size={size}
       sx={sx}
       value={value}
       variant={variant}

@@ -6,7 +6,7 @@ from typing import Any
 import param
 from panel.links import Callback
 
-from ..base import COLORS, ThemedTransform
+from ..base import COLORS, LoadingTransform, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
 from .button import _ButtonBase
 
@@ -36,7 +36,7 @@ class _ClickableIcon(MaterialWidget):
         Whether the icon is toggled on or off.""",
     )
 
-    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
     __abstract = True
 
@@ -61,7 +61,7 @@ class ToggleIcon(_ClickableIcon):
     ... )
     """
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary")
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has

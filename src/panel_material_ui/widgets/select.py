@@ -106,6 +106,8 @@ class AutocompleteInput(MaterialSingleSelectBase):
         completion string. Using `"includes"` means that the user's text can
         match any substring of a completion string.""")
 
+    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+
     value_input = param.Parameter(
         default="",
         readonly=True,
