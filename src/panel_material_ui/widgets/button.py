@@ -62,6 +62,8 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
 
     clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
 
+    disable_elevation = param.Boolean(default=False)
+
     end_icon = param.String(default=None, doc="""
         An icon to render to the right of the button label. Either an SVG or an
         icon name which is loaded from Material Icons.""",
@@ -74,6 +76,8 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
 
     icon_size = param.String(default="1em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
+
+    size = param.Selector(default="medium", objects=["small", "medium", "large"])
 
     variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
         The variant of the component.""")
@@ -114,15 +118,11 @@ class Button(_ButtonBase, _ClickButton):
     >>> Button(label='Click me', icon='caret-right', button_type='primary')
     """
 
-    disable_elevation = param.Boolean(default=False)
-
     href = param.String(default=None, doc="""
         The URL to navigate to when the button is clicked.""")
 
     target = param.Selector(default="_self", objects=["_blank", "_parent", "_self", "_top"],
                             doc="Where to open the linked document.")
-
-    size = param.Selector(default="medium", objects=["small", "medium", "large"])
 
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
 
