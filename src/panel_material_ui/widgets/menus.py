@@ -222,12 +222,12 @@ class MenuList(MenuBase):
 
     :References:
 
-    - https://panel-material-ui.holoviz.org/reference/menus/List.html
+    - https://panel-material-ui.holoviz.org/reference/menus/MenuList.html
     - https://mui.com/material-ui/react-list/
 
     :Example:
 
-    >>> pmui.List(items=[
+    >>> pmui.MenuList(items=[
     ...     {'label': 'Home', 'icon': 'home', 'secondary': 'Overview page'},
     ...     {'label': 'Gallery', 'icon': 'image', 'secondary': 'Visual overview'},
     ...     {'label': 'API', 'icon': 'code', 'secondary': 'API Reference'},
