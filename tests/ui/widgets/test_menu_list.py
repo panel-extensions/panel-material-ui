@@ -12,7 +12,7 @@ def test_menu_list(page):
     widget = MenuList(name='List test', items=['Item 1', 'Item 2', 'Item 3'])
     serve_component(page, widget)
 
-    expect(page.locator(".list")).to_have_count(1)
+    expect(page.locator(".menu-list")).to_have_count(1)
     expect(page.locator(".MuiList-root")).to_have_count(1)
 
     expect(page.locator(".MuiListItemText-root")).to_have_count(3)
