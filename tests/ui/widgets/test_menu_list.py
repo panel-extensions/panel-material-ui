@@ -3,16 +3,16 @@ import pytest
 pytest.importorskip("playwright")
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import List
+from panel_material_ui.widgets import MenuList
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
 
-def test_list(page):
-    widget = List(name='List test', items=['Item 1', 'Item 2', 'Item 3'])
+def test_menu_list(page):
+    widget = MenuList(name='List test', items=['Item 1', 'Item 2', 'Item 3'])
     serve_component(page, widget)
 
-    expect(page.locator(".list")).to_have_count(1)
+    expect(page.locator(".menu-list")).to_have_count(1)
     expect(page.locator(".MuiList-root")).to_have_count(1)
 
     expect(page.locator(".MuiListItemText-root")).to_have_count(3)
@@ -24,19 +24,19 @@ def test_list(page):
         page.locator(".MuiListItemButton-root").nth(i).click()
         wait_until(lambda: widget.value == widget.items[i], page)
 
-def test_list_basic(page):
+def test_menu_list_basic(page):
     items = [
         {'label': 'Item 1'},
         {'label': 'Item 2'},
         {'label': 'Item 3'}
     ]
-    widget = List(items=items)
+    widget = MenuList(items=items)
     serve_component(page, widget)
 
     list_items = page.locator('.MuiListItemButton-root')
     expect(list_items).to_have_count(3)
 
-def test_list_nested(page):
+def test_menu_list_nested(page):
     items = [
         {
             'label': 'Item 1',
@@ -46,7 +46,7 @@ def test_list_nested(page):
             ]
         }
     ]
-    widget = List(items=items)
+    widget = MenuList(items=items)
     serve_component(page, widget)
 
     # Click to expand
@@ -56,13 +56,13 @@ def test_list_nested(page):
     subitems = page.locator('.MuiCollapse-root .MuiListItemButton-root')
     expect(subitems).to_have_count(2)
 
-def test_list_selection(page):
+def test_menu_list_selection(page):
     items = [
         {'label': 'Item 1'},
         {'label': 'Item 2'},
         {'label': 'Item 3'}
     ]
-    widget = List(items=items)
+    widget = MenuList(items=items)
     serve_component(page, widget)
 
     list_items = page.locator('.MuiListItemButton-root')
@@ -71,8 +71,8 @@ def test_list_selection(page):
     assert widget.active == 1
     assert widget.value == items[1]
 
-def test_list_basic_functionality(page):
-    widget = List(items=["Item 1", "Item 2", "Item 3"])
+def test_menu_list_basic_functionality(page):
+    widget = MenuList(items=["Item 1", "Item 2", "Item 3"])
     serve_component(page, widget)
 
     # Verify basic rendering
@@ -82,8 +82,8 @@ def test_list_basic_functionality(page):
     expect(page.locator('.MuiListItemButton-root').nth(1)).to_have_text('IItem 2')
     expect(page.locator('.MuiListItemButton-root').nth(2)).to_have_text('IItem 3')
 
-def test_list_item_selection(page):
-    widget = List(items=["Item 1", "Item 2", "Item 3"])
+def test_menu_list_item_selection(page):
+    widget = MenuList(items=["Item 1", "Item 2", "Item 3"])
     serve_component(page, widget)
 
     # Select first item
@@ -96,8 +96,8 @@ def test_list_item_selection(page):
     wait_until(lambda: widget.active == 1, page)
     expect(page.locator('.MuiListItemButton-root.Mui-selected')).to_have_text('IItem 2')
 
-def test_list_nested_items(page):
-    widget = List(items=[
+def test_menu_list_nested_items(page):
+    widget = MenuList(items=[
         "Item 1",
         {
             "label": "Nested",
@@ -122,8 +122,8 @@ def test_list_nested_items(page):
     page.locator('.MuiCollapse-root .MuiListItemButton-root').first.click()
     wait_until(lambda: widget.active == (1, 0), page)
 
-def test_list_with_icons(page):
-    widget = List(items=[
+def test_menu_list_with_icons(page):
+    widget = MenuList(items=[
         {"label": "Item 1", "icon": "home"},
         {"label": "Item 2", "icon": "settings"}
     ])
@@ -134,8 +134,8 @@ def test_list_with_icons(page):
     expect(icons.nth(0)).to_have_text('home')
     expect(icons.nth(1)).to_have_text('settings')
 
-def test_list_with_avatars(page):
-    widget = List(items=[
+def test_menu_list_with_avatars(page):
+    widget = MenuList(items=[
         {"label": "Item 1", "avatar": "A"},
         {"label": "Item 2"}  # Should use first letter of label
     ])
@@ -146,8 +146,8 @@ def test_list_with_avatars(page):
     expect(avatars.nth(0)).to_have_text('A')
     expect(avatars.nth(1)).to_have_text('I')  # First letter of "Item 2"
 
-def test_list_with_secondary_text(page):
-    widget = List(items=[
+def test_menu_list_with_secondary_text(page):
+    widget = MenuList(items=[
         {"label": "Item 1", "secondary": "Description 1"},
         {"label": "Item 2", "secondary": "Description 2"}
     ])
@@ -157,8 +157,8 @@ def test_list_with_secondary_text(page):
     expect(page.locator('.MuiListItemText-secondary').nth(0)).to_have_text('Description 1')
     expect(page.locator('.MuiListItemText-secondary').nth(1)).to_have_text('Description 2')
 
-def test_list_with_actions(page):
-    widget = List(items=[{
+def test_menu_list_with_actions(page):
+    widget = MenuList(items=[{
         "label": "Item 1",
         "actions": [
             {"label": "Edit", "icon": "edit", "inline": True},
@@ -175,8 +175,8 @@ def test_list_with_actions(page):
     expect(page.locator('.MuiMenu-root .MuiMenuItem-root')).to_have_text('deleteDelete')
     expect(page.locator('.MuiMenu-root .material-icons')).to_have_text('delete')
 
-def test_list_with_dividers(page):
-    widget = List(items=[
+def test_menu_list_with_dividers(page):
+    widget = MenuList(items=[
         "Item 1",
         None,  # Divider
         "Item 2"
@@ -187,23 +187,23 @@ def test_list_with_dividers(page):
     expect(page.locator('.MuiDivider-root')).to_have_count(1)
     expect(page.locator('.MuiListItemButton-root')).to_have_count(2)
 
-def test_list_dense_mode(page):
-    widget = List(items=["Item 1", "Item 2"], dense=True)
+def test_menu_list_dense_mode(page):
+    widget = MenuList(items=["Item 1", "Item 2"], dense=True)
     serve_component(page, widget)
 
     # Verify dense mode
     expect(page.locator('.MuiListItemButton-dense')).to_have_count(2)
 
-def test_list_highlight_behavior(page):
-    widget = List(items=["Item 1", "Item 2"], highlight=False)
+def test_menu_list_highlight_behavior(page):
+    widget = MenuList(items=["Item 1", "Item 2"], highlight=False)
     serve_component(page, widget)
 
     # Select item and verify no highlight
     page.locator('.MuiListItemButton-root').first.click()
     expect(page.locator('.MuiListItemButton-root').first).not_to_have_class('Mui-selected')
 
-def test_list_with_href(page):
-    widget = List(items=[
+def test_menu_list_with_href(page):
+    widget = MenuList(items=[
         {"label": "Link 1", "href": "https://example.com"},
         {"label": "Link 2", "href": "https://example.org", "target": "_blank"}
     ])
@@ -214,20 +214,20 @@ def test_list_with_href(page):
     expect(page.locator('.MuiListItemButton-root').nth(1)).to_have_attribute('href', 'https://example.org')
     expect(page.locator('.MuiListItemButton-root').nth(1)).to_have_attribute('target', '_blank')
 
-def test_list_with_label(page):
+def test_menu_list_with_label(page):
     label = "List Label"
-    widget = List(items=["Item 1", "Item 2"], label=label)
+    widget = MenuList(items=["Item 1", "Item 2"], label=label)
     serve_component(page, widget)
 
     # Verify label
     expect(page.locator('.MuiListSubheader-root')).to_have_text(label)
 
-def test_list_action_callback(page):
+def test_menu_list_action_callback(page):
     events = []
     def cb(event):
         events.append(event)
 
-    widget = List(items=[{
+    widget = MenuList(items=[{
         "label": "Item 1",
         "actions": [{"label": "Action", "icon": "edit"}]
     }])
@@ -239,8 +239,8 @@ def test_list_action_callback(page):
     page.locator('.MuiMenu-root .MuiMenuItem-root').click()
     wait_until(lambda: len(events) == 1, page)
 
-def test_list_non_selectable_items(page):
-    widget = List(items=[
+def test_menu_list_non_selectable_items(page):
+    widget = MenuList(items=[
         {"label": "Selectable", "selectable": True},
         {"label": "Non-selectable", "selectable": False}
     ])
