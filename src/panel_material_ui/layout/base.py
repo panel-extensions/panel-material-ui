@@ -24,6 +24,8 @@ class MaterialLayout(MaterialComponent, SizingModeMixin):
 
     __abstract = True
 
+    _source_transforms = {"objects": None}
+
     def __init__(self, *objects, **params):
         if objects:
             params["objects"] = objects

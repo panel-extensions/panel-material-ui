@@ -20,7 +20,7 @@ export function render({model, view}) {
     <Container
       disableGutters={disableGutters}
       fixed={fixed}
-      maxWidth={widthOption}
+      maxWidth={widthOption || undefined}
       sx={{height: "100%", minHeight: model.min_height, width: "100%", display: "flex", flexDirection: "column", ...sx}}
     >
       {objects.map((object, index) => {
