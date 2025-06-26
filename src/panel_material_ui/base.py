@@ -205,7 +205,7 @@ class MaterialComponent(ReactComponent):
 
     _bundle = BASE_PATH / "dist" / "panel-material-ui.bundle.js"
     _esm_base = None
-    _esm_shared = {'utils': BASE_PATH / "utils.js"}
+    _esm_shared = {'utils': BASE_PATH / "utils.js", 'menu': BASE_PATH / "menu.jsx"}
     _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
         "imports": {
