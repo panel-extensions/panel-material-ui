@@ -268,15 +268,154 @@ def create_pmui_template(
             },
         },
 
-        # Data trace defaults (following Vizro's approach)
+        # Data trace defaults - comprehensive styling for all major plot types
         "data": {
+            # Bar charts
             "bar": [
                 {
                     "marker": {
-                        "line": {"color": paper_bgcolor, "width": 0.5}
+                        "line": {"color": paper_bgcolor, "width": 0.5},
+                        "opacity": 0.8,
+                    },
+                    "textfont": {"color": font_color_primary},
+                }
+            ],
+
+            # Scatter plots
+            "scatter": [
+                {
+                    "marker": {
+                        "size": 8,
+                        "line": {"color": paper_bgcolor, "width": 0.5},
+                        "opacity": 0.8,
+                    },
+                    "textfont": {"color": font_color_primary},
+                }
+            ],
+
+            # Line plots
+            "scatter3d": [
+                {
+                    "marker": {
+                        "size": 4,
+                        "line": {"color": paper_bgcolor, "width": 0.5},
+                        "opacity": 0.8,
                     }
                 }
             ],
+
+            # Histogram
+            "histogram": [
+                {
+                    "marker": {
+                        "line": {"color": paper_bgcolor, "width": 0.5},
+                        "opacity": 0.7,
+                    }
+                }
+            ],
+
+            # Box plots
+            "box": [
+                {
+                    "boxpoints": "outliers",
+                    "fillcolor": "rgba(255,255,255,0)",
+                    "line": {"color": font_color_primary},
+                    "marker": {"opacity": 0.8, "size": 3},
+                }
+            ],
+
+            # Violin plots
+            "violin": [
+                {
+                    "fillcolor": "rgba(255,255,255,0)",
+                    "line": {"color": font_color_primary},
+                    "marker": {"opacity": 0.8, "size": 3},
+                }
+            ],
+
+            # Heatmaps
+            "heatmap": [
+                {
+                    "colorbar": {
+                        "outlinewidth": 0,
+                        "ticks": "",
+                        "tickcolor": axis_line_color,
+                        "tickfont": {"color": font_color_secondary},
+                        "title": {"font": {"color": font_color_primary}},
+                    },
+                    "colorscale": [
+                        [0, colorway[1] if len(colorway) > 1 else "#f44336"],  # Red
+                        [0.25, "#ffffff" if mode == "light" else "#424242"],    # White/Gray
+                        [0.5, "#e0e0e0" if mode == "light" else "#616161"],    # Light Gray
+                        [0.75, colorway[0] if colorway else "#1976d2"],        # Primary blue
+                        [1, colorway[2] if len(colorway) > 2 else "#0d47a1"]   # Dark blue
+                    ],
+                }
+            ],
+
+            # Contour plots
+            "contour": [
+                {
+                    "colorbar": {
+                        "outlinewidth": 0,
+                        "ticks": "",
+                        "tickcolor": axis_line_color,
+                        "tickfont": {"color": font_color_secondary},
+                        "title": {"font": {"color": font_color_primary}},
+                    },
+                    "colorscale": [
+                        [0, colorway[0] if colorway else "#1976d2"],           # Primary blue
+                        [0.33, colorway[2] if len(colorway) > 2 else "#4caf50"], # Green
+                        [0.67, colorway[4] if len(colorway) > 4 else "#ff9800"], # Orange
+                        [1, colorway[1] if len(colorway) > 1 else "#f44336"]     # Red
+                    ],
+                    "line": {"color": axis_line_color, "width": 0.5},
+                }
+            ],
+
+            # Surface plots
+            "surface": [
+                {
+                    "colorbar": {
+                        "outlinewidth": 0,
+                        "ticks": "",
+                        "tickcolor": axis_line_color,
+                        "tickfont": {"color": font_color_secondary},
+                        "title": {"font": {"color": font_color_primary}},
+                    },
+                    "colorscale": [
+                        [0, colorway[0] if colorway else "#1976d2"],           # Primary blue
+                        [0.25, colorway[3] if len(colorway) > 3 else "#2196f3"], # Light blue
+                        [0.5, colorway[2] if len(colorway) > 2 else "#4caf50"],  # Green
+                        [0.75, colorway[4] if len(colorway) > 4 else "#ff9800"], # Orange
+                        [1, colorway[1] if len(colorway) > 1 else "#f44336"]     # Red
+                    ],
+                }
+            ],
+
+            # Candlestick charts
+            "candlestick": [
+                {
+                    "increasing": {
+                        "line": {"color": "#4caf50"},
+                        "fillcolor": "#4caf50",
+                    },
+                    "decreasing": {
+                        "line": {"color": "#f44336"},
+                        "fillcolor": "#f44336",
+                    },
+                }
+            ],
+
+            # OHLC charts
+            "ohlc": [
+                {
+                    "increasing": {"line": {"color": "#4caf50"}},
+                    "decreasing": {"line": {"color": "#f44336"}},
+                }
+            ],
+
+            # Waterfall charts
             "waterfall": [
                 {
                     "decreasing": {"marker": {"color": colorway[1] if len(colorway) > 1 else "#f44336"}},
@@ -285,6 +424,164 @@ def create_pmui_template(
                     "textfont": {"color": font_color_primary},
                     "textposition": "outside",
                     "connector": {"line": {"color": axis_line_color, "width": 1}},
+                }
+            ],
+
+            # Funnel charts
+            "funnel": [
+                {
+                    "textfont": {"color": font_color_primary},
+                    "textposition": "inside",
+                    "connector": {"line": {"color": axis_line_color, "width": 1}},
+                }
+            ],
+
+            # Pie charts
+            "pie": [
+                {
+                    "textfont": {"color": font_color_primary},
+                    "textposition": "auto",
+                    "marker": {"line": {"color": paper_bgcolor, "width": 2}},
+                }
+            ],
+
+            # Sunburst charts
+            "sunburst": [
+                {
+                    "textfont": {"color": font_color_primary},
+                    "marker": {"line": {"color": paper_bgcolor, "width": 2}},
+                }
+            ],
+
+            # Treemap charts
+            "treemap": [
+                {
+                    "textfont": {"color": font_color_primary},
+                    "marker": {"line": {"color": paper_bgcolor, "width": 2}},
+                }
+            ],
+
+            # Icicle charts
+            "icicle": [
+                {
+                    "textfont": {"color": font_color_primary},
+                    "marker": {"line": {"color": paper_bgcolor, "width": 2}},
+                }
+            ],
+
+            # Sankey diagrams
+            "sankey": [
+                {
+                    "node": {
+                        "color": colorway[0],
+                        "line": {"color": axis_line_color, "width": 0.5},
+                    },
+                    "link": {"color": "rgba(128, 128, 128, 0.4)"},
+                }
+            ],
+
+            # Parallel coordinates
+            "parcoords": [
+                {
+                    "line": {
+                        "colorscale": [
+                            [0, colorway[0] if colorway else "#1976d2"],
+                            [0.5, colorway[2] if len(colorway) > 2 else "#4caf50"],
+                            [1, colorway[1] if len(colorway) > 1 else "#f44336"]
+                        ],
+                        "showscale": True
+                    },
+                    "labelangle": 0,
+                    "labelfont": {"color": font_color_primary},
+                    "tickfont": {"color": font_color_secondary},
+                }
+            ],
+
+            # Parallel categories
+            "parcats": [
+                {
+                    "labelfont": {"color": font_color_primary},
+                    "tickfont": {"color": font_color_secondary},
+                    "line": {
+                        "colorscale": [
+                            [0, colorway[0] if colorway else "#1976d2"],
+                            [0.5, colorway[2] if len(colorway) > 2 else "#4caf50"],
+                            [1, colorway[1] if len(colorway) > 1 else "#f44336"]
+                        ]
+                    },
+                }
+            ],
+
+            # Tables
+            "table": [
+                {
+                    "header": {
+                        "fill": {"color": grid_color},
+                        "font": {"color": font_color_primary, "size": 12},
+                        "line": {"color": axis_line_color, "width": 1},
+                    },
+                    "cells": {
+                        "fill": {"color": paper_bgcolor},
+                        "font": {"color": font_color_primary, "size": 11},
+                        "line": {"color": axis_line_color, "width": 1},
+                    },
+                }
+            ],
+
+            # Mesh3d
+            "mesh3d": [
+                {
+                    "colorbar": {
+                        "outlinewidth": 0,
+                        "ticks": "",
+                        "tickcolor": axis_line_color,
+                        "tickfont": {"color": font_color_secondary},
+                        "title": {"font": {"color": font_color_primary}},
+                    },
+                    "colorscale": [
+                        [0, colorway[0] if colorway else "#1976d2"],
+                        [0.33, colorway[2] if len(colorway) > 2 else "#4caf50"],
+                        [0.67, colorway[4] if len(colorway) > 4 else "#ff9800"],
+                        [1, colorway[1] if len(colorway) > 1 else "#f44336"]
+                    ],
+                }
+            ],
+
+            # Isosurface
+            "isosurface": [
+                {
+                    "colorbar": {
+                        "outlinewidth": 0,
+                        "ticks": "",
+                        "tickcolor": axis_line_color,
+                        "tickfont": {"color": font_color_secondary},
+                        "title": {"font": {"color": font_color_primary}},
+                    },
+                    "colorscale": [
+                        [0, colorway[0] if colorway else "#1976d2"],
+                        [0.33, colorway[2] if len(colorway) > 2 else "#4caf50"],
+                        [0.67, colorway[4] if len(colorway) > 4 else "#ff9800"],
+                        [1, colorway[1] if len(colorway) > 1 else "#f44336"]
+                    ],
+                }
+            ],
+
+            # Volume
+            "volume": [
+                {
+                    "colorbar": {
+                        "outlinewidth": 0,
+                        "ticks": "",
+                        "tickcolor": axis_line_color,
+                        "tickfont": {"color": font_color_secondary},
+                        "title": {"font": {"color": font_color_primary}},
+                    },
+                    "colorscale": [
+                        [0, colorway[0] if colorway else "#1976d2"],
+                        [0.33, colorway[2] if len(colorway) > 2 else "#4caf50"],
+                        [0.67, colorway[4] if len(colorway) > 4 else "#ff9800"],
+                        [1, colorway[1] if len(colorway) > 1 else "#f44336"]
+                    ],
                 }
             ],
         },
