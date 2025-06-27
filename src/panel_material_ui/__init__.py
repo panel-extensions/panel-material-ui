@@ -7,5 +7,6 @@ from .pane import *  # noqa
 from .template import *  # noqa
 from .theme import MaterialDesign  # noqa
 from .widgets import *  # noqa
+from . import plotly  # noqa
 
 import panel_material_ui.param  # noqa
