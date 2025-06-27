@@ -99,6 +99,7 @@ numpydoc = "*"
 matplotlib = "*"  # not optional in nbsite
 hvplot = "*"
 bokeh_sampledata = "*"
+plotly = "*"
 
 [feature.doc.tasks]
 # _docs-refmanual = 'sphinx-apidoc -e -o doc/api/ panel/ --ext-autodoc --ext-intersphinx'
