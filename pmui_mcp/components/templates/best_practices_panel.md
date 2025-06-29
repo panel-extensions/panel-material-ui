@@ -27,6 +27,7 @@ Always use an intermediate to expert level user approach using param.Parameteriz
 
 - prefer using `.servable()` over `.show()` for serving applications
 - use `pn.state.served:` to check if the app is being served instead of `if __name__ == "__main__"
+- Create the structure once, update the content dynamically. This eliminates flickering and provides a smooth, professional user experience.
 
 ### Code Organization
 
@@ -80,6 +81,7 @@ DO prefer the Panel `pn.widgets.Tabulator` component for displaying tabular data
 DO prefer intermediate level, param.Parameterized approach over basic level, widget based approach
 DON'T user legacy `--autoreload` flag. Instead use `--dev` flag which is faster but requires watchfiles package installed.
 In a sidebar the order should be: 1) optional image/logo, 2) short app description, 3) input widgets/filters, 4) additional documentation.
+Don't recreate components when it can be avoided. Instead bind them to bound/ depends function and methods.
 
 ## Development Process
 
@@ -153,6 +155,111 @@ class DataApp(param.Parameterized):
         """Return some transformed object like a DataFrame or a Plot/ Figure."""
         # Keep this method short by using imported method from data or plots module
         ...
+```
+
+### Don't recreate static components
+
+Don't recreate static, nested components
+
+```python
+import panel as pn
+import panel_material_ui as pmui
+import param
+
+pn.extension()
+
+class HelloWorld(pn.viewable.Viewer):
+    characters = param.Integer(default=10, bounds=(1, 100), doc="Number of characters to display")
+
+    @param.depends("characters")
+    def _get_kpi_card(self):
+        # Dont recreate static-nested components every time
+        # Will make the web site flickr as it recreates from scratch
+        return pmui.Paper(
+            pmui.Column(
+                pmui.Typography(
+                    "📊 Key Performance Metrics",
+                    variant="h6",
+                    sx={
+                        "color": "text.primary",
+                        "fontWeight": 700,
+                        "mb": 3,
+                        "display": "flex",
+                        "alignItems": "center",
+                        "gap": 1
+                    }
+                ),
+                pmui.Row(
+                    f"The kpi is {self.characters}",
+                )
+            ),
+    )
+
+    def __panel__(self):
+        return pmui.Paper(
+            pmui.Column(
+                self.param.characters,
+                self._get_kpi_card,
+            ),
+            sx={"padding": "20px", "borderRadius": "8px"},
+            sizing_mode="stretch_width"
+        )
+
+if pn.state.served:
+    HelloWorld().servable()
+```
+
+Instead create static layouts and components with reactive/ bound/ reference values
+
+```python
+import panel as pn
+import panel_material_ui as pmui
+import param
+
+pn.extension()
+
+class HelloWorld(pn.viewable.Viewer):
+    characters = param.Integer(default=10, bounds=(1, 100), doc="Number of characters to display")
+
+    def _get_kpi_card(self):
+        # Create a static layout once
+        return pmui.Paper(
+            pmui.Column(
+                pmui.Typography(
+                    "📊 Key Performance Metrics",
+                    variant="h6",
+                    sx={
+                        "color": "text.primary",
+                        "fontWeight": 700,
+                        "mb": 3,
+                        "display": "flex",
+                        "alignItems": "center",
+                        "gap": 1
+                    }
+                ),
+                pmui.Row(
+                    # Use a reactive/ bound/ reference value for dynamic content
+                    self.kpi_value
+                )
+            ),
+        )
+
+    @param.depends("characters")
+    def kpi_value(self):
+        return f"The kpi is {self.characters}"
+
+    def __panel__(self):
+        return pmui.Paper(
+            pmui.Column(
+                self.param.characters,
+                self._get_kpi_card(),
+            ),
+            sx={"padding": "20px", "borderRadius": "8px"},
+            sizing_mode="stretch_width"
+        )
+
+if pn.state.served:
+    HelloWorld().servable()
 ```
 
 ### Testing Reactivity

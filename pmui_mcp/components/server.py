@@ -8,7 +8,7 @@ from typing import Dict, Any
 
 from fastmcp import FastMCP
 from pmui_mcp.components.data import get_components
-from pmui_mcp.components.models import ComponentInfo, ParameterInfo
+from pmui_mcp.components.models import ComponentInfo, ComponentSummary, ParameterInfo
 from pathlib import Path
 
 
@@ -23,17 +23,17 @@ mcp = FastMCP(
 
     Available tools:
 
-    - get_best_practices: Get the best practices for using Panel Material UI components. ALWAYS READ THIS BEFORE USING PANEL MATERIAL UI.
+    - get_all_components: Get a summary of all available components
+    - get_basic_hello_world_app: Get a "Hello World" Panel app using Panel Material UI components and a basic widget based coding style.
     - get_best_practices_panel: Get the best practices for using Panel . ALWAYS READ THIS BEFORE USING PANEL.
-    - get_component_info: Get detailed information about a specific component.
+    - get_best_practices: Get the best practices for using Panel Material UI components. ALWAYS READ THIS BEFORE USING PANEL MATERIAL UI.
     - get_component_constructor: Get the __init__ signature for a specific component
+    - get_component_docs_url: Returns the url for the component documentation
+    - get_component_docs: Returns the reference guide for the component in Markdown format
+    - get_component_summary: Get summary information about a specific component.
     - get_component_parameter: Get information about a specific parameter of a component
     - get_component_parameters: Get the parameters for a specific component
-    - get_component_docs: Returns the reference guide for the component in Markdown format
-    - get_component_docs_url: Returns the url for the component documentation
-    - get_basic_hello_world_app: Get a "Hello World" Panel app using Panel Material UI components and a basic widget based coding style.
     - get_intermediate_hello_world_app: Get a "Hello World" Panel app using Panel Material UI components and an intermediate param.Parameterized based coding style. ALWAYS READ THIS BEFORE USING PANEL MATERIAL UI.
-    - get_all_components: Get a summary of all available components
     - search_components: Search for components by name or description
     """
 )
@@ -46,7 +46,7 @@ BEST_PRACTICES_PANEL = (TEMPLATE_DIR / "best_practices_panel.md").read_text()
 BASIC_HELLO_WORLD_APP = (TEMPLATE_DIR / "basic_hello_world_app.py").read_text()
 INTERMEDIATE_HELLO_WORLD_APP = (TEMPLATE_DIR / "intermediate_hello_world_app.py").read_text()
 
-@mcp.tool
+@mcp.tool()
 def get_best_practices() -> str:
     """
     [GUIDELINES] Get the best practices for using Panel Material UI components.
@@ -59,7 +59,7 @@ def get_best_practices() -> str:
     """
     return BEST_PRACTICES
 
-@mcp.tool
+@mcp.tool()
 def get_best_practices_panel() -> str:
     """
     [GUIDELINES] Get the best practices for using Panel.
@@ -128,17 +128,30 @@ def _get_component_info(component_name: str)->ComponentInfo:
     return component
 
 @mcp.tool
-def get_component_info(component_name: str) -> ComponentInfo:
+def get_component_summary(component_name: str) -> ComponentSummary:
     """
-    [COMPONENT INFO] Get detailed information about a specific Panel Material UI component.
+    [COMPONENT INFO] Get summary information about a specific Panel Material UI component.
 
     Args:
-        component_name: The name of the component to get details for
+        component_name: The name of the component to get summary for
 
     Returns:
-        Detailed component information including parameters, documentation, and examples
+        Component summary information including parameters, metadata, and links (but not full documentation)
     """
-    return _get_component_info(component_name)
+    component = _get_component_info(component_name)
+
+    # Convert ComponentInfo to ComponentSummary by excluding the docs field
+    return ComponentSummary(
+        name=component.name,
+        module_path=component.module_path,
+        init_signature=component.init_signature,
+        description=component.description,
+        docstring=component.docstring,
+        docs_url=component.docs_url,
+        docs_notebook_path=component.docs_notebook_path,
+        docs_markdown_path=component.docs_markdown_path,
+        parameters=component.parameters
+    )
 
 @mcp.tool
 def get_component_docs(component_name: str) -> str:
@@ -263,7 +276,6 @@ def search_components(query: str, limit: int = 10) -> Dict[str, Any]:
         "results": matches[:limit]
     }
 
-@mcp.tool
 def get_basic_hello_world_app() -> str:
     """
     [EXAMPLES] Get a basic level, interactive, "Hello World" app using Panel Material UI components and following the best practice guidelines.
@@ -273,7 +285,6 @@ def get_basic_hello_world_app() -> str:
     """
     return BASIC_HELLO_WORLD_APP
 
-@mcp.tool
 def get_intermediate_hello_world_app() -> str:
     """
     [EXAMPLES] Get an intermediate level, interactive, "Hello World" app using Panel Material UI components and following the best practice guidelines.

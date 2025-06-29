@@ -27,19 +27,23 @@ class ParameterInfo(BaseModel):
     regex: Optional[str] = None    # For String parameters
 
 
-class ComponentInfo(BaseModel):
-    """Model for MaterialComponent information."""
+class ComponentSummary(BaseModel):
+    """Model for a summary of MaterialComponent information."""
 
     name: str
     module_path: str
     init_signature: str
     description: str
     docstring: str
-    docs: str
     docs_url: str
     docs_notebook_path: str
     docs_markdown_path: str
     parameters: Dict[str, ParameterInfo]
+
+class ComponentInfo(ComponentSummary):
+    """Model for MaterialComponent information."""
+
+    docs: str
 
 
 class ComponentCollection(BaseModel):

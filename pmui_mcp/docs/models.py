@@ -85,7 +85,8 @@ class DocumentationCollection(BaseModel):
                 "name": page.name,
                 "title": page.title,
                 "description": page.description,
-                "url": page.url
+                "url": page.url,
+                "file_path": page.file_path,
             })
             for page in self.pages
         ]

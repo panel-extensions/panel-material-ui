@@ -65,3 +65,8 @@ pmui.Page(
     main=[component5, component6],  # This is correct
 )
 ```
+
+### Cards
+
+Use the `Paper` component over the `Card` unless you need the `Card`s extra features.
+Set `collapsible=False` unless its collapsible is needed.

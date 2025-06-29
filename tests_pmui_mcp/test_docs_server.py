@@ -26,6 +26,10 @@ async def test_docs_server_basic():
         })
         assert result is not None
 
+        # Test get_pages (this should work)
+        result = await client.call_tool("get_pages", {})
+        assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_docs_server_search():

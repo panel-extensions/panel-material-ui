@@ -18,13 +18,12 @@ docs_mcp = FastMCP(
     instructions="""
     This MCP server provides tools and resources for the Panel Material UI documentation.
 
-    The Panel Material UI documentation follows the Diataxis framework for technical documentation, which consists
-    of four main categories: Tutorials, How-to Guides, Reference Guides, and Explanations.
+    Use this tool to learn how to USE the Panel Material UI components.
 
     Available tools:
 
     - get_pages: Get a list of all available documentation pages
-    - get_page: Get the content of a specific documentation page
+    - get_page: Get the Markdown content of a specific documentation page
     - search_pages: Search for documentation pages by name, title, or description
     """
 )
