@@ -112,6 +112,7 @@ class Typography(MaterialPaneBase, Markdown):
     """
 
     variant = param.String(default=None, doc="The typography variant, e.g. h1, h2, body1.")
+    color = param.String(default=None, doc="The color of the text, e.g. primary or secondary.")
 
     _esm_base = "Typography.jsx"
     _rename = {"object": "object"}
