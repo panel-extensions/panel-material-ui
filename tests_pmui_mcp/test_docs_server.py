@@ -39,6 +39,16 @@ async def test_get_pages():
         assert not "Download this notebook from GitHub" in result[0].text
 
 @pytest.mark.asyncio
+async def test_get_best_practices():
+    """Test get_best_practices resource functionality."""
+    client = Client(docs_mcp)
+    async with client:
+        result = await client.read_resource("docs://explanation/best_practices")
+        assert result[0].text.startswith("# Best Practices")
+
+
+
+@pytest.mark.asyncio
 async def test_get_reference_page():
     """Test get_reference_page server functionality."""
     # Test server with client

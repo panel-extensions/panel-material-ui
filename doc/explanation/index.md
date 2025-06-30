@@ -17,16 +17,6 @@ Learn the recommended approaches for using Panel Material UI components effectiv
 [Learn more »](best_practices)
 :::
 
-:::{grid-item-card} {octicon}`code;2.5em;sd-mr-1` Panel Best Practices
-:link: best_practices_panel
-:link-type: doc
-
-Learn the recommended approaches for using Panel effectively.
-
-+++
-[Learn more »](best_practices_panel)
-:::
-
 ::::
 
 ## Where to go next?
@@ -41,5 +31,4 @@ Learn the recommended approaches for using Panel effectively.
 :maxdepth: 2
 
 best_practices
-best_practices_panel
 ```

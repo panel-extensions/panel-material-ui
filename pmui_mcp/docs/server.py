@@ -22,7 +22,7 @@ docs_mcp = FastMCP(
     - Documentation pages: Explore and use various documentation pages for building interactive applications.
     - Reference documentation: Get detailed reference information about specific Panel Material UI components.
 
-    ALWAYS read and learn from the best practice and example app resources before using Panel Material UI
+    ALWAYS read and learn from the best practice documentation resource before using Panel Material UI
     """
 )
 
@@ -156,6 +156,21 @@ def get_reference_page(component: str) -> str:
         return _get_reference_page_from_collection(component).content
     except ValueError as e:
         raise ValueError(f"Reference page for component '{component}' not found. {str(e)}")
+
+@docs_mcp.resource(uri="docs://explanation/best_practices")
+def get_best_practices_page() -> str:
+    """
+    Returns the best practices documentation page.
+
+    ALWAYS read and learn from the best practice and example app resources before using Panel Material UI.
+
+    Use this resource to get detailed guidance about using Panel Material UI effectively.
+
+    Returns:
+        The markdown content of the best practices page
+    """
+    return _get_page_from_collection("explanation/best_practices.md").content
+
 
 @docs_mcp.tool
 def search(query: str, limit: int = 10) -> List[DocumentationPageSummary]:

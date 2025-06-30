@@ -68,16 +68,6 @@ async def test_components_get_all():
         assert result is not None
 
 @pytest.mark.asyncio
-async def test_get_basic_hello_world_app():
-    """Test the get_basic_hello_world_app tool."""
-    await setup_composed_server()
-
-    client = Client(main_mcp)
-    async with client:
-        result = await client.read_resource("app://components/basic/hello_world")
-        assert result[0].text.startswith("import panel as pn")
-
-@pytest.mark.asyncio
 async def test_get_intermediate_hello_world_app():
     """Test the get_intermediate_hello_world_app tool."""
     await setup_composed_server()

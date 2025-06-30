@@ -30,7 +30,6 @@ mcp = FastMCP(
 
 COMPONENTS = get_components()
 TEMPLATE_DIR = Path(__file__).parent / "templates"
-BASIC_HELLO_WORLD_APP = (TEMPLATE_DIR / "basic_hello_world_app.py").read_text()
 INTERMEDIATE_HELLO_WORLD_APP = (TEMPLATE_DIR / "intermediate_hello_world_app.py").read_text()
 
 @mcp.tool
@@ -205,28 +204,5 @@ def search(query: str, limit: int = 10) -> list[ComponentSummarySearchResult]:
 
     return matches
 
-@mcp.resource(uri="app://basic/hello_world", mime_type="text/python", name="Basic Hello World App")
-def get_basic_hello_world_app() -> str:
-    """
-    Get a basic level, interactive, "Hello World" app using Panel Material UI components and following the best practice guidelines.
-
-    Returns:
-        A string containing the code for the app
-    """
-    return BASIC_HELLO_WORLD_APP
-
-@mcp.resource(uri="app://intermediate/hello_world", mime_type="text/python", name="Intermediate Hello World App")
-def get_intermediate_hello_world_app() -> str:
-    """
-    Get an intermediate level, interactive, "Hello World" app using Panel Material UI components and following the best practice guidelines.
-
-    ALWAYS use this resource before creating an app using Panel Material UI components.
-
-    Returns:
-        A string containing the code for the app
-    """
-    return INTERMEDIATE_HELLO_WORLD_APP
-
 if __name__ == "__main__":
-    # Run the server
     mcp.run(transport="http")

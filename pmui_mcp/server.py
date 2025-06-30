@@ -20,14 +20,15 @@ from .docs.server import docs_mcp
 main_mcp = FastMCP(
     name="Panel Material UI Suite",
     instructions="""
-    This is a MCP server that provides comprehensive tools for building
-    Panel applications with Material UI components and following best practices.
+    This is a MCP server that provides comprehensive tools for building dashboard, data apps and tools using Python,
+    [Panel](https://panel.holoviz.org), and [Panel Material UI](https://panel-material-ui.holoviz.org/) components following best practices.
 
     Use this server to access:
-    - Panel Material UI components: Explore and use various components for building interactive applications.
-    - Documentation: Get guidelines on how to create documentation for your Panel applications.
-    - Best practices: Learn how to structure your Panel applications effectively.
-    - Example applications: Get example code to kickstart your Panel projects.
+
+    - Panel Material UI documentation: Explore and study the documentation for building applications with Panel Material UI.
+        - Best practices: Learn how to develop your Panel applications using Panel Material UI components effectively.
+
+    ALWAYS read and learn from the best practice documentation resource before using Panel Material UI
     """
 )
 
@@ -44,26 +45,6 @@ async def setup_composed_server():
 
     # Import docs server with 'docs' prefix
     await main_mcp.import_server(docs_mcp, prefix="docs")
-
-@main_mcp.prompt(
-    "learn",
-    description="Learn the basics of the Panel Material UI MCP server",
-)
-def learn():
-    """
-    Returns a string explaining how to explore the Panel Material UI MCP Server.
-
-    Use this prompt to learn about Panel Material UI and its MCP server before using it.
-    """
-    return """
-    Welcome to the Panel Material UI MCP Server!
-
-    Please:
-
-    - read the component best practices for both Panel and Panel Material UI
-    - read the example applications for Panel Material UI to understand how to use the components effectively
-    - explore the available documentation and component tools, resources and prompts
-    """
 
 def main():
     """
