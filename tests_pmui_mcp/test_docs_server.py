@@ -20,7 +20,7 @@ async def test_docs_server_basic():
     client = Client(docs_mcp)
     async with client:
         # Test search (this should work)
-        result = await client.call_tool("search_pages", {
+        result = await client.call_tool("search", {
             "query": "panel",
             "limit": 3
         })
@@ -30,6 +30,30 @@ async def test_docs_server_basic():
         result = await client.call_tool("get_pages", {})
         assert result is not None
 
+@pytest.mark.asyncio
+async def test_get_pages():
+    """Test get_page server functionality."""
+    client = Client(docs_mcp)
+    async with client:
+        result = await client.call_tool("get_pages", {})
+        assert not "Download this notebook from GitHub" in result[0].text
+
+@pytest.mark.asyncio
+async def test_get_reference_page():
+    """Test get_reference_page server functionality."""
+    # Test server with client
+    client = Client(docs_mcp)
+    async with client:
+        result = await client.call_tool("get_reference_page", {
+            "component": "Button"
+        })
+        assert result[0].text.startswith("# Button\n")
+
+        result = await client.call_tool("get_reference_page", {
+            "component": "Card"
+        })
+        assert result[0].text.startswith("# Card\n")
+
 
 @pytest.mark.asyncio
 async def test_docs_server_search():
@@ -37,13 +61,13 @@ async def test_docs_server_search():
     client = Client(docs_mcp)
     async with client:
         # Test different searches
-        result1 = await client.call_tool("search_pages", {
+        result1 = await client.call_tool("search", {
             "query": "components",
             "limit": 5
         })
         assert result1 is not None
 
-        result2 = await client.call_tool("search_pages", {
+        result2 = await client.call_tool("search", {
             "query": "nonexistent_xyz",
             "limit": 5
         })
@@ -65,7 +89,7 @@ def test_docs_collection_loading():
     assert hasattr(page, 'url')
 
     # Test search functionality
-    search_results = collection.search_pages("panel")
+    search_results = collection.search("panel")
     assert isinstance(search_results, list)
 
 

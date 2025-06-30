@@ -33,18 +33,51 @@ class ComponentSummary(BaseModel):
     name: str
     module_path: str
     init_signature: str
-    description: str
     docstring: str
-    docs_url: str
-    docs_notebook_path: str
-    docs_markdown_path: str
-    parameters: Dict[str, ParameterInfo]
+
+class ComponentSummarySearchResult(ComponentSummary):
+    """Model for a summary of MaterialComponent information."""
+
+    relevance_score: int = Field(default=0, description="Relevance score for search results")
+
+    @classmethod
+    def from_summary(cls, component: ComponentSummary, relevance_score: int) -> ComponentSummary:
+        """
+        Create a ComponentSummarySearchResult from a ComponentSummary and a relevance score.
+
+        Args:
+            component (ComponentSummary): The component summary to convert.
+            relevance_score (int): The relevance score for search results.
+
+        Returns:
+            ComponentSummarySearchResult: A search result summary of the component.
+        """
+        return cls(
+            name=component.name,
+            module_path=component.module_path,
+            init_signature=component.init_signature,
+            docstring=component.docstring,
+            relevance_score=relevance_score
+        )
 
 class ComponentInfo(ComponentSummary):
-    """Model for MaterialComponent information."""
+    """Model for full info of MaterialComponent information."""
 
-    docs: str
+    parameters: Dict[str, ParameterInfo]
 
+    def to_summary(self) -> ComponentSummary:
+        """
+        Convert this ComponentInfo to a ComponentSummary.
+
+        Returns:
+            ComponentSummary: A summary of the component.
+        """
+        return ComponentSummary(
+            name=self.name,
+            module_path=self.module_path,
+            init_signature=self.init_signature,
+            docstring=self.docstring
+        )
 
 class ComponentCollection(BaseModel):
     """Model for a collection of components with metadata."""

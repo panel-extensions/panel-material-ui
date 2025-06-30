@@ -63,7 +63,7 @@ def extract_title_and_description(content: str) -> tuple[str, str]:
                 break
 
             # Skip directive blocks and code blocks
-            if line.startswith(':::') or line.startswith('```') or line.startswith('::') or line.startswith('..'):
+            if line.startswith(':::') or line.startswith('```') or line.startswith('::') or line.startswith('..') or line.startswith('[Download this notebook from GitHub'):
                 continue
 
             # Collect content lines

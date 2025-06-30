@@ -1,4 +1,6 @@
-# Panel Material UI - Best Practices
+# Best Practices: Panel Material UI
+
+This guide provides best practices for using Panel Material UI. Optimized for LLMs.
 
 ## General Guidelines
 

@@ -23,14 +23,14 @@ async def test_server_composition():
 
 
 @pytest.mark.asyncio
-async def test_docs_search_pages():
-    """Test the docs_search_pages tool."""
+async def test_docs_search():
+    """Test the docs_search tool."""
     await setup_composed_server()
 
     client = Client(main_mcp)
     async with client:
         # Test basic search
-        result = await client.call_tool("docs_search_pages", {
+        result = await client.call_tool("docs_search", {
             "query": "panel",
             "limit": 5
         })
@@ -40,13 +40,13 @@ async def test_docs_search_pages():
 
 
 @pytest.mark.asyncio
-async def test_components_search_components():
+async def test_components_search():
     """Test the components_search_components tool."""
     await setup_composed_server()
 
     client = Client(main_mcp)
     async with client:
-        result = await client.call_tool("components_search_components", {
+        result = await client.call_tool("components_search", {
             "query": "button",
             "limit": 3
         })
@@ -56,17 +56,36 @@ async def test_components_search_components():
 
 
 @pytest.mark.asyncio
-async def test_components_get_all_components():
+async def test_components_get_all():
     """Test the components_get_all_components tool."""
     await setup_composed_server()
 
     client = Client(main_mcp)
     async with client:
-        result = await client.call_tool("components_get_all_components", {})
+        result = await client.call_tool("components_get_all", {})
 
         # Should return some result
         assert result is not None
 
+@pytest.mark.asyncio
+async def test_get_basic_hello_world_app():
+    """Test the get_basic_hello_world_app tool."""
+    await setup_composed_server()
+
+    client = Client(main_mcp)
+    async with client:
+        result = await client.read_resource("app://components/basic/hello_world")
+        assert result[0].text.startswith("import panel as pn")
+
+@pytest.mark.asyncio
+async def test_get_intermediate_hello_world_app():
+    """Test the get_intermediate_hello_world_app tool."""
+    await setup_composed_server()
+
+    client = Client(main_mcp)
+    async with client:
+        result = await client.read_resource("app://components/intermediate/hello_world")
+        assert result[0].text.startswith("import panel as pn")
 
 @pytest.mark.asyncio
 async def test_basic_tools():
@@ -76,14 +95,14 @@ async def test_basic_tools():
     client = Client(main_mcp)
     async with client:
         # Test docs search (should work)
-        docs_result = await client.call_tool("docs_search_pages", {
+        docs_result = await client.call_tool("docs_search", {
             "query": "test",
             "limit": 1
         })
         assert docs_result is not None
 
         # Test components search (should work)
-        comp_result = await client.call_tool("components_search_components", {
+        comp_result = await client.call_tool("components_search", {
             "query": "test",
             "limit": 1
         })

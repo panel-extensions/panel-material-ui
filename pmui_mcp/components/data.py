@@ -59,25 +59,6 @@ def collect_component_info(cls: type) -> ComponentInfo:
     module_parts = cls.__module__.split('.')
     class_name = cls.__name__
 
-    # Map module paths to reference subdirectories
-    module_to_subdir = {
-        'widgets': 'widgets',
-        'layout': 'layouts',
-        'chat': 'chat',
-        'template': 'page',
-        'pane': 'global',
-        'notifications': 'global',
-        'base': 'global'
-    }
-
-    # Get the main module (e.g., 'widgets', 'layout', etc.)
-    main_module = module_parts[1] if len(module_parts) > 1 else 'global'
-    subdir = module_to_subdir.get(main_module, 'global')
-
-    docs_notebook_path = f"examples/reference/{subdir}/{class_name}.ipynb"
-    docs_markdown_path = f"doc/reference/{subdir}/{class_name}.md"
-    docs_url = f"https://panel-material-ui.holoviz.org/reference/{subdir}/{class_name}.html"
-
     # Extract docstring
     docstring = cls.__doc__ if cls.__doc__ else ""
 
@@ -159,30 +140,13 @@ def collect_component_info(cls: type) -> ComponentInfo:
             init_signature = f"Error getting signature: {e}"
 
     # Read reference guide content
-    docs = ""
-    import os
-    if os.path.exists(docs_markdown_path):
-        try:
-            with open(docs_markdown_path, 'r', encoding='utf-8') as f:
-                docs = f.read()
-                # Replace {pyodide} code blocks with python for better readability
-                docs = docs.replace('```{pyodide}', '```python')
-        except Exception as e:
-            docs = f"Error reading file: {e}"
-    else:
-        docs = "Reference guide not found"
-
     # Create and return ComponentInfo model
     return ComponentInfo(
         name=cls.__name__,
         module_path=f"{cls.__module__}.{cls.__name__}",
-        docs_notebook_path=docs_notebook_path,
-        docs_markdown_path=docs_markdown_path,
-        docs_url=docs_url,
         docstring=docstring,
         description=description,
         parameters=parameters,
-        docs=docs,
         init_signature=init_signature
     )
 

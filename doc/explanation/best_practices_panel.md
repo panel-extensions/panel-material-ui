@@ -1,4 +1,6 @@
-# Panel Best Practices
+# Best Practices: Panel
+
+This guide provides best practices for using Panel. Optimized for LLMs.
 
 ## Overview
 

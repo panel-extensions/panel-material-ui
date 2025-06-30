@@ -20,22 +20,14 @@ from .docs.server import docs_mcp
 main_mcp = FastMCP(
     name="Panel Material UI Suite",
     instructions="""
-    This is a composed MCP server that provides comprehensive tools for building
+    This is a MCP server that provides comprehensive tools for building
     Panel applications with Material UI components and following best practices.
 
-    This server combines two specialized sub-servers:
-
-    **Components Server** (prefix: components_):
-    - Panel Material UI component information and documentation
-    - Component discovery and search functionality
-    - Example applications and code snippets
-
-    **Documentation Server** (prefix: docs_):
-    - Documentation creation guidelines following Diataxis framework
-    - Writing standards and style guides
-
-    Available tools include prefixed versions of all sub-server tools.
-    Use get_tools() to see the complete list of available functionality.
+    Use this server to access:
+    - Panel Material UI components: Explore and use various components for building interactive applications.
+    - Documentation: Get guidelines on how to create documentation for your Panel applications.
+    - Best practices: Learn how to structure your Panel applications effectively.
+    - Example applications: Get example code to kickstart your Panel projects.
     """
 )
 
@@ -53,6 +45,25 @@ async def setup_composed_server():
     # Import docs server with 'docs' prefix
     await main_mcp.import_server(docs_mcp, prefix="docs")
 
+@main_mcp.prompt(
+    "learn",
+    description="Learn the basics of the Panel Material UI MCP server",
+)
+def learn():
+    """
+    Returns a string explaining how to explore the Panel Material UI MCP Server.
+
+    Use this prompt to learn about Panel Material UI and its MCP server before using it.
+    """
+    return """
+    Welcome to the Panel Material UI MCP Server!
+
+    Please:
+
+    - read the component best practices for both Panel and Panel Material UI
+    - read the example applications for Panel Material UI to understand how to use the components effectively
+    - explore the available documentation and component tools, resources and prompts
+    """
 
 def main():
     """

@@ -69,7 +69,7 @@ Add the MCP server configuration to your VS Code `settings.json`:
     "mcp": {
         "servers": {
             "panel-materialui-server": {
-                "type": "sse",
+                "type": "http",
                 "url": "http://127.0.0.1:8000/mcp/",
                 "headers": { "VERSION": "1.2" }
             }
@@ -116,7 +116,7 @@ The composed server provides tools from both sub-servers with appropriate prefix
 #### Documentation Server Tools (prefix: `docs_`)
 
 - **`docs_get_pages()`**: List all available documentation pages
-- **`docs_search_pages(query, limit)`**: Search documentation by keywords
+- **`docs_search(query, limit)`**: Search documentation by keywords
 - **`docs_get_page(name)`**: Get full content of a documentation page
 
 ### Common Use Cases

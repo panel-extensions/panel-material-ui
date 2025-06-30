@@ -4,12 +4,12 @@ Panel Material UI Documentation MCP Server
 
 This MCP server provides tools and resources for the Panel Material UI documentation.
 """
-from typing import Dict, Any, List
+from typing import List
 from pathlib import Path
 
 from fastmcp import FastMCP
 from .data import get_documentation_collection
-from .models import DocumentationCollection, DocumentationPageSummary
+from .models import DocumentationCollection, DocumentationPageSummary, DocumentationPageInfo
 
 
 # Create the Documentation FastMCP server
@@ -18,42 +18,39 @@ docs_mcp = FastMCP(
     instructions="""
     This MCP server provides tools and resources for the Panel Material UI documentation.
 
-    Use this tool to learn how to USE the Panel Material UI components.
+    Use this server to access:
+    - Documentation pages: Explore and use various documentation pages for building interactive applications.
+    - Reference documentation: Get detailed reference information about specific Panel Material UI components.
 
-    Available tools:
-
-    - get_pages: Get a list of all available documentation pages
-    - get_page: Get the Markdown content of a specific documentation page
-    - search_pages: Search for documentation pages by name, title, or description
+    ALWAYS read and learn from the best practice and example app resources before using Panel Material UI
     """
 )
 
-# Documentation root directory
-DOC_ROOT = Path(__file__).parent.parent.parent / "doc"
-
-# Cache for all documentation data - loaded once at startup
+_DOC_ROOT = Path(__file__).parent.parent.parent / "doc"
 _DOCS_COLLECTION: DocumentationCollection | None = None
-
 
 def _load_docs_collection() -> DocumentationCollection:
     """
     Load all documentation data into cache at startup.
+
+    Args:
+        doc_root: The root directory where documentation files are located
     """
     global _DOCS_COLLECTION
     if _DOCS_COLLECTION is None:
-        _DOCS_COLLECTION = get_documentation_collection(DOC_ROOT)
+        _DOCS_COLLECTION = get_documentation_collection(_DOC_ROOT)
     return _DOCS_COLLECTION
 
 
-def _get_page_from_collection(name: str) -> Dict[str, Any]:
+def _get_page_from_collection(name: str) -> DocumentationPageInfo:
     """
     Get a page from the documentation collection by name.
 
-    Args:
+    Args:<
         name: The relative path to the documentation file
 
     Returns:
-        Dictionary containing page information including content
+        DocumentationPageInfo containing page information including content
 
     Raises:
         ValueError: If page is not found
@@ -61,7 +58,7 @@ def _get_page_from_collection(name: str) -> Dict[str, Any]:
     collection = _load_docs_collection()
     page = collection.get_page_by_name(name)
     if page:
-        return page.model_dump()
+        return page
 
     # If not found, provide helpful error message with suggestions
     suggestions = [p.name for p in collection.pages if name.lower() in p.name.lower()]
@@ -77,18 +74,40 @@ def _get_page_from_collection(name: str) -> Dict[str, Any]:
 
     raise ValueError(error_msg)
 
+def _get_reference_page_from_collection(name: str) -> DocumentationPageInfo:
+    """
+    Get a reference page from the documentation collection by name.
+
+    Args:
+        name: The name of the component. For example, "Button", "Card", etc.
+
+    Returns:
+        DocumentationPageInfo containing page information including content
+
+    Raises:
+        ValueError: If page is not found
+    """
+    collection = _load_docs_collection()
+    for page in collection.pages:
+        filename = Path(page.name).name
+        if filename == name + ".md":
+            return page
+
+    error_msg = f"Reference page for component '{name}' not found."
+    raise ValueError(error_msg)
+
 
 @docs_mcp.tool
 def get_pages() -> List[DocumentationPageSummary]:
     """
-    [DOCUMENTATION] Get a list of all available documentation pages.
-
     Returns a list of available documentation pages with their metadata:
 
-    - name: the relative path to the source file (unique key)
+    - name: the relative path to the source file. Use this value when requesting the page content.
     - title: the title extracted from the page content
     - description: a short description from the first paragraph
     - url: the URL when deployed at https://panel-material-ui.holoviz.org/
+
+    Use this tool to understand which documentation pages are available.
 
     Returns:
         List of dictionaries containing page information (without content for brevity)
@@ -100,7 +119,9 @@ def get_pages() -> List[DocumentationPageSummary]:
 @docs_mcp.tool
 def get_page(name: str) -> str:
     """
-    [DOCUMENTATION] Get the content of a specific documentation page by name.
+    Returns the content of a specific documentation page by name.
+
+    Use this tool to understand how to use a specific topic or feature of Panel Material UI.
 
     Args:
         name: The relative path to the documentation file (e.g., "index.md", "how_to/customize.md")
@@ -110,15 +131,38 @@ def get_page(name: str) -> str:
     """
     try:
         page = _get_page_from_collection(name)
-        return page["content"]
+        return page.content
     except ValueError:
         # Re-raise with the helpful error message from _get_page_from_collection
         raise
 
 @docs_mcp.tool
-def search_pages(query: str, limit: int = 10) -> List[DocumentationPageSummary]:
+def get_reference_page(component: str) -> str:
     """
-    [DOCUMENTATION] Search for documentation pages by name, title, or description.
+    Returns the reference documentation for a specific component by name.
+
+    Use this tool to:
+
+    - get detailed information about the API and usage of a specific component.
+    - understand how to use a specific component in your application.
+
+    Args:
+        component: The name of the component to get reference documentation for. Example "Button", "Card" or similar.
+
+    Returns:
+        The markdown content of the reference page for the specified component
+    """
+    try:
+        return _get_reference_page_from_collection(component).content
+    except ValueError as e:
+        raise ValueError(f"Reference page for component '{component}' not found. {str(e)}")
+
+@docs_mcp.tool
+def search(query: str, limit: int = 10) -> List[DocumentationPageSummary]:
+    """
+    Search for documentation pages by name, title, or description.
+
+    Use this tool to find documentation pages that can help you understand a topic, feature or component.
 
     Args:
         query: Search term to look for in page names, titles, or descriptions
@@ -128,7 +172,7 @@ def search_pages(query: str, limit: int = 10) -> List[DocumentationPageSummary]:
         List of matching documentation page summaries
     """
     collection = _load_docs_collection()
-    matches = collection.search_pages(query)
+    matches = collection.search(query)
 
     # Limit results and convert to summaries
     limited_matches = matches[:limit]

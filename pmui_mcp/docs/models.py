@@ -3,7 +3,7 @@ Pydantic models for Panel Material UI Documentation metadata collection.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, List
+from typing import Optional, List
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -52,7 +52,7 @@ class DocumentationCollection(BaseModel):
                 return page
         return None
 
-    def search_pages(self, query: str) -> List[DocumentationPageInfo]:
+    def search(self, query: str) -> List[DocumentationPageInfo]:
         """
         Search for pages containing the query in name, title, or description.
 
