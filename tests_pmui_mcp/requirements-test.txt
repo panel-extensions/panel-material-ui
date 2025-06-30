@@ -1,0 +1,4 @@
+# Test requirements for Panel Material UI MCP Server
+pytest
+pytest-asyncio
+fastmcp
