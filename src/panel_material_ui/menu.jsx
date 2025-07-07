@@ -22,7 +22,7 @@ export function CustomMenu({ open, anchorEl, onClose, children, sx }) {
           vertical: "top",
           horizontal: "right",
         }}
-	sx={sx}
+        sx={sx}
       >
         {children}
       </Menu>
@@ -34,7 +34,7 @@ export function CustomMenu({ open, anchorEl, onClose, children, sx }) {
       open={open}
       anchorEl={anchorEl}
       placement="bottom-end"
-      style={{ zIndex: 1500 }}
+      style={{zIndex: 1500}}
     >
       <ClickAwayListener onClickAway={onClose}>
         <Paper elevation={3} sx={sx}>

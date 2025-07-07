@@ -25,10 +25,10 @@ export function render({model, el}) {
         color={color}
         disabled={disabled}
         endIcon={<ArrowDropDownIcon />}
-	loading={loading}
+        loading={loading}
         onClick={() => setOpen(!open)}
         ref={anchorEl}
-	size={size}
+        size={size}
         startIcon={icon && (
           icon.trim().startsWith("<") ?
             <span style={{
