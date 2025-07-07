@@ -5,7 +5,7 @@ import Paper from "@mui/material/Paper"
 import Popper from "@mui/material/Popper"
 
 
-export function CustomMenu({ open, anchorEl, onClose, children, sx }) {
+export function CustomMenu({open, anchorEl, onClose, children, sx}) {
   const nb = document.querySelector(".jp-NotebookPanel");
 
   if (nb == null) {
