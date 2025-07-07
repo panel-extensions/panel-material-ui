@@ -6,10 +6,10 @@ function html_decode(input) {
 }
 
 export function render({model}) {
+  const [color] = model.useState("color")
   const [sx] = model.useState("sx")
   const [text] = model.useState("object")
   const [variant] = model.useState("variant")
-  const [color] = model.useState("color")
 
   return (
     <Typography

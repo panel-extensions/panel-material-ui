@@ -12,6 +12,8 @@ class MaterialPaneBase(MaterialComponent):
 
     object = param.Parameter()
 
+    _rerender_params = []
+
     __abstract = True
 
     def __init__(self, object=None, **params):
@@ -111,8 +113,9 @@ class Typography(MaterialPaneBase, Markdown):
     - https://mui.com/material-ui/react-typography/
     """
 
-    variant = param.String(default=None, doc="The typography variant, e.g. h1, h2, body1.")
     color = param.String(default=None, doc="The color of the text, e.g. primary or secondary.")
+
+    variant = param.String(default=None, doc="The typography variant, e.g. h1, h2, body1.")
 
     _esm_base = "Typography.jsx"
     _rename = {"object": "object"}
