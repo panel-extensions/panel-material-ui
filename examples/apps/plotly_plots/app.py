@@ -341,7 +341,7 @@ def create_sunburst():
         'labels': ['Category A', 'Category B', 'Category C',
                    'Sub A1', 'Sub A2', 'Sub B1', 'Sub B2', 'Sub C1'],
         'parents': ['', '', '', 'A', 'A', 'B', 'B', 'C'],
-        'values': [0, 0, 0, 15, 25, 20, 10, 30]
+        'values': [40, 30, 30, 15, 25, 20, 10, 30]
     })
 
     fig = go.Figure(go.Sunburst(
@@ -359,10 +359,20 @@ def create_sunburst():
 
     return fig
 
-# Create reactive plot function that updates with theme changes
-def create_reactive_plots(dark_theme=False):
-    """Create all plots and update them based on theme."""
-    plots = [
+# Create the main dashboard function
+def create_dashboard():
+    """Create the main dashboard with Page component."""
+
+    # Create title and description
+    title = pmui.Typography("🎨 Panel Material UI Plotly Dashboard", variant="h3", sx={"mb": 2})
+    description = pmui.Typography(
+        "A comprehensive showcase of Plotly charts with Material Design theming. "
+        "Toggle between light and dark themes using the theme switcher in the header.",
+        variant="body1",
+        sx={"mb": 3, "color": "text.secondary"}
+    )
+
+    updated_plots = [
         create_line_plot(),
         create_bar_chart(),
         create_pie_chart(),
@@ -377,39 +387,21 @@ def create_reactive_plots(dark_theme=False):
         create_sunburst()
     ]
 
-    return plots
+    # Create grid layout with plots
+    plot_cards = []
+    for i, plot in enumerate(updated_plots):
+        card = pmui.Card(
+            pn.pane.Plotly(plot, sizing_mode='stretch_width', height=400),
+            sx={"mb": 2}
+        )
+        plot_cards.append(card)
 
-# Create the main dashboard function
-def create_dashboard():
-    """Create the main dashboard with Page component."""
-
-    # Create title and description
-    title = pmui.Typography("🎨 Panel Material UI Plotly Dashboard", variant="h3", sx={"mb": 2})
-    description = pmui.Typography(
-        "A comprehensive showcase of Plotly charts with Material Design theming. "
-        "Toggle between light and dark themes using the theme switcher in the header.",
-        variant="body1",
-        sx={"mb": 3, "color": "text.secondary"}
-    )
-
-    def plots_grid(dark_theme):
-        updated_plots = create_reactive_plots(dark_theme)
-
-        # Create grid layout with plots
-        plot_cards = []
-        for i, plot in enumerate(updated_plots):
-            card = pmui.Card(
-                pn.pane.Plotly(plot, sizing_mode='stretch_width', height=400),
-                sx={"mb": 2}
-            )
-            plot_cards.append(card)
-
-        # Arrange plots in a responsive grid
-        return pmui.Container(*[
-            pmui.Grid(*[
-                pmui.Grid(card, size={'xs': 12, 'md': 6, 'lg': 6}) for card in plot_cards
-            ], container=True, spacing=2, sx={"mb": 3}),
-        ])
+    # Arrange plots in a responsive grid
+    container = pmui.Container(*[
+        pmui.Grid(*[
+            pmui.Grid(card, size={'xs': 12, 'md': 6, 'lg': 6}) for card in plot_cards
+        ], container=True, spacing=2, sx={"mb": 3}),
+    ])
 
     page = pmui.Page(
         title="Plotly Dashboard - Panel Material UI",
@@ -428,7 +420,7 @@ def create_dashboard():
     page.main = [
         title,
         description,
-        pn.bind(plots_grid, page.param.dark_theme),
+        container
     ]
 
     return page

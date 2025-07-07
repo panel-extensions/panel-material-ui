@@ -102,17 +102,18 @@ function find_on_parent(view, prop) {
   return null
 }
 
-function hexToRgb(hex) {
+function hexToRgb(hex, asString=false) {
   hex = hex.replace(/^#/, "");
   if (hex.length === 3) {
     hex = hex.split("").map(c => c + c).join("");
   }
   const bigint = parseInt(hex, 16);
-  return {
+  const rgb = {
     r: (bigint >> 16) & 255,
     g: (bigint >> 8) & 255,
     b: bigint & 255
-  };
+  }
+  return asString ? `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})` : rgb
 }
 
 function compositeColors(fg, bg, alpha) {
@@ -172,7 +173,8 @@ function elevation_color(elevation, theme, dark) {
 function apply_plotly_theme(model, theme, dark, font_family) {
   const view = Bokeh.index.find_one_by_id(model.id)
   const elevation = view ? find_on_parent(view, "elevation") : 0
-  const paper_color = elevation_color(elevation, theme, dark)
+  let paper_color = elevation_color(elevation, theme, dark)
+  paper_color = paper_color.startsWith("#") ? hexToRgb(paper_color, true) : paper_color
   const paper_bgcolor = paper_color
   const plot_bgcolor = paper_color
   const font_color_primary = theme.palette.text.primary
