@@ -281,7 +281,7 @@ export function render({model, el}) {
                       e.stopPropagation()
                     }}
                     position="end"
-		    size="small"
+                    size="small"
                     sx={{zIndex: 100}}
                   >
                     <IconButton size="small">
@@ -389,7 +389,7 @@ export function render({model, el}) {
             if (!multi) {
               setValue(opt)
               setOpen(false)
-	      e.stopPropagation()
+              e.stopPropagation()
               return
             }
             const isChecked = !value.includes(opt)
