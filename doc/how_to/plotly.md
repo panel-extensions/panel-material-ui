@@ -1,0 +1,127 @@
+# Plotly Theming
+
+Panel Material UI provides integrated theming support for Plotly, which is applied automatically.
+
+## Basic Usage
+
+The theme will be applied automatically:
+
+```{pyodide}
+import panel as pn
+import panel_material_ui as pmui
+import plotly.express as px
+
+pn.extension("plotly")
+
+df = px.data.iris()
+
+plot = px.scatter(
+    df, x="sepal_length", y="sepal_width", color="species",
+    height=400
+)
+
+pmui.Container(
+    plot, width_option="md"
+).preview()
+```
+
+and will automatically switch when in dark mode:
+
+```{pyodide}
+import panel as pn
+import panel_material_ui as pmui
+import plotly.express as px
+
+pn.extension("plotly")
+
+df = px.data.iris()
+
+plot = px.scatter(
+    df, x="sepal_length", y="sepal_width", color="species",
+    height=400
+)
+
+pmui.Container(
+    plot, dark_theme=True, width_option="md"
+).preview()
+```
+
+## Color Palettes & Scales
+
+Plotly provides built-in [categorical color sequences](https://plotly.com/python/discrete-color/) and [continuous color scales](https://plotly.com/python/builtin-colorscales/).
+
+In addition, Panel Material UI provides utilities to generate categorical color palettes and continuous color scales that align with Material Design and your chosen color theme.
+
+### Categorical Colors
+
+The automatic theming built into Panel will automatically generate a discrete color sequence based on the primary color. You can override this default by specifying the `color_discrete_sequence`:
+
+```{pyodide}
+import panel as pn
+import plotly.express as px
+import panel_material_ui as pmui
+
+pn.extension("plotly")
+
+df = px.data.iris()
+
+primary_color = "#4099da"
+
+# Generate colors using existing theme function
+colors = pmui.theme.generate_palette(primary_color, n_colors=3)
+
+plot = px.scatter(
+    df, x="sepal_length", y="sepal_width", color="species",
+    height=400,
+    color_discrete_sequence=colors
+)
+
+toggle = pmui.ThemeToggle(styles={"margin-left": "auto"})
+
+pmui.Container(
+    toggle,
+    plot,,
+    theme_config={"palette": {"primary": {"main": primary_color}}},
+    width_option="md"
+).preview()
+```
+
+:::{note}
+When using Plotly Figure directly you can provide a discrete color sequence via the `colorway` argument of the `layout` property, i.e.:
+
+```python
+go.Figure(layout={'colorway': ...})
+```
+:::
+
+### Continuous Colors
+
+Create continuous color scales using the `pmui.theme.linear_gradient` function for continuous data visualization:
+
+```{pyodide}
+import panel as pn
+import plotly.express as px
+import panel_material_ui as pmui
+
+pn.extension("plotly")
+
+df = px.data.iris()
+primary_color = "#4099da"
+
+colorscale = pmui.theme.linear_gradient("#ffffff", primary_color, n=256)
+
+plot = px.scatter(
+    df, x="sepal_length", y="sepal_width", color="petal_length",
+    height=400,
+    color_continuous_scale=colorscale
+)
+
+toggle = pmui.ThemeToggle(styles={"margin-left": "auto"})
+
+pmui.Container(
+    toggle,
+    plot,
+    theme_config={"palette": {"primary": {"main": primary_color}}},
+    width_option="md"
+).preview()
+```
