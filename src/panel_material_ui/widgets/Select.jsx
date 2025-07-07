@@ -281,9 +281,10 @@ export function render({model, el}) {
                       e.stopPropagation()
                     }}
                     position="end"
+		    size="small"
                     sx={{zIndex: 100}}
                   >
-                    <IconButton>
+                    <IconButton size="small">
                       <ClearIcon/>
                     </IconButton>
                   </InputAdornment>
@@ -388,6 +389,7 @@ export function render({model, el}) {
             if (!multi) {
               setValue(opt)
               setOpen(false)
+	      e.stopPropagation()
               return
             }
             const isChecked = !value.includes(opt)
@@ -446,7 +448,7 @@ export function render({model, el}) {
           setValue(newValue)
         }}
         onClick={() => setOpen(true)}
-        onClose={() => !nb && setOpen(false)}
+        onClose={(e) => { e.stopPropagation(); setOpen(false) }}
         open={!nb && open}
         ref={anchorEl}
         renderValue={renderValue}
