@@ -18,14 +18,12 @@ import panel as pn
 
 # Import Panel Material UI components
 import panel_material_ui as pmui
-from panel_material_ui.plotly import register_pmui_templates, update_template
 
 # Configure Panel
 pn.extension('plotly')
+
 primary_color="#4099da"
 primary_color_dark="#644c76"
-# Register Material UI Plotly templates
-register_pmui_templates(primary_color=primary_color, primary_color_dark=primary_color_dark)
 
 THEME_CONFIG = {
     "light": {
@@ -379,10 +377,7 @@ def create_reactive_plots(dark_theme=False):
         create_sunburst()
     ]
 
-    # Update all plots with the current theme
-    updated_plots = [update_template(plot, dark_theme=dark_theme) for plot in plots]
-
-    return updated_plots
+    return plots
 
 # Create the main dashboard function
 def create_dashboard():

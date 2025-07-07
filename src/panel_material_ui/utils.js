@@ -169,6 +169,406 @@ function elevation_color(elevation, theme, dark) {
   return (dark && elevation) ? getMuiElevatedColor(theme.palette.background.paper, elevation, dark) : theme.palette.background.paper
 }
 
+function apply_plotly_theme(model, theme, dark, font_family) {
+  const view = Bokeh.index.find_one_by_id(model.id)
+  const elevation = view ? find_on_parent(view, "elevation") : 0
+  const paper_color = elevation_color(elevation, theme, dark)
+  const paper_bgcolor = paper_color
+  const plot_bgcolor = paper_color
+  const font_color_primary = theme.palette.text.primary
+  const font_color_secondary = theme.palette.text.secondary
+  const grid_color = theme.palette.divider
+  const axis_line_color = theme.palette.divider
+  const zero_line_color = theme.palette.divider
+  const colorway = model.layout.colorway || ["#1976d2", "#4caf50", "#ff9800", "#f44336", "#9e9e9e"]
+
+  const layout = {
+    colorway,
+    font: {
+      color: font_color_primary,
+      family: font_family,
+      size: 12,
+    },
+    paper_bgcolor,
+    plot_bgcolor,
+    margin: {l: 64, r: 64, t: 64, b: 64},
+    title: {
+      font: {size: 16, color: font_color_primary},
+      x: 0.5,
+      xanchor: "center",
+      pad: {t: 20},
+    },
+    xaxis: {
+      gridcolor: grid_color,
+      linecolor: axis_line_color,
+      zerolinecolor: zero_line_color,
+      tickcolor: axis_line_color,
+      tickfont: {color: font_color_secondary, size: 11},
+      title: {
+        font: {size: 14, color: font_color_primary},
+        standoff: 20,
+      },
+      showline: true,
+      linewidth: 1,
+      gridwidth: 1,
+      zerolinewidth: 1,
+    },
+    yaxis: {
+      gridcolor: grid_color,
+      linecolor: axis_line_color,
+      zerolinecolor: zero_line_color,
+      tickcolor: axis_line_color,
+      tickfont: {color: font_color_secondary, size: 11},
+      title: {
+        font: {size: 14, color: font_color_primary},
+        standoff: 20,
+      },
+      showline: true,
+      linewidth: 1,
+      gridwidth: 1,
+      zerolinewidth: 1,
+    },
+    coloraxis: {
+      colorbar: {
+        outlinewidth: 0,
+        ticks: "",
+        tickcolor: axis_line_color,
+        tickfont: {color: font_color_secondary},
+        title: {font: {color: font_color_primary}},
+      }
+    },
+
+    legend: {
+      bgcolor: "rgba(255, 255, 255, 0)",
+      bordercolor: "rgba(0, 0, 0, 0)",
+      font: {color: font_color_primary},
+      orientation: "v",
+      x: 1.02,
+      xanchor: "left",
+    },
+
+    hoverlabel: {
+      bgcolor: paper_bgcolor,
+      bordercolor: grid_color,
+      font: {color: font_color_primary},
+    },
+    annotationdefaults: {
+      arrowcolor: font_color_primary,
+      arrowhead: 0,
+      arrowwidth: 1,
+      font: {color: font_color_primary},
+    },
+    geo: {
+      bgcolor: paper_bgcolor,
+      lakecolor: paper_bgcolor,
+      landcolor: paper_bgcolor,
+    },
+
+    polar: {
+      bgcolor: paper_bgcolor,
+      angularaxis: {
+        gridcolor: grid_color,
+        linecolor: axis_line_color,
+      },
+      radialaxis: {
+        gridcolor: grid_color,
+        linecolor: axis_line_color,
+      },
+    },
+    ternary: {
+      bgcolor: paper_bgcolor,
+      aaxis: {
+        gridcolor: grid_color,
+        linecolor: axis_line_color,
+      },
+      baxis: {
+        gridcolor: grid_color,
+        linecolor: axis_line_color,
+      },
+      caxis: {
+        gridcolor: grid_color,
+        linecolor: axis_line_color,
+      },
+    },
+  }
+
+  const data = {
+    bar: [
+      {
+        marker: {
+          line: {color: paper_bgcolor, width: 0.5},
+          opacity: 0.8,
+        },
+        textfont: {color: font_color_primary},
+      }
+    ],
+    scatter: [
+      {
+        marker: {
+          size: 8,
+          line: {color: paper_bgcolor, width: 0.5},
+          opacity: 0.8,
+        },
+        textfont: {color: font_color_primary},
+      }
+    ],
+    scatter3d: [
+      {
+        marker: {
+          size: 4,
+          line: {color: paper_bgcolor, width: 0.5},
+          opacity: 0.8,
+        }
+      }
+    ],
+    histogram: [
+      {
+        marker: {
+          line: {color: paper_bgcolor, width: 0.5},
+          opacity: 0.7,
+        }
+      }
+    ],
+    box: [
+      {
+        boxpoints: "outliers",
+        fillcolor: "rgba(255,255,255,0)",
+        line: {color: font_color_primary},
+        marker: {opacity: 0.8, size: 3},
+      }
+    ],
+    violin: [
+      {
+        fillcolor: "rgba(255,255,255,0)",
+        line: {color: font_color_primary},
+        marker: {opacity: 0.8, size: 3},
+      }
+    ],
+    heatmap: [
+      {
+        colorbar: {
+          outlinewidth: 0,
+          ticks: "",
+          tickcolor: axis_line_color,
+          tickfont: {color: font_color_secondary},
+          title: {font: {color: font_color_primary}},
+        },
+        colorscale: [
+          [0, colorway ? colorway[1] : "#f44336"],     // Red
+          [0.25, dark ? "#424242" : "#ffffff"],        // White/Gray
+          [0.5, dark ? "#616161" : "#e0e0e0"],         // Light Gray
+          [0.75, colorway ? colorway[0] : "#1976d2"],  // Primary blue
+          [1, colorway ? colorway[2] : "#0d47a1"]      // Dark blue
+        ],
+      }
+    ],
+    contour: [
+      {
+        colorbar: {
+          outlinewidth: 0,
+          ticks: "",
+          tickcolor: axis_line_color,
+          tickfont: {color: font_color_secondary},
+          title: {font: {color: font_color_primary}},
+        },
+        colorscale: [
+          [0, colorway ? colorway[1] : "#f44336"],    // Red
+          [0.33, colorway ? colorway[2] : "#4caf50"], // Green
+          [0.67, colorway ? colorway[4] : "#ff9800"], // Orange
+          [1, colorway ? colorway[1] : "#f44336"]     // Red
+        ],
+        line: {color: axis_line_color, width: 0.5},
+      }
+    ],
+    surface: [
+      {
+        colorbar: {
+          outlinewidth: 0,
+          ticks: "",
+          tickcolor: axis_line_color,
+          tickfont: {color: font_color_secondary},
+          title: {font: {color: font_color_primary}},
+        },
+        colorscale: [
+          [0, colorway ? colorway[0] : "#1976d2"],           // Primary blue
+          [0.25, colorway ? colorway[3] : "#2196f3"], // Light blue
+          [0.5, colorway ? colorway[2] : "#4caf50"],  // Green
+          [0.75, colorway ? colorway[4] : "#ff9800"], // Orange
+          [1, colorway ? colorway[1] : "#f44336"]     // Red
+        ],
+      }
+    ],
+    candlestick: [
+      {
+        increasing: {
+          line: {color: "#4caf50"},
+          fillcolor: "#4caf50",
+        },
+        decreasing: {
+          line: {color: "#f44336"},
+          fillcolor: "#f44336",
+        },
+      }
+    ],
+    ohlc: [
+      {
+        increasing: {line: {color: "#4caf50"}},
+        decreasing: {line: {color: "#f44336"}},
+      }
+    ],
+    waterfall: [
+      {
+        decreasing: {marker: {color: colorway && colorway.length > 1 ? colorway[1] : "#f44336"}},
+        increasing: {marker: {color: colorway ? colorway[0] : "#1976d2"}},
+        totals: {marker: {color: "#9e9e9e"}},
+        textfont: {color: font_color_primary},
+        textposition: "outside",
+        connector: {line: {color: axis_line_color, width: 1}},
+      }
+    ],
+    funnel: [
+      {
+        textfont: {color: font_color_primary},
+        textposition: "inside",
+        connector: {line: {color: axis_line_color, width: 1}},
+      }
+    ],
+    pie: [
+      {
+        textfont: {color: font_color_primary},
+        textposition: "auto",
+        marker: {line: {color: paper_bgcolor, width: 2}},
+      }
+    ],
+    sunburst: [
+      {
+        textfont: {color: font_color_primary},
+        marker: {line: {color: paper_bgcolor, width: 2}},
+      }
+    ],
+    treemap: [
+      {
+        textfont: {color: font_color_primary},
+        marker: {line: {color: paper_bgcolor, width: 2}},
+      }
+    ],
+    icicle: [
+      {
+        textfont: {color: font_color_primary},
+        marker: {line: {color: paper_bgcolor, width: 2}},
+      }
+    ],
+    sankey: [
+      {
+        node: {
+          color: colorway ? colorway[0] : "#1976d2",
+          line: {color: axis_line_color, width: 0.5},
+        },
+        link: {color: "rgba(128, 128, 128, 0.4)"},
+      }
+    ],
+    parcoords: [
+      {
+        line: {
+          colorscale: [
+            [0, colorway ? colorway[0] : "#1976d2"],
+            [0.5, colorway ? colorway[2] : "#4caf50"],
+            [1, colorway ? colorway[1] : "#f44336"]
+          ],
+          showscale: true
+        },
+        labelangle: 0,
+        labelfont: {color: font_color_primary},
+        tickfont: {color: font_color_secondary},
+      }
+    ],
+    parcats: [
+      {
+        labelfont: {color: font_color_primary},
+        tickfont: {color: font_color_secondary},
+        line: {
+          colorscale: [
+            [0, colorway ? colorway[0] : "#1976d2"],
+            [0.5, colorway ? colorway[2] : "#4caf50"],
+            [1, colorway ? colorway[1] : "#f44336"]
+          ]
+        },
+      }
+    ],
+    table: [
+      {
+        header: {
+          fill: {color: grid_color},
+          font: {color: font_color_primary, size: 12},
+          line: {color: axis_line_color, width: 1},
+        },
+        cells: {
+          fill: {color: paper_bgcolor},
+          font: {color: font_color_primary, size: 11},
+          line: {color: axis_line_color, width: 1},
+        },
+      }
+    ],
+    mesh3d: [
+      {
+        colorbar: {
+          outlinewidth: 0,
+          ticks: "",
+          tickcolor: axis_line_color,
+          tickfont: {color: font_color_secondary},
+          title: {font: {color: font_color_primary}},
+        },
+        colorscale: [
+          [0, colorway ? colorway[0] : "#1976d2"],
+          [0.33, colorway ? colorway[2] : "#4caf50"],
+          [0.67, colorway ? colorway[4] : "#ff9800"],
+          [1, colorway ? colorway[1] : "#f44336"]
+        ],
+      }
+    ],
+    isosurface: [
+      {
+        colorbar: {
+          outlinewidth: 0,
+          ticks: "",
+          tickcolor: axis_line_color,
+          tickfont: {color: font_color_secondary},
+          title: {font: {color: font_color_primary}},
+        },
+        colorscale: [
+          [0, colorway ? colorway[0] : "#1976d2"],
+          [0.33, colorway ? colorway[2] : "#4caf50"],
+          [0.67, colorway ? colorway[4] : "#ff9800"],
+          [1, colorway ? colorway[1] : "#f44336"]
+        ],
+      }
+    ],
+
+    volume: [
+      {
+        colorbar: {
+          outlinewidth: 0,
+          ticks: "",
+          tickcolor: axis_line_color,
+          tickfont: {color: font_color_secondary},
+          title: {font: {color: font_color_primary}},
+        },
+        colorscale: [
+          [0, colorway ? colorway[0] : "#1976d2"],
+          [0.33, colorway ? colorway[2] : "#4caf50"],
+          [0.67, colorway ? colorway[4] : "#ff9800"],
+          [1, colorway ? colorway[1] : "#f44336"]
+        ],
+      }
+    ],
+  }
+
+  model.setv({
+    layout: deepmerge(model.layout, layout),
+    data: model.data.map((d) => data[d.type] ? deepmerge(d, data[d.type]) : d),
+  })
+}
+
 function apply_bokeh_theme(model, theme, dark, font_family) {
   const model_props = {}
   const model_type = model.type
@@ -235,6 +635,8 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     model_props.theme = dark ? "github_dark" : "github_light_default"
   } else if (model_type.endsWith("VegaPlot")) {
     model_props.theme = dark ? "dark" : null
+  } else if (model_type.endsWith("PlotlyPlot")) {
+    apply_plotly_theme(model, theme, dark, font_family)
   } else if (model_type.endsWith("HoverTool")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     if (view) {
