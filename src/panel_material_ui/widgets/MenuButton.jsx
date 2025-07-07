@@ -3,14 +3,17 @@ import Divider from "@mui/material/Divider"
 import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
+import {CustomMenu} from "./menu"
 
-export function render({model}) {
+export function render({model, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [items] = model.useState("items")
   const [label] = model.useState("label")
+  const [loading] = model.useState("loading")
+  const [size] = model.useState("size")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
   const anchorEl = React.useRef(null)
@@ -22,8 +25,10 @@ export function render({model}) {
         color={color}
         disabled={disabled}
         endIcon={<ArrowDropDownIcon />}
+        loading={loading}
         onClick={() => setOpen(!open)}
         ref={anchorEl}
+        size={size}
         startIcon={icon && (
           icon.trim().startsWith("<") ?
             <span style={{
@@ -42,18 +47,10 @@ export function render({model}) {
       >
         {label}
       </Button>
-      <Menu
+      <CustomMenu
         anchorEl={() => anchorEl.current}
         open={open}
         onClose={() => setOpen(false)}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
       >
         {items.map((item, index) => {
           if (item === null || item.label === "---") {
@@ -86,7 +83,7 @@ export function render({model}) {
             </MenuItem>
           )
         })}
-      </Menu>
+      </CustomMenu>
     </>
   )
 }
