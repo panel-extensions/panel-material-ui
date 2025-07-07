@@ -56,6 +56,7 @@ pytest-cov = "*"
 pytest-rerunfailures = "*"
 pytest-xdist = "*"
 mypy = "*"
+plotly = "*"
 
 [feature.test-unit-task.tasks]
 _install = "pip install --no-deps --disable-pip-version-check -e ."
@@ -99,6 +100,7 @@ numpydoc = "*"
 matplotlib = "*"  # not optional in nbsite
 hvplot = "*"
 bokeh_sampledata = "*"
+plotly = "*"
 
 [feature.doc.tasks]
 # _docs-refmanual = 'sphinx-apidoc -e -o doc/api/ panel/ --ext-autodoc --ext-intersphinx'

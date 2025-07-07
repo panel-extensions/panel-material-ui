@@ -121,6 +121,16 @@ Integrate **panel-material-ui** with **Bokeh**, **hvPlot** and **HoloViews** to 
 [Learn more »](bokeh_holoviews)
 :::
 
+:::{grid-item-card} {octicon}`project;2.5em;sd-mr-1` Plotly
+:link: plotly
+:link-type: doc
+
+Integrate **panel-material-ui** with **Plotly** to create beautiful, theme-aware plots.
+
++++
+[Learn more »](bokeh_holoviews)
+:::
+
 ::::
 
 
@@ -143,4 +153,5 @@ color
 icons
 branding
 bokeh_holoviews
+plotly
 ```
