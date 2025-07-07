@@ -17,7 +17,7 @@ import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
 import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
-import {findNotebook} from "./utils"
+import {CustomMenu} from "./menu"
 
 export function render({model, el}) {
   const [color] = model.useState("color")
@@ -56,32 +56,6 @@ export function render({model, el}) {
     max_items = max_items_state === undefined ? null : max_items_state
     solid = solid_state === undefined ? true : solid_state
     placeholder = placeholder_state === undefined ? null : placeholder_state
-  }
-
-  // Offset notebook node
-  const [notebook, feed] = findNotebook(el)
-  let nb_menu_props = {}
-  if (notebook !== null) {
-    const {x, y} = notebook.getBoundingClientRect()
-    let [left, top] = [-x, feed.scrollTop - y]
-    const [position, setPosition] = React.useState([left, top])
-    nb_menu_props = {
-      PaperProps: {
-        style: {transform: `translate(${position[0]}px, ${position[1]}px)`}
-      },
-      TransitionComponent: React.Fragment
-    }
-    React.useEffect(() => {
-      if (open) {
-        feed.style.overflow = "hidden"
-        const {x, y, height} = notebook.getBoundingClientRect()
-        left = -x
-        top = ((feed.scrollTop > (0.67*height)) ? y : (feed.scrollTop - y))
-        setPosition([left, top])
-      } else {
-        feed.style.overflow = "auto"
-      }
-    }, [open])
   }
 
   // Select specific props
@@ -150,14 +124,15 @@ export function render({model, el}) {
     }
   }, [filterStr])
 
-  const MenuProps = {
+  const nb = document.querySelector(".jp-NotebookPanel");
+
+  const MenuProps = nb ? {} : {
     container: el,
     disablePortal: true,
     sx: {height: dropdown_height},
     MenuListProps: {
       ref: menuRef,
-    },
-    ...nb_menu_props
+    }
   }
 
   const getInput = () => {
@@ -452,6 +427,8 @@ export function render({model, el}) {
     )
   }
 
+  const anchorEl = React.useRef(null)
+
   return (
     <FormControl disabled={disabled} fullWidth variant={variant}>
       {label && <InputLabel color={color} id={`select-label-${model.id}`}>{label}</InputLabel>}
@@ -461,7 +438,6 @@ export function render({model, el}) {
         input={getInput()}
         labelId={`select-label-${model.id}`}
         multiple={multi}
-        onClose={() => setOpen(false)}
         onChange={(event) => {
           const newValue = event.target.value
           if (multi && max_items && newValue.length > max_items) {
@@ -469,8 +445,10 @@ export function render({model, el}) {
           }
           setValue(newValue)
         }}
-        onOpen={() => setOpen(true)}
-        open={open}
+        onClick={() => setOpen(true)}
+        onClose={() => !nb && setOpen(false)}
+        open={!nb && open}
+        ref={anchorEl}
         renderValue={renderValue}
         size={size}
         sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
@@ -478,8 +456,19 @@ export function render({model, el}) {
         variant={variant}
         MenuProps={MenuProps}
       >
-        {renderMenuItems()}
+        {!nb && renderMenuItems()}
       </Select>
+      {nb && (
+        <CustomMenu
+          anchorEl={() => anchorEl.current}
+          open={open}
+          onClose={() => setOpen(false)}
+          ref={menuRef}
+          sx={{maxHeight: dropdown_height, width: anchorEl.current?.offsetWidth}}
+        >
+          {renderMenuItems()}
+        </CustomMenu>
+      )}
     </FormControl>
   )
 }
