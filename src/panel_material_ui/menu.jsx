@@ -15,7 +15,7 @@ export function CustomMenu({open, anchorEl, onClose, children, sx}) {
         onClose={onClose}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "left",
+          horizontal: "right",
         }}
         transformOrigin={{
           vertical: "top",
@@ -33,7 +33,7 @@ export function CustomMenu({open, anchorEl, onClose, children, sx}) {
       open={open}
       anchorEl={anchorEl}
       placement="bottom-end"
-      style={{zIndex: 1500}}
+      style={{zIndex: 1500, width: anchorEl.current?.offsetWidth}}
     >
       <ClickAwayListener onClickAway={onClose}>
         <Paper elevation={3} sx={sx}>

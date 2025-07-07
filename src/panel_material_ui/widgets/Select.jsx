@@ -466,7 +466,7 @@ export function render({model, el}) {
           open={open}
           onClose={() => setOpen(false)}
           ref={menuRef}
-          sx={{maxHeight: dropdown_height, width: anchorEl.current?.offsetWidth}}
+          sx={{maxHeight: dropdown_height}}
         >
           {renderMenuItems()}
         </CustomMenu>
