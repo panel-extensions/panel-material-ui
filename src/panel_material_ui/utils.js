@@ -124,6 +124,76 @@ function compositeColors(fg, bg, alpha) {
   };
 }
 
+function rgbToHsl(r, g, b) {
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s;
+  const l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+
+  return [h, s, l];
+}
+
+function hslToRgb(h, s, l) {
+  if (s === 0) { return [l, l, l]; } // achromatic
+
+  const hue2rgb = (p, q, t) => {
+    if (t < 0) { t += 1; }
+    if (t > 1) { t -= 1; }
+    if (t < 1 / 6) { return p + (q - p) * 6 * t; }
+    if (t < 1 / 2) { return q; }
+    if (t < 2 / 3) { return p + (q - p) * (2 / 3 - t) * 6; }
+    return p;
+  };
+
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+
+  return [
+    hue2rgb(p, q, h + 1 / 3),
+    hue2rgb(p, q, h),
+    hue2rgb(p, q, h - 1 / 3),
+  ];
+}
+
+function generatePalette(color, nColors = 3) {
+  // Remove the leading "#" if present
+  const hex = color.replace(/^#/, "");
+
+  // Convert hex to normalized RGB
+  const r = parseInt(hex.slice(0, 2), 16) / 255;
+  const g = parseInt(hex.slice(2, 4), 16) / 255;
+  const b = parseInt(hex.slice(4, 6), 16) / 255;
+
+  // Convert RGB to HSL
+  const [hBase, s, l] = rgbToHsl(r, g, b);
+
+  // Generate evenly spaced hues
+  const hues = Array.from({length: nColors}, (_, i) => (hBase + i / nColors) % 1);
+
+  // Convert back to hex colors
+  return hues.map(h => {
+    const [rOut, gOut, bOut] = hslToRgb(h, s, l);
+    return (
+      `#${
+        [rOut, gOut, bOut]
+          .map(v => Math.round(v * 255).toString(16).padStart(2, "0"))
+          .join("")}`
+    );
+  });
+}
+
 const overlayOpacities = [
   0,
   0.051,
@@ -182,7 +252,7 @@ function apply_plotly_theme(model, theme, dark, font_family) {
   const grid_color = theme.palette.divider
   const axis_line_color = theme.palette.divider
   const zero_line_color = theme.palette.divider
-  const colorway = model.layout.colorway || ["#1976d2", "#4caf50", "#ff9800", "#f44336", "#9e9e9e"]
+  const colorway = model.layout.colorway || generatePalette(theme.palette.primary.main, 10)
 
   const layout = {
     colorway,

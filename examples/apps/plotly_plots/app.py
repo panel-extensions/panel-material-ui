@@ -13,17 +13,15 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-from plotly.subplots import make_subplots
 import panel as pn
-
-# Import Panel Material UI components
 import panel_material_ui as pmui
+from plotly.subplots import make_subplots
 
 # Configure Panel
 pn.extension('plotly')
 
-primary_color="#4099da"
-primary_color_dark="#644c76"
+primary_color = "#4099da"
+primary_color_dark = "#644c76"
 
 THEME_CONFIG = {
     "light": {
@@ -31,15 +29,15 @@ THEME_CONFIG = {
             "primary": {
                 "main": primary_color,
             },
-    },
+        },
     },
     "dark": {
         "palette": {
             "primary": {
                 "main": primary_color_dark,
             },
+        }
     }
-}
 }
 
 np.random.seed(42)
@@ -99,7 +97,7 @@ def create_line_plot():
         y=time_series['sales'],
         mode='lines+markers',
         name='Sales',
-        line=dict(width=3)
+        line=dict(width=3),
     ))
 
     fig.add_trace(go.Scatter(
@@ -107,14 +105,14 @@ def create_line_plot():
         y=time_series['profit'],
         mode='lines+markers',
         name='Profit',
-        line=dict(width=3)
+        line=dict(width=3),
     ))
 
     fig.update_layout(
         title="📈 Sales & Profit Trends",
         xaxis_title="Date",
         yaxis_title="Amount ($)",
-        hovermode='x unified'
+        hovermode='x unified',
     )
 
     return fig

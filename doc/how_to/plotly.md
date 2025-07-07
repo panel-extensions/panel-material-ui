@@ -54,7 +54,7 @@ In addition, Panel Material UI provides utilities to generate categorical color 
 
 ### Categorical Colors
 
-Generate categorical color palettes aligned with your Material theme using the `pmui.theme.generate_palette` function:
+The automatic theming built into Panel will automatically generate a discrete color sequence based on the primary color. You can override this default by specifying the `color_discrete_sequence`:
 
 ```{pyodide}
 import panel as pn
@@ -85,6 +85,14 @@ pmui.Container(
     width_option="md"
 ).preview()
 ```
+
+:::{note}
+When using Plotly Figure directly you can provide a discrete color sequence via the `colorway` argument of the `layout` property, i.e.:
+
+```python
+go.Figure(layout={'colorway': ...})
+```
+:::
 
 ### Continuous Colors
 
