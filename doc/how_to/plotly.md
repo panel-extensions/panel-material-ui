@@ -42,7 +42,7 @@ plot = px.scatter(
 )
 
 pmui.Container(
-    plot, dark_mode=True, width_option="md"
+    plot, dark_theme=True, width_option="md"
 ).preview()
 ```
 
