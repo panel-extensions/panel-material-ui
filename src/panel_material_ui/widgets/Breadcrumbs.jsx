@@ -38,7 +38,7 @@ export function render({model}) {
     if (typeof item === "object" && item !== null) {
       if (item.href && index < items.length - 1) {
         return (
-          <Link href={item.href} {...props}>
+          <Link href={item.href} target={item.target} {...props}>
             {item.icon ?
               <Icon color={color_string} sx={{mr: 0.5}}>{item.icon}</Icon> : null
             }

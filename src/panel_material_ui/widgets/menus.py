@@ -200,7 +200,7 @@ class Breadcrumbs(MenuBase):
         The separator displayed between breadcrumb items.""")
 
     _esm_base = "Breadcrumbs.jsx"
-    _item_keys = ['label', 'icon', 'avatar', 'href']
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
 
 
 class MenuList(MenuBase):
