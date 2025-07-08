@@ -66,7 +66,7 @@ export function render({model, el}) {
 
   // Filter options based on search
   const filterOptions = (options, filterStr) => {
-    if (!filterStr) return options
+    if (!filterStr) { return options }
     return options.filter(opt =>
       opt.label.toLowerCase().includes(filterStr.toLowerCase())
     )
@@ -117,7 +117,7 @@ export function render({model, el}) {
   const customList = (title, items, filterStr, setFilterStr) => (
     <Card sx={{height: "100%"}}>
       <CardHeader
-        sx={{ p: "1em 0.8em 1em 0" }}
+        sx={{p: "1em 0.8em 1em 0"}}
         avatar={
           <Checkbox
             color={color}
@@ -143,7 +143,7 @@ export function render({model, el}) {
           variant="outlined"
           placeholder="Search..."
           fullWidth
-          sx={{ p: "0 0.8em 0.5em" }}
+          sx={{p: "0 0.8em 0.5em"}}
           value={filterStr}
           onChange={(e) => setFilterStr(e.target.value)}
           InputProps={{
@@ -159,9 +159,7 @@ export function render({model, el}) {
                   disableRipple
                   size="small"
                   onClick={() => setFilterStr("")}
-                  sx={{
-                    visibility: filterStr ? "visible" : "hidden",
-                  }}
+                  sx={{isibility: filterStr ? "visible" : "hidden"}}
                 >
                   <ClearIcon />
                 </IconButton>
@@ -214,9 +212,9 @@ export function render({model, el}) {
       {label && <InputLabel>{label}</InputLabel>}
       <Box sx={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
         {customList(left_title, filteredAvailable, left_filter, setLeftFilter)}
-        <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: "0 1em" }}>
+        <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: "0 1em"}}>
           <Button
-            sx={{ my: 0.5 }}
+            sx={{my: 0.5}}
             variant="outlined"
             size="small"
             onClick={handleCheckedRight}
@@ -227,7 +225,7 @@ export function render({model, el}) {
             <KeyboardDoubleArrowRightIcon />
           </Button>
           <Button
-            sx={{ my: 0.5 }}
+            sx={{my: 0.5}}
             variant="outlined"
             size="small"
             onClick={handleCheckedLeft}
