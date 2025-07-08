@@ -480,6 +480,39 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
     _rename = {"name": None}
 
 
+class CrossSelector(MaterialMultiSelectBase):
+    """
+    The `CrossSelector` widget allows selecting multiple values from a list of
+    `options`.
+
+    It falls into the broad category of multi-value, option-selection widgets
+    that provide a compatible API and include the `MultiSelect`,
+    `CrossSelector`, `CheckBoxGroup` and `CheckButtonGroup` widgets.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/CrossSelector.html
+    - https://panel.holoviz.org/reference/widgets/CrossSelector.html
+    - https://mui.com/material-ui/react-select/#multiple-select
+
+    :Example:
+
+    >>> CrossSelector(
+    ...     label='Favourites', value=['Panel', 'hvPlot'],
+    ...     options=['Panel', 'hvPlot', 'HoloViews', 'GeoViews', 'Datashader', 'Param', 'Colorcet'],
+    ...     max_items=2
+    ... )
+    """
+
+    color = param.Selector(objects=COLORS, default="primary")
+
+    searchable = param.Boolean(default=True, doc="Whether the dropdown is searchable")
+
+    width = param.Integer(default=None, doc="Width of the widget")
+
+    _esm_base = "CrossSelector.jsx"
+
+
 class NestedSelect(_PnNestedSelect):
     """
     The `NestedSelect` widget is composed of multiple widgets, where subsequent select options
@@ -518,6 +551,7 @@ class NestedSelect(_PnNestedSelect):
 
 __all__ = [
     "AutocompleteInput",
+    "CrossSelector",
     "Select",
     "RadioBoxGroup",
     "CheckBoxGroup",
