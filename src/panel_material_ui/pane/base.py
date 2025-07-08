@@ -29,6 +29,8 @@ class ClickablePaneBase(MaterialPaneBase):
 
     _event = "dom_event"
 
+    __abstract = True
+
     def __init__(self, object=None, **params):
         click_handler = params.pop('on_click', None)
         super().__init__(object=object, **params)
