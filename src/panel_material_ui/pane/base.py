@@ -246,9 +246,17 @@ class Skeleton(MaterialPaneBase):
     - https://mui.com/material-ui/react-skeleton/
     """
 
+    animation = param.Selector(
+        default="pulse",
+        objects=["pulse", "wave", None],
+        doc="The animation. If None the animation effect is disabled."
+    )
+
+    color = param.String(doc="Color defined as a Mui color or valid CSS color.")
+
     variant = param.Selector(
-        objects=["circular", "rectangular", "rounded"],
-        default="rounded",
+        objects=["text", "circular", "rectangular", "rounded"],
+        default="text",
         doc="""
         Shape variant of the skeleton placeholder. Options:
         - 'circular': Circular shape, ideal for avatar placeholders
@@ -258,6 +266,7 @@ class Skeleton(MaterialPaneBase):
 
     height = param.Integer(
         default=0,
+        bounds=(0, None),
         doc="""
         Height of the skeleton component in pixels. If 0 or not specified,
         the skeleton will adapt to its content or container."""
@@ -265,6 +274,7 @@ class Skeleton(MaterialPaneBase):
 
     width = param.Integer(
         default=0,
+        bounds=(0, None),
         doc="""
         Width of the skeleton component in pixels. If 0 or not specified,
         the skeleton will adapt to its content or container."""
