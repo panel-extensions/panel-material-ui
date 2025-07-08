@@ -147,7 +147,7 @@ export function render({model, el}) {
           value={filterStr}
           onChange={(e) => setFilterStr(e.target.value)}
           InputProps={{
-	    sx: {pl: "4px", pr: "4px"},
+            sx: {pl: "4px", pr: "4px"},
             startAdornment: (
               <InputAdornment position="start">
                 <FilterListIcon />
