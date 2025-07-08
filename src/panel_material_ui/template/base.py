@@ -269,11 +269,19 @@ class ThemeToggle(MaterialWidget):
     _rename = {"theme_toggle": None}
 
     def __init__(self, **params):
-        params['theme'] = config.theme
-        params['value'] = config.theme == 'dark'
+        if 'value' in params:
+            if 'theme' in params and params['value'] and not params['theme'] == 'dark':
+                raise ValueError(
+                    'The ThemeToggle value and theme must match.'
+                )
+        elif 'theme' in params:
+            params['value'] = params['theme'] == 'dark'
+        else:
+            params['theme'] = config.theme
+            params['value'] = config.theme == 'dark'
         super().__init__(**params)
 
-    @param.depends('value', watch=True)
+    @param.depends('value', watch=True, on_init=True)
     def _update_theme(self):
         with param.parameterized.edit_constant(self):
             self.theme = config.theme = 'dark' if self.value else 'default'

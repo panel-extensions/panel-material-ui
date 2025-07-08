@@ -22,7 +22,7 @@ plot = px.scatter(
 
 pmui.Container(
     plot, width_option="md"
-).preview()
+).preview(height=500)
 ```
 
 and will automatically switch when in dark mode:
@@ -45,7 +45,7 @@ plot = px.scatter(
 
 pmui.Container(
     toggle, plot, dark_theme=True, width_option="md"
-).preview()
+).preview(height=500)
 ```
 
 ## Color Palettes & Scales
@@ -56,7 +56,34 @@ In addition, Panel Material UI provides utilities to generate categorical color 
 
 ### Categorical Colors
 
-The automatic theming built into Panel will automatically generate a discrete color sequence based on the primary color. You can override this default by specifying the `color_discrete_sequence`:
+The automatic theming built into Panel will automatically generate a discrete color sequence based on the primary color:
+
+```{pyodide}
+import panel as pn
+import plotly.express as px
+import panel_material_ui as pmui
+
+pn.extension("plotly")
+
+df = px.data.iris()
+
+primary_color = pmui.ColorPicker(value="#4099da")
+
+plot = px.scatter(
+    df, x="sepal_length", y="sepal_width", color="species", height=400
+)
+
+toggle = pmui.ThemeToggle(styles={"margin-left": "auto"}, value=False)
+
+pmui.Container(
+    pmui.Row(primary_color, toggle),
+    plot,
+    theme_config={"palette": {"primary": {"main": primary_color}}},
+    width_option="md"
+).preview(height=500)
+```
+
+To disable this automatic behavior you may provide an explicit color sequence using `color_discrete_sequence`:
 
 ```{pyodide}
 import panel as pn
@@ -78,14 +105,14 @@ plot = px.scatter(
     color_discrete_sequence=colors
 )
 
-toggle = pmui.ThemeToggle(styles={"margin-left": "auto"})
+toggle = pmui.ThemeToggle(styles={"margin-left": "auto"}, value=False)
 
 pmui.Container(
     toggle,
     plot,
     theme_config={"palette": {"primary": {"main": primary_color}}},
     width_option="md"
-).preview()
+).preview(height=500)
 ```
 
 :::{note}
@@ -118,12 +145,12 @@ plot = px.scatter(
     color_continuous_scale=colorscale
 )
 
-toggle = pmui.ThemeToggle(styles={"margin-left": "auto"})
+toggle = pmui.ThemeToggle(styles={"margin-left": "auto"}, value=False)
 
 pmui.Container(
     toggle,
     plot,
     theme_config={"palette": {"primary": {"main": primary_color}}},
     width_option="md"
-).preview()
+).preview(height=500)
 ```
