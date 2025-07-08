@@ -36,13 +36,15 @@ pn.extension("plotly")
 
 df = px.data.iris()
 
+toggle = pmui.ThemeToggle(styles={"margin-left": "auto"}, value=True)
+
 plot = px.scatter(
     df, x="sepal_length", y="sepal_width", color="species",
     height=400
 )
 
 pmui.Container(
-    plot, dark_theme=True, width_option="md"
+    toggle, plot, dark_theme=True, width_option="md"
 ).preview()
 ```
 
@@ -80,7 +82,7 @@ toggle = pmui.ThemeToggle(styles={"margin-left": "auto"})
 
 pmui.Container(
     toggle,
-    plot,,
+    plot,
     theme_config={"palette": {"primary": {"main": primary_color}}},
     width_option="md"
 ).preview()
