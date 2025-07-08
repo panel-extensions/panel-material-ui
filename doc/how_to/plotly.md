@@ -56,34 +56,7 @@ In addition, Panel Material UI provides utilities to generate categorical color 
 
 ### Categorical Colors
 
-The automatic theming built into Panel will automatically generate a discrete color sequence based on the primary color:
-
-```{pyodide}
-import panel as pn
-import plotly.express as px
-import panel_material_ui as pmui
-
-pn.extension("plotly")
-
-df = px.data.iris()
-
-primary_color = pmui.ColorPicker(value="#4099da")
-
-plot = px.scatter(
-    df, x="sepal_length", y="sepal_width", color="species", height=400
-)
-
-toggle = pmui.ThemeToggle(styles={"margin-left": "auto"}, value=False)
-
-pmui.Container(
-    pmui.Row(primary_color, toggle, sizing_mode="stretch_width"),
-    plot,
-    theme_config={"palette": {"primary": {"main": primary_color}}},
-    width_option="md"
-).preview(height=500)
-```
-
-To disable this automatic behavior you may provide an explicit color sequence using `color_discrete_sequence`:
+In order to align the Material UI theming with the plot color sequence you can generate a palette using the `pmui.theme.generate_palette` utility and provide it using the `color_discrete_sequence`:
 
 ```{pyodide}
 import panel as pn
