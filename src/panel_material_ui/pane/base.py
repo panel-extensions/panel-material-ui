@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 import param
+from panel.links import Callback
 from panel.pane.markup import Markdown
 
 from ..base import COLORS, MaterialComponent
@@ -20,7 +22,95 @@ class MaterialPaneBase(MaterialComponent):
         super().__init__(object=object, **params)
 
 
-class Avatar(MaterialPaneBase):
+class ClickablePaneBase(MaterialPaneBase):
+
+    clicks = param.Integer(default=0, doc="""
+        The number of times the object has been clicked.""")
+
+    _event = "dom_event"
+
+    def __init__(self, object=None, **params):
+        click_handler = params.pop('on_click', None)
+        super().__init__(object=object, **params)
+        if click_handler:
+            self.on_click(click_handler)
+
+    def _handle_click(self, event):
+        self.param.update(clicks=self.clicks + 1)
+
+    def on_click(
+        self, callback: Callable[[param.parameterized.Event], None]
+    ) -> param.parameterized.Watcher:
+        """
+        Register a callback to be executed when the button is clicked.
+
+        The callback is given an `Event` argument declaring the number of clicks.
+
+        Arguments
+        ---------
+        callback: (Callable[[param.parameterized.Event], None])
+            The function to run on click events. Must accept a positional `Event` argument
+
+        Returns
+        -------
+        watcher: param.Parameterized.Watcher
+            A `Watcher` that executes the callback when the MenuButton is clicked.
+        """
+        return self.param.watch(callback, 'clicks', onlychanged=False)
+
+    def js_on_click(self, args: dict[str, Any] | None = None, code: str = "") -> Callback:
+        """
+        Allows defining a JS callback to be triggered when the button
+        is clicked.
+
+        Parameters
+        -----------
+        args: dict
+          A mapping of objects to make available to the JS callback
+        code: str
+          The Javascript code to execute when the button is clicked.
+
+        Returns
+        -------
+        callback: Callback
+          The Callback which can be used to disable the callback.
+        """
+        if args is None:
+            args = {}
+        return Callback(self, code={'event:'+self._event: code}, args=args)
+
+    def jscallback(self, args: dict[str, Any] | None = None, **callbacks: str) -> Callback:
+        """
+        Allows defining a Javascript (JS) callback to be triggered when a property
+        changes on the source object. The keyword arguments define the
+        properties that trigger a callback and the JS code that gets
+        executed.
+
+        Parameters
+        -----------
+        args: dict
+          A mapping of objects to make available to the JS callback
+        **callbacks: dict
+          A mapping between properties on the source model and the code
+          to execute when that property changes
+
+        Returns
+        -------
+        callback: Callback
+          The Callback which can be used to disable the callback.
+        """
+        if args is None:
+            args = {}
+        for k, v in list(callbacks.items()):
+            if k == 'clicks':
+                k = 'event:'+self._event
+            val = self._rename.get(v, v)
+            if val is not None:
+                callbacks[k] = val
+        return Callback(self, code=callbacks, args=args)
+
+
+class Avatar(ClickablePaneBase):
     """
     The `Avatar` component displays profile pictures, user initials, or icons
     in a compact, circular or square format. Avatars are commonly used throughout
@@ -90,7 +180,7 @@ class Avatar(MaterialPaneBase):
     _esm_base = "Avatar.jsx"
 
 
-class Chip(MaterialPaneBase):
+class Chip(ClickablePaneBase):
     """
     A `Chip` can be used to display information, labels, tags, or actions. It can include text,
     an avatar, an icon, or a delete button.
@@ -143,9 +233,6 @@ class Chip(MaterialPaneBase):
     )
 
     _esm_base = "Chip.jsx"
-
-    def _handle_click(self, event):
-        pass
 
 
 class Skeleton(MaterialPaneBase):
