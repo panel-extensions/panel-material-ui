@@ -1,4 +1,3 @@
-import Grid from "@mui/material/Grid"
 import List from "@mui/material/List"
 import Card from "@mui/material/Card"
 import CardHeader from "@mui/material/CardHeader"
@@ -143,20 +142,26 @@ export function render({model, el}) {
           size="small"
           variant="outlined"
           placeholder="Search..."
-          sx={{ p: "0 0.8em 0.5em", width: "100%" }}
+          fullWidth
+          sx={{ p: "0 0.8em 0.5em" }}
           value={filterStr}
           onChange={(e) => setFilterStr(e.target.value)}
           InputProps={{
+	    sx: {pl: "4px", pr: "4px"},
             startAdornment: (
               <InputAdornment position="start">
                 <FilterListIcon />
               </InputAdornment>
             ),
-            endAdornment: filterStr && (
-              <InputAdornment position="end">
+            endAdornment: (
+              <InputAdornment position="end" sx={{ml: 0}}>
                 <IconButton
+                  disableRipple
                   size="small"
                   onClick={() => setFilterStr("")}
+                  sx={{
+                    visibility: filterStr ? "visible" : "hidden",
+                  }}
                 >
                   <ClearIcon />
                 </IconButton>
@@ -205,42 +210,36 @@ export function render({model, el}) {
   )
 
   return (
-    <Box sx={{display: "flex", flexDirection: "column", gap: "0.5em"}}>
+    <Box sx={{display: "flex", flexDirection: "column", gap: "0.5em", ...sx}}>
       {label && <InputLabel>{label}</InputLabel>}
-      <Grid
-        container
-        spacing={0}
-        sx={{ justifyContent: "center", ...sx }}
-      >
-        <Grid>{customList(left_title, filteredAvailable, left_filter, setLeftFilter)}</Grid>
-        <Grid sx={{ display: "flex", alignItems: "center" }}>
-          <Grid container direction="column" sx={{ alignItems: "center", p: "0 1em" }}>
-            <Button
-              sx={{ my: 0.5 }}
-              variant="outlined"
-              size="small"
-              onClick={handleCheckedRight}
-              disabled={leftChecked.length === 0 || disabled}
-              aria-label="move selected right"
-              color={color}
-            >
-              <KeyboardDoubleArrowRightIcon />
-            </Button>
-            <Button
-              sx={{ my: 0.5 }}
-              variant="outlined"
-              size="small"
-              onClick={handleCheckedLeft}
-              disabled={rightChecked.length === 0 || disabled}
-              aria-label="move selected left"
-              color={color}
-            >
-              <KeyboardDoubleArrowLeftIcon />
-            </Button>
-          </Grid>
-        </Grid>
-        <Grid>{customList(right_title, filteredSelected, right_filter, setRightFilter)}</Grid>
-      </Grid>
+      <Box sx={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
+        {customList(left_title, filteredAvailable, left_filter, setLeftFilter)}
+        <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: "0 1em" }}>
+          <Button
+            sx={{ my: 0.5 }}
+            variant="outlined"
+            size="small"
+            onClick={handleCheckedRight}
+            disabled={leftChecked.length === 0 || disabled}
+            aria-label="move selected right"
+            color={color}
+          >
+            <KeyboardDoubleArrowRightIcon />
+          </Button>
+          <Button
+            sx={{ my: 0.5 }}
+            variant="outlined"
+            size="small"
+            onClick={handleCheckedLeft}
+            disabled={rightChecked.length === 0 || disabled}
+            aria-label="move selected left"
+            color={color}
+          >
+            <KeyboardDoubleArrowLeftIcon />
+          </Button>
+        </Box>
+        {customList(right_title, filteredSelected, right_filter, setRightFilter)}
+      </Box>
     </Box>
   )
 }
