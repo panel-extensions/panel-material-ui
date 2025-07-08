@@ -76,7 +76,7 @@ plot = px.scatter(
 toggle = pmui.ThemeToggle(styles={"margin-left": "auto"}, value=False)
 
 pmui.Container(
-    pmui.Row(primary_color, toggle),
+    pmui.Row(primary_color, toggle, sizing_mode="stretch_width"),
     plot,
     theme_config={"palette": {"primary": {"main": primary_color}}},
     width_option="md"

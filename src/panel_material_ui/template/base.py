@@ -279,6 +279,7 @@ class ThemeToggle(MaterialWidget):
         else:
             params['theme'] = config.theme
             params['value'] = config.theme == 'dark'
+        params['dark_theme'] = params['value']
         super().__init__(**params)
 
     @param.depends('value', watch=True, on_init=True)
