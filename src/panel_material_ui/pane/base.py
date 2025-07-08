@@ -32,10 +32,14 @@ class ClickablePaneBase(MaterialPaneBase):
     __abstract = True
 
     def __init__(self, object=None, **params):
-        click_handler = params.pop('on_click', None)
+        click_handler = params.pop("on_click", None)
+        js_click_code = params.pop("js_on_click", None)
+
         super().__init__(object=object, **params)
         if click_handler:
             self.on_click(click_handler)
+        if js_click_code:
+            self.js_on_click(code=js_click_code)
 
     def _handle_click(self, event):
         self.param.update(clicks=self.clicks + 1)
