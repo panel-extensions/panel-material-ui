@@ -252,7 +252,10 @@ function apply_plotly_theme(model, theme, dark, font_family) {
   const grid_color = theme.palette.divider
   const axis_line_color = theme.palette.divider
   const zero_line_color = theme.palette.divider
-  const colorway = model.layout.colorway || generatePalette(theme.palette.primary.main, 10)
+  if (model.layout.colorway == null && !model.tags.includes("auto-palette")) {
+    model.tags.push("auto-palette")
+  }
+  const colorway = model.tags.includes("auto-palette") ? generatePalette(theme.palette.primary.main, 10) : model.layout.colorway
 
   const layout = {
     colorway,
@@ -1056,8 +1059,6 @@ export const install_theme_hooks = (props) => {
     const params = new URLSearchParams(window.location.search);
     if (page_theme === "dark" || params.get("theme") === "dark") {
       setDarkTheme(true)
-    } else if (page_theme === "light") {
-      setDarkTheme(false)
     }
 
     const cb = (val) => setDarkTheme(val)
