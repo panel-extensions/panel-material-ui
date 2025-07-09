@@ -23,6 +23,8 @@ export function render({model}) {
   )
 
   const avatarSx = {
+    margin: "auto",
+    verticalAlign: "center",
     ...(color && {bgcolor: color}),
     ...sizeSettings[size],
     ...sx

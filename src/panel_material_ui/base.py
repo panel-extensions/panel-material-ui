@@ -172,7 +172,7 @@ function {output}(props) {{
           backgroundColor: overlayColor,
           zIndex: theme.zIndex.modal - 1
         }}}}>
-          <CircularProgress color="primary" />
+          <CircularProgress color="primary" sx={{{{p: "8px"}}}} />
         </div>
       )}}
     </div>
@@ -490,6 +490,32 @@ class MaterialComponent(ReactComponent):
             f"""
         <iframe srcdoc="{escaped_html}" width="100%" height="100%" style="border:{border};"></iframe>
         """, width=width, height=height, **kwargs)
+
+    def api(self, jslink: bool=False, sizing_mode="stretch_width", **kwargs)->Viewable:
+        """Returns an interactive component for exploring the API of the widget.
+
+        Parameters
+        ----------
+        jslink: bool
+            Whether to use jslinks instead of Python based links.
+            This does not allow using all types of parameters.
+        sizing_mode: str
+            Sizing mode for the component.
+        kwargs: dict
+            Additional arguments to pass to the component.
+
+        Example:
+        --------
+        >>> pmui.Button(name="Open").api()
+        """
+        import panel as pn
+
+        import panel_material_ui as pmui
+        return pmui.Tabs(
+            pn.pane.HTML(self.param, name="Parameter Table", sizing_mode="stretch_width"),
+            pmui.Row(self.controls(jslink=jslink), self, name="Parameter Editor", sizing_mode="stretch_width"),
+            sizing_mode=sizing_mode, **kwargs
+        )
 
 
 class MaterialUIComponent(MaterialComponent):
