@@ -330,6 +330,37 @@ class MenuButton(MenuBase, _ButtonBase):
     _item_keys = ['label', 'icon', 'color', 'items', 'href', 'target']
 
 
+class SplitButton(MenuBase, _ButtonBase):
+    """
+    The `SplitButton` component is a button component that allows selecting from a list of items.
+
+    SplitButton items can be strings or objects with properties:
+      - label: The label of the menu button item (required)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/SplitButton.html
+    - https://mui.com/material-ui/react-button-group/#split-button
+
+    :Example:
+
+    >>> pmui.SplitButton(items=[
+    ...     {'label': 'Open'},
+    ...     {'label': 'Save'},
+    ... ], label='File')
+    """
+
+    margin = Margin(default=5)
+
+    _esm_base = "SplitButton.jsx"
+    _source_transforms = {
+        "attached": None,
+        "button_type": None,
+        "button_style": None
+    }
+    _item_keys = ['label']
+
+
 class Pagination(MaterialWidget):
     """
     The `Pagination` component allows selecting from a list of pages.
@@ -456,5 +487,6 @@ __all__ = [
     "MenuButton",
     "MenuList",
     "Pagination",
-    "SpeedDial"
+    "SpeedDial",
+    "SplitButton",
 ]
