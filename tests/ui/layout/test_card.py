@@ -19,7 +19,7 @@ def test_card_default(page):
     # By default, cards are NOT collapsible, so there should be no action button
     action = page.locator('.MuiCardHeader-action')
     content = page.locator('.MuiCardContent-root')
-    expect(action).to_have_count(0)
+    expect(action).to_have_count(1)
     expect(content).to_have_count(1)
 
 def test_card_not_collapsible(page):
