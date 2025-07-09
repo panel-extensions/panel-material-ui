@@ -236,7 +236,7 @@ class Card(MaterialNamedListLike, PaperMixin):
     collapsed = param.Boolean(default=False, doc="""
         Whether the contents of the Card are collapsed.""")
 
-    collapsible = param.Boolean(default=False, doc="""
+    collapsible = param.Boolean(default=True, doc="""
         Whether the Card should be expandable and collapsible.""")
 
     header = Child(doc="""
