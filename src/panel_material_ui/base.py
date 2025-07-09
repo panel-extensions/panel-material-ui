@@ -172,7 +172,7 @@ function {output}(props) {{
           backgroundColor: overlayColor,
           zIndex: theme.zIndex.modal - 1
         }}}}>
-          <CircularProgress color="primary" />
+          <CircularProgress color="primary" sx={{{{p: "8px"}}}} />
         </div>
       )}}
     </div>
