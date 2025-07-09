@@ -191,21 +191,9 @@ class MissingFileChunkError(RuntimeError):
     """Exception raised when a chunk is missing during file upload processing."""
 
 
-class FileInput(_ButtonBase, _PnFileInput):
+class _FileUploadArea(param.Parameterized):
     """
-    The `FileInput` allows the user to upload one or more files to the server.
-
-    It makes the filename, MIME type and (bytes) content available in Python.
-
-    :References:
-
-    - https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html
-    - https://panel.holoviz.org/reference/widgets/FileInput.html
-    - https://mui.com/material-ui/react-button/#file-upload
-
-    :Example:
-
-    >>> FileInput(accept='.png,.jpeg', multiple=True)
+    Base class for file upload areas.
     """
 
     chunk_size = param.Integer(default=10_485_760, bounds=(1, None), doc="""
@@ -221,111 +209,12 @@ class FileInput(_ButtonBase, _PnFileInput):
         Maximum total size (in bytes) for all files combined. If specified,
         uploads will be rejected if the total size exceeds this limit.""")
 
-    width = param.Integer(default=None)
-
-    _esm_base = "FileInput.jsx"
-    _source_transforms = {
-        'filename': None,
-        'value': "'data:' + source.mime_type + ';base64,' + value"
-    }
-
     _mime_types = MIME_TYPES
 
     def __init__(self, **params):
         super().__init__(**params)
         self._buffer = []
         self._file_buffer = {}  # Buffer for chunked file uploads
-        self._object = None
-
-    def _handle_msg(self, msg: Any) -> None:
-        status = msg["status"]
-        if status == "upload_event":
-            self._process_chunk(msg)
-            return
-        elif status == "initializing":
-            return
-        elif status == "finished":
-            try:
-                self._flush_buffer()
-                self._send_msg({"status": "finished"})
-            except Exception as e:
-                logger.exception(str(e))
-                self._send_msg({"status": "error", "error": str(e)})
-        else:
-            raise ValueError(f"Unknown status: {status}")
-
-    def _process_chunk(self, msg: dict) -> None:
-        """Process a single chunk of a chunked file upload."""
-        name = msg["name"]
-        chunk = msg["chunk"]
-        total_chunks = msg["total_chunks"]
-        mime_type = msg["type"]
-
-        data = msg["data"]
-        data = bytes(data)
-
-        if name not in self._file_buffer:
-            self._file_buffer[name] = {
-                "chunks": {},
-                "total_chunks": total_chunks,
-                "mime_type": mime_type,
-                "filename": name
-            }
-
-        self._file_buffer[name]["chunks"][chunk] = data
-
-        # Check if all chunks are received for this file
-        if len(self._file_buffer[name]["chunks"]) == total_chunks:
-            # Reassemble the file
-            file_data = b""
-            for i in range(1, total_chunks + 1):  # Chunks are 1-indexed
-                file_data += self._file_buffer[name]["chunks"][i]
-
-            self._buffer.append({
-                "value": file_data,
-                "filename": name,
-                "mime_type": mime_type
-            })
-
-            del self._file_buffer[name]
-
-    def _flush_buffer(self):
-        value, mime_type, filename = [], [], []
-        for file_data in self._buffer:
-            value.append(file_data["value"])
-            filename.append(file_data["filename"])
-            mime_type.append(file_data["mime_type"])
-        if value:
-            if not (self.multiple or self.directory):
-                value, filename, mime_type = value[0], filename[0], mime_type[0]
-        else:
-            value, filename, mime_type = None, None, None
-        self.param.update(
-            filename=filename,
-            mime_type=mime_type,
-            value=value,
-        )
-        self._buffer.clear()
-
-    def save(self, filename):
-        """
-        Saves the uploaded FileInput data object(s) to file(s) or
-        BytesIO object(s).
-
-        Parameters
-        ----------
-        filename (str or list[str]): File path or file-like object
-        """
-        _PnFileInput.save(self, filename)
-
-    def clear(self):
-        """
-        Clear the file(s) in the FileInput widget
-        """
-        self.param.update(value=None, filename=None, mime_type=None)
-
-    @param.depends('value', 'filename', 'mime_type', watch=True)
-    def _reset_object(self):
         self._object = None
 
     @classmethod
@@ -358,24 +247,6 @@ class FileInput(_ButtonBase, _PnFileInput):
 
         msg = f"No specific converter available for '{filename}' of mime type '{mime_type}'."
         return NoConverter(msg)
-
-    @param.depends('value', 'filename', 'mime_type')
-    def object(self):
-        """Returns the currently uploaded file(s) as a viewable Python object or list of viewable Python objects.
-
-        For example an uploaded CSV file will return a Pandas DataFrame, an uploaded MP3 file will return the path to a temporary file etc.
-        """
-        if not self._object:
-            value = self.value
-            filename = self.filename
-            mime_type = self.mime_type
-            if not value:
-                self._object = value
-            elif not isinstance(value, list):
-                self._object = self._single_object(value, filename, mime_type)
-            else:
-                self._object = [self._single_object(v, f, m) for v, f, m in zip(value, filename, mime_type, strict=False)]
-        return self._object
 
     @classmethod
     def _single_view(cls, object, filename, mime_type, **kwargs):
@@ -418,6 +289,162 @@ class FileInput(_ButtonBase, _PnFileInput):
         if inspect.isclass(view) and issubclass(view, pn.widgets.Widget):
             return view(value=object, **kwargs)
         return view(object, **kwargs)
+
+    def _handle_msg(self, msg: Any) -> None:
+        status = msg["status"]
+        if status == "upload_event":
+            self._process_chunk(msg)
+            return
+        elif status == "initializing":
+            return
+        elif status == "finished":
+            try:
+                self._flush_buffer()
+                self._send_msg({"status": "finished"})
+            except Exception as e:
+                logger.exception(str(e))
+                self._send_msg({"status": "error", "error": str(e)})
+        else:
+            raise ValueError(f"Unknown status: {status}")
+
+    def _process_chunk(self, msg: dict) -> None:
+        """Process a single chunk of a chunked file upload."""
+        name = msg["name"]
+        chunk = msg["chunk"]
+        total_chunks = msg["total_chunks"]
+        mime_type = msg["mime_type"]
+
+        data = msg["data"]
+        data = bytes(data)
+
+        if name not in self._file_buffer:
+            self._file_buffer[name] = {
+                "chunks": {},
+                "total_chunks": total_chunks,
+                "mime_type": mime_type,
+                "filename": name
+            }
+
+        self._file_buffer[name]["chunks"][chunk] = data
+
+        # Check if all chunks are received for this file
+        if len(self._file_buffer[name]["chunks"]) == total_chunks:
+            # Reassemble the file
+            file_data = b""
+            for i in range(1, total_chunks + 1):  # Chunks are 1-indexed
+                file_data += self._file_buffer[name]["chunks"][i]
+
+            self._buffer.append({
+                "value": file_data,
+                "filename": name,
+                "mime_type": mime_type
+            })
+
+            del self._file_buffer[name]
+
+    def _flush_buffer(self):
+        value, mime_type, filename = [], [], []
+        for file_data in self._buffer:
+            value.append(file_data["value"])
+            filename.append(file_data["filename"])
+            mime_type.append(file_data["mime_type"])
+        if value:
+            if 'multiple' in self.param and not (self.multiple or self.directory):
+                value, filename, mime_type = value[0], filename[0], mime_type[0]
+        else:
+            value, filename, mime_type = None, None, None
+        self._update_file(filename, mime_type, value)
+        self._buffer.clear()
+
+    def _update_file(self, filename: str | list[str], mime_type: str | list[str], value: bytes | list[bytes]):
+        """
+        Update the file input with the given filename, mime type, and value.
+
+        Parameters
+        ----------
+        filename : str | list[str]
+            The name of the uploaded file(s).
+        mime_type : str | list[str]
+            The MIME type of the uploaded file(s).
+        value : bytes | list[bytes]
+            The file content as bytes.
+        """
+
+
+class FileInput(_FileUploadArea, _ButtonBase, _PnFileInput):
+    """
+    The `FileInput` allows the user to upload one or more files to the server.
+
+    It makes the filename, MIME type and (bytes) content available in Python.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html
+    - https://panel.holoviz.org/reference/widgets/FileInput.html
+    - https://mui.com/material-ui/react-button/#file-upload
+
+    :Example:
+
+    >>> FileInput(accept='.png,.jpeg', multiple=True)
+    """
+
+    width = param.Integer(default=None)
+
+    _esm_base = "FileInput.jsx"
+    _source_transforms = {
+        'filename': None,
+        'value': "'data:' + source.mime_type + ';base64,' + value"
+    }
+
+    def _update_file(
+        self, filename: str | list[str],
+        mime_type: str | list[str],
+        value: bytes | list[bytes],
+    ):
+        self.param.update(
+            filename=filename,
+            mime_type=mime_type,
+            value=value,
+        )
+
+    def save(self, filename):
+        """
+        Saves the uploaded FileInput data object(s) to file(s) or
+        BytesIO object(s).
+
+        Parameters
+        ----------
+        filename (str or list[str]): File path or file-like object
+        """
+        _PnFileInput.save(self, filename)
+
+    def clear(self):
+        """
+        Clear the file(s) in the FileInput widget
+        """
+        self.param.update(value=None, filename=None, mime_type=None)
+
+    @param.depends('value', 'filename', 'mime_type', watch=True)
+    def _reset_object(self):
+        self._object = None
+
+    @param.depends('value', 'filename', 'mime_type')
+    def object(self):
+        """Returns the currently uploaded file(s) as a viewable Python object or list of viewable Python objects.
+
+        For example an uploaded CSV file will return a Pandas DataFrame, an uploaded MP3 file will return the path to a temporary file etc.
+        """
+        if not self._object:
+            value = self.value
+            filename = self.filename
+            mime_type = self.mime_type
+            if not value:
+                self._object = value
+            elif not isinstance(value, list):
+                self._object = self._single_object(value, filename, mime_type)
+            else:
+                self._object = [self._single_object(v, f, m) for v, f, m in zip(value, filename, mime_type, strict=False)]
+        return self._object
 
     def _list_view(self, value, filename, mime_type, object_if_no_value, layout, **kwargs):
         """

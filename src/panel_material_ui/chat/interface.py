@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING
 
 import param
 from panel.chat.interface import CallbackState, ChatInterface
-from panel.layout import Row
+from panel.layout import Column, Row
+from panel.pane.markup import Markdown
 
 from .feed import ChatFeed
 from .input import ChatAreaInput
@@ -60,12 +61,28 @@ class ChatInterface(ChatFeed, ChatInterface):
             actions[name] = {'icon': ICON_MAP.get(data.icon, data.icon), 'callback': partial(data.callback, self), 'label': name.title()}
         self._widget = ChatAreaInput(actions=actions, sizing_mode="stretch_width")
         self.link(self._widget, disabled="disabled_enter")
-        callback = partial(self._button_data["send"].callback, self)
-        self._widget.param.watch(callback, "value")
+        callback = partial(self._button_data["send"].callback, instance=self)
+        self._widget.param.watch(callback, "enter_pressed")
         self._widget.on_action("stop", self._click_stop)
         input_container = Row(self._widget, sizing_mode="stretch_width")
         self._input_container.objects = [input_container]
         self._input_layout = input_container
+
+    def _click_send(
+        self,
+        event: param.parameterized.Event | None = None,
+        instance: ChatInterface | None = None
+    ) -> None:
+        if self.disabled:
+            return
+        objects = []
+        if self.active_widget.value:
+            objects.append(Markdown(self.active_widget.value))
+        objects.extend(self.active_widget.views)
+        if not objects:
+            return
+        value = Column(*objects) if len(objects) > 1 else objects[0]
+        self.send(value=value, user=self.user, avatar=self.avatar, respond=True)
 
     @param.depends("placeholder_text", "placeholder_params", watch=True, on_init=True)
     def _update_placeholder(self):

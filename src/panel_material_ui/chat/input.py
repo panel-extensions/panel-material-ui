@@ -5,10 +5,10 @@ from typing import Callable
 import param
 
 from ..base import ThemedTransform
-from ..widgets import TextAreaInput
+from ..widgets.input import TextAreaInput, _FileUploadArea
 
 
-class ChatAreaInput(TextAreaInput):
+class ChatAreaInput(TextAreaInput, _FileUploadArea):
     """
     The `ChatAreaInput` allows entering any multiline string using a text input
     box, with the ability to press enter to submit the message.
@@ -29,6 +29,10 @@ class ChatAreaInput(TextAreaInput):
     >>> ChatAreaInput(max_rows=10)
     """
 
+    accept = param.String(default=None, doc="""
+        A comma separated string of all extension types that should
+        be supported.""")
+
     actions = param.Dict(default={}, doc="""
         A dictionary of actions that can be invoked via the speed dial to the
         left of input area. The actions should be defined as a dictionary indexed
@@ -41,6 +45,11 @@ class ChatAreaInput(TextAreaInput):
     disabled_enter = param.Boolean(
         default=False,
         doc="If True, disables sending the message by pressing the `enter_sends` key.",
+    )
+
+    enable_upload = param.Boolean(
+        default=True,
+        doc="If True, enables uploading of files."
     )
 
     enter_sends = param.Boolean(
@@ -62,11 +71,14 @@ class ChatAreaInput(TextAreaInput):
 
     rows = param.Integer(default=1)
 
+    views = param.List(default=[], doc="""
+        Views generated from uploaded files.""")
+
     _esm_base = "ChatArea.jsx"
 
     _esm_transforms = [ThemedTransform]
 
-    _rename = {"loading": "loading"}
+    _rename = {"loading": "loading", "views": None}
 
     def __init__(self, **params):
         action_callbacks = {}
@@ -89,12 +101,30 @@ class ChatAreaInput(TextAreaInput):
             self.param.trigger('enter_pressed')
             with param.discard_events(self):
                 self.value = ""
+                self.views = []
         elif msg['type'] == 'action':
             for callback in self._action_callbacks.get(msg['action'], []):
                 try:
                     callback(msg)
                 except Exception:
                     pass
+        else:
+            _FileUploadArea._handle_msg(self, msg)
+
+    def _update_file(
+        self,
+        filename: str | list[str],
+        mime_type: str | list[str],
+        value: bytes | list[bytes],
+    ):
+        if not isinstance(filename, list):
+            filename = [filename]
+            mime_type = [mime_type]
+            value = [value]
+        self.views = [
+            self._single_view(self._single_object(fdata, fname, mtype), fname, mtype)
+            for fname, mtype, fdata in zip(filename, mime_type, value, strict=False)
+        ]
 
     def on_action(self, name: str, callback: Callable):
         """

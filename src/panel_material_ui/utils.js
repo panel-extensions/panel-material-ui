@@ -1147,3 +1147,141 @@ export function findNotebook(el) {
   }
   return [null, null]
 }
+
+// Size parsing function matching FileDropper
+function parseSizeString(sizeStr) {
+  if (!sizeStr) { return null }
+  const match = sizeStr.match(/^(\d+(?:\.\d+)?)\s*(KB|MB|GB)$/i);
+  if (!match) { return null }
+
+  const value = parseFloat(match[1])
+  const unit = match[2].toUpperCase()
+
+  switch (unit) {
+    case "KB": return value * 1024
+    case "MB": return value * 1024 * 1024
+    case "GB": return value * 1024 * 1024 * 1024
+    default: return null
+  }
+}
+
+// File size validation function
+function validateFileSize(file, maxFileSize, maxTotalFileSize, existingFiles = []) {
+  const errors = [];
+
+  if (maxFileSize) {
+    const maxFileSizeBytes = typeof maxFileSize === "string" ? parseSizeString(maxFileSize) : maxFileSize
+    if (maxFileSizeBytes && file.size > maxFileSizeBytes) {
+      errors.push(`File "${file.name}" (${formatBytes(file.size)}) exceeds maximum file size of ${formatBytes(maxFileSizeBytes)}`);
+    }
+  }
+
+  if (maxTotalFileSize) {
+    const maxTotalSizeBytes = typeof maxTotalFileSize === "string" ? parseSizeString(maxTotalFileSize) : maxTotalFileSize
+    if (maxTotalSizeBytes) {
+      const existingSize = existingFiles.reduce((sum, f) => sum + f.size, 0)
+      const totalSize = existingSize + file.size
+      if (totalSize > maxTotalSizeBytes) {
+        errors.push(`Adding "${file.name}" would exceed maximum total size of ${formatBytes(maxTotalSizeBytes)}`)
+      }
+    }
+  }
+
+  return errors;
+}
+
+// Format bytes for display
+export function formatBytes(bytes) {
+  if (bytes === 0) { return "0 B" }
+  const k = 1024
+  const sizes = ["B", "KB", "MB", "GB"]
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${parseFloat((bytes / k**i).toFixed(2))} ${sizes[i]}`
+}
+
+// Chunked upload function using FileDropper's protocol
+export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 1024) {
+  const totalChunks = Math.ceil(file.size / chunkSize);
+
+  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+    const start = chunkIndex * chunkSize;
+    const end = Math.min(start + chunkSize, file.size)
+    const chunk = file.slice(start, end)
+
+    // Read chunk as ArrayBuffer
+    const arrayBuffer = await new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsArrayBuffer(chunk)
+    });
+
+    // Send chunk using FileDropper's protocol
+    model.send_msg({
+      type: "status",
+      status: "upload_event",
+      chunk: chunkIndex + 1, // 1-indexed
+      data: arrayBuffer,
+      name: file.name,
+      total_chunks: totalChunks,
+      mime_type: file.type
+    })
+  }
+}
+
+// New chunked file processing function
+export async function processFilesChunked(files, model, maxFileSize, maxTotalFileSize, chunkSize = 10 * 1024 * 1024) {
+  try {
+    const fileArray = Array.from(files);
+
+    // Validate file sizes on frontend
+    for (const file of fileArray) {
+      const sizeErrors = validateFileSize(file, model.max_file_size, model.max_total_file_size, fileArray);
+      if (sizeErrors.length > 0) {
+        throw new Error(sizeErrors.join("; "))
+      }
+    }
+
+    model.send_msg({status: "initializing", type: "status"})
+
+    // Upload all files using chunked protocol
+    for (const file of fileArray) {
+      await uploadFileChunked(file, model, chunkSize)
+    }
+
+    model.send_msg({status: "finished", type: "status"})
+    return fileArray.length
+  } catch (error) {
+    model.send_msg({status: "error", error: error.message})
+    throw error
+  }
+}
+
+export function isFileAccepted(file, accept) {
+  if (!accept || accept.length === 0) {
+    return true
+  }
+  const acceptedTypes = accept.split(",").map(type => type.trim())
+  const fileName = file.name
+  const fileType = file.type
+
+  return acceptedTypes.some(acceptedType => {
+    // Handle file extensions (e.g., ".jpg", ".png")
+    if (acceptedType.startsWith(".")) {
+      return fileName.toLowerCase().endsWith(acceptedType.toLowerCase())
+    }
+
+    // Handle MIME types (e.g., "image/*", "image/jpeg")
+    if (acceptedType.includes("/")) {
+      if (acceptedType.endsWith("/*")) {
+        // Handle wildcard MIME types (e.g., "image/*")
+        const baseType = acceptedType.slice(0, -2)
+        return fileType.startsWith(baseType)
+      } else {
+        // Handle exact MIME types (e.g., "image/jpeg")
+        return fileType === acceptedType
+      }
+    }
+    return false
+  })
+}
