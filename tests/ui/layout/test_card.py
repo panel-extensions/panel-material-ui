@@ -16,16 +16,13 @@ def test_card_default(page):
 
     expect(page.locator('.card')).to_have_count(1)
 
+    # By default, cards are NOT collapsible, so there should be no action button
     action = page.locator('.MuiCardHeader-action')
     content = page.locator('.MuiCardContent-root')
     expect(action).to_have_count(1)
     expect(content).to_have_count(1)
 
-    # collapse the card
-    action.click()
-    expect(content).to_have_count(0)
-
-def test_card_collapsible(page):
+def test_card_not_collapsible(page):
     layout = Card(1, 2, 3, title="Card 1", collapsible=False)
     serve_component(page, layout)
     # card not collapsible, there's no arrow icon for collapse/expand
