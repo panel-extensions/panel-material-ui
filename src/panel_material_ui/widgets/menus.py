@@ -333,7 +333,7 @@ class MenuButton(MenuBase, _ButtonBase):
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label', 'icon', 'color', 'items', 'href', 'target']
+    _item_keys = ['label', 'icon', 'color', 'href', 'target']
 
 
 class Pagination(MaterialWidget):
