@@ -187,7 +187,6 @@ export function render({model, view}) {
 
   const [file_data, setFileData] = React.useState([])
 
-
   const isSendEvent = (event) => {
     return (event.key === "Enter") && (
       (enter_sends && (!(event.ctrlKey || event.shiftKey))) ||
