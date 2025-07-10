@@ -14,6 +14,7 @@ import Chip from "@mui/material/Chip"
 import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import AttachFileIcon from "@mui/icons-material/AttachFile"
+import TextareaAutosize from "@mui/material/TextareaAutosize"
 import {isFileAccepted, processFilesChunked} from "./utils"
 
 // Map MIME types to Material Icons
@@ -141,22 +142,13 @@ const CustomInput = React.forwardRef(({filePreview, ...props}, ref) => {
   }));
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        minHeight: "100%",
-      }}
-    >
+    <Box sx={{alignSelf: "center", width: "100%"}}>
       {filePreview}
-      <Box
-        component="textarea"
+      <TextareaAutosize
         ref={inputRef}
         {...props}
         style={{
           ...props.style,
-          flex: 1,
           border: "none",
           outline: "none",
           resize: "none",
@@ -165,9 +157,7 @@ const CustomInput = React.forwardRef(({filePreview, ...props}, ref) => {
           fontSize: "inherit",
           lineHeight: "inherit",
           width: "100%",
-          minHeight: "1.5em",
-          height: "auto",
-          overflow: "hidden",
+          boxSizing: "border-box",
         }}
       />
     </Box>
@@ -196,6 +186,14 @@ export function render({model, view}) {
   const fileInputRef = React.useRef(null)
 
   const [file_data, setFileData] = React.useState([])
+
+
+  const isSendEvent = (event) => {
+    return (event.key === "Enter") && (
+      (enter_sends && (!(event.ctrlKey || event.shiftKey))) ||
+        (!enter_sends && (event.ctrlKey || event.shiftKey))
+    )
+  }
 
   let props = {sx: {width: "100%", height: "100%", ...sx}}
   if (autogrow) {
@@ -366,28 +364,25 @@ export function render({model, view}) {
           value: value_input,
           onChange: (event) => setValueInput(event.target.value),
           onKeyDown: (event) => {
-            if (
-              (event.key === "Enter") && (
-                (enter_sends && (!(event.ctrlKey || event.shiftKey))) ||
-                (!enter_sends && (event.ctrlKey || event.shiftKey))
-              )
-            ) {
+            if (isSendEvent(event)) {
+              event.preventDefault()
               send()
             }
           },
+          maxRows: max_rows,
           placeholder,
-          rows,
+          ...props,
         }}
-        maxRows={max_rows}
+        placeholder={placeholder}
         startAdornment={
           Object.keys(actions).length > 0 ? (
-            <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "2.5em"}}>
+            <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "35px", mr: "4px"}}>
               <SpeedDial
                 ariaLabel="Actions"
                 size="small"
-                FabProps={{size: "small"}}
+                FabProps={{size: "small", sx: {width: "35px", height: "35px", minHeight: "35px"}}}
                 icon={<SpeedDialIcon color={color}/>}
-                sx={{zIndex: 1000}}
+                sx={{zIndex: 1000, ml: "-4px"}}
               >
                 <SpeedDialAction
                   icon={<AttachFileIcon />}
@@ -409,7 +404,7 @@ export function render({model, view}) {
           ) : (enable_upload ? <IconButton color="primary" disabled={disabled} onClick={() => fileInputRef.current?.click()}><AttachFileIcon /></IconButton> : null)
         }
         endAdornment={
-          <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end">
+          <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end" sx={{mb: "2px"}}>
             <IconButton color="primary" disabled={disabled}>
               {(disabled_enter || loading) ? <SpinningStopIcon color={color}/> : <SendIcon/>}
             </IconButton>
@@ -422,16 +417,13 @@ export function render({model, view}) {
         sx={{
           ...props.sx,
           p: "8px",
+          alignItems: "end",
           position: "relative",
           zIndex: 0,
           ".MuiInputBase-root": {
-            minHeight: "100%",
             alignItems: "flex-start",
             padding: (Object.keys(actions).length > 0 || enable_upload) ? "8px" : "8px 8px 8px 16px",
           },
-          "& .MuiInputBase-input": {
-            minHeight: "2em",
-          }
         }}
       />
     </Box>
