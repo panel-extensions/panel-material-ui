@@ -68,7 +68,7 @@ def test_menu_list_selection(page):
     list_items = page.locator('.MuiListItemButton-root')
     list_items.nth(1).click()
 
-    assert widget.active == 1
+    assert widget.active == (1,)
     assert widget.value == items[1]
 
 def test_menu_list_basic_functionality(page):
@@ -88,12 +88,12 @@ def test_menu_list_item_selection(page):
 
     # Select first item
     page.locator('.MuiListItemButton-root').first.click()
-    wait_until(lambda: widget.active == 0, page)
+    wait_until(lambda: widget.active == (0,), page)
     expect(page.locator('.MuiListItemButton-root.Mui-selected')).to_have_text('IItem 1')
 
     # Select second item
     page.locator('.MuiListItemButton-root').nth(1).click()
-    wait_until(lambda: widget.active == 1, page)
+    wait_until(lambda: widget.active == (1,), page)
     expect(page.locator('.MuiListItemButton-root.Mui-selected')).to_have_text('IItem 2')
 
 def test_menu_list_nested_items(page):

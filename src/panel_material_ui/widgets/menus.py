@@ -42,7 +42,7 @@ class MenuBase(MaterialWidget):
     width = param.Integer(default=None, doc="""
         The width of the menu.""")
 
-    _item_keys = ['label', 'children']
+    _item_keys = ['label', 'items']
     _rename = {'value': None}
     _source_transforms = {'attached': None, "value": None, 'items': None}
 
@@ -72,6 +72,12 @@ class MenuBase(MaterialWidget):
             params['items'] = [filter_item(item, self._item_keys) for item in items]
         return params
 
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'active' in props and isinstance(props['active'], list):
+            props['active'] = tuple(props['active'])
+        return props
+
     @param.depends('items', watch=True, on_init=True)
     def _sync_items(self):
          self.param.active.bounds = (0, len(self.items)-1)
@@ -86,7 +92,7 @@ class MenuBase(MaterialWidget):
         if index is None:
             self.active = None
         else:
-            self.active = index if len(index) > 1 else index[0]
+            self.active = index if 'items' in self._item_keys else index[0]
 
     def _lookup_active_by_value(self, item):
         if not self.items:
@@ -327,7 +333,7 @@ class MenuButton(MenuBase, _ButtonBase):
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label', 'icon', 'color', 'items', 'href', 'target']
+    _item_keys = ['label', 'icon', 'color', 'href', 'target']
 
 
 class Pagination(MaterialWidget):
