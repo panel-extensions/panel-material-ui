@@ -7,6 +7,10 @@ platforms = ["osx-arm64", "osx-64", "linux-64", "win-64"]
 install = "pip install --no-build-isolation --no-deps --disable-pip-version-check -e ."
 serve-dev = "panel serve examples/components.py --dev --port 0 --show"
 serve-example = { cmd = "echo ", depends-on = ["install", "serve-dev"] }
+compile = { cmd = "panel compile panel_material_ui --file-loader woff woff2", env = { PYTHONPATH = "./src:$PYTHONPATH" } }
+compile-dev = { cmd = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch", env = { PYTHONPATH = "./src:$PYTHONPATH" } }
+pre-commit-install = "pre-commit install"
+pre-commit-run = "pre-commit run -a"
 
 [dependencies]
 python = ">=3.10"
@@ -30,7 +34,7 @@ test-311 = ["py311", "compile", "test-core", "example", "test-example", "test-un
 test-312 = ["py312", "compile", "test-core", "example", "test-example", "test-unit-task"]
 test-ui = ["py312", "compile", "test-core", "test-ui"]
 build = ["py312", "build", "compile"]
-compile = ["py312", "compile", "compile-task"]
+compile = ["py312", "compile"]
 lint = { features = ["lint"], no-default-feature = true }
 # docs = ["py311", "example", "doc"]
 docs = ["py311", "doc"]
@@ -149,10 +153,6 @@ check-wheel = "twine check dist/*"
 [feature.compile.dependencies]
 nodejs = ">=18"
 esbuild = "*"
-
-[feature.compile-task.tasks]
-compile = { cmd = "panel compile panel_material_ui --file-loader woff woff2", env = { PYTHONPATH = "./src:$PYTHONPATH" } }
-compile-dev = { cmd = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch", env = { PYTHONPATH = "./src:$PYTHONPATH" } }
 
 # =============================================
 # ================== LINT =====================
