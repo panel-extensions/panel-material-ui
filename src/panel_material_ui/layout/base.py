@@ -360,7 +360,7 @@ class Tabs(MaterialNamedListLike):
     centered = param.Boolean(default=False, doc="""
         Whether the tabs should be centered.""")
 
-    color = param.Selector(default="primary", objects=["default", "primary", "secondary"])
+    color = param.Selector(default="primary", objects=COLORS)
 
     disabled = param.List(default=[], item_type=int, doc="""
         List of indexes of disabled tabs.""")
