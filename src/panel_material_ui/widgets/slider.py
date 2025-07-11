@@ -17,15 +17,15 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
 
     bar_color = param.Color(default=None, allow_None=True, doc="Color of the bar")
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the slider.")
 
     direction = param.Selector(default='ltr', objects=['ltr', 'rtl'], doc="""
         Whether the slider should go from left-to-right ('ltr') or
         right-to-left ('rtl').""")
 
-    start = param.Number(default=0)
+    start = param.Number(default=0, doc="The starting value of the slider.")
 
-    end = param.Number(default=100)
+    end = param.Number(default=100, doc="The ending value of the slider.")
 
     format = param.ClassSelector(default='0[.]00', class_=(str, TickFormatter,), doc="""
         A custom format string or Bokeh TickFormatter.""")
@@ -35,20 +35,20 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
         If True the `options` are shown as marks. If a list, it should contain dicts with 'value'
         and an optional 'label' keys.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the slider.")
 
-    step = param.Number(default=1)
+    step = param.Number(default=1, doc="The step size for the slider.")
 
     tooltips = param.Selector(objects=[True, False, "auto"], default="auto", doc="""
         Whether the slider handle should display tooltips (if auto will render on hover).""")
 
-    track = param.Selector(objects=["normal", "inverted", False], default="normal")
+    track = param.Selector(objects=["normal", "inverted", False], default="normal", doc="The track style of the slider.")
 
     value = param.Number(default=0)
 
-    value_label = param.String(default=None)
+    value_label = param.String(default=None, doc="Label to display for the slider value.")
 
-    value_throttled = param.Number(default=0, constant=True)
+    value_throttled = param.Number(default=None, doc="Throttled value for the slider.")
 
     _esm_base = "Slider.jsx"
     _rename = {"name": "name"}
@@ -492,7 +492,7 @@ class Rating(MaterialWidget):
 
     only_selected = param.Boolean(default=False, doc="Whether to highlight only the select value")
 
-    size = param.Selector(default="medium", objects=["small", "medium", "large"])
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="Size of the rating icons.")
 
     value = param.Number(default=0, allow_None=True, bounds=(0, 5))
 

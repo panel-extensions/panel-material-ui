@@ -60,7 +60,7 @@ class _TextInputBase(MaterialInputWidget):
         Placeholder for empty input field.""",
     )
 
-    size = param.Selector(objects=["small", "medium"], default="medium")
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the input widget.")
 
     value = param.String(default="")
 
@@ -540,7 +540,7 @@ class _NumericInputBase(MaterialInputWidget):
     placeholder = param.String(default='0', doc="""
         Placeholder for empty input field.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="The size of the numeric input widget.")
 
     start = param.Parameter(default=None, allow_None=True, doc="""
         Optional minimum allowable value.""")
@@ -1050,7 +1050,7 @@ class TimePicker(_TimeCommon):
     ... )
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the time picker.")
 
     value = param.ClassSelector(default=None, class_=(dt_time, str), doc="""
         The current value""")
@@ -1085,7 +1085,7 @@ class TimePicker(_TimeCommon):
         Whether to render a digital or analog clock. By default automatically
         switches between digital clock on desktop to analog clock on mobile.""")
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the time picker.")
 
     _esm_base = "TimePicker.jsx"
 
@@ -1215,15 +1215,15 @@ class Switch(MaterialWidget):
     >>> Switch(label='Works with the tools you know and love', value=True)
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the switch.")
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 1000ms.""")
 
-    edge = param.Selector(objects=["start", "end", False], default=False)
+    edge = param.Selector(objects=["start", "end", False], default=False, doc="The edge position for the switch.")
 
-    size = param.Selector(objects=["small", "medium"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium",  doc="The size of the switch.")
 
     value = param.Boolean(default=False)
 

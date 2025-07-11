@@ -197,7 +197,7 @@ class Breadcrumbs(MenuBase):
     ... ], active=3)
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the breadcrumbs.")
 
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         The maximum number of breadcrumb items to display.""")
@@ -326,6 +326,10 @@ class MenuButton(MenuBase, _ButtonBase):
     """
 
     margin = Margin(default=5)
+
+    disable_elevation = param.Boolean(default=False, doc="Removes the menu's box-shadow for a flat appearance.")
+
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the menu button.")
 
     _esm_base = "MenuButton.jsx"
     _source_transforms = {

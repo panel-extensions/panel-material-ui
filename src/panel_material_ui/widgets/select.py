@@ -26,7 +26,7 @@ class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
     This is an abstract base class and should not be used directly.
     """
 
-    value = param.Parameter(default=None, allow_None=True)
+    value = param.Parameter(default=None, allow_None=True, doc="The selected value.")
 
     _allows_values = False
 
@@ -44,7 +44,7 @@ class MaterialMultiSelectBase(MaterialWidget, _PnMultiSelectBase):
     This is an abstract base class and should not be used directly.
     """
 
-    value = param.List(default=[], allow_None=True)
+    value = param.List(default=[], allow_None=True, doc="The selected values.")
 
     _rename = {"name": "name"}
 
@@ -83,7 +83,7 @@ class AutocompleteInput(MaterialSingleSelectBase):
     case_sensitive = param.Boolean(default=True, doc="""
         Enable or disable case sensitivity.""")
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the autocomplete input.")
 
     min_characters = param.Integer(default=2, doc="""
         The number of characters a user must type before
@@ -106,7 +106,11 @@ class AutocompleteInput(MaterialSingleSelectBase):
         completion string. Using `"includes"` means that the user's text can
         match any substring of a completion string.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
+        Size of the input field. Options:
+        - 'small': Compact size for dense layouts
+        - 'medium': Standard size (default  for most use cases)
+        - 'large': Larger size for more visibility""")
 
     value_input = param.Parameter(
         default="",
@@ -115,7 +119,7 @@ class AutocompleteInput(MaterialSingleSelectBase):
         Initial or entered text value updated on every key press.""",
     )
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="Variant style of the autocomplete input.")
 
     _allows_none = True
 
@@ -214,7 +218,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     >>> Select(label='Study', options=['Biology', 'Chemistry', 'Physics'])
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the select widget.")
 
     groups = param.Dict(default=None, nested_refs=True, doc="""
         Dictionary whose keys are used to visually group the options
@@ -224,7 +228,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium")
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the select widget.")
 
     _constants = {"multi": False}
     _esm_base = "Select.jsx"
@@ -331,7 +335,7 @@ class _ButtonGroup(_ButtonLike):
     orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
         Button group orientation, either 'horizontal' (default) or 'vertical'.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="The size of the button group.")
 
     width = param.Integer(default=None)
 
@@ -416,7 +420,7 @@ class MultiSelect(MaterialMultiSelectBase):
     ...     options=['Apple', 'Banana', 'Pear', 'Strawberry'], size=8)
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="Color of the multi-select component.")
 
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         Maximum number of options that can be selected.""")
@@ -426,7 +430,7 @@ class MultiSelect(MaterialMultiSelectBase):
 
     value = param.List(default=[], allow_None=True)
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="Variant style of the multi-select component.")
 
     _esm_base = "MultiSelect.jsx"
 
@@ -504,7 +508,7 @@ class CrossSelector(MaterialMultiSelectBase):
     ... )
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="""The color of the cross selector widget.""")
 
     searchable = param.Boolean(default=True, doc="Whether the dropdown is searchable")
 
