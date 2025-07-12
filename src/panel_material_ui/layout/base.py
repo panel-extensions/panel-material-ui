@@ -122,13 +122,13 @@ class PaperMixin(param.Parameterized):
     Baseclass adding Paper parameters to a layout.
     """
 
-    elevation = param.Integer(default=1, bounds=(0, None))
+    elevation = param.Integer(default=1, bounds=(0, None), doc="Elevation of the paper surface.")
 
     raised = param.Boolean(default=True, doc="Whether the layout is raised visually.")
 
     square = param.Boolean(default=False, doc="Whether to disable rounded corners.")
 
-    variant = param.Selector(objects=["elevation", "outlined"], default="elevation")
+    variant = param.Selector(objects=["elevation", "outlined"], default="elevation", doc="Variant style of the paper surface.")
 
     _abstract = True
 
@@ -146,7 +146,7 @@ class Paper(MaterialListLike, PaperMixin):
     >>> Paper(name="Paper", objects=[1, 2, 3], elevation=10, width=200, height=200)
     """
 
-    direction = param.Selector(objects=["row", "column", "column-reverse", "row-reverse"], default="column")
+    direction = param.Selector(objects=["row", "column", "column-reverse", "row-reverse"], default="column", doc="Direction of content arrangement in the paper.")
 
     _esm_base = "Paper.jsx"
 
@@ -175,7 +175,7 @@ class Container(MaterialListLike):
 
     sizing_mode = param.Selector(default='stretch_width')
 
-    width_option = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="lg")
+    width_option = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="lg", doc="Width option for the container.")
 
     _esm_base = "Container.jsx"
 
@@ -203,7 +203,7 @@ class Grid(MaterialListLike):
     column_spacing = param.Number(default=None, doc="""
         The spacing between the columns in the grid. Overrides the `spacing` parameter.""")
 
-    direction = param.Selector(objects=["row", "column", "column-reverse", "row-reverse"], default="row")
+    direction = param.Selector(objects=["row", "column", "column-reverse", "row-reverse"], default="row", doc="Direction of grid arrangement.")
 
     row_spacing = param.Number(default=None, doc="""
         The spacing between the rows in the grid. Overrides the `spacing` parameter.""")
@@ -252,9 +252,9 @@ class Card(MaterialNamedListLike, PaperMixin):
     header_css_classes = param.List(doc="""
         List of CSS classes to apply to CardHeader component.""")
 
-    hide_header = param.Boolean(default=False)
+    hide_header = param.Boolean(default=False, doc="Whether to hide the card header.")
 
-    outlined = param.Boolean(default=True)
+    outlined = param.Boolean(default=True, doc="Whether the card is outlined.")
 
     title = param.String(doc="""
         A title to be displayed in the Card header, will be overridden
@@ -360,7 +360,7 @@ class Tabs(MaterialNamedListLike):
     centered = param.Boolean(default=False, doc="""
         Whether the tabs should be centered.""")
 
-    color = param.Selector(default="primary", objects=COLORS)
+    color = param.Selector(default="primary", objects=COLORS, doc="Color of the tabs component.")
 
     disabled = param.List(default=[], item_type=int, doc="""
         List of indexes of disabled tabs.""")
@@ -455,9 +455,9 @@ class Divider(MaterialListLike):
     >>> Divider(sizing_mode="stretch_width")
     """
 
-    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"])
+    orientation = param.Selector(objects=["horizontal", "vertical"], default="horizontal", doc="Orientation of the divider.")
 
-    variant = param.Selector(default="fullWidth", objects=["fullWidth", "inset", "middle"])
+    variant = param.Selector(objects=["fullWidth", "inset", "middle"], default="fullWidth", doc="Variant style of the divider.")
 
     _esm_base = "Divider.jsx"
 
@@ -585,7 +585,7 @@ class Drawer(MaterialListLike):
     >>> pn.Column(button, drawer).servable()
     """
 
-    anchor = param.Selector(default="left", objects=["left", "right", "top", "bottom"])
+    anchor = param.Selector(default="left", objects=["left", "right", "top", "bottom"], doc="Anchor position for the drawer.")
 
     size = param.Integer(default=250, doc="""
         The width (for left/right anchors) or height (for top/bottom anchors) of the drawer.""")
@@ -593,7 +593,7 @@ class Drawer(MaterialListLike):
     open = param.Boolean(default=False, doc="""
         Whether the drawer is open.""")
 
-    variant = param.Selector(default="temporary", objects=["permanent", "persistent", "temporary"])
+    variant = param.Selector(default="temporary", objects=["permanent", "persistent", "temporary"], doc="Variant style of the drawer.")
 
     _esm_base = "Drawer.jsx"
 

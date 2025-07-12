@@ -12,7 +12,7 @@ from ..base import COLORS, MaterialComponent
 
 class MaterialPaneBase(MaterialComponent):
 
-    object = param.Parameter()
+    object = param.Parameter(doc="The object to be rendered by the pane.")
 
     _rerender_params = []
 
