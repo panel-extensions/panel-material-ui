@@ -14,33 +14,29 @@ from panel_material_ui.template import Page
 import param
 pn.extension(defer_load=True, notifications=True)
 
-primary_color = ColorPicker(value='#404db0', name='Primary', sizing_mode='stretch_width')
+primary_color = ColorPicker(value='#0072b5', name='Primary', sizing_mode='stretch_width')
 secondary_color = ColorPicker(value='#ee8349', name='Secondary', sizing_mode='stretch_width')
 paper_color = ColorPicker(value='#ffffff', name='Paper', sizing_mode='stretch_width')
 font_size = IntInput(value=14, name='Font Size', step=1, start=2, end=100, sizing_mode='stretch_width')
 
 busy = Button(label='Busy', on_click=lambda e: time.sleep(2))
 
-design_kwargs = dict(
-    theme_config={
-        "light": {
-            'palette': {
-                'primary': {'main': primary_color},
-                'secondary': {'main': secondary_color},
-                'background': {'paper': paper_color},
-            },
-            'typography': {
-                'fontSize': font_size,
-            },
+theme_config = {
+    "light": {
+        'palette': {
+            'secondary': {'main': secondary_color},
+            'background': {'paper': paper_color},
         },
-        "dark": {
-            'palette': {
-                'primary': {'main': primary_color},
-                'secondary': {'main': secondary_color},
-            }
+        'typography': {
+            'fontSize': font_size,
+        },
+    },
+    "dark": {
+        'palette': {
+            'secondary': {'main': secondary_color},
         }
     }
-)
+}
 
 def insert_at_nth_position(main_list, insert_list, n):
     # Split main_list into chunks of size n
@@ -236,5 +232,5 @@ page = Page(
         busy
     ],
     title='panel-material-ui components',
-    **design_kwargs
+    theme_config=theme_config
 ).servable()

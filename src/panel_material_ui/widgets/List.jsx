@@ -128,7 +128,7 @@ export function render({model}) {
               e.preventDefault()
             }}
             onClick={(e) => {
-              model.send_msg({type: "action", action: action.label, item: path})
+              model.send_msg({type: "action", action: action.action || action.label, item: path})
               e.stopPropagation()
               e.preventDefault()
             }}
@@ -170,7 +170,7 @@ export function render({model}) {
                       e.stopPropagation()
                     }}
                     onClick={(e) => {
-                      model.send_msg({type: "action", action: action.label, item: path})
+                      model.send_msg({type: "action", action: action.action || action.label, item: path})
                       e.stopPropagation()
                     }}
                   >

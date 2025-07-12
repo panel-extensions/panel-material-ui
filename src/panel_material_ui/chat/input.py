@@ -69,6 +69,8 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
     max_length = param.Integer(default=50000, doc="""
         Max count of characters in the input field.""")
 
+    placeholder = param.String(default="Ask anything...")
+
     rows = param.Integer(default=1)
 
     views = param.List(default=[], doc="""
