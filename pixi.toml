@@ -19,6 +19,9 @@ bokeh = ">=3.7.2"
 packaging = "*"
 watchfiles = "*"
 
+[pypi-dependencies]
+sphinx-llm = "*"
+
 [host-dependencies]
 pip = "*"
 setuptools = ">=61"
