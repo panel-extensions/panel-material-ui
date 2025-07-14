@@ -1,6 +1,6 @@
 # Icons
 
-**panel-material-ui** provides ships with the Material UI icon library. This means that you can use any of the icons defined in the [Material UI icon library](https://mui.com/material-ui/material-icons/) by default and also include them in `Markdown` and `HTML` components.
+**panel-material-ui** ships with the Material UI icon library. This means that you can use any of the icons defined in the [Material UI icon library](https://mui.com/material-ui/material-icons/) by default and also include them in `Markdown` and `HTML` components.
 
 ## `icon` parameter
 
