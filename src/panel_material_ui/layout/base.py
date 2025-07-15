@@ -409,7 +409,7 @@ class Tabs(MaterialNamedListLike):
         """
         Handle closed tabs.
         """
-        model, _ = self._models.get(ref)
+        model, _ = self._models.get(ref, (None, None))
         if model:
             try:
                 inds = [old.index(tab) for tab in new]
