@@ -227,7 +227,7 @@ export function render({model}) {
     <FormControl disabled={disabled} fullWidth sx={orientation === "vertical" ? {height: "100%", ...sx} : {...sx}}>
       {editable ? (
         <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", width: "100%"}}>
-          <FormLabel sx={{whiteSpace: "nowrap", maxWidth: "50%", overflowWrap: "break-word", whiteSpace: "normal"}}>
+          <FormLabel sx={{maxWidth: "50%", overflowWrap: "break-word", whiteSpace: "normal"}}>
             {label && `${label}: `}
           </FormLabel>
           <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
