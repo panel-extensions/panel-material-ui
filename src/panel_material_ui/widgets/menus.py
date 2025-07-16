@@ -140,7 +140,13 @@ class MenuBase(MaterialWidget):
                 except Exception as e:
                     print(f'List on_click handler errored: {e}')  # noqa
         elif msg['type'] == 'action':
-            for fn in self._on_action_callbacks.get(msg['action'], []):
+            name = msg['action']
+            if 'value' in msg:
+                value['actions'] = [
+                    dict(action, value=msg['value']) if action.get('action', action.get('label')) == name else action
+                    for action in value['actions']
+                ]
+            for fn in self._on_action_callbacks.get(name, []):
                 try:
                     state.execute(partial(fn, value))
                 except Exception as e:
