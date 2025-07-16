@@ -339,7 +339,6 @@ class MenuButton(MenuBase, _ButtonBase):
 
     _esm_base = "MenuButton.jsx"
     _source_transforms = {
-        "attached": None,
         "button_type": None,
         "button_style": None
     }
@@ -370,11 +369,10 @@ class SplitButton(MenuBase, _ButtonBase):
 
     _esm_base = "SplitButton.jsx"
     _source_transforms = {
-        "attached": None,
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label']
+    _item_keys = ['label', 'icon', 'href', 'target']
 
 
 class Pagination(MaterialWidget):
