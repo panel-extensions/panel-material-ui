@@ -81,7 +81,15 @@ export function render({model, view}) {
     </Tabs>
   )
   return (
-    <Box className="MuiTabsPanel" sx={{display: "flex", flexDirection: (location === "left" || location === "right") ? "row" : "column", height: "100%", maxWidth: "100%"}}  >
+    <Box
+      className="MuiTabsPanel"
+      sx={{
+        display: display: objects.length === 0 ? "none" : "flex",
+        flexDirection: (location === "left" || location === "right") ? "row" : "column",
+        height: "100%",
+        maxWidth: "100%"
+      }}
+    >
       { (location === "left" || location === "above") && tabs }
       {apply_flex(view.get_child_view(model.objects[active]), "column") || objects[active]}
       { (location === "right" || location === "below") && tabs }
