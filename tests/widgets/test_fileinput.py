@@ -150,7 +150,7 @@ def test_chunk_processing():
         "name": filename,
         "chunk": 1,
         "total_chunks": 2,
-        "type": mime_type,
+        "mime_type": mime_type,
         "data": chunk1
     }
     widget._process_chunk(msg1)
@@ -166,7 +166,7 @@ def test_chunk_processing():
         "name": filename,
         "chunk": 2,
         "total_chunks": 2,
-        "type": mime_type,
+        "mime_type": mime_type,
         "data": chunk2
     }
     widget._process_chunk(msg2)
@@ -191,7 +191,7 @@ def test_multiple_files():
         "name": "file1.txt",
         "chunk": 1,
         "total_chunks": 1,
-        "type": "text/plain",
+        "mime_type": "text/plain",
         "data": data1
     }
 
@@ -201,7 +201,7 @@ def test_multiple_files():
         "name": "file2.txt",
         "chunk": 1,
         "total_chunks": 1,
-        "type": "text/plain",
+        "mime_type": "text/plain",
         "data": data2
     }
 
@@ -227,7 +227,7 @@ def test_incomplete_chunks():
         "name": "incomplete.txt",
         "chunk": 1,
         "total_chunks": 2,
-        "type": "text/plain",
+        "mime_type": "text/plain",
         "data": b"First chunk"
     }
 

@@ -16,6 +16,9 @@ from .base import MaterialWidget, TooltipTransform
 
 
 class _ButtonLike(MaterialWidget):
+    """
+    Abstract base class for Material UI button-like widgets.
+    """
 
     button_style = param.Selector(objects=["contained", "outlined", "text"], default=None, precedence=-1, doc="""
         The variant of the component (alias for variant to match Panel's Button API).""")
@@ -59,10 +62,13 @@ class _ButtonLike(MaterialWidget):
 
 
 class _ButtonBase(_ButtonLike, _PnButtonBase):
+    """
+    Abstract base class for Material UI button widgets.
+    """
 
     clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
 
-    disable_elevation = param.Boolean(default=False)
+    disable_elevation = param.Boolean(default=False, doc="Removes the button's box-shadow for a flat appearance.")
 
     end_icon = param.String(default=None, doc="""
         An icon to render to the right of the button label. Either an SVG or an
@@ -77,12 +83,12 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
     icon_size = param.String(default="1em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
 
-    size = param.Selector(default="medium", objects=["small", "medium", "large"])
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the button.")
 
     variant = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
         The variant of the component.""")
 
-    width = param.Integer(default=None)
+    width = param.Integer(default=None, doc="Width of the button in pixels.")
 
     _rename: ClassVar[Mapping[str, str | None]] = {
         "label": "label"
@@ -98,23 +104,20 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
 
 class Button(_ButtonBase, _ClickButton):
     """
-    The `Button` widget allows triggering events when the button is
-    clicked.
+    The `Button` widget allows triggering events when the button is clicked.
 
     The Button provides a `value` parameter, which will toggle from
-    `False` to `True` while the click event is being processed
+    `False` to `True` while the click event is being processed.
 
     It also provides an additional `clicks` parameter, that can be
     watched to subscribe to click events.
 
     :References:
-
     - https://panel-material-ui.holoviz.org/reference/widgets/Button.html
     - https://panel.holoviz.org/reference/widgets/Button.html
     - https://mui.com/material-ui/react-button/
 
     :Example:
-
     >>> Button(label='Click me', icon='caret-right', button_type='primary')
     """
 
@@ -172,16 +175,13 @@ class Button(_ButtonBase, _ClickButton):
 
 class Fab(Button):
     """
-    The `Fab` is a so called floating action button that allows triggering events when the button is
-    clicked.
+    The `Fab` is a floating action button that allows triggering events when the button is clicked.
 
     :References:
-
     - https://panel-material-ui.holoviz.org/reference/widgets/Fab.html
     - https://mui.com/material-ui/react-floating-action-button/
 
     :Example:
-
     >>> Fab(icon='add')
     """
 
@@ -202,19 +202,16 @@ class Fab(Button):
 
 
 class Toggle(_ButtonBase):
-    """The `Toggle` widget allows toggling a single condition between `True`/`False` states.
-
-    This widget is interchangeable with the `Checkbox` widget.
+    """
+    The `Toggle` widget allows toggling a single condition between True/False states.
 
     :References:
-
     - https://panel-material-ui.holoviz.org/reference/widgets/Toggle.html
     - https://panel.holoviz.org/reference/widgets/Toggle.html
     - https://mui.com/material-ui/react-toggle-button/
 
     :Example:
-
-    >>> Toggle(label='Toggle', color='success')
+    >>> Toggle(label='Enable feature')
     """
 
     icon_size = param.String(default="1.8em", doc="""

@@ -1,7 +1,7 @@
 import io
 import json
+import pathlib
 import tempfile
-from functools import partial
 
 from panel.pane import GIF, JPG, JSON, PDF, PNG, SVG, Audio, Markdown, Video, WebP
 from panel.widgets import CodeEditor, Tabulator
@@ -138,7 +138,7 @@ def _save_to_tempfile(data: bytes, suffix: str) -> str:
     """
     with tempfile.NamedTemporaryFile(delete=False, suffix="." + suffix) as temp_file:
         temp_file.write(data)
-        return temp_file.name
+    return pathlib.Path(temp_file.name)
 
 
 MIME_TYPES = {
@@ -226,11 +226,11 @@ MIME_TYPES = {
     "image/jpeg": {"converter": _to_pil_image, "view": JPG},
     "image/gif": {"converter": _no_conversion, "view": GIF},
     "image/webp": {"converter": _no_conversion, "view": WebP},
-    "audio/wav": {"converter": partial(_save_to_tempfile, suffix="wav"), "view": Audio},
-    "audio/mpeg": {"converter": partial(_save_to_tempfile, suffix="mp3"), "view": Audio},
-    "audio/ogg": {"converter": partial(_save_to_tempfile, suffix="ogg"), "view": Audio},
-    "video/mp4": {"converter": partial(_save_to_tempfile, suffix="mp4"), "view": Video},
+    "audio/wav": {"converter": _no_conversion, "view": Audio},
+    "audio/mpeg": {"converter": _no_conversion, "view": Audio},
+    "audio/ogg": {"converter": _no_conversion, "view": Audio},
+    "video/mp4": {"converter": _no_conversion, "view": Video},
     # Other files
-    "application/pdf": {"converter": partial(_save_to_tempfile, suffix="pdf"), "view": PDF},
+    "application/pdf": {"converter": _no_conversion, "view": PDF},
     "application/json": {"converter": _json_to_dict, "view": JSON},
 }

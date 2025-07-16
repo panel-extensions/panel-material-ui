@@ -4,19 +4,19 @@ from ..base import COLORS, ThemedTransform
 from .base import MaterialWidget
 
 
-class LoadingSpinner(MaterialWidget):
+class CircularProgress(MaterialWidget):
     """
-    The `LoadingSpinner` provides a visual representation as a spinner of the loading status.
+    The `CircularProgress` provides a visual representation as a spinner of the loading status.
 
     :References:
 
     - https://panel-material-ui.holoviz.org/reference/indicators/LoadingSpinner.html
-    - https://panel.holoviz.org/reference/indicators/LoadingSpinner.html
+    - https://panel.holoviz.org/reference/indicators/CircularProgress.html
     - https://mui.com/material-ui/react-progress/#circular
 
     :Example:
 
-    >>> LoadingSpinner(color='success')
+    >>> CircularProgress(color='success')
     """
 
     bgcolor = param.Selector(default=None, objects=[None, "light", "dark"], doc="""
@@ -46,20 +46,20 @@ class LoadingSpinner(MaterialWidget):
     _esm_transforms = [ThemedTransform]
 
 
-class Progress(MaterialWidget):
+class LinearProgress(MaterialWidget):
     """
-    The `Progress` widget displays the progress towards some target
+    The `LinearProgress` widget displays the progress towards some target
     based on the current `value` and the `max` value.
 
     :References:
 
     - https://panel-material-ui.holoviz.org/reference/indicators/Progress.html
-    - https://panel.holoviz.org/reference/indicators/Progress.html
+    - https://panel.holoviz.org/reference/indicators/LinearProgress.html
     - https://mui.com/material-ui/react-progress/#linear
 
     :Example:
 
-    >>> Progress(value=20, color="primary")
+    >>> LinearProgress(value=20, color="primary")
     """
 
     active = param.Boolean(default=True, doc="""
@@ -86,7 +86,12 @@ class Progress(MaterialWidget):
             self.variant = "indeterminate"
 
 
+Progress = LinearProgress
+LoadingSpinner = CircularProgress
+
 __all__ = [
+    "CircularProgress",
+    "LinearProgress",
     "LoadingSpinner",
     "Progress"
 ]

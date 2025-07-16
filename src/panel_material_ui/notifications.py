@@ -32,7 +32,10 @@ class MuiNotification(_Notification):
 
 class NotificationArea(MaterialComponent, NotificationAreaBase):
 
-    notifications = param.List(item_type=(MuiNotification, dict))
+    notifications = param.List(item_type=(MuiNotification, dict), doc="""
+        List of notifications currently displayed in the notification area.
+        Each item is a MuiNotification or a dictionary representing a notification.
+    """)
 
     types = param.List(default=[], doc="""
         Custom notification types.

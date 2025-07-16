@@ -42,7 +42,7 @@ class MenuBase(MaterialWidget):
     width = param.Integer(default=None, doc="""
         The width of the menu.""")
 
-    _item_keys = ['label', 'children']
+    _item_keys = ['label', 'items']
     _rename = {'value': None}
     _source_transforms = {'attached': None, "value": None, 'items': None}
 
@@ -72,6 +72,12 @@ class MenuBase(MaterialWidget):
             params['items'] = [filter_item(item, self._item_keys) for item in items]
         return params
 
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'active' in props and isinstance(props['active'], list):
+            props['active'] = tuple(props['active'])
+        return props
+
     @param.depends('items', watch=True, on_init=True)
     def _sync_items(self):
          self.param.active.bounds = (0, len(self.items)-1)
@@ -86,7 +92,7 @@ class MenuBase(MaterialWidget):
         if index is None:
             self.active = None
         else:
-            self.active = index if len(index) > 1 else index[0]
+            self.active = index if 'items' in self._item_keys else index[0]
 
     def _lookup_active_by_value(self, item):
         if not self.items:
@@ -134,7 +140,13 @@ class MenuBase(MaterialWidget):
                 except Exception as e:
                     print(f'List on_click handler errored: {e}')  # noqa
         elif msg['type'] == 'action':
-            for fn in self._on_action_callbacks.get(msg['action'], []):
+            name = msg['action']
+            if 'value' in msg:
+                value['actions'] = [
+                    dict(action, value=msg['value']) if action.get('action', action.get('label')) == name else action
+                    for action in value['actions']
+                ]
+            for fn in self._on_action_callbacks.get(name, []):
                 try:
                     state.execute(partial(fn, value))
                 except Exception as e:
@@ -191,7 +203,7 @@ class Breadcrumbs(MenuBase):
     ... ], active=3)
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the breadcrumbs.")
 
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         The maximum number of breadcrumb items to display.""")
@@ -200,12 +212,12 @@ class Breadcrumbs(MenuBase):
         The separator displayed between breadcrumb items.""")
 
     _esm_base = "Breadcrumbs.jsx"
-    _item_keys = ['label', 'icon', 'avatar', 'href']
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
 
 
-class List(MenuBase):
+class MenuList(MenuBase):
     """
-    The `List` component is used to display a structured group of items, such as menus,
+    The `MenuList` component is used to display a structured group of items, such as menus,
     navigation links, or settings.
 
     List items can be strings or objects with properties:
@@ -222,12 +234,12 @@ class List(MenuBase):
 
     :References:
 
-    - https://panel-material-ui.holoviz.org/reference/menus/List.html
+    - https://panel-material-ui.holoviz.org/reference/menus/MenuList.html
     - https://mui.com/material-ui/react-list/
 
     :Example:
 
-    >>> pmui.List(items=[
+    >>> pmui.MenuList(items=[
     ...     {'label': 'Home', 'icon': 'home', 'secondary': 'Overview page'},
     ...     {'label': 'Gallery', 'icon': 'image', 'secondary': 'Visual overview'},
     ...     {'label': 'API', 'icon': 'code', 'secondary': 'API Reference'},
@@ -292,6 +304,7 @@ class List(MenuBase):
         """
         self._on_action_callbacks[action].remove(callback)
 
+List = MenuList
 
 class MenuButton(MenuBase, _ButtonBase):
     """
@@ -320,13 +333,17 @@ class MenuButton(MenuBase, _ButtonBase):
 
     margin = Margin(default=5)
 
+    disable_elevation = param.Boolean(default=False, doc="Removes the menu's box-shadow for a flat appearance.")
+
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the menu button.")
+
     _esm_base = "MenuButton.jsx"
     _source_transforms = {
         "attached": None,
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label', 'icon', 'color', 'items', 'href', 'target']
+    _item_keys = ['label', 'icon', 'color', 'href', 'target']
 
 
 class SplitButton(MenuBase, _ButtonBase):
@@ -483,8 +500,8 @@ class SpeedDial(MenuBase):
 
 __all__ = [
     "Breadcrumbs",
-    "List",
     "MenuButton",
+    "MenuList",
     "Pagination",
     "SpeedDial",
     "SplitButton",

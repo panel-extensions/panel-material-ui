@@ -99,7 +99,7 @@ pmui.Paper(
             pmui.Column(
                 pmui.Typography('Menus', variant='h6'),
                 pmui.Breadcrumbs(active=1, color=color, items=menu_items),
-                pmui.List(active=1, color=color, items=menu_items),
+                pmui.MenuList(active=1, color=color, items=menu_items),
                 pmui.SpeedDial(active=1, color=color, items=menu_items),
                 margin=10
             )

@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, TypeVar
 
 import param
 from panel._param import Margin
-from panel.viewable import Viewable
 from panel.widgets.base import WidgetBase
 
 from ..base import ESMTransform, MaterialComponent
@@ -14,6 +13,11 @@ if TYPE_CHECKING:
 
 
 class TooltipTransform(ESMTransform):
+    """
+    TooltipTransform wraps a Material UI widget with a tooltip that displays a description.
+
+    This transform is used to provide additional context or help to users when they hover over a widget.
+    """
 
     _transform = """\
 import Icon from "@mui/material/Icon";
@@ -45,17 +49,17 @@ function {output}(props) {{
 class MaterialWidget(MaterialComponent, WidgetBase):
     """
     MaterialWidget is a base class for all Material UI widgets.
+
+    Example
+    -------
+    >>> MaterialWidget(label='My Widget', description='Helpful info')
     """
 
-    description = param.String(default=None)
-
-    disabled = param.Boolean(default=False)
-
-    label = param.String(default="")
-
-    margin = Margin(default=10)
-
-    width = param.Integer(default=300, bounds=(0, None), allow_None=True)
+    description = param.String(default="", doc="Tooltip text to display when hovering over the widget.")
+    disabled = param.Boolean(default=False, doc="Whether the widget is disabled.")
+    label = param.String(default="", doc="The label for the widget.")
+    margin = Margin(default=10, doc="Margin around the widget.")
+    width = param.Integer(default=300, bounds=(0, None), allow_None=True, doc="Width of the widget.")
 
     __abstract = True
 
@@ -93,32 +97,6 @@ class MaterialWidget(MaterialComponent, WidgetBase):
         Widget instance linked to the supplied parameter
         """
         widget = super().from_param(parameter, **params)
-        if isinstance(parameter.owner, MaterialComponent):
+        if isinstance(parameter.owner, MaterialComponent) and isinstance(parameter.name, str):
             widget.jslink(parameter.owner, value=parameter.name)
         return widget
-
-    def api(self, jslink: bool=False, sizing_mode="stretch_width", **kwargs)->Viewable:
-        """Returns an interactive component for exploring the API of the widget.
-
-        Parameters
-        ----------
-        jslink: bool
-            Whether to use jslinks instead of Python based links.
-            This does not allow using all types of parameters.
-        sizing_mode: str
-            Sizing mode for the component.
-        kwargs: dict
-            Additional arguments to pass to the component.
-
-        Example:
-        --------
-        >>> pmui.Button(name="Open").api()
-        """
-        import panel as pn
-
-        import panel_material_ui as pmui
-        return pmui.Tabs(
-            pn.pane.HTML(self.param, name="Parameter Table", sizing_mode="stretch_width"),
-            pmui.Row(self.controls(jslink=jslink), self, name="Parameter Editor", sizing_mode="stretch_width"),
-            sizing_mode=sizing_mode, **kwargs
-        )

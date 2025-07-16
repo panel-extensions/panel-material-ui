@@ -25,7 +25,7 @@ Button(label="No Ripple!", theme_config=custom_theme).servable()
 ```
 
 :::{tip}
-The exact key for each component may vary. For instance, if you want to override `MuiButtonBase` specifically, you’d use "MuiButtonBase". If you need to target the higher-level Button or Card, find the appropriate name in Mui documentation.
+The exact key for each component may vary. For instance, if you want to override `MuiButtonBase` specifically, you’d use "MuiButtonBase". If you need to target the higher-level Button or Card, find the appropriate name in the [Mui documentation](https://mui.com/material-ui/all-components/) , usually in the Customization section of the MUI documentation page.
 :::
 
 ## Theme style overrides

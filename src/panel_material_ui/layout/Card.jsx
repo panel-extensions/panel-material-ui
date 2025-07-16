@@ -49,6 +49,9 @@ export function render({model, view}) {
   const header = model.get_child("header")
   const objects = model.get_child("objects")
 
+  const shouldHideHeader = hide_header || (!model.header && (!title || title.trim() === ""))
+  const shouldHideContent = objects.length === 0
+
   React.useEffect(() => {
     model.on("lifecycle:update_layout", () => {
       objects.map((object, index) => {
@@ -65,7 +68,7 @@ export function render({model, view}) {
       variant={variant}
       sx={{display: "flex", flexDirection: "column", width: "100%", height: "100%", ...sx}}
     >
-      {!hide_header && (
+      {!shouldHideHeader && (
         <CardHeader
           action={
             collapsible &&
@@ -100,23 +103,25 @@ export function render({model, view}) {
           },
         }}
       >
-        <CardContent
-          sx={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            p: "0px 16px 12px 16px",
-            "&:last-child": {
-              pb: "12px",
-            },
-          }}
-        >
-          {objects.map((object, index) => {
-            apply_flex(view.get_child_view(model.objects[index]), "column")
-            return object
-          })}
-        </CardContent>
+        {!shouldHideContent && (
+          <CardContent
+            sx={{
+              height: "100%",
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              p: shouldHideHeader ? "16px 16px 12px 16px" : "0px 16px 12px 16px",
+              "&:last-child": {
+                pb: "12px",
+              },
+            }}
+          >
+            {objects.map((object, index) => {
+              apply_flex(view.get_child_view(model.objects[index]), "column")
+              return object
+            })}
+          </CardContent>
+        )}
       </Collapse>
     </Card>
   );

@@ -44,6 +44,7 @@ Use playwright for end-to-end testing of components and web applications.
 We follow the Diataxis framework for technical documentation, which consists of four main categories: Tutorials, How-to Guides, Reference Guides, and Explanations.
 All documentation is in the 'docs' folder except reference guides
 Overall the tone of the documentation should be **modern**, **engaging** and **professional**. The goal is to help users, so the documentation should be clear, concise, and easy to follow.
+Only add comments when necessary to explain complex logic. Avoid comments that restate the obvious.
 
 ### Docstrings
 

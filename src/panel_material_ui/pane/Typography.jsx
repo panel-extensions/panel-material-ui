@@ -6,6 +6,7 @@ function html_decode(input) {
 }
 
 export function render({model}) {
+  const [color] = model.useState("color")
   const [sx] = model.useState("sx")
   const [text] = model.useState("object")
   const [variant] = model.useState("variant")
@@ -15,6 +16,7 @@ export function render({model}) {
       sx={{...sx, "& p": {marginBlockStart: "0.25em", marginBlockEnd: "0.25em"}}}
       dangerouslySetInnerHTML={{__html: html_decode(text)}}
       variant={variant}
+      color={color}
     />
   )
 }

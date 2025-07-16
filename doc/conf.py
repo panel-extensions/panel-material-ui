@@ -130,6 +130,7 @@ nbsite_gallery_conf = {
                 'widgets',
                 'menus',
                 'layouts',
+                'panes',
                 'page',
                 'chat',
                 'indicators',
