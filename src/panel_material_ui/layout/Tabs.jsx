@@ -84,7 +84,7 @@ export function render({model, view}) {
     <Box
       className="MuiTabsPanel"
       sx={{
-        display: display: objects.length === 0 ? "none" : "flex",
+        display: objects.length === 0 ? "none" : "flex",
         flexDirection: (location === "left" || location === "right") ? "row" : "column",
         height: "100%",
         maxWidth: "100%"
