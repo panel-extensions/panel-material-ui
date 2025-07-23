@@ -36,7 +36,7 @@ export function CustomMenu({open, anchorEl, onClose, children, sx}) {
       style={{zIndex: 1500, width: anchorEl.current?.offsetWidth}}
     >
       <ClickAwayListener onClickAway={onClose}>
-        <Paper elevation={3} sx={sx}>
+        <Paper elevation={3} sx={{overflowY: "auto", ...sx}}>
           {children}
         </Paper>
       </ClickAwayListener>
