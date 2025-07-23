@@ -77,14 +77,25 @@ export function render({model, view}) {
     if (!logo) { return null }
     if (typeof logo === "string") { return logo }
 
-    if (isXl && logo.xl) { return logo.xl }
-    if (isLg && logo.lg) { return logo.lg }
-    if (isMd && logo.md) { return logo.md }
-    if (isSm && logo.sm) { return logo.sm }
-    if (logo.xs) { return logo.xs }
+    let resolved = logo
+    if (isXl && resolved.xl) {
+      resolved = resolved.xl
+    } else if (isLg && resolved.lg) {
+      resolved = resolved.lg
+    } else if (isMd && resolved.md) {
+      resolved = resolved.md
+    } else if (isSm && resolved.sm) {
+      resolved = resolved.sm
+    } else if (resolved.xs) {
+      resolved = resolved.xs
+    }
+
+    if (dark_theme && resolved.dark) { return resolved.dark }
+    if (!dark_theme && resolved.light) { return resolved.light }
+    if (typeof resolved === "string") { return resolved }
 
     return logo.default || Object.values(logo)[0];
-  }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm])
+  }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm, dark_theme])
 
   React.useEffect(() => {
     model.on("lifecycle:update_layout", () => {

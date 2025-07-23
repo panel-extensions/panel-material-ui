@@ -96,7 +96,8 @@ class Page(MaterialComponent, ResourceComponent):
 
     logo = param.ClassSelector(default=None, class_=(str, pathlib.Path, dict), doc="""
         Logo to render in the header. Can be a string, a pathlib.Path, or a dictionary with
-        breakpoints as keys, e.g. {'sm': 'logo_mobile.png', 'md': 'logo.png'}.""")
+        breakpoints as keys, e.g. {'sm': 'logo_mobile.png', 'md': 'logo.png'} or themes as keys, e.g.
+        {'dark': 'logo_dark.png', 'light': 'logo.png'}.""")
 
     sidebar = Children(doc="Items rendered in the sidebar.")
 
