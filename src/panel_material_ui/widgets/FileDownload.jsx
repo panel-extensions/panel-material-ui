@@ -36,7 +36,7 @@ export function render({model, view}) {
 
   const downloadFile = () => {
     const link = document.createElement("a")
-    link.download = filename
+    link.download = model.filename
     const blob = dataURItoBlob(model.data)
     link.href = URL.createObjectURL(blob)
     view.container.appendChild(link)
