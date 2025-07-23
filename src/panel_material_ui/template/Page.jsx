@@ -78,11 +78,17 @@ export function render({model, view}) {
     if (typeof logo === "string") { return logo }
 
     let resolved = logo
-    if (isXl && resolved.xl) { resolved = resolved.xl }
-    else if (isLg && resolved.lg) { resolved = resolved.lg }
-    else if (isMd && resolved.md) { resolved = resolved.md }
-    else if (isSm && resolved.sm) { resolved = resolved.sm }
-    else if (resolved.xs) { resolved = resolved.xs }
+    if (isXl && resolved.xl) {
+      resolved = resolved.xl
+    } else if (isLg && resolved.lg) {
+      resolved = resolved.lg
+    } else if (isMd && resolved.md) {
+      resolved = resolved.md
+    } else if (isSm && resolved.sm) {
+      resolved = resolved.sm
+    } else if (resolved.xs) {
+      resolved = resolved.xs
+    }
 
     if (dark_theme && resolved.dark) { return resolved.dark }
     if (!dark_theme && resolved.light) { return resolved.light }
