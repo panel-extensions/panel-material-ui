@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box"
 import Checkbox from "@mui/material/Checkbox"
+import Icon from "@mui/material/Icon"
 import Typography from "@mui/material/Typography"
 import {render_description} from "./description"
 
