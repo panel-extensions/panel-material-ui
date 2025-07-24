@@ -25,11 +25,12 @@ import Tooltip from "@mui/material/Tooltip";
 
 {esm}
 
-function {output}(props) {{
+function {output}(props, ref) {{
   const [description] = props.model.useState("description")
   const [description_delay] = props.model.useState("description_delay")
 
-  const widget = <{input} {{...props}} />
+  console.log(description)
+  const Wrapped{input} = React.forwardRef({input})
   return (description ? (
     <Tooltip
       title={{description}}
@@ -39,8 +40,8 @@ function {output}(props) {{
       placement="right"
       slotProps={{{{ popper: {{ container: props.el }} }}}}
     >
-      {{widget}}
-    </Tooltip>) : widget
+      <Wrapped{input} {{...props}}/>
+    </Tooltip>) : <{input} {{...props}}/>
   )
 }}
 """

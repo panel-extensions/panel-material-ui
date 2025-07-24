@@ -8,6 +8,7 @@ export function render({model}) {
   const [icon_size] = model.useState("icon_size")
   const [href] = model.useState("href")
   const [label] = model.useState("label")
+  const [loading] = model.useState("loading")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [target] = model.useState("target")
@@ -21,6 +22,7 @@ export function render({model}) {
       color={color}
       disabled={disabled}
       href={href}
+      loading={loading}
       onClick={() => model.send_event("click", {})}
       size={size}
       sx={sx}

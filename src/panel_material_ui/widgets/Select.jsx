@@ -17,6 +17,7 @@ import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
 import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
+import {render_description} from "./description"
 import {CustomMenu} from "./menu"
 
 export function render({model, el}) {
@@ -135,10 +136,13 @@ export function render({model, el}) {
     }
   }
 
+  const spacer = model.description ? " " : ""
+  const label_spacer = label ? label+spacer : null
+
   const getInput = () => {
     const inputProps = {
       id: "select-input",
-      label: label || "",
+      label: label_spacer,
       color
     }
     switch (variant) {
@@ -433,7 +437,12 @@ export function render({model, el}) {
 
   return (
     <FormControl disabled={disabled} fullWidth variant={variant}>
-      {label && <InputLabel color={color} id={`select-label-${model.id}`}>{label}</InputLabel>}
+      {label &&
+       <InputLabel color={color} id={`select-label-${model.id}`}>
+	 {label}
+         {model.description ? render_description({model, el}) : null}
+       </InputLabel>
+      }
       <Select
         color={color}
         disabled={disabled}

@@ -36,7 +36,7 @@ class _ClickableIcon(MaterialWidget):
         Whether the icon is toggled on or off.""",
     )
 
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
+    _esm_transforms = [TooltipTransform, LoadingTransform, ThemedTransform]
 
     __abstract = True
 

@@ -1173,7 +1173,7 @@ class Checkbox(MaterialWidget):
     width = param.Integer(default=None)
 
     _esm_base = "Checkbox.jsx"
-    _esm_transforms = [TooltipTransform, LoadingTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
     def __init__(self, **params):
         is_indeterminate = 'indeterminate' in params and 'value' in params and params['value'] is None

@@ -9,9 +9,10 @@ import Slider from "@mui/material/Slider"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import dayjs from "dayjs"
+import {render_description} from "./description"
 import {int_regex, float_regex} from "./utils"
 
-export function render({model}) {
+export function render({model, el}) {
   const [bar_color] = model.useState("bar_color")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -296,6 +297,7 @@ export function render({model}) {
                 />
               </>
             )}
+	    {model.description ? render_description({model, el}) : null}
           </Box>
         </Box>
       ) : (
@@ -306,6 +308,7 @@ export function render({model}) {
             {value_label}
           </strong>
           }
+	  {model.description && render_description({model, el})}
         </FormLabel>)}
       <Slider
         color={color}
