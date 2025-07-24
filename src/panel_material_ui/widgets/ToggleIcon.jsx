@@ -1,6 +1,8 @@
 import Box from "@mui/material/Box"
 import Checkbox from "@mui/material/Checkbox"
+import Icon from "@mui/material/Icon"
 import Typography from "@mui/material/Typography"
+import {render_description} from "./description"
 
 const SIZES = {
   small: "1.5em",
@@ -66,7 +68,7 @@ export function render({model, el}) {
         }
         sx={sx}
       />
-      {label && <Typography sx={{color: "text.primary", fontSize: `calc(${text_size} / 2)`}}>{label}</Typography>}
+      {label && <Typography sx={{color: "text.primary", fontSize: `calc(${text_size} / 2)`}}>{label}{model.description && render_description({model, el})}</Typography>}
     </Box>
   )
 }

@@ -391,6 +391,7 @@ class FileInput(_FileUploadArea, _ButtonBase, _PnFileInput):
     width = param.Integer(default=None)
 
     _esm_base = "FileInput.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
         'filename': None,
         'value': "'data:' + source.mime_type + ';base64,' + value"
@@ -1173,7 +1174,7 @@ class Checkbox(MaterialWidget):
     width = param.Integer(default=None)
 
     _esm_base = "Checkbox.jsx"
-    _esm_transforms = [TooltipTransform, LoadingTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, ThemedTransform]
 
     def __init__(self, **params):
         is_indeterminate = 'indeterminate' in params and 'value' in params and params['value'] is None
@@ -1230,7 +1231,7 @@ class Switch(MaterialWidget):
     width = param.Boolean(default=None)
 
     _esm_base = "Switch.jsx"
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, ThemedTransform]
 
 
 class ColorPicker(MaterialWidget):

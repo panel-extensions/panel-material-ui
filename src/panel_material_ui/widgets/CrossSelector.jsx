@@ -16,6 +16,7 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight"
 import InputLabel from "@mui/material/InputLabel"
 import Box from "@mui/material/Box"
+import {render_description} from "./description"
 
 function not(a, b) {
   return a.filter((value) => !b.includes(value))
@@ -209,7 +210,7 @@ export function render({model, el}) {
 
   return (
     <Box sx={{display: "flex", flexDirection: "column", gap: "0.5em", ...sx}}>
-      {label && <InputLabel>{label}</InputLabel>}
+      {label && <InputLabel>{label}{model.description ? render_description({model, el}) : null}</InputLabel>}
       <Box sx={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
         {customList(left_title, filteredAvailable, left_filter, setLeftFilter)}
         <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: "0 1em"}}>

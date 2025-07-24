@@ -32,7 +32,7 @@ class _ButtonLike(MaterialWidget):
     description = param.String(default=None, doc="""
         The description in the tooltip.""")
 
-    description_delay = param.Integer(default=5000, doc="""
+    description_delay = param.Integer(default=500, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
 
@@ -201,7 +201,6 @@ class Fab(Button):
         The variant of the button.""")
 
     _esm_base = "Fab.jsx"
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
 
 class Toggle(_ButtonBase):

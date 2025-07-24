@@ -32,7 +32,7 @@ export function render({model, el}) {
       error={error_state}
       fullWidth
       inputProps={{maxLength: max_length}}
-      label={label}
+      label={model.description ? <>{label}{render_description({model, el})}</> : label}
       multiline
       maxRows={max_rows}
       onKeyDown={(e) => {
