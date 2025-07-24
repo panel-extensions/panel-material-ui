@@ -725,6 +725,12 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
   }
 }
 
+const headingStyle = (fontSize, lineHeight) => ({
+  fontWeight: 700,
+  fontSize,
+  lineHeight
+})
+
 export function render_theme_config(props, theme_config, dark_theme) {
   const config = {
     cssVariables: {
