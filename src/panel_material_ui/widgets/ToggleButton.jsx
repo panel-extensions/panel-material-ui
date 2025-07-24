@@ -1,6 +1,7 @@
 import ToggleButton from "@mui/material/ToggleButton"
 
-export function render({model}) {
+export function render(props, ref) {
+  const {data, el, model, view, ...other} = props
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [end_icon] = model.useState("end_icon")
@@ -11,6 +12,10 @@ export function render({model}) {
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
 
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
+  }
+
   return (
     <ToggleButton
       color={color}
@@ -18,9 +23,11 @@ export function render({model}) {
       fullWidth
       selected={value}
       onChange={() => setValue(!value)}
+      ref={ref}
       sx={{...sx}}
       value={value}
       variant={variant}
+      {...other}
     >
       {icon && (
         icon.trim().startsWith("<") ?

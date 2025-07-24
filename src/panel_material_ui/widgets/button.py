@@ -201,7 +201,6 @@ class Fab(Button):
         The variant of the button.""")
 
     _esm_base = "Fab.jsx"
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
 
 class Toggle(_ButtonBase):

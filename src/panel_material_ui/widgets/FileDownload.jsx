@@ -14,7 +14,8 @@ function dataURItoBlob(dataURI) {
   return bb
 }
 
-export function render({model, view}) {
+export function render(props, ref) {
+  const {data, el, model, view, ...other} = props
   const [auto] = model.useState("auto")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -33,6 +34,10 @@ export function render({model, view}) {
 
   const linkRef = React.useRef(null)
   const theme = useTheme()
+
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
+  }
 
   const downloadFile = () => {
     const link = document.createElement("a")
@@ -85,6 +90,7 @@ export function render({model, view}) {
       )}
       fullWidth
       loading={loading}
+      ref={ref}
       startIcon={icon ? (
         icon.trim().startsWith("<") ?
           <span style={{
@@ -103,6 +109,7 @@ export function render({model, view}) {
       size={size}
       sx={sx}
       variant={variant}
+      {...other}
     >
       {auto ? label : <a
         ref={linkRef}

@@ -29,7 +29,6 @@ function {output}(props, ref) {{
   const [description] = props.model.useState("description")
   const [description_delay] = props.model.useState("description_delay")
 
-  console.log(description)
   const Wrapped{input} = React.forwardRef({input})
   return (description ? (
     <Tooltip
