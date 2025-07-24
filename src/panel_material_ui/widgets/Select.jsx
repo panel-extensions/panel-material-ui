@@ -439,7 +439,7 @@ export function render({model, el}) {
     <FormControl disabled={disabled} fullWidth variant={variant}>
       {label &&
        <InputLabel color={color} id={`select-label-${model.id}`}>
-	 {label}
+         {label}
          {model.description ? render_description({model, el}) : null}
        </InputLabel>
       }

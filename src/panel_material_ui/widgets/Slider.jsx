@@ -297,7 +297,7 @@ export function render({model, el}) {
                 />
               </>
             )}
-	    {model.description ? render_description({model, el}) : null}
+            {model.description ? render_description({model, el}) : null}
           </Box>
         </Box>
       ) : (
@@ -308,7 +308,7 @@ export function render({model, el}) {
             {value_label}
           </strong>
           }
-	  {model.description && render_description({model, el})}
+          {model.description && render_description({model, el})}
         </FormLabel>)}
       <Slider
         color={color}

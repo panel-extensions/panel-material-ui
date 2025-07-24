@@ -49,9 +49,9 @@ export function render({model, view, el}) {
     <FormControl disabled={disabled} fullWidth variant={variant}>
       {label &&
         <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
-	  {label}
+          {label}
           {model.description ? render_description({model, el}) : null}
-	</InputLabel>
+        </InputLabel>
       }
       <Select
         color={color}
