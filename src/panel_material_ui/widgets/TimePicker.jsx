@@ -2,6 +2,7 @@ import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider"
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
 import {TimePicker} from "@mui/x-date-pickers/TimePicker"
 import dayjs from "dayjs"
+import {render_description} from "./description"
 
 export function render({model, view}) {
   const [color] = model.useState("color")
@@ -53,7 +54,7 @@ export function render({model, view}) {
         desktopModeMediaQuery={media_query}
         disabled={disabled}
         format={format}
-        label={label}
+        label={model.description ? <>{label}{render_description({model, el})}</> : label}
         onChange={handleChange}
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}
