@@ -752,6 +752,14 @@ export function render_theme_config(props, theme_config, dark_theme) {
         contrastText: "#000000",
       },
     },
+    typography: {
+      h1: headingStyle("1.8125rem", 1.2),
+      h2: headingStyle("1.5rem", 1.43),
+      h3: headingStyle("1.25rem", 1.5),
+      h4: headingStyle("1rem", 1.5),
+      h5: headingStyle("0.875rem", 1.43),
+      h6: headingStyle("0.75rem", 1.5),
+    },
     components: {
       MuiPopover: {
         defaultProps: {
