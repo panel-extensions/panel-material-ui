@@ -136,7 +136,7 @@ export function render({model, el}) {
     }
   }
 
-  const spacer = model.description ? " " : ""
+  const spacer = model.description ? "\u00A0" : ""
   const label_spacer = label ? label+spacer : null
 
   const getInput = () => {

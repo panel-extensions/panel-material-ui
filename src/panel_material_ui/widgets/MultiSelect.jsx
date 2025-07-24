@@ -41,7 +41,7 @@ export function render({model, view, el}) {
     }
   }
 
-  const spacer = model.description ? " " : ""
+  const spacer = model.description ? "\u00A0" : ""
   const label_spacer = label ? label+spacer : null
 
   const inputId = `select-multiple-native-${model.id}`
