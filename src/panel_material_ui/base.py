@@ -32,7 +32,7 @@ from bokeh.settings import settings as _settings
 from jinja2 import Environment, FileSystemLoader, Template
 from markupsafe import Markup
 from panel.config import config
-from panel.custom import ReactComponent
+from panel.custom import PyComponent, ReactComponent
 from panel.io.location import Location
 from panel.io.resources import Resources
 from panel.io.state import state
@@ -41,7 +41,7 @@ from panel.pane import HTML
 from panel.param import Param
 from panel.util import base_version, classproperty
 from panel.viewable import Viewable
-from panel.widgets.base import CompositeWidget, Widget
+from panel.widgets.base import CompositeWidget, WidgetBase
 
 from .__version import __version__  # noqa
 from ._utils import conffilter, json_dumps
@@ -236,7 +236,7 @@ class MaterialComponent(ReactComponent):
             if isinstance(value, param.Parameter):
                 name = value.name
                 value = value.owner
-            if isinstance(value, Widget) and not isinstance(value, CompositeWidget):
+            if isinstance(value, WidgetBase) and not isinstance(value, (CompositeWidget, PyComponent)):
                 value.jslink(self, **{name: p})
 
     async def _watch_esm(self):
