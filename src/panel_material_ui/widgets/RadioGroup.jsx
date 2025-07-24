@@ -21,7 +21,7 @@ export function render({model, el}) {
 
   return (
     <FormControl component="fieldset" disabled={disabled} fullWidth>
-      {label && <FormLabel id="radio-group-label">{label}{render_description({model, el})}</FormLabel>}
+      {label && <FormLabel id="radio-group-label">{label}{model.description ? render_description({model, el}) : null}</FormLabel>}
       <RadioGroup
         aria-labelledby="radio-group-label"
         fullWidth

@@ -1,8 +1,8 @@
 import Checkbox from "@mui/material/Checkbox"
 import FormControlLabel from "@mui/material/FormControlLabel"
+import {render_description} from "./description"
 
-export function render(props, ref) {
-  const {data, el, model, view, ...other} = props
+export function render({model, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [indeterminate] = model.useState("indeterminate")
@@ -10,10 +10,6 @@ export function render(props, ref) {
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [checked, setChecked] = model.useState("value")
-
-  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
-    ref = undefined
-  }
 
   return (
     <FormControlLabel
@@ -28,9 +24,7 @@ export function render(props, ref) {
           sx={{p: "6px", ...sx}}
         />
       }
-      label={label}
-      ref={ref}
-      {...other}
+      label={model.description ? <>{label}{render_description({model, el})}</> : label}
     />
   )
 }
