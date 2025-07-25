@@ -84,7 +84,7 @@ export function render_theme_css(theme) {
       --danger-border-subtle: ${dark ? "#842029" : "#f1aeb5"};
       --light-border-subtle: ${dark ? "#495057" : "#e9ecef"};
       --dark-border-subtle: ${dark ? "#343a40" : "#adb5bd"};
-      --bokeh-font-size: ${theme.typography.fontSize}px;
+      --bokeh-font-size: ${theme.typography.htmlFontSize}px;
       --bokeh-base-font: ${theme.typography.fontFamily};
     }
   `
@@ -762,9 +762,9 @@ export function render_theme_config(props, theme_config, dark_theme) {
       h1: headingStyle("1.8125rem", 1.2),
       h2: headingStyle("1.5rem", 1.43),
       h3: headingStyle("1.25rem", 1.5),
-      h4: headingStyle("1rem", 1.5),
-      h5: headingStyle("0.875rem", 1.43),
-      h6: headingStyle("0.75rem", 1.5),
+      h4: headingStyle("1.125rem", 1.5),
+      h5: headingStyle("1rem", 1.43),
+      h6: headingStyle("0.875rem", 1.5),
     },
     components: {
       MuiPopover: {
@@ -911,7 +911,67 @@ export function render_theme_config(props, theme_config, dark_theme) {
   return config
 }
 
-export const setup_global_styles = (theme) => {
+const render_page_css = (theme) => {
+  const style_objs = theme.generateStyleSheets()
+  return style_objs.map((obj) => {
+    return Object.entries(obj).map(([selector, vars]) => {
+      const varLines = Object.entries(vars)
+        .map(([key, val]) => `  ${key}: ${val};`)
+        .join("\n");
+      return `:root, ${selector} {\n${varLines}\n}`;
+    }).join("\n\n");
+  }).join("\n\n");
+}
+
+export const apply_global_css = (model, view, theme) => {
+  const template_style_el = document.querySelector("#template-styles")
+  const managed = React.useRef(false)
+
+  React.useEffect(() => {
+    let global_style_el = document.querySelector("#global-styles-panel-mui")
+    if (global_style_el) {
+      return
+    }
+    for (const root of view.model.document.roots()) {
+      if (root === view.model) {
+        global_style_el = document.createElement("style")
+        global_style_el.id = "global-styles-panel-mui"
+        global_style_el.textContent = render_theme_css(theme)
+        if (template_style_el) {
+          document.head.insertBefore(global_style_el, template_style_el)
+        } else {
+          document.head.appendChild(global_style_el)
+        }
+        const page_style_el = document.createElement("style")
+        page_style_el.id = "page-style"
+        page_style_el.textContent = render_page_css(theme)
+        if (template_style_el) {
+          document.head.insertBefore(page_style_el, template_style_el)
+        } else {
+          document.head.appendChild(page_style_el)
+        }
+        managed.current = true
+        break
+      }
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (managed.current) {
+      const global_style_el = document.querySelector("#global-styles-panel-mui")
+      if (global_style_el) {
+        global_style_el.textContent = render_theme_css(theme)
+      }
+      const page_style_el = document.querySelector("#page_style")
+      if (page_style_el) {
+        page_style_el.textContent = render_page_css(theme)
+      }
+    }
+  }, [theme])
+}
+
+export const setup_global_styles = (view, theme) => {
+  const doc = view.model.document
   let global_style_el = document.querySelector("#global-styles-panel-mui")
   const template_style_el = document.querySelector("#template-styles")
   const theme_ref = React.useRef(theme)
@@ -938,7 +998,6 @@ export const setup_global_styles = (theme) => {
   }
 
   React.useEffect(() => {
-    const doc = window.Bokeh.documents[window.Bokeh.documents.length-1]
     const cb = (e) => {
       if (e.kind !== "ModelChanged") {
         return
@@ -978,7 +1037,6 @@ export const setup_global_styles = (theme) => {
   React.useEffect(() => {
     theme_ref.current = theme
     const dark = theme.palette.mode === "dark"
-    const doc = window.Bokeh.documents[window.Bokeh.documents.length-1]
     const font_family = Array.isArray(theme.typography.fontFamily) ? (
       theme.typography.fontFamily.join(", ")
     ) : (
@@ -986,19 +1044,7 @@ export const setup_global_styles = (theme) => {
     )
     doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family))
     global_style_el.textContent = render_theme_css(theme)
-    const style_objs = theme.generateStyleSheets()
-    const css = style_objs
-      .map((obj) => {
-        return Object.entries(obj).map(([selector, vars]) => {
-          const varLines = Object.entries(vars)
-            .map(([key, val]) => `  ${key}: ${val};`)
-            .join("\n");
-          return `:root, ${selector} {\n${varLines}\n}`;
-        })
-          .join("\n\n");
-      })
-      .join("\n\n");
-    page_style_el.textContent = css
+    page_style_el.textContent = render_page_css(theme)
   }, [theme])
 }
 

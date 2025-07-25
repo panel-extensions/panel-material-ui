@@ -133,7 +133,7 @@ export function render({model, view}) {
     setDarkTheme(!dark_theme)
   }
 
-  setup_global_styles(theme)
+  setup_global_styles(view, theme)
   React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
 
   const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
