@@ -11,7 +11,7 @@ from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
 from typing_extensions import Self
 
 from ..base import COLORS, LoadingTransform, ThemedTransform
-from .base import MaterialWidget, TooltipTransform
+from .base import MaterialWidget
 from .button import _ButtonLike
 
 
@@ -341,7 +341,7 @@ class _ButtonGroup(_ButtonLike):
 
     _esm_base = "ButtonGroup.jsx"
 
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, ThemedTransform]
 
     _rename = {"name": "name"}
 

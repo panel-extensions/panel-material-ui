@@ -19,7 +19,8 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 })
 
-export function render({model})  {
+export function render(props, ref) {
+  const {data, el, model, view, ...other} = props
   const [accept] = model.useState("accept")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -39,6 +40,10 @@ export function render({model})  {
   const [isDragOver, setIsDragOver] = React.useState(false)
   const fileInputRef = React.useRef(null)
   const theme = useTheme()
+
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
+  }
 
   const clearFiles = () => {
     if (fileInputRef.current) {
@@ -190,6 +195,7 @@ export function render({model})  {
       fullWidth
       loading={loading}
       loadingPosition="start"
+      ref={ref}
       role={undefined}
       startIcon={icon ? (
         icon.trim().startsWith("<") ?
@@ -218,6 +224,7 @@ export function render({model})  {
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
+      {...other}
     >
       {title}
       <VisuallyHiddenInput

@@ -271,7 +271,7 @@ class MenuList(MenuBase):
 
     _item_keys = [
         'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
-        'href', 'target', 'buttons'
+        'href', 'target', 'buttons', 'open'
     ]
 
     @param.depends('items', watch=True, on_init=True)

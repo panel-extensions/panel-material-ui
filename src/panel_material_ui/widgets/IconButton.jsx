@@ -1,7 +1,8 @@
 import IconButton from "@mui/material/IconButton"
 import {useTheme} from "@mui/material/styles"
 
-export function render({model, el}) {
+export function render(props, ref) {
+  const {data, el, model, view, ...other} = props
   const [active_icon] = model.useState("active_icon")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -14,6 +15,10 @@ export function render({model, el}) {
   const theme = useTheme()
   const [current_icon, setIcon] = React.useState(icon)
   const [color_variant, setColorVariant] = React.useState(null)
+
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
+  }
 
   const handleClick = (e) => {
     model.send_event("click", e)
@@ -35,8 +40,10 @@ export function render({model, el}) {
       disabled={disabled}
       edge={edge}
       onClick={handleClick}
+      ref={ref}
       size={size}
       sx={{color: color_variant, width: "100%", ...sx}}
+      {...other}
     >
       {current_icon.trim().startsWith("<") ?
         <span style={{

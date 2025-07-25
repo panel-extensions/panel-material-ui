@@ -36,8 +36,6 @@ class _ClickableIcon(MaterialWidget):
         Whether the icon is toggled on or off.""",
     )
 
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
-
     __abstract = True
 
 
@@ -117,6 +115,7 @@ class IconButton(_ClickableIcon, _ButtonBase):
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
 
     _esm_base = "IconButton.jsx"
+    _esm_transforms = [TooltipTransform, LoadingTransform, ThemedTransform]
     _event = "dom_event"
 
     def __init__(self, **params):

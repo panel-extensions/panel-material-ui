@@ -1,6 +1,7 @@
-import TextField from "@mui/material/TextField"
 import Autocomplete from "@mui/material/Autocomplete"
 import Popper from "@mui/material/Popper"
+import TextField from "@mui/material/TextField"
+import {render_description} from "./description"
 
 export function render({model, el}) {
   const [color] = model.useState("color")
@@ -51,7 +52,7 @@ export function render({model, el}) {
         <TextField
           {...params}
           color={color}
-          label={label}
+          label={model.description ? <>{label}{render_description({model, el})}</> : label}
           placeholder={placeholder}
           onChange={(event) => {
             setValueInput(event.target.value)

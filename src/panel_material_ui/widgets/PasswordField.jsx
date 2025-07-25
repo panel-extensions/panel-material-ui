@@ -3,8 +3,9 @@ import InputAdornment from "@mui/material/InputAdornment"
 import TextField from "@mui/material/TextField"
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff"
+import {render_description} from "./description"
 
-export function render({model}) {
+export function render({model, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
@@ -25,7 +26,7 @@ export function render({model}) {
       error={error_state}
       fullWidth
       inputProps={{maxLength: max_length}}
-      label={label}
+      label={model.description ? <>{label}{render_description({model, el})}</> : label}
       onBlur={() => setValue(value_input)}
       onChange={(event) => setValueInput(event.target.value)}
       onKeyDown={(event) => {

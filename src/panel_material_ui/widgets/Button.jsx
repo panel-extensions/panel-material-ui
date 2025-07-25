@@ -1,6 +1,7 @@
 import Button from "@mui/material/Button"
 
-export function render({model, el}) {
+export function render(props, ref) {
+  const {data, el, model, view, ...other} = props
   const [color] = model.useState("color")
   const [disable_elevation] = model.useState("disable_elevation")
   const [disabled] = model.useState("disabled")
@@ -14,6 +15,10 @@ export function render({model, el}) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
   const [target] = model.useState("target")
+
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
+  }
 
   return (
     <Button
@@ -38,6 +43,7 @@ export function render({model, el}) {
       loading={loading}
       loadingPosition="start"
       onClick={() => model.send_event("click", {})}
+      ref={ref}
       startIcon={icon && (
         icon.trim().startsWith("<") ?
           <span style={{
@@ -55,6 +61,7 @@ export function render({model, el}) {
       sx={{height: "100%", ...sx}}
       target={target}
       variant={variant}
+      {...other}
     >
       {label}
     </Button>

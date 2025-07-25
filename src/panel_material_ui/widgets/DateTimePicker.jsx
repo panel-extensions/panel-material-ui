@@ -2,9 +2,10 @@ import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider"
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
 import {DatePicker} from "@mui/x-date-pickers/DatePicker"
 import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker"
-import dayjs from "dayjs";
+import dayjs from "dayjs"
+import {render_description} from "./description"
 
-export function render({model, view}) {
+export function render({model, view, el}) {
   const [clearable] = model.useState("clearable")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -215,7 +216,7 @@ export function render({model, view}) {
         disablePast={disable_past}
         format={format}
         fullWidth
-        label={label}
+        label={model.description ? <>{label}{render_description({model, el})}</> : label}
         minDate={min_date ? parseDate(min_date) : undefined}
         maxDate={max_date ? parseDate(max_date) : undefined}
         openTo={open_to}
