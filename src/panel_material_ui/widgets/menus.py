@@ -126,31 +126,37 @@ class MenuBase(MaterialWidget):
             value = {'label': value[0], 'value': value[1]}
         return value
 
+    def _process_click(self, msg, index, value):
+        if not isinstance(value, dict) or value.get('selectable', True):
+            self.param.update(active=index, value=value)
+        for fn in self._on_click_callbacks:
+            try:
+                state.execute(partial(fn, value))
+            except Exception as e:
+                print(f'List on_click handler errored: {e}')  # noqa
+
+    def _process_action(self, msg, index, value):
+        name = msg['action']
+        if 'value' in msg:
+            value['actions'] = [
+                dict(action, value=msg['value']) if action.get('action', action.get('label')) == name else action
+                for action in value['actions']
+            ]
+        for fn in self._on_action_callbacks.get(name, []):
+            try:
+                state.execute(partial(fn, value))
+            except Exception as e:
+                print(f'List on_action handler errored: {e}')  # noqa
+
     def _handle_msg(self, msg):
-        index = msg['item']
+        index = msg.get('item')
         if isinstance(index, list):
             index = tuple(index)
-        value = self._lookup_item(index)
+        value = None if index is None else self._lookup_item(index)
         if msg['type'] == 'click':
-            if not isinstance(value, dict) or value.get('selectable', True):
-                self.param.update(active=index, value=value)
-            for fn in self._on_click_callbacks:
-                try:
-                    state.execute(partial(fn, value))
-                except Exception as e:
-                    print(f'List on_click handler errored: {e}')  # noqa
+            self._process_click(msg, index, value)
         elif msg['type'] == 'action':
-            name = msg['action']
-            if 'value' in msg:
-                value['actions'] = [
-                    dict(action, value=msg['value']) if action.get('action', action.get('label')) == name else action
-                    for action in value['actions']
-                ]
-            for fn in self._on_action_callbacks.get(name, []):
-                try:
-                    state.execute(partial(fn, value))
-                except Exception as e:
-                    print(f'List on_action handler errored: {e}')  # noqa
+            self._process_action(msg, index, value)
 
     def on_click(self, callback: Callable[[DOMEvent], None]):
         """
@@ -347,7 +353,16 @@ class MenuButton(MenuBase, _ButtonBase):
 
 class SplitButton(MenuBase, _ButtonBase):
     """
-    The `SplitButton` component is a button component that allows selecting from a list of items.
+    The `SplitButton` component consists of a button and a dropdown menu.
+
+    It can operate in two modes:
+
+    - `split`
+      In split mode the button performs and action and the dropdown
+      allows triggering related but independent actions.
+    - `select`
+      In select mode you select an option from the menu and trigger
+      it by clicking the button.
 
     SplitButton items can be strings or objects with properties:
       - label: The label of the menu button item (required)
@@ -365,6 +380,9 @@ class SplitButton(MenuBase, _ButtonBase):
     ... ], label='File')
     """
 
+    mode = param.Selector(default='split', objects=['split', 'select'], doc="""
+        Allows toggling button behavior between split and select mode.""")
+
     margin = Margin(default=5)
 
     _esm_base = "SplitButton.jsx"
@@ -373,6 +391,26 @@ class SplitButton(MenuBase, _ButtonBase):
         "button_style": None
     }
     _item_keys = ['label', 'icon', 'href', 'target']
+
+    @param.depends('mode', watch=True, on_init=True)
+    def _switch_mode(self):
+        if self.mode == 'select' and self.value is None:
+            self.param.update(active=0, value=self.items[0])
+
+    def _process_click(self, msg, index, value):
+        if self.mode == 'select' and 'item' in msg:
+            return
+        updates = {'clicks': self.clicks+1}
+        if value is None:
+            value = self.value if self.mode == 'select' else self.label
+        elif not isinstance(value, dict) or value.get('selectable', True):
+            updates.update(active=index, value=value)
+        self.param.update(updates)
+        for fn in self._on_click_callbacks:
+            try:
+                state.execute(partial(fn, value))
+            except Exception as e:
+                print(f'List on_click handler errored: {e}')  # noqa
 
 
 class Pagination(MaterialWidget):

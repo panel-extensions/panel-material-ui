@@ -9,15 +9,16 @@ import MenuItem from "@mui/material/MenuItem"
 import MenuList from "@mui/material/MenuList"
 
 export function render({model}) {
+  const [active, setActive] = model.useState("active")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [items] = model.useState("items")
   const [label] = model.useState("label")
+  const [mode] = model.useState("mode")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
-  const [active] = model.useState("active")
 
   const anchorEl = React.useRef(null)
   const [open, setOpen] = React.useState(false)
@@ -36,6 +37,13 @@ export function render({model}) {
     setOpen(false)
   }
 
+  let current_icon = icon
+  let current_label = label
+  if (mode === 'select') {
+    current_label = items[active].label
+    current_icon = items[active].icon ?? icon
+  }
+
   return (
     <>
       <ButtonGroup
@@ -46,10 +54,10 @@ export function render({model}) {
       >
         <Button
           color={color}
-          startIcon={icon && (
-            icon.trim().startsWith("<") ?
+          startIcon={current_icon && (
+            current_icon.trim().startsWith("<") ?
               <span style={{
-                maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+                maskImage: `url("data:image/svg+xml;base64,${btoa(current_icon)}")`,
                 backgroundColor: "currentColor",
                 maskRepeat: "no-repeat",
                 maskSize: "contain",
@@ -57,17 +65,17 @@ export function render({model}) {
                 height: icon_size,
                 display: "inline-block"}}
               /> :
-              <Icon style={{fontSize: icon_size}}>{icon}</Icon>
+              <Icon style={{fontSize: icon_size}}>{current_icon}</Icon>
           )}
           variant={variant}
-          onClick={() => model.send_event("click", {})}
+          onClick={() => model.send_msg({type: "click"})}
           sx={{
             ...sx,
             borderBottomRightRadius: 0,
             borderTopRightRadius: 0
           }}
         >
-          {label}
+          {current_label}
         </Button>
         <Button
           variant={variant}
@@ -76,7 +84,7 @@ export function render({model}) {
           aria-controls={open ? "split-button-menu" : undefined}
           aria-expanded={open ? "true" : undefined}
           aria-haspopup="menu"
-          onClick={ setOpen((prevOpen) => !prevOpen) }
+          onClick={() => setOpen((prevOpen) => !prevOpen)}
           sx={{
             borderBottomLeftRadius: 0,
             borderTopLeftRadius: 0
@@ -86,7 +94,7 @@ export function render({model}) {
         </Button>
       </ButtonGroup>
       <Popper
-        sx={{zIndex: 1}}
+        sx={{zIndex: 1500}}
         open={open}
         anchorEl={anchorEl.current}
         role={undefined}
@@ -109,7 +117,7 @@ export function render({model}) {
                     <MenuItem
                       key={option.label}
                       href={option.href}
-                      selected={index === selectedIndex}
+                      selected={mode === "select" && index === selectedIndex}
                       onClick={(event) => handleMenuItemClick(event, index)}
                       target={option.target}
                     >
