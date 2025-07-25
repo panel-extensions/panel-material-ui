@@ -117,7 +117,7 @@ export function render(props, ref) {
                 <MenuList id="split-button-menu" autoFocusItem>
                   {items.map((option, index) => (
                     <MenuItem
-                      key={'menu-item-'+index}
+                      key={`menu-item-${index}`}
                       href={option.href}
                       selected={mode === "select" && index === selectedIndex}
                       onClick={(event) => handleMenuItemClick(event, index)}

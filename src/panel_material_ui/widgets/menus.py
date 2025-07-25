@@ -401,6 +401,7 @@ class SplitButton(MenuBase, _ButtonBase):
 
     def _process_click(self, msg, index, value):
         if self.mode == 'select' and 'item' in msg:
+            self.param.update(active=index, value=value)
             return
         updates = {'clicks': self.clicks+1}
         if value is None:
