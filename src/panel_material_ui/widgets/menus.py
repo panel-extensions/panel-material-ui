@@ -355,17 +355,19 @@ class SplitButton(MenuBase, _ButtonBase):
     """
     The `SplitButton` component consists of a button and a dropdown menu.
 
-    It can operate in two modes:
+    The component can operate in two modes:
 
-    - `split`
-      In split mode the button performs and action and the dropdown
-      allows triggering related but independent actions.
-    - `select`
-      In select mode you select an option from the menu and trigger
-      it by clicking the button.
+    - `split`:  In split mode the button performs and action and the dropdown
+                allows triggering related but independent actions.
+    - `select`: In select mode you select an option from the menu and trigger
+                it by clicking the button.
 
     SplitButton items can be strings or objects with properties:
       - label: The label of the menu button item (required)
+      - `icon`: The icon of the menu button item (optional)
+      - `color`: The color of the menu button item (optional)
+      - `href`: The URL to navigate to when the menu button item is clicked (optional)
+      - `target`: The target to open the URL in (optional)
 
     :References:
 
