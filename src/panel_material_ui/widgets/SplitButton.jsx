@@ -39,7 +39,7 @@ export function render({model}) {
 
   let current_icon = icon
   let current_label = label
-  if (mode === 'select') {
+  if (mode === "select") {
     current_label = items[active].label
     current_icon = items[active].icon ?? icon
   }
@@ -133,7 +133,7 @@ export function render({model}) {
                             display: "inline-block"}}
                           /> :
                           <Icon style={{fontSize: icon_size, paddingRight: "1.5em"}}>{option.icon}</Icon>
-                       )}
+                      )}
                       {option.label}
                     </MenuItem>
                   ))}
