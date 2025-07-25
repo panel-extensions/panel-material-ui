@@ -8,8 +8,9 @@ import Popper from "@mui/material/Popper"
 import MenuItem from "@mui/material/MenuItem"
 import MenuList from "@mui/material/MenuList"
 
-export function render({model}) {
-  const [active, setActive] = model.useState("active")
+export function render(props, ref) {
+  const {data, el, model, view, ...other} = props
+  const [active] = model.useState("active")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
@@ -51,6 +52,7 @@ export function render({model}) {
         disabled={disabled}
         ref={anchorEl}
         variant={variant}
+        {...other}
       >
         <Button
           color={color}
@@ -115,7 +117,7 @@ export function render({model}) {
                 <MenuList id="split-button-menu" autoFocusItem>
                   {items.map((option, index) => (
                     <MenuItem
-                      key={option.label}
+                      key={'menu-item-'+index}
                       href={option.href}
                       selected={mode === "select" && index === selectedIndex}
                       onClick={(event) => handleMenuItemClick(event, index)}
