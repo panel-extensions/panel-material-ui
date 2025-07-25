@@ -124,12 +124,15 @@ import 'material-icons/iconfont/filled.css';
 import 'material-icons/iconfont/outlined.css';
 import {{ ThemeProvider }} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import {{install_theme_hooks}} from "./utils"
+import {{apply_global_css, install_theme_hooks}} from "./utils"
 
 {esm}
 
 function {output}(props) {{
   const theme = install_theme_hooks(props)
+  if (props.view.is_root && document.documentElement.getAttribute("data-theme-managed") === "false") {{
+    apply_global_css(props.model, props.view, theme)
+  }}
   return (
     <ThemeProvider theme={{theme}}>
       <CssBaseline />
@@ -453,7 +456,6 @@ class MaterialComponent(ReactComponent):
         doc = super().server_doc(doc, title, location)
         doc.title = title or 'Panel Application'
         doc.template = BASE_TEMPLATE
-        doc.template_variables['is_page'] = True
         return doc
 
     def preview(self, width: int = 800, height: int = 600, border: str="1px solid #ccc", **kwargs):
