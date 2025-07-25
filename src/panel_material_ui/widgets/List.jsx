@@ -33,6 +33,7 @@ export function render({model}) {
   const current_menu_open = {...menu_open}
 
   const active_array = Array.isArray(active) ? active : [active]
+  const [toggle_values, setToggleValues] = React.useState(new Map())
 
   React.useEffect(() => {
     setOpen(current_open)
@@ -93,8 +94,6 @@ export function render({model}) {
 
     const inline_actions = actions ? actions.filter(b => b.inline) : []
     const menu_actions = actions ? actions.filter(b => !b.inline) : []
-
-    const [toggle_values, setToggleValues] = React.useState(new Map())
 
     const list_item = (
       <ListItemButton
