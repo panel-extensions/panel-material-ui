@@ -17,11 +17,12 @@ export function render(props, ref) {
   const [icon_size] = model.useState("icon_size")
   const [items] = model.useState("items")
   const [label] = model.useState("label")
+  const [loading] = model.useState("loading")
   const [mode] = model.useState("mode")
+  const [size] = model.useState("size")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
-  const anchorEl = React.useRef(null)
   const [open, setOpen] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(active)
 
@@ -32,7 +33,7 @@ export function render(props, ref) {
   }
 
   const handleClose = (event) => {
-    if (anchorEl.current && anchorEl.current.contains(event.target)) {
+    if (ref.current && ref.current.contains(event.target)) {
       return
     }
     setOpen(false)
@@ -50,7 +51,9 @@ export function render(props, ref) {
       <ButtonGroup
         color={color}
         disabled={disabled}
-        ref={anchorEl}
+	fullWidth
+	ref={ref}
+	size={size}
         variant={variant}
         {...other}
       >
@@ -69,28 +72,31 @@ export function render(props, ref) {
               /> :
               <Icon style={{fontSize: icon_size}}>{current_icon}</Icon>
           )}
-          variant={variant}
+	  loading={loading}
           onClick={() => model.send_msg({type: "click"})}
           sx={{
             ...sx,
             borderBottomRightRadius: 0,
             borderTopRightRadius: 0
           }}
+          variant={variant}
         >
           {current_label}
         </Button>
         <Button
-          variant={variant}
-          color={color}
-          size="small"
           aria-controls={open ? "split-button-menu" : undefined}
           aria-expanded={open ? "true" : undefined}
           aria-haspopup="menu"
+          color={color}
+	  disabled={disabled || loading}
           onClick={() => setOpen((prevOpen) => !prevOpen)}
+          size="small"
           sx={{
             borderBottomLeftRadius: 0,
-            borderTopLeftRadius: 0
+            borderTopLeftRadius: 0,
+	    maxWidth: 50
           }}
+          variant={variant}
         >
           <ArrowDropDownIcon />
         </Button>
@@ -98,7 +104,7 @@ export function render(props, ref) {
       <Popper
         sx={{zIndex: 1500}}
         open={open}
-        anchorEl={anchorEl.current}
+        anchorEl={ref.current}
         role={undefined}
         placement="bottom-start"
         transition
