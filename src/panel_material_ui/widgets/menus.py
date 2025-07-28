@@ -353,21 +353,20 @@ class MenuButton(MenuBase, _ButtonBase):
 
 class SplitButton(MenuBase, _ButtonBase):
     """
-    The `SplitButton` component consists of a button and a dropdown menu.
+    The `SplitButton` component combines a button with a dropdown menu, allowing users to quickly access a primary action and related alternatives.
 
-    The component can operate in two modes:
+    This component supports two modes:
 
-    - `split`:  In split mode the button performs and action and the dropdown
-                allows triggering related but independent actions.
-    - `select`: In select mode you select an option from the menu and trigger
-                it by clicking the button.
+    - **`split`**: The main button performs a default action, while the dropdown lets users trigger related but independent actions.
+    - **`select`**: Users select an option from the dropdown, and the main button triggers the selected action when clicked.
 
-    SplitButton items can be strings or objects with properties:
-      - label: The label of the menu button item (required)
-      - `icon`: The icon of the menu button item (optional)
-      - `color`: The color of the menu button item (optional)
-      - `href`: The URL to navigate to when the menu button item is clicked (optional)
-      - `target`: The target to open the URL in (optional)
+    Each menu item can be a string or a dictionary with the following keys:
+      - **`label`** (`str`, required): The text displayed for the menu item.
+      - **`icon`** (`str`, optional): An icon to display next to the label.
+      - **`href`** (`str`, optional): A URL to open when the menu item is clicked.
+      - **`target`** (`str`, optional): Where to open the linked URL (e.g., `_blank`).
+
+    The `SplitButton` is ideal for workflows where a primary action is most common, but users may occasionally need to choose an alternative.
 
     :References:
 
@@ -379,11 +378,12 @@ class SplitButton(MenuBase, _ButtonBase):
     >>> pmui.SplitButton(items=[
     ...     {'label': 'Open'},
     ...     {'label': 'Save'},
-    ... ], label='File')
+    ... ], label='Save')
     """
 
     mode = param.Selector(default='split', objects=['split', 'select'], doc="""
-        Allows toggling button behavior between split and select mode.""")
+        Allows toggling button behavior between split mode (button click and menu click actions raise events) and
+        select mode (only button click raise events).""")
 
     margin = Margin(default=5)
 
