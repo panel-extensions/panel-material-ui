@@ -9,9 +9,10 @@ import Slider from "@mui/material/Slider"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import dayjs from "dayjs"
+import {render_description} from "./description"
 import {int_regex, float_regex} from "./utils"
 
-export function render({model}) {
+export function render({model, el}) {
   const [bar_color] = model.useState("bar_color")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -227,7 +228,7 @@ export function render({model}) {
     <FormControl disabled={disabled} fullWidth sx={orientation === "vertical" ? {height: "100%", ...sx} : {...sx}}>
       {editable ? (
         <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", width: "100%"}}>
-          <FormLabel sx={{whiteSpace: "nowrap", maxWidth: "50%", overflowWrap: "break-word", whiteSpace: "normal"}}>
+          <FormLabel sx={{maxWidth: "50%", overflowWrap: "break-word", whiteSpace: "normal"}}>
             {label && `${label}: `}
           </FormLabel>
           <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
@@ -296,6 +297,7 @@ export function render({model}) {
                 />
               </>
             )}
+            {model.description ? render_description({model, el}) : null}
           </Box>
         </Box>
       ) : (
@@ -306,6 +308,7 @@ export function render({model}) {
             {value_label}
           </strong>
           }
+          {model.description && render_description({model, el})}
         </FormLabel>)}
       <Slider
         color={color}

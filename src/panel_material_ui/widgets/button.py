@@ -32,7 +32,7 @@ class _ButtonLike(MaterialWidget):
     description = param.String(default=None, doc="""
         The description in the tooltip.""")
 
-    description_delay = param.Integer(default=5000, doc="""
+    description_delay = param.Integer(default=500, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 500ms.""")
 
@@ -48,7 +48,10 @@ class _ButtonLike(MaterialWidget):
             self.color = self.button_type
 
     def _process_param_change(self, params):
+        icon_size = params.pop("icon_size", None)
         params = super()._process_param_change(params)
+        if icon_size is not None:
+            params["icon_size"] = icon_size
         if "color" in params:
             color = params["color"]
             params["color"] = COLOR_ALIASES.get(color, color)
@@ -198,7 +201,6 @@ class Fab(Button):
         The variant of the button.""")
 
     _esm_base = "Fab.jsx"
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
 
 class Toggle(_ButtonBase):

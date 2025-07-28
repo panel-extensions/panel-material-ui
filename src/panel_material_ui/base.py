@@ -32,7 +32,7 @@ from bokeh.settings import settings as _settings
 from jinja2 import Environment, FileSystemLoader, Template
 from markupsafe import Markup
 from panel.config import config
-from panel.custom import ReactComponent
+from panel.custom import PyComponent, ReactComponent
 from panel.io.location import Location
 from panel.io.resources import Resources
 from panel.io.state import state
@@ -58,6 +58,7 @@ COLOR_ALIASES = {"danger": "error"}
 STYLE_ALIASES = {"outline": "outlined"}
 
 BASE_PATH = pathlib.Path(__file__).parent
+DIST_PATH = BASE_PATH / 'dist'
 IS_RELEASE = __version__ == base_version(__version__)
 CDN_BASE = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}"
 CDN_DIST = f"{CDN_BASE}/panel-material-ui.bundle.js"
@@ -83,6 +84,18 @@ _env.filters['sorted'] = sorted
 
 BASE_TEMPLATE = _env.get_template('base.html')
 panel.io.convert.BASE_TEMPLATE = panel.io.resources.BASE_TEMPLATE = BASE_TEMPLATE
+
+FONT_CSS = [
+    str(p) for p in DIST_PATH.glob('material-icons-*.woff*')
+] + [
+    str(p) for p in DIST_PATH.glob('roboto-latin-?00-normal*.woff*')
+] + [
+    str(p) for p in DIST_PATH.glob('roboto-latin-ext-?00-normal*.woff*')
+] + [
+    str(p) for p in DIST_PATH.glob('roboto-math-?00-normal*.woff*')
+] + [
+    str(p) for p in DIST_PATH.glob('roboto-symbols-?00-normal*.woff*')
+]
 
 try:
     panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
@@ -124,12 +137,15 @@ import 'material-icons/iconfont/filled.css';
 import 'material-icons/iconfont/outlined.css';
 import {{ ThemeProvider }} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import {{install_theme_hooks}} from "./utils"
+import {{apply_global_css, install_theme_hooks}} from "./utils"
 
 {esm}
 
 function {output}(props) {{
   const theme = install_theme_hooks(props)
+  if (props.view.is_root && document.documentElement.getAttribute("data-theme-managed") === "false") {{
+    apply_global_css(props.model, props.view, theme)
+  }}
   return (
     <ThemeProvider theme={{theme}}>
       <CssBaseline />
@@ -205,7 +221,11 @@ class MaterialComponent(ReactComponent):
 
     _bundle = BASE_PATH / "dist" / "panel-material-ui.bundle.js"
     _esm_base = None
-    _esm_shared = {'utils': BASE_PATH / "utils.js", 'menu': BASE_PATH / "menu.jsx"}
+    _esm_shared = {
+        'utils': BASE_PATH / "utils.js",
+        'menu': BASE_PATH / "menu.jsx",
+        'description': BASE_PATH / 'description.jsx'
+    }
     _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
         "imports": {
@@ -236,7 +256,7 @@ class MaterialComponent(ReactComponent):
             if isinstance(value, param.Parameter):
                 name = value.name
                 value = value.owner
-            if isinstance(value, WidgetBase) and not isinstance(value, CompositeWidget):
+            if isinstance(value, WidgetBase) and not isinstance(value, (CompositeWidget, PyComponent)):
                 value.jslink(self, **{name: p})
 
     async def _watch_esm(self):
@@ -275,19 +295,8 @@ class MaterialComponent(ReactComponent):
             return [CDN_DIST.replace('.js', '.css')]
         esm_path = cls._esm_path(compiled=True)
         css_path = esm_path.with_suffix('.css')
-        glob = (BASE_PATH / 'dist').glob
         if css_path.is_file():
-            return [str(css_path)] + [
-                str(p) for p in glob('material-icons-*.woff*')
-            ] + [
-                str(p) for p in glob('roboto-latin-?00-normal*.woff*')
-            ] + [
-                str(p) for p in glob('roboto-latin-ext-?00-normal*.woff*')
-            ] + [
-                str(p) for p in glob('roboto-math-?00-normal*.woff*')
-            ] + [
-                str(p) for p in glob('roboto-symbols-?00-normal*.woff*')
-            ]
+            return [str(css_path)] + FONT_CSS
         return []
 
     @classmethod
@@ -449,7 +458,6 @@ class MaterialComponent(ReactComponent):
         doc = super().server_doc(doc, title, location)
         doc.title = title or 'Panel Application'
         doc.template = BASE_TEMPLATE
-        doc.template_variables['is_page'] = True
         return doc
 
     def preview(self, width: int = 800, height: int = 600, border: str="1px solid #ccc", **kwargs):

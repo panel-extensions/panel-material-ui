@@ -1,4 +1,5 @@
 import {MuiColorInput} from "mui-color-input"
+import {render_description} from "./description"
 
 export function render({model, el}) {
   const [alpha] = model.useState("alpha")
@@ -18,7 +19,7 @@ export function render({model, el}) {
       format={alpha && format === "hex" ? "hex8" : format}
       fullWidth
       isAlphaHidden={!alpha}
-      label={label}
+      label={model.description ? <>{label}{render_description({model, el})}</> : label}
       onChange={setValue}
       size={size}
       sx={sx}

@@ -4,8 +4,9 @@ import IconButton from "@mui/material/IconButton"
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
 import {int_regex, float_regex} from "./utils"
+import {render_description} from "./description"
 
-export function render({model}) {
+export function render({model, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [format] = model.useState("format")
@@ -84,7 +85,7 @@ export function render({model}) {
       color={color}
       disabled={disabled}
       fullWidth
-      label={label}
+      label={model.description ? <>{label}{render_description({model, el})}</> : label}
       onBlur={() => setFocused(false)}
       onChange={handleChange}
       onFocus={() => setFocused(true)}

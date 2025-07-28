@@ -14,11 +14,13 @@ import ListSubheader from "@mui/material/ListSubheader"
 import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import MoreVert from "@mui/icons-material/MoreVert"
+import Checkbox from "@mui/material/Checkbox"
 
 export function render({model}) {
   const [active, setActive] = model.useState("active")
   const [color] = model.useState("color")
   const [dense] = model.useState("dense")
+  const [disabled] = model.useState("disabled")
   const [highlight] = model.useState("highlight")
   const [label] = model.useState("label")
   const [items] = model.useState("items")
@@ -31,6 +33,7 @@ export function render({model}) {
   const current_menu_open = {...menu_open}
 
   const active_array = Array.isArray(active) ? active : [active]
+  const [toggle_values, setToggleValues] = React.useState(new Map())
 
   React.useEffect(() => {
     setOpen(current_open)
@@ -96,6 +99,7 @@ export function render({model}) {
       <ListItemButton
         disableRipple={!isSelectable}
         color={color}
+        disabled={disabled}
         href={href}
         target={target}
         key={`list-item-${key}`}
@@ -118,24 +122,81 @@ export function render({model}) {
         {leadingComponent}
         <ListItemText primary={label} secondary={secondary} />
         {inline_actions.map((action, index) => {
-          return <IconButton
-            color={action.color}
-            key={`action-button-${index}`}
-            size="small"
-            title={action.label}
-            onMouseDown={(e) => {
-              e.stopPropagation()
-              e.preventDefault()
-            }}
-            onClick={(e) => {
-              model.send_msg({type: "action", action: action.action || action.label, item: path})
-              e.stopPropagation()
-              e.preventDefault()
-            }}
-            sx={{ml: index > 0 ? "0" : "0.5em"}}
-          >
-            {action.icon && <Icon>{action.icon}</Icon>}
-          </IconButton>
+          const icon = action.icon
+          const icon_color = action.color
+          const active_icon = action.active_icon || icon
+          const active_color = action.active_color || icon_color
+          const action_key = action.action || action.label
+          const toggle_key = `${key}-${action_key}`
+          const action_value = toggle_values.get(toggle_key) ?? action.value ?? false
+          toggle_values.set(toggle_key, action_value)
+          return action.toggle ? (
+            <Checkbox
+              checked={action_value}
+              color={action.color}
+              disabled={disabled}
+              selected={action_value}
+              size={"small"}
+              onMouseDown={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              onClick={(e) => {
+                const new_value = !action_value
+                const newMap = new Map(toggle_values)
+                newMap.set(toggle_key, new_value)
+                setToggleValues(newMap)
+                model.send_msg({type: "action", action: action_key, item: path, value: new_value})
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              icon={
+                icon.trim().startsWith("<") ?
+                  <span style={{
+                    maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+                    backgroundColor: "currentColor",
+                    maskRepeat: "no-repeat",
+                    maskSize: "contain",
+                    display: "inline-block"}}
+                  /> :
+                  <Icon
+                    baseClassName={"material-icons-outlined"}
+                    color={icon_color}
+                  >
+                    {icon}
+                  </Icon>
+              }
+              checkedIcon={
+                (active_icon && active_icon.trim().startsWith("<")) ?
+                  <span style={{
+                    maskImage: `url("data:image/svg+xml;base64,${btoa(active_icon)}")`,
+                    backgroundColor: "currentColor",
+                    maskRepeat: "no-repeat",
+                    maskSize: "contain",
+                    display: "inline-block"}}
+                  /> :
+                  <Icon color={active_color}>{active_icon}</Icon>
+              }
+            />
+          ) : (
+            <IconButton
+              color={action.color}
+              key={`action-button-${index}`}
+              size="small"
+              title={action.label}
+              onMouseDown={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              onClick={(e) => {
+                model.send_msg({type: "action", action: action.action || action.label, item: path})
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              sx={{ml: index > 0 ? "0" : "0.5em"}}
+            >
+              {action.icon && <Icon>{action.icon}</Icon>}
+            </IconButton>)
         })}
         {menu_actions.length > 0 && (
           <React.Fragment>

@@ -3,6 +3,8 @@ from __future__ import annotations
 import param
 from panel.widgets.misc import FileDownload as _FileDownload
 
+from ..base import ThemedTransform
+from .base import TooltipTransform
 from .button import _ButtonBase
 
 
@@ -28,7 +30,8 @@ class FileDownload(_ButtonBase, _FileDownload):
         Size of the icon as a string, e.g. 12px or 1em.""")
 
     _esm_base = "FileDownload.jsx"
-    _rename = {"_clicks": None, "icon": "icon", "icon_size": "icon_size"}
+    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _rename = {"_clicks": None, "icon": "icon", "icon_size": "icon_size", "description": "description"}
     _source_transforms = {"button_type": None, "button_style": None, "callback": None, "file": None, "value": None}
 
     def __init__(self, file=None, **params):

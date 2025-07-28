@@ -60,6 +60,10 @@ export function render({model, view}) {
     })
   }, [])
 
+  if (model.header) {
+    apply_flex(view.get_child_view(model.header), "row")
+  }
+
   return (
     <Card
       elevation={elevation}
@@ -82,11 +86,21 @@ export function render({model, view}) {
             </ExpandMore>
           }
           classes={header_css_classes}
-          title={model.header ? header : <Typography classes={title_css_classes} variant="h6" dangerouslySetInnerHTML={{__html: title}} sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} />}
+          title={model.header ? header : (
+            <Typography
+              classes={title_css_classes}
+              dangerouslySetInnerHTML={{__html: title}}
+              sx={{display: "inline-flex", alignItems: "center", gap: "0.25em", fontSize: "1.15rem"}}
+              variant="h6"
+            />
+          )}
           sx={{
             backgroundColor: header_background,
             color: header_color,
-            p: "12px 16px"
+            display: "flex",
+            minWidth: 0,
+            p: "12px 16px",
+            "& .MuiCardHeader-content": {minWidth: 0}
           }}
         />
       )}

@@ -4,8 +4,9 @@ import Select from "@mui/material/Select"
 import OutlinedInput from "@mui/material/OutlinedInput"
 import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
+import {render_description} from "./description"
 
-export function render({model, view}) {
+export function render({model, view, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -40,19 +41,25 @@ export function render({model, view}) {
     }
   }
 
+  const spacer = model.description ? "\u00A0" : ""
+  const label_spacer = label ? label+spacer : null
+
   const inputId = `select-multiple-native-${model.id}`
   return (
     <FormControl disabled={disabled} fullWidth variant={variant}>
-      {label && <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
-        {label}
-      </InputLabel>}
+      {label &&
+        <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
+          {label}
+          {model.description ? render_description({model, el}) : null}
+        </InputLabel>
+      }
       <Select
         color={color}
         input={variant === "outlined" ?
-          <OutlinedInput id={inputId} label={label}/> :
+          <OutlinedInput id={inputId} label={label_spacer}/> :
           variant === "filled" ?
-            <FilledInput id={inputId} label={label}/> :
-            <Input id={inputId} label={label}/>
+            <FilledInput id={inputId} label={label_spacer}/> :
+            <Input id={inputId} label={label_spacer}/>
         }
         labelId={`select-multiple-label-${model.id}`}
         multiple
