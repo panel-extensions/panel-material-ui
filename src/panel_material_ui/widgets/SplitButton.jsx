@@ -124,6 +124,7 @@ export function render(props, ref) {
                   {items.map((option, index) => (
                     <MenuItem
                       key={`menu-item-${index}`}
+		      component={option.href ? "a" : "li"}
                       href={option.href}
                       selected={mode === "select" && index === selectedIndex}
                       onClick={(event) => handleMenuItemClick(event, index)}
