@@ -51,9 +51,9 @@ export function render(props, ref) {
       <ButtonGroup
         color={color}
         disabled={disabled}
-	fullWidth
-	ref={ref}
-	size={size}
+        fullWidth
+        ref={ref}
+        size={size}
         variant={variant}
         {...other}
       >
@@ -72,7 +72,7 @@ export function render(props, ref) {
               /> :
               <Icon style={{fontSize: icon_size}}>{current_icon}</Icon>
           )}
-	  loading={loading}
+          loading={loading}
           onClick={() => model.send_msg({type: "click"})}
           sx={{
             ...sx,
@@ -88,13 +88,13 @@ export function render(props, ref) {
           aria-expanded={open ? "true" : undefined}
           aria-haspopup="menu"
           color={color}
-	  disabled={disabled || loading}
+          disabled={disabled || loading}
           onClick={() => setOpen((prevOpen) => !prevOpen)}
           size="small"
           sx={{
             borderBottomLeftRadius: 0,
             borderTopLeftRadius: 0,
-	    maxWidth: 50
+            maxWidth: 50
           }}
           variant={variant}
         >
@@ -124,7 +124,7 @@ export function render(props, ref) {
                   {items.map((option, index) => (
                     <MenuItem
                       key={`menu-item-${index}`}
-		      component={option.href ? "a" : "li"}
+                      component={option.href ? "a" : "li"}
                       href={option.href}
                       selected={mode === "select" && index === selectedIndex}
                       onClick={(event) => handleMenuItemClick(event, index)}
