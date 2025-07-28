@@ -496,7 +496,19 @@ class Rating(MaterialWidget):
 
     value = param.Number(default=0, allow_None=True, bounds=(0, 5))
 
+    precision = param.Number(default=1.0, bounds=(0, 1.0), doc="""
+        The precision of the rating value. If set to 0.5, the rating can be
+        set to 0, 0.5, 1, 1.5, ..., up to the end value.""")
+
+    readonly = param.Boolean(default=False, doc="""
+        Whether the rating is read-only. If True, the user cannot change the rating.""")
+
     _esm_base = "Rating.jsx"
+
+    def __init__(self, **params):
+        if "end" in params:
+            self.param.value.bounds = (0, params["end"])
+        super().__init__(**params)
 
     @param.depends("end", watch=True, on_init=True)
     def _update_value_bounds(self):
