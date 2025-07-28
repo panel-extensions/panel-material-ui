@@ -5,18 +5,21 @@ import pytest
 logger = logging.getLogger(__name__)
 
 NO_REFENCE_GUIDE_NEEDED = [
-    "MaterialUIComponent",
-    "MaterialWidget",
+    "ClickablePaneBase",
+    "DictInput",
+    "ListInput",
     "MaterialInputWidget",
-    "MenuBase",
-    "MaterialSingleSelectBase",
-    "MaterialMultiSelectBase",
     "MaterialLayout",
     "MaterialListLike",
+    "MaterialMultiSelectBase",
     "MaterialNamedListLike",
-    "NotificationArea",
     "MaterialPaneBase",
-    "ClickablePaneBase",
+    "MaterialSingleSelectBase",
+    "MaterialUIComponent",
+    "MaterialWidget",
+    "MenuBase",
+    "NotificationArea",
+    "TupleInput",
 ]
 
 ## Find child classes of MaterialComponent
