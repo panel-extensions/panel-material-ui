@@ -1,5 +1,6 @@
 import React from "react"
 import ClickAwayListener from "@mui/material/ClickAwayListener"
+import Grow from "@mui/material/Grow"
 import Menu from "@mui/material/Menu"
 import Paper from "@mui/material/Paper"
 import Popper from "@mui/material/Popper"
@@ -35,11 +36,21 @@ export function CustomMenu({open, anchorEl, onClose, children, sx}) {
       placement="bottom-end"
       style={{zIndex: 1500, width: anchorEl.current?.offsetWidth}}
     >
-      <ClickAwayListener onClickAway={onClose}>
-        <Paper elevation={3} sx={{overflowY: "auto", ...sx}}>
-          {children}
-        </Paper>
-      </ClickAwayListener>
+      {({TransitionProps, placement}) => (
+          <Grow
+            {...TransitionProps}
+            style={{
+              transformOrigin:
+                placement === "bottom" ? "center top" : "center bottom",
+            }}
+          >
+	    <ClickAwayListener onClickAway={onClose}>
+              <Paper elevation={3} sx={{overflowY: "auto", ...sx}}>
+		{children}
+              </Paper>
+	    </ClickAwayListener>
+	</Grow>
+      )}
     </Popper>
   )
 }

@@ -5,7 +5,8 @@ import MenuItem from "@mui/material/MenuItem"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import {CustomMenu} from "./menu"
 
-export function render({model, el}) {
+export function render(props, ref) {
+  const {data, el, model, view, ...other} = props
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
@@ -16,7 +17,6 @@ export function render({model, el}) {
   const [size] = model.useState("size")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
-  const anchorEl = React.useRef(null)
   const [open, setOpen] = React.useState(false)
 
   return (
@@ -27,7 +27,7 @@ export function render({model, el}) {
         endIcon={<ArrowDropDownIcon />}
         loading={loading}
         onClick={() => setOpen(!open)}
-        ref={anchorEl}
+        ref={ref}
         size={size}
         startIcon={icon && (
           icon.trim().startsWith("<") ?
@@ -44,11 +44,12 @@ export function render({model, el}) {
         )}
         sx={sx}
         variant={variant}
+	{...other}
       >
         {label}
       </Button>
       <CustomMenu
-        anchorEl={() => anchorEl.current}
+        anchorEl={() => ref.current}
         open={open}
         onClose={() => setOpen(false)}
       >
@@ -73,11 +74,11 @@ export function render({model, el}) {
                     backgroundColor: "currentColor",
                     maskRepeat: "no-repeat",
                     maskSize: "contain",
-                    width: icon_size,
-                    height: icon_size,
+                    width: option.icon_size || "1em",
+                    height: option.icon_size || "1em",
                     display: "inline-block"}}
                   /> :
-                  <Icon style={{fontSize: icon_size, paddingRight: "1.5em"}}>{item.icon}</Icon>
+                  <Icon style={{fontSize: option.icon_size, paddingRight: "1.5em"}}>{item.icon}</Icon>
               )}
               {item.label}
             </MenuItem>

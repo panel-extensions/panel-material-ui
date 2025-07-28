@@ -348,7 +348,7 @@ class MenuButton(MenuBase, _ButtonBase):
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label', 'icon', 'color', 'href', 'target']
+    _item_keys = ['label', 'icon', 'color', 'href', 'target', 'icon_size']
 
 
 class SplitButton(MenuBase, _ButtonBase):
@@ -392,7 +392,7 @@ class SplitButton(MenuBase, _ButtonBase):
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label', 'icon', 'href', 'target']
+    _item_keys = ['label', 'icon', 'href', 'target', 'icon_size']
 
     @param.depends('mode', watch=True, on_init=True)
     def _switch_mode(self):
