@@ -37,19 +37,19 @@ export function CustomMenu({open, anchorEl, onClose, children, sx}) {
       style={{zIndex: 1500, width: anchorEl.current?.offsetWidth}}
     >
       {({TransitionProps, placement}) => (
-          <Grow
-            {...TransitionProps}
-            style={{
-              transformOrigin:
-                placement === "bottom" ? "center top" : "center bottom",
-            }}
-          >
-	    <ClickAwayListener onClickAway={onClose}>
-              <Paper elevation={3} sx={{overflowY: "auto", ...sx}}>
-		{children}
-              </Paper>
-	    </ClickAwayListener>
-	</Grow>
+        <Grow
+          {...TransitionProps}
+          style={{
+            transformOrigin:
+            placement === "bottom" ? "center top" : "center bottom",
+          }}
+        >
+          <ClickAwayListener onClickAway={onClose}>
+            <Paper elevation={3} sx={{overflowY: "auto", ...sx}}>
+              {children}
+            </Paper>
+          </ClickAwayListener>
+        </Grow>
       )}
     </Popper>
   )

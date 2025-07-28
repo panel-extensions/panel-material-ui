@@ -67,7 +67,7 @@ export function render(props, ref) {
                 height: icon_size,
                 display: "inline-block"}}
               /> :
-              <Icon style={{fontSize: icon_size}}>{current_icon}</Icon>
+            <Icon style={{fontSize: icon_size}}>{current_icon}</Icon>
           )}
           loading={loading}
           onClick={() => model.send_msg({type: "click"})}

@@ -44,7 +44,7 @@ export function render(props, ref) {
         )}
         sx={sx}
         variant={variant}
-	{...other}
+        {...other}
       >
         {label}
       </Button>
