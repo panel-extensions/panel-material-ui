@@ -58,6 +58,7 @@ COLOR_ALIASES = {"danger": "error"}
 STYLE_ALIASES = {"outline": "outlined"}
 
 BASE_PATH = pathlib.Path(__file__).parent
+DIST_PATH = BASE_PATH / 'dist'
 IS_RELEASE = __version__ == base_version(__version__)
 CDN_BASE = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}"
 CDN_DIST = f"{CDN_BASE}/panel-material-ui.bundle.js"
@@ -83,6 +84,18 @@ _env.filters['sorted'] = sorted
 
 BASE_TEMPLATE = _env.get_template('base.html')
 panel.io.convert.BASE_TEMPLATE = panel.io.resources.BASE_TEMPLATE = BASE_TEMPLATE
+
+FONT_CSS = [
+    str(p) for p in DIST_PATH.glob('material-icons-*.woff*')
+] + [
+    str(p) for p in DIST_PATH.glob('roboto-latin-?00-normal*.woff*')
+] + [
+    str(p) for p in DIST_PATH.glob('roboto-latin-ext-?00-normal*.woff*')
+] + [
+    str(p) for p in DIST_PATH.glob('roboto-math-?00-normal*.woff*')
+] + [
+    str(p) for p in DIST_PATH.glob('roboto-symbols-?00-normal*.woff*')
+]
 
 try:
     panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
@@ -282,19 +295,8 @@ class MaterialComponent(ReactComponent):
             return [CDN_DIST.replace('.js', '.css')]
         esm_path = cls._esm_path(compiled=True)
         css_path = esm_path.with_suffix('.css')
-        glob = (BASE_PATH / 'dist').glob
         if css_path.is_file():
-            return [str(css_path)] + [
-                str(p) for p in glob('material-icons-*.woff*')
-            ] + [
-                str(p) for p in glob('roboto-latin-?00-normal*.woff*')
-            ] + [
-                str(p) for p in glob('roboto-latin-ext-?00-normal*.woff*')
-            ] + [
-                str(p) for p in glob('roboto-math-?00-normal*.woff*')
-            ] + [
-                str(p) for p in glob('roboto-symbols-?00-normal*.woff*')
-            ]
+            return [str(css_path)] + FONT_CSS
         return []
 
     @classmethod
