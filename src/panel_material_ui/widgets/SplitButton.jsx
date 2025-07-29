@@ -67,7 +67,7 @@ export function render(props, ref) {
                 height: icon_size,
                 display: "inline-block"}}
               /> :
-            <Icon style={{fontSize: icon_size}}>{current_icon}</Icon>
+              <Icon style={{fontSize: icon_size}}>{current_icon}</Icon>
           )}
           loading={loading}
           onClick={() => model.send_msg({type: "click"})}
@@ -115,15 +115,15 @@ export function render(props, ref) {
             {option.icon && (
               option.icon.trim().startsWith("<") ?
                 <span style={{
-                        maskImage: `url("data:image/svg+xml;base64,${btoa(option.icon)}")`,
-                        backgroundColor: "currentColor",
-                        maskRepeat: "no-repeat",
-                        maskSize: "contain",
-                        width: option.icon_size || "1em",
-                        height: option.icon_size || "1em",
-                        display: "inline-block"}}
+                  maskImage: `url("data:image/svg+xml;base64,${btoa(option.icon)}")`,
+                  backgroundColor: "currentColor",
+                  maskRepeat: "no-repeat",
+                  maskSize: "contain",
+                  width: option.icon_size || "1em",
+                  height: option.icon_size || "1em",
+                  display: "inline-block"}}
                 /> :
-              <Icon style={{fontSize: option.icon_size || "1em", paddingRight: "1.5em"}}>{option.icon}</Icon>
+                <Icon style={{fontSize: option.icon_size || "1em", paddingRight: "1.5em"}}>{option.icon}</Icon>
             )}
             {option.label}
           </MenuItem>
