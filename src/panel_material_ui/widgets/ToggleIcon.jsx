@@ -35,7 +35,7 @@ export function render(props, ref) {
         checked={value}
         color={color_state}
         disabled={disabled}
-	ref={ref}
+        ref={ref}
         selected={value}
         size={size}
         onClick={(e, newValue) => setValue(!value)}
@@ -72,7 +72,7 @@ export function render(props, ref) {
             <Icon color={color_state} style={{fontSize: font_size}}>{active_icon || icon}</Icon>
         }
         sx={sx}
-	{...other}
+        {...other}
       />
       {label && <Typography sx={{color: "text.primary", fontSize: `calc(${text_size} / 2)`}}>{label}{model.description && render_description({model, el})}</Typography>}
     </Box>
