@@ -445,10 +445,6 @@ class MenuToggle(MenuBase, _ButtonBase):
     ... ], label='Actions', icon='more_vert')
     """
 
-    # Use 'open' for menu visibility to avoid conflict with MenuBase's 'active'
-    open = param.Boolean(default=False, doc="""
-        Whether the menu is currently open/visible.""")
-
     persistent = param.Boolean(default=True, doc="""
         Whether the menu stays open after toggling an item.""")
 
@@ -473,10 +469,9 @@ class MenuToggle(MenuBase, _ButtonBase):
         "button_type": None,
         "button_style": None,
         "variant": None,
-        "active": None  # Hide active from MenuBase
     }
     _item_keys = ['label', 'icon', 'active_icon', 'toggled', 'color', 'active_color']
-    _rename = {'value': None, 'open': 'active'}  # Map open to active for frontend
+    _rename = {'value': None}
 
     def __init__(self, **params):
         # Remove active if passed in params to avoid conflict
@@ -488,22 +483,6 @@ class MenuToggle(MenuBase, _ButtonBase):
                 i for i, item in enumerate(self.items)
                 if isinstance(item, dict) and item.get('toggled', False)
             ]
-
-    # Override the sync methods from MenuBase that deal with active
-    @param.depends('items', watch=True, on_init=True)
-    def _sync_items(self):
-        # Don't sync active bounds for MenuToggle
-        pass
-
-    @param.depends('active', watch=True, on_init=True)
-    def _sync_active(self):
-        # Don't sync active to value for MenuToggle
-        pass
-
-    @param.depends('value', watch=True, on_init=True)
-    def _sync_value(self):
-        # Don't sync value to active for MenuToggle
-        pass
 
     def _handle_msg(self, msg):
         if msg['type'] == 'toggle':
