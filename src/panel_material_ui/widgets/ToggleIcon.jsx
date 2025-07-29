@@ -1,6 +1,5 @@
 import Box from "@mui/material/Box"
 import Checkbox from "@mui/material/Checkbox"
-import Icon from "@mui/material/Icon"
 import Typography from "@mui/material/Typography"
 import {render_description} from "./description"
 
@@ -10,7 +9,8 @@ const SIZES = {
   large: "3.5em",
 }
 
-export function render({model, el}) {
+export function render(props, ref) {
+  const {data, el, model, view, ...other} = props
   const [active_icon] = model.useState("active_icon")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -25,12 +25,17 @@ export function render({model, el}) {
   const color_state = disabled ? "disabled" : color
   const text_size = standard_size ? SIZES[size] : font_size
 
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
+  }
+
   return (
     <Box sx={{display: "flex", alignItems: "center", flexDirection: "row"}}>
       <Checkbox
         checked={value}
         color={color_state}
         disabled={disabled}
+        ref={ref}
         selected={value}
         size={size}
         onClick={(e, newValue) => setValue(!value)}
@@ -67,6 +72,7 @@ export function render({model, el}) {
             <Icon color={color_state} style={{fontSize: font_size}}>{active_icon || icon}</Icon>
         }
         sx={sx}
+        {...other}
       />
       {label && <Typography sx={{color: "text.primary", fontSize: `calc(${text_size} / 2)`}}>{label}{model.description && render_description({model, el})}</Typography>}
     </Box>

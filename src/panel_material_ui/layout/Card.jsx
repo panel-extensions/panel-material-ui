@@ -90,7 +90,7 @@ export function render({model, view}) {
             <Typography
               classes={title_css_classes}
               dangerouslySetInnerHTML={{__html: title}}
-              sx={{display: "inline-flex", alignItems: "center", gap: "0.25em", fontSize: "1.15rem"}}
+              sx={{display: "inline-flex", alignItems: "center", gap: "0.25em", fontSize: "1.15rem", fontWeight: 500}}
               variant="h6"
             />
           )}

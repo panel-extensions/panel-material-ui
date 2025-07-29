@@ -41,7 +41,7 @@ class ChatStep(Card, _PnChatStep):
         self._instance = None
         self._failed_title = ""
         Card.__init__(self, *objects, **params)
-        self._title_pane.styles = {'font-size': '1.25em', 'text-align': 'left', 'overflow-wrap': 'break-word'}
+        self._title_pane.styles = {'font-size': '1.1em', 'font-weight': '400', 'text-align': 'left', 'overflow-wrap': 'break-word'}
         with edit_readonly(self):
             self.header = Row(
                 self._title_pane,
@@ -80,7 +80,7 @@ class ChatStep(Card, _PnChatStep):
         if (
             len(self.objects) == 0 or not isinstance(self.objects[-1], HTMLBasePane) or isinstance(self.objects[-1], ImageBase)
         ):
-            message = Markdown(token, styles={'font-size': '1.25em', 'padding-block': '0px', 'padding-inline': '7px', 'overflow-wrap': 'break-word'})
+            message = Markdown(token, styles={'font-size': '1.1em', 'padding-block': '0px', 'padding-inline': '7px', 'overflow-wrap': 'break-word'})
             self.append(message)
         else:
             stream_to(self.objects[-1], token, replace=replace)

@@ -67,6 +67,8 @@ class ToggleIcon(_ClickableIcon):
 
     width = param.Boolean(default=None)
 
+    _esm_transforms = [TooltipTransform, LoadingTransform, ThemedTransform]
+
     _esm_base = "ToggleIcon.jsx"
 
 

@@ -18,13 +18,14 @@ export function render({model, el}) {
           color={color}
           checked={checked}
           disabled={disabled}
-          size={size}
           edge={edge}
           onChange={(event) => setChecked(event.target.checked)}
+          size={size}
           sx={sx}
         />
       }
       label={model.description ? <>{label}{render_description({model, el})}</> : label}
+      sx={{mr: 0}}
     />
   )
 }

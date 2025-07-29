@@ -213,7 +213,7 @@ export function render({model, view}) {
           {logo && <a href={site_url}><img src={logoContent} alt="Logo" className="logo" style={{height: "2.5em", paddingRight: "1em"}} /></a>}
           {title && (
             <a href={site_url} style={{textDecoration: "none"}}>
-              <Typography variant="h5" className="title" sx={{color: "white"}}>
+              <Typography variant="h3" className="title" sx={{color: "white"}}>
                 {title}
               </Typography>
             </a>
