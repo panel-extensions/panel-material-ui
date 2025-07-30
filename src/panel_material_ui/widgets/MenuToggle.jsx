@@ -76,7 +76,8 @@ export function render({model, el}) {
               width: icon_size,
               height: icon_size,
               display: "inline-block"
-            }} /> :
+            }}
+            /> :
             <Icon style={{fontSize: icon_size}}>{currentIcon}</Icon>
         )}
         sx={sx}
@@ -121,7 +122,8 @@ export function render({model, el}) {
                       width: icon_size,
                       height: icon_size,
                       display: "inline-block"
-                    }} /> :
+                    }}
+                    /> :
                     <Icon style={{fontSize: icon_size}}>{itemIcon}</Icon>
                   }
                 </ListItemIcon>
