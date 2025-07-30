@@ -24,7 +24,7 @@ def test_menutoggle_basic(page):
     expect(button).to_have_text('Actions')
 
     # Initial state should be closed
-    assert widget.open is False
+    assert widget.active is None
 
 
 def test_menutoggle_open_close(page):
@@ -34,12 +34,12 @@ def test_menutoggle_open_close(page):
 
     # Open menu
     page.locator('.MuiButton-root').click()
-    wait_until(lambda: widget.open is True, page)
+    wait_until(lambda: widget.active is True, page)
     expect(page.locator('.MuiMenu-root')).to_be_visible()
 
     # Close menu
     page.locator('.MuiButton-root').click()
-    wait_until(lambda: widget.open is False, page)
+    wait_until(lambda: widget.active is False, page)
     expect(page.locator('.MuiMenu-root')).not_to_be_visible()
 
 
@@ -202,7 +202,7 @@ def test_menutoggle_programmatic_toggle_items(page):
     widget.toggled = [0, 1]
 
     # Open menu to verify
-    widget.open = True
+    widget.active = True
     wait_until(lambda: page.locator('.MuiMenu-root').is_visible(), page)
 
     # Both items should be selected
