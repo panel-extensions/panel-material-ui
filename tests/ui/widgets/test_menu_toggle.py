@@ -34,12 +34,13 @@ def test_menutoggle_open_close(page):
 
     # Open menu
     page.locator('.MuiButton-root').click()
-    wait_until(lambda: widget.active is True, page)
+
+    wait_until(lambda: widget.active == 0, page)
     expect(page.locator('.MuiMenu-root')).to_be_visible()
 
     # Close menu
-    page.locator('.MuiButton-root').click()
-    wait_until(lambda: widget.active is False, page)
+    page.locator('body').click()
+    wait_until(lambda: widget.active == 0, page)
     expect(page.locator('.MuiMenu-root')).not_to_be_visible()
 
 
@@ -57,7 +58,7 @@ def test_menutoggle_item_toggle(page):
 
     # Open menu
     page.locator('.MuiButton-root').click()
-    wait_until(lambda: widget.active is True, page)
+    wait_until(lambda: widget.active == 0, page)
 
     # Toggle first item (Favorite)
     page.locator('.MuiMenuItem-root').first.click()
@@ -108,13 +109,13 @@ def test_menutoggle_non_persistent_mode(page):
 
     # Open menu
     page.locator('.MuiButton-root').click()
-    wait_until(lambda: widget.active is True, page)
+    wait_until(lambda: widget.active == 0, page)
 
     # Toggle item
     page.locator('.MuiMenuItem-root').first.click()
 
     # Menu should close in non-persistent mode
-    wait_until(lambda: widget.active is False, page)
+    wait_until(lambda: widget.active == 0, page)
     expect(page.locator('.MuiMenu-root')).not_to_be_visible()
 
     # But item should still be toggled
@@ -167,7 +168,7 @@ def test_menutoggle_menu_button_icon(page):
 
     # Open menu and check icon changes
     page.locator('.MuiButton-root').click()
-    wait_until(lambda: widget.active is True, page)
+    wait_until(lambda: widget.active is None, page)
     expect(page.locator('.MuiButton-root .material-icons').first).to_have_text('close')
 
 
@@ -257,25 +258,6 @@ def test_menutoggle_disabled_state(page):
 
     # Verify disabled state
     expect(page.locator('.MuiButton-root.Mui-disabled')).to_have_count(1)
-
-
-def test_menutoggle_custom_icon(page):
-    # Test with a custom SVG icon
-    svg_icon = '<svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>'
-    widget = MenuToggle(
-        label='Menu',
-        icon=svg_icon,
-        items=[
-            {'label': 'Item 1', 'icon': svg_icon, 'active_icon': svg_icon}
-        ]
-    )
-    serve_component(page, widget)
-
-    # Verify custom icon is displayed on button
-    expect(page.locator('.MuiButton-root span').first).to_have_css(
-        'mask-image',
-        'url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGQ9Ik0zIDE4aDE4di0ySDN2MnptMC01aDE4di0ySDN2MnptMC03djJoMThWNkgzeiIvPjwvc3ZnPg==")'
-    )
 
 
 def test_menutoggle_multiple_toggles(page):

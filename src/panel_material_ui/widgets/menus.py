@@ -76,6 +76,8 @@ class MenuBase(MaterialWidget):
         props = super()._process_property_change(props)
         if 'active' in props and isinstance(props['active'], list):
             props['active'] = tuple(props['active'])
+        elif 'active' in props and isinstance(props['active'], bool):
+            props['active'] = 0
         return props
 
     @param.depends('items', watch=True, on_init=True)
