@@ -76,6 +76,8 @@ class MenuBase(MaterialWidget):
         props = super()._process_property_change(props)
         if 'active' in props and isinstance(props['active'], list):
             props['active'] = tuple(props['active'])
+        elif 'active' in props and isinstance(props['active'], bool):
+            props['active'] = 0
         return props
 
     @param.depends('items', watch=True, on_init=True)
@@ -416,6 +418,87 @@ class SplitButton(MenuBase, _ButtonBase):
                 print(f'List on_click handler errored: {e}')  # noqa
 
 
+class MenuToggle(MenuBase, _ButtonBase):
+    """
+    The `MenuToggle` component is a menu button where individual items can be toggled on/off.
+
+    Unlike MenuButton, MenuToggle allows each menu item to have a toggle state with
+    different icons for active/inactive states (e.g., filled/unfilled heart for favorites).
+
+    MenuToggle items can be strings or objects with properties:
+      - `label`: The label of the menu toggle item (required)
+      - `icon`: The icon when item is not toggled (optional)
+      - `active_icon`: The icon when item is toggled (optional)
+      - `toggled`: Whether the item is currently toggled (optional, default: false)
+      - `color`: The color of the menu toggle item (optional)
+      - `active_color`: The color when toggled (optional)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/MenuToggle.html
+    - https://mui.com/material-ui/react-toggle-button/
+
+    :Example:
+
+    >>> pmui.MenuToggle(items=[
+    ...     {'label': 'Favorite', 'icon': 'favorite_border', 'active_icon': 'favorite', 'toggled': False},
+    ...     {'label': 'Bookmark', 'icon': 'bookmark_border', 'active_icon': 'bookmark', 'toggled': True},
+    ...     {'label': 'Star', 'icon': 'star_border', 'active_icon': 'star', 'toggled': False},
+    ... ], label='Actions', icon='more_vert')
+    """
+
+    disable_elevation = param.Boolean(default=False, doc="Removes the menu's box-shadow for a flat appearance.")
+
+    toggle_icon = param.String(default=None, doc="""
+        Icon to display when menu is open (if different from base icon).""")
+
+    toggled = param.List(default=[], doc="""
+        List of indices of currently toggled items.""")
+
+    margin = Margin(default=5)
+
+    persistent = param.Boolean(default=True, doc="""
+        Whether the menu stays open after toggling an item.""")
+
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the menu toggle.")
+
+    _esm_base = "MenuToggle.jsx"
+    _source_transforms = {
+        "button_type": None,
+        "button_style": None,
+    }
+    _item_keys = ['label', 'icon', 'active_icon', 'toggled', 'color', 'active_color']
+    _rename = {'value': None}
+
+    def __init__(self, **params):
+        # Remove active if passed in params to avoid conflict
+        params.pop('active', None)
+        super().__init__(**params)
+        # Initialize toggled based on items
+        if self.items:
+            self.toggled = [
+                i for i, item in enumerate(self.items)
+                if isinstance(item, dict) and item.get('toggled', False)
+            ]
+
+    def _handle_msg(self, msg):
+        if msg['type'] == 'toggle_item':
+            index = msg['item']
+            if index in self.toggled:
+                self.toggled = [i for i in self.toggled if i != index]
+            else:
+                self.toggled = self.toggled + [index]
+            # Update the item's toggled state
+            if isinstance(self.items[index], dict):
+                self.items[index]['toggled'] = index in self.toggled
+            # Update value to the clicked item
+            value = self._lookup_item(index)
+            if value.get('selectable', True):
+                self.value = value
+            for fn in self._on_click_callbacks:
+                state.execute(partial(fn, value))
+
+
 class Pagination(MaterialWidget):
     """
     The `Pagination` component allows selecting from a list of pages.
@@ -541,6 +624,7 @@ __all__ = [
     "Breadcrumbs",
     "MenuButton",
     "MenuList",
+    "MenuToggle",
     "Pagination",
     "SpeedDial",
     "SplitButton",

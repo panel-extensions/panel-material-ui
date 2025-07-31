@@ -177,6 +177,20 @@ spec = {
                 {"label": "Checkout", "icon": "shopping_cart"},
                 {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
             ])),
+            (MenuButton, (['color', 'variant'], ['disabled']), dict(label='File', icon='folder', items=[
+                {"label": "Open", "icon": "folder_open"},
+                {"label": "Save", "icon": "save"},
+                {"label": "---"},  # Divider
+                {"label": "Export", "icon": "file_download"},
+                {"label": "Exit", "icon": "exit_to_app"},
+            ])),
+            (MenuToggle, (['color', 'persistent'], ['disabled']), dict(label='Favorites', icon='grade', items=[
+                {"label": "Home", "icon": "home_outline", "active_icon": "home", "toggled": True},
+                {"label": "Search", "icon": "search", "active_icon": "saved_search", "toggled": False},
+                {"label": "Notifications", "icon": "notifications_none", "active_icon": "notifications"},
+                {"label": "---"},  # Divider
+                {"label": "Settings", "icon": "settings_applications", "active_icon": "settings"},
+            ])),
             (MenuList, (['color'],), dict(items=[
                 {"label": "Home"},
                 {"label": "Catalog", "icon": "category"},
