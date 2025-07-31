@@ -4,7 +4,7 @@ import {createTheme} from "@mui/material/styles"
 import {deepmerge} from "@mui/utils"
 
 export const int_regex = /^[-+]?\d*$/
-export const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
+export const float_regex = /^[-+]?(\d*(?:\.\d*)?)$/;
 
 export class SessionStore {
   constructor() {

@@ -25,7 +25,7 @@ export function render({model, el}) {
 
   const validate = (value) => {
     const regex = model.mode == "int" ? int_regex : float_regex
-    if (value === "") {
+    if (value === "" || ["", "-", ".", "-."].includes(value)) {
       return null
     } else if (regex.test(value)) {
       return Number(value)
