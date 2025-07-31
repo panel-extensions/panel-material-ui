@@ -1,12 +1,21 @@
 from __future__ import annotations
 
 import colorsys
+import pathlib
 
 import numpy as np
 import param
 from bokeh.themes import Theme as _BkTheme
 from panel.config import config
+from panel.io.resources import (
+    CDN_DIST,
+    component_resource_path,
+    resolve_custom_path,
+)
+from panel.io.state import state
+from panel.theme.base import THEME_CSS, Theme
 from panel.theme.material import Material, MaterialDarkTheme, MaterialDefaultTheme
+from panel.util import relative_to
 from panel.viewable import Viewable
 
 MATERIAL_UI_ICONS = """
@@ -153,10 +162,27 @@ class MaterialDesign(Material):
     _themes = {'dark': MuiDarkTheme, 'default': MuiDefaultTheme}
 
     @classmethod
-    def _get_modifiers(cls, viewable, theme, isolated=False):
-        modifiers, child_modifiers = super()._get_modifiers(viewable, theme, isolated)
+    def _get_modifiers(cls, viewable, theme, isolated=None):
+        if isolated is None:
+            isolated = not hasattr(viewable, '_esm_base')
+        theme_type = type(theme) if isinstance(theme, Theme) else theme
+        is_server = bool(state.curdoc.session_context) if not state._is_pyodide and state.curdoc else False
+        modifiers, child_modifiers = cls._resolve_modifiers(type(viewable), theme_type, is_server=is_server)  # type: ignore
+        modifiers = dict(modifiers)
         if hasattr(viewable, '_esm_base'):
             del modifiers['stylesheets']
+        else:
+            pre = list(cls._resources.get('css', {}).values())
+            css = pathlib.Path(theme.css)
+            if css:
+                if relative_to(css, THEME_CSS):
+                    css = f'{CDN_DIST}bundled/theme/{css.name}'
+                elif resolve_custom_path(theme, css):
+                    css = component_resource_path(theme, 'css', css)
+                else:
+                    css = css.read_text(encoding='utf-8')
+                pre.append(css)
+            modifiers['stylesheets'] = pre + modifiers['stylesheets']
         return modifiers, child_modifiers
 
 
