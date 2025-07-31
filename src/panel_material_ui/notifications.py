@@ -4,6 +4,7 @@ import uuid
 from typing import TYPE_CHECKING, Any
 
 import param
+from bokeh.model import Model
 from bokeh.models.callbacks import CustomJS
 from panel.io.datamodel import _DATA_MODELS, construct_data_model
 from panel.io.notifications import Notification as _Notification
@@ -84,6 +85,11 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
             old = {n._uuid: n for n in self.notifications}
             notifications = []
             for notification in events.pop('notifications'):
+                if isinstance(notification, Model):
+                    notification = {
+                        k: v for k, v in notification.properties_with_values().items()
+                        if k in MuiNotification.param
+                    }
                 if isinstance(notification, dict):
                     notification = MuiNotification(notification_area=self, **notification)
                     self._notification_watchers[notification] = (

@@ -3,6 +3,12 @@ import Icon from "@mui/material/Icon"
 import {SnackbarProvider, useSnackbar} from "notistack"
 import {useTheme} from "@mui/material/styles"
 
+function standardize_color(str) {
+  const ctx = document.createElement("canvas").getContext("2d")
+  ctx.fillStyle = str
+  return ctx.fillStyle
+}
+
 function NotificationArea({model, view}) {
   const {enqueueSnackbar, closeSnackbar} = useSnackbar()
   const [position] = model.useState("position")
@@ -20,11 +26,12 @@ function NotificationArea({model, view}) {
       icon = notification.icon
     }
 
-    const color = background ? (theme.palette.augmentColor({
-      color: {
-        main: background,
-      }
-    })) : undefined;
+    const color = background ? (
+      theme.palette.augmentColor({
+        color: {
+          main: (background.startsWith("#") || background.includes("(")) ? background : standardize_color(background),
+        }
+      })) : undefined;
 
     const [vertical, horizontal] = position.split("-")
     enqueueSnackbar(notification.message, {
