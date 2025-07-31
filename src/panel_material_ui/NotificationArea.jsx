@@ -4,9 +4,9 @@ import {SnackbarProvider, useSnackbar} from "notistack"
 import {useTheme} from "@mui/material/styles"
 
 function standardize_color(str){
-    var ctx = document.createElement('canvas').getContext('2d');
-    ctx.fillStyle = str;
-    return ctx.fillStyle;
+  const ctx = document.createElement("canvas").getContext("2d")
+  ctx.fillStyle = str
+  return ctx.fillStyle
 }
 
 function NotificationArea({model, view}) {
