@@ -74,11 +74,11 @@ export function render(props, ref) {
                     backgroundColor: "currentColor",
                     maskRepeat: "no-repeat",
                     maskSize: "contain",
-                    width: option.icon_size || "1em",
-                    height: option.icon_size || "1em",
+                    width: item.icon_size || "1em",
+                    height: item.icon_size || "1em",
                     display: "inline-block"}}
                   /> :
-                  <Icon style={{fontSize: option.icon_size, paddingRight: "1.5em"}}>{item.icon}</Icon>
+                  <Icon style={{fontSize: item.icon_size, paddingRight: "1.5em"}}>{item.icon}</Icon>
               )}
               {item.label}
             </MenuItem>
