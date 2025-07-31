@@ -17,22 +17,12 @@ export function render({model, el}) {
   const [loading] = model.useState("loading")
   const [persistent] = model.useState("persistent")
   const [size] = model.useState("size")
-  const [active, setActive] = model.useState("active")
   const [toggle_icon] = model.useState("toggle_icon")
   const [toggled] = model.useState("toggled")
   const [sx] = model.useState("sx")
+  const [variant] = model.useState("variant")
   const anchorEl = React.useRef(null)
-
-  const handleToggle = () => {
-    const newState = !active
-    setActive(newState)
-    model.send_msg({type: "toggle", active: newState})
-  }
-
-  const handleClose = () => {
-    setActive(false)
-    model.send_msg({type: "toggle", active: false})
-  }
+  const [open, setOpen] = React.useState(false)
 
   const handleItemClick = (event, index, item) => {
     // Prevent menu from closing when clicking on item in persistent mode
@@ -45,12 +35,12 @@ export function render({model, el}) {
 
     // Close menu if not persistent
     if (!persistent) {
-      handleClose()
+      setOpen(false)
     }
   }
 
-  const currentIcon = active && toggle_icon ? toggle_icon : icon
-  const dropdownIcon = active ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />
+  const currentIcon = open && toggle_icon ? toggle_icon : icon
+  const dropdownIcon = open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />
 
   const isItemToggled = (index) => {
     return toggled && toggled.includes(index)
@@ -63,7 +53,7 @@ export function render({model, el}) {
         disabled={disabled}
         endIcon={dropdownIcon}
         loading={loading}
-        onClick={handleToggle}
+        onClick={() => setOpen(!open)}
         ref={anchorEl}
         size={size}
         startIcon={currentIcon && (
@@ -78,22 +68,19 @@ export function render({model, el}) {
               display: "inline-block"
             }}
             /> :
-            <Icon style={{fontSize: icon_size}}>{currentIcon}</Icon>
+            <Icon fontSize={icon_size}>{currentIcon}</Icon>
         )}
         sx={sx}
-        variant="contained"
+        variant={variant}
       >
         {label}
       </Button>
       <CustomMenu
-        anchorEl={anchorEl.current}
-        open={active}
-        onClose={handleClose}
-        // For persistent mode, we still want backdrop clicks to close the menu
-        MenuListProps={{
-          // Prevent click propagation on the menu list itself
-          onClick: persistent ? (e) => e.stopPropagation() : undefined
-        }}
+        anchorEl={() => anchorEl.current}
+        open={open}
+	// For persistent mode, we still want backdrop clicks to close the menu
+        onClick={() => persistent || e.stopPropagation()}
+        onClose={() => setOpen(false)}
       >
         {items.map((item, index) => {
           if (item === null || item.label === "---") {

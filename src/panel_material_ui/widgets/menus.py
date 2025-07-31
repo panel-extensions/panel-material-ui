@@ -447,8 +447,7 @@ class MenuToggle(MenuBase, _ButtonBase):
     ... ], label='Actions', icon='more_vert')
     """
 
-    persistent = param.Boolean(default=True, doc="""
-        Whether the menu stays open after toggling an item.""")
+    disable_elevation = param.Boolean(default=False, doc="Removes the menu's box-shadow for a flat appearance.")
 
     toggle_icon = param.String(default=None, doc="""
         Icon to display when menu is open (if different from base icon).""")
@@ -458,19 +457,15 @@ class MenuToggle(MenuBase, _ButtonBase):
 
     margin = Margin(default=5)
 
-    disable_elevation = param.Boolean(default=False, doc="Removes the menu's box-shadow for a flat appearance.")
+    persistent = param.Boolean(default=True, doc="""
+        Whether the menu stays open after toggling an item.""")
 
     size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the menu toggle.")
 
-    # Override variant from _ButtonBase since ToggleButton doesn't support all the same variants
-    variant = param.Selector(default="standard", objects=["standard"], doc="The variant of the toggle button.")
-
     _esm_base = "MenuToggle.jsx"
     _source_transforms = {
-        "attached": None,
         "button_type": None,
         "button_style": None,
-        "variant": None,
     }
     _item_keys = ['label', 'icon', 'active_icon', 'toggled', 'color', 'active_color']
     _rename = {'value': None}
@@ -487,9 +482,7 @@ class MenuToggle(MenuBase, _ButtonBase):
             ]
 
     def _handle_msg(self, msg):
-        if msg['type'] == 'toggle':
-            self.open = msg['active']
-        elif msg['type'] == 'toggle_item':
+        if msg['type'] == 'toggle_item':
             index = msg['item']
             if index in self.toggled:
                 self.toggled = [i for i in self.toggled if i != index]
@@ -500,14 +493,10 @@ class MenuToggle(MenuBase, _ButtonBase):
                 self.items[index]['toggled'] = index in self.toggled
             # Update value to the clicked item
             value = self._lookup_item(index)
-            if not isinstance(value, dict) or value.get('selectable', True):
+            if value.get('selectable', True):
                 self.value = value
             for fn in self._on_click_callbacks:
                 state.execute(partial(fn, value))
-        else:
-            # Don't call super()._handle_msg for 'click' events as we handle them in toggle_item
-            if msg['type'] != 'click':
-                super()._handle_msg(msg)
 
 
 class Pagination(MaterialWidget):

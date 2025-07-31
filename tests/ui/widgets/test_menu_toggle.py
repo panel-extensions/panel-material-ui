@@ -35,12 +35,10 @@ def test_menutoggle_open_close(page):
     # Open menu
     page.locator('.MuiButton-root').click()
 
-    wait_until(lambda: widget.active == 0, page)
     expect(page.locator('.MuiMenu-root')).to_be_visible()
 
     # Close menu
     page.locator('body').click()
-    wait_until(lambda: widget.active == 0, page)
     expect(page.locator('.MuiMenu-root')).not_to_be_visible()
 
 
@@ -58,7 +56,6 @@ def test_menutoggle_item_toggle(page):
 
     # Open menu
     page.locator('.MuiButton-root').click()
-    wait_until(lambda: widget.active == 0, page)
 
     # Toggle first item (Favorite)
     page.locator('.MuiMenuItem-root').first.click()
@@ -109,13 +106,11 @@ def test_menutoggle_non_persistent_mode(page):
 
     # Open menu
     page.locator('.MuiButton-root').click()
-    wait_until(lambda: widget.active == 0, page)
 
     # Toggle item
     page.locator('.MuiMenuItem-root').first.click()
 
     # Menu should close in non-persistent mode
-    wait_until(lambda: widget.active == 0, page)
     expect(page.locator('.MuiMenu-root')).not_to_be_visible()
 
     # But item should still be toggled
@@ -168,7 +163,6 @@ def test_menutoggle_menu_button_icon(page):
 
     # Open menu and check icon changes
     page.locator('.MuiButton-root').click()
-    wait_until(lambda: widget.active is None, page)
     expect(page.locator('.MuiButton-root .material-icons').first).to_have_text('close')
 
 
@@ -203,8 +197,8 @@ def test_menutoggle_programmatic_toggle_items(page):
     widget.toggled = [0, 1]
 
     # Open menu to verify
-    widget.active = True
-    wait_until(lambda: page.locator('.MuiMenu-root').is_visible(), page)
+    page.locator('.MuiButton-root').click()
+    expect(page.locator('.MuiMenu-root')).to_be_visible()
 
     # Both items should be selected
     expect(page.locator('.MuiMenuItem-root.Mui-selected')).to_have_count(2)
