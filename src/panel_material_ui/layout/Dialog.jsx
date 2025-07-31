@@ -34,8 +34,8 @@ export function render({model, view}) {
           <IconButton
             aria-label="close"
             onClick={() => setOpen(false)}
-	    size="small"
-	    sx={title ? {} : {ml: "auto"}}
+            size="small"
+            sx={title ? {} : {ml: "auto"}}
           >
             <CloseIcon />
           </IconButton>
