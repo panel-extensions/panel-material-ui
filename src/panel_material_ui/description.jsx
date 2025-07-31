@@ -1,5 +1,5 @@
 import React from "react"
-import InfoIcon from "@mui/icons-material/Info"
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"
 import Tooltip from "@mui/material/Tooltip"
 
 export function render_description({model, el}) {
@@ -12,7 +12,7 @@ export function render_description({model, el}) {
       placement="right"
       slotProps={{popper: {container: el}}}
     >
-      <InfoIcon sx={{fontSize: "1.1em"}}/>
+      <InfoOutlinedIcon sx={{fontSize: "1.1em"}}/>
     </Tooltip>
   )
 }
