@@ -104,7 +104,7 @@ export function render({model, view}) {
           "& .MuiCardHeader-content": {minWidth: 0},
           "& .MuiCardHeader-title .step-header": {minWidth: 0}
         }}
-        title={model.header ? header : <Typography variant="h6">{title}</Typography>}
+        title={model.header ? header : <Typography variant="h3">{title}</Typography>}
       />
       <Collapse
         in={!collapsed}

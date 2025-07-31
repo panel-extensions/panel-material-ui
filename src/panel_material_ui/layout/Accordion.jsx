@@ -55,7 +55,7 @@ export function render({model}) {
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />} onClick={handle_expand(index)}>
               {names[index] ? (
-                <Typography className="title" variant="h6" sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
+                <Typography className="title" variant="h3" sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
               ) : headers[index]}
             </AccordionSummary>
             <AccordionDetails>{obj}</AccordionDetails>
