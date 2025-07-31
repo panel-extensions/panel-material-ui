@@ -18,6 +18,7 @@ export function render({model}) {
   const [sx] = model.useState("sx")
   const [square] = model.useState("square")
   const [variant] = model.useState("variant")
+  const headers = model.get_child("_headers")
   const objects = model.get_child("objects")
 
   const handle_expand = (index) => () => {
@@ -31,7 +32,7 @@ export function render({model}) {
       newActive.push(index)
     }
     setActive(newActive)
-  };
+  }
 
   return (
     <>
@@ -53,7 +54,9 @@ export function render({model}) {
             }}
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />} onClick={handle_expand(index)}>
-              <Typography className="title" variant="h6" sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
+              {names[index] ? (
+                <Typography className="title" variant="h6" sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
+              ) : headers[index]}
             </AccordionSummary>
             <AccordionDetails>{obj}</AccordionDetails>
           </Accordion>

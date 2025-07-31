@@ -14,6 +14,7 @@ export function render({model, view}) {
   const [names] = model.useState("_names")
   const [sx] = model.useState("sx")
   const [wrapped] = model.useState("wrapped")
+  const headers = model.get_child("_headers")
   const objects = model.get_child("objects")
 
   const theme = useTheme()
@@ -60,7 +61,7 @@ export function render({model, view}) {
           label={
             closable ? (
               <Box sx={{display: "flex", alignItems: "center"}}>
-                <span dangerouslySetInnerHTML={{__html: label}} />
+                {label ? <span dangerouslySetInnerHTML={{__html: label}} />: headers[index]}
                 <Box
                   component="span"
                   sx={{
@@ -73,7 +74,7 @@ export function render({model, view}) {
                   ✕
                 </Box>
               </Box>
-            ) : label
+            ) : (label ? <span dangerouslySetInnerHTML={{__html: label}} /> : headers[index])
           }
           wrapped={wrapped}
         />
