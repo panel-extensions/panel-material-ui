@@ -78,7 +78,7 @@ export function render({model, el}) {
       <CustomMenu
         anchorEl={() => anchorEl.current}
         open={open}
-	// For persistent mode, we still want backdrop clicks to close the menu
+        // For persistent mode, we still want backdrop clicks to close the menu
         onClick={() => persistent || e.stopPropagation()}
         onClose={() => setOpen(false)}
       >
