@@ -10,7 +10,7 @@ class CircularProgress(MaterialWidget):
 
     :References:
 
-    - https://panel-material-ui.holoviz.org/reference/indicators/LoadingSpinner.html
+    - https://panel-material-ui.holoviz.org/reference/indicators/CircularProgress.html
     - https://panel.holoviz.org/reference/indicators/CircularProgress.html
     - https://mui.com/material-ui/react-progress/#circular
 
