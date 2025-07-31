@@ -56,7 +56,7 @@ export function render(props, ref) {
           height: font_size,
           display: "inline-block"}}
         /> :
-       <Icon fontSize={icon_size || size}>{current_icon}</Icon>
+        <Icon fontSize={icon_size || size}>{current_icon}</Icon>
       }
     </IconButton>
   )
