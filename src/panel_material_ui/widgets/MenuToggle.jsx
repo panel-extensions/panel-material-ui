@@ -1,11 +1,11 @@
 import Button from "@mui/material/Button"
 import Divider from "@mui/material/Divider"
-import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp"
+import {CustomMenu} from "./menu"
 
 export function render({model, el}) {
   const [color] = model.useState("color")
@@ -85,7 +85,7 @@ export function render({model, el}) {
       >
         {label}
       </Button>
-      <Menu
+      <CustomMenu
         anchorEl={anchorEl.current}
         open={active}
         onClose={handleClose}
@@ -132,7 +132,7 @@ export function render({model, el}) {
             </MenuItem>
           )
         })}
-      </Menu>
+      </CustomMenu>
     </>
   )
 }
