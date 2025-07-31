@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from collections import defaultdict
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 import param
 from bokeh.models import Spacer as BkSpacer
 from panel._param import Margin
 from panel.layout.base import ListLike, NamedListLike, SizingModeMixin
-from panel.viewable import Child
+from panel.pane import panel
+from panel.util import param_name
+from panel.viewable import Child, Children, Viewable
 
 from ..base import COLORS, MaterialComponent
 from ..widgets import ToggleIcon
@@ -52,11 +55,157 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
 
     _names = param.List(default=[])
 
+    _headers = Children()
+
     __abstract = True
+
+    def __init__(self, *items: list[Any | tuple[str, Any]], **params: Any):
+        if 'objects' in params:
+            if items:
+                raise ValueError(
+                    f'{type(self).__name__} objects should be supplied either '
+                    'as positional arguments or as a keyword, not both.'
+                )
+            items = params.pop('objects')
+        MaterialLayout.__init__(self, objects=[i[1] if isinstance(i, tuple) else i for i in items], **params)
+        params['objects'], headers, names = self._to_objects_and_names(items)
+        self._names = names
+        self._headers = headers
+        self._panels: defaultdict[str, dict[int, Viewable]] = defaultdict(dict)
+        self.param.watch(self._update_names, 'objects')
+        # ALERT: Ensure that name update happens first, should be
+        #        replaced by watch precedence support in param
+        self.param.watchers['objects']['value'].reverse()
 
     @param.depends("objects", watch=True)
     def _trigger_names(self):
-        self.param.trigger("_names")
+        self.param.trigger("_names", "_headers")
+
+    def _to_object_and_name(self, item):
+        if isinstance(item, tuple):
+            name, item = item
+        else:
+            name = getattr(item, 'name', None)
+        if isinstance(name, Viewable):
+            header = name
+            name = None
+            pane = panel(item)
+        else:
+            header = None
+            pane = panel(item, name=name)
+            name = param_name(pane.name) if name is None else name
+        return pane, header, name
+
+    def _to_objects_and_names(self, items):
+        objs, headers, names = (list(i) for i in zip(*(self._to_object_and_name(item) for item in items), strict=False))
+        if self._param__private.initialized:
+            return objs, headers, names
+        return objs, names
+
+    def __setitem__(self, index, panes):
+        new_objects = list(self)
+        if isinstance(index, slice):
+            new_objects[index], self._headers[index], self._names[index] = self._to_objects_and_names(panes)
+        else:
+            new_objects[index], self._headers[index], self._names[index] = self._to_object_and_name(panes)
+        self.objects = new_objects
+
+    def append(self, pane: Any) -> None:
+        """
+        Appends an object to the tabs.
+
+        Parameters
+        ----------
+        obj (object): Panel component to add as a tab.
+        """
+        new_object, new_header, new_name = self._to_object_and_name(pane)
+        new_objects = list(self)
+        new_objects.append(new_object)
+        self._names.append(new_name)
+        self._headers.append(new_header)
+        self.objects = new_objects
+
+    def clear(self) -> None:
+        """
+        Clears the tabs.
+        """
+        self._names = []
+        self._headers = []
+        self.objects = []
+
+    def extend(self, panes: Iterable[Any]) -> None:
+        """
+        Extends the the tabs with a list.
+
+        Parameters
+        ----------
+        objects (list): List of panel components to add as tabs.
+        """
+        new_objects, new_headers, new_names = self._to_objects_and_names(panes)
+        objects = list(self)
+        objects.extend(new_objects)
+        self._names.extend(new_names)
+        self._headers.extend(new_headers)
+        self.objects = objects
+
+    def insert(self, index: int, pane: Any) -> None:
+        """
+        Inserts an object in the tabs at the specified index.
+
+        Parameters
+        ----------
+        index (int): Index at which to insert the object.
+        object (object): Panel components to insert as tabs.
+        """
+        new_object, new_header, new_name = self._to_object_and_name(pane)
+        new_objects = list(self.objects)
+        new_objects.insert(index, new_object)
+        self._headers.insert(index, new_header)
+        self._names.insert(index, new_name)
+        self.objects = new_objects
+
+    def pop(self, index: int = -1) -> Viewable:
+        """
+        Pops an item from the tabs by index.
+
+        Parameters
+        ----------
+        index (int): The index of the item to pop from the tabs.
+        """
+        new_objects = list(self)
+        obj = new_objects.pop(index)
+        self._names.pop(index)
+        self._headers.pop(index)
+        self.objects = new_objects
+        return obj
+
+    def remove(self, pane: Viewable) -> None:
+        """
+        Removes an object from the tabs.
+
+        Parameters
+        ----------
+        obj (object): The object to remove from the tabs.
+        """
+        new_objects = list(self)
+        if pane in new_objects:
+            index = new_objects.index(pane)
+            new_objects.remove(pane)
+            self._names.pop(index)
+            self._headers.pop(index)
+            self.objects = new_objects
+        else:
+            raise ValueError(f'{pane!r} is not in list')
+
+    def reverse(self) -> None:
+        """
+        Reverses the tabs.
+        """
+        new_objects = list(self)
+        new_objects.reverse()
+        self._names.reverse()
+        self._headers.reverse()
+        self.objects = new_objects
 
 
 class Column(MaterialListLike):
