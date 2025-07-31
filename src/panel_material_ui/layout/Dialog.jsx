@@ -27,17 +27,20 @@ export function render({model, view}) {
       scroll={scroll}
       sx={sx}
     >
+      {(title || show_close_button) &&
       <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-        <DialogTitle>{title}</DialogTitle>
+        {title && <DialogTitle variant="h3">{title}</DialogTitle>}
         {show_close_button && (
           <IconButton
             aria-label="close"
             onClick={() => setOpen(false)}
+            size="small"
+            sx={title ? {} : {ml: "auto"}}
           >
             <CloseIcon />
           </IconButton>
         )}
-      </Box>
+      </Box>}
       <DialogContent sx={{display: "flex", flexDirection: "column"}}>
         {objects}
       </DialogContent>
