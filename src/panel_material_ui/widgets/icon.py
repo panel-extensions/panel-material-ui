@@ -27,8 +27,11 @@ class _ClickableIcon(MaterialWidget):
         https://mui.com/material-ui/material-icons or an SVG.""",
     )
 
+    icon_size = param.String(default=None, doc="""
+        Size of the icon as a string, e.g. 12px or 1em.""")
+
     size = param.String(default="medium", doc="""
-        Size of the icon as a string, e.g. 12px or 1em.""",)
+        Size of the widget as a string.""")
 
     value = param.Boolean(
         default=False,
