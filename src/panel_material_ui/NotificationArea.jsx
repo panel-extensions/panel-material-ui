@@ -28,9 +28,9 @@ function NotificationArea({model, view}) {
 
     const color = background ? (
       theme.palette.augmentColor({
-	color: {
+        color: {
           main: (background.startsWith("#") || background.includes("(")) ? background : standardize_color(background),
-	}
+        }
       })) : undefined;
 
     const [vertical, horizontal] = position.split("-")
