@@ -74,7 +74,7 @@ export function render({model, view}) {
                   ✕
                 </Box>
               </Box>
-            ) : (label ?? headers[index])
+            ) : (label ? <span dangerouslySetInnerHTML={{__html: label}} /> : headers[index])
           }
           wrapped={wrapped}
         />
