@@ -97,7 +97,10 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         return pane, header, name
 
     def _to_objects_and_names(self, items):
-        objs, headers, names = (list(i) for i in zip(*(self._to_object_and_name(item) for item in items), strict=False))
+        if items:
+            objs, headers, names = (list(i) for i in zip(*(self._to_object_and_name(item) for item in items), strict=False))
+        else:
+            objs, headers, names = [], [], []
         if self._param__private.initialized:
             return objs, headers, names
         return objs, names
