@@ -6,6 +6,7 @@ from panel.layout import Column
 from panel.widgets import Button
 from panel.tests.util import serve_component, wait_until
 from panel_material_ui.layout import Tabs
+from panel_material_ui.pane import Typography
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -24,6 +25,21 @@ def test_tabs_basic(page):
     widget = Tabs(
         ("Tab 1", content1),
         ("Tab 2", content2)
+    )
+    serve_component(page, widget)
+
+    # Check tabs structure
+    tabs = page.locator('.MuiTab-root')
+    expect(tabs).to_have_count(2)
+    expect(tabs.nth(0)).to_contain_text('Tab 1')
+    expect(tabs.nth(1)).to_contain_text('Tab 2')
+
+def test_tabs_component_title(page):
+    content1 = Column("Content 1")
+    content2 = Column("Content 2")
+    widget = Tabs(
+        (Typography("Tab 1"), content1),
+        (Typography("Tab 2"), content2)
     )
     serve_component(page, widget)
 
