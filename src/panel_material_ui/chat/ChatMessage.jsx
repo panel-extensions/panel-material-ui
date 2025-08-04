@@ -12,66 +12,62 @@ function PlaceholderAvatar() {
   return (
     <Box sx={{
       margin: "1em 0.5em 0 0",
-      width: 40,
-      height: 40,
-      position: "relative",
       display: "flex",
       alignItems: "center",
-      justifyContent: "center"
+      justifyContent: "space-between",
+      padding: "8px",
+      width: "120px" // Increased width to space dots further apart
     }}
     >
       <Box
         component="span"
         sx={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
+          width: 16,
+          height: 16,
           borderRadius: "50%",
-          border: "3px solid",
-          borderColor: "black",
-          borderTopColor: "transparent",
-          strokeLinecap: "round",
-          animation: "spin 1s linear infinite",
-          "@keyframes spin": {
-            "0%": {transform: "rotate(0deg)"},
-            "100%": {transform: "rotate(360deg)"}
+          backgroundColor: "text.disabled",
+          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
+          "@keyframes grow": {
+            "0%, 100%": {transform: "scale(0)"},
+            "50%": {transform: "scale(1)"}
+          },
+          "@keyframes fade": {
+            "0%, 100%": {opacity: 0.3},
+            "50%": {opacity: 1}
           }
         }}
       />
       <Box
         component="span"
         sx={{
-          position: "absolute",
-          width: "80%",
-          height: "80%",
+          width: 16,
+          height: 16,
           borderRadius: "50%",
-          border: "3px solid",
-          borderColor: "black",
-          borderTopColor: "transparent",
-          strokeLinecap: "round",
-          animation: "spin 1.5s linear infinite",
-          "@keyframes spin": {
-            "0%": {transform: "rotate(0deg)"},
-            "100%": {transform: "rotate(-360deg)"}
-          }
+          backgroundColor: "text.disabled",
+          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
+          animationDelay: "0.6s"
         }}
       />
       <Box
         component="span"
         sx={{
-          position: "absolute",
-          width: "50%",
-          height: "50%",
+          width: 16,
+          height: 16,
           borderRadius: "50%",
-          border: "3px solid",
-          borderColor: "black",
-          borderTopColor: "transparent",
-          strokeLinecap: "round",
-          animation: "spin 2.5s linear infinite",
-          "@keyframes spin": {
-            "0%": {transform: "rotate(0deg)"},
-            "100%": {transform: "rotate(360deg)"}
-          }
+          backgroundColor: "text.disabled",
+          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
+          animationDelay: "1.2s"
+        }}
+      />
+      <Box
+        component="span"
+        sx={{
+          width: 16,
+          height: 16,
+          borderRadius: "50%",
+          backgroundColor: "text.disabled",
+          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
+          animationDelay: "1.8s"
         }}
       />
     </Box>
