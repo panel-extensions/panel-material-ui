@@ -1,13 +1,33 @@
 from __future__ import annotations
 
 import colorsys
+import pathlib
 
 import numpy as np
 import param
+from bokeh.settings import settings as _settings
 from bokeh.themes import Theme as _BkTheme
 from panel.config import config
+from panel.io.resources import (
+    CDN_DIST as PN_CDN_DIST,
+)
+from panel.io.resources import (
+    component_resource_path,
+    resolve_custom_path,
+)
+from panel.io.state import state
+from panel.theme.base import THEME_CSS, Theme
 from panel.theme.material import Material, MaterialDarkTheme, MaterialDefaultTheme
+from panel.util import base_version, relative_to
 from panel.viewable import Viewable
+
+from .__version import __version__  # noqa
+
+BASE_PATH = pathlib.Path(__file__).parent
+DIST_PATH = BASE_PATH / 'dist'
+IS_RELEASE = __version__ == base_version(__version__)
+CDN_BASE = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}"
+CDN_DIST = f"{CDN_BASE}/panel-material-ui.bundle.js"
 
 MATERIAL_UI_ICONS = """
 .material-icons { font-family: 'Material Icons'; }
@@ -134,11 +154,14 @@ class MuiDefaultTheme(MaterialDefaultTheme):
     bokeh_theme = param.ClassSelector(
         class_=(_BkTheme, str), default=_BkTheme(json=MATERIAL_THEME))
 
+    css = param.Filename(default=DIST_PATH / 'css' / 'material-variables.css')
+
 class MuiDarkTheme(MaterialDarkTheme):
 
     bokeh_theme = param.ClassSelector(
         class_=(_BkTheme, str), default=_BkTheme(json=MATERIAL_THEME))
 
+    css = param.Filename(default=DIST_PATH / 'css' / 'material-variables.css')
 
 class MaterialDesign(Material):
 
@@ -153,10 +176,30 @@ class MaterialDesign(Material):
     _themes = {'dark': MuiDarkTheme, 'default': MuiDefaultTheme}
 
     @classmethod
-    def _get_modifiers(cls, viewable, theme, isolated=False):
-        modifiers, child_modifiers = super()._get_modifiers(viewable, theme, isolated)
+    def _get_modifiers(cls, viewable, theme, isolated=None):
+        if isolated is None:
+            isolated = not hasattr(viewable, '_esm_base')
+        theme_type = type(theme) if isinstance(theme, Theme) else theme
+        is_server = bool(state.curdoc.session_context) if not state._is_pyodide and state.curdoc else False
+        modifiers, child_modifiers = cls._resolve_modifiers(type(viewable), theme_type, is_server=is_server)  # type: ignore
+        modifiers = dict(modifiers)
         if hasattr(viewable, '_esm_base'):
             del modifiers['stylesheets']
+        else:
+            from panel.io.resources import RESOURCE_MODE
+            pre = list(cls._resources.get('css', {}).values())
+            css = pathlib.Path(theme.css)
+            if css:
+                if relative_to(css, THEME_CSS):
+                    css = f'{PN_CDN_DIST}/theme/{css.name}'
+                if relative_to(css, DIST_PATH / 'css') and ('cdn' in (RESOURCE_MODE, _settings.resources(default='server'))):
+                    css = f'{CDN_BASE}/css/{css.name}'
+                elif resolve_custom_path(theme, css):
+                    css = component_resource_path(theme, 'css', css)
+                else:
+                    css = css.read_text(encoding='utf-8')
+                pre.append(css)
+            modifiers['stylesheets'] = pre + modifiers['stylesheets']
         return modifiers, child_modifiers
 
 

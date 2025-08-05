@@ -4,7 +4,7 @@ import {createTheme} from "@mui/material/styles"
 import {deepmerge} from "@mui/utils"
 
 export const int_regex = /^[-+]?\d*$/
-export const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
+export const float_regex = /^[-+]?(\d*(?:\.\d*)?)$/;
 
 export class SessionStore {
   constructor() {
@@ -44,8 +44,8 @@ export function render_theme_css(theme) {
     :root, :host {
       --panel-primary-color: ${theme.palette.primary.main};
       --panel-on-primary-color: ${theme.palette.primary.contrastText};
-      --panel-secondary-color: ${theme.palette.secondary.main};
-      --panel-on-secondary-color: ${theme.palette.secondary.contrastText};
+      --panel-secondary-color: ${theme.palette.default.dark};
+      --panel-on-secondary-color: ${theme.palette.text.secondary};
       --panel-background-color: ${theme.palette.background.default};
       --panel-on-background-color: ${theme.palette.text.primary};
       --panel-surface-color: ${theme.palette.background.paper};

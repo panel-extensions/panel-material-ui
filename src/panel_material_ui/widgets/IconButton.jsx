@@ -8,6 +8,7 @@ export function render(props, ref) {
   const [disabled] = model.useState("disabled")
   const [edge] = model.useState("edge")
   const [icon] = model.useState("icon")
+  const [icon_size] = model.useState("icon_size")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [toggle_duration] = model.useState("toggle_duration")
@@ -32,7 +33,7 @@ export function render(props, ref) {
   }
 
   const standard_size = ["small", "medium", "large"].includes(size)
-  const font_size = standard_size ? null : size
+  const font_size = standard_size ? icon_size : size
 
   return (
     <IconButton
@@ -55,7 +56,7 @@ export function render(props, ref) {
           height: font_size,
           display: "inline-block"}}
         /> :
-        <Icon style={{fontSize: font_size}}>{current_icon}</Icon>
+        <Icon fontSize={icon_size || size}>{current_icon}</Icon>
       }
     </IconButton>
   )

@@ -34,6 +34,10 @@ class ChatInterface(ChatFeed, ChatInterface):
     >>> ChatInterface().servable()
     """
 
+    input_params = param.Dict(
+        default={}, doc="Additional parameters to pass to the ChatAreaInput widget, like `enable_upload`."
+    )
+
     _input_type = ChatAreaInput
 
     _rename = {"loading": "loading"}
@@ -59,7 +63,7 @@ class ChatInterface(ChatFeed, ChatInterface):
             ):
                 continue
             actions[name] = {'icon': ICON_MAP.get(data.icon, data.icon), 'callback': partial(data.callback, self), 'label': name.title()}
-        self._widget = ChatAreaInput(actions=actions, sizing_mode="stretch_width")
+        self._widget = ChatAreaInput(actions=actions, sizing_mode="stretch_width", **self.input_params)
         self.link(self._widget, disabled="disabled_enter")
         callback = partial(self._button_data["send"].callback, instance=self)
         self._widget.param.watch(callback, "enter_pressed")

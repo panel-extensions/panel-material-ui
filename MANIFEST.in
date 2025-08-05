@@ -1,1 +1,2 @@
-recursive-include panel_material_ui models/*.js
+recursive-include panel_material_ui src/panel-material-ui/_templates/*.html
+recursive-include panel_material_ui src/panel-material-ui/dist/css/*.css

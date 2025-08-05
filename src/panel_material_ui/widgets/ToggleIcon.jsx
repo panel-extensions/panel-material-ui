@@ -1,6 +1,5 @@
 import Box from "@mui/material/Box"
 import Checkbox from "@mui/material/Checkbox"
-import Icon from "@mui/material/Icon"
 import Typography from "@mui/material/Typography"
 import {render_description} from "./description"
 
@@ -10,20 +9,32 @@ const SIZES = {
   large: "3.5em",
 }
 
-export function render({model, el}) {
+const PADDING = {
+  small: "5px",
+  medium: "8px",
+  large: "12px"
+}
+
+export function render(props, ref) {
+  const {data, el, model, view, ...other} = props
   const [active_icon] = model.useState("active_icon")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
+  const [icon_size] = model.useState("icon_size")
   const [size] = model.useState("size")
   const [label] = model.useState("label")
   const [value, setValue] = model.useState("value")
   const [sx] = model.useState("sx")
 
   const standard_size = ["small", "medium", "large"].includes(size)
-  const font_size = standard_size ? null : size
+  const font_size = standard_size ? icon_size : size
   const color_state = disabled ? "disabled" : color
   const text_size = standard_size ? SIZES[size] : font_size
+
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
+  }
 
   return (
     <Box sx={{display: "flex", alignItems: "center", flexDirection: "row"}}>
@@ -31,6 +42,7 @@ export function render({model, el}) {
         checked={value}
         color={color_state}
         disabled={disabled}
+        ref={ref}
         selected={value}
         size={size}
         onClick={(e, newValue) => setValue(!value)}
@@ -48,7 +60,7 @@ export function render({model, el}) {
             <Icon
               baseClassName={"material-icons-outlined"}
               color={color_state}
-              style={{fontSize: font_size}}
+              fontSize={icon_size || size}
             >
               {icon}
             </Icon>
@@ -64,9 +76,10 @@ export function render({model, el}) {
               height: text_size,
               display: "inline-block"}}
             /> :
-            <Icon color={color_state} style={{fontSize: font_size}}>{active_icon || icon}</Icon>
+            <Icon color={color_state} fontSize={icon_size || size}>{active_icon || icon}</Icon>
         }
-        sx={sx}
+        sx={{p: PADDING[size], ...sx}}
+        {...other}
       />
       {label && <Typography sx={{color: "text.primary", fontSize: `calc(${text_size} / 2)`}}>{label}{model.description && render_description({model, el})}</Typography>}
     </Box>

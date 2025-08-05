@@ -6,6 +6,7 @@ from panel.layout import Column
 from panel.widgets import Button
 from panel.tests.util import serve_component, wait_until
 from panel_material_ui.layout import Accordion
+from panel_material_ui.pane import Typography
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -37,6 +38,24 @@ def test_accordion_basic(page):
     widget = Accordion(
         ('Section 1', content1),
         ('Section 2', content2)
+    )
+    serve_component(page, widget)
+
+    # Check sections exist
+    sections = page.locator('.MuiAccordion-root')
+    expect(sections).to_have_count(2)
+
+    # Check headers
+    headers = page.locator('.MuiAccordionSummary-content')
+    expect(headers.nth(0)).to_contain_text('Section 1')
+    expect(headers.nth(1)).to_contain_text('Section 2')
+
+def test_accordion_component_title(page):
+    content1 = Column("Content 1")
+    content2 = Column("Content 2")
+    widget = Accordion(
+        (Typography("Section 1"), content1),
+        (Typography("Section 2"), content2)
     )
     serve_component(page, widget)
 
