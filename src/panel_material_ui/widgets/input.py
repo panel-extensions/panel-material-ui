@@ -1283,16 +1283,25 @@ class LiteralInput(TextInput, _PnLiteralInput):
 
     value_input = param.Parameter()
 
+    _rename = {'type': None}
+
+    def _process_property_change(self, msg):
+        if msg.get('enter_pressed'):
+            msg['value'] = self.value_input
+        msg = super()._process_property_change(msg)
+        return msg
+
     def _process_param_change(self, msg):
         msg = super()._process_param_change(msg)
+        msg.pop("title", None)
         if self._state:
+            msg["label"] = f"{self.label} {self._state}"
             msg["error_state"] = True
         else:
+            msg["label"] = self.label
             msg["error_state"] = False
         if "value" in msg:
             msg["value_input"] = msg.pop("value")
-        if "title" in msg:
-            msg["label"] = msg.pop("title")
         return msg
 
 

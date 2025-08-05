@@ -54,6 +54,7 @@ Param.mapping.update({
     param.Color:             ColorPicker,
     param.Date:              DatetimeInput,
     param.Dict:              LiteralInputTyped,
+    param.Event:             Button,
     param.FileSelector:      SingleFileSelector,
     param.Filename:          TextInput,
     param.Foldername:        TextInput,

@@ -488,15 +488,39 @@ class Rating(MaterialWidget):
     >>> Rating(value=3, size="large", name="Rate the product")
     """
 
+    color = param.Selector(objects=COLORS, default=None, doc="The color of the ratings.")
+
     end = param.Integer(default=5, bounds=(1, None), doc="The maximum value for the rating.")
 
+    empty_icon = param.String(default=None, doc="""
+        The icon to render for a non-selected rating.""",
+    )
+
+    icon = param.String(default=None, doc="""
+        The icon to render for a selected rating.""",
+    )
+
     only_selected = param.Boolean(default=False, doc="Whether to highlight only the select value")
+
+    precision = param.Number(default=1.0, bounds=(0, 1.0), doc="""
+        The precision of the rating value. If set to 0.5, the rating can be
+        set to 0, 0.5, 1, 1.5, ..., up to the end value.""")
+
+    readonly = param.Boolean(default=False, doc="""
+        Whether the rating is read-only. If True, the user cannot change the rating.""")
 
     size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="Size of the rating icons.")
 
     value = param.Number(default=0, allow_None=True, bounds=(0, 5))
 
+    width = param.Integer(default=None)
+
     _esm_base = "Rating.jsx"
+
+    def __init__(self, **params):
+        if "end" in params:
+            self.param.value.bounds = (0, params["end"])
+        super().__init__(**params)
 
     @param.depends("end", watch=True, on_init=True)
     def _update_value_bounds(self):
