@@ -488,13 +488,19 @@ class Rating(MaterialWidget):
     >>> Rating(value=3, size="large", name="Rate the product")
     """
 
+    color = param.Selector(objects=COLORS, default=None, doc="The color of the ratings.")
+
     end = param.Integer(default=5, bounds=(1, None), doc="The maximum value for the rating.")
 
+    empty_icon = param.String(default=None, doc="""
+        The icon to render for a non-selected rating.""",
+    )
+
+    icon = param.String(default=None, doc="""
+        The icon to render for a selected rating.""",
+    )
+
     only_selected = param.Boolean(default=False, doc="Whether to highlight only the select value")
-
-    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="Size of the rating icons.")
-
-    value = param.Number(default=0, allow_None=True, bounds=(0, 5))
 
     precision = param.Number(default=1.0, bounds=(0, 1.0), doc="""
         The precision of the rating value. If set to 0.5, the rating can be
