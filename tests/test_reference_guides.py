@@ -1,25 +1,23 @@
-from panel_material_ui.base import MaterialComponent
 import logging
+
+import param
 import pytest
+
+from panel_material_ui.base import MaterialComponent
 
 logger = logging.getLogger(__name__)
 
 NO_REFENCE_GUIDE_NEEDED = [
-    "ClickablePaneBase",
+    "DatetimeInput",
     "DictInput",
     "ListInput",
-    "MaterialInputWidget",
-    "MaterialLayout",
-    "MaterialListLike",
-    "MaterialMultiSelectBase",
-    "MaterialNamedListLike",
-    "MaterialPaneBase",
-    "MaterialSingleSelectBase",
-    "MaterialUIComponent",
-    "MaterialWidget",
-    "MenuBase",
+    "NumberInput",
     "NotificationArea",
     "TupleInput",
+    "Column",
+    "Row",
+    "Divider",
+    "Alert"
 ]
 
 ## Find child classes of MaterialComponent
@@ -28,11 +26,9 @@ def find_child_classes(cls, skip_class: list[str]=NO_REFENCE_GUIDE_NEEDED):
     Recursively find all child classes of MaterialComponent.
     """
     child_classes = []
-    for subclass in cls.__subclasses__():
-        subclass_name = subclass.__name__
+    for subclass_name, subclass in param.concrete_descendents(cls).items():
         if not subclass_name.startswith('_') and not subclass_name in NO_REFENCE_GUIDE_NEEDED:
             child_classes.append(subclass)
-        child_classes.extend(find_child_classes(subclass))
     return child_classes
 
 # find all reference guides in examples/reference_guides
