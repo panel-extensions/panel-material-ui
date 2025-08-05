@@ -509,6 +509,12 @@ class Rating(MaterialWidget):
     readonly = param.Boolean(default=False, doc="""
         Whether the rating is read-only. If True, the user cannot change the rating.""")
 
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="Size of the rating icons.")
+
+    value = param.Number(default=0, allow_None=True, bounds=(0, 5))
+
+    width = param.Integer(default=None)
+
     _esm_base = "Rating.jsx"
 
     def __init__(self, **params):
