@@ -1,4 +1,5 @@
 import TextField from "@mui/material/TextField"
+import {render_description} from "./description"
 
 export function render({model, el}) {
   const [autogrow] = model.useState("auto_grow")

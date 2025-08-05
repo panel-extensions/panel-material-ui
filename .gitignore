@@ -154,7 +154,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+/dist/
 downloads/
 eggs/
 .eggs/
@@ -379,6 +379,9 @@ $RECYCLE.BIN/
 pixi.lock
 
 src/panel_material_ui/_version.py
+src/panel_material_ui/dist/*.js
+src/panel_material_ui/dist/*.css
+src/panel_material_ui/dist/*.woff*
 
 # Sphinx documentation
 jupyter_execute/
