@@ -1283,6 +1283,8 @@ class LiteralInput(TextInput, _PnLiteralInput):
 
     value_input = param.Parameter()
 
+    _rename = {'type': None}
+
     def _process_property_change(self, msg):
         if msg.get('enter_pressed'):
             msg['value'] = self.value_input
