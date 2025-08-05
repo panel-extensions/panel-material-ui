@@ -154,14 +154,14 @@ class MuiDefaultTheme(MaterialDefaultTheme):
     bokeh_theme = param.ClassSelector(
         class_=(_BkTheme, str), default=_BkTheme(json=MATERIAL_THEME))
 
-    css = param.Filename(default=DIST_PATH / 'css' / 'material_variables.css')
+    css = param.Filename(default=DIST_PATH / 'css' / 'material-variables.css')
 
 class MuiDarkTheme(MaterialDarkTheme):
 
     bokeh_theme = param.ClassSelector(
         class_=(_BkTheme, str), default=_BkTheme(json=MATERIAL_THEME))
 
-    css = param.Filename(default=DIST_PATH / 'css' / 'material_variables.css')
+    css = param.Filename(default=DIST_PATH / 'css' / 'material-variables.css')
 
 class MaterialDesign(Material):
 
