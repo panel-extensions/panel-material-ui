@@ -11,8 +11,8 @@ from panel.layout import Column
 from panel.layout.base import ListLike
 from panel.models.reactive_html import DOMEvent
 
-from ..base import COLORS
-from .base import MaterialWidget
+from ..base import COLORS, ThemedTransform
+from .base import MaterialWidget, TooltipTransform
 from .button import _ButtonBase
 
 
@@ -346,6 +346,7 @@ class MenuButton(MenuBase, _ButtonBase):
     size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the menu button.")
 
     _esm_base = "MenuButton.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
         "button_type": None,
         "button_style": None
@@ -390,6 +391,7 @@ class SplitButton(MenuBase, _ButtonBase):
     margin = Margin(default=5)
 
     _esm_base = "SplitButton.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
         "button_type": None,
         "button_style": None
@@ -447,8 +449,6 @@ class MenuToggle(MenuBase, _ButtonBase):
     ... ], label='Actions', icon='more_vert')
     """
 
-    disable_elevation = param.Boolean(default=False, doc="Removes the menu's box-shadow for a flat appearance.")
-
     toggle_icon = param.String(default=None, doc="""
         Icon to display when menu is open (if different from base icon).""")
 
@@ -463,23 +463,23 @@ class MenuToggle(MenuBase, _ButtonBase):
     size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the menu toggle.")
 
     _esm_base = "MenuToggle.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
         "button_type": None,
         "button_style": None,
     }
-    _item_keys = ['label', 'icon', 'active_icon', 'toggled', 'color', 'active_color']
+    _item_keys = ['label', 'icon', 'active_icon', 'toggled', 'color', 'active_color', 'icon_size']
     _rename = {'value': None}
 
-    def __init__(self, **params):
-        # Remove active if passed in params to avoid conflict
-        params.pop('active', None)
-        super().__init__(**params)
-        # Initialize toggled based on items
+    @param.depends('items', watch=True, on_init=True)
+    def _sync_toggled(self):
         if self.items:
             self.toggled = [
                 i for i, item in enumerate(self.items)
                 if isinstance(item, dict) and item.get('toggled', False)
             ]
+        else:
+            self.toggled = []
 
     def _handle_msg(self, msg):
         if msg['type'] == 'toggle_item':

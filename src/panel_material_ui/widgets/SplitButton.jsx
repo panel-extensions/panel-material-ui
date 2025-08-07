@@ -22,6 +22,7 @@ export function render(props, ref) {
 
   const [open, setOpen] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(active)
+  const anchorEl = React.useRef(null)
 
   const handleMenuItemClick = (event, selectedIndex) => {
     setSelectedIndex(selectedIndex)
@@ -30,10 +31,14 @@ export function render(props, ref) {
   }
 
   const handleClose = (event) => {
-    if (ref.current && ref.current.contains(event.target)) {
+    if (anchorEl.current && anchorEl.current.contains(event.target)) {
       return
     }
     setOpen(false)
+  }
+
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
   }
 
   let current_icon = icon
@@ -44,12 +49,12 @@ export function render(props, ref) {
   }
 
   return (
-    <>
+    <div ref={ref}>
       <ButtonGroup
         color={color}
         disabled={disabled}
         fullWidth
-        ref={ref}
+        ref={anchorEl}
         size={size}
         variant={variant}
         {...other}
@@ -99,7 +104,7 @@ export function render(props, ref) {
         </Button>
       </ButtonGroup>
       <CustomMenu
-        anchorEl={() => ref.current}
+        anchorEl={() => anchorEl.current}
         open={open}
         onClose={() => setOpen(false)}
       >
@@ -129,6 +134,6 @@ export function render(props, ref) {
           </MenuItem>
         ))}
       </CustomMenu>
-    </>
+    </div>
   )
 }
