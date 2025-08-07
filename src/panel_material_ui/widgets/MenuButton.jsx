@@ -18,16 +18,21 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
   const [open, setOpen] = React.useState(false)
+  const anchorEl = React.useRef(null)
+
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
+  }
 
   return (
-    <>
+    <div ref={ref}>
       <Button
         color={color}
         disabled={disabled}
         endIcon={<ArrowDropDownIcon />}
         loading={loading}
         onClick={() => setOpen(!open)}
-        ref={ref}
+        ref={anchorEl}
         size={size}
         startIcon={icon && (
           icon.trim().startsWith("<") ?
@@ -49,7 +54,7 @@ export function render(props, ref) {
         {label}
       </Button>
       <CustomMenu
-        anchorEl={() => ref.current}
+        anchorEl={() => anchorEl.current}
         open={open}
         onClose={() => setOpen(false)}
       >
@@ -85,6 +90,6 @@ export function render(props, ref) {
           )
         })}
       </CustomMenu>
-    </>
+    </div>
   )
 }
