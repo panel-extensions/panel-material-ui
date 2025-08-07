@@ -12,7 +12,7 @@ export function render_description({model, el}) {
       placement="right"
       slotProps={{popper: {container: el}}}
     >
-      <InfoOutlinedIcon sx={{fontSize: "1.1em"}}/>
+      <InfoOutlinedIcon sx={{ml: "0.5em", fontSize: "0.9em"}}/>
     </Tooltip>
   )
 }
