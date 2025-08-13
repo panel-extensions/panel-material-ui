@@ -7,10 +7,12 @@ export function render(props, ref) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [edge] = model.useState("edge")
+  const [href] = model.useState("href")
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
+  const [target] = model.useState("target")
   const [toggle_duration] = model.useState("toggle_duration")
 
   const theme = useTheme()
@@ -40,10 +42,12 @@ export function render(props, ref) {
       color={color}
       disabled={disabled}
       edge={edge}
+      href={href}
       onClick={handleClick}
       ref={ref}
       size={size}
       sx={{color: color_variant, width: "100%", ...sx}}
+      target={target}
       {...other}
     >
       {current_icon.trim().startsWith("<") ?

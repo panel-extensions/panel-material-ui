@@ -113,6 +113,12 @@ class IconButton(_ClickableIcon, _ButtonBase):
     edge = param.Selector(objects=["start", "end", False], default=False, doc="""
         Whether the icon should be on the start or end of the button.""")
 
+    href = param.String(default=None, doc="""
+        The URL to navigate to when the button is clicked.""")
+
+    target = param.Selector(default="_self", objects=["_blank", "_parent", "_self", "_top"],
+                            doc="Where to open the linked document.")
+
     toggle_duration = param.Integer(default=75, doc="""
         The number of milliseconds the active_icon should be shown for
         and how long the button should be disabled for.""")
