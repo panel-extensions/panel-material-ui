@@ -140,8 +140,8 @@ export function render({model, el}) {
   const label_spacer = label ? label+spacer : null
 
   const hasValue = multi
-  ? Array.isArray(value) && value.length > 0
-  : value !== '' && value != null;
+    ? Array.isArray(value) && value.length > 0
+    : value !== "" && value != null;
 
   const getInput = () => {
     const inputProps = {
@@ -451,7 +451,7 @@ export function render({model, el}) {
         color={color}
         disabled={disabled}
         input={getInput()}
-	label={label}
+        label={label}
         labelId={`select-label-${model.id}`}
         multiple={multi}
         onChange={(event) => {
