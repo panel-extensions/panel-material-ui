@@ -83,23 +83,24 @@ html_theme_options = {
 
 
 extensions = [
-    'numpydoc',
     'bokeh.sphinxext.bokeh_plot',
     'myst_parser',
-    'sphinx_design',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.linkcode',
-    'sphinx.ext.inheritance_diagram',
-    'sphinx_copybutton',
-    'sphinxext.rediraffe',
+    'nbsite.analytics',
     'nbsite.gallery',
     'nbsite.pyodide',
-    'nbsite.analytics',
+    'numpydoc',
+    'sphinx_copybutton',
+    'sphinx_design',
+    'sphinx_llm.txt',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.coverage',
+    'sphinx.ext.doctest',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.linkcode',
+    'sphinx.ext.mathjax',
+    'sphinxext.rediraffe',
 ]
 
 numpydoc_show_inherited_class_members = False
