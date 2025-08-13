@@ -141,6 +141,10 @@ export function render({model, el}) {
   const spacer = model.description ? "\u00A0" : ""
   const label_spacer = label ? label+spacer : null
 
+  const hasValue = multi
+    ? Array.isArray(value) && value.length > 0
+    : value !== "" && value != null;
+
   const getInput = () => {
     const inputProps = {
       id: "select-input",
@@ -149,7 +153,7 @@ export function render({model, el}) {
     }
     switch (variant) {
       case "outlined":
-        return <OutlinedInput {...inputProps} />
+        return <OutlinedInput notched={hasValue || open} {...inputProps} />
       case "filled":
         return <FilledInput {...inputProps} />
       default:
@@ -446,7 +450,7 @@ export function render({model, el}) {
   return (
     <FormControl disabled={disabled} fullWidth variant={variant}>
       {label &&
-       <InputLabel color={color} id={`select-label-${model.id}`}>
+       <InputLabel color={color} id={`select-label-${model.id}`} shrink={hasValue || open}>
          {label}
          {model.description ? render_description({model, el}) : null}
        </InputLabel>
@@ -455,6 +459,7 @@ export function render({model, el}) {
         color={color}
         disabled={disabled}
         input={getInput()}
+        label={label}
         labelId={`select-label-${model.id}`}
         multiple={multi}
         onChange={(event) => {
