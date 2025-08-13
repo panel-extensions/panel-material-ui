@@ -80,7 +80,9 @@ export function render({model, el}) {
 
   const menuRef = React.useRef(null)
 
-  const items = processOptions().filter(({label}) => (!filter_on_search || filterStr === "" || matches(label)))
+  const items = processOptions()
+    .filter(({label}) => (!filter_on_search || filterStr === "" || matches(label)))
+    .filter(({value: v}) => !multi || searchable || !value.includes(v))
   const bookmarkedOptions = items.filter(({value}) => bookmarks.includes(value))
   const filteredOptions = items.filter(({value}) => !bookmarks.includes(value))
   let matchedOptions = [...bookmarkedOptions, ...filteredOptions].filter(({label}) => matches(label))
@@ -376,59 +378,65 @@ export function render({model, el}) {
             </Box>
           )}
         </MenuItem>}
-        {[
-          ...(bookmarkedOptions.length > 0 ? [
-            ...bookmarkedOptions.map(item => ({...item, isBookmarked: true})),
-            {isDivider: true}
-          ] : []),
-          ...filteredOptions.map(item => ({...item, isBookmarked: false}))
-        ].map((item, index) => {
-          if (item.isDivider) {
-            return <MenuItem key={`divider-${index}`} disabled divider />
-          }
-
-          const matched = filterStr && matches(item.label)
-          const {value: opt, label, isBookmarked} = item
-          const handleClick = (e) => {
-            if (!multi) {
-              setValue(opt)
-              setOpen(false)
-              e.stopPropagation()
-              return
+        {(bookmarkedOptions.length === 0 && filteredOptions.length === 0) ? (
+          <MenuItem disabled>
+            <ListItemText primary="No choices to choose from" />
+          </MenuItem>
+        ) : (
+          [
+            ...(bookmarkedOptions.length > 0
+              ? [...bookmarkedOptions.map(item => ({...item, isBookmarked: true})), {isDivider: true}]
+              : []),
+            ...filteredOptions.map(item => ({...item, isBookmarked: false}))
+          ].map((item, index) => {
+            if (item.isDivider) {
+              return <MenuItem key={`divider-${index}`} disabled divider />;
             }
-            const isChecked = !value.includes(opt)
-            if (isChecked) {
-              if (max_items && value.length >= max_items) {
-                setValue([...value.slice(1), opt])
-              } else {
-                setValue([...value, opt])
+
+            const matched = filterStr && matches(item.label);
+            const {value: opt, label} = item;
+
+            const handleClick = (e) => {
+              if (!multi) {
+                setValue(opt);
+                setOpen(false);
+                e.stopPropagation();
+                return;
               }
-            } else {
-              setValue(value.filter(v => v !== opt))
-            }
-            e.stopPropagation()
-          }
-
-          return (
-            <MenuItem
-              data-matched={matched}
-              disabled={disabled_options?.includes(opt)}
-              disableGutters
-              key={opt}
-              onClick={handleClick}
-              sx={{
-                backgroundColor: matched ? "action.selected" : "inherit",
-                "&:hover": {
-                  backgroundColor: matched ? "action.selected" : "action.hover",
+              const isChecked = !value.includes(opt);
+              if (isChecked) {
+                if (max_items && value.length >= max_items) {
+                  setValue([...value.slice(1), opt]);
+                } else {
+                  setValue([...value, opt]);
                 }
-              }}
-              value={opt}
-            >
-              {multi && searchable && <Checkbox color={color} checked={value.includes(opt)} onClick={handleClick} />}
-              <ListItemText primary={label} sx={{margin: 2}} />
-            </MenuItem>
-          )
-        })}
+              } else {
+                setValue(value.filter(v => v !== opt));
+              }
+              e.stopPropagation();
+            };
+
+            return (
+              <MenuItem
+                data-matched={matched}
+                disabled={disabled_options?.includes(opt)}
+                disableGutters
+                key={opt}
+                onClick={handleClick}
+                sx={{
+                  backgroundColor: matched ? "action.selected" : "inherit",
+                  "&:hover": {backgroundColor: matched ? "action.selected" : "action.hover"}
+                }}
+                value={opt}
+              >
+                {multi && searchable && (
+                  <Checkbox color={color} checked={value.includes(opt)} onClick={handleClick} />
+                )}
+                <ListItemText primary={label} sx={{margin: 2}} />
+              </MenuItem>
+            );
+          })
+        )}
       </>
     )
   }
