@@ -4,7 +4,7 @@ import {TimePicker} from "@mui/x-date-pickers/TimePicker"
 import dayjs from "dayjs"
 import {render_description} from "./description"
 
-export function render({model, view}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [clock] = model.useState("clock")
@@ -54,7 +54,7 @@ export function render({model, view}) {
         desktopModeMediaQuery={media_query}
         disabled={disabled}
         format={format}
-        label={model.description ? <>{label}{render_description({model, el})}</> : label}
+        label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
         onChange={handleChange}
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}

@@ -6,7 +6,7 @@ import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
 import {render_description} from "./description"
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [inline] = model.useState("inline")
@@ -21,7 +21,7 @@ export function render({model, el}) {
 
   return (
     <FormControl component="fieldset" disabled={disabled} fullWidth>
-      {label && <FormLabel id="radio-group-label">{label}{model.description ? render_description({model, el}) : null}</FormLabel>}
+      {label && <FormLabel id="radio-group-label">{label}{model.description ? render_description({model, el, view}) : null}</FormLabel>}
       <RadioGroup
         aria-labelledby="radio-group-label"
         fullWidth

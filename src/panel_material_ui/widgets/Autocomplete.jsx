@@ -3,7 +3,7 @@ import Popper from "@mui/material/Popper"
 import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -52,7 +52,7 @@ export function render({model, el}) {
         <TextField
           {...params}
           color={color}
-          label={model.description ? <>{label}{render_description({model, el})}</> : label}
+          label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
           placeholder={placeholder}
           onChange={(event) => {
             setValueInput(event.target.value)
