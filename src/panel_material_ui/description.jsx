@@ -19,33 +19,33 @@ export function render_description({model, el, view}) {
     console.log(cache)
     return (
       <>
-	<InfoOutlinedIcon
-	  ref={iconRef}
-	  onMouseEnter={() => setOpen(true)}
+        <InfoOutlinedIcon
+          ref={iconRef}
+          onMouseEnter={() => setOpen(true)}
           onMouseLeave={() => setOpen(false)}
           onFocus={() => setOpen(true)}
           onBlur={() => setOpen(false)}
-	  sx={{ml: "0.5em", fontSize: "0.9em"}}
-	/>
-	<CacheProvider value={cache}>
-	  <ThemeProvider theme={theme}>
-	    <Tooltip
-	      title={description}
-	      arrow
-	      open={open}
-	      placement="right"
-	      slotProps={{
-		popper: {
-		  container,
-		  anchorEl: () => iconRef.current
-		}
-	      }}
-	      sx={{zIndex: 5000}}
-	    >
-	      <span />
-	    </Tooltip>
-	  </ThemeProvider>
-	</CacheProvider>
+          sx={{ml: "0.5em", fontSize: "0.9em"}}
+        />
+        <CacheProvider value={cache}>
+          <ThemeProvider theme={theme}>
+            <Tooltip
+              title={description}
+              arrow
+              open={open}
+              placement="right"
+              slotProps={{
+                popper: {
+                  container,
+                  anchorEl: () => iconRef.current
+                }
+              }}
+              sx={{zIndex: 5000}}
+            >
+              <span />
+            </Tooltip>
+          </ThemeProvider>
+        </CacheProvider>
       </>
     )
   }
@@ -55,9 +55,9 @@ export function render_description({model, el, view}) {
       arrow
       placement="right"
       slotProps={{
-	popper: {
-	  container
-	}
+        popper: {
+          container
+        }
       }}
       sx={{zIndex: 5000}}
     >
