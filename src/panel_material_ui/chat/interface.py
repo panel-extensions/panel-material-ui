@@ -4,7 +4,8 @@ from functools import partial
 from typing import TYPE_CHECKING
 
 import param
-from panel.chat.interface import CallbackState, ChatInterface
+from panel.chat.interface import CallbackState
+from panel.chat.interface import ChatInterface as PnChatInterface
 from panel.layout import Column, Row
 from panel.pane.markup import Markdown
 
@@ -20,7 +21,7 @@ ICON_MAP = {
 }
 
 
-class ChatInterface(ChatFeed, ChatInterface):
+class ChatInterface(ChatFeed, PnChatInterface):
     """
     A chat interface that uses Material UI components.
 
@@ -37,6 +38,11 @@ class ChatInterface(ChatFeed, ChatInterface):
     input_params = param.Dict(
         default={}, doc="Additional parameters to pass to the ChatAreaInput widget, like `enable_upload`."
     )
+
+    send_callback = param.Callable(default=None, doc="""
+        Callback to invoke when the send button or enter is pressed; should accept an event and instance as args.
+        If unspecified, the default behavior is to send a Column containing the input text and views.
+        This only affects the user-facing input, and does not affect the `send` method.""")
 
     _input_type = ChatAreaInput
 
@@ -79,6 +85,11 @@ class ChatInterface(ChatFeed, ChatInterface):
     ) -> None:
         if self.disabled:
             return
+
+        if self.send_callback is not None:
+            self.send_callback(event, instance)
+            return
+
         objects = []
         if self.active_widget.value:
             objects.append(Markdown(self.active_widget.value))

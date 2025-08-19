@@ -208,7 +208,7 @@ export function render({model, view}) {
     if (file_data.length) {
       let validFiles = file_data
       if (accept) {
-        validFiles = Array.from(files).filter(file => isFileAccepted(file, accept))
+        validFiles = Array.from(file_data).filter(file => isFileAccepted(file, accept))
       }
 
       const count = await processFilesChunked(
@@ -259,8 +259,12 @@ export function render({model, view}) {
 
     if (disabled) { return }
 
-    const files = e.dataTransfer.files
-    setFileData([...file_data, ...files])
+    const files = Array.from(e.dataTransfer.files)
+    let validFiles = files
+    if (accept) {
+      validFiles = files.filter(file => isFileAccepted(file, accept))
+    }
+    setFileData([...file_data, ...validFiles])
   }
 
   const removeFile = (index) => {
@@ -345,10 +349,15 @@ export function render({model, view}) {
         ref={fileInputRef}
         type="file"
         multiple
+        accept={accept}
         onChange={(event) => {
           if (event.target.files && event.target.files.length > 0) {
             const files = Array.from(event.target.files)
-            setFileData([...file_data, ...files])
+            let validFiles = files
+            if (accept) {
+              validFiles = files.filter(file => isFileAccepted(file, accept))
+            }
+            setFileData([...file_data, ...validFiles])
           }
         }}
       />}

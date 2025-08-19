@@ -30,8 +30,9 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
     """
 
     accept = param.String(default=None, doc="""
-        A comma separated string of all extension types that should
-        be supported.""")
+        A comma separated string of file extensions (with dots) or MIME types
+        that should be accepted for upload. Examples: '.csv,.json,.txt' or
+        'text/csv,application/json'.""")
 
     actions = param.Dict(default={}, doc="""
         A dictionary of actions that can be invoked via the speed dial to the
@@ -83,6 +84,35 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
     _rename = {"loading": "loading", "views": None}
 
     def __init__(self, **params):
+        # Validate accept parameter format
+        if 'accept' in params and params['accept'] is not None:
+            accept_value = params['accept']
+            extensions = [ext.strip() for ext in accept_value.split(',')]
+            for ext in extensions:
+                if not ext:  # Skip empty strings
+                    continue
+
+                if '/' in ext:
+                    # This should be a MIME type (e.g., 'text/csv', 'image/png')
+                    parts = ext.split('/')
+                    if len(parts) != 2 or not parts[0] or not parts[1]:
+                        raise ValueError(
+                            f"Invalid MIME type '{ext}'. MIME types should be in format 'type/subtype' "
+                            f"(e.g., 'text/csv', 'application/json')."
+                        )
+                    # Check for invalid subtypes like '.csv' in 'text/.csv'
+                    if parts[1].startswith('.'):
+                        raise ValueError(
+                            f"Invalid MIME type '{ext}'. The subtype '{parts[1]}' should not start with a dot. "
+                            f"Use '{parts[0]}/{parts[1][1:]}' or file extension '{parts[1]}' instead."
+                        )
+                elif not ext.startswith('.') and len(ext) <= 10:
+                    # This looks like a file extension without a dot
+                    raise ValueError(
+                        f"File extension '{ext}' should start with a dot (e.g., '.{ext}'). "
+                        f"Use file extensions like '.csv,.json' or MIME types like 'text/csv,application/json'."
+                    )
+
         action_callbacks = {}
         if 'actions' in params:
             actions = {}
