@@ -194,6 +194,14 @@ function generatePalette(color, nColors = 3) {
   });
 }
 
+function luminance(hexColor) {
+  hexColor = hexColor.replace(/^#/, "")
+  const r = parseInt(hexColor.substring(0, 2), 16)
+  const g = parseInt(hexColor.substring(2, 4), 16)
+  const b = parseInt(hexColor.substring(4, 6), 16)
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
 const overlayOpacities = [
   0,
   0.051,
@@ -743,7 +751,7 @@ export function render_theme_config(props, theme_config, dark_theme) {
         main: dark_theme ? grey[500] : "#000000",
         light: grey[dark_theme ? 200 : 100],
         dark: grey[dark_theme ? 800 : 600],
-        contrastText: dark_theme ? "#ffffff" : "#ffffff",
+        contrastText: "#ffffff",
       },
       dark: {
         main: grey[dark_theme ? 800 : 600],
@@ -1065,16 +1073,42 @@ export const install_theme_hooks = (props) => {
 
   const merge_theme_configs = (view) => {
     let current = view
+    let prev = null
     const theme_configs = []
     const views = []
     while (current != null) {
+      const is_header = current.model.class_name === "Page" && prev && current.model.data.header.includes(prev.model)
       if (current.model?.data?.theme_config !== undefined) {
         const config = current.model.data.theme_config
         views.push(current)
+        if (is_header) {
+          const primary_color = current.model.theme_config?.palette?.primary?.main ?? current.model.theme_config?.[color_scheme]?.palette?.primary?.main
+          let skip = false
+          const header_color = primary_color ?? "#0072b5"
+          const header_bg = luminance(header_color) < 164 ? "#ffffff" : "#000000"
+          if (current.model.data.sx && current.model.data.sx[".MuiAppBar-root"] != null) {
+            const header_sx = current.model.data.sx[".MuiAppBar-root"]
+            skip = header_sx.bgcolor === "primary.contrastText" && header_sx.color == "primary.main"
+          }
+          if (!skip) {
+            theme_configs.push({
+              palette: {
+                default: {main: header_bg},
+                primary: {main: header_bg, contrastText: header_color},
+                background: {
+                  default: header_color,
+                  paper: header_color
+                },
+                text: {primary: header_bg}
+              }
+            })
+          }
+        }
         if (config !== null) {
           theme_configs.push((config.dark && config.light) ? config[dark_ref.current ? "dark" : "light"] : config)
         }
       }
+      prev = current
       current = current.parent
     }
     const merged = theme_configs.reverse().reduce((acc, config) => deepmerge(acc, config), {})
