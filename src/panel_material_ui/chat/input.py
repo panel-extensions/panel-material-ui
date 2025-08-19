@@ -88,35 +88,6 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
     _rename = {"loading": "loading", "views": None, "value_uploaded": None}
 
     def __init__(self, **params):
-        # Validate accept parameter format
-        if 'accept' in params and params['accept'] is not None:
-            accept_value = params['accept']
-            extensions = [ext.strip() for ext in accept_value.split(',')]
-            for ext in extensions:
-                if not ext:  # Skip empty strings
-                    continue
-
-                if '/' in ext:
-                    # This should be a MIME type (e.g., 'text/csv', 'image/png')
-                    parts = ext.split('/')
-                    if len(parts) != 2 or not parts[0] or not parts[1]:
-                        raise ValueError(
-                            f"Invalid MIME type '{ext}'. MIME types should be in format 'type/subtype' "
-                            f"(e.g., 'text/csv', 'application/json')."
-                        )
-                    # Check for invalid subtypes like '.csv' in 'text/.csv'
-                    if parts[1].startswith('.'):
-                        raise ValueError(
-                            f"Invalid MIME type '{ext}'. The subtype '{parts[1]}' should not start with a dot. "
-                            f"Use '{parts[0]}/{parts[1][1:]}' or file extension '{parts[1]}' instead."
-                        )
-                elif not ext.startswith('.') and len(ext) <= 10:
-                    # This looks like a file extension without a dot
-                    raise ValueError(
-                        f"File extension '{ext}' should start with a dot (e.g., '.{ext}'). "
-                        f"Use file extensions like '.csv,.json' or MIME types like 'text/csv,application/json'."
-                    )
-
         action_callbacks = {}
         if 'actions' in params:
             actions = {}
@@ -130,6 +101,34 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         self._action_callbacks = {}
         for action, callback in action_callbacks.items():
             self.on_action(action, callback)
+
+    @param.depends("accept", watch=True, on_init=True)
+    def _validate_accept(self):
+        extensions = [ext.strip() for ext in self.accept.split(',')]
+        for ext in extensions:
+            if not ext:  # Skip empty strings
+                continue
+
+            if '/' in ext:
+                # This should be a MIME type (e.g., 'text/csv', 'image/png')
+                parts = ext.split('/')
+                if len(parts) != 2 or not parts[0] or not parts[1]:
+                    raise ValueError(
+                        f"Invalid MIME type '{ext}'. MIME types should be in format 'type/subtype' "
+                        f"(e.g., 'text/csv', 'application/json')."
+                    )
+                # Check for invalid subtypes like '.csv' in 'text/.csv'
+                if parts[1].startswith('.'):
+                    raise ValueError(
+                        f"Invalid MIME type '{ext}'. The subtype '{parts[1]}' should not start with a dot. "
+                        f"Use '{parts[0]}/{parts[1][1:]}' or file extension '{parts[1]}' instead."
+                    )
+            elif not ext.startswith('.') and len(ext) <= 10:
+                # This looks like a file extension without a dot
+                raise ValueError(
+                    f"File extension '{ext}' should start with a dot (e.g., '.{ext}'). "
+                    f"Use file extensions like '.csv,.json' or MIME types like 'text/csv,application/json'."
+                )
 
     def _handle_msg(self, msg) -> None:
         if msg['type'] == 'input':
