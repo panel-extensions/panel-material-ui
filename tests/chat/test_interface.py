@@ -6,11 +6,11 @@ pn.extension()
 
 def test_chat_interface_basic_creation():
     """Test that ChatInterface can be created with basic parameters."""
-    def on_send(event, instance):
+    def on_click_send(event, instance):
         instance.send("Received new message.")
 
     chat_interface = ChatInterface(
-        send_callback=on_send,
+        send_callback=on_click_send,
     )
 
     chat_interface._click_send(None, chat_interface)

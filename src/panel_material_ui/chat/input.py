@@ -74,6 +74,10 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
 
     rows = param.Integer(default=1)
 
+    value_uploaded = param.Dict(default={}, doc="""
+        Dictionary containing raw file data keyed by filename after user sends uploads.
+        Each entry contains mime_type, value (bytes), and size.""")
+
     views = param.List(default=[], doc="""
         Views generated from uploaded files.""")
 
@@ -81,7 +85,7 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
 
     _esm_transforms = [ThemedTransform]
 
-    _rename = {"loading": "loading", "views": None}
+    _rename = {"loading": "loading", "views": None, "value_uploaded": None}
 
     def __init__(self, **params):
         # Validate accept parameter format
@@ -153,6 +157,18 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
             filename = [filename]
             mime_type = [mime_type]
             value = [value]
+
+        # Store raw file data
+        self.value_uploaded = {
+            fname: {
+                "mime_type": mtype,
+                "value": fdata,
+                "size": len(fdata) if fdata else 0
+            }
+            for fname, mtype, fdata in zip(filename, mime_type, value, strict=False)
+        }
+
+        # Create views
         self.views = [
             self._single_view(self._single_object(fdata, fname, mtype), fname, mtype)
             for fname, mtype, fdata in zip(filename, mime_type, value, strict=False)
