@@ -86,8 +86,8 @@ class ChatInterface(ChatFeed, PnChatInterface):
         if self.disabled:
             return
 
-        if self.on_click_send is not None:
-            self.on_click_send(event, instance)
+        if self.on_submit is not None:
+            self.on_submit(event, instance)
             return
 
         objects = self.active_widget.views
