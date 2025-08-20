@@ -84,14 +84,18 @@ class ChatInterface(ChatFeed, PnChatInterface):
         instance: ChatInterface | None = None
     ) -> None:
         if self.disabled:
+            print("disabled")
             return
 
         if self.on_submit is not None:
+            print('submit')
             self.on_submit(event, instance)
             return
 
         objects = self.active_widget.views
+        print(self.active_widget)
         if self.active_widget.value:
+            print(self.active_widget.value, "VALUE")  # why is this ""??
             objects.append(Markdown(self.active_widget.value))
         if not objects:
             return
@@ -106,9 +110,5 @@ class ChatInterface(ChatFeed, PnChatInterface):
             css_classes=["message"],
             **self.placeholder_params
         )
-
-    @property
-    def active_widget(self):
-        return self._widget
 
 __all__ = ["ChatInterface"]
