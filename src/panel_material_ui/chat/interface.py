@@ -39,7 +39,7 @@ class ChatInterface(ChatFeed, PnChatInterface):
         default={}, doc="Additional parameters to pass to the ChatAreaInput widget, like `enable_upload`."
     )
 
-    on_click_send = param.Callable(default=None, doc="""
+    on_submit = param.Callable(default=None, doc="""
         Callback to invoke when the send button or enter is pressed; should accept an event and instance as args.
         If unspecified, the default behavior is to send a Column containing the input text and views.
         This only affects the user-facing input, and does not affect the `send` method.""")
@@ -90,10 +90,9 @@ class ChatInterface(ChatFeed, PnChatInterface):
             self.on_click_send(event, instance)
             return
 
-        objects = []
+        objects = self.active_widget.views
         if self.active_widget.value:
             objects.append(Markdown(self.active_widget.value))
-        objects.extend(self.active_widget.views)
         if not objects:
             return
         value = Column(*objects) if len(objects) > 1 else objects[0]
@@ -107,5 +106,9 @@ class ChatInterface(ChatFeed, PnChatInterface):
             css_classes=["message"],
             **self.placeholder_params
         )
+
+    @property
+    def active_widget(self):
+        return self._widget
 
 __all__ = ["ChatInterface"]
