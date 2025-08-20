@@ -88,19 +88,31 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
     _rename = {"loading": "loading", "views": None, "value_uploaded": None}
 
     def __init__(self, **params):
-        action_callbacks = {}
-        if 'actions' in params:
-            actions = {}
-            for action, value in params['actions'].items():
-                value = dict(value)
-                if 'callback' in value:
-                    action_callbacks[action] = value.pop('callback')
-                actions[action] = value
-            params['actions'] = actions
         super().__init__(**params)
         self._action_callbacks = {}
-        for action, callback in action_callbacks.items():
-            self.on_action(action, callback)
+        self._update_actions()
+        self.param.watch(self._update_actions, 'actions')
+
+    def _update_actions(self, event=None):
+        if event and event.old:
+            for action, spec in event.old.items():
+                if 'callback' in spec:
+                    self.remove_on_action(action, spec['callback'])
+        for action, spec in self.actions.items():
+            if 'callback' in spec:
+                self.on_action(action, spec['callback'])
+
+    def _process_param_change(self, params):
+        props = super()._process_param_change(params)
+        if 'actions' in props:
+            actions = {}
+            for action, spec in props['actions'].items():
+                if 'callback' in spec:
+                    spec = dict(spec)
+                    del spec['callback']
+                actions[action] = spec
+            props['actions'] = actions
+        return props
 
     @param.depends("accept", watch=True, on_init=True)
     def _validate_accept(self):
@@ -178,7 +190,7 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
 
     def on_action(self, name: str, callback: Callable):
         """
-        Allows registering a callback invoked when an action is defined.
+        Registers a callback that is invoked when an action triggered.
 
         Parameters
         ----------
@@ -190,6 +202,20 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         if name not in self._action_callbacks:
             self._action_callbacks[name] = []
         self._action_callbacks[name].append(callback)
+
+    def remove_on_action(self, name: str, callback: Callable):
+        """
+        Removes a callback that was registered with on_action.
+
+        Parameters
+        ----------
+        name: str
+            The name of the action to register the callback for.
+        callback: callable
+            The callback to invoke when the action is triggered.
+        """
+        if name in self._action_callbacks:
+            self._action_callbacks[name].remove(callback)
 
     def _update_loading(self, *_) -> None:
         """
