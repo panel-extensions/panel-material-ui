@@ -10,7 +10,7 @@ def test_chat_interface_basic_creation():
         instance.send("Received new message.")
 
     chat_interface = ChatInterface(
-        send_callback=on_click_send,
+        on_submit=on_click_send,
     )
 
     chat_interface._click_send(None, chat_interface)
