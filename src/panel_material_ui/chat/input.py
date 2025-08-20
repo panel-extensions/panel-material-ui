@@ -104,6 +104,9 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
 
     @param.depends("accept", watch=True, on_init=True)
     def _validate_accept(self):
+        if self.accept is None:
+            return
+
         extensions = [ext.strip() for ext in self.accept.split(',')]
         for ext in extensions:
             if not ext:  # Skip empty strings
