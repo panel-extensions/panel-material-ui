@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Callable
 
 import param
+from panel.viewable import Children
 
 from ..base import ThemedTransform
 from ..widgets.input import TextAreaInput, _FileUploadArea
@@ -81,11 +82,14 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
     views = param.List(default=[], doc="""
         Views generated from uploaded files.""")
 
+    footer_objects = Children(default=[], doc="""
+        A list of panel objects to display in the footer area below the input.""")
+
     _esm_base = "ChatArea.jsx"
 
     _esm_transforms = [ThemedTransform]
 
-    _rename = {"loading": "loading", "views": None, "value_uploaded": None}
+    _rename = {"loading": "loading", "views": None, "value_uploaded": None, "footer_objects": "footer_objects"}
 
     def __init__(self, **params):
         super().__init__(**params)
