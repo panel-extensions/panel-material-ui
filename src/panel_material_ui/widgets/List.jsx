@@ -115,7 +115,8 @@ export function render({model}) {
           "&.MuiListItemButton-root.Mui-selected": {
             bgcolor: isActive ? (
               `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
-            ) : "inherit"
+            ) : "inherit",
+	    borderLeft: `3px solid var(--mui-palette-${color}-main)`
           }
         }}
       >
