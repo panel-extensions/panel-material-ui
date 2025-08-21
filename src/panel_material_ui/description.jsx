@@ -16,7 +16,6 @@ export function render_description({model, el, view}) {
   if (view && view.root.model.class_name == "Page" && view.root.mui_cache != null) {
     container = view.root.shadow_el
     cache = view.root.mui_cache
-    console.log(cache)
     return (
       <>
         <InfoOutlinedIcon
