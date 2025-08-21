@@ -42,8 +42,8 @@ function NotificationArea({model, view}) {
           icon={icon ? <Icon>{icon}</Icon> : undefined}
           onClose={() => notification._uuid && closeSnackbar(notification._uuid)}
           severity={notification.notification_type}
-	  id={uuid ?? notification._uuid}
-	  sx={background ? (
+          id={uuid ?? notification._uuid}
+          sx={background ? (
             {
               backgroundColor: color.main,
               margin: "0.5em 1em",
@@ -56,9 +56,9 @@ function NotificationArea({model, view}) {
       ),
       key: uuid ?? notification._uuid,
       onClose: () => {
-	if (notification._uuid == null) {
-	  return
-	}
+        if (notification._uuid == null) {
+          return
+        }
         model.notifications = model.notifications.filter(n => n._uuid !== notification._uuid)
         model.send_msg({
           type: "destroy",
@@ -86,6 +86,13 @@ function NotificationArea({model, view}) {
     const reconnect_id = `reconnect-notification-${view.model.id}`
     view.model.document.on_event("client_reconnected", (_, _event) => {
       clear_timeout()
+      closeSnackbar(reconnect_id)
+      const config = {
+        message: "Connection with server was re-established.",
+        duration: 5000,
+        notification_type: "success"
+      }
+      enqueueNotification(config)
     })
     view.model.document.on_event('connection_lost', (_, event) => {
       clear_timeout()
@@ -93,26 +100,26 @@ function NotificationArea({model, view}) {
       const msg = model.js_events.connection_lost.message
       const reconnect_msg = document.getElementById(reconnect_id)?.children[1]
       if (timeout == null && reconnect_msg != null) {
-	reconnect_msg.innerHTML = `<div>${msg} <span class="reconnect-button"><b>Click here</b></span> to attempt manual re-connect.<div>`
-	const reconnectSpan = reconnect_msg.querySelector('.reconnect-button');
-	if (reconnectSpan) {
+        reconnect_msg.innerHTML = `<div>${msg} <span class="reconnect-button"><b>Click here</b></span> to attempt manual re-connect.<div>`
+        const reconnectSpan = reconnect_msg.querySelector('.reconnect-button');
+        if (reconnectSpan) {
           reconnectSpan.addEventListener('click', () => { clear_timeout(); event.reconnect() })
-	}
+        }
       } else {
-	let current_timeout = timeout
-	const config = {
+        let current_timeout = timeout
+        const config = {
           message: msg,
           duration: 0,
           notification_type: model.data.js_events.connection_lost.type
-	}
-	if (reconnect_msg == null) {
+        }
+        if (reconnect_msg == null) {
           enqueueNotification(config, reconnect_id)
-	}
-	const set_timeout = () => {
-	  const reconnect_msg = document.getElementById(reconnect_id)?.children[1]
-	  if (reconnect_msg == null) {
-	    return
-	  }
+        }
+        const set_timeout = () => {
+          const reconnect_msg = document.getElementById(reconnect_id)?.children[1]
+          if (reconnect_msg == null) {
+            return
+          }
           const timeout = Math.max(0, Math.round(current_timeout / 1000))
           let message = msg
           if (timeout == 0) {
@@ -121,12 +128,12 @@ function NotificationArea({model, view}) {
           } else {
             message = `${msg} Attempting to reconnect in ${timeout} seconds…`
           }
-	  reconnect_msg.textContent = message
-	}
-	if (timeout != null) {
+          reconnect_msg.textContent = message
+        }
+        if (timeout != null) {
           set_timeout()
           timeout_ref.current = setInterval(() => { current_timeout -= 1000; set_timeout() }, 1000)
-	}
+        }
       }
     })
   }
