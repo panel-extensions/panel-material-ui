@@ -4,7 +4,8 @@ from functools import partial
 from typing import TYPE_CHECKING
 
 import param
-from panel.chat.interface import CallbackState, ChatInterface
+from panel.chat.interface import CallbackState
+from panel.chat.interface import ChatInterface as PnChatInterface
 from panel.layout import Column, Row
 from panel.pane.markup import Markdown
 
@@ -20,7 +21,7 @@ ICON_MAP = {
 }
 
 
-class ChatInterface(ChatFeed, ChatInterface):
+class ChatInterface(ChatFeed, PnChatInterface):
     """
     A chat interface that uses Material UI components.
 
@@ -38,9 +39,21 @@ class ChatInterface(ChatFeed, ChatInterface):
         default={}, doc="Additional parameters to pass to the ChatAreaInput widget, like `enable_upload`."
     )
 
+    on_submit = param.Callable(default=None, doc="""
+        Callback to invoke when the send button or enter is pressed; should accept an event and instance as args.
+        If unspecified, the default behavior is to send a Column containing the input text and views.
+        This only affects the user-facing input, and does not affect the `send` method.""")
+
+    widgets = param.Parameter(constant=True, doc="Not supported by panel-material-ui ChatInterface.")
+
     _input_type = ChatAreaInput
 
     _rename = {"loading": "loading"}
+
+    def __init__(self, **params):
+        self._widget = None
+        self._send_watcher = None
+        super().__init__(**params)
 
     @param.depends("_callback_state", watch=True)
     async def _update_input_disabled(self):
@@ -50,11 +63,17 @@ class ChatInterface(ChatFeed, ChatInterface):
         else:
             self._widget.loading = True
 
-    @param.depends("widgets", "button_properties", watch=True)
+    @param.depends("button_properties", watch=True)
     def _init_widgets(self):
-        if len(self.widgets) > 1:
-            raise ValueError("panel_material_ui.ChatInterface.widgets not supported.")
-        self._init_button_data()
+        if self._widget is None:
+            self._widget = ChatAreaInput(sizing_mode="stretch_width", disabled=self.param.disabled, **self.input_params)
+            self._widget.on_action("stop", self._click_stop)
+            input_container = Row(self._widget, sizing_mode="stretch_width")
+            self._input_container.objects = [input_container]
+            self._input_layout = input_container
+            self._init_button_data()
+        else:
+            self._widget.param.unwatch(self._send_watcher)
         actions = {}
         for name, data in self._button_data.items():
             if (
@@ -63,14 +82,9 @@ class ChatInterface(ChatFeed, ChatInterface):
             ):
                 continue
             actions[name] = {'icon': ICON_MAP.get(data.icon, data.icon), 'callback': partial(data.callback, self), 'label': name.title()}
-        self._widget = ChatAreaInput(actions=actions, sizing_mode="stretch_width", **self.input_params)
-        self.link(self._widget, disabled="disabled_enter")
+        self._widget.actions = actions
         callback = partial(self._button_data["send"].callback, instance=self)
-        self._widget.param.watch(callback, "enter_pressed")
-        self._widget.on_action("stop", self._click_stop)
-        input_container = Row(self._widget, sizing_mode="stretch_width")
-        self._input_container.objects = [input_container]
-        self._input_layout = input_container
+        self._send_watcher = self._widget.param.watch(callback, "value")
 
     def _click_send(
         self,
@@ -79,10 +93,14 @@ class ChatInterface(ChatFeed, ChatInterface):
     ) -> None:
         if self.disabled:
             return
-        objects = []
-        if self.active_widget.value:
-            objects.append(Markdown(self.active_widget.value))
-        objects.extend(self.active_widget.views)
+
+        if self.on_submit is not None:
+            self.on_submit(event, instance)
+            return
+
+        objects = self._widget.views
+        if event.new:
+            objects.append(Markdown(event.new))
         if not objects:
             return
         value = Column(*objects) if len(objects) > 1 else objects[0]

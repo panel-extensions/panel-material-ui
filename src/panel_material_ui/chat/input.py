@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Callable
 
 import param
+from panel.viewable import Children
 
 from ..base import ThemedTransform
 from ..widgets.input import TextAreaInput, _FileUploadArea
@@ -30,8 +31,9 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
     """
 
     accept = param.String(default=None, doc="""
-        A comma separated string of all extension types that should
-        be supported.""")
+        A comma separated string of file extensions (with dots) or MIME types
+        that should be accepted for upload. Examples: '.csv,.json,.txt' or
+        'text/csv,application/json'.""")
 
     actions = param.Dict(default={}, doc="""
         A dictionary of actions that can be invoked via the speed dial to the
@@ -73,29 +75,79 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
 
     rows = param.Integer(default=1)
 
+    value_uploaded = param.Dict(default={}, doc="""
+        Dictionary containing raw file data keyed by filename after user sends uploads.
+        Each entry contains mime_type, value (bytes), and size.""")
+
     views = param.List(default=[], doc="""
         Views generated from uploaded files.""")
+
+    footer_objects = Children(default=[], doc="""
+        A list of panel objects to display in the footer area below the input.""")
 
     _esm_base = "ChatArea.jsx"
 
     _esm_transforms = [ThemedTransform]
 
-    _rename = {"loading": "loading", "views": None}
+    _rename = {"loading": "loading", "views": None, "value_uploaded": None, "footer_objects": "footer_objects"}
 
     def __init__(self, **params):
-        action_callbacks = {}
-        if 'actions' in params:
-            actions = {}
-            for action, value in params['actions'].items():
-                value = dict(value)
-                if 'callback' in value:
-                    action_callbacks[action] = value.pop('callback')
-                actions[action] = value
-            params['actions'] = actions
         super().__init__(**params)
         self._action_callbacks = {}
-        for action, callback in action_callbacks.items():
-            self.on_action(action, callback)
+        self._update_actions()
+        self.param.watch(self._update_actions, 'actions')
+
+    def _update_actions(self, event=None):
+        if event and event.old:
+            for action, spec in event.old.items():
+                if 'callback' in spec:
+                    self.remove_on_action(action, spec['callback'])
+        for action, spec in self.actions.items():
+            if 'callback' in spec:
+                self.on_action(action, spec['callback'])
+
+    def _process_param_change(self, params):
+        props = super()._process_param_change(params)
+        if 'actions' in props:
+            actions = {}
+            for action, spec in props['actions'].items():
+                if 'callback' in spec:
+                    spec = dict(spec)
+                    del spec['callback']
+                actions[action] = spec
+            props['actions'] = actions
+        return props
+
+    @param.depends("accept", watch=True, on_init=True)
+    def _validate_accept(self):
+        if self.accept is None:
+            return
+
+        extensions = [ext.strip() for ext in self.accept.split(',')]
+        for ext in extensions:
+            if not ext:  # Skip empty strings
+                continue
+
+            if '/' in ext:
+                # This should be a MIME type (e.g., 'text/csv', 'image/png')
+                parts = ext.split('/')
+                if len(parts) != 2 or not parts[0] or not parts[1]:
+                    raise ValueError(
+                        f"Invalid MIME type '{ext}'. MIME types should be in format 'type/subtype' "
+                        f"(e.g., 'text/csv', 'application/json')."
+                    )
+                # Check for invalid subtypes like '.csv' in 'text/.csv'
+                if parts[1].startswith('.'):
+                    raise ValueError(
+                        f"Invalid MIME type '{ext}'. The subtype '{parts[1]}' should not start with a dot. "
+                        f"Use '{parts[0]}/{parts[1][1:]}' or file extension '{parts[1]}' instead."
+                    )
+            elif not ext.startswith('.') and len(ext) <= 10:
+                # This looks like a file extension without a dot
+                raise ValueError(
+                    f"File extension '{ext}' should start with a dot (e.g., '.{ext}'). "
+                    f"Use file extensions like '.csv,.json' or MIME types like 'text/csv,application/json'."
+                )
 
     def _handle_msg(self, msg) -> None:
         if msg['type'] == 'input':
@@ -123,6 +175,18 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
             filename = [filename]
             mime_type = [mime_type]
             value = [value]
+
+        # Store raw file data
+        self.value_uploaded = {
+            fname: {
+                "mime_type": mtype,
+                "value": fdata,
+                "size": len(fdata) if fdata else 0
+            }
+            for fname, mtype, fdata in zip(filename, mime_type, value, strict=False)
+        }
+
+        # Create views
         self.views = [
             self._single_view(self._single_object(fdata, fname, mtype), fname, mtype)
             for fname, mtype, fdata in zip(filename, mime_type, value, strict=False)
@@ -130,7 +194,7 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
 
     def on_action(self, name: str, callback: Callable):
         """
-        Allows registering a callback invoked when an action is defined.
+        Registers a callback that is invoked when an action triggered.
 
         Parameters
         ----------
@@ -142,6 +206,20 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         if name not in self._action_callbacks:
             self._action_callbacks[name] = []
         self._action_callbacks[name].append(callback)
+
+    def remove_on_action(self, name: str, callback: Callable):
+        """
+        Removes a callback that was registered with on_action.
+
+        Parameters
+        ----------
+        name: str
+            The name of the action to register the callback for.
+        callback: callable
+            The callback to invoke when the action is triggered.
+        """
+        if name in self._action_callbacks:
+            self._action_callbacks[name].remove(callback)
 
     def _update_loading(self, *_) -> None:
         """
