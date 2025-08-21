@@ -38,10 +38,6 @@ dependencies = ['panel >=1.7.0', 'bokeh >=3.7.3', 'packaging']
 Homepage = "https://github.com/panel-extensions/panel-material-ui"
 Source = "https://github.com/panel-extensions/panel-material-ui"
 
-[tool.hatch.build.targets.sdist.force-include]
-"src/panel_material_ui/dist" = "src/panel_material_ui/dist"
-"src/panel_material_ui/_templates" = "src/panel_material_ui/_templates"
-
 [tool.hatch.build.targets.wheel.force-include]
 "src/panel_material_ui/dist" = "panel_material_ui/dist"
 "src/panel_material_ui/_templates" = "panel_material_ui/_templates"
