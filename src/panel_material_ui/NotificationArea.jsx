@@ -98,16 +98,16 @@ function NotificationArea({model, view}) {
       closeSnackbar(reconnect_id)
       window.session_reconnect = true
     })
-    view.model.document.on_event('connection_lost', (_, event) => {
+    view.model.document.on_event("connection_lost", (_, event) => {
       clear_timeout()
       const {timeout} = event
       const msg = model.js_events.connection_lost.message
       const reconnect_msg = document.getElementById(reconnect_id)?.children[1]
       if (timeout == null && reconnect_msg != null) {
         reconnect_msg.innerHTML = `<div>${msg} <span class="reconnect-button"><b>Click here</b></span> to attempt manual re-connect.<div>`
-        const reconnectSpan = reconnect_msg.querySelector('.reconnect-button');
+        const reconnectSpan = reconnect_msg.querySelector(".reconnect-button")
         if (reconnectSpan) {
-          reconnectSpan.addEventListener('click', () => { clear_timeout(); event.reconnect() })
+          reconnectSpan.addEventListener("click", () => { clear_timeout(); event.reconnect() })
         }
       } else {
         let current_timeout = timeout
