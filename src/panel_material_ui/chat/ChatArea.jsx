@@ -409,8 +409,8 @@ export function render({model, view}) {
               }
               setFileData([...file_data, ...validFiles])
             }
-          }}
-                          />}
+          }}/>
+        }
         <OutlinedInput
           multiline
           color={color}
