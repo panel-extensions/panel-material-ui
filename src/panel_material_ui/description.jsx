@@ -13,7 +13,7 @@ export function render_description({model, el, view}) {
 
   let container = el
   let cache = null
-  if (view && view.root.model.class_name == "Page") {
+  if (view && view.root.model.class_name == "Page" && view.root.mui_cache != null) {
     container = view.root.shadow_el
     cache = view.root.mui_cache
     console.log(cache)
