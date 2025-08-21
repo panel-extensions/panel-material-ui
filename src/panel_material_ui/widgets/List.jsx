@@ -116,7 +116,7 @@ export function render({model}) {
             bgcolor: isActive ? (
               `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
             ) : "inherit",
-	    borderLeft: `3px solid var(--mui-palette-${color}-main)`
+            borderLeft: `3px solid var(--mui-palette-${color}-main)`
           }
         }}
       >
