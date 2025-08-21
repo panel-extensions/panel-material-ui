@@ -84,15 +84,19 @@ function NotificationArea({model, view}) {
 
   const register_reconnect = () => {
     const reconnect_id = `reconnect-notification-${view.model.id}`
-    view.model.document.on_event("client_reconnected", (_, _event) => {
-      clear_timeout()
-      closeSnackbar(reconnect_id)
+    if (window.session_reconnect) {
       const config = {
         message: "Connection with server was re-established.",
         duration: 5000,
         notification_type: "success"
       }
       enqueueNotification(config)
+      window.session_reconnect = false
+    }
+    view.model.document.on_event("client_reconnected", (_, _event) => {
+      clear_timeout()
+      closeSnackbar(reconnect_id)
+      window.session_reconnect = true
     })
     view.model.document.on_event('connection_lost', (_, event) => {
       clear_timeout()
