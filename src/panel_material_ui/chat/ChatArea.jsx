@@ -15,7 +15,7 @@ import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
-import {isFileAccepted, processFilesChunked} from "./utils"
+import {isFileAccepted, processFilesChunked, apply_flex} from "./utils"
 
 // Map MIME types to Material Icons
 const mimeTypeIcons = {
@@ -133,7 +133,7 @@ function formatBytes(bytes) {
   return `${parseFloat((bytes / k**i).toFixed(2))} ${sizes[i]}`
 }
 
-const CustomInput = React.forwardRef(({filePreview, ...props}, ref) => {
+const CustomInput = React.forwardRef(({filePreview, footerObjects, ...props}, ref) => {
   const inputRef = React.useRef(null);
   React.useImperativeHandle(ref, () => ({
     focus: () => inputRef.current?.focus(),
@@ -158,8 +158,39 @@ const CustomInput = React.forwardRef(({filePreview, ...props}, ref) => {
           lineHeight: "inherit",
           width: "100%",
           boxSizing: "border-box",
+          paddingTop: "0.5rem",
+          paddingBottom: "0.5rem",
         }}
       />
+      {footerObjects && footerObjects.length > 0 && (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "nowrap",
+            gap: 1,
+            pt: 0,
+            pb: 0,
+            mb: -1,
+            alignItems: "center",
+            width: "100%",
+            maxWidth: "calc(100% - 16px)",
+            overflowX: "auto",
+            "&::-webkit-scrollbar": {
+              height: "1px",
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "transparent",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "rgba(0,0,0,0.2)",
+              borderRadius: "1px",
+            },
+          }}
+        >
+          {footerObjects}
+        </Box>
+      )}
     </Box>
   );
 });
@@ -184,8 +215,17 @@ export function render({model, view}) {
   const [variant] = model.useState("variant")
   const [isDragOver, setIsDragOver] = React.useState(false)
   const fileInputRef = React.useRef(null)
+  const footer_objects = model.get_child("footer_objects")
 
   const [file_data, setFileData] = React.useState([])
+
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      footer_objects.map((object, index) => {
+        apply_flex(view.get_child_view(model.footer_objects[index]), "row")
+      })
+    })
+  }, [])
 
   const isSendEvent = (event) => {
     return (event.key === "Enter") && (
@@ -279,7 +319,8 @@ export function render({model, view}) {
         display: "flex",
         flexWrap: "wrap",
         gap: 0.5,
-        p: 0.5,
+        p: 1,
+        pb: 0.5,
         width: "100%",
         minHeight: "32px",
         maxHeight: "60px",
@@ -320,6 +361,15 @@ export function render({model, view}) {
 
   return (
     <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+        gap: 1,
+      }}
+    >
+      <Box
       sx={{
         position: "relative",
         width: "100%",
@@ -369,6 +419,10 @@ export function render({model, view}) {
         inputProps={{
           ref: inputRef,
           filePreview: (enable_upload && file_data.length > 0) ? <FilePreview /> : null,
+          footerObjects: footer_objects.map((object, index) => {
+            apply_flex(view.get_child_view(model.footer_objects[index]), "row")
+            return object
+          }),
           value: value_input,
           onChange: (event) => setValueInput(event.target.value),
           onKeyDown: (event) => {
@@ -412,7 +466,7 @@ export function render({model, view}) {
           ) : (enable_upload ? <IconButton color="primary" disabled={disabled} onClick={() => fileInputRef.current?.click()}><AttachFileIcon /></IconButton> : null)
         }
         endAdornment={
-          <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end" sx={{mb: "2px"}}>
+          <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end" sx={{mb: "2px", ml: "-4px"}}>
             <IconButton color="primary" disabled={disabled}>
               {(disabled_enter || loading) ? <SpinningStopIcon color={color}/> : <SendIcon/>}
             </IconButton>
@@ -428,12 +482,14 @@ export function render({model, view}) {
           alignItems: "end",
           position: "relative",
           zIndex: 0,
+          width: "100%",
           ".MuiInputBase-root": {
             alignItems: "flex-start",
             padding: (Object.keys(actions).length > 0 || enable_upload) ? "8px" : "8px 8px 8px 16px",
           },
         }}
       />
+      </Box>
     </Box>
   )
 }
