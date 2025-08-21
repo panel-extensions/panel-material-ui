@@ -9,7 +9,7 @@ const SIZES = {
   large: "3.5em",
 }
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [empty_icon] = model.useState("empty_icon")
@@ -28,7 +28,7 @@ export function render({model, el}) {
 
   return (
     <FormControl component="fieldset" disabled={disabled} fullWidth>
-      {label && <FormLabel id="radio-group-label">{label}{model.description ? render_description({model, el}) : null}</FormLabel>}
+      {label && <FormLabel id="radio-group-label">{label}{model.description ? render_description({model, el, view}) : null}</FormLabel>}
       <Rating
         color={color}
         disabled={disabled}

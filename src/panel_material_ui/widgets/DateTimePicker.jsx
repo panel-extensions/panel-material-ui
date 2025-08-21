@@ -216,7 +216,7 @@ export function render({model, view, el}) {
         disablePast={disable_past}
         format={format}
         fullWidth
-        label={model.description ? <>{label}{render_description({model, el})}</> : label}
+        label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
         minDate={min_date ? parseDate(min_date) : undefined}
         maxDate={max_date ? parseDate(max_date) : undefined}
         openTo={open_to}

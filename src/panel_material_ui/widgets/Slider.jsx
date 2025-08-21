@@ -12,7 +12,7 @@ import dayjs from "dayjs"
 import {render_description} from "./description"
 import {int_regex, float_regex} from "./utils"
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [bar_color] = model.useState("bar_color")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -297,7 +297,7 @@ export function render({model, el}) {
                 />
               </>
             )}
-            {model.description ? render_description({model, el}) : null}
+            {model.description ? render_description({model, el, view}) : null}
           </Box>
         </Box>
       ) : (
@@ -308,7 +308,7 @@ export function render({model, el}) {
             {value_label}
           </strong>
           }
-          {model.description && render_description({model, el})}
+          {model.description && render_description({model, el, view})}
         </FormLabel>)}
       <Slider
         color={color}
