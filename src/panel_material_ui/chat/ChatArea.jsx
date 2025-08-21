@@ -370,125 +370,125 @@ export function render({model, view}) {
       }}
     >
       <Box
-      sx={{
-        position: "relative",
-        width: "100%",
-        height: "100%",
-        ...(isDragOver && {
-          "&::after": {
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.1)",
-            border: "2px dashed",
-            borderColor: `${color}.main`,
-            borderRadius: 1,
-            zIndex: 2,
-          }
-        })
-      }}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
-      {enable_upload && <HiddenFileInput
-        ref={fileInputRef}
-        type="file"
-        multiple
-        accept={accept}
-        onChange={(event) => {
-          if (event.target.files && event.target.files.length > 0) {
-            const files = Array.from(event.target.files)
-            let validFiles = files
-            if (accept) {
-              validFiles = files.filter(file => isFileAccepted(file, accept))
-            }
-            setFileData([...file_data, ...validFiles])
-          }
-        }}
-      />}
-      <OutlinedInput
-        multiline
-        color={color}
-        disabled={disabled}
-        inputComponent={CustomInput}
-        inputProps={{
-          ref: inputRef,
-          filePreview: (enable_upload && file_data.length > 0) ? <FilePreview /> : null,
-          footerObjects: footer_objects.map((object, index) => {
-            apply_flex(view.get_child_view(model.footer_objects[index]), "row")
-            return object
-          }),
-          value: value_input,
-          onChange: (event) => setValueInput(event.target.value),
-          onKeyDown: (event) => {
-            if (isSendEvent(event)) {
-              event.preventDefault()
-              send()
-            }
-          },
-          maxRows: max_rows,
-          placeholder,
-          ...props,
-        }}
-        placeholder={placeholder}
-        startAdornment={
-          Object.keys(actions).length > 0 ? (
-            <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "35px", mr: "4px"}}>
-              <SpeedDial
-                ariaLabel="Actions"
-                size="small"
-                FabProps={{size: "small", sx: {width: "35px", height: "35px", minHeight: "35px"}}}
-                icon={<SpeedDialIcon color={color}/>}
-                sx={{zIndex: 1000, ml: "-4px"}}
-              >
-                <SpeedDialAction
-                  icon={<AttachFileIcon />}
-                  tooltipTitle="Attach files"
-                  slotProps={{popper: {container: view.container}}}
-                  onClick={() => fileInputRef.current?.click()}
-                />
-                {Object.keys(actions).map((action) => (
-                  <SpeedDialAction
-                    key={action}
-                    icon={<Icon>{actions[action].icon}</Icon>}
-                    slotProps={{popper: {container: view.container}}}
-                    tooltipTitle={actions[action].label || action}
-                    onClick={() => model.send_msg({type: "action", action})}
-                  />
-                ))}
-              </SpeedDial>
-            </InputAdornment>
-          ) : (enable_upload ? <IconButton color="primary" disabled={disabled} onClick={() => fileInputRef.current?.click()}><AttachFileIcon /></IconButton> : null)
-        }
-        endAdornment={
-          <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end" sx={{mb: "2px", ml: "-4px"}}>
-            <IconButton color="primary" disabled={disabled}>
-              {(disabled_enter || loading) ? <SpinningStopIcon color={color}/> : <SendIcon/>}
-            </IconButton>
-          </InputAdornment>
-        }
-        error={error_state}
-        label={label}
-        variant={variant}
-        fullWidth
         sx={{
-          ...props.sx,
-          p: "8px",
-          alignItems: "end",
           position: "relative",
-          zIndex: 0,
           width: "100%",
-          ".MuiInputBase-root": {
-            alignItems: "flex-start",
-            padding: (Object.keys(actions).length > 0 || enable_upload) ? "8px" : "8px 8px 8px 16px",
-          },
+          height: "100%",
+          ...(isDragOver && {
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0, 0, 0, 0.1)",
+              border: "2px dashed",
+              borderColor: `${color}.main`,
+              borderRadius: 1,
+              zIndex: 2,
+            }
+          })
         }}
-      />
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {enable_upload && <HiddenFileInput
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept={accept}
+          onChange={(event) => {
+            if (event.target.files && event.target.files.length > 0) {
+              const files = Array.from(event.target.files)
+              let validFiles = files
+              if (accept) {
+                validFiles = files.filter(file => isFileAccepted(file, accept))
+              }
+              setFileData([...file_data, ...validFiles])
+            }
+          }}
+                          />}
+        <OutlinedInput
+          multiline
+          color={color}
+          disabled={disabled}
+          inputComponent={CustomInput}
+          inputProps={{
+            ref: inputRef,
+            filePreview: (enable_upload && file_data.length > 0) ? <FilePreview /> : null,
+            footerObjects: footer_objects.map((object, index) => {
+              apply_flex(view.get_child_view(model.footer_objects[index]), "row")
+              return object
+            }),
+            value: value_input,
+            onChange: (event) => setValueInput(event.target.value),
+            onKeyDown: (event) => {
+              if (isSendEvent(event)) {
+                event.preventDefault()
+                send()
+              }
+            },
+            maxRows: max_rows,
+            placeholder,
+            ...props,
+          }}
+          placeholder={placeholder}
+          startAdornment={
+            Object.keys(actions).length > 0 ? (
+              <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "35px", mr: "4px"}}>
+                <SpeedDial
+                  ariaLabel="Actions"
+                  size="small"
+                  FabProps={{size: "small", sx: {width: "35px", height: "35px", minHeight: "35px"}}}
+                  icon={<SpeedDialIcon color={color}/>}
+                  sx={{zIndex: 1000, ml: "-4px"}}
+                >
+                  <SpeedDialAction
+                    icon={<AttachFileIcon />}
+                    tooltipTitle="Attach files"
+                    slotProps={{popper: {container: view.container}}}
+                    onClick={() => fileInputRef.current?.click()}
+                  />
+                  {Object.keys(actions).map((action) => (
+                    <SpeedDialAction
+                      key={action}
+                      icon={<Icon>{actions[action].icon}</Icon>}
+                      slotProps={{popper: {container: view.container}}}
+                      tooltipTitle={actions[action].label || action}
+                      onClick={() => model.send_msg({type: "action", action})}
+                    />
+                  ))}
+                </SpeedDial>
+              </InputAdornment>
+            ) : (enable_upload ? <IconButton color="primary" disabled={disabled} onClick={() => fileInputRef.current?.click()}><AttachFileIcon /></IconButton> : null)
+          }
+          endAdornment={
+            <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end" sx={{mb: "2px", ml: "-4px"}}>
+              <IconButton color="primary" disabled={disabled}>
+                {(disabled_enter || loading) ? <SpinningStopIcon color={color}/> : <SendIcon/>}
+              </IconButton>
+            </InputAdornment>
+          }
+          error={error_state}
+          label={label}
+          variant={variant}
+          fullWidth
+          sx={{
+            ...props.sx,
+            p: "8px",
+            alignItems: "end",
+            position: "relative",
+            zIndex: 0,
+            width: "100%",
+            ".MuiInputBase-root": {
+              alignItems: "flex-start",
+              padding: (Object.keys(actions).length > 0 || enable_upload) ? "8px" : "8px 8px 8px 16px",
+            },
+          }}
+        />
       </Box>
     </Box>
   )
