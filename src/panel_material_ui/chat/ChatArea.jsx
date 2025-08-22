@@ -439,7 +439,7 @@ export function render({model, view}) {
           placeholder={placeholder}
           startAdornment={
             Object.keys(actions).length > 0 ? (
-              <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "35px", mr: "4px"}}>
+              <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "35px", mr: "4px", alignSelf: "center"}}>
                 <SpeedDial
                   ariaLabel="Actions"
                   size="small"
@@ -467,7 +467,7 @@ export function render({model, view}) {
             ) : (enable_upload ? <IconButton color="primary" disabled={disabled} onClick={() => fileInputRef.current?.click()}><AttachFileIcon /></IconButton> : null)
           }
           endAdornment={
-            <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end" sx={{mb: "2px", ml: "-4px"}}>
+            <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end" sx={{mb: "2px", ml: "-4px", alignSelf: "center"}}>
               <IconButton color="primary" disabled={disabled}>
                 {(disabled_enter || loading) ? <SpinningStopIcon color={color}/> : <SendIcon/>}
               </IconButton>
