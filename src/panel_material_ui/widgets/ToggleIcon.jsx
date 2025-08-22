@@ -28,6 +28,7 @@ export function render(props, ref) {
 
   const standard_size = ["small", "medium", "large"].includes(size)
   const font_size = standard_size ? icon_size : size
+  const icon_font_size = ["small", "medium", "large"].includes(icon_size) ? icon_size : size
   const color_state = disabled ? "disabled" : color
   const text_size = standard_size ? SIZES[size] : font_size
 
@@ -59,7 +60,8 @@ export function render(props, ref) {
             <Icon
               baseClassName={"material-icons-outlined"}
               color={color_state}
-              fontSize={icon_size || size}
+              fontSize={icon_font_size}
+	      sx={icon_size ? {fontSize: icon_size} : {}}
             >
               {icon}
             </Icon>
@@ -75,7 +77,7 @@ export function render(props, ref) {
               height: text_size,
               display: "inline-block"}}
             /> :
-            <Icon color={color_state} fontSize={icon_size || size}>{active_icon || icon}</Icon>
+          <Icon color={color_state} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{active_icon || icon}</Icon>
         }
         sx={{p: PADDING[size], ...sx}}
         {...other}
