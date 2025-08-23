@@ -12,6 +12,7 @@ from panel.io.notifications import NotificationAreaBase
 from panel.io.state import _state
 from panel.layout import Column
 
+from ._utils import BOKEH_GE_3_8
 from .base import MaterialComponent
 from .widgets import Button, ColorPicker, NumberInput, Select, TextInput
 
@@ -65,6 +66,8 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
     ) -> Model:
         model = super()._get_model(doc, root, parent, comm)
         for event, notification in self.js_events.items():
+            if event == 'connection_lost' and BOKEH_GE_3_8:
+                continue
             doc.js_on_event(event, CustomJS(code=f"""
             const config = {{
               message: {notification['message']!r},
