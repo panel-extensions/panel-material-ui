@@ -62,7 +62,7 @@ export function render({model}) {
     const target = item.target
     const avatar = item.avatar
     const subitems = item.items
-    const item_open = item.open || true
+    const item_open = item.open !== undefined ? item.open : true
     current_open[key] = current_open[key] === undefined ? item_open : current_open[key]
     current_menu_open[key] = current_menu_open[key] === undefined ? false : current_menu_open[key]
 
