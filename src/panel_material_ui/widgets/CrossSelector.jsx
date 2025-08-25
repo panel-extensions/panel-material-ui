@@ -175,7 +175,7 @@ export function render({model, el, view}) {
         sx={{
           bgcolor: "background.paper",
           overflow: "auto",
-          maxHeight: 42 * size,
+          maxHeight: 44 * size,
         }}
         dense
         component="div"
