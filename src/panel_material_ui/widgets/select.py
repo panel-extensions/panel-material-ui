@@ -514,6 +514,10 @@ class CrossSelector(MaterialMultiSelectBase):
 
     width = param.Integer(default=None, doc="Width of the widget")
 
+    size = param.Integer(default=10, doc="""
+        The number of options shown at once (note this is the only way
+        to control the height of this widget)""")
+
     _esm_base = "CrossSelector.jsx"
 
 
