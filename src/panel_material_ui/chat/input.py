@@ -163,7 +163,14 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
                 except Exception:
                     pass
         else:
-            _FileUploadArea._handle_msg(self, msg)
+            try:
+                _FileUploadArea._handle_msg(self, msg)
+            finally:
+                status = msg["status"]
+                if status == "initializing":
+                    self.loading = True
+                elif status == "finished":
+                    self.loading = False
 
     def _update_file(
         self,
