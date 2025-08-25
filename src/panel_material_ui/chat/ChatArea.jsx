@@ -241,6 +241,13 @@ export function render({model, view}) {
     props = {rows}
   }
 
+  const upload_ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    if (msg.status === "finished") {
+      upload_ref.current = msg
+    }
+  })
+
   const send = async () => {
     if (disabled) {
       return
@@ -250,14 +257,17 @@ export function render({model, view}) {
       if (accept) {
         validFiles = Array.from(file_data).filter(file => isFileAccepted(file, accept))
       }
-
+      setLoading(true)
+      upload_ref.current = null
       const count = await processFilesChunked(
         validFiles,
         model,
         model.max_file_size,
         model.max_total_file_size,
-        model.chunk_size || 10 * 1024 * 1024
+        model.chunk_size || 10 * 1024 * 1024,
+	upload_ref
       )
+      setLoading(false)
     }
     model.send_msg({type: "input", value: value_input})
     setFileData([])
@@ -442,6 +452,7 @@ export function render({model, view}) {
               <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "35px", mr: "4px", alignSelf: "center"}}>
                 <SpeedDial
                   ariaLabel="Actions"
+		  disabled={disabled}
                   size="small"
                   FabProps={{size: "small", sx: {width: "35px", height: "35px", minHeight: "35px"}}}
                   icon={<SpeedDialIcon color={color}/>}
