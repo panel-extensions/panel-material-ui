@@ -38,6 +38,7 @@ export function render({model, el, view}) {
   const [value, setValue] = model.useState("value")
   const [sx] = model.useState("sx")
   const [searchable] = model.useState("searchable")
+  const [size] = model.useState("size")
 
   // CrossSelector specific props
   const [left_title] = ["Choices"]
@@ -174,6 +175,7 @@ export function render({model, el, view}) {
         sx={{
           bgcolor: "background.paper",
           overflow: "auto",
+          maxHeight: 42 * size,
         }}
         dense
         component="div"
