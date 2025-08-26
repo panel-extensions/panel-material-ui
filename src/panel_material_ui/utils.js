@@ -1324,8 +1324,23 @@ export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 102
   }
 }
 
+function waitForRef(ref, interval = 100, timeout = 60000) {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const id = setInterval(() => {
+      if (ref.current !== null && ref.current !== undefined) {
+        clearInterval(id);
+        resolve(ref.current);
+      } else if (Date.now() - start > timeout) {
+        clearInterval(id);
+        reject(new Error("Timeout waiting for upload."));
+      }
+    }, interval);
+  });
+}
+
 // New chunked file processing function
-export async function processFilesChunked(files, model, maxFileSize, maxTotalFileSize, chunkSize = 10 * 1024 * 1024) {
+export async function processFilesChunked(files, model, maxFileSize, maxTotalFileSize, chunkSize = 10 * 1024 * 1024, final_ref = null) {
   try {
     const fileArray = Array.from(files);
 
@@ -1345,6 +1360,9 @@ export async function processFilesChunked(files, model, maxFileSize, maxTotalFil
     }
 
     model.send_msg({status: "finished", type: "status"})
+    if (final_ref) {
+      await waitForRef(final_ref)
+    }
     return fileArray.length
   } catch (error) {
     model.send_msg({status: "error", error: error.message})
