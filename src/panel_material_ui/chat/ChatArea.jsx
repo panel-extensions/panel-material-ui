@@ -85,8 +85,8 @@ const SpinningStopIcon = (props) => {
           animationDuration: "1s",
           strokeLinecap: "round", // Makes the arc smoother
         }}
-	value={props.progress}
-	variant={props.progress == null ? "indeterminate" : "determinate"}
+        value={props.progress}
+        variant={props.progress == null ? "indeterminate" : "determinate"}
       />
       {/* Centered Stop Icon */}
       <Box
@@ -265,7 +265,7 @@ export function render({model, view}) {
         model.max_file_size,
         model.max_total_file_size,
         model.chunk_size || 10 * 1024 * 1024,
-	setProgress,
+        setProgress,
         upload_ref
       )
     }
