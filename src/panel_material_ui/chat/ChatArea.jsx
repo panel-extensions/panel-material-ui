@@ -218,8 +218,15 @@ export function render({model, view}) {
   const footer_objects = model.get_child("footer_objects")
 
   const [file_data, setFileData] = React.useState([])
+  const upload_ref = React.useRef(null)
 
   React.useEffect(() => {
+    model.on("msg:custom", (msg) => {
+      if (msg.status === "finished") {
+        upload_ref.current = msg
+      }
+    })
+
     model.on("lifecycle:update_layout", () => {
       footer_objects.map((object, index) => {
         apply_flex(view.get_child_view(model.footer_objects[index]), "row")
@@ -250,13 +257,14 @@ export function render({model, view}) {
       if (accept) {
         validFiles = Array.from(file_data).filter(file => isFileAccepted(file, accept))
       }
-
+      upload_ref.current = null
       const count = await processFilesChunked(
         validFiles,
         model,
         model.max_file_size,
         model.max_total_file_size,
-        model.chunk_size || 10 * 1024 * 1024
+        model.chunk_size || 10 * 1024 * 1024,
+        upload_ref
       )
     }
     model.send_msg({type: "input", value: value_input})
@@ -442,6 +450,7 @@ export function render({model, view}) {
               <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "35px", mr: "4px", alignSelf: "center"}}>
                 <SpeedDial
                   ariaLabel="Actions"
+                  disabled={disabled}
                   size="small"
                   FabProps={{size: "small", sx: {width: "35px", height: "35px", minHeight: "35px"}}}
                   icon={<SpeedDialIcon color={color}/>}
