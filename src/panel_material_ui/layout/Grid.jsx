@@ -1,4 +1,4 @@
-import Grid from "@mui/material/Grid2"
+import Grid from "@mui/material/Grid"
 
 export function render({model, view}) {
   const [columns] = model.useState("columns")
