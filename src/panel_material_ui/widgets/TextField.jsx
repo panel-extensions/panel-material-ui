@@ -1,7 +1,7 @@
 import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
@@ -21,7 +21,7 @@ export function render({model, el}) {
       error={error_state}
       fullWidth
       inputProps={{maxLength: max_length}}
-      label={model.description ? <>{label}{render_description({model, el})}</> : label}
+      label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
       multiline={model.esm_constants.multiline}
       placeholder={placeholder}
       onBlur={() => setValue(value_input)}

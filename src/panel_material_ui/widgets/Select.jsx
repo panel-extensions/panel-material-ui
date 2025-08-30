@@ -20,7 +20,7 @@ import ListSubheader from "@mui/material/ListSubheader"
 import {render_description} from "./description"
 import {CustomMenu} from "./menu"
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -452,7 +452,7 @@ export function render({model, el}) {
       {label &&
        <InputLabel color={color} id={`select-label-${model.id}`} shrink={hasValue || open}>
          {label}
-         {model.description ? render_description({model, el}) : null}
+         {model.description ? render_description({model, el, view}) : null}
        </InputLabel>
       }
       <Select

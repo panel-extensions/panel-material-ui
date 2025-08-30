@@ -28,7 +28,6 @@ from typing import TYPE_CHECKING, Any, Literal
 import panel
 import panel.io.convert
 import param
-from bokeh.embed.bundle import extension_dirs as _extension_dirs
 from bokeh.settings import settings as _settings
 from jinja2 import Environment, FileSystemLoader, Template
 from markupsafe import Markup
@@ -40,13 +39,13 @@ from panel.io.state import state
 from panel.models import ReactComponent as BkReactComponent
 from panel.pane import HTML
 from panel.param import Param
-from panel.util import classproperty
+from panel.util import base_version, classproperty
 from panel.viewable import Viewable
 from panel.widgets.base import CompositeWidget, WidgetBase
 
 from .__version import __version__  # noqa
 from ._utils import conffilter, json_dumps
-from .theme import BASE_PATH, CDN_BASE, CDN_DIST, DIST_PATH, IS_RELEASE, MaterialDesign
+from .theme import MaterialDesign
 
 if TYPE_CHECKING:
     from bokeh.document import Document
@@ -58,12 +57,15 @@ COLORS = ["default", "primary", "secondary", "error", "info", "success", "warnin
 COLOR_ALIASES = {"danger": "error"}
 STYLE_ALIASES = {"outline": "outlined"}
 
+BASE_PATH = pathlib.Path(__file__).parent
+DIST_PATH = BASE_PATH / 'dist'
+IS_RELEASE = __version__ == base_version(__version__)
+CDN_BASE = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}"
+CDN_DIST = f"{CDN_BASE}/panel-material-ui.bundle.js"
 RE_IMPORT = re.compile(r'import\s+(\w+)\s+from\s+[\'"]@mui/material/(\w+)[\'"]')
 RE_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
 RE_NAMED_IMPORT = re.compile(r'import\s+{([^}]+)}\s+from\s+[\'"]@mui/material[\'"]')
 RE_NAMED_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
-
-_extension_dirs["panel-material-ui"] = pathlib.Path(DIST_PATH)
 
 def get_env():
     ''' Get the correct Jinja2 Environment, also for frozen scripts.

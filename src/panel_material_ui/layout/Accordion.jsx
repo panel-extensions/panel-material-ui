@@ -46,14 +46,17 @@ export function render({model}) {
             expanded={active.includes(index)}
             key={`accordion-${index}`}
             square={square}
+            sx={sx}
             variant={variant}
-            sx={{
-              backgroundColor: active.includes(index) ? active_header_background || header_background : header_background,
-              color: active.includes(index) ? active_header_color || header_color : header_color,
-              ...sx
-            }}
           >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} onClick={handle_expand(index)}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              onClick={handle_expand(index)}
+              sx={{
+                backgroundColor: active.includes(index) ? active_header_background || header_background : header_background,
+                color: active.includes(index) ? active_header_color || header_color : header_color
+              }}
+            >
               {names[index] ? (
                 <Typography className="title" variant="h3" sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
               ) : headers[index]}

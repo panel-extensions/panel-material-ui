@@ -36,6 +36,7 @@ export function render(props, ref) {
 
   const standard_size = ["small", "medium", "large"].includes(size)
   const font_size = standard_size ? icon_size : size
+  const icon_font_size = ["small", "medium", "large"].includes(icon_size) ? icon_size : size
 
   return (
     <IconButton
@@ -60,7 +61,7 @@ export function render(props, ref) {
           height: font_size,
           display: "inline-block"}}
         /> :
-        <Icon fontSize={icon_size || size}>{current_icon}</Icon>
+        <Icon fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{current_icon}</Icon>
       }
     </IconButton>
   )

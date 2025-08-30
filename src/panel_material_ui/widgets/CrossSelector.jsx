@@ -30,7 +30,7 @@ function union(a, b) {
   return [...a, ...not(b, a)]
 }
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -210,7 +210,7 @@ export function render({model, el}) {
 
   return (
     <Box sx={{display: "flex", flexDirection: "column", gap: "0.5em", ...sx}}>
-      {label && <InputLabel>{label}{model.description ? render_description({model, el}) : null}</InputLabel>}
+      {label && <InputLabel>{label}{model.description ? render_description({model, el, view}) : null}</InputLabel>}
       <Box sx={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
         {customList(left_title, filteredAvailable, left_filter, setLeftFilter)}
         <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: "0 1em"}}>

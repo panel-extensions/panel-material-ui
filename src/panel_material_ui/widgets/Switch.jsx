@@ -2,7 +2,7 @@ import Switch from "@mui/material/Switch"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import {render_description} from "./description"
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [checked, setChecked] = model.useState("value")
   const [disabled] = model.useState("disabled")
@@ -24,7 +24,7 @@ export function render({model, el}) {
           sx={sx}
         />
       }
-      label={model.description ? <>{label}{render_description({model, el})}</> : label}
+      label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
       sx={{mr: 0}}
     />
   )
