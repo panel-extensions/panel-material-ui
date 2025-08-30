@@ -55,6 +55,7 @@ function NotificationArea({model, view}) {
         </Alert>
       ),
       key: uuid ?? notification._uuid,
+      onEnter: notification.onEnter,
       onClose: () => {
         if (notification._uuid == null) {
           return
@@ -98,23 +99,28 @@ function NotificationArea({model, view}) {
       closeSnackbar(reconnect_id)
       window.session_reconnect = true
     })
+    const update_reconnect = (msg, event) => {
+      const reconnect_msg = document.getElementById(reconnect_id)?.children[1]
+      reconnect_msg.innerHTML = `<div>${msg} <span class="reconnect-button"><b>Click here</b></span> to attempt manual re-connect.<div>`
+      const reconnectSpan = reconnect_msg.querySelector(".reconnect-button")
+      if (reconnectSpan) {
+        reconnectSpan.addEventListener("click", () => { clear_timeout(); event.reconnect() })
+      }
+    }
     view.model.document.on_event("connection_lost", (_, event) => {
       clear_timeout()
       const {timeout} = event
       const msg = model.js_events.connection_lost.message
       const reconnect_msg = document.getElementById(reconnect_id)?.children[1]
-      if (timeout == null && reconnect_msg != null) {
-        reconnect_msg.innerHTML = `<div>${msg} <span class="reconnect-button"><b>Click here</b></span> to attempt manual re-connect.<div>`
-        const reconnectSpan = reconnect_msg.querySelector(".reconnect-button")
-        if (reconnectSpan) {
-          reconnectSpan.addEventListener("click", () => { clear_timeout(); event.reconnect() })
-        }
-      } else {
+      if (timeout != null || reconnect_msg == null) {
         let current_timeout = timeout
         const config = {
           message: msg,
           duration: 0,
           notification_type: model.data.js_events.connection_lost.type
+        }
+        if (timeout == null && view.model.tags[0] === "prompt") {
+          config.onEnter = () => update_reconnect(msg, event)
         }
         if (reconnect_msg == null) {
           enqueueNotification(config, reconnect_id)
@@ -138,6 +144,9 @@ function NotificationArea({model, view}) {
           set_timeout()
           timeout_ref.current = setInterval(() => { current_timeout -= 1000; set_timeout() }, 1000)
         }
+      }
+      if (timeout == null && reconnect_msg) {
+        update_reconnect(msg, event)
       }
     })
   }
