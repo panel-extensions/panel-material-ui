@@ -31,7 +31,7 @@ class CircularProgress(MaterialWidget):
     thickness = param.Number(default=3.6, doc="""
         The thickness of the loading spinner.""")
 
-    value = param.Number(default=0, bounds=(0, 100), doc="""
+    value = param.Number(default=0, bounds=(-1, 100), doc="""
         The value of the loading indicator.""")
 
     variant = param.Selector(default="indeterminate", objects=["determinate", "indeterminate"], doc="""
