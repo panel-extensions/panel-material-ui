@@ -175,7 +175,8 @@ export function render({model, el, view}) {
         sx={{
           bgcolor: "background.paper",
           overflow: "auto",
-          maxHeight: 44 * size,
+          maxHeight: `calc((1.25rem + 18px) * ${size})`,
+          pt: 0
         }}
         dense
         component="div"
@@ -197,6 +198,7 @@ export function render({model, el, view}) {
                   checked={checked.includes(item.value)}
                   tabIndex={-1}
                   disableRipple
+                  size="small"
                   inputProps={{
                     "aria-labelledby": labelId,
                   }}
