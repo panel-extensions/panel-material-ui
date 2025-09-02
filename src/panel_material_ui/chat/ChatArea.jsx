@@ -15,7 +15,7 @@ import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
-import {isFileAccepted, processFilesChunked, apply_flex} from "./utils"
+import {isFileAccepted, processFilesChunked, apply_flex, waitForRef} from "./utils"
 
 // Map MIME types to Material Icons
 const mimeTypeIcons = {
@@ -78,7 +78,6 @@ const SpinningStopIcon = (props) => {
     <Box sx={{position: "relative", display: "inline-block", width: 40, height: 40}}>
       {/* Spinning Circular Arc */}
       <CircularProgress
-        variant="indeterminate"
         size={40}
         thickness={4}
         sx={{
@@ -86,6 +85,8 @@ const SpinningStopIcon = (props) => {
           animationDuration: "1s",
           strokeLinecap: "round", // Makes the arc smoother
         }}
+        value={props.progress}
+        variant={props.progress == null ? "indeterminate" : "determinate"}
       />
       {/* Centered Stop Icon */}
       <Box
@@ -217,9 +218,17 @@ export function render({model, view}) {
   const fileInputRef = React.useRef(null)
   const footer_objects = model.get_child("footer_objects")
 
+  const [progress, setProgress] = React.useState(undefined)
   const [file_data, setFileData] = React.useState([])
+  const upload_ref = React.useRef(null)
 
   React.useEffect(() => {
+    model.on("msg:custom", (msg) => {
+      if (msg.status === "finished") {
+        upload_ref.current = msg
+      }
+    })
+
     model.on("lifecycle:update_layout", () => {
       footer_objects.map((object, index) => {
         apply_flex(view.get_child_view(model.footer_objects[index]), "row")
@@ -250,18 +259,21 @@ export function render({model, view}) {
       if (accept) {
         validFiles = Array.from(file_data).filter(file => isFileAccepted(file, accept))
       }
-
       const count = await processFilesChunked(
         validFiles,
         model,
         model.max_file_size,
         model.max_total_file_size,
-        model.chunk_size || 10 * 1024 * 1024
+        model.chunk_size || 10 * 1024 * 1024,
+        setProgress,
+        upload_ref
       )
     }
     model.send_msg({type: "input", value: value_input})
     setFileData([])
     setValueInput("")
+    await waitForRef(status_ref)
+    setProgress(undefined)
   }
 
   const stop = () => {
@@ -442,6 +454,7 @@ export function render({model, view}) {
               <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "35px", mr: "4px", alignSelf: "center"}}>
                 <SpeedDial
                   ariaLabel="Actions"
+                  disabled={disabled}
                   size="small"
                   FabProps={{size: "small", sx: {width: "35px", height: "35px", minHeight: "35px"}}}
                   icon={<SpeedDialIcon color={color}/>}
@@ -469,7 +482,7 @@ export function render({model, view}) {
           endAdornment={
             <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end" sx={{mb: "2px", ml: "-4px", alignSelf: "center"}}>
               <IconButton color="primary" disabled={disabled}>
-                {(disabled_enter || loading) ? <SpinningStopIcon color={color}/> : <SendIcon/>}
+                {(disabled_enter || loading || progress !== undefined) ? <SpinningStopIcon color={color} progress={progress}/> : <SendIcon/>}
               </IconButton>
             </InputAdornment>
           }

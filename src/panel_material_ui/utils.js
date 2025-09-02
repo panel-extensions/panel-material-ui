@@ -1295,10 +1295,10 @@ export function formatBytes(bytes) {
 }
 
 // Chunked upload function using FileDropper's protocol
-export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 1024) {
-  const totalChunks = Math.ceil(file.size / chunkSize);
+export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 1024, setProgress = null, combined_chunks = null) {
+  const total_chunks = Math.ceil(file.size / chunkSize);
 
-  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+  for (let chunkIndex = 0; chunkIndex < total_chunks; chunkIndex++) {
     const start = chunkIndex * chunkSize;
     const end = Math.min(start + chunkSize, file.size)
     const chunk = file.slice(start, end)
@@ -1318,33 +1318,61 @@ export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 102
       chunk: chunkIndex + 1, // 1-indexed
       data: arrayBuffer,
       name: file.name,
-      total_chunks: totalChunks,
+      total_chunks,
       mime_type: file.type
     })
+    if (setProgress) {
+      setProgress(((chunkIndex+1) / (combined_chunks ?? total_chunks)) * 100)
+    }
   }
 }
 
+export function waitForRef(ref, interval = 100, timeout = 60000) {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const id = setInterval(() => {
+      if (ref.current !== null && ref.current !== undefined) {
+        clearInterval(id)
+        ref.current = null
+        resolve(ref.current)
+      } else if (Date.now() - start > timeout) {
+        ref.current = null
+        clearInterval(id)
+        reject(new Error("Timeout waiting for upload."));
+      }
+    }, interval);
+  });
+}
+
 // New chunked file processing function
-export async function processFilesChunked(files, model, maxFileSize, maxTotalFileSize, chunkSize = 10 * 1024 * 1024) {
+export async function processFilesChunked(files, model, maxFileSize, maxTotalFileSize, chunkSize = 10 * 1024 * 1024, setProgress = null, final_ref = null) {
   try {
     const fileArray = Array.from(files);
 
     // Validate file sizes on frontend
+    let combined_chunks = 0
     for (const file of fileArray) {
       const sizeErrors = validateFileSize(file, model.max_file_size, model.max_total_file_size, fileArray);
       if (sizeErrors.length > 0) {
         throw new Error(sizeErrors.join("; "))
       }
+      combined_chunks += Math.ceil(file.size / chunkSize);
     }
 
     model.send_msg({status: "initializing", type: "status"})
 
     // Upload all files using chunked protocol
     for (const file of fileArray) {
-      await uploadFileChunked(file, model, chunkSize)
+      await uploadFileChunked(file, model, chunkSize, setProgress, combined_chunks)
     }
 
     model.send_msg({status: "finished", type: "status"})
+    if (setProgress) {
+      setProgress(null)
+    }
+    if (final_ref) {
+      await waitForRef(final_ref)
+    }
     return fileArray.length
   } catch (error) {
     model.send_msg({status: "error", error: error.message})

@@ -151,8 +151,15 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
 
     def _handle_msg(self, msg) -> None:
         if msg['type'] == 'input':
-            self.value = msg['value']
-            self.param.trigger('enter_pressed')
+            try:
+                if msg["value"] == "" and msg["value"] == self.value and self.value_uploaded:
+                    self.param.trigger("value")
+                else:
+                    self.value = msg['value']
+                self.param.trigger('enter_pressed')
+                self._send_msg({"status": "finished"})
+            except Exception as e:
+                self._send_msg({"status": "error", "error": str(e)})
             with param.discard_events(self):
                 self.value = ""
                 self.views = []
