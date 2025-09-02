@@ -198,19 +198,19 @@ def test_editable_range_slider_increment_decrement_buttons(page):
     inputs = page.locator("input[type='text']")
 
     # Test increment button
-    page.locator("button:has(svg[data-testid='AddIcon'])").first.click()
+    page.locator(".MuiIconButton-root").nth(1).click()
     expect(inputs.nth(0)).to_have_value("2.10")  # Should increment by step
 
     # Test decrement button
-    page.locator("button:has(svg[data-testid='RemoveIcon'])").first.click()
+    page.locator(".MuiIconButton-root").nth(0).click()
     expect(inputs.nth(0)).to_have_value("2")  # Should decrement by step
 
     # Test increment button on second input
-    page.locator("button:has(svg[data-testid='AddIcon'])").nth(1).click()
+    page.locator(".MuiIconButton-root").nth(3).click()
     expect(inputs.nth(1)).to_have_value("8.10")  # Should increment by step
 
     # Test decrement button on second input
-    page.locator("button:has(svg[data-testid='RemoveIcon'])").nth(1).click()
+    page.locator(".MuiIconButton-root").nth(2).click()
     expect(inputs.nth(1)).to_have_value("8")  # Should decrement by step
 
 def test_editable_range_slider_slider_interaction(page):
@@ -251,20 +251,20 @@ def test_editable_int_range_slider_increment_decrement_buttons(page):
     inputs = page.locator("input[type='text']")
 
     # Test increment button
-    page.locator("button:has(svg[data-testid='AddIcon'])").first.click()
-    expect(inputs.nth(0)).to_have_value("3")  # Should increment by integer step
+    page.locator(".MuiIconButton-root").nth(1).click()
+    expect(inputs.nth(0)).to_have_value("3")  # Should increment by step
 
     # Test decrement button
-    page.locator("button:has(svg[data-testid='RemoveIcon'])").first.click()
-    expect(inputs.nth(0)).to_have_value("2")  # Should decrement by integer step
+    page.locator(".MuiIconButton-root").nth(0).click()
+    expect(inputs.nth(0)).to_have_value("2")  # Should decrement by step
 
     # Test increment button on second input
-    page.locator("button:has(svg[data-testid='AddIcon'])").nth(1).click()
-    expect(inputs.nth(1)).to_have_value("9")  # Should increment by integer step
+    page.locator(".MuiIconButton-root").nth(3).click()
+    expect(inputs.nth(1)).to_have_value("9")  # Should increment by step
 
     # Test decrement button on second input
-    page.locator("button:has(svg[data-testid='RemoveIcon'])").nth(1).click()
-    expect(inputs.nth(1)).to_have_value("8")  # Should decrement by integer step
+    page.locator(".MuiIconButton-root").nth(2).click()
+    expect(inputs.nth(1)).to_have_value("8")  # Should decrement by step
 
 def test_editable_int_range_slider_slider_interaction(page):
     widget = EditableIntRangeSlider(
