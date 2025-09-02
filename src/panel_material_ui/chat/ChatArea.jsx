@@ -15,7 +15,7 @@ import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
-import {isFileAccepted, processFilesChunked, apply_flex} from "./utils"
+import {isFileAccepted, processFilesChunked, apply_flex, waitForRef} from "./utils"
 
 // Map MIME types to Material Icons
 const mimeTypeIcons = {
@@ -78,7 +78,6 @@ const SpinningStopIcon = (props) => {
     <Box sx={{position: "relative", display: "inline-block", width: 40, height: 40}}>
       {/* Spinning Circular Arc */}
       <CircularProgress
-        variant="indeterminate"
         size={40}
         thickness={4}
         sx={{
@@ -86,6 +85,8 @@ const SpinningStopIcon = (props) => {
           animationDuration: "1s",
           strokeLinecap: "round", // Makes the arc smoother
         }}
+        value={props.progress}
+        variant={props.progress == null ? "indeterminate" : "determinate"}
       />
       {/* Centered Stop Icon */}
       <Box
@@ -217,6 +218,7 @@ export function render({model, view}) {
   const fileInputRef = React.useRef(null)
   const footer_objects = model.get_child("footer_objects")
 
+  const [progress, setProgress] = React.useState(undefined)
   const [file_data, setFileData] = React.useState([])
   const upload_ref = React.useRef(null)
 
@@ -257,19 +259,21 @@ export function render({model, view}) {
       if (accept) {
         validFiles = Array.from(file_data).filter(file => isFileAccepted(file, accept))
       }
-      upload_ref.current = null
       const count = await processFilesChunked(
         validFiles,
         model,
         model.max_file_size,
         model.max_total_file_size,
         model.chunk_size || 10 * 1024 * 1024,
+        setProgress,
         upload_ref
       )
     }
     model.send_msg({type: "input", value: value_input})
     setFileData([])
     setValueInput("")
+    await waitForRef(status_ref)
+    setProgress(undefined)
   }
 
   const stop = () => {
@@ -478,7 +482,7 @@ export function render({model, view}) {
           endAdornment={
             <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end" sx={{mb: "2px", ml: "-4px", alignSelf: "center"}}>
               <IconButton color="primary" disabled={disabled}>
-                {(disabled_enter || loading) ? <SpinningStopIcon color={color}/> : <SendIcon/>}
+                {(disabled_enter || loading || progress !== undefined) ? <SpinningStopIcon color={color} progress={progress}/> : <SendIcon/>}
               </IconButton>
             </InputAdornment>
           }

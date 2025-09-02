@@ -32,7 +32,7 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development :: Libraries",
 ]
-dependencies = ['panel >=1.7.0', 'bokeh >=3.7.3', 'packaging']
+dependencies = ['panel >=1.8.0rc1', 'bokeh >=3.8.0', 'packaging']
 
 [project.urls]
 Homepage = "https://github.com/panel-extensions/panel-material-ui"
@@ -55,7 +55,7 @@ dev = [
   "plotly",
   'pytest',
   'pytest-asyncio',
-  'pytest-rerunfailures',
+  'pytest-rerunfailures <16',
   'pytest-xdist',
 ]
 mypy = ["mypy", "types-requests", "typing-extensions"]

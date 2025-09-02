@@ -3,11 +3,15 @@ from __future__ import annotations
 import json
 import os
 
+import bokeh
 from bokeh.embed.bundle import URL
+from packaging.version import Version
 from panel.io.cache import cache
 from panel.pane.base import panel
 from panel.pane.image import ImageBase
 
+bokeh_version = Version(Version(bokeh.__version__).base_version)
+BOKEH_GE_3_8 = bokeh_version >= Version('3.8')
 
 @cache
 def _read_icon(icon):
