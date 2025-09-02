@@ -40,15 +40,15 @@ jobs:
     needs: [setup]
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.8
+        uses: prefix-dev/setup-pixi@v0.9.0
       - uses: holoviz-dev/holoviz_tasks/pre-commit@v0
       - uses: pre-commit/action@v3.0.1
         if: needs.setup.outputs.img_change == 'true'
         with:
           extra_args: -a --hook-stage manual oxipng || true --
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: stefanzweifel/git-auto-commit-action@v6
         if: needs.setup.outputs.img_change == 'true'
         with:
           commit_message: "Optimize PNG images (lossless)"
@@ -62,7 +62,7 @@ jobs:
       code_change: ${{ steps.filter.outputs.code }}
       matrix: ${{ env.MATRIX }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: github.event_name != 'pull_request'
       - name: Check for code changes
         uses: dorny/paths-filter@v3
