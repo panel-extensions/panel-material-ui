@@ -41,6 +41,9 @@ Source = "https://github.com/panel-extensions/panel-material-ui"
 [tool.hatch.build.targets.wheel]
 artifacts = ["src/panel_material_ui/dist/**"]
 
+[tool.hatch.build.targets.sdist]
+artifacts = ["src/panel_material_ui/dist/**"]
+
 [tool.hatch.version]
 source = "vcs"
 raw-options = { version_scheme = "no-guess-dev" }
