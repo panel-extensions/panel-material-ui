@@ -38,6 +38,9 @@ dependencies = ['panel >=1.8.0rc1', 'bokeh >=3.8.0', 'packaging']
 Homepage = "https://github.com/panel-extensions/panel-material-ui"
 Source = "https://github.com/panel-extensions/panel-material-ui"
 
+[tool.hatch.build.targets.wheel]
+artifacts = ["src/panel_material_ui/dist/**"]
+
 [tool.hatch.version]
 source = "vcs"
 raw-options = { version_scheme = "no-guess-dev" }
