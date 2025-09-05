@@ -5,7 +5,7 @@ import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff"
 import {render_description} from "./description"
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
@@ -26,7 +26,7 @@ export function render({model, el}) {
       error={error_state}
       fullWidth
       inputProps={{maxLength: max_length}}
-      label={model.description ? <>{label}{render_description({model, el})}</> : label}
+      label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
       onBlur={() => setValue(value_input)}
       onChange={(event) => setValueInput(event.target.value)}
       onKeyDown={(event) => {

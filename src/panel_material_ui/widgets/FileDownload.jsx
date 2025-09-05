@@ -53,7 +53,7 @@ export function render(props, ref) {
   }
 
   const handleClick = () => {
-    if (embed || (file_data != null && auto)) {
+    if (embed || (file_data != null && !auto)) {
       downloadFile()
     } else {
       model.send_event("click", {})

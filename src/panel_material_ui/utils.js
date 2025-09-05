@@ -194,6 +194,14 @@ function generatePalette(color, nColors = 3) {
   });
 }
 
+function luminance(hexColor) {
+  hexColor = hexColor.replace(/^#/, "")
+  const r = parseInt(hexColor.substring(0, 2), 16)
+  const g = parseInt(hexColor.substring(2, 4), 16)
+  const b = parseInt(hexColor.substring(4, 6), 16)
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
 const overlayOpacities = [
   0,
   0.051,
@@ -743,7 +751,7 @@ export function render_theme_config(props, theme_config, dark_theme) {
         main: dark_theme ? grey[500] : "#000000",
         light: grey[dark_theme ? 200 : 100],
         dark: grey[dark_theme ? 800 : 600],
-        contrastText: dark_theme ? "#ffffff" : "#ffffff",
+        contrastText: "#ffffff",
       },
       dark: {
         main: grey[dark_theme ? 800 : 600],
@@ -1065,16 +1073,42 @@ export const install_theme_hooks = (props) => {
 
   const merge_theme_configs = (view) => {
     let current = view
+    let prev = null
     const theme_configs = []
     const views = []
     while (current != null) {
+      const is_header = current.model.class_name === "Page" && prev && current.model.data.header.includes(prev.model)
       if (current.model?.data?.theme_config !== undefined) {
         const config = current.model.data.theme_config
         views.push(current)
+        if (is_header) {
+          const primary_color = current.model.theme_config?.palette?.primary?.main ?? current.model.theme_config?.[color_scheme]?.palette?.primary?.main
+          let skip = false
+          const header_color = primary_color ?? "#0072b5"
+          const header_bg = luminance(header_color) < 164 ? "#ffffff" : "#000000"
+          if (current.model.data.sx && current.model.data.sx[".MuiAppBar-root"] != null) {
+            const header_sx = current.model.data.sx[".MuiAppBar-root"]
+            skip = header_sx.bgcolor === "primary.contrastText" && header_sx.color == "primary.main"
+          }
+          if (!skip) {
+            theme_configs.push({
+              palette: {
+                default: {main: header_bg},
+                primary: {main: header_bg, contrastText: header_color},
+                background: {
+                  default: header_color,
+                  paper: header_color
+                },
+                text: {primary: header_bg}
+              }
+            })
+          }
+        }
         if (config !== null) {
           theme_configs.push((config.dark && config.light) ? config[dark_ref.current ? "dark" : "light"] : config)
         }
       }
+      prev = current
       current = current.parent
     }
     const merged = theme_configs.reverse().reduce((acc, config) => deepmerge(acc, config), {})
@@ -1261,10 +1295,10 @@ export function formatBytes(bytes) {
 }
 
 // Chunked upload function using FileDropper's protocol
-export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 1024) {
-  const totalChunks = Math.ceil(file.size / chunkSize);
+export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 1024, setProgress = null, combined_chunks = null) {
+  const total_chunks = Math.ceil(file.size / chunkSize);
 
-  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+  for (let chunkIndex = 0; chunkIndex < total_chunks; chunkIndex++) {
     const start = chunkIndex * chunkSize;
     const end = Math.min(start + chunkSize, file.size)
     const chunk = file.slice(start, end)
@@ -1284,33 +1318,61 @@ export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 102
       chunk: chunkIndex + 1, // 1-indexed
       data: arrayBuffer,
       name: file.name,
-      total_chunks: totalChunks,
+      total_chunks,
       mime_type: file.type
     })
+    if (setProgress) {
+      setProgress(((chunkIndex+1) / (combined_chunks ?? total_chunks)) * 100)
+    }
   }
 }
 
+export function waitForRef(ref, interval = 100, timeout = 60000) {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const id = setInterval(() => {
+      if (ref.current !== null && ref.current !== undefined) {
+        clearInterval(id)
+        ref.current = null
+        resolve(ref.current)
+      } else if (Date.now() - start > timeout) {
+        ref.current = null
+        clearInterval(id)
+        reject(new Error("Timeout waiting for upload."));
+      }
+    }, interval);
+  });
+}
+
 // New chunked file processing function
-export async function processFilesChunked(files, model, maxFileSize, maxTotalFileSize, chunkSize = 10 * 1024 * 1024) {
+export async function processFilesChunked(files, model, maxFileSize, maxTotalFileSize, chunkSize = 10 * 1024 * 1024, setProgress = null, final_ref = null) {
   try {
     const fileArray = Array.from(files);
 
     // Validate file sizes on frontend
+    let combined_chunks = 0
     for (const file of fileArray) {
       const sizeErrors = validateFileSize(file, model.max_file_size, model.max_total_file_size, fileArray);
       if (sizeErrors.length > 0) {
         throw new Error(sizeErrors.join("; "))
       }
+      combined_chunks += Math.ceil(file.size / chunkSize);
     }
 
     model.send_msg({status: "initializing", type: "status"})
 
     // Upload all files using chunked protocol
     for (const file of fileArray) {
-      await uploadFileChunked(file, model, chunkSize)
+      await uploadFileChunked(file, model, chunkSize, setProgress, combined_chunks)
     }
 
     model.send_msg({status: "finished", type: "status"})
+    if (setProgress) {
+      setProgress(null)
+    }
+    if (final_ref) {
+      await waitForRef(final_ref)
+    }
     return fileArray.length
   } catch (error) {
     model.send_msg({status: "error", error: error.message})

@@ -50,7 +50,7 @@ export function render({model, view, el}) {
       {label &&
         <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
           {label}
-          {model.description ? render_description({model, el}) : null}
+          {model.description ? render_description({model, el, view}) : null}
         </InputLabel>
       }
       <Select

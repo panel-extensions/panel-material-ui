@@ -16,14 +16,14 @@ function PlaceholderAvatar() {
       alignItems: "center",
       justifyContent: "space-between",
       padding: "8px",
-      width: "120px" // Increased width to space dots further apart
+      width: "90px" // Increased width to space dots further apart
     }}
     >
       <Box
         component="span"
         sx={{
-          width: 16,
-          height: 16,
+          width: 12,
+          height: 12,
           borderRadius: "50%",
           backgroundColor: "text.disabled",
           animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
@@ -40,8 +40,8 @@ function PlaceholderAvatar() {
       <Box
         component="span"
         sx={{
-          width: 16,
-          height: 16,
+          width: 12,
+          height: 12,
           borderRadius: "50%",
           backgroundColor: "text.disabled",
           animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
@@ -51,8 +51,8 @@ function PlaceholderAvatar() {
       <Box
         component="span"
         sx={{
-          width: 16,
-          height: 16,
+          width: 12,
+          height: 12,
           borderRadius: "50%",
           backgroundColor: "text.disabled",
           animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
@@ -62,8 +62,8 @@ function PlaceholderAvatar() {
       <Box
         component="span"
         sx={{
-          width: 16,
-          height: 16,
+          width: 12,
+          height: 12,
           borderRadius: "50%",
           backgroundColor: "text.disabled",
           animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",

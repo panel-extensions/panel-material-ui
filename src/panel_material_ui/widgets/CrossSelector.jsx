@@ -30,7 +30,7 @@ function union(a, b) {
   return [...a, ...not(b, a)]
 }
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -38,6 +38,7 @@ export function render({model, el}) {
   const [value, setValue] = model.useState("value")
   const [sx] = model.useState("sx")
   const [searchable] = model.useState("searchable")
+  const [size] = model.useState("size")
 
   // CrossSelector specific props
   const [left_title] = ["Choices"]
@@ -174,6 +175,8 @@ export function render({model, el}) {
         sx={{
           bgcolor: "background.paper",
           overflow: "auto",
+          maxHeight: `calc((1.25rem + 18px) * ${size})`,
+          pt: 0
         }}
         dense
         component="div"
@@ -195,6 +198,7 @@ export function render({model, el}) {
                   checked={checked.includes(item.value)}
                   tabIndex={-1}
                   disableRipple
+                  size="small"
                   inputProps={{
                     "aria-labelledby": labelId,
                   }}
@@ -210,7 +214,7 @@ export function render({model, el}) {
 
   return (
     <Box sx={{display: "flex", flexDirection: "column", gap: "0.5em", ...sx}}>
-      {label && <InputLabel>{label}{model.description ? render_description({model, el}) : null}</InputLabel>}
+      {label && <InputLabel>{label}{model.description ? render_description({model, el, view}) : null}</InputLabel>}
       <Box sx={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
         {customList(left_title, filteredAvailable, left_filter, setLeftFilter)}
         <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: "0 1em"}}>

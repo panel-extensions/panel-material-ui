@@ -35,13 +35,13 @@ export function render({model, view}) {
             aria-label="close"
             onClick={() => setOpen(false)}
             size="small"
-            sx={title ? {} : {ml: "auto"}}
+            sx={title ? {alignSelf: "start"} : {ml: "auto"}}
           >
             <CloseIcon />
           </IconButton>
         )}
       </Box>}
-      <DialogContent sx={{display: "flex", flexDirection: "column"}}>
+      <DialogContent sx={{display: "flex", flexDirection: "column", p: "0 1em 0.5em"}}>
         {objects}
       </DialogContent>
     </Dialog>

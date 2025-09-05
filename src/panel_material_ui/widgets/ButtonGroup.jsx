@@ -4,7 +4,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import {render_description} from "./description"
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -17,7 +17,7 @@ export function render({model, el}) {
 
   return (
     <FormControl component="fieldset" disabled={disabled} fullWidth>
-      {label && <FormLabel id="toggle-buttons-group-label">{label}{model.description ? render_description({model, el}) : null}</FormLabel>}
+      {label && <FormLabel id="toggle-buttons-group-label">{label}{model.description ? render_description({model, el, view}) : null}</FormLabel>}
       <ToggleButtonGroup
         aria-labelledby="toggle-buttons-group-label"
         aria-label={label}
