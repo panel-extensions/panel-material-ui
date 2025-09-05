@@ -28,13 +28,14 @@ from typing import TYPE_CHECKING, Any, Literal
 import panel
 import panel.io.convert
 import param
+from bokeh.embed.bundle import extension_dirs
 from bokeh.settings import settings as _settings
 from jinja2 import Environment, FileSystemLoader, Template
 from markupsafe import Markup
 from panel.config import config
 from panel.custom import PyComponent, ReactComponent
 from panel.io.location import Location
-from panel.io.resources import Resources
+from panel.io.resources import EXTENSION_CDN, Resources
 from panel.io.state import state
 from panel.models import ReactComponent as BkReactComponent
 from panel.pane import HTML
@@ -66,6 +67,10 @@ RE_IMPORT = re.compile(r'import\s+(\w+)\s+from\s+[\'"]@mui/material/(\w+)[\'"]')
 RE_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
 RE_NAMED_IMPORT = re.compile(r'import\s+{([^}]+)}\s+from\s+[\'"]@mui/material[\'"]')
 RE_NAMED_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
+
+# Register CDN and DIST_PATH with panel and bokeh
+extension_dirs['panel-material-ui'] = DIST_PATH
+EXTENSION_CDN[DIST_PATH] = CDN_BASE
 
 def get_env():
     ''' Get the correct Jinja2 Environment, also for frozen scripts.
