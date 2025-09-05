@@ -95,8 +95,11 @@ def _configure_general() -> None:
     # Brand assets configuration
     pmui.Page.param.logo.default = LOGO_PATH
     pmui.Page.favicon = FAVICON_PATH
-    pmui.Page.meta.apple_touch_icon = ""  # Intentionally left empty
-    pmui.Page.meta.title = "Orbitron"
+    if pmui.page.meta is None:
+        pmui.page.meta = pmui.template.base.Meta(
+            apple_touch_icon="",  # Intentionally left empty
+            title="Orbitron",
+        )
 
     # Component-specific configurations
     pmui.Button.param.disable_elevation.default = True
