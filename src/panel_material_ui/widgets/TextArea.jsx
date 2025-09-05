@@ -29,8 +29,8 @@ export function render({model, el}) {
   const resizeMode =
     !resizable ? "none"
     : resizable === "height" ? "vertical"
-    : resizable === "width" ? "horizontal"
-    : resizable
+      : resizable === "width" ? "horizontal"
+        : resizable
 
   const effectiveResize = autogrow ? "none" : resizeMode
   return (
@@ -58,9 +58,9 @@ export function render({model, el}) {
           flexGrow: 1,
           "& .MuiInputBase-root": {
             flexGrow: 1,
-	    alignItems: "stretch",
+            alignItems: "stretch",
           },
-	  "& .MuiInputBase-inputMultiline": {
+          "& .MuiInputBase-inputMultiline": {
             resize: effectiveResize,
             overflow: "auto"
           }
