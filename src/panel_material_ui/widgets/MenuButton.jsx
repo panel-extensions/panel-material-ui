@@ -71,7 +71,7 @@ export function render(props, ref) {
                 setOpen(false)
                 model.send_msg({type: "click", item: index})
               }}
-              target={item.target}
+              target={item.href ? (item.target ?? "_blank") : null}
             >
               {item.icon && (
                 item.icon.trim().startsWith("<") ?
