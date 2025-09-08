@@ -28,9 +28,9 @@ export function render({model, el}) {
 
   const resizeMode =
     !resizable ? "none"
-    : resizable === "height" ? "vertical"
-      : resizable === "width" ? "horizontal"
-        : resizable
+      : resizable === "height" ? "vertical"
+        : resizable === "width" ? "horizontal"
+          : resizable
 
   const effectiveResize = autogrow ? "none" : resizeMode
   return (
