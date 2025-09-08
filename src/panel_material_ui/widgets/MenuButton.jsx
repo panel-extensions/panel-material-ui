@@ -65,6 +65,7 @@ export function render(props, ref) {
           return (
             <MenuItem
               key={`menu-item-${index}`}
+              component={item.href == null ? "li" : "a"}
               href={item.href}
               onClick={() => {
                 setOpen(false)
