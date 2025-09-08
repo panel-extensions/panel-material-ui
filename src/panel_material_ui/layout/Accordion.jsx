@@ -55,7 +55,7 @@ export function render({model}) {
               sx={{
                 backgroundColor: active.includes(index) ? active_header_background || header_background : header_background,
                 color: active.includes(index) ? active_header_color || header_color : header_color,
-		"& .MuiAccordionSummary-content.Mui-expanded": {margin: "12px 0"}
+                "& .MuiAccordionSummary-content.Mui-expanded": {margin: "12px 0"}
               }}
             >
               {names[index] ? (
