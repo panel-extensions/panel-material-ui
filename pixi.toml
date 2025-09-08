@@ -14,7 +14,7 @@ pre-commit-run = "pre-commit run -a"
 
 [dependencies]
 python = ">=3.10"
-panel = ">=1.8.0rc2"
+panel = ">=1.8.0rc3"
 bokeh = ">=3.8.0"
 packaging = "*"
 watchfiles = "*"
