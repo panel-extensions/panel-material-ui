@@ -65,12 +65,13 @@ export function render(props, ref) {
           return (
             <MenuItem
               key={`menu-item-${index}`}
+              component={item.href == null ? "li" : "a"}
               href={item.href}
               onClick={() => {
                 setOpen(false)
                 model.send_msg({type: "click", item: index})
               }}
-              target={item.target}
+              target={item.href ? (item.target ?? "_blank") : null}
             >
               {item.icon && (
                 item.icon.trim().startsWith("<") ?
