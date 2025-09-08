@@ -54,14 +54,15 @@ export function render({model}) {
               onClick={handle_expand(index)}
               sx={{
                 backgroundColor: active.includes(index) ? active_header_background || header_background : header_background,
-                color: active.includes(index) ? active_header_color || header_color : header_color
+                color: active.includes(index) ? active_header_color || header_color : header_color,
+                "& .MuiAccordionSummary-content.Mui-expanded": {margin: "12px 0"}
               }}
             >
               {names[index] ? (
                 <Typography className="title" variant="h3" sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
               ) : headers[index]}
             </AccordionSummary>
-            <AccordionDetails>{obj}</AccordionDetails>
+            <AccordionDetails sx={{p: "0 12px", "&.MuiAccordionDetails-root": {p: "0 calc(2 * var(--mui-spacing))"}}}>{obj}</AccordionDetails>
           </Accordion>
         )
       }) }
