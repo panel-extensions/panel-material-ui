@@ -68,6 +68,20 @@ RE_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
 RE_NAMED_IMPORT = re.compile(r'import\s+{([^}]+)}\s+from\s+[\'"]@mui/material[\'"]')
 RE_NAMED_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
 
+PN_LOADING_MSG_CSS = """
+<style>
+.pn-loading-msg {
+  left: 50%;
+  top: 65%;
+  z-index: 10000000;
+  position: fixed;
+  color: white;
+  transform: translateX(-50%);
+  font-size: min(4vh, 4vw);
+  font-family: monospace;
+}
+</style>"""
+
 # Register CDN and DIST_PATH with panel and bokeh
 extension_dirs['panel-material-ui'] = DIST_PATH
 EXTENSION_CDN[DIST_PATH] = CDN_BASE
@@ -88,7 +102,11 @@ _env.filters['conffilter'] = conffilter
 _env.filters['sorted'] = sorted
 
 BASE_TEMPLATE = _env.get_template('base.html')
+
+# Replace the default convert template and loading spinner
 panel.io.convert.BASE_TEMPLATE = panel.io.resources.BASE_TEMPLATE = BASE_TEMPLATE
+
+panel.io.convert.loading_resources = lambda template, inline: [PN_LOADING_MSG_CSS]
 
 FONT_CSS = [
     str(p) for p in DIST_PATH.glob('material-icons-*.woff*')
