@@ -26,6 +26,13 @@ export function render({model, el}) {
     props = {rows}
   }
 
+  const resizeMode =
+    !resizable ? "none"
+      : resizable === "height" ? "vertical"
+        : resizable === "width" ? "horizontal"
+          : resizable
+
+  const effectiveResize = autogrow ? "none" : resizeMode
   return (
     <TextField
       color={color}
@@ -51,7 +58,11 @@ export function render({model, el}) {
           flexGrow: 1,
           "& .MuiInputBase-root": {
             flexGrow: 1,
-            alignItems: "flex-start"
+            alignItems: "stretch",
+          },
+          "& .MuiInputBase-inputMultiline": {
+            resize: effectiveResize,
+            overflow: "auto"
           }
         }
       }}
