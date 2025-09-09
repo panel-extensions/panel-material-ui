@@ -5,7 +5,7 @@ from typing import Any
 
 import param
 from panel.links import Callback
-from panel.pane.markup import HoloViews, Markdown
+from panel.pane import HoloViews, Markdown
 
 from ..base import COLORS, MaterialComponent
 from ..widgets import DatetimeInput, DiscreteSlider, EditableFloatSlider, EditableIntSlider, FloatSlider, IntSlider, Select
