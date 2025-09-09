@@ -5,10 +5,19 @@ from typing import Any
 
 import param
 from panel.links import Callback
-from panel.pane.markup import Markdown
+from panel.pane import HoloViews, Markdown
 
 from ..base import COLORS, MaterialComponent
+from ..widgets import DatetimeInput, DiscreteSlider, EditableFloatSlider, EditableIntSlider, FloatSlider, IntSlider, Select
 
+HoloViews.default_widgets = dict(
+    HoloViews.default_widgets,
+    date=DatetimeInput,
+    discrete=Select,
+    discrete_numeric=DiscreteSlider,
+    float=(FloatSlider, EditableFloatSlider),
+    int=(IntSlider, EditableIntSlider)
+)
 
 class MaterialPaneBase(MaterialComponent):
 
