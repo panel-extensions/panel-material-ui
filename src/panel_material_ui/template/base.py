@@ -131,6 +131,8 @@ class Page(MaterialComponent, ResourceComponent):
 
     def __init__(self, **params):
         resources, meta = {}, {}
+        if 'theme' in params:
+            params['dark_theme'] = params.pop('theme') == 'dark'
         for k in list(params):
             if k.startswith('meta_'):
                 meta[k.replace('meta_', '')] = params.pop(k)
