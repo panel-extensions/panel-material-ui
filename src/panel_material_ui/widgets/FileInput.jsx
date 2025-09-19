@@ -26,6 +26,8 @@ export function render(props, ref) {
   const [disabled] = model.useState("disabled")
   const [directory] = model.useState("directory")
   const [end_icon] = model.useState("end_icon")
+  // Store filenames locally since Panel's filename parameter has sync issues
+  const [uploadedFiles, setUploadedFiles] = React.useState([])
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [loading] = model.useState("loading")
@@ -45,10 +47,15 @@ export function render(props, ref) {
     ref = undefined
   }
 
-  const clearFiles = () => {
+  const clearInputOnly = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
+  }
+
+  const clearFiles = () => {
+    clearInputOnly()
+    setUploadedFiles([])
   }
 
   const processFiles = async (files) => {
@@ -81,6 +88,10 @@ export function render(props, ref) {
       )
 
       setN(count)
+
+      // Store filenames locally for persistent display
+      const fileNames = Array.from(validFiles).map(file => file.name)
+      setUploadedFiles(fileNames)
     } catch (error) {
       console.error("Upload error:", error)
       setErrorMessage(error.message)
@@ -138,7 +149,7 @@ export function render(props, ref) {
       setStatus("completed")
       setTimeout(() => {
         setStatus("idle")
-        clearFiles() // Clear the input after successful upload to enable reupload
+        clearInputOnly() // Clear only the input after successful upload to enable reupload
       }, 2000)
     } else if (msg.status === "error") {
       setErrorMessage(msg.error)
@@ -166,15 +177,26 @@ export function render(props, ref) {
   })();
 
   let title = ""
-  if (status === "completed") {
+  let tooltipTitle = ""
+
+  if (uploadedFiles && uploadedFiles.length > 0) {
+    // Show filename(s) when file is uploaded
+    if (uploadedFiles.length === 1) {
+      title = uploadedFiles[0]
+      tooltipTitle = uploadedFiles[0]
+    } else {
+      title = `${uploadedFiles.length} files uploaded`
+      tooltipTitle = uploadedFiles
+    }
+  } else if (status === "completed") {
     title = `Uploaded ${n} file${n === 1 ? "" : "s"}.`
   } else if (label) {
     title = label
   } else {
-    title = `Upload File${  multiple ? "(s)" : ""}`
+    title = `Upload File${multiple ? "(s)" : ""}`
   }
 
-  return (
+  const buttonElement = (
     <Button
       color={color}
       component="label"
@@ -243,4 +265,27 @@ export function render(props, ref) {
       />
     </Button>
   );
+
+  // Wrap in tooltip if we have filenames to show
+  if (tooltipTitle && uploadedFiles && uploadedFiles.length > 0) {
+    const tooltipContent = Array.isArray(tooltipTitle) ? (
+      <div>
+        {tooltipTitle.map((filename, index) => (
+          <div key={index}>{filename}</div>
+        ))}
+      </div>
+    ) : tooltipTitle;
+
+    return (
+      <Tooltip
+        title={tooltipContent}
+        arrow
+        placement="top"
+      >
+        {buttonElement}
+      </Tooltip>
+    );
+  }
+
+  return buttonElement;
 }
