@@ -185,7 +185,7 @@ export function render(props, ref) {
       title = `${verb} ${uploadedFiles[0]}`
       tooltipTitle = uploadedFiles[0]
     } else {
-      title = `${verb} ${uploadedFiles.length} files`
+      title = `${verb} ${N} files`
       tooltipTitle = uploadedFiles
     }
   } else if (label) {
