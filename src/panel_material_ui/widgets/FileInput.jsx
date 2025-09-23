@@ -265,7 +265,7 @@ export function render(props, ref) {
   );
 
   // Wrap in tooltip if we have filenames to show
-  if (tooltipTitle && uploadedFiles && uploadedFiles.length > 0) {
+  if (tooltipTitle && uploadedFiles && N > 0) {
     const tooltipContent = Array.isArray(tooltipTitle) ? (
       <div>
         {tooltipTitle.map((filename, index) => (
