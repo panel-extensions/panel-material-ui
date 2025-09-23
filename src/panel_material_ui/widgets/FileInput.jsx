@@ -26,8 +26,6 @@ export function render(props, ref) {
   const [disabled] = model.useState("disabled")
   const [directory] = model.useState("directory")
   const [end_icon] = model.useState("end_icon")
-  // Store filenames locally since Panel's filename parameter has sync issues
-  const [uploadedFiles, setUploadedFiles] = React.useState([])
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [loading] = model.useState("loading")
@@ -36,12 +34,15 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
+  // Store filenames locally since Panel's filename parameter has sync issues
+  const [uploadedFiles, setUploadedFiles] = React.useState([])
   const [status, setStatus] = React.useState("idle")
-  const [n, setN] = React.useState(0)
   const [errorMessage, setErrorMessage] = React.useState("")
   const [isDragOver, setIsDragOver] = React.useState(false)
   const fileInputRef = React.useRef(null)
   const theme = useTheme()
+
+  const N = uploadedFiles.length
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
     ref = undefined
@@ -86,8 +87,6 @@ export function render(props, ref) {
         model.max_total_file_size,
         model.chunk_size || 10 * 1024 * 1024
       )
-
-      setN(count)
 
       // Store filenames locally for persistent display
       const fileNames = Array.from(validFiles).map(file => file.name)
@@ -179,17 +178,16 @@ export function render(props, ref) {
   let title = ""
   let tooltipTitle = ""
 
-  if (uploadedFiles && uploadedFiles.length > 0) {
+  if (N > 0) {
     // Show filename(s) when file is uploaded
-    if (uploadedFiles.length === 1) {
-      title = uploadedFiles[0]
+    const verb = status === "uploading" ? "Uploading" : "Uploaded"
+    if (N === 1) {
+      title = `${verb} ${uploadedFiles[0]}`
       tooltipTitle = uploadedFiles[0]
     } else {
-      title = `${uploadedFiles.length} files uploaded`
+      title = `${verb} ${uploadedFiles.length} files`
       tooltipTitle = uploadedFiles
     }
-  } else if (status === "completed") {
-    title = `Uploaded ${n} file${n === 1 ? "" : "s"}.`
   } else if (label) {
     title = label
   } else {

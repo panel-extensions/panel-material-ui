@@ -393,6 +393,7 @@ class FileInput(_FileUploadArea, _ButtonBase, _PnFileInput):
     _esm_base = "FileInput.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
+        'filename': None,
         'value': "'data:' + source.mime_type + ';base64,' + value"
     }
 
