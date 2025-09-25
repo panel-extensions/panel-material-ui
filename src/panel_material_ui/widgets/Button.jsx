@@ -40,7 +40,7 @@ export function render(props, ref) {
             height: font_size,
             display: "inline-block"}}
           /> :
-         <Icon fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{end_icon}</Icon>
+          <Icon fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{end_icon}</Icon>
       )}
       fullWidth
       href={href}
@@ -59,7 +59,7 @@ export function render(props, ref) {
             height: font_size,
             display: "inline-block"}}
           /> :
-        <Icon fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{icon}</Icon>
+          <Icon fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{icon}</Icon>
       )}
       size={size}
       sx={{height: "100%", ".MuiButton-startIcon": {mr: label.length ? "8px": 0}, ...sx}}
