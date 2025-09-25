@@ -62,6 +62,7 @@ export function render({model, el}) {
           },
           "& .MuiInputBase-inputMultiline": {
             resize: effectiveResize,
+	    height: (resizeMode === "vertical" || resizeMode === "both") ? "unset" : "100% !important",
             overflow: "auto"
           }
         }
