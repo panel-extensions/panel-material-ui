@@ -20,6 +20,10 @@ export function render(props, ref) {
     ref = undefined
   }
 
+  const standard_size = ["small", "medium", "large"].includes(size)
+  const font_size = standard_size ? icon_size : size
+  const icon_font_size = ["small", "medium", "large"].includes(icon_size) ? icon_size : size
+
   return (
     <Button
       color={color}
@@ -32,11 +36,11 @@ export function render(props, ref) {
             backgroundColor: "currentColor",
             maskRepeat: "no-repeat",
             maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
+            width: font_size,
+            height: font_size,
             display: "inline-block"}}
           /> :
-          <Icon style={{fontSize: icon_size}}>{end_icon}</Icon>
+          <Icon fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{end_icon}</Icon>
       )}
       fullWidth
       href={href}
@@ -51,14 +55,14 @@ export function render(props, ref) {
             backgroundColor: "currentColor",
             maskRepeat: "no-repeat",
             maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
+            width: font_size,
+            height: font_size,
             display: "inline-block"}}
           /> :
-          <Icon style={{fontSize: icon_size}}>{icon}</Icon>
+          <Icon fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{icon}</Icon>
       )}
       size={size}
-      sx={{height: "100%", ...sx}}
+      sx={{height: "100%", ".MuiButton-startIcon": {mr: label.length ? "8px": 0}, ...sx}}
       target={target}
       variant={variant}
       {...other}
