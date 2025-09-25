@@ -415,6 +415,9 @@ class Card(MaterialNamedListLike, PaperMixin):
     title_css_classes = param.List(doc="""
         List of CSS classes to apply to CardTitle component.""")
 
+    title_variant = param.String(default="h3", doc="""
+        The text variant of the Card header title.""")
+
     _direction = "vertical"
     _esm_base = "Card.jsx"
 
@@ -467,6 +470,9 @@ class Accordion(MaterialNamedListLike, PaperMixin):
 
     header_color = param.Color(doc="""
         The text color of the Card header.""")
+
+    title_variant = param.String(default="h3", doc="""
+        The text variant of the Accordion header titles.""")
 
     toggle = param.Boolean(default=False, doc="""
         Whether to toggle between active cards or allow multiple cards""")
@@ -707,6 +713,9 @@ class Dialog(MaterialListLike):
 
     title = param.String(default="", doc="""
         The title of the dialog.""")
+
+    title_variant = param.String(default="h3", doc="""
+        The text variant of the Dialog title.""")
 
     scroll = param.Selector(objects=["body", "paper"], default="paper", doc="""
         Whether the dialog should scroll the content or the paper.""")

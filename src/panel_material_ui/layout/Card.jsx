@@ -45,6 +45,7 @@ export function render({model, view}) {
   const [sx] = model.useState("sx")
   const [title] = model.useState("title")
   const [title_css_classes] = model.useState("title_css_classes")
+  const [title_variant] = model.useState("title_variant")
   const [variant] = model.useState("variant")
   const header = model.get_child("header")
   const objects = model.get_child("objects")
@@ -91,7 +92,7 @@ export function render({model, view}) {
               classes={title_css_classes}
               dangerouslySetInnerHTML={{__html: title}}
               sx={{display: "inline-flex", alignItems: "center", gap: "0.25em", fontSize: "1.15rem", fontWeight: 500}}
-              variant="h3"
+              variant={title_variant}
             />
           )}
           sx={{

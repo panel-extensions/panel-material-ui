@@ -17,6 +17,7 @@ export function render({model}) {
   const [toggle] = model.useState("toggle")
   const [sx] = model.useState("sx")
   const [square] = model.useState("square")
+  const [title_variant] = model.useState("title_variant")
   const [variant] = model.useState("variant")
   const headers = model.get_child("_headers")
   const objects = model.get_child("objects")
@@ -59,7 +60,7 @@ export function render({model}) {
               }}
             >
               {names[index] ? (
-                <Typography className="title" variant="h3" sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
+                <Typography className="title" variant={title_variant} sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
               ) : headers[index]}
             </AccordionSummary>
             <AccordionDetails sx={{p: "0 12px", "&.MuiAccordionDetails-root": {p: "0 calc(2 * var(--mui-spacing))"}}}>{obj}</AccordionDetails>
