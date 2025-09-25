@@ -39,6 +39,7 @@ export function render({model, view}) {
   const [header_color] = model.useState("header_color")
   const [header_css_classes] = model.useState("header_css_classes")
   const [header_background] = model.useState("header_background")
+  const [header_variant] = model.useState("header_variant")
   const [hide_header] = model.useState("hide_header")
   const [raised] = model.useState("raised")
   const [square] = model.useState("square")
@@ -91,7 +92,7 @@ export function render({model, view}) {
               classes={title_css_classes}
               dangerouslySetInnerHTML={{__html: title}}
               sx={{display: "inline-flex", alignItems: "center", gap: "0.25em", fontSize: "1.15rem", fontWeight: 500}}
-              variant="h3"
+              variant={header_variant}
             />
           )}
           sx={{
