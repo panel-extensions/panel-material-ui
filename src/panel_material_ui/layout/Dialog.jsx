@@ -13,9 +13,11 @@ export function render({model, view}) {
   const [scroll] = model.useState("scroll")
   const [show_close_button] = model.useState("show_close_button")
   const [sx] = model.useState("sx")
+  const [title_variant] = model.useState("title_variant")
   const [width_option] = model.useState("width_option")
   const objects = model.get_child("objects")
 
+  console.log(objects.length)
   return (
     <Dialog
       container={view.container}
@@ -29,7 +31,7 @@ export function render({model, view}) {
     >
       {(title || show_close_button) &&
       <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-        {title && <DialogTitle variant="h3">{title}</DialogTitle>}
+        {title && <DialogTitle variant={title_variant}>{title}</DialogTitle>}
         {show_close_button && (
           <IconButton
             aria-label="close"
