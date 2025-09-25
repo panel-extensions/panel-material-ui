@@ -17,7 +17,6 @@ export function render({model, view}) {
   const [width_option] = model.useState("width_option")
   const objects = model.get_child("objects")
 
-  console.log(objects.length)
   return (
     <Dialog
       container={view.container}
