@@ -56,6 +56,7 @@ export function render({model, view}) {
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
   const [logo] = model.useState("logo")
   const [open, setOpen] = model.useState("sidebar_open")
+  const [sidebar_resizable] = model.useState("sidebar_resizable")
   const [sidebar_width, setSidebarWidth] = model.useState("sidebar_width")
   const [theme_toggle] = model.useState("theme_toggle")
 
@@ -63,9 +64,6 @@ export function render({model, view}) {
   const [isDragging, setIsDragging] = React.useState(false)
   const [dragStartX, setDragStartX] = React.useState(0)
   const [dragStartWidth, setDragStartWidth] = React.useState(0)
-  const MIN_SIDEBAR_WIDTH = 180
-  const MAX_SIDEBAR_WIDTH = 600
-  const DEFAULT_SIDEBAR_WIDTH = 240
   const [site_url] = model.useState("site_url")
   const [title] = model.useState("title")
   const [variant] = model.useState("sidebar_variant")
@@ -149,21 +147,26 @@ export function render({model, view}) {
     const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX
     setIsDragging(true)
     setDragStartX(clientX)
-    setDragStartWidth(sidebar_width || DEFAULT_SIDEBAR_WIDTH)
+    setDragStartWidth(sidebar_width)
     e.preventDefault()
   }, [sidebar_width])
 
   const handleDragMove = React.useCallback((e) => {
     if (!isDragging) return
-    
+
     const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX
     const deltaX = clientX - dragStartX
-    const newWidth = Math.max(MIN_SIDEBAR_WIDTH, Math.min(MAX_SIDEBAR_WIDTH, dragStartWidth + deltaX))
-    
-    // Update width immediately for responsive feedback
-    setSidebarWidth(newWidth)
+    const newWidth = dragStartWidth + deltaX
+
+    // If width gets close to 0, collapse the sidebar completely
+    if (newWidth < 50) {
+      setOpen(false)
+    } else {
+      // Update width immediately for responsive feedback
+      setSidebarWidth(newWidth)
+    }
     e.preventDefault()
-  }, [isDragging, dragStartX, dragStartWidth])
+  }, [isDragging, dragStartX, dragStartWidth, setOpen])
 
   const handleDragEnd = React.useCallback(() => {
     setIsDragging(false)
@@ -192,10 +195,7 @@ export function render({model, view}) {
   }, [isDragging, handleDragMove, handleDragEnd])
 
   const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
-  
-  // Use fallback width if sidebar_width is not set
-  const effectiveSidebarWidth = sidebar_width || DEFAULT_SIDEBAR_WIDTH
-  
+
   const drawer = sidebar.length > 0 ? (
     <Drawer
       PaperProps={{className: "sidebar"}}
@@ -208,7 +208,7 @@ export function render({model, view}) {
         flexDirection: "column",
         flexShrink: 0,
         [`& .MuiDrawer-paper`]: {
-          width: effectiveSidebarWidth, 
+          width: sidebar_width,
           boxSizing: "border-box",
           position: "relative" // Enable positioning for drag handle
         },
@@ -224,39 +224,41 @@ export function render({model, view}) {
           return object
         })}
       </Box>
-      {/* Drag handle for resizing sidebar */}
-      <Box
-        onMouseDown={handleDragStart}
-        onTouchStart={handleDragStart}
-        sx={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          width: "4px",
-          height: "100%",
-          cursor: "col-resize",
-          backgroundColor: "transparent",
-          borderRight: `1px solid ${theme.palette.divider}`,
-          zIndex: 1000,
-          "&:hover": {
-            backgroundColor: theme.palette.action.hover,
-            borderRightWidth: "2px",
-            borderRightColor: theme.palette.primary.main,
-          },
-          // Make the handle slightly larger for easier interaction
-          "&:before": {
-            content: '""',
+      {/* Drag handle for resizing sidebar - only show if resizable */}
+      {sidebar_resizable && (
+        <Box
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          sx={{
             position: "absolute",
             top: 0,
-            right: "-3px", // Extend hit area beyond visual boundary
-            width: "6px",
+            right: 0,
+            width: "4px",
             height: "100%",
-            backgroundColor: "transparent"
-          }
-        }}
-        aria-label="Resize sidebar"
-        title="Drag to resize sidebar"
-      />
+            cursor: "col-resize",
+            backgroundColor: "transparent",
+            borderRight: `1px solid ${theme.palette.divider}`,
+            zIndex: 1000,
+            "&:hover": {
+              backgroundColor: theme.palette.action.hover,
+              borderRightWidth: "2px",
+              borderRightColor: theme.palette.primary.main,
+            },
+            // Make the handle slightly larger for easier interaction
+            "&:before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              right: "-3px", // Extend hit area beyond visual boundary
+              width: "6px",
+              height: "100%",
+              backgroundColor: "transparent"
+            }
+          }}
+          aria-label="Resize sidebar"
+          title="Drag to resize sidebar"
+        />
+      )}
     </Drawer>
   ) : null
 
@@ -366,13 +368,13 @@ export function render({model, view}) {
           drawer_variant === "temporary" ? (
             {width: 0, flexShrink: {xs: 0}}
           ) : (
-            {width: {sm: effectiveSidebarWidth}, flexShrink: {sm: 0}}
+            {width: {sm: sidebar_width}, flexShrink: {sm: 0}}
           )
         }
       >
         {drawer}
       </Box>}
-      <Main className="main" open={open} sidebar_width={effectiveSidebarWidth} variant={drawer_variant}>
+      <Main className="main" open={open} sidebar_width={sidebar_width} variant={drawer_variant}>
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
           <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
             <Typography variant="h5">&nbsp;</Typography>
