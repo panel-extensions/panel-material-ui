@@ -144,7 +144,7 @@ export function render({model, view}) {
 
   // Drag handlers for sidebar resizing
   const handleDragStart = React.useCallback((e) => {
-    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX
+    const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX
     setIsDragging(true)
     setDragStartX(clientX)
     setDragStartWidth(sidebar_width)
@@ -152,9 +152,9 @@ export function render({model, view}) {
   }, [sidebar_width])
 
   const handleDragMove = React.useCallback((e) => {
-    if (!isDragging) return
+    if (!isDragging) { return }
 
-    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX
+    const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX
     const deltaX = clientX - dragStartX
     const newWidth = dragStartWidth + deltaX
 
@@ -180,16 +180,16 @@ export function render({model, view}) {
       const handleTouchMove = (e) => handleDragMove(e)
       const handleTouchEnd = () => handleDragEnd()
 
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
-      document.addEventListener('touchmove', handleTouchMove, { passive: false })
-      document.addEventListener('touchend', handleTouchEnd)
+      document.addEventListener("mousemove", handleMouseMove)
+      document.addEventListener("mouseup", handleMouseUp)
+      document.addEventListener("touchmove", handleTouchMove, {passive: false})
+      document.addEventListener("touchend", handleTouchEnd)
 
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove)
-        document.removeEventListener('mouseup', handleMouseUp)
-        document.removeEventListener('touchmove', handleTouchMove)
-        document.removeEventListener('touchend', handleTouchEnd)
+        document.removeEventListener("mousemove", handleMouseMove)
+        document.removeEventListener("mouseup", handleMouseUp)
+        document.removeEventListener("touchmove", handleTouchMove)
+        document.removeEventListener("touchend", handleTouchEnd)
       }
     }
   }, [isDragging, handleDragMove, handleDragEnd])
