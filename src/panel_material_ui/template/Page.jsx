@@ -207,8 +207,10 @@ export function render({model, view}) {
         display: "flex",
         flexDirection: "column",
         flexShrink: 0,
+        height: "100vh", // Full viewport height
         [`& .MuiDrawer-paper`]: {
           width: sidebar_width,
+          height: "100vh", // Full viewport height
           boxSizing: "border-box",
           position: "relative" // Enable positioning for drag handle
         },
