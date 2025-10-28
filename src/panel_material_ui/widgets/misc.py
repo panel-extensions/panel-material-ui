@@ -42,6 +42,28 @@ class FileDownload(_ButtonBase, _FileDownload):
     def _handle_click(self, event=None):
         self._clicks += 1
 
+    @param.depends('auto', 'file', 'filename', 'loading', watch=True)
+    def _update_label(self):
+        label = 'Download' if self._synced or self.auto else 'Fetching' if self.loading else 'Fetch'
+        if self._default_label:
+            if self.file is None and self.callback is None:
+                label = 'No file set'
+            else:
+                try:
+                    filename = self.filename or self._file_path.name
+                except TypeError:
+                    raise ValueError('Must provide filename if file-like '
+                                     'object is provided.') from None
+                label = f'{label} {filename}'
+            self.label = label
+            self._default_label = True
+
+    def _sync_data(self, fileobj):
+        self.loading = True
+        super()._sync_data(fileobj)
+        self.loading = False
+
+
 __all__ = [
     "FileDownload"
 ]

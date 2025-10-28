@@ -103,7 +103,7 @@ export function render(props, ref) {
             display: "inline-block"}}
           /> :
           <Icon style={{fontSize: icon_size}}>{icon}</Icon>
-      ): <FileDownloadIcon style={{fontSize: icon_size}}/>}
+      ): auto || model.data != null? <FileDownloadIcon style={{fontSize: icon_size}} /> : ""}
       onClick={handleClick}
       onContextMenu={(e) => e.stopPropagation()}
       size={size}
