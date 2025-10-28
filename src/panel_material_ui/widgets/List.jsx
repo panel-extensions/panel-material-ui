@@ -117,7 +117,7 @@ export function render({model}) {
               `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
             ) : "inherit",
             borderLeft: `6px solid var(--mui-palette-${color}-main)`,
-            ".MuiListItemText-root":{
+            ".MuiListItemText-root": {
               ".MuiTypography-root.MuiListItemText-primary": {
                 fontWeight: "bold"
               }
