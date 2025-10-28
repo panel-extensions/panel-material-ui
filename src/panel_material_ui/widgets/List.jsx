@@ -116,7 +116,23 @@ export function render({model}) {
             bgcolor: isActive ? (
               `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
             ) : "inherit",
-            borderLeft: `3px solid var(--mui-palette-${color}-main)`
+            borderLeft: `6px solid var(--mui-palette-${color}-main)`,
+            ".MuiListItemText-root":{
+              ".MuiTypography-root.MuiListItemText-primary": {
+                fontWeight: "bold"
+              }
+            }
+          },
+          "&.MuiListItemButton-root.Mui-focusVisible": {
+            border: "3px solid var(--mui-palette-secondary-main)",
+            bgcolor: "inherit"
+          },
+          "&.MuiListItemButton-root:hover": {
+            ".MuiListItemText-root": {
+              ".MuiTypography-root.MuiListItemText-primary": {
+                textDecoration: "underline"
+              }
+            }
           }
         }}
       >
