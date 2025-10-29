@@ -124,8 +124,13 @@ export function render({model}) {
             }
           },
           "&.MuiListItemButton-root.Mui-focusVisible": {
-            border: "3px solid var(--mui-palette-secondary-main)",
-            bgcolor: "inherit"
+            borderLeft: isActive ? `6px solid var(--mui-palette-${color}-main)` : "3px solid var(--mui-palette-secondary-main)",
+            borderTop: "3px solid var(--mui-palette-secondary-main)",
+            borderRight: "3px solid var(--mui-palette-secondary-main)",
+            borderBottom: "3px solid var(--mui-palette-secondary-main)",
+            bgcolor: isActive ? (
+              `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
+            ) : "inherit"
           },
           "&.MuiListItemButton-root:hover": {
             ".MuiListItemText-root": {
