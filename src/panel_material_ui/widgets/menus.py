@@ -19,8 +19,8 @@ from .button import _ButtonBase
 def filter_item(item, keys):
     if isinstance(item, dict):
         item = {k: v for k, v in item.items() if k in keys}
-        if 'children' in item:
-            item['children'] = [filter_item(child, keys) for child in item['children']]
+        if 'items' in item:
+            item['items'] = [filter_item(child, keys) for child in item['items']]
         return item
     return item
 
@@ -151,6 +151,7 @@ class MenuBase(MaterialWidget):
                 print(f'List on_action handler errored: {e}')  # noqa
 
     def _handle_msg(self, msg):
+        breakpoint()
         index = msg.get('item')
         if isinstance(index, list):
             index = tuple(index)
@@ -184,7 +185,20 @@ class MenuBase(MaterialWidget):
         self._on_click_callbacks.remove(callback)
 
 
-class Breadcrumbs(MenuBase):
+class BreadcrumbsBase(MenuBase):
+
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the breadcrumbs.")
+
+    max_items = param.Integer(default=None, bounds=(1, None), doc="""
+        The maximum number of breadcrumb items to display.""")
+
+    separator = param.String(default=None, doc="""
+        The separator displayed between breadcrumb items.""")
+
+    __abstract = True
+
+
+class Breadcrumbs(BreadcrumbsBase):
     """
     The `Breadcrumbs` component is used to show the navigation path of a user within an application.
     It improves usability by allowing users to track their location and navigate back easily.
@@ -211,19 +225,82 @@ class Breadcrumbs(MenuBase):
     ... ], active=3)
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the breadcrumbs.")
-
-    max_items = param.Integer(default=None, bounds=(1, None), doc="""
-        The maximum number of breadcrumb items to display.""")
-
-    separator = param.String(default=None, doc="""
-        The separator displayed between breadcrumb items.""")
-
     _esm_base = "Breadcrumbs.jsx"
     _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
 
 
-class MenuList(MenuBase):
+class NestedMenuBase(MenuBase):
+
+    active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
+        The index of the currently selected item. Can be a tuple of indices for nested items.""")
+
+    __abstract = True
+
+    @param.depends('items', watch=True, on_init=True)
+    def _sync_items(self):
+         pass
+
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'active' in props and isinstance(props['active'], list):
+            props['active'] = tuple(props['active'])
+        return props
+
+
+class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
+    """
+    Breadcrumb-like navigation for hierarchical data where each non-root
+    segment has a chevron opening a sibling selector menu.
+
+
+    **Items structure**
+    Provide exactly **one** root item (dict) inside ``items``. Children are in
+    ``item['items']``.
+
+
+    Item keys:
+    - ``label`` (str, required)
+    - ``icon`` (str | None)
+    - ``avatar`` (str | None)
+    - ``href`` (str | None)
+    - ``target`` (str | None)
+    - ``items`` (list[dict] | None)
+
+
+    **State**
+    - ``active``: *tuple[int, ...]* of indices from root to the active node,
+    e.g. ``(2, 0, 1)``. ``()`` means the root only.
+
+
+    :Events:
+    - ``select`` → ``{active, depth, index, item}``
+    - ``crumb_click`` → ``{active, depth, item}``
+    """
+
+    active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
+        The index of the currently selected item. Can be a tuple of indices for nested items.""")
+
+    path = param.ClassSelector(default=None, class_=(int, tuple), doc="""
+        The tuple containing indices of the currently rendered path.""")
+
+    _esm_base = "NestedBreadcrumbs.jsx"
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target', 'items', 'selectable']
+
+    def _handle_msg(self, msg):
+        index = msg.get('item')
+        if isinstance(index, list):
+            index = tuple(index)
+        path = msg.get('path')
+        if isinstance(path, list):
+            path = tuple(path)
+        value = None if index is None else self._lookup_item(index)
+        if value is not None:
+            self.param.update(active=index, path=path)
+        if msg['type'] == 'click':
+            self._process_click(msg, index, value)
+
+
+class MenuList(NestedMenuBase):
     """
     The `MenuList` component is used to display a structured group of items, such as menus,
     navigation links, or settings.
@@ -255,9 +332,6 @@ class MenuList(MenuBase):
     ... ], active=3)
     """
 
-    active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
-        The index of the currently selected item. Can be a tuple of indices for nested items.""")
-
     color = param.Selector(default="primary", objects=COLORS, doc="The color of the selected list item.")
 
     dense = param.Boolean(default=False, doc="Whether to show the list items in a dense format.")
@@ -275,16 +349,6 @@ class MenuList(MenuBase):
         'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
         'href', 'target', 'buttons', 'open'
     ]
-
-    @param.depends('items', watch=True, on_init=True)
-    def _sync_items(self):
-         pass
-
-    def _process_property_change(self, props):
-        props = super()._process_property_change(props)
-        if 'active' in props and isinstance(props['active'], list):
-            props['active'] = tuple(props['active'])
-        return props
 
     def on_action(self, action: str, callback: Callable[[DOMEvent], None]):
         """
@@ -312,7 +376,9 @@ class MenuList(MenuBase):
         """
         self._on_action_callbacks[action].remove(callback)
 
+
 List = MenuList
+
 
 class MenuButton(MenuBase, _ButtonBase):
     """
@@ -625,6 +691,7 @@ __all__ = [
     "MenuButton",
     "MenuList",
     "MenuToggle",
+    "NestedBreadcrumbs",
     "Pagination",
     "SpeedDial",
     "SplitButton",
