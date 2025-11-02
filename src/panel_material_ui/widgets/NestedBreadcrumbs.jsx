@@ -5,11 +5,11 @@ import Link from "@mui/material/Link"
 import Typography from "@mui/material/Typography"
 import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
-import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import NavigateNextIcon from "@mui/icons-material/NavigateNext"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import { useTheme, styled } from "@mui/material/styles"
+import { CustomMenu } from "./menu"
 
 const StyledAvatar = styled(Avatar)(({ color, spacing }) => ({
   backgroundColor: color,
@@ -19,7 +19,6 @@ const StyledAvatar = styled(Avatar)(({ color, spacing }) => ({
   marginRight: spacing
 }))
 
-// ---------- helpers (correct depth mapping) ----------
 function selectedRoot(items, active) {
   const roots = Array.isArray(items) ? items : [items]
   const rIdx = (active && active.length ? active[0] : 0) ?? 0
@@ -48,7 +47,7 @@ function chainFromActive(items, active) {
 }
 
 // Siblings available at a given depth
-function siblingsAtDepth(items, active, depth) {
+function siblingsForChainDepth(items, active, depth) {
   if (depth === 0) {
     // root-level siblings are the roots themselves
     return Array.isArray(items) ? items : [items]
@@ -70,27 +69,64 @@ function descendFirsts(node) {
   return tail
 }
 
+function overlapPrefix(a, b) {
+  const out = []
+  const n = Math.min(a.length, b.length)
+  for (let i = 0; i < n; i++) {
+    if (a[i] !== b[i]) break
+    out.push(a[i])
+  }
+  return out
+}
 
 export function render({ model }) {
   const [active, setActive] = model.useState("active")
+  const [auto_descend] = model.useState("auto_descend")
   const [color] = model.useState("color")
   const [items] = model.useState("items")
   const [max_items] = model.useState("max_items")
+  const [path] = model.useState("path")
   const [separator] = model.useState("separator")
   const [sx] = model.useState("sx")
 
   const theme = useTheme()
 
-  const activeArr = Array.isArray(active) ? active : (active != null ? [active] : (items.length ? [0] : []))
+  let activeArr = Array.isArray(active)
+    ? active : (active != null ? [active] : [])
+
+  if (path && path.length) {
+    const overlap = overlapPrefix(activeArr, path)
+    if (overlap.length !== activeArr.length) {
+      activeArr = overlap
+      setActive(activeArr)
+    }
+  }
+
+  // Resolved path for rendering depends on auto_descend
   const resolvedActive = React.useMemo(() => {
-    const ch = chainFromActive(items, activeArr)
+    if (!auto_descend) return activeArr
+    const pathArr = path || (activeArr.length ? activeArr : [0])
+    const ch = chainFromActive(items, pathArr)
     const last = ch.at(-1)
     const tail = last ? descendFirsts(last) : []
-    return activeArr.concat(tail)
-  }, [items, activeArr])
+    return pathArr.concat(tail)
+  }, [items, activeArr, path, auto_descend])
 
-  const chain = chainFromActive(items, resolvedActive)
-  const explicitActiveDepth = Math.max(0, activeArr.length - 1)
+  // Build the visible chain from whichever path we render from
+  const chain = React.useMemo(() => {
+    return chainFromActive(items, resolvedActive)
+  }, [items, resolvedActive])
+
+  const explicitActiveDepth = activeArr.length - 1
+
+  // If auto_descend is disabled and the last explicit node has children,
+  // we show an extra *placeholder selector* segment at the end (unselected).
+  const lastExplicitNode = chain.at(-1) || null
+  const hasUnresolvedChildren =
+    !auto_descend &&
+    lastExplicitNode &&
+    Array.isArray(lastExplicitNode.items) &&
+    lastExplicitNode.items.length > 0
 
   // Menu UI state (single anchor, keyed by depth)
   const [menuDepth, setMenuDepth] = React.useState(null)
@@ -106,26 +142,29 @@ export function render({ model }) {
     setMenuDepth(null)
   }
 
+  // Depth here is *chain index*. If we render the placeholder, its depth is chain.length.
   function siblingsAtDepth(depth) {
-    // depth is the chain index: 0=root segment
     if (depth === 0) return Array.isArray(items) ? items : []
-    const parent = chain[depth - 1]
+    // For placeholder depth === chain.length, siblings are children of lastExplicitNode
+    const parent = depth === chain.length ? chain[depth - 1] : chain[depth - 1]
     return parent && Array.isArray(parent.items) ? parent.items : []
   }
 
   function selectedIdxAtDepth(depth, siblings) {
+    // If placeholder depth (no explicit selection at that depth), return -1
+    if ((hasUnresolvedChildren && depth === chain.length) || activeArr.length == 0) return -1
     const idx = Number.isInteger(activeArr[depth]) ? activeArr[depth] : 0
     return idx >= 0 && idx < siblings.length ? idx : 0
   }
 
   function truncateTo(depth) {
-    // active[d] exists for chain[d], so include it:
+    // Include the index for this depth, store explicitly up to this depth
     const base = resolvedActive.slice(0, depth + 1)
+    setActive(base)
 
-    setActive(base) // store explicit only
-
-    const item = chain[depth]
+    const item = depth < chain.length ? chain[depth] : null
     const full = (() => {
+      if (!auto_descend) return base
       const ch0 = chainFromActive(items, base)
       const last = ch0.at(-1)
       return base.concat(last ? descendFirsts(last) : [])
@@ -133,31 +172,33 @@ export function render({ model }) {
 
     model.send_msg({
       type: "click",
-      item: base,
-      path: full
+      item: base,   // explicit
+      path: full    // resolved for rendering
     })
   }
 
   function selectAtDepth(depth, idx) {
     // Replace index at this depth
-    const base = resolvedActive.slice(0, depth)     // keep up to depth-1
-    const newExplicit = base.concat([idx])          // set depth
-    setActive(newExplicit)                          // store explicit
+    const base = resolvedActive.slice(0, depth) // keep up to depth-1
+    const newExplicit = base.concat([idx])      // set depth
+    setActive(newExplicit)                      // store explicit
 
     const ch = chainFromActive(items, newExplicit)
     const item = ch.at(-1)
-    const resolved = newExplicit.concat(item ? descendFirsts(item) : [])
+    const resolved = (() => {
+      if (!auto_descend) return newExplicit
+      return newExplicit.concat(item ? descendFirsts(item) : [])
+    })()
 
     closeMenu()
     model.send_msg({
       type: "click",
-      item: newExplicit,
-      path: resolved
+      item: newExplicit, // explicit
+      path: resolved     // resolved
     })
   }
 
   function renderSegment(item, depth) {
-    const isLast = depth === chain.length - 1
     const isActiveDepth = depth === explicitActiveDepth
     const colorStr = isActiveDepth ? color : "inherit"
 
@@ -188,7 +229,9 @@ export function render({ model }) {
       onClick: () => truncateTo(depth)
     }
 
-    if (!isLast && item.href) {
+    // Non-terminal segments can be links if href is provided
+    const isLastRendered = depth === chain.length - 1 && !hasUnresolvedChildren
+    if (!isLastRendered && item.href) {
       return (
         <Link href={item.href} target={item.target} {...commonProps}>
           {labelBits}
@@ -202,51 +245,112 @@ export function render({ model }) {
     )
   }
 
-  const breadcrumbItems = chain.map((item, depth) => {
-    const seg = renderSegment(item, depth)
-    const siblings = siblingsAtDepth(depth)
-    const isOpen = menuDepth === depth
-    const selectedIdx = selectedIdxAtDepth(depth, siblings)
+  const breadcrumbItems = [
+    // Render actual chain segments
+    ...chain.map((item, depth) => {
+      const seg = renderSegment(item, depth)
+      const siblings = siblingsAtDepth(depth)
+      const isOpen = menuDepth === depth
+      const selectedIdx = selectedIdxAtDepth(depth, siblings)
+      const showChevron = siblings.length > 1
 
-    return (
-      <span key={`seg-${depth}`} style={{ display: "inline-flex", alignItems: "center" }}>
-        {seg}
-	{(siblings.length > 1) && (
-	  <>
-          <IconButton
-            size="small"
-            aria-label="Change selection"
-            onClick={(e) => openMenu(e, depth)}
-            sx={{ ml: 0.25 }}
-          >
-            <ArrowDropDownIcon fontSize="small" />
-          </IconButton>
-          <Menu anchorEl={anchorEl} open={isOpen} onClose={closeMenu} keepMounted>
-            {siblings.map((sib, idx) => {
-	      const isSelectable = sib.selectable ?? true
-              return (
-		<MenuItem
-		  disabled={!isSelectable}
-		  key={`d${depth}-i${idx}`}
-		  selected={selectedIdx === idx}
-		  onClick={() => isSelectable && selectAtDepth(depth, idx)}
-		>
-		  {sib.icon ? <Icon sx={{ mr: 1 }}>{sib.icon}</Icon> : null}
-		  {sib.avatar ? (
-                    <StyledAvatar spacing={theme.spacing(0.5)} sx={{ mr: 1 }}>
-                      {sib.avatar}
-                    </StyledAvatar>
-		  ) : null}
-		  <Typography>{sib.label}</Typography>
-		</MenuItem>
-	      )
-	    })}
-          </Menu>
-	  </>
-	)}
-      </span>
-    )
-  })
+      return (
+        <span key={`seg-${depth}`} style={{ display: "inline-flex", alignItems: "center" }}>
+          {seg}
+          {showChevron && (
+            <>
+              <IconButton
+                size="small"
+                aria-label="Change selection"
+                onClick={(e) => openMenu(e, depth)}
+                sx={{ ml: 0.25 }}
+              >
+                <ArrowDropDownIcon fontSize="small" />
+              </IconButton>
+              <CustomMenu anchorEl={anchorEl} open={isOpen} onClose={closeMenu} keepMounted>
+                {siblings.map((sib, idx) => {
+                  const isSelectable = sib.selectable ?? true
+                  return (
+                    <MenuItem
+                      disabled={!isSelectable}
+                      key={`d${depth}-i${idx}`}
+                      selected={selectedIdx === idx}
+                      onClick={() => isSelectable && selectAtDepth(depth, idx)}
+                    >
+                      {sib.icon ? <Icon sx={{ mr: 1 }}>{sib.icon}</Icon> : null}
+                      {sib.avatar ? (
+                        <StyledAvatar spacing={theme.spacing(0.5)} sx={{ mr: 1 }}>
+                          {sib.avatar}
+                        </StyledAvatar>
+                      ) : null}
+                      <Typography>{sib.label}</Typography>
+                    </MenuItem>
+                  )
+                })}
+              </CustomMenu>
+            </>
+          )}
+        </span>
+      )
+    }),
+
+    // If auto_descend is OFF and the last explicit node has children,
+    // render a *placeholder* selector with NO selection.
+    ...(hasUnresolvedChildren
+      ? (() => {
+          const depth = chain.length
+          const siblings = siblingsAtDepth(depth)
+          const isOpen = menuDepth === depth
+          const selectedIdx = -1 // none selected
+
+          return [
+            <span key={`seg-placeholder-${depth}`} style={{ display: "inline-flex", alignItems: "center" }}>
+              <Typography
+                key={depth}
+                color="inherit"
+                sx={{ display: "inline-flex", alignItems: "center", lineHeight: 1.2, fontStyle: "italic" }}
+                onClick={(e) => openMenu(e, depth)}
+              >
+                Select…
+              </Typography>
+              {siblings.length > 0 && (
+                <>
+                  <IconButton
+                    size="small"
+                    aria-label="Choose item"
+                    onClick={(e) => openMenu(e, depth)}
+                    sx={{ ml: 0.25 }}
+                  >
+                    <ArrowDropDownIcon fontSize="small" />
+                  </IconButton>
+                  <CustomMenu anchorEl={anchorEl} open={isOpen} onClose={closeMenu} keepMounted>
+                    {siblings.map((sib, idx) => {
+                      const isSelectable = sib.selectable ?? true
+                      return (
+                        <MenuItem
+                          disabled={!isSelectable}
+                          key={`d${depth}-i${idx}`}
+                          selected={selectedIdx === idx /* always false */}
+                          onClick={() => isSelectable && selectAtDepth(depth, idx)}
+                        >
+                          {sib.icon ? <Icon sx={{ mr: 1 }}>{sib.icon}</Icon> : null}
+                          {sib.avatar ? (
+                            <StyledAvatar spacing={theme.spacing(0.5)} sx={{ mr: 1 }}>
+                              {sib.avatar}
+                            </StyledAvatar>
+                          ) : null}
+                          <Typography>{sib.label}</Typography>
+                        </MenuItem>
+                      )
+                    })}
+                  </CustomMenu>
+                </>
+              )}
+            </span>
+          ]
+        })()
+      : [])
+  ]
 
   return (
     <Breadcrumbs

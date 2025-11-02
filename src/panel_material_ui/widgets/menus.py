@@ -249,38 +249,61 @@ class NestedMenuBase(MenuBase):
 
 class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
     """
-    Breadcrumb-like navigation for hierarchical data where each non-root
-    segment has a chevron opening a sibling selector menu.
+    The `NestedBreadcrumbs` component provides breadcrumb-style navigation
+    for hierarchical data. It extends standard breadcrumbs by allowing each
+    non-root segment to open a sibling selector menu via a chevron, enabling
+    users to navigate between branches at any level.
 
+    Nested breadcrumbs help users visualize their position in a nested structure
+    and move both upward (via breadcrumb clicks) and sideways (via sibling menus).
 
-    **Items structure**
-    Provide exactly **one** root item (dict) inside ``items``. Children are in
-    ``item['items']``.
+    Breadcrumb items are defined as objects with the following properties:
 
+    - `label`: The label of the breadcrumb item (required)
+    - `icon`: The icon of the breadcrumb item (optional)
+    - `avatar`: The avatar of the breadcrumb item (optional)
+    - `href`: Link to navigate to when clicking the breadcrumb item (optional)
+    - `target`: Link target (e.g. `"_blank"`) (optional)
+    - `items`: List of nested child items (optional)
+    - `selectable`: Whether the item can be selected in sibling menus (optional, defaults to True)
 
-    Item keys:
-    - ``label`` (str, required)
-    - ``icon`` (str | None)
-    - ``avatar`` (str | None)
-    - ``href`` (str | None)
-    - ``target`` (str | None)
-    - ``items`` (list[dict] | None)
+    :References:
 
+    - https://panel-material-ui.holoviz.org/reference/menus/NestedBreadcrumbs.html
+    - https://mui.com/material-ui/react-breadcrumbs/
 
-    **State**
-    - ``active``: *tuple[int, ...]* of indices from root to the active node,
-    e.g. ``(2, 0, 1)``. ``()`` means the root only.
+    :Example:
 
-
-    :Events:
-    - ``select`` → ``{active, depth, index, item}``
-    - ``crumb_click`` → ``{active, depth, item}``
+    >>> pmui.NestedBreadcrumbs(items=[
+    ...     {
+    ...         'label': 'Projects', 'icon': 'folder', 'items': [
+    ...             {'label': 'A', 'icon': 'category', 'items': [
+    ...                 {'label': 'A1', 'icon': 'grain'},
+    ...                 {'label': 'A2', 'icon': 'grain'},
+    ...             ]},
+    ...             {'label': 'B', 'icon': 'category', 'items': [
+    ...                 {'label': 'B1', 'icon': 'grain'},
+    ...             ]},
+    ...         ]
+    ...     }
+    ... ], active=(0,))
     """
 
     active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
         The index of the currently selected item. Can be a tuple of indices for nested items.""")
 
-    path = param.ClassSelector(default=None, class_=(int, tuple), doc="""
+    auto_descend = param.Boolean(default=True, doc="""
+        Whether to automatically descend through the first child of each
+        selected item when rendering the breadcrumb path.
+
+        When ``True`` (default), the component will automatically extend the
+        visible path by following first-child items below the current selection.
+
+        When ``False``, the last breadcrumb segment will instead display a
+        "Select…" placeholder with a chevron menu, allowing the user to pick
+        a child manually.""")
+
+    path = param.NumericTuple(default=None, doc="""
         The tuple containing indices of the currently rendered path.""")
 
     _esm_base = "NestedBreadcrumbs.jsx"
