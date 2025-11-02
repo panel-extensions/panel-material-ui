@@ -303,7 +303,7 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
         "Select…" placeholder with a chevron menu, allowing the user to pick
         a child manually.""")
 
-    path = param.NumericTuple(default=None, doc="""
+    path = param.ClassSelector(default=None, class_=tuple, doc="""
         The tuple containing indices of the currently rendered path.""")
 
     _esm_base = "NestedBreadcrumbs.jsx"
@@ -321,6 +321,12 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
             self.param.update(active=index, path=path)
         if msg['type'] == 'click':
             self._process_click(msg, index, value)
+
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'path' in props and isinstance(props['path'], list):
+            props['path'] = tuple(props['path'])
+        return props
 
 
 class MenuList(NestedMenuBase):

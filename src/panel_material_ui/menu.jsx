@@ -5,7 +5,7 @@ import Menu from "@mui/material/Menu"
 import Paper from "@mui/material/Paper"
 import Popper from "@mui/material/Popper"
 
-export function CustomMenu({open, anchorEl, onClose, children, sx}) {
+export function CustomMenu({open, anchorEl, onClose, children, sx, keepMounted}) {
   const nb = document.querySelector(".jp-NotebookPanel");
 
   if (nb == null) {
@@ -23,6 +23,7 @@ export function CustomMenu({open, anchorEl, onClose, children, sx}) {
           horizontal: "right",
         }}
         sx={sx}
+	keepMounted={keepMounted}
       >
         {children}
       </Menu>
@@ -34,7 +35,7 @@ export function CustomMenu({open, anchorEl, onClose, children, sx}) {
       open={open}
       anchorEl={anchorEl}
       placement="bottom-end"
-      style={{zIndex: 1500, width: anchorEl.current?.offsetWidth}}
+      style={{zIndex: 1500, width: (anchorEl ? anchorEl.current : anchorEl)?.offsetWidth}}
     >
       {({TransitionProps, placement}) => (
         <Grow
