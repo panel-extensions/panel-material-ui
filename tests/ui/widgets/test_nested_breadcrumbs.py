@@ -206,8 +206,8 @@ def test_nested_breadcrumbs_no_auto_descend_placeholder_flow(page):
 
     # Open placeholder again (children of A: A1, A2)
     page.locator('button[aria-label="Choose item"]').click()
-    expect(menu).to_be_visible()
-    menu_items = menu.locator(".MuiMenuItem-root")
+    expect(menu.nth(1)).to_be_visible()
+    menu_items = menu.nth(1).locator(".MuiMenuItem-root")
     expect(menu_items).to_have_count(2)
     expect(menu_items.nth(0)).to_contain_text("A1")
     expect(menu_items.nth(1)).to_contain_text("A2")
