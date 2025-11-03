@@ -163,7 +163,7 @@ export function render({model, view}) {
       setOpen(false)
     } else {
       // Update width immediately for responsive feedback
-      setSidebarWidth(newWidth)
+      setSidebarWidth(Math.round(newWidth))
     }
     e.preventDefault()
   }, [isDragging, dragStartX, dragStartWidth, setOpen])
@@ -212,7 +212,7 @@ export function render({model, view}) {
           height: "100vh", // Full viewport height
           boxSizing: "border-box",
           position: "relative", // Enable positioning for drag handle
-	  overflowX: "hidden"
+          overflowX: "hidden"
         },
       }}
       variant={drawer_variant}
