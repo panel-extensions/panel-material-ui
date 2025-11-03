@@ -272,7 +272,7 @@ export function render({model, view}) {
     model.send_msg({type: "input", value: value_input})
     setFileData([])
     setValueInput("")
-    await waitForRef(status_ref)
+    await waitForRef(upload_ref)
     setProgress(undefined)
   }
 
