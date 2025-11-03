@@ -478,9 +478,12 @@ class MaterialComponent(ReactComponent):
         self, doc: Document | None = None, title: str | None = None,
         location: bool | Location | None = True
     ) -> Document:
+        from .template import ThemeToggle
         doc = super().server_doc(doc, title, location)
         doc.title = title or 'Panel Application'
         doc.template = BASE_TEMPLATE
+        if any(isinstance(c, ThemeToggle) for c in self.select()):
+            doc.template_variables['is_page'] = True
         return doc
 
     def preview(self, width: int = 800, height: int = 600, border: str="1px solid #ccc", **kwargs):
