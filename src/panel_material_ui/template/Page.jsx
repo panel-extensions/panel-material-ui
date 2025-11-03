@@ -200,7 +200,6 @@ export function render({model, view}) {
     <Drawer
       PaperProps={{className: "sidebar"}}
       anchor="left"
-      disablePortal
       open={open}
       onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
       sx={{
@@ -212,7 +211,8 @@ export function render({model, view}) {
           width: sidebar_width,
           height: "100vh", // Full viewport height
           boxSizing: "border-box",
-          position: "relative" // Enable positioning for drag handle
+          position: "relative", // Enable positioning for drag handle
+	  overflowX: "hidden"
         },
       }}
       variant={drawer_variant}
@@ -226,7 +226,6 @@ export function render({model, view}) {
           return object
         })}
       </Box>
-      {/* Drag handle for resizing sidebar - only show if resizable */}
       {sidebar_resizable && (
         <Box
           onMouseDown={handleDragStart}
@@ -242,9 +241,8 @@ export function render({model, view}) {
             borderRight: `1px solid ${theme.palette.divider}`,
             zIndex: 1000,
             "&:hover": {
-              backgroundColor: theme.palette.action.hover,
               borderRightWidth: "2px",
-              borderRightColor: theme.palette.primary.main,
+              borderRightColor: theme.palette.divider,
             },
             // Make the handle slightly larger for easier interaction
             "&:before": {
@@ -268,7 +266,6 @@ export function render({model, view}) {
     <Drawer
       PaperProps={{className: "contextbar"}}
       anchor="right"
-      disablePortal
       open={contextbar_open}
       onClose={() => contextOpen(false)}
       sx={{
