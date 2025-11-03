@@ -28,6 +28,8 @@ class FileDownload(_ButtonBase, _FileDownload):
 
     icon_size = param.String(default="1em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
+    _syncing = param.Boolean(default=False, doc="""
+        If `auto` is False track syncing data state.""")
 
     _esm_base = "FileDownload.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
@@ -42,9 +44,9 @@ class FileDownload(_ButtonBase, _FileDownload):
     def _handle_click(self, event=None):
         self._clicks += 1
 
-    @param.depends('auto', 'file', 'filename', 'loading', watch=True)
+    @param.depends('auto', 'file', 'filename', '_syncing', watch=True)
     def _update_label(self):
-        label = 'Download' if self._synced or self.auto else 'Fetching' if self.loading else 'Fetch'
+        label = 'Download' if self._synced or self.auto else 'Fetching' if self._syncing else 'Fetch'
         if self._default_label:
             if self.file is None and self.callback is None:
                 label = 'No file set'
@@ -59,9 +61,9 @@ class FileDownload(_ButtonBase, _FileDownload):
             self._default_label = True
 
     def _sync_data(self, fileobj):
-        self.loading = True
+        self._syncing = True
         super()._sync_data(fileobj)
-        self.loading = False
+        self._syncing = False
 
 
 __all__ = [
