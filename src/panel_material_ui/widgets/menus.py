@@ -19,8 +19,8 @@ from .button import _ButtonBase
 def filter_item(item, keys):
     if isinstance(item, dict):
         item = {k: v for k, v in item.items() if k in keys}
-        if 'children' in item:
-            item['children'] = [filter_item(child, keys) for child in item['children']]
+        if 'items' in item:
+            item['items'] = [filter_item(child, keys) for child in item['items']]
         return item
     return item
 
@@ -184,7 +184,20 @@ class MenuBase(MaterialWidget):
         self._on_click_callbacks.remove(callback)
 
 
-class Breadcrumbs(MenuBase):
+class BreadcrumbsBase(MenuBase):
+
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the breadcrumbs.")
+
+    max_items = param.Integer(default=None, bounds=(1, None), doc="""
+        The maximum number of breadcrumb items to display.""")
+
+    separator = param.String(default=None, doc="""
+        The separator displayed between breadcrumb items.""")
+
+    __abstract = True
+
+
+class Breadcrumbs(BreadcrumbsBase):
     """
     The `Breadcrumbs` component is used to show the navigation path of a user within an application.
     It improves usability by allowing users to track their location and navigate back easily.
@@ -211,19 +224,111 @@ class Breadcrumbs(MenuBase):
     ... ], active=3)
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the breadcrumbs.")
-
-    max_items = param.Integer(default=None, bounds=(1, None), doc="""
-        The maximum number of breadcrumb items to display.""")
-
-    separator = param.String(default=None, doc="""
-        The separator displayed between breadcrumb items.""")
-
     _esm_base = "Breadcrumbs.jsx"
     _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
 
 
-class MenuList(MenuBase):
+class NestedMenuBase(MenuBase):
+
+    active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
+        The index of the currently selected item. Can be a tuple of indices for nested items.""")
+
+    __abstract = True
+
+    @param.depends('items', watch=True, on_init=True)
+    def _sync_items(self):
+         pass
+
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'active' in props and isinstance(props['active'], list):
+            props['active'] = tuple(props['active'])
+        return props
+
+
+class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
+    """
+    The `NestedBreadcrumbs` component provides breadcrumb-style navigation
+    for hierarchical data. It extends standard breadcrumbs by allowing each
+    non-root segment to open a sibling selector menu via a chevron, enabling
+    users to navigate between branches at any level.
+
+    Nested breadcrumbs help users visualize their position in a nested structure
+    and move both upward (via breadcrumb clicks) and sideways (via sibling menus).
+
+    Breadcrumb items are defined as objects with the following properties:
+
+    - `label`: The label of the breadcrumb item (required)
+    - `icon`: The icon of the breadcrumb item (optional)
+    - `avatar`: The avatar of the breadcrumb item (optional)
+    - `href`: Link to navigate to when clicking the breadcrumb item (optional)
+    - `target`: Link target (e.g. `"_blank"`) (optional)
+    - `items`: List of nested child items (optional)
+    - `selectable`: Whether the item can be selected in sibling menus (optional, defaults to True)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/NestedBreadcrumbs.html
+    - https://mui.com/material-ui/react-breadcrumbs/
+
+    :Example:
+
+    >>> pmui.NestedBreadcrumbs(items=[
+    ...     {
+    ...         'label': 'Projects', 'icon': 'folder', 'items': [
+    ...             {'label': 'A', 'icon': 'category', 'items': [
+    ...                 {'label': 'A1', 'icon': 'grain'},
+    ...                 {'label': 'A2', 'icon': 'grain'},
+    ...             ]},
+    ...             {'label': 'B', 'icon': 'category', 'items': [
+    ...                 {'label': 'B1', 'icon': 'grain'},
+    ...             ]},
+    ...         ]
+    ...     }
+    ... ], active=(0,))
+    """
+
+    active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
+        The index of the currently selected item. Can be a tuple of indices for nested items.""")
+
+    auto_descend = param.Boolean(default=True, doc="""
+        Whether to automatically descend through the first child of each
+        selected item when rendering the breadcrumb path.
+
+        When ``True`` (default), the component will automatically extend the
+        visible path by following first-child items below the current selection.
+
+        When ``False``, the last breadcrumb segment will instead display a
+        "Select…" placeholder with a chevron menu, allowing the user to pick
+        a child manually.""")
+
+    path = param.ClassSelector(default=None, class_=tuple, doc="""
+        The tuple containing indices of the currently rendered path.""")
+
+    _esm_base = "NestedBreadcrumbs.jsx"
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target', 'items', 'selectable']
+
+    def _handle_msg(self, msg):
+        index = msg.get('item')
+        if isinstance(index, list):
+            index = tuple(index)
+        path = msg.get('path')
+        if isinstance(path, list):
+            path = tuple(path)
+        value = None if index is None else self._lookup_item(index)
+        if value is not None:
+            self.param.update(active=index, path=path)
+        if msg['type'] == 'click':
+            self._process_click(msg, index, value)
+
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'path' in props and isinstance(props['path'], list):
+            props['path'] = tuple(props['path'])
+        return props
+
+
+class MenuList(NestedMenuBase):
     """
     The `MenuList` component is used to display a structured group of items, such as menus,
     navigation links, or settings.
@@ -255,9 +360,6 @@ class MenuList(MenuBase):
     ... ], active=3)
     """
 
-    active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
-        The index of the currently selected item. Can be a tuple of indices for nested items.""")
-
     color = param.Selector(default="primary", objects=COLORS, doc="The color of the selected list item.")
 
     dense = param.Boolean(default=False, doc="Whether to show the list items in a dense format.")
@@ -275,16 +377,6 @@ class MenuList(MenuBase):
         'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
         'href', 'target', 'buttons', 'open'
     ]
-
-    @param.depends('items', watch=True, on_init=True)
-    def _sync_items(self):
-         pass
-
-    def _process_property_change(self, props):
-        props = super()._process_property_change(props)
-        if 'active' in props and isinstance(props['active'], list):
-            props['active'] = tuple(props['active'])
-        return props
 
     def on_action(self, action: str, callback: Callable[[DOMEvent], None]):
         """
@@ -312,7 +404,9 @@ class MenuList(MenuBase):
         """
         self._on_action_callbacks[action].remove(callback)
 
+
 List = MenuList
+
 
 class MenuButton(MenuBase, _ButtonBase):
     """
@@ -625,6 +719,7 @@ __all__ = [
     "MenuButton",
     "MenuList",
     "MenuToggle",
+    "NestedBreadcrumbs",
     "Pagination",
     "SpeedDial",
     "SplitButton",

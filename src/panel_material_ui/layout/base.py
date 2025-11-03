@@ -92,7 +92,7 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
             pane = panel(item)
         else:
             header = None
-            pane = panel(item, name=name)
+            pane = item if isinstance(item, Viewable) else panel(item, name=name)
             name = param_name(pane.name) if name is None else name
         return pane, header, name
 
