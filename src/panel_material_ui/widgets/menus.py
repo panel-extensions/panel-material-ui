@@ -151,7 +151,6 @@ class MenuBase(MaterialWidget):
                 print(f'List on_action handler errored: {e}')  # noqa
 
     def _handle_msg(self, msg):
-        breakpoint()
         index = msg.get('item')
         if isinstance(index, list):
             index = tuple(index)
