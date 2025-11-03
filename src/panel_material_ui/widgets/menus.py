@@ -86,7 +86,8 @@ class MenuBase(MaterialWidget):
 
     @param.depends('active', watch=True, on_init=True)
     def _sync_active(self):
-         self.value = self._lookup_item(self.active)
+        if self.value is None or self.active is not None:
+            self.value = self._lookup_item(self.active)
 
     @param.depends('value', watch=True, on_init=True)
     def _sync_value(self):
