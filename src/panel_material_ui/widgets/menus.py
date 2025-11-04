@@ -10,6 +10,7 @@ from panel.io.state import state
 from panel.layout import Column
 from panel.layout.base import ListLike
 from panel.models.reactive_html import DOMEvent
+from param.parameterized import _syncing
 
 from ..base import COLORS, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
@@ -51,6 +52,10 @@ class MenuBase(MaterialWidget):
     def __init__(self, **params):
         click_handler = params.pop('on_click', None)
         super().__init__(**params)
+        if self.value is None and self.active is not None:
+            self._sync_active()
+        elif self.value is not None and self.active is None:
+            self._sync_value()
         self._on_action_callbacks = defaultdict(list)
         self._on_click_callbacks = []
         if click_handler:
@@ -80,21 +85,23 @@ class MenuBase(MaterialWidget):
             props['active'] = 0
         return props
 
-    @param.depends('items', watch=True, on_init=True)
+    @param.depends('items', watch=True)
     def _sync_items(self):
-         self.param.active.bounds = (0, len(self.items)-1)
+        self.param.active.bounds = (0, len(self.items)-1)
 
-    @param.depends('active', watch=True, on_init=True)
+    @param.depends('active', watch=True)
     def _sync_active(self):
-         self.value = self._lookup_item(self.active)
+        with _syncing(self, ['value']):
+            self.value = self._lookup_item(self.active)
 
-    @param.depends('value', watch=True, on_init=True)
+    @param.depends('value', watch=True)
     def _sync_value(self):
         index = self._lookup_active_by_value(self.value)
-        if index is None:
-            self.active = None
-        else:
-            self.active = index if 'items' in self._item_keys else index[0]
+        with _syncing(self, ['active']):
+            if index is None:
+                self.active = None
+            else:
+                self.active = index if 'items' in self._item_keys else index[0]
 
     def _lookup_active_by_value(self, item):
         if not self.items:
