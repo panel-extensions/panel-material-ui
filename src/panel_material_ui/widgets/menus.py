@@ -324,7 +324,11 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
         if isinstance(path, list):
             path = tuple(path)
         value = None if index is None else self._lookup_item(index)
-        self._process_click(msg, index, value)
+        if value is not None:
+            self._process_click(msg, index, value)
+        if path is not None:
+            with _syncing(self, ['path']):
+                self.path = path
 
     def _process_property_change(self, props):
         props = super()._process_property_change(props)
