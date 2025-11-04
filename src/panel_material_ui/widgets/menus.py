@@ -137,7 +137,8 @@ class MenuBase(MaterialWidget):
 
     def _process_click(self, msg, index, value):
         if not isinstance(value, dict) or value.get('selectable', True):
-            self.param.update(active=index, value=value)
+            with _syncing(self, ['active', 'value']):
+                self.param.update(active=index, value=value)
         for fn in self._on_click_callbacks:
             try:
                 state.execute(partial(fn, value))
@@ -324,9 +325,10 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
             path = tuple(path)
         value = None if index is None else self._lookup_item(index)
         if value is not None:
-            self.param.update(active=index, path=path)
-        if msg['type'] == 'click':
             self._process_click(msg, index, value)
+        if path is not None:
+            with _syncing(self, ['path']):
+                self.path = path
 
     def _process_property_change(self, props):
         props = super()._process_property_change(props)
@@ -508,18 +510,21 @@ class SplitButton(MenuBase, _ButtonBase):
     @param.depends('mode', watch=True, on_init=True)
     def _switch_mode(self):
         if self.mode == 'select' and self.value is None:
-            self.param.update(active=0, value=self.items[0])
+            with _syncing(self, ['active', 'value']):
+                self.param.update(active=0, value=self.items[0])
 
     def _process_click(self, msg, index, value):
         if self.mode == 'select' and 'item' in msg:
-            self.param.update(active=index, value=value)
+            with _syncing(self, ['active', 'value']):
+                self.param.update(active=index, value=value)
             return
         updates = {'clicks': self.clicks+1}
         if value is None:
             value = self.value if self.mode == 'select' else self.label
         elif not isinstance(value, dict) or value.get('selectable', True):
             updates.update(active=index, value=value)
-        self.param.update(updates)
+        with _syncing(self, list(updates)):
+            self.param.update(updates)
         for fn in self._on_click_callbacks:
             try:
                 state.execute(partial(fn, value))
