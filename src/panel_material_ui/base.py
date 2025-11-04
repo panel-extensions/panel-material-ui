@@ -279,7 +279,12 @@ class MaterialComponent(ReactComponent):
             if isinstance(value, param.Parameter):
                 name = value.name
                 value = value.owner
-            if isinstance(value, WidgetBase) and not isinstance(value, (CompositeWidget, PyComponent)):
+            if (
+                isinstance(value, WidgetBase) and
+                not isinstance(value, (CompositeWidget, PyComponent)) and
+                value._source_transforms.get(name, False) is not None and
+                self._target_transforms.get(name, False) is not None
+            ):
                 value.jslink(self, **{name: p})
 
     async def _watch_esm(self):
