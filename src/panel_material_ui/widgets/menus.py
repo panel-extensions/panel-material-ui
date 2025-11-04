@@ -43,6 +43,7 @@ class MenuBase(MaterialWidget):
         The width of the menu.""")
 
     _item_keys = ['label', 'items']
+    _descend_children = True
     _rename = {'value': None}
     _source_transforms = {'attached': None, "value": None, 'items': None}
 
@@ -102,7 +103,6 @@ class MenuBase(MaterialWidget):
         queue = [([], 0, self.items)]
         while queue:
             path, depth, items = queue.pop(0)
-
             for i, current in enumerate(items):
                 current_path = path + [i]
                 if current == item:
@@ -110,7 +110,7 @@ class MenuBase(MaterialWidget):
                 if isinstance(current, dict):
                     if current == item:
                         return tuple(current_path)
-                    if 'items' in current:
+                    if 'items' in current and self._descend_children:
                         queue.append((current_path, depth + 1, current['items']))
         return None
 
@@ -121,7 +121,7 @@ class MenuBase(MaterialWidget):
         value = self.items
         for i, idx in enumerate(indexes):
             value = value[idx]
-            if isinstance(value, dict) and (i != len(indexes)-1):
+            if isinstance(value, dict) and (i != len(indexes)-1) and self._descend_children:
                 value = value['items']
 
         if isinstance(value, tuple):
@@ -371,12 +371,18 @@ class MenuList(NestedMenuBase):
 
     removable = param.Boolean(default=False, doc="Whether to allow deleting items.")
 
+    show_children = param.Boolean(default=True, doc="Whether to render children.")
+
     _esm_base = "List.jsx"
 
     _item_keys = [
         'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
         'href', 'target', 'buttons', 'open'
     ]
+
+    @property
+    def _descend_children(self):
+        return self.show_children
 
     def on_action(self, action: str, callback: Callable[[DOMEvent], None]):
         """
