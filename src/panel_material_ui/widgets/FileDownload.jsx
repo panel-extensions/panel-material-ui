@@ -112,7 +112,7 @@ export function render(props, ref) {
       onContextMenu={(e) => e.stopPropagation()}
       size={size}
       sx={{
-        cursor: _syncing ? "not-allowed" : "auto",
+        cursor: _syncing ? "not-allowed" : "pointer",
         ...sx
       }}
       variant={variant}
