@@ -10,6 +10,7 @@ from panel.io.state import state
 from panel.layout import Column
 from panel.layout.base import ListLike
 from panel.models.reactive_html import DOMEvent
+from param.parameterized import _syncing
 
 from ..base import COLORS, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
@@ -19,8 +20,8 @@ from .button import _ButtonBase
 def filter_item(item, keys):
     if isinstance(item, dict):
         item = {k: v for k, v in item.items() if k in keys}
-        if 'children' in item:
-            item['children'] = [filter_item(child, keys) for child in item['children']]
+        if 'items' in item:
+            item['items'] = [filter_item(child, keys) for child in item['items']]
         return item
     return item
 
@@ -43,6 +44,7 @@ class MenuBase(MaterialWidget):
         The width of the menu.""")
 
     _item_keys = ['label', 'items']
+    _descend_children = True
     _rename = {'value': None}
     _source_transforms = {'attached': None, "value": None, 'items': None}
 
@@ -51,6 +53,10 @@ class MenuBase(MaterialWidget):
     def __init__(self, **params):
         click_handler = params.pop('on_click', None)
         super().__init__(**params)
+        if self.value is None and self.active is not None:
+            self._sync_active()
+        elif self.value is not None and self.active is None:
+            self._sync_value()
         self._on_action_callbacks = defaultdict(list)
         self._on_click_callbacks = []
         if click_handler:
@@ -80,21 +86,23 @@ class MenuBase(MaterialWidget):
             props['active'] = 0
         return props
 
-    @param.depends('items', watch=True, on_init=True)
+    @param.depends('items', watch=True)
     def _sync_items(self):
-         self.param.active.bounds = (0, len(self.items)-1)
+        self.param.active.bounds = (0, len(self.items)-1)
 
-    @param.depends('active', watch=True, on_init=True)
+    @param.depends('active', watch=True)
     def _sync_active(self):
-         self.value = self._lookup_item(self.active)
+        with _syncing(self, ['value']):
+            self.value = self._lookup_item(self.active)
 
-    @param.depends('value', watch=True, on_init=True)
+    @param.depends('value', watch=True)
     def _sync_value(self):
         index = self._lookup_active_by_value(self.value)
-        if index is None:
-            self.active = None
-        else:
-            self.active = index if 'items' in self._item_keys else index[0]
+        with _syncing(self, ['active']):
+            if index is None:
+                self.active = None
+            else:
+                self.active = index if 'items' in self._item_keys else index[0]
 
     def _lookup_active_by_value(self, item):
         if not self.items:
@@ -102,7 +110,6 @@ class MenuBase(MaterialWidget):
         queue = [([], 0, self.items)]
         while queue:
             path, depth, items = queue.pop(0)
-
             for i, current in enumerate(items):
                 current_path = path + [i]
                 if current == item:
@@ -110,7 +117,7 @@ class MenuBase(MaterialWidget):
                 if isinstance(current, dict):
                     if current == item:
                         return tuple(current_path)
-                    if 'items' in current:
+                    if 'items' in current and self._descend_children:
                         queue.append((current_path, depth + 1, current['items']))
         return None
 
@@ -121,7 +128,7 @@ class MenuBase(MaterialWidget):
         value = self.items
         for i, idx in enumerate(indexes):
             value = value[idx]
-            if isinstance(value, dict) and (i != len(indexes)-1):
+            if isinstance(value, dict) and (i != len(indexes)-1) and self._descend_children:
                 value = value['items']
 
         if isinstance(value, tuple):
@@ -130,7 +137,8 @@ class MenuBase(MaterialWidget):
 
     def _process_click(self, msg, index, value):
         if not isinstance(value, dict) or value.get('selectable', True):
-            self.param.update(active=index, value=value)
+            with _syncing(self, ['active', 'value']):
+                self.param.update(active=index, value=value)
         for fn in self._on_click_callbacks:
             try:
                 state.execute(partial(fn, value))
@@ -184,7 +192,20 @@ class MenuBase(MaterialWidget):
         self._on_click_callbacks.remove(callback)
 
 
-class Breadcrumbs(MenuBase):
+class BreadcrumbsBase(MenuBase):
+
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the breadcrumbs.")
+
+    max_items = param.Integer(default=None, bounds=(1, None), doc="""
+        The maximum number of breadcrumb items to display.""")
+
+    separator = param.String(default=None, doc="""
+        The separator displayed between breadcrumb items.""")
+
+    __abstract = True
+
+
+class Breadcrumbs(BreadcrumbsBase):
     """
     The `Breadcrumbs` component is used to show the navigation path of a user within an application.
     It improves usability by allowing users to track their location and navigate back easily.
@@ -211,19 +232,112 @@ class Breadcrumbs(MenuBase):
     ... ], active=3)
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the breadcrumbs.")
-
-    max_items = param.Integer(default=None, bounds=(1, None), doc="""
-        The maximum number of breadcrumb items to display.""")
-
-    separator = param.String(default=None, doc="""
-        The separator displayed between breadcrumb items.""")
-
     _esm_base = "Breadcrumbs.jsx"
     _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
 
 
-class MenuList(MenuBase):
+class NestedMenuBase(MenuBase):
+
+    active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
+        The index of the currently selected item. Can be a tuple of indices for nested items.""")
+
+    __abstract = True
+
+    @param.depends('items', watch=True, on_init=True)
+    def _sync_items(self):
+         pass
+
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'active' in props and isinstance(props['active'], list):
+            props['active'] = tuple(props['active'])
+        return props
+
+
+class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
+    """
+    The `NestedBreadcrumbs` component provides breadcrumb-style navigation
+    for hierarchical data. It extends standard breadcrumbs by allowing each
+    non-root segment to open a sibling selector menu via a chevron, enabling
+    users to navigate between branches at any level.
+
+    Nested breadcrumbs help users visualize their position in a nested structure
+    and move both upward (via breadcrumb clicks) and sideways (via sibling menus).
+
+    Breadcrumb items are defined as objects with the following properties:
+
+    - `label`: The label of the breadcrumb item (required)
+    - `icon`: The icon of the breadcrumb item (optional)
+    - `avatar`: The avatar of the breadcrumb item (optional)
+    - `href`: Link to navigate to when clicking the breadcrumb item (optional)
+    - `target`: Link target (e.g. `"_blank"`) (optional)
+    - `items`: List of nested child items (optional)
+    - `selectable`: Whether the item can be selected in sibling menus (optional, defaults to True)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/NestedBreadcrumbs.html
+    - https://mui.com/material-ui/react-breadcrumbs/
+
+    :Example:
+
+    >>> pmui.NestedBreadcrumbs(items=[
+    ...     {
+    ...         'label': 'Projects', 'icon': 'folder', 'items': [
+    ...             {'label': 'A', 'icon': 'category', 'items': [
+    ...                 {'label': 'A1', 'icon': 'grain'},
+    ...                 {'label': 'A2', 'icon': 'grain'},
+    ...             ]},
+    ...             {'label': 'B', 'icon': 'category', 'items': [
+    ...                 {'label': 'B1', 'icon': 'grain'},
+    ...             ]},
+    ...         ]
+    ...     }
+    ... ], active=(0,))
+    """
+
+    active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
+        The index of the currently selected item. Can be a tuple of indices for nested items.""")
+
+    auto_descend = param.Boolean(default=True, doc="""
+        Whether to automatically descend through the first child of each
+        selected item when rendering the breadcrumb path.
+
+        When ``True`` (default), the component will automatically extend the
+        visible path by following first-child items below the current selection.
+
+        When ``False``, the last breadcrumb segment will instead display a
+        "Select…" placeholder with a chevron menu, allowing the user to pick
+        a child manually.""")
+
+    path = param.ClassSelector(default=None, class_=tuple, doc="""
+        The tuple containing indices of the currently rendered path.""")
+
+    _esm_base = "NestedBreadcrumbs.jsx"
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target', 'items', 'selectable']
+
+    def _handle_msg(self, msg):
+        index = msg.get('item')
+        if isinstance(index, list):
+            index = tuple(index)
+        path = msg.get('path')
+        if isinstance(path, list):
+            path = tuple(path)
+        value = None if index is None else self._lookup_item(index)
+        if value is not None:
+            self._process_click(msg, index, value)
+        if path is not None:
+            with _syncing(self, ['path']):
+                self.path = path
+
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'path' in props and isinstance(props['path'], list):
+            props['path'] = tuple(props['path'])
+        return props
+
+
+class MenuList(NestedMenuBase):
     """
     The `MenuList` component is used to display a structured group of items, such as menus,
     navigation links, or settings.
@@ -255,9 +369,6 @@ class MenuList(MenuBase):
     ... ], active=3)
     """
 
-    active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
-        The index of the currently selected item. Can be a tuple of indices for nested items.""")
-
     color = param.Selector(default="primary", objects=COLORS, doc="The color of the selected list item.")
 
     dense = param.Boolean(default=False, doc="Whether to show the list items in a dense format.")
@@ -269,6 +380,8 @@ class MenuList(MenuBase):
 
     removable = param.Boolean(default=False, doc="Whether to allow deleting items.")
 
+    show_children = param.Boolean(default=True, doc="Whether to render children.")
+
     _esm_base = "List.jsx"
 
     _item_keys = [
@@ -276,15 +389,9 @@ class MenuList(MenuBase):
         'href', 'target', 'buttons', 'open'
     ]
 
-    @param.depends('items', watch=True, on_init=True)
-    def _sync_items(self):
-         pass
-
-    def _process_property_change(self, props):
-        props = super()._process_property_change(props)
-        if 'active' in props and isinstance(props['active'], list):
-            props['active'] = tuple(props['active'])
-        return props
+    @property
+    def _descend_children(self):
+        return self.show_children
 
     def on_action(self, action: str, callback: Callable[[DOMEvent], None]):
         """
@@ -312,7 +419,9 @@ class MenuList(MenuBase):
         """
         self._on_action_callbacks[action].remove(callback)
 
+
 List = MenuList
+
 
 class MenuButton(MenuBase, _ButtonBase):
     """
@@ -401,18 +510,21 @@ class SplitButton(MenuBase, _ButtonBase):
     @param.depends('mode', watch=True, on_init=True)
     def _switch_mode(self):
         if self.mode == 'select' and self.value is None:
-            self.param.update(active=0, value=self.items[0])
+            with _syncing(self, ['active', 'value']):
+                self.param.update(active=0, value=self.items[0])
 
     def _process_click(self, msg, index, value):
         if self.mode == 'select' and 'item' in msg:
-            self.param.update(active=index, value=value)
+            with _syncing(self, ['active', 'value']):
+                self.param.update(active=index, value=value)
             return
         updates = {'clicks': self.clicks+1}
         if value is None:
             value = self.value if self.mode == 'select' else self.label
         elif not isinstance(value, dict) or value.get('selectable', True):
             updates.update(active=index, value=value)
-        self.param.update(updates)
+        with _syncing(self, list(updates)):
+            self.param.update(updates)
         for fn in self._on_click_callbacks:
             try:
                 state.execute(partial(fn, value))
@@ -625,6 +737,7 @@ __all__ = [
     "MenuButton",
     "MenuList",
     "MenuToggle",
+    "NestedBreadcrumbs",
     "Pagination",
     "SpeedDial",
     "SplitButton",

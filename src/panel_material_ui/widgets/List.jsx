@@ -25,6 +25,7 @@ export function render({model}) {
   const [label] = model.useState("label")
   const [items] = model.useState("items")
   const [level_indent] = model.useState("level_indent")
+  const [show_children] = model.useState("show_children")
   const [sx] = model.useState("sx")
   const [open, setOpen] = React.useState({})
   const [menu_open, setMenuOpen] = React.useState({})
@@ -61,7 +62,7 @@ export function render({model}) {
     const href = item.href
     const target = item.target
     const avatar = item.avatar
-    const subitems = item.items
+    const subitems = show_children ? item.items : []
     const item_open = item.open !== undefined ? item.open : true
     current_open[key] = current_open[key] === undefined ? item_open : current_open[key]
     current_menu_open[key] = current_menu_open[key] === undefined ? false : current_menu_open[key]
@@ -116,7 +117,28 @@ export function render({model}) {
             bgcolor: isActive ? (
               `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
             ) : "inherit",
-            borderLeft: `3px solid var(--mui-palette-${color}-main)`
+            borderLeft: `6px solid var(--mui-palette-${color}-main)`,
+            ".MuiListItemText-root": {
+              ".MuiTypography-root.MuiListItemText-primary": {
+                fontWeight: "bold"
+              }
+            }
+          },
+          "&.MuiListItemButton-root.Mui-focusVisible": {
+            borderLeft: isActive ? `6px solid var(--mui-palette-${color}-main)` : "3px solid var(--mui-palette-secondary-main)",
+            borderTop: "3px solid var(--mui-palette-secondary-main)",
+            borderRight: "3px solid var(--mui-palette-secondary-main)",
+            borderBottom: "3px solid var(--mui-palette-secondary-main)",
+            bgcolor: isActive ? (
+              `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
+            ) : "inherit"
+          },
+          "&.MuiListItemButton-root:hover": {
+            ".MuiListItemText-root": {
+              ".MuiTypography-root.MuiListItemText-primary": {
+                textDecoration: "underline"
+              }
+            }
           }
         }}
       >
@@ -244,7 +266,7 @@ export function render({model}) {
             </Menu>
           </React.Fragment>
         )}
-        {subitems && (
+        {subitems && subitems.length ? (
           <IconButton
             size="small"
             onMouseDown={(e) => {
@@ -257,11 +279,11 @@ export function render({model}) {
           >
             {current_open[key] ? <ExpandLess/> : <ExpandMore />}
           </IconButton>
-        )}
+        ) : null}
       </ListItemButton>
     )
 
-    if (subitems) {
+    if (subitems && subitems.length) {
       return [
         list_item,
         <Collapse in={current_open[key]} timeout="auto" unmountOnExit>

@@ -56,8 +56,14 @@ export function render({model, view}) {
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
   const [logo] = model.useState("logo")
   const [open, setOpen] = model.useState("sidebar_open")
-  const [sidebar_width] = model.useState("sidebar_width")
+  const [sidebar_resizable] = model.useState("sidebar_resizable")
+  const [sidebar_width, setSidebarWidth] = model.useState("sidebar_width")
   const [theme_toggle] = model.useState("theme_toggle")
+
+  // Draggable sidebar state and constants
+  const [isDragging, setIsDragging] = React.useState(false)
+  const [dragStartX, setDragStartX] = React.useState(0)
+  const [dragStartWidth, setDragStartWidth] = React.useState(0)
   const [site_url] = model.useState("site_url")
   const [title] = model.useState("title")
   const [variant] = model.useState("sidebar_variant")
@@ -136,19 +142,78 @@ export function render({model, view}) {
   setup_global_styles(view, theme)
   React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
 
+  // Drag handlers for sidebar resizing
+  const handleDragStart = React.useCallback((e) => {
+    const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX
+    setIsDragging(true)
+    setDragStartX(clientX)
+    setDragStartWidth(sidebar_width)
+    e.preventDefault()
+  }, [sidebar_width])
+
+  const handleDragMove = React.useCallback((e) => {
+    if (!isDragging) { return }
+
+    const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX
+    const deltaX = clientX - dragStartX
+    const newWidth = dragStartWidth + deltaX
+
+    // If width gets close to 0, collapse the sidebar completely
+    if (newWidth < 50) {
+      setOpen(false)
+    } else {
+      // Update width immediately for responsive feedback
+      setSidebarWidth(Math.round(newWidth))
+    }
+    e.preventDefault()
+  }, [isDragging, dragStartX, dragStartWidth, setOpen])
+
+  const handleDragEnd = React.useCallback(() => {
+    setIsDragging(false)
+  }, [])
+
+  // Add global mouse/touch event listeners when dragging
+  React.useEffect(() => {
+    if (isDragging) {
+      const handleMouseMove = (e) => handleDragMove(e)
+      const handleMouseUp = () => handleDragEnd()
+      const handleTouchMove = (e) => handleDragMove(e)
+      const handleTouchEnd = () => handleDragEnd()
+
+      document.addEventListener("mousemove", handleMouseMove)
+      document.addEventListener("mouseup", handleMouseUp)
+      document.addEventListener("touchmove", handleTouchMove, {passive: false})
+      document.addEventListener("touchend", handleTouchEnd)
+
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove)
+        document.removeEventListener("mouseup", handleMouseUp)
+        document.removeEventListener("touchmove", handleTouchMove)
+        document.removeEventListener("touchend", handleTouchEnd)
+      }
+    }
+  }, [isDragging, handleDragMove, handleDragEnd])
+
   const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
+
   const drawer = sidebar.length > 0 ? (
     <Drawer
       PaperProps={{className: "sidebar"}}
       anchor="left"
-      disablePortal
       open={open}
       onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
       sx={{
         display: "flex",
         flexDirection: "column",
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {width: sidebar_width, boxSizing: "border-box"},
+        height: "100vh", // Full viewport height
+        [`& .MuiDrawer-paper`]: {
+          width: sidebar_width,
+          height: "100vh", // Full viewport height
+          boxSizing: "border-box",
+          position: "relative", // Enable positioning for drag handle
+          overflowX: "hidden"
+        },
       }}
       variant={drawer_variant}
     >
@@ -161,6 +226,39 @@ export function render({model, view}) {
           return object
         })}
       </Box>
+      {sidebar_resizable && (
+        <Box
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "4px",
+            height: "100%",
+            cursor: "col-resize",
+            backgroundColor: "transparent",
+            borderRight: `1px solid ${theme.palette.divider}`,
+            zIndex: 1000,
+            "&:hover": {
+              borderRightWidth: "2px",
+              borderRightColor: theme.palette.divider,
+            },
+            // Make the handle slightly larger for easier interaction
+            "&:before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              right: "-3px", // Extend hit area beyond visual boundary
+              width: "6px",
+              height: "100%",
+              backgroundColor: "transparent"
+            }
+          }}
+          aria-label="Resize sidebar"
+          title="Drag to resize sidebar"
+        />
+      )}
     </Drawer>
   ) : null
 
@@ -168,7 +266,6 @@ export function render({model, view}) {
     <Drawer
       PaperProps={{className: "contextbar"}}
       anchor="right"
-      disablePortal
       open={contextbar_open}
       onClose={() => contextOpen(false)}
       sx={{
