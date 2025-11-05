@@ -61,9 +61,8 @@ class FileDownload(_ButtonBase, _FileDownload):
             self._default_label = True
 
     def _sync_data(self, fileobj):
-        self._syncing = True
-        super()._sync_data(fileobj)
-        self._syncing = False
+        with self.param.update(_syncing=True):
+            super()._sync_data(fileobj)
 
 
 __all__ = [
