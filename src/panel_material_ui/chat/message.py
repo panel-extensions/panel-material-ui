@@ -107,14 +107,11 @@ class ChatMessage(MaterialComponent, ChatMessage):
         if isinstance(reaction_icons, dict):
             params["reaction_icons"] = ChatReactionIcons(options=reaction_icons, default_layout=Row, sizing_mode=None)
         self._internal = True
-        if not self.avatar:
-            self._update_avatar()
-        self._internal_state = MessageState(
-            avatar=self.param.avatar,
-        )
         if not ChatMessage.width and params.get('width') is None and params.get('sizing_mode', None) is None:
             params['sizing_mode'] = 'stretch_width'
         MaterialComponent.__init__(self, object=object, **params)
+        if not self.avatar:
+            self._update_avatar()
         self._internal_state.timestamp = self.param.timestamp.rx().strftime(self.param.timestamp_format)
         self._build_layout()
 
