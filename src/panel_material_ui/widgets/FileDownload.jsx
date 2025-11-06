@@ -1,4 +1,5 @@
 import Button from "@mui/material/Button"
+import CircularProgress from "@mui/material/CircularProgress"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import {useTheme} from "@mui/material/styles"
 
@@ -31,6 +32,7 @@ export function render(props, ref) {
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
+  const [_syncing] = model.useState("_syncing")
 
   const linkRef = React.useRef(null)
   const theme = useTheme()
@@ -103,11 +105,16 @@ export function render(props, ref) {
             display: "inline-block"}}
           /> :
           <Icon style={{fontSize: icon_size}}>{icon}</Icon>
-      ): <FileDownloadIcon style={{fontSize: icon_size}}/>}
+      ): auto || model.data != null ? <FileDownloadIcon style={{fontSize: icon_size}} />
+        : _syncing ? <CircularProgress size={icon_size} sx={{color: "var(--variant-containedColor)"}} />
+          : ""}
       onClick={handleClick}
       onContextMenu={(e) => e.stopPropagation()}
       size={size}
-      sx={sx}
+      sx={{
+        cursor: _syncing ? "not-allowed" : "pointer",
+        ...sx
+      }}
       variant={variant}
       {...other}
     >
