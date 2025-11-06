@@ -236,6 +236,13 @@ export function render({model, view}) {
     })
   }, [])
 
+  model.on("remove", () => {
+    // If there is an input event in progress when the
+    // component is removed we clear any waitForRef
+    // handlers that depend on it
+    upload_ref.current = {"status": "removed"}
+  })
+
   const isSendEvent = (event) => {
     return (event.key === "Enter") && (
       (enter_sends && (!(event.ctrlKey || event.shiftKey))) ||
@@ -270,9 +277,9 @@ export function render({model, view}) {
       )
     }
     model.send_msg({type: "input", value: value_input})
+    await waitForRef(upload_ref)
     setFileData([])
     setValueInput("")
-    await waitForRef(upload_ref)
     setProgress(undefined)
   }
 
