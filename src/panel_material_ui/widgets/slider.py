@@ -50,6 +50,8 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
 
     value_throttled = param.Number(default=None, doc="Throttled value for the slider.")
 
+    inline_layout = param.Boolean(default=True, doc="If numeric values/editors should be shown alongside the slider or not.")
+
     _esm_base = "Slider.jsx"
     _rename = {"name": "name"}
 
