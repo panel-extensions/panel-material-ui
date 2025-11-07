@@ -34,6 +34,7 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const [_syncing] = model.useState("_syncing")
 
+  const linkRef = React.useRef(null)
   const theme = useTheme()
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
@@ -65,6 +66,9 @@ export function render(props, ref) {
     model.on("change:data", () => {
       if (model.data != null && auto) {
         downloadFile()
+      } else if (linkRef.current) {
+        const blob = dataURItoBlob(model.data)
+        linkRef.current.href = URL.createObjectURL(blob)
       }
     })
   }, [])
@@ -114,7 +118,15 @@ export function render(props, ref) {
       variant={variant}
       {...other}
     >
-      {label}
+      {auto ? label : <a
+        ref={linkRef}
+        href={file_data}
+        download={filename}
+        onclick={() => event.preventDefault()}
+        style={{color: theme.palette[color].contrastText}}
+      >
+        {label}
+      </a>}
     </Button>
   )
 }
