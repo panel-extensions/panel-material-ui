@@ -96,7 +96,7 @@ export function render({model, el, view}) {
       fullWidth
       label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
       onBlur={() => setFocused(false)}
-      onChange={(event) => { setEditableValue(event.target.value); console.log(event.target.value) }}
+      onChange={(event) => { setEditableValue(event.target.value); }}
       onFocus={() => setFocused(true)}
       onKeyDown={handleKeyDown}
       placeholder={placeholder}
