@@ -22,6 +22,8 @@ export function render({model, el, view}) {
 
   const [oldValue, setOldValue] = React.useState(value)
   const [focused, setFocused] = React.useState(false)
+  const [editableValue, setEditableValue] = React.useState(value)
+  const [valueLabel, setValueLabel] = React.useState()
 
   const validate = (value) => {
     const regex = model.mode == "int" ? int_regex : float_regex
@@ -34,17 +36,23 @@ export function render({model, el, view}) {
     }
   }
 
-  const handleChange = (event) => {
-    const newValue = validate(event.target.value)
-    setOldValue(value)
-    setValue(newValue)
-  }
+  React.useEffect(() => {
+    if (focused) {
+      setOldValue(value)
+    } else {
+      const newValue = validate(editableValue)
+      setValue(newValue)
+    }
+  }, [focused])
 
-  const [valueLabel, setValueLabel] = React.useState()
 
   React.useEffect(() => {
-    setValueLabel(format && !focused ? format.doFormat([value], {loc: 0})[0] : value)
-  }, [format, value, focused])
+    setEditableValue(value)
+  }, [value])
+
+  React.useEffect(() => {
+    setValueLabel(format && !focused ? format.doFormat([value], {loc: 0})[0] : editableValue)
+  }, [format, value, editableValue, focused])
 
   const increment = (multiplier = 1) => {
     setOldValue(value)
@@ -66,7 +74,9 @@ export function render({model, el, view}) {
   }
 
   const handleKeyDown = (e) => {
-    if (e.key === "ArrowUp") {
+    if (e.key === "Enter") {
+      setFocused(false)
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       increment();
     } else if (e.key === "ArrowDown") {
@@ -87,7 +97,7 @@ export function render({model, el, view}) {
       fullWidth
       label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
       onBlur={() => setFocused(false)}
-      onChange={handleChange}
+      onChange={(event) => {setEditableValue(event.target.value); console.log(event.target.value)}}
       onFocus={() => setFocused(true)}
       onKeyDown={handleKeyDown}
       placeholder={placeholder}

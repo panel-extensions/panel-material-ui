@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import TextInput, PasswordInput
+from panel_material_ui.widgets import FloatInput, TextInput, PasswordInput
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -104,3 +104,15 @@ def test_password_max_length(page):
     input_area.type("123")
     expect(input_area).to_have_value("12")
     wait_until(lambda: widget.value_input == "12", page)
+
+def test_float_input_typing(page):
+    widget = FloatInput()
+    serve_component(page, widget)
+
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    input_area.fill("")
+    input_area.type("1.23")
+    input_area.press("Enter")
+    expect(input_area).to_have_value("1.23")
+    wait_until(lambda: widget.value == 1.23, page)
