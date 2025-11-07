@@ -240,7 +240,7 @@ export function render({model, view}) {
     // If there is an input event in progress when the
     // component is removed we clear any waitForRef
     // handlers that depend on it
-    upload_ref.current = {"status": "removed"}
+    upload_ref.current = {status: "removed"}
   })
 
   const isSendEvent = (event) => {

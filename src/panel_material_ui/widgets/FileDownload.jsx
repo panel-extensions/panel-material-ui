@@ -34,6 +34,7 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const [_syncing] = model.useState("_syncing")
 
+  const linkClick = React.useRef(false)
   const linkRef = React.useRef(null)
   const theme = useTheme()
 
@@ -55,9 +56,16 @@ export function render(props, ref) {
   }
 
   const handleClick = () => {
-    if (embed || (file_data != null && !auto)) {
+    if (linkRef.current && file_data != null) {
+      // We temporarily allow a click to trigger a download
+      // this avoids triggering two downloads since otherwise
+      // button and a click events both trigger
+      linkClick.current = true
+      linkRef.current.click()
+      linkClick.current = false
+    } else if (embed || (file_data != null && !auto && !linkRef.current)) {
       downloadFile()
-    } else {
+    } else if (file_data == null) {
       model.send_event("click", {})
     }
   }
@@ -120,8 +128,9 @@ export function render(props, ref) {
     >
       {auto ? label : <a
         ref={linkRef}
-        href={file_data}
+        href={file_data == null ? null : URL.createObjectURL(dataURItoBlob(file_data))}
         download={filename}
+        onClick={(e) => linkClick.current || e.preventDefault()}
         style={{color: theme.palette[color].contrastText}}
       >
         {label}
