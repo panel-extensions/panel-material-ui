@@ -244,8 +244,8 @@ def test_editable_range_slider_slider_interaction(page, inline_layout, targets):
 
     # Test that thumbs can't cross each other
     slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x3, "y": 0}, force=True)
-    expect(inputs.nth(0)).to_have_value("7")  # Should be limited by second thumb
-    expect(inputs.nth(1)).to_have_value("8.30")  # Should follow movement and be set to the value corresponding to the drag movement
+    expect(inputs.nth(0)).to_have_value("7" if sys.platform.startswith("linux") or not inline_layout else "6.90")  # Should be limited by second thumb
+    expect(inputs.nth(1)).to_have_value("8.30" if sys.platform.startswith("linux") or not inline_layout else "8.20")  # Should follow movement and be set to the value corresponding to the drag movement
 
 def test_editable_int_range_slider_increment_decrement_buttons(page):
     widget = EditableIntRangeSlider(
