@@ -236,7 +236,7 @@ export function render({model, el, view}) {
             {label && `${label}: `}
           </FormLabel>
           <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
-            {!inline_layout && <TextField
+            {(!inline_layout || orientation === "vertical") && <TextField
               color={color}
               disabled={disabled}
               onBlur={() => { setFocused(false); commitValue(0) }}
@@ -270,7 +270,7 @@ export function render({model, el, view}) {
                 ),
               }}
             />}
-            {!inline_layout && Array.isArray(value) && (
+            {(!inline_layout || orientation === "vertical") && Array.isArray(value) && (
               <>
                 <Typography sx={{alignSelf: "center", fontWeight: 600}}>-</Typography>
                 <TextField
@@ -322,8 +322,8 @@ export function render({model, el, view}) {
           }
           {model.description && render_description({model, el, view})}
         </FormLabel>)}
-      <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", width: "100%"}}>
-        {editable && inline_layout && Array.isArray(value) && (
+      <Box sx={{display: "flex", flexDirection: orientation !== "vertical"? "row" : "initial", alignItems: "center", width: "100%", height: "100%"}}>
+        {editable && inline_layout && orientation !== "vertical" && Array.isArray(value) && (
           <TextField
             color={color}
             disabled={disabled}
@@ -332,7 +332,7 @@ export function render({model, el, view}) {
             onFocus={() => setFocused(true)}
             onKeyDown={(e) => handleKeyDown(e, 0)}
             size="small"
-            sx={{flexShrink: 1.2, mr: "0.8em", minWidth: 0, border: "2px solid grey", borderRadius: "var(--mui-shape-borderRadius)"}}
+            sx={{...orientation !== "vertical" ? {flexShrink: 1.2} : {}, mr: "0.8em", minWidth: 0, border: "2px solid grey", borderRadius: "var(--mui-shape-borderRadius)"}}
             value={Array.isArray(value) ? (editableValue ? editableValue[0] : "") : editableValue}
             variant="standard"
             InputProps={{
@@ -373,7 +373,7 @@ export function render({model, el, view}) {
           size={size}
           step={date ? step*86400000 : (datetime ? step*1000 : step)}
           sx={{
-            width: "100%",
+            ...orientation !== "vertical" ? {width: "100%"} : {},
             "& .MuiSlider-track": {
               backgroundColor: bar_color,
               borderColor: bar_color
@@ -388,43 +388,41 @@ export function render({model, el, view}) {
           valueLabelDisplay={tooltips === "auto" ? "auto" : tooltips ? "on" : "off"}
           valueLabelFormat={format_value}
         />
-        {editable && inline_layout && (
-          <>
-            <TextField
-              color={color}
-              disabled={disabled}
-              onBlur={() => { setFocused(false); commitValue(1) }}
-              onChange={(e) => handleChange(e, 1)}
-              onFocus={() => setFocused(true)}
-              onKeyDown={(e) => handleKeyDown(e, 1)}
-              size="small"
-              sx={{flexShrink: Array.isArray(value) ? 1.2 : 2.3, minWidth: 0, ml: "0.8em", border: "2px solid grey", borderRadius: "var(--mui-shape-borderRadius)"}}
-              value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
-              variant="standard"
-              InputProps={{
-                disableUnderline: true,
-                sx: {ml: "0.5em", mt: "0.2em"},
-                endAdornment: (
-                  <Grid container>
-                    <Grid item size={12}>
-                      <InputAdornment position="end">
-                        <IconButton onClick={(e) => { increment(Array.isArray(value) ? 1 : 0, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                          <ArrowDropUpIcon fontSize="small" />
-                        </IconButton>
-                      </InputAdornment>
-                    </Grid>
-                    <Grid item size={12}>
-                      <InputAdornment position="end">
-                        <IconButton onClick={(e) => { increment(Array.isArray(value) ? 1 : 0, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                          <ArrowDropDownIcon fontSize="small" />
-                        </IconButton>
-                      </InputAdornment>
-                    </Grid>
+        {editable && inline_layout && orientation !== "vertical" && (
+          <TextField
+            color={color}
+            disabled={disabled}
+            onBlur={() => { setFocused(false); commitValue(1) }}
+            onChange={(e) => handleChange(e, 1)}
+            onFocus={() => setFocused(true)}
+            onKeyDown={(e) => handleKeyDown(e, 1)}
+            size="small"
+            sx={{flexShrink: Array.isArray(value) ? 1.2 : 2.3, minWidth: 0, ml: "0.8em", border: "2px solid grey", borderRadius: "var(--mui-shape-borderRadius)"}}
+            value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
+            variant="standard"
+            InputProps={{
+              disableUnderline: true,
+              sx: {ml: "0.5em", mt: "0.2em"},
+              endAdornment: (
+                <Grid container>
+                  <Grid item size={12}>
+                    <InputAdornment position="end">
+                      <IconButton onClick={(e) => { increment(Array.isArray(value) ? 1 : 0, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
+                        <ArrowDropUpIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
                   </Grid>
-                ),
-              }}
-            />
-          </>
+                  <Grid item size={12}>
+                    <InputAdornment position="end">
+                      <IconButton onClick={(e) => { increment(Array.isArray(value) ? 1 : 0, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
+                        <ArrowDropDownIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  </Grid>
+                </Grid>
+              ),
+            }}
+          />
         )}
       </Box>
     </FormControl>
