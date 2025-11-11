@@ -192,7 +192,7 @@ function {output}(props) {{
   const theme = useMuiTheme()
 
   const overlayColor = theme.palette.mode === 'dark'
-    ? 'rgba(0, 0, 0, 0.7)'
+    ? 'rgba(18, 18, 18, 0.7)'
     : 'rgba(255, 255, 255, 0.5)'
 
   return (
@@ -201,10 +201,7 @@ function {output}(props) {{
       {{loading && (
         <div style={{{{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          inset: -6,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
