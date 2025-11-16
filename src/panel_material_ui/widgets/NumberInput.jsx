@@ -3,11 +3,10 @@ import InputAdornment from "@mui/material/InputAdornment"
 import IconButton from "@mui/material/IconButton"
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
+import {int_regex, float_regex} from "./utils"
+import {render_description} from "./description"
 
-const int_regex = /^[-+]?\d*$/
-const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
-
-export function render({model}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [format] = model.useState("format")
@@ -23,10 +22,12 @@ export function render({model}) {
 
   const [oldValue, setOldValue] = React.useState(value)
   const [focused, setFocused] = React.useState(false)
+  const [editableValue, setEditableValue] = React.useState(value)
+  const [valueLabel, setValueLabel] = React.useState()
 
   const validate = (value) => {
     const regex = model.mode == "int" ? int_regex : float_regex
-    if (value === "") {
+    if (value === "" || ["", "-", ".", "-."].includes(value)) {
       return null
     } else if (regex.test(value)) {
       return Number(value)
@@ -35,17 +36,22 @@ export function render({model}) {
     }
   }
 
-  const handleChange = (event) => {
-    const newValue = validate(event.target.value)
-    setOldValue(value)
-    setValue(newValue)
-  }
-
-  const [valueLabel, setValueLabel] = React.useState()
+  React.useEffect(() => {
+    if (focused) {
+      setOldValue(value)
+    } else {
+      const newValue = validate(editableValue)
+      setValue(newValue)
+    }
+  }, [focused])
 
   React.useEffect(() => {
-    setValueLabel(format && !focused ? format.doFormat([value], {loc: 0})[0] : value)
-  }, [format, value, focused])
+    setEditableValue(value)
+  }, [value])
+
+  React.useEffect(() => {
+    setValueLabel(format && !focused ? format.doFormat([value], {loc: 0})[0] : editableValue)
+  }, [format, value, editableValue, focused])
 
   const increment = (multiplier = 1) => {
     setOldValue(value)
@@ -67,7 +73,9 @@ export function render({model}) {
   }
 
   const handleKeyDown = (e) => {
-    if (e.key === "ArrowUp") {
+    if (e.key === "Enter") {
+      setFocused(false)
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       increment();
     } else if (e.key === "ArrowDown") {
@@ -85,9 +93,10 @@ export function render({model}) {
     <TextField
       color={color}
       disabled={disabled}
-      label={label}
+      fullWidth
+      label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
       onBlur={() => setFocused(false)}
-      onChange={() => handleChange()}
+      onChange={(event) => { setEditableValue(event.target.value) }}
       onFocus={() => setFocused(true)}
       onKeyDown={handleKeyDown}
       placeholder={placeholder}

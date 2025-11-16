@@ -1,5 +1,6 @@
 import datetime as dt
 import inspect
+import time
 
 from itertools import chain, product
 from typing import Type
@@ -13,23 +14,29 @@ from panel_material_ui.template import Page
 import param
 pn.extension(defer_load=True, notifications=True)
 
-pn.config.design = MaterialDesign
-
-primary_color = ColorPicker(value='#404db0', name='Primary', sizing_mode='stretch_width')
+primary_color = ColorPicker(value='#0072b5', name='Primary', sizing_mode='stretch_width')
 secondary_color = ColorPicker(value='#ee8349', name='Secondary', sizing_mode='stretch_width')
+paper_color = ColorPicker(value='#ffffff', name='Paper', sizing_mode='stretch_width')
 font_size = IntInput(value=14, name='Font Size', step=1, start=2, end=100, sizing_mode='stretch_width')
 
-design_kwargs = dict(
-    theme_config={
+busy = Button(label='Busy', on_click=lambda e: time.sleep(2))
+
+theme_config = {
+    "light": {
         'palette': {
-            'primary': {'main': primary_color},
             'secondary': {'main': secondary_color},
+            'background': {'paper': paper_color},
         },
         'typography': {
             'fontSize': font_size,
         },
     },
-)
+    "dark": {
+        'palette': {
+            'secondary': {'main': secondary_color},
+        }
+    }
+}
 
 def insert_at_nth_position(main_list, insert_list, n):
     # Split main_list into chunks of size n
@@ -164,24 +171,44 @@ spec = {
             (TimePicker, (['color', 'variant'], ['disabled', 'clock']), dict(label='TimePicker'))
         ],
         'Menu': [
-            (Breadcrumbs, (), dict(items={
-                "Home": "Home",
-                "Catalog": {"label": "Catalog", "icon": "category"},
-                "Checkout": {"label": "Checkout", "icon": "shopping_cart"},
-                "Accessories": {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
-            })),
-            (List, (), dict(items={
-                "Home": "Home",
-                "Catalog": {"label": "Catalog", "icon": "category"},
-                "Checkout": {"label": "Checkout", "icon": "shopping_cart"},
-                "Accessories": {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
-            })),
-            (SpeedDial, (), dict(items={
-                "Home": "Home",
-                "Catalog": {"label": "Catalog", "icon": "category"},
-                "Checkout": {"label": "Checkout", "icon": "shopping_cart"},
-                "Accessories": {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
-            })),
+            (Breadcrumbs, (['color'],), dict(items=[
+                {"label": "Home"},
+                {"label": "Catalog", "icon": "category"},
+                {"label": "Checkout", "icon": "shopping_cart"},
+                {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
+            ])),
+            (MenuButton, (['color', 'variant'], ['disabled']), dict(label='File', icon='folder', items=[
+                {"label": "Open", "icon": "folder_open"},
+                {"label": "Save", "icon": "save"},
+                {"label": "---"},  # Divider
+                {"label": "Export", "icon": "file_download"},
+                {"label": "Exit", "icon": "exit_to_app"},
+            ])),
+            (MenuToggle, (['color', 'persistent'], ['disabled']), dict(label='Favorites', icon='grade', items=[
+                {"label": "Home", "icon": "home_outline", "active_icon": "home", "toggled": True},
+                {"label": "Search", "icon": "search", "active_icon": "saved_search", "toggled": False},
+                {"label": "Notifications", "icon": "notifications_none", "active_icon": "notifications"},
+                {"label": "---"},  # Divider
+                {"label": "Settings", "icon": "settings_applications", "active_icon": "settings"},
+            ])),
+            (MenuList, (['color'],), dict(items=[
+                {"label": "Home"},
+                {"label": "Catalog", "icon": "category"},
+                {"label": "Checkout", "icon": "shopping_cart"},
+                {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
+            ])),
+            (SpeedDial, (['color'],), dict(active=2, items=[
+                {"label": "Home"},
+                {"label": "Catalog", "icon": "category"},
+                {"label": "Checkout", "icon": "shopping_cart"},
+                {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
+            ])),
+            (SplitButton, (['color'],), dict(items=[
+                {"label": "Home"},
+                {"label": "Catalog", "icon": "category"},
+                {"label": "Checkout",},
+                {"label": "Accessories"},
+            ])),
         ],
         'Selection': [
             (AutocompleteInput, (['variant'], ['disabled']), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Autocomplete')),
@@ -213,13 +240,17 @@ page = Page(
     contextbar=[
         '### Context'
     ],
+    busy_indicator='linear',
     main=[render_spec(spec)],
     sidebar=[
         primary_color,
         secondary_color,
+        paper_color,
         font_size,
-        notifications
+        '### Notifications',
+        notifications,
+        busy
     ],
     title='panel-material-ui components',
-    **design_kwargs
+    theme_config=theme_config
 ).servable()

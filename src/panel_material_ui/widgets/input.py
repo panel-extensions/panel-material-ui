@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import inspect
 from collections.abc import Iterable
 from datetime import date, datetime, timezone
 from datetime import time as dt_time
+from logging import getLogger
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+import panel as pn
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.models.reactive_html import DOMEvent
@@ -14,17 +17,21 @@ from panel.widgets.input import DatetimeInput as _PnDatetimeInput
 from panel.widgets.input import FileInput as _PnFileInput
 from panel.widgets.input import LiteralInput as _PnLiteralInput
 
+from .._param import Date, DateList, Datetime
 from ..base import COLORS, LoadingTransform, ThemedTransform
+from ._mime import MIME_TYPES, NoConverter
 from .base import MaterialWidget, TooltipTransform
-from .button import _ButtonLike
+from .button import _ButtonBase
 
 if TYPE_CHECKING:
     from bokeh.document import Document
 
+logger = getLogger(__name__)
+
 
 class MaterialInputWidget(MaterialWidget):
 
-    color = param.Selector(objects=COLORS, default="default", doc="""
+    color = param.Selector(objects=COLORS, default="primary", doc="""
         The color variant of the input.""")
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="""
@@ -53,7 +60,7 @@ class _TextInputBase(MaterialInputWidget):
         Placeholder for empty input field.""",
     )
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the input widget.")
 
     value = param.String(default="")
 
@@ -79,13 +86,15 @@ class TextInput(_TextInputBase):
     """
     The `TextInput` widget allows entering any string using a text input box.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/TextInput.html
     - https://panel.holoviz.org/reference/widgets/TextInput.html
     - https://mui.com/material-ui/react-text-field/
 
     :Example:
 
-    >>> TextInput(name='Name', placeholder='Enter your name here ...')
+    >>> TextInput(label='Name', placeholder='Enter your name here ...')
     """
 
     enter_pressed = param.Event(doc="""
@@ -101,7 +110,9 @@ class PasswordInput(_TextInputBase):
     """
     The `PasswordInput` widget allows entering any string using an obfuscated text input box.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/PasswordInput.html
     - https://panel.holoviz.org/reference/widgets/PasswordInput.html
     - https://mui.com/material-ui/react-text-field/#input-adornments
 
@@ -110,7 +121,13 @@ class PasswordInput(_TextInputBase):
     >>> PasswordInput(label='Password', placeholder='Enter your password here ...')
     """
 
+    enter_pressed = param.Event(doc="""
+        Event when the enter key has been pressed.""")
+
     _esm_base = "PasswordField.jsx"
+
+    def _handle_enter(self, event: DOMEvent):
+        self.param.trigger('enter_pressed')
 
 
 class TextAreaInput(_TextInputBase):
@@ -120,7 +137,9 @@ class TextAreaInput(_TextInputBase):
 
     Lines are joined with the newline character `\n`.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/TextAreaInput.html
     - https://panel.holoviz.org/reference/widgets/TextAreaInput.html
     - https://mui.com/material-ui/react-text-field/
 
@@ -168,13 +187,199 @@ class TextAreaInput(_TextInputBase):
     _esm_base = "TextArea.jsx"
 
 
-class FileInput(_ButtonLike, _PnFileInput):
+class MissingFileChunkError(RuntimeError):
+    """Exception raised when a chunk is missing during file upload processing."""
+
+
+class _FileUploadArea(param.Parameterized):
+    """
+    Base class for file upload areas.
+    """
+
+    chunk_size = param.Integer(default=10_485_760, bounds=(1, None), doc="""
+        Maximum size (in bytes) of each chunk for chunked file uploads.
+        Defaults to 10 MB. Files will be uploaded in chunks of this size to
+        avoid WebSocket message size limitations.""")
+
+    max_file_size = param.Integer(default=None, bounds=(1, None), doc="""
+        Maximum size (in bytes) for individual files. If specified, files
+        larger than this limit will be rejected on the frontend before upload.""")
+
+    max_total_file_size = param.Integer(default=None, bounds=(1, None), doc="""
+        Maximum total size (in bytes) for all files combined. If specified,
+        uploads will be rejected if the total size exceeds this limit.""")
+
+    _mime_types = MIME_TYPES
+
+    def __init__(self, **params):
+        super().__init__(**params)
+        self._buffer = []
+        self._file_buffer = {}  # Buffer for chunked file uploads
+        self._object = None
+
+    @classmethod
+    def _single_object(cls, value: bytes, filename: str, mime_type: str):
+        """
+        Create a single viewable Python object from the uploaded file.
+
+        Parameters
+        ----------
+        value : bytes
+            The file content as bytes.
+        filename : str
+            The name of the uploaded file.
+        mime_type : str
+            The MIME type of the uploaded file.
+
+        Returns
+        -------
+        Panel component
+            A viewable Python object or Panel component for the uploaded file.
+        """
+        if mime_type in cls._mime_types:
+            config = cls._mime_types[mime_type]
+            if "converter" in config:
+                to_object_func = config['converter']
+                try:
+                    return to_object_func(value)
+                except Exception as exc:
+                    return exc
+
+        msg = f"No specific converter available for '{filename}' of mime type '{mime_type}'."
+        return NoConverter(msg)
+
+    @classmethod
+    def _single_view(cls, object, filename, mime_type, **kwargs):
+        """
+        Create a Panel component to view a single uploaded file.
+
+        Parameters
+        ----------
+        value : bytes
+            The file content as bytes.
+        filename : str
+            The name of the uploaded file.
+        mime_type : str
+            The MIME type of the uploaded file.
+        **kwargs
+            Additional layout keyword arguments passed to the Panel component.
+
+        Returns
+        -------
+        Panel component
+            A Tabulator widget for CSV files, or a Markdown pane with an error message
+            for unsupported file types.
+        """
+        kwargs["name"] = filename
+        view = pn.panel
+
+        if isinstance(object, Exception):
+            from panel_material_ui.layout import Alert
+            view = Alert
+            kwargs["severity"] = "error"
+            kwargs["margin"] = 10
+            object = str(object)
+        elif mime_type in cls._mime_types:
+            config = cls._mime_types[mime_type]
+            if "view" in config:
+                view = config['view']
+            if "view_kwargs" in config:
+                kwargs.update(config['view_kwargs'])
+
+        if inspect.isclass(view) and issubclass(view, pn.widgets.Widget):
+            return view(value=object, **kwargs)
+        return view(object, **kwargs)
+
+    def _handle_msg(self, msg: Any) -> None:
+        status = msg["status"]
+        if status == "upload_event":
+            self._process_chunk(msg)
+            return
+        elif status == "initializing":
+            return
+        elif status == "finished":
+            try:
+                self._flush_buffer()
+                self._send_msg({"status": "finished"})
+            except Exception as e:
+                logger.exception(str(e))
+                self._send_msg({"status": "error", "error": str(e)})
+        else:
+            raise ValueError(f"Unknown status: {status}")
+
+    def _process_chunk(self, msg: dict) -> None:
+        """Process a single chunk of a chunked file upload."""
+        name = msg["name"]
+        chunk = msg["chunk"]
+        total_chunks = msg["total_chunks"]
+        mime_type = msg["mime_type"]
+
+        data = msg["data"]
+        data = bytes(data)
+
+        if name not in self._file_buffer:
+            self._file_buffer[name] = {
+                "chunks": {},
+                "total_chunks": total_chunks,
+                "mime_type": mime_type,
+                "filename": name
+            }
+
+        self._file_buffer[name]["chunks"][chunk] = data
+
+        # Check if all chunks are received for this file
+        if len(self._file_buffer[name]["chunks"]) == total_chunks:
+            # Reassemble the file
+            file_data = b""
+            for i in range(1, total_chunks + 1):  # Chunks are 1-indexed
+                file_data += self._file_buffer[name]["chunks"][i]
+
+            self._buffer.append({
+                "value": file_data,
+                "filename": name,
+                "mime_type": mime_type
+            })
+
+            del self._file_buffer[name]
+
+    def _flush_buffer(self):
+        value, mime_type, filename = [], [], []
+        for file_data in self._buffer:
+            value.append(file_data["value"])
+            filename.append(file_data["filename"])
+            mime_type.append(file_data["mime_type"])
+        if value:
+            if 'multiple' in self.param and not (self.multiple or self.directory):
+                value, filename, mime_type = value[0], filename[0], mime_type[0]
+        else:
+            value, filename, mime_type = None, None, None
+        self._update_file(filename, mime_type, value)
+        self._buffer.clear()
+
+    def _update_file(self, filename: str | list[str], mime_type: str | list[str], value: bytes | list[bytes]):
+        """
+        Update the file input with the given filename, mime type, and value.
+
+        Parameters
+        ----------
+        filename : str | list[str]
+            The name of the uploaded file(s).
+        mime_type : str | list[str]
+            The MIME type of the uploaded file(s).
+        value : bytes | list[bytes]
+            The file content as bytes.
+        """
+
+
+class FileInput(_FileUploadArea, _ButtonBase, _PnFileInput):
     """
     The `FileInput` allows the user to upload one or more files to the server.
 
     It makes the filename, MIME type and (bytes) content available in Python.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html
     - https://panel.holoviz.org/reference/widgets/FileInput.html
     - https://mui.com/material-ui/react-button/#file-upload
 
@@ -186,45 +391,146 @@ class FileInput(_ButtonLike, _PnFileInput):
     width = param.Integer(default=None)
 
     _esm_base = "FileInput.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
         'filename': None,
         'value': "'data:' + source.mime_type + ';base64,' + value"
     }
 
-    def __init__(self, **params):
-        super().__init__(**params)
-        self._buffer = []
-
-    def _handle_msg(self, msg: Any) -> None:
-        status = msg["status"]
-        if status == "in_progress":
-            self._buffer.append(msg)
-            return
-        elif status == "initializing":
-            return
-        elif status == "finished":
-            try:
-                self._flush_buffer()
-                self._send_msg({"status": "finished"})
-            except Exception as e:
-                self._send_msg({"status": "error", "error": str(e)})
-        else:
-            raise ValueError(f"Unknown status: {status}")
-
-    def _flush_buffer(self):
-        value, mime_type, filename = [], [], []
-        for file_data in self._buffer:
-            value.append(file_data["data"])
-            filename.append(file_data["filename"])
-            mime_type.append(file_data["mime_type"])
-        if not (self.multiple or self.directory):
-            value, filename, mime_type = value[0], filename[0], mime_type[0]
+    def _update_file(
+        self, filename: str | list[str],
+        mime_type: str | list[str],
+        value: bytes | list[bytes],
+    ):
         self.param.update(
             filename=filename,
             mime_type=mime_type,
             value=value,
         )
-        self._buffer.clear()
+
+    def save(self, filename):
+        """
+        Saves the uploaded FileInput data object(s) to file(s) or
+        BytesIO object(s).
+
+        Parameters
+        ----------
+        filename (str or list[str]): File path or file-like object
+        """
+        _PnFileInput.save(self, filename)
+
+    def clear(self):
+        """
+        Clear the file(s) in the FileInput widget
+        """
+        self.param.update(value=None, filename=None, mime_type=None)
+
+    @param.depends('value', 'filename', 'mime_type', watch=True)
+    def _reset_object(self):
+        self._object = None
+
+    @param.depends('value', 'filename', 'mime_type')
+    def object(self):
+        """Returns the currently uploaded file(s) as a viewable Python object or list of viewable Python objects.
+
+        For example an uploaded CSV file will return a Pandas DataFrame, an uploaded MP3 file will return the path to a temporary file etc.
+        """
+        if not self._object:
+            value = self.value
+            filename = self.filename
+            mime_type = self.mime_type
+            if not value:
+                self._object = value
+            elif not isinstance(value, list):
+                self._object = self._single_object(value, filename, mime_type)
+            else:
+                self._object = [self._single_object(v, f, m) for v, f, m in zip(value, filename, mime_type, strict=False)]
+        return self._object
+
+    def _list_view(self, value, filename, mime_type, object_if_no_value, layout, **kwargs):
+        """
+        Create a Panel layout to view multiple uploaded files or handle empty state.
+
+        Parameters
+        ----------
+        value : list or bytes or None
+            The file content(s). Can be a list of bytes for multiple files,
+            bytes for a single file, or None for no files.
+        filename : list or str or None
+            The filename(s) corresponding to the uploaded files.
+        mime_type : list or str or None
+            The MIME type(s) corresponding to the uploaded files.
+        object_if_no_value : Panel component, optional
+            Component to display when no files are uploaded.
+        layout : Panel layout class
+            The layout class to use for organizing multiple file views.
+        **kwargs
+            Additional layout keyword arguments passed to the layout component.
+
+        Returns
+        -------
+        Panel component
+            A layout containing file views, the object_if_no_value component,
+            or an invisible layout if no files and no object_if_no_value is provided.
+        """
+        if not value:
+            if object_if_no_value is not None:
+                return object_if_no_value
+            return layout(visible=False)
+        if not isinstance(value, list):
+            return self._single_view(self.object(), filename=self.filename, mime_type=self.mime_type, **kwargs)
+
+        single_view_sizing_mode="stretch_both"
+        if hasattr(layout, "dynamic") and "dynamic" not in kwargs:
+            kwargs['dynamic'] = True
+        return layout(
+            *[
+                self._single_view(object=o, filename=f, mime_type=m, sizing_mode=single_view_sizing_mode)
+                for o, f, m in zip(self.object(), self.filename, self.mime_type, strict=True)], **kwargs
+        )
+
+    def view(self, *, object_if_no_value=None, layout=None, **kwargs):
+        """
+        Create a bound Panel component for viewing the uploaded file(s).
+
+        This method creates a view of the currently uploaded file(s). It updates
+        when the uploaded file value changes.
+
+        Parameters
+        ----------
+        object_if_no_value : Displayble Python object, optional
+            Object to display when no files are uploaded. If None,
+            an invisible layout will be shown when no files are present.
+        layout : Panel layout class, optional
+            The layout class to use for organizing multiple file views.
+            If None, defaults to panel_material_ui.Tabs.
+        **kwargs
+            Additional keyword arguments passed to the layout component.
+
+        Returns
+        -------
+        Panel bound function
+            A Panel bind object that reactively updates the file view
+            when the FileInput parameters change.
+
+        Examples
+        --------
+        >>> file_input = FileInput()
+        >>> file_view = file_input.view(layout=pmui.Column)
+        >>> # The view will automatically update when files are uploaded
+        """
+        if not layout:
+            from panel_material_ui.layout import Tabs
+            layout = Tabs
+        return param.bind(
+            self._list_view,
+            value=self.param.value,
+            filename=self.param.filename,
+            mime_type=self.param.mime_type,
+            object_if_no_value=object_if_no_value,
+            layout=layout,
+            **kwargs
+        )
 
 
 class _NumericInputBase(MaterialInputWidget):
@@ -235,7 +541,7 @@ class _NumericInputBase(MaterialInputWidget):
     placeholder = param.String(default='0', doc="""
         Placeholder for empty input field.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="The size of the numeric input widget.")
 
     start = param.Parameter(default=None, allow_None=True, doc="""
         Optional minimum allowable value.""")
@@ -330,7 +636,11 @@ class IntInput(_SpinnerBase, _IntInputBase):
     and a specific value can be entered. The value can be changed using the
     keyboard (up, down, page up, page down), mouse wheel and arrow buttons.
 
-    Reference: https://panel.holoviz.org/reference/widgets/IntInput.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/IntInput.html
+    - https://panel.holoviz.org/reference/widgets/IntInput.html
+    - https://mui.com/material-ui/react-text-field/#input-adornments
 
     :Example:
 
@@ -352,11 +662,14 @@ class FloatInput(_SpinnerBase, _FloatInputBase):
     and a specific value can be entered. The value can be changed using the
     keyboard (up, down, page up, page down), mouse wheel and arrow buttons.
 
-    Reference: https://panel.holoviz.org/reference/widgets/IntInput.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/FloatInput.html
+    - https://panel.holoviz.org/reference/widgets/FloatInput.html
 
     :Example:
 
-    >>> FloatInput(name='Value', value=100, start=0, end=1000, step=10)
+    >>> FloatInput(label='Value', value=100, start=0, end=1000, step=10)
     """
 
     step = param.Number(default=0.1, doc="""
@@ -382,31 +695,29 @@ class _DatePickerBase(MaterialInputWidget):
         Whether to return values as numpy.datetime64. If left unset,
         will be True if value is a numpy.datetime64, else False.""")
 
-    clearable = param.Boolean(default=True, doc="If true, allows the date to be cleared.")
+    clearable = param.Boolean(default=False, doc="If True, allows the date to be cleared.")
 
-    disabled_dates = param.List(default=None, item_type=(date, str), doc="""
+    disabled_dates = DateList(default=None, doc="""
       Dates to make unavailable for selection.""")
 
     disable_future = param.Boolean(default=False, doc="If true, future dates are disabled.")
 
     disable_past = param.Boolean(default=False, doc="If true, past dates are disabled.")
 
-    enabled_dates = param.List(default=None, item_type=(date, str), doc="""
+    enabled_dates = DateList(default=None, doc="""
       Dates to make available for selection.""")
 
-    end = param.Date(default=None, doc="The maximum selectable date.")
+    end = Date(default=None, doc="The maximum selectable date.")
 
-    format = param.String(default='YYYY-MM-DD', doc="The format of the date displayed in the input.")
+    format = param.String(default='YYYY-MM-DD', doc="Format of the date when rendered in the input(s). Defaults to localized format based on the used views.")
 
     open_to = param.Selector(objects=['year', 'month', 'day'], default='day', doc="The default view to open the calendar to.")
 
-    show_today_button = param.Boolean(default=False, doc="If true, shows a button to select today's date.")
+    start = Date(default=None, doc="The minimum selectable date.")
 
-    start = param.Date(default=None, doc="The minimum selectable date.")
+    value = Date(default=None, doc="The selected date.")
 
-    value = param.Date(default=None, doc="The selected date.")
-
-    views = param.List(default=['year', 'month', 'day'], doc="The views that are available for the date picker.")
+    views = param.List(default=['year', 'day'], doc="The views that are available for the date picker.")
 
     width = param.Integer(default=300, allow_None=True, doc="""
       Width of this component. If sizing_mode is set to stretch
@@ -454,9 +765,11 @@ class DatePicker(_DatePickerBase):
     The `DatePicker` allows selecting a `date` value using a text box
     and a date-picking utility.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html
     - https://panel.holoviz.org/reference/widgets/DatePicker.html
-    - https://mui.com/x/react-date-pickers/
+    - https://mui.com/x/react-date-pickers/date-picker/
 
     :Example:
 
@@ -469,7 +782,7 @@ class DatePicker(_DatePickerBase):
 
     _constants = {'range': False, 'time': False}
 
-    value = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
+    value = Date(default=None, doc="""
         The current value. Can be a datetime object or a string in ISO format.""")
 
     def _serialize_value(self, value):
@@ -652,9 +965,11 @@ class DatetimePicker(_DatetimePickerBase):
     The `DatetimePicker` allows selecting selecting a `datetime` value using a
     textbox and a datetime-picking utility.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DatetimePicker.html
     - https://panel.holoviz.org/reference/widgets/DatetimePicker.html
-    - https://mui.com/x/react-date-pickers/
+    - https://mui.com/x/react-date-pickers/date-time-picker/
 
     :Example:
 
@@ -672,7 +987,11 @@ class DatetimePicker(_DatetimePickerBase):
     ... )
     """
 
-    value = param.ClassSelector(default=None, class_=(datetime, date, str), doc="""
+    end = Datetime(default=None, doc="The maximum selectable datetime.")
+
+    start = Datetime(default=None, doc="The minimum selectable datetime.")
+
+    value = Datetime(default=None, doc="""
         The current value. Can be a datetime object or a string in ISO format.""")
 
     _source_transforms = {
@@ -719,16 +1038,20 @@ class TimePicker(_TimeCommon):
     The `TimePicker` allows selecting a `time` value using a text box
     and a time-picking utility.
 
-    Reference: https://panel.holoviz.org/reference/widgets/TimePicker.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/TimePicker.html
+    - https://panel.holoviz.org/reference/widgets/TimePicker.html
+    - https://mui.com/x/react-date-pickers/time-picker/
 
     :Example:
 
     >>> TimePicker(
-    ...     value=time(12, 59, 31), start="09:00:00", end="18:00:00", name="Time"
+    ...     value=time(12, 59, 31), start="09:00:00", end="18:00:00", label="Time"
     ... )
     """
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the time picker.")
 
     value = param.ClassSelector(default=None, class_=(dt_time, str), doc="""
         The current value""")
@@ -759,7 +1082,11 @@ class TimePicker(_TimeCommon):
 
     """)
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    mode = param.Selector(objects=["digital", "analog", "auto"], default="auto", doc="""
+        Whether to render a digital or analog clock. By default automatically
+        switches between digital clock on desktop to analog clock on mobile.""")
+
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the time picker.")
 
     _esm_base = "TimePicker.jsx"
 
@@ -817,7 +1144,9 @@ class Checkbox(MaterialWidget):
 
     This widget is interchangeable with the `Switch` widget.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Checkbox.html
     - https://panel.holoviz.org/reference/widgets/Checkbox.html
     - https://mui.com/material-ui/react-checkbox/
 
@@ -826,22 +1155,47 @@ class Checkbox(MaterialWidget):
     >>> Checkbox(label='Works with the tools you know and love', value=True)
     """
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary", doc="""
+        The color of the checkbox.""")
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 1000ms.""")
 
-    indeterminate = param.Boolean(default=False)
+    indeterminate = param.Boolean(default=False, doc="""
+        Whether the checkbox can be in an indeterminate state. The indeterminate state
+        may only be set in Python.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
+        The size of the checkbox.""")
 
     value = param.Boolean(default=False)
 
     width = param.Integer(default=None)
 
     _esm_base = "Checkbox.jsx"
-    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, ThemedTransform]
+
+    def __init__(self, **params):
+        is_indeterminate = 'indeterminate' in params and 'value' in params and params['value'] is None
+        if is_indeterminate:
+            params.pop('value')
+        super().__init__(**params)
+        if is_indeterminate:
+            self.value = None
+
+    def _process_param_change(self, params):
+        props = super()._process_param_change(params)
+        if 'value' in props and self.indeterminate:
+            is_none = props['value'] is None
+            props['indeterminate'] = is_none
+            if is_none:
+                del props['value']
+        return props
+
+    @param.depends('indeterminate', watch=True, on_init=True)
+    def _set_allow_none(self):
+        self.param.value.allow_None = self.indeterminate
 
 
 class Switch(MaterialWidget):
@@ -851,7 +1205,9 @@ class Switch(MaterialWidget):
 
     This widget is interchangeable with the `Checkbox` widget.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Switch.html
     - https://panel.holoviz.org/reference/widgets/Switch.html
     - https://mui.com/material-ui/react-switch/
 
@@ -860,38 +1216,54 @@ class Switch(MaterialWidget):
     >>> Switch(label='Works with the tools you know and love', value=True)
     """
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the switch.")
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 1000ms.""")
 
-    edge = param.Selector(objects=["start", "end", False], default=False)
+    edge = param.Selector(objects=["start", "end", False], default=False, doc="The edge position for the switch.")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium",  doc="The size of the switch.")
 
     value = param.Boolean(default=False)
 
     width = param.Boolean(default=None)
 
     _esm_base = "Switch.jsx"
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
+    _esm_transforms = [LoadingTransform, ThemedTransform]
 
 
 class ColorPicker(MaterialWidget):
     """
     The `ColorPicker` allows selecting a color value using a color picker utility.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/ColorPicker.html
+    - https://panel.holoviz.org/reference/widgets/ColorPicker.html
+    - https://viclafouch.github.io/mui-color-input/
+
+    :Example:
+
+    >>> pmui.ColorPicker(name='Color Picker', value='#99ef78')
     """
 
-    alpha = param.Boolean(default=False, doc="Whether to allow alpha transparency.")
+    alpha = param.Boolean(default=False, doc="Whether to display input controls for a color's alpha (transparency) channel.")
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary", doc="The accent color of the color picker when active or focused.")
 
-    format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex")
+    format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex", doc="""
+        The format of the color value.
+        - `hex`: The hex color value.
+        - `rgb`: The rgb color value.
+        - `rgba`: The rgba color value.
+        - `hsl`: The hsl color value.
+        - `hsv`: The hsv color value.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="The visual size of the input field")
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The visual style variant of the input field")
 
     value = param.String(default=None, doc="The current color value.")
 
@@ -902,7 +1274,8 @@ class LiteralInput(TextInput, _PnLiteralInput):
     """
     The `LiteralInput` allows entering any string using a text input box.
 
-    References:
+    :References:
+
     - https://panel.holoviz.org/reference/widgets/LiteralInput.html
     """
 
@@ -910,16 +1283,25 @@ class LiteralInput(TextInput, _PnLiteralInput):
 
     value_input = param.Parameter()
 
+    _rename = {'type': None}
+
+    def _process_property_change(self, msg):
+        if msg.get('enter_pressed'):
+            msg['value'] = self.value_input
+        msg = super()._process_property_change(msg)
+        return msg
+
     def _process_param_change(self, msg):
         msg = super()._process_param_change(msg)
+        msg.pop("title", None)
         if self._state:
+            msg["label"] = f"{self.label} {self._state}"
             msg["error_state"] = True
         else:
+            msg["label"] = self.label
             msg["error_state"] = False
         if "value" in msg:
             msg["value_input"] = msg.pop("value")
-        if "title" in msg:
-            msg["label"] = msg.pop("title")
         return msg
 
 

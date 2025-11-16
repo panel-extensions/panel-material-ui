@@ -1,4 +1,5 @@
 import TextField from "@mui/material/TextField"
+import {render_description} from "./description"
 
 export function render({model, el}) {
   const [autogrow] = model.useState("auto_grow")
@@ -25,6 +26,13 @@ export function render({model, el}) {
     props = {rows}
   }
 
+  const resizeMode =
+    !resizable ? "none"
+      : resizable === "height" ? "vertical"
+        : resizable === "width" ? "horizontal"
+          : resizable
+
+  const effectiveResize = autogrow ? "none" : resizeMode
   return (
     <TextField
       color={color}
@@ -32,7 +40,7 @@ export function render({model, el}) {
       error={error_state}
       fullWidth
       inputProps={{maxLength: max_length}}
-      label={label}
+      label={model.description ? <>{label}{render_description({model, el})}</> : label}
       multiline
       maxRows={max_rows}
       onKeyDown={(e) => {
@@ -50,7 +58,12 @@ export function render({model, el}) {
           flexGrow: 1,
           "& .MuiInputBase-root": {
             flexGrow: 1,
-            alignItems: "flex-start"
+            alignItems: "stretch",
+          },
+          "& .MuiInputBase-inputMultiline": {
+            resize: effectiveResize,
+            height: (resizeMode === "vertical" || resizeMode === "both" || autogrow) ? "unset" : "100% !important",
+            overflow: "auto"
           }
         }
       }}

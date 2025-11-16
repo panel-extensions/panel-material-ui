@@ -7,6 +7,7 @@ import Collapse from "@mui/material/Collapse"
 import IconButton from "@mui/material/IconButton"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
+import {apply_flex} from "./utils"
 
 const status_colors = {
   failed: "red",
@@ -40,7 +41,7 @@ const ExpandMore = styled((props) => {
   ],
 }));
 
-export function render({model}) {
+export function render({model, view}) {
   const [collapsible] = model.useState("collapsible")
   const [collapsed, setCollapsed] = model.useState("collapsed")
   const [hide_header] = model.useState("hide_header")
@@ -52,6 +53,10 @@ export function render({model}) {
   const header = model.get_child("header")
   const objects = model.get_child("objects")
   const [status] = model.useState("status")
+
+  if (model.header) {
+    apply_flex(view.get_child_view(model.header), "row")
+  }
 
   return (
     <Card
@@ -93,9 +98,13 @@ export function render({model}) {
           </Box>
         }
         sx={{
+          display: "flex",
+          minWidth: 0,
           padding: "0.5em 0.5em 0.5em 1em",
+          "& .MuiCardHeader-content": {minWidth: 0},
+          "& .MuiCardHeader-title .step-header": {minWidth: 0}
         }}
-        title={model.header ? header : <Typography variant="h6">{title}</Typography>}
+        title={model.header ? header : <Typography variant="h3">{title}</Typography>}
       />
       <Collapse
         in={!collapsed}

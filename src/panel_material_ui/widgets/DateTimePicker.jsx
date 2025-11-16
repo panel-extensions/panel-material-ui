@@ -2,9 +2,10 @@ import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider"
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
 import {DatePicker} from "@mui/x-date-pickers/DatePicker"
 import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker"
-import dayjs from "dayjs";
+import dayjs from "dayjs"
+import {render_description} from "./description"
 
-export function render({model, view}) {
+export function render({model, view, el}) {
   const [clearable] = model.useState("clearable")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -17,7 +18,6 @@ export function render({model, view}) {
   const [max_date] = model.useState("end")
   const [min_date] = model.useState("start")
   const [open_to] = model.useState("open_to")
-  const [show_today_button] = model.useState("show_today_button")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
   const [modelValue] = model.useState("value")
@@ -211,13 +211,12 @@ export function render({model, view}) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Component
-        clearable={clearable}
         disabled={disabled}
         disableFuture={disable_future}
         disablePast={disable_past}
         format={format}
         fullWidth
-        label={label}
+        label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
         minDate={min_date ? parseDate(min_date) : undefined}
         maxDate={max_date ? parseDate(max_date) : undefined}
         openTo={open_to}
@@ -226,11 +225,11 @@ export function render({model, view}) {
         onClose={handleClose}
         onOpen={handleOpen}
         shouldDisableDate={shouldDisableDate}
-        showTodayButton={show_today_button}
         sx={{width: "100%", ...sx}}
         value={internalValue}
         views={views}
         slotProps={{
+          field: {clearable},
           textField: {
             variant,
             color,

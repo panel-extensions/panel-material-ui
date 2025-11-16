@@ -5,14 +5,16 @@ import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
+import LinearProgress from "@mui/material/LinearProgress";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import DarkMode from "@mui/icons-material/DarkMode";
 import LightMode from "@mui/icons-material/LightMode";
 import TocIcon from "@mui/icons-material/Toc";
+import Tooltip from "@mui/material/Tooltip";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
-import {dark_mode, render_theme_css} from "./utils"
+import {apply_flex, dark_mode, setup_global_styles} from "./utils"
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && prop !== "variant" && prop !== "sidebar_width"})(
   ({sidebar_width, theme, open, variant}) => {
@@ -45,158 +47,342 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && pro
   }
 )
 
-export function render({model}) {
+export function render({model, view}) {
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [sidebar_width] = model.useState("sidebar_width")
-  const [title] = model.useState("title")
-  const [open, setOpen] = model.useState("sidebar_open")
-  const [variant] = model.useState("sidebar_variant")
-  const [dark_theme, setDarkTheme] = model.useState("dark_theme")
-  const [sx] = model.useState("sx")
+  const [busy] = model.useState("busy")
+  const [busy_indicator] = model.useState("busy_indicator")
   const [contextbar_open, contextOpen] = model.useState("contextbar_open")
   const [contextbar_width] = model.useState("contextbar_width")
+  const [dark_theme, setDarkTheme] = model.useState("dark_theme")
+  const [logo] = model.useState("logo")
+  const [open, setOpen] = model.useState("sidebar_open")
+  const [sidebar_resizable] = model.useState("sidebar_resizable")
+  const [sidebar_width, setSidebarWidth] = model.useState("sidebar_width")
+  const [theme_toggle] = model.useState("theme_toggle")
+
+  // Draggable sidebar state and constants
+  const [isDragging, setIsDragging] = React.useState(false)
+  const [dragStartX, setDragStartX] = React.useState(0)
+  const [dragStartWidth, setDragStartWidth] = React.useState(0)
+  const [site_url] = model.useState("site_url")
+  const [title] = model.useState("title")
+  const [variant] = model.useState("sidebar_variant")
+  const [sx] = model.useState("sx")
   const sidebar = model.get_child("sidebar")
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
+  const main = model.get_child("main")
+
+  const isXl = useMediaQuery(theme.breakpoints.up("xl"))
+  const isLg = useMediaQuery(theme.breakpoints.up("lg"))
+  const isMd = useMediaQuery(theme.breakpoints.up("md"))
+  const isSm = useMediaQuery(theme.breakpoints.up("sm"))
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+
+  const logoContent = React.useMemo(() => {
+    if (!logo) { return null }
+    if (typeof logo === "string") { return logo }
+
+    let resolved = logo
+    if (isXl && resolved.xl) {
+      resolved = resolved.xl
+    } else if (isLg && resolved.lg) {
+      resolved = resolved.lg
+    } else if (isMd && resolved.md) {
+      resolved = resolved.md
+    } else if (isSm && resolved.sm) {
+      resolved = resolved.sm
+    } else if (resolved.xs) {
+      resolved = resolved.xs
+    }
+
+    if (dark_theme && resolved.dark) { return resolved.dark }
+    if (!dark_theme && resolved.light) { return resolved.light }
+    if (typeof resolved === "string") { return resolved }
+
+    return logo.default || Object.values(logo)[0];
+  }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm, dark_theme])
+
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      sidebar.map((object, index) => {
+        apply_flex(view.get_child_view(model.sidebar[index]), "column")
+      })
+      contextbar.map((object, index) => {
+        apply_flex(view.get_child_view(model.contextbar[index]), "column")
+      })
+      header.map((object, index) => {
+        apply_flex(view.get_child_view(model.header[index]), "row")
+      })
+      main.map((object, index) => {
+        apply_flex(view.get_child_view(model.main[index]), "column")
+      })
+    })
+  }, [])
+
+  // Set up debouncing of busy indicator
+  const [idle, setIdle] = React.useState(true);
+  const timerRef = React.useRef(undefined)
+  React.useEffect(() => {
+    if (busy) {
+      timerRef.current = setTimeout(() => {
+        setIdle(false)
+      }, 1000)
+    } else {
+      setIdle(true)
+      clearTimeout(timerRef.current)
+    }
+  }, [busy])
+  React.useEffect(() => () => clearTimeout(timerRef.current), [])
 
   const toggleTheme = () => {
     setDarkTheme(!dark_theme)
   }
 
-  let global_style_el = document.querySelector("#global-styles-panel-mui")
-  const template_style_el = document.querySelector("#template-styles")
-  if (!global_style_el) {
-    {
-      global_style_el = document.createElement("style")
-      global_style_el.id = "global-styles-panel-mui"
-      if (template_style_el) {
-        document.head.insertBefore(global_style_el, template_style_el)
-      } else {
-        document.head.appendChild(global_style_el)
+  setup_global_styles(view, theme)
+  React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
+
+  // Drag handlers for sidebar resizing
+  const handleDragStart = React.useCallback((e) => {
+    const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX
+    setIsDragging(true)
+    setDragStartX(clientX)
+    setDragStartWidth(sidebar_width)
+    e.preventDefault()
+  }, [sidebar_width])
+
+  const handleDragMove = React.useCallback((e) => {
+    if (!isDragging) { return }
+
+    const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX
+    const deltaX = clientX - dragStartX
+    const newWidth = dragStartWidth + deltaX
+
+    // If width gets close to 0, collapse the sidebar completely
+    if (newWidth < 50) {
+      setOpen(false)
+    } else {
+      // Update width immediately for responsive feedback
+      setSidebarWidth(Math.round(newWidth))
+    }
+    e.preventDefault()
+  }, [isDragging, dragStartX, dragStartWidth, setOpen])
+
+  const handleDragEnd = React.useCallback(() => {
+    setIsDragging(false)
+  }, [])
+
+  // Add global mouse/touch event listeners when dragging
+  React.useEffect(() => {
+    if (isDragging) {
+      const handleMouseMove = (e) => handleDragMove(e)
+      const handleMouseUp = () => handleDragEnd()
+      const handleTouchMove = (e) => handleDragMove(e)
+      const handleTouchEnd = () => handleDragEnd()
+
+      document.addEventListener("mousemove", handleMouseMove)
+      document.addEventListener("mouseup", handleMouseUp)
+      document.addEventListener("touchmove", handleTouchMove, {passive: false})
+      document.addEventListener("touchend", handleTouchEnd)
+
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove)
+        document.removeEventListener("mouseup", handleMouseUp)
+        document.removeEventListener("touchmove", handleTouchMove)
+        document.removeEventListener("touchend", handleTouchEnd)
       }
     }
-  }
-  let page_style_el = document.querySelector("#page-style")
-  if (!page_style_el) {
-    page_style_el = document.createElement("style")
-    page_style_el.id = "page-style"
-    if (template_style_el) {
-      document.head.insertBefore(page_style_el, template_style_el)
-    } else {
-      document.head.appendChild(page_style_el)
-    }
-  }
+  }, [isDragging, handleDragMove, handleDragEnd])
 
-  React.useEffect(() => dark_mode.set_value(dark_theme), [])
-
-  React.useEffect(() => {
-    global_style_el.textContent = render_theme_css(theme)
-    const style_objs = theme.generateStyleSheets()
-    const css = style_objs
-      .map((obj) => {
-        return Object.entries(obj).map(([selector, vars]) => {
-          const varLines = Object.entries(vars)
-            .map(([key, val]) => `  ${key}: ${val};`)
-            .join("\n");
-          return `:root, ${selector} {\n${varLines}\n}`;
-        })
-          .join("\n\n");
-      })
-      .join("\n\n");
-    page_style_el.textContent = css
-  }, [theme])
+  const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
 
   const drawer = sidebar.length > 0 ? (
     <Drawer
+      PaperProps={{className: "sidebar"}}
+      anchor="left"
       open={open}
+      onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
       sx={{
+        display: "flex",
+        flexDirection: "column",
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {width: sidebar_width, boxSizing: "border-box"},
+        height: "100vh", // Full viewport height
+        [`& .MuiDrawer-paper`]: {
+          width: sidebar_width,
+          height: "100vh", // Full viewport height
+          boxSizing: "border-box",
+          position: "relative", // Enable positioning for drag handle
+          overflowX: "hidden"
+        },
       }}
-      variant={variant === "drawer" || isMobile ? "temporary": "persistent"}
+      variant={drawer_variant}
     >
-      <Toolbar/>
-      <Divider />
-      <Box sx={{overflow: "auto"}}>
-        {sidebar}
+      <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
+        <Typography variant="h5">&nbsp;</Typography>
+      </Toolbar>
+      <Box sx={{overflow: "auto", flexGrow: 1, display: "flex", flexDirection: "column"}}>
+        {sidebar.map((object, index) => {
+          apply_flex(view.get_child_view(model.sidebar[index]), "column")
+          return object
+        })}
       </Box>
+      {sidebar_resizable && (
+        <Box
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "4px",
+            height: "100%",
+            cursor: "col-resize",
+            backgroundColor: "transparent",
+            borderRight: `1px solid ${theme.palette.divider}`,
+            zIndex: 1000,
+            "&:hover": {
+              borderRightWidth: "2px",
+              borderRightColor: theme.palette.divider,
+            },
+            // Make the handle slightly larger for easier interaction
+            "&:before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              right: "-3px", // Extend hit area beyond visual boundary
+              width: "6px",
+              height: "100%",
+              backgroundColor: "transparent"
+            }
+          }}
+          aria-label="Resize sidebar"
+          title="Drag to resize sidebar"
+        />
+      )}
     </Drawer>
   ) : null
 
   const context_drawer = contextbar.length > 0 ? (
     <Drawer
+      PaperProps={{className: "contextbar"}}
       anchor="right"
       open={contextbar_open}
       onClose={() => contextOpen(false)}
       sx={{
-        width: contextbar_width,
+        display: "flex",
+        flexDirection: "column",
         flexShrink: 0,
+        width: contextbar_width,
         zIndex: (theme) => theme.zIndex.drawer + 2,
         [`& .MuiDrawer-paper`]: {width: contextbar_width, padding: "0.5em", boxSizing: "border-box"},
       }}
       variant="temporary"
     >
-      {contextbar}
+      {contextbar.map((object, index) => {
+        apply_flex(view.get_child_view(model.contextbar[index]), "column")
+        return object
+      })}
     </Drawer>
   ) : null
 
+  const color_scheme = dark_theme ? "dark" : "light"
+  const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && (model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both")))
+  const primary_color = model.theme_config?.palette?.primary?.main ?? model.theme_config?.[color_scheme]?.palette?.primary?.main
+  const header_sx = primary_color == null ? {backgroundColor: "#0072b5", color: "#ffffff"} : {}
+
   return (
-    <Box sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
-      <AppBar position="fixed" color="primary" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
+    <Box className={`mui-${color_scheme}`} sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
+      <AppBar position="fixed" color="primary" className="header" sx={{zIndex: (theme) => theme.zIndex.drawer + 1, ...header_sx}}>
         <Toolbar>
-          { model.sidebar.length > 0 &&
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={() => setOpen(!open)}
-            edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-            ]}
-          >
-            {open ? <MenuOpenIcon/> : <MenuIcon />}
-          </IconButton>
+          {(model.sidebar.length > 0 && drawer_variant !== "permanent") &&
+            <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>
+              <IconButton
+                color="inherit"
+                aria-label={open ? "Close drawer" : "Open drawer"}
+                onClick={() => setOpen(!open)}
+                edge="start"
+                sx={{mr: 2}}
+              >
+                {open ? <MenuOpenIcon/> : <MenuIcon />}
+              </IconButton>
+            </Tooltip>
           }
-          <Typography variant="h5" sx={{color: "white"}}>
-            {title}
-          </Typography>
+          {logo && <a href={site_url}><img src={logoContent} alt="Logo" className="logo" style={{height: "2.5em", paddingRight: "1em"}} /></a>}
+          {title && (
+            <a href={site_url} style={{textDecoration: "none"}}>
+              <Typography variant="h3" className="title" sx={{color: "white"}}>
+                {title}
+              </Typography>
+            </a>
+          )}
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
-            {header}
+            {header.map((object, index) => {
+              apply_flex(view.get_child_view(model.header[index]), "row")
+              return object
+            })}
           </Box>
-          <IconButton onClick={toggleTheme} color="inherit" align="right">
-            {dark_theme ? <DarkMode /> : <LightMode />}
-          </IconButton>
-          { (model.contextbar.length > 0 && !contextbar_open) &&
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={() => contextOpen(!contextbar_open)}
-            edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-            ]}
-          >
-            <TocIcon />
-          </IconButton>}
+          {theme_toggle &&
+            <Tooltip enterDelay={500} title="Toggle theme">
+              <IconButton onClick={toggleTheme} aria-label="Toggle theme" color="inherit" align="right" sx={{mr: "1em"}}>
+                {dark_theme ? <DarkMode /> : <LightMode />}
+              </IconButton>
+            </Tooltip>
+          }
+          {(model.contextbar.length > 0 && !contextbar_open) &&
+            <Tooltip enterDelay={500} title="Toggle contextbar">
+              <IconButton
+                color="inherit"
+                aria-label="toggle contextbar"
+                onClick={() => contextOpen(!contextbar_open)}
+                edge="start"
+                sx={{mr: 1}}
+              >
+                <TocIcon />
+              </IconButton>
+            </Tooltip>
+          }
+          {busy_indicator === "circular" &&
+            <CircularProgress
+              disableShrink
+              size="1.4em"
+              sx={{color: "white"}}
+              thickness={5}
+              variant={idle ? "determinate" : "indeterminate"}
+              value={idle ? 100 : 0}
+            />}
         </Toolbar>
+        {busy_indicator === "linear" &&
+          <LinearProgress
+            sx={{width: "100%"}}
+            variant={idle ? "determinate" : "indeterminate"}
+            color="primary"
+            value={idle ? 100 : 0}
+          />
+        }
       </AppBar>
       {drawer &&
       <Box
         component="nav"
-        sx={variant === "drawer" || isMobile ? {width: 0, flexShrink: {xs: 0}} : {width: {sm: sidebar_width}, flexShrink: {sm: 0}}}
+        sx={
+          drawer_variant === "temporary" ? (
+            {width: 0, flexShrink: {xs: 0}}
+          ) : (
+            {width: {sm: sidebar_width}, flexShrink: {sm: 0}}
+          )
+        }
       >
         {drawer}
       </Box>}
-      <Main open={open} sidebar_width={sidebar_width} variant={isMobile ? "drawer" : variant}>
+      <Main className="main" open={open} sidebar_width={sidebar_width} variant={drawer_variant}>
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
-          <Toolbar/>
-          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column"}}>
-            {model.get_child("main")}
+          <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
+            <Typography variant="h5">&nbsp;</Typography>
+          </Toolbar>
+          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column", overflowY: main_stretch ? "hidden" : "auto"}}>
+            {main.map((object, index) => {
+              apply_flex(view.get_child_view(model.main[index]), "column")
+              return object
+            })}
           </Box>
         </Box>
       </Main>

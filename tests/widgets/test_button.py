@@ -40,6 +40,17 @@ def test_button_jscallback_clicks(document, comm):
     assert len(callbacks['dom_event']) == 1
     assert code in callbacks['dom_event'][0].code
 
+def test_button_js_on_click(document, comm):
+    code = 'console.log("Clicked!")'
+    button = Button(name='Button', js_on_click=code)
+
+    widget = button.get_root(document, comm=comm)
+    assert len(widget.js_event_callbacks) == 1
+    callbacks = widget.js_event_callbacks
+    assert 'dom_event' in callbacks
+    assert len(callbacks['dom_event']) == 1
+    assert code in callbacks['dom_event'][0].code
+
 
 def test_toggle(document, comm):
     toggle = Toggle(label='Test Toggle', value=True)

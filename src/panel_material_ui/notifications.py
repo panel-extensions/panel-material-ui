@@ -4,14 +4,15 @@ import uuid
 from typing import TYPE_CHECKING, Any
 
 import param
+from bokeh.model import Model
 from bokeh.models.callbacks import CustomJS
-from panel.config import config
 from panel.io.datamodel import _DATA_MODELS, construct_data_model
 from panel.io.notifications import Notification as _Notification
 from panel.io.notifications import NotificationAreaBase
 from panel.io.state import _state
 from panel.layout import Column
 
+from ._utils import BOKEH_GE_3_8
 from .base import MaterialComponent
 from .widgets import Button, ColorPicker, NumberInput, Select, TextInput
 
@@ -33,7 +34,10 @@ class MuiNotification(_Notification):
 
 class NotificationArea(MaterialComponent, NotificationAreaBase):
 
-    notifications = param.List(item_type=(MuiNotification, dict))
+    notifications = param.List(item_type=(MuiNotification, dict), doc="""
+        List of notifications currently displayed in the notification area.
+        Each item is a MuiNotification or a dictionary representing a notification.
+    """)
 
     types = param.List(default=[], doc="""
         Custom notification types.
@@ -62,6 +66,8 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
     ) -> Model:
         model = super()._get_model(doc, root, parent, comm)
         for event, notification in self.js_events.items():
+            if event == 'connection_lost' and BOKEH_GE_3_8:
+                continue
             doc.js_on_event(event, CustomJS(code=f"""
             const config = {{
               message: {notification['message']!r},
@@ -70,6 +76,9 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
               _destroyed: false,
               _uuid: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
             }}
+            notifications.document.event_manager.trigger(
+              {{event_name: 'esm_event', model: notifications, data: {{type: 'enqueue', notification: config}}}}
+            )
             notifications.data.notifications = [...notifications.data.notifications, config]
             """, args={'notifications': model}))
         return model
@@ -79,6 +88,11 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
             old = {n._uuid: n for n in self.notifications}
             notifications = []
             for notification in events.pop('notifications'):
+                if isinstance(notification, Model):
+                    notification = {
+                        k: v for k, v in notification.properties_with_values().items()
+                        if k in MuiNotification.param
+                    }
                 if isinstance(notification, dict):
                     notification = MuiNotification(notification_area=self, **notification)
                     self._notification_watchers[notification] = (
@@ -125,6 +139,7 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
             if (ntype.data.value === 'custom') {
               config.background = color.data.value
             }
+            notifications.document.event_manager.trigger({event_name: 'esm_event', model: notifications, data: {type: 'enqueue', notification: config}})
             notifications.data.notifications = [...notifications.data.notifications, config]
             """
         )
@@ -144,20 +159,32 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
         )
         self.notifications.append(notification)
         self.param.trigger('notifications')
+        self._send_msg({
+            'type': 'enqueue',
+            'notification': {
+                k: v for k, v in notification.param.values().items()
+                if k != 'notification_area'
+            }
+        })
         return notification
 
     def clear(self):
         for notification in self.notifications:
             notification.param.unwatch(self._notification_watchers.pop(notification))
+            self._send_msg({'type': 'destroy', 'uuid': notification._uuid})
         self.notifications = []
+
+    def _handle_msg(self, msg):
+        if msg['type'] == 'destroy':
+            self.notifications = [n for n in self.notifications if n._uuid != msg['uuid']]
 
     def _remove_notification(self, event):
         if event.obj in self.notifications:
             self.notifications.remove(event.obj)
         event.obj.param.unwatch(self._notification_watchers.pop(event.obj))
         self.param.trigger('notifications')
+        self._send_msg({'type': 'destroy', 'uuid': event.obj._uuid})
 
 
 _state._notification_type = NotificationArea
-if not config.autoreload:
-    _DATA_MODELS[MuiNotification] = construct_data_model(MuiNotification)
+_DATA_MODELS[MuiNotification] = construct_data_model(MuiNotification, f'MuiNotification{uuid.uuid4().hex}')

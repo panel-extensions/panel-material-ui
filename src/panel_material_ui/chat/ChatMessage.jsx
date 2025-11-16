@@ -12,66 +12,62 @@ function PlaceholderAvatar() {
   return (
     <Box sx={{
       margin: "1em 0.5em 0 0",
-      width: 40,
-      height: 40,
-      position: "relative",
       display: "flex",
       alignItems: "center",
-      justifyContent: "center"
+      justifyContent: "space-between",
+      padding: "8px",
+      width: "90px" // Increased width to space dots further apart
     }}
     >
       <Box
         component="span"
         sx={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
+          width: 12,
+          height: 12,
           borderRadius: "50%",
-          border: "3px solid",
-          borderColor: "black",
-          borderTopColor: "transparent",
-          strokeLinecap: "round",
-          animation: "spin 1s linear infinite",
-          "@keyframes spin": {
-            "0%": {transform: "rotate(0deg)"},
-            "100%": {transform: "rotate(360deg)"}
+          backgroundColor: "text.disabled",
+          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
+          "@keyframes grow": {
+            "0%, 100%": {transform: "scale(0)"},
+            "50%": {transform: "scale(1)"}
+          },
+          "@keyframes fade": {
+            "0%, 100%": {opacity: 0.3},
+            "50%": {opacity: 1}
           }
         }}
       />
       <Box
         component="span"
         sx={{
-          position: "absolute",
-          width: "80%",
-          height: "80%",
+          width: 12,
+          height: 12,
           borderRadius: "50%",
-          border: "3px solid",
-          borderColor: "black",
-          borderTopColor: "transparent",
-          strokeLinecap: "round",
-          animation: "spin 1.5s linear infinite",
-          "@keyframes spin": {
-            "0%": {transform: "rotate(0deg)"},
-            "100%": {transform: "rotate(-360deg)"}
-          }
+          backgroundColor: "text.disabled",
+          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
+          animationDelay: "0.6s"
         }}
       />
       <Box
         component="span"
         sx={{
-          position: "absolute",
-          width: "50%",
-          height: "50%",
+          width: 12,
+          height: 12,
           borderRadius: "50%",
-          border: "3px solid",
-          borderColor: "black",
-          borderTopColor: "transparent",
-          strokeLinecap: "round",
-          animation: "spin 2.5s linear infinite",
-          "@keyframes spin": {
-            "0%": {transform: "rotate(0deg)"},
-            "100%": {transform: "rotate(360deg)"}
-          }
+          backgroundColor: "text.disabled",
+          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
+          animationDelay: "1.2s"
+        }}
+      />
+      <Box
+        component="span"
+        sx={{
+          width: 12,
+          height: 12,
+          borderRadius: "50%",
+          backgroundColor: "text.disabled",
+          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
+          animationDelay: "1.8s"
         }}
       />
     </Box>
@@ -83,7 +79,8 @@ function isEmoji(str) {
   return emojiRegex.test(str);
 }
 
-export function render({model}) {
+export function render({model, view}) {
+  const [placement] = model.useState("placement")
   const [elevation] = model.useState("elevation")
   const [user] = model.useState("user")
   const [show_avatar] = model.useState("show_avatar")
@@ -106,27 +103,31 @@ export function render({model}) {
   })
 
   const placeholder = show_avatar && (avatar.type === "text" && avatar.text == "PLACEHOLDER")
+  const avatar_component = (placeholder ? (
+    <PlaceholderAvatar />
+  ) : (
+    <Avatar
+      src={avatar.type === "image" ? avatar.src : null}
+      sx={{margin: placement === "left" ? "1em 0.5em 0 0" : "1em 0 0 0.5em", bgcolor: "background.paper", color: "text.primary", boxShadow: 3}}
+    >
+      {avatar.type !== "image" && (avatar.type == "text" ? isEmoji(avatar.text) ? avatar.text : [...avatar.text][0] : <Icon>{avatar.icon}</Icon>)}
+    </Avatar>
+  ))
+
+  const obj_model = view.model.data._object_panel
+  const isResponsive = obj_model.sizing_mode && (obj_model.sizing_mode.includes("width") || obj_model.sizing_mode.includes("both"))
 
   return (
     <Box sx={{flexDirection: "row", display: "flex", maxWidth: "100%"}}>
-      {placeholder ? (
-        <PlaceholderAvatar />
-      ) : (
-        <Avatar
-          src={avatar.type === "image" ? avatar.src : null}
-          sx={{margin: "1em 0.5em 0 0", bgcolor: "background.paper", boxShadow: 3}}
-        >
-          {avatar.type == "text" ? isEmoji(avatar.text) ? avatar.text : [...avatar.text][0] : <Icon>{avatar.icon}</Icon>}
-        </Avatar>
-      )}
-      {!placeholder && <Stack direction="column" spacing={0} sx={{flexGrow: 1, maxWidth: "calc(100% - 60px)"}}>
+      {placement === "left" && avatar_component}
+      {!placeholder && <Stack direction="column" spacing={0} sx={{flexGrow: 1, maxWidth: "calc(100% - 60px)", alignItems: placement === "left" ? "flex-start" : "flex-end"}}>
         {show_user && <Typography variant="caption">
           {user}
         </Typography>}
         <Stack direction="row" spacing={0}>
           {header}
         </Stack>
-        <Paper elevation={elevation} sx={{bgcolor: "background.paper", maxWidth: "calc(100% - 20px)"}}>
+        <Paper elevation={elevation} sx={{bgcolor: "background.paper", width: isResponsive ? "100%" : "fit-content"}}>
           {object}
         </Paper>
         <Stack direction="row" spacing={0}>
@@ -149,6 +150,7 @@ export function render({model}) {
           {timestamp}
         </Typography>}
       </Stack>}
+      {placement === "right" && avatar_component}
     </Box>
   );
 };

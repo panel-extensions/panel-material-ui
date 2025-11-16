@@ -1,8 +1,9 @@
-import TextField from "@mui/material/TextField"
 import Autocomplete from "@mui/material/Autocomplete"
 import Popper from "@mui/material/Popper"
+import TextField from "@mui/material/TextField"
+import {render_description} from "./description"
 
-export function render({model, el}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -11,6 +12,7 @@ export function render({model, el}) {
   const [options] = model.useState("options")
   const [placeholder] = model.useState("placeholder")
   const [restrict] = model.useState("restrict")
+  const [size] = model.useState("size")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
@@ -18,18 +20,22 @@ export function render({model, el}) {
     return <Popper {...props} container={el} />
   }
 
-  const filt_func = (options, state) => {
-    let input = state.inputValue
-    if (input.length < model.min_characters) {
-      return []
-    }
-    return options.filter((opt) => {
+  const filter_op = (input) => {
+    return (opt) => {
       if (!model.case_sensitive) {
         opt = opt.toLowerCase()
         input = input.toLowerCase()
       }
       return model.search_strategy == "includes" ? opt.includes(input) : opt.startsWith(input)
-    })
+    }
+  }
+
+  const filt_func = (options, state) => {
+    const input = state.inputValue
+    if (input.length < model.min_characters) {
+      return []
+    }
+    return options.filter(filter_op(input))
   }
 
   return (
@@ -39,23 +45,42 @@ export function render({model, el}) {
       filterOptions={filt_func}
       freeSolo={!restrict}
       fullWidth
+      inputValue={value_input || ""}
       onChange={(event, newValue) => setValue(newValue)}
       options={options}
       renderInput={(params) => (
         <TextField
           {...params}
-          label={label}
+          color={color}
+          label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
           placeholder={placeholder}
-          onChange={(event) => setValueInput(event.target.value)}
+          onChange={(event) => {
+            setValueInput(event.target.value)
+          }}
           onKeyDown={(event) => {
-            if (event.key === "Enter") {
+            if (restrict && ((value_input || "").length < model.min_characters)) {
+              return
+            } else if (event.key === "Enter") {
+              let new_value = value_input
+              if (restrict) {
+                const filtered = options.filter(filter_op(new_value))
+                if (filtered.length > 0) {
+                  new_value = filtered[0]
+                  setValueInput(filtered[0])
+                } else {
+                  return
+                }
+              }
+              event.target.value = new_value
               model.send_event("enter", event)
-              setValue(value_input)
+              setValue(new_value)
             }
           }}
+          size={size}
           variant={variant}
         />
       )}
+      size={size}
       sx={sx}
       value={value}
       variant={variant}

@@ -10,8 +10,9 @@ from panel.io.state import state
 from panel.layout import Column
 from panel.layout.base import ListLike
 from panel.models.reactive_html import DOMEvent
+from param.parameterized import _syncing
 
-from ..base import COLORS, LoadingTransform, ThemedTransform
+from ..base import COLORS, ThemedTransform
 from .base import MaterialWidget, TooltipTransform
 from .button import _ButtonBase
 
@@ -19,8 +20,8 @@ from .button import _ButtonBase
 def filter_item(item, keys):
     if isinstance(item, dict):
         item = {k: v for k, v in item.items() if k in keys}
-        if 'children' in item:
-            item['children'] = [filter_item(child, keys) for child in item['children']]
+        if 'items' in item:
+            item['items'] = [filter_item(child, keys) for child in item['items']]
         return item
     return item
 
@@ -42,7 +43,8 @@ class MenuBase(MaterialWidget):
     width = param.Integer(default=None, doc="""
         The width of the menu.""")
 
-    _item_keys = ['label', 'children']
+    _item_keys = ['label', 'items']
+    _descend_children = True
     _rename = {'value': None}
     _source_transforms = {'attached': None, "value": None, 'items': None}
 
@@ -51,6 +53,10 @@ class MenuBase(MaterialWidget):
     def __init__(self, **params):
         click_handler = params.pop('on_click', None)
         super().__init__(**params)
+        if self.value is None and self.active is not None:
+            self._sync_active()
+        elif self.value is not None and self.active is None:
+            self._sync_value()
         self._on_action_callbacks = defaultdict(list)
         self._on_click_callbacks = []
         if click_handler:
@@ -72,21 +78,31 @@ class MenuBase(MaterialWidget):
             params['items'] = [filter_item(item, self._item_keys) for item in items]
         return params
 
-    @param.depends('items', watch=True, on_init=True)
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'active' in props and isinstance(props['active'], list):
+            props['active'] = tuple(props['active'])
+        elif 'active' in props and isinstance(props['active'], bool):
+            props['active'] = 0
+        return props
+
+    @param.depends('items', watch=True)
     def _sync_items(self):
-         self.param.active.bounds = (0, len(self.items)-1)
+        self.param.active.bounds = (0, len(self.items)-1)
 
-    @param.depends('active', watch=True, on_init=True)
+    @param.depends('active', watch=True)
     def _sync_active(self):
-         self.value = self._lookup_item(self.active)
+        with _syncing(self, ['value']):
+            self.value = self._lookup_item(self.active)
 
-    @param.depends('value', watch=True, on_init=True)
+    @param.depends('value', watch=True)
     def _sync_value(self):
         index = self._lookup_active_by_value(self.value)
-        if index is None:
-            self.active = None
-        else:
-            self.active = index if len(index) > 1 else index[0]
+        with _syncing(self, ['active']):
+            if index is None:
+                self.active = None
+            else:
+                self.active = index if 'items' in self._item_keys else index[0]
 
     def _lookup_active_by_value(self, item):
         if not self.items:
@@ -94,7 +110,6 @@ class MenuBase(MaterialWidget):
         queue = [([], 0, self.items)]
         while queue:
             path, depth, items = queue.pop(0)
-
             for i, current in enumerate(items):
                 current_path = path + [i]
                 if current == item:
@@ -102,7 +117,7 @@ class MenuBase(MaterialWidget):
                 if isinstance(current, dict):
                     if current == item:
                         return tuple(current_path)
-                    if 'items' in current:
+                    if 'items' in current and self._descend_children:
                         queue.append((current_path, depth + 1, current['items']))
         return None
 
@@ -113,32 +128,45 @@ class MenuBase(MaterialWidget):
         value = self.items
         for i, idx in enumerate(indexes):
             value = value[idx]
-            if isinstance(value, dict) and (i != len(indexes)-1):
+            if isinstance(value, dict) and (i != len(indexes)-1) and self._descend_children:
                 value = value['items']
 
         if isinstance(value, tuple):
             value = {'label': value[0], 'value': value[1]}
         return value
 
+    def _process_click(self, msg, index, value):
+        if not isinstance(value, dict) or value.get('selectable', True):
+            with _syncing(self, ['active', 'value']):
+                self.param.update(active=index, value=value)
+        for fn in self._on_click_callbacks:
+            try:
+                state.execute(partial(fn, value))
+            except Exception as e:
+                print(f'List on_click handler errored: {e}')  # noqa
+
+    def _process_action(self, msg, index, value):
+        name = msg['action']
+        if 'value' in msg:
+            value['actions'] = [
+                dict(action, value=msg['value']) if action.get('action', action.get('label')) == name else action
+                for action in value['actions']
+            ]
+        for fn in self._on_action_callbacks.get(name, []):
+            try:
+                state.execute(partial(fn, value))
+            except Exception as e:
+                print(f'List on_action handler errored: {e}')  # noqa
+
     def _handle_msg(self, msg):
-        index = msg['item']
+        index = msg.get('item')
         if isinstance(index, list):
             index = tuple(index)
-        value = self._lookup_item(index)
+        value = None if index is None else self._lookup_item(index)
         if msg['type'] == 'click':
-            if value.get('selectable', True):
-                self.param.update(active=index, value=value)
-            for fn in self._on_click_callbacks:
-                try:
-                    state.execute(partial(fn, value))
-                except Exception as e:
-                    print(f'List on_click handler errored: {e}')  # noqa
+            self._process_click(msg, index, value)
         elif msg['type'] == 'action':
-            for fn in self._on_action_callbacks.get(msg['action'], []):
-                try:
-                    state.execute(partial(fn, value))
-                except Exception as e:
-                    print(f'List on_action handler errored: {e}')  # noqa
+            self._process_action(msg, index, value)
 
     def on_click(self, callback: Callable[[DOMEvent], None]):
         """
@@ -164,21 +192,9 @@ class MenuBase(MaterialWidget):
         self._on_click_callbacks.remove(callback)
 
 
-class Breadcrumbs(MenuBase):
-    """
-    The `Breadcrumbs` component is used to show the navigation path of a user within an application.
-    It improves usability by allowing users to track their location and navigate back easily.
+class BreadcrumbsBase(MenuBase):
 
-    Breadcrumb items can be strings or objects with properties:
-      - label: The label of the breadcrumb item (required)
-      - icon: The icon of the breadcrumb item (optional)
-      - avatar: The avatar of the breadcrumb item (optional)
-      - href: Link to navigate to when clicking the breadcrumb item (optional)
-
-    Reference: https://mui.com/material-ui/react-breadcrumbs/
-    """
-
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the breadcrumbs.")
 
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         The maximum number of breadcrumb items to display.""")
@@ -186,45 +202,46 @@ class Breadcrumbs(MenuBase):
     separator = param.String(default=None, doc="""
         The separator displayed between breadcrumb items.""")
 
+    __abstract = True
+
+
+class Breadcrumbs(BreadcrumbsBase):
+    """
+    The `Breadcrumbs` component is used to show the navigation path of a user within an application.
+    It improves usability by allowing users to track their location and navigate back easily.
+
+    Breadcrumb items can be strings or objects with properties:
+
+    - `label`: The label of the breadcrumb item (required)
+    - `icon`: The icon of the breadcrumb item (optional)
+    - `avatar`: The avatar of the breadcrumb item (optional)
+    - `href`: Link to navigate to when clicking the breadcrumb item (optional)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/Breadcrumbs.html
+    - https://mui.com/material-ui/react-breadcrumbs/
+
+    :Example:
+
+    >>> pmui.Breadcrumbs(items=[
+    ...     {'label': 'Documentation', 'icon': 'article'},
+    ...     {'label': 'Reference Gallery', 'icon': 'category'},
+    ...     {'label': 'Menus', 'icon': 'menu'},
+    ...     {'label': 'Breadcrumbs', 'icon': 'grain'},
+    ... ], active=3)
+    """
+
     _esm_base = "Breadcrumbs.jsx"
-    _item_keys = ['label', 'icon', 'avatar', 'href']
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
 
 
-class List(MenuBase):
-    """
-    The `List` component is used to display a structured group of items, such as menus,
-    navigation links, or settings.
-
-    List items can be strings or objects with properties:
-      - label: The label of the list item (required)
-      - secondary: The secondary text of the list item (optional)
-      - icon: The icon of the list item (optional)
-      - avatar: The avatar of the list item (optional)
-      - color: The color of the list item (optional)
-      - actions: Actions to display on the list item (optional)
-      - items: Nested items (optional)
-      - selectable: Whether the list item is selectable (optional)
-
-    Reference: https://mui.com/material-ui/react-list/
-    """
+class NestedMenuBase(MenuBase):
 
     active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
         The index of the currently selected item. Can be a tuple of indices for nested items.""")
 
-    color = param.Selector(default="default", objects=COLORS, doc="The color of the selected list item.")
-
-    dense = param.Boolean(default=False, doc="Whether to show the list items in a dense format.")
-
-    highlight = param.Boolean(default=True, doc="""
-        Whether to highlight the currently selected menu item.""")
-
-    level_indent = param.Integer(default=16, doc="The number of pixels to indent the list items.")
-
-    removable = param.Boolean(default=False, doc="Whether to allow deleting items.")
-
-    _esm_base = "List.jsx"
-
-    _item_keys = ['label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable']
+    __abstract = True
 
     @param.depends('items', watch=True, on_init=True)
     def _sync_items(self):
@@ -235,6 +252,146 @@ class List(MenuBase):
         if 'active' in props and isinstance(props['active'], list):
             props['active'] = tuple(props['active'])
         return props
+
+
+class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
+    """
+    The `NestedBreadcrumbs` component provides breadcrumb-style navigation
+    for hierarchical data. It extends standard breadcrumbs by allowing each
+    non-root segment to open a sibling selector menu via a chevron, enabling
+    users to navigate between branches at any level.
+
+    Nested breadcrumbs help users visualize their position in a nested structure
+    and move both upward (via breadcrumb clicks) and sideways (via sibling menus).
+
+    Breadcrumb items are defined as objects with the following properties:
+
+    - `label`: The label of the breadcrumb item (required)
+    - `icon`: The icon of the breadcrumb item (optional)
+    - `avatar`: The avatar of the breadcrumb item (optional)
+    - `href`: Link to navigate to when clicking the breadcrumb item (optional)
+    - `target`: Link target (e.g. `"_blank"`) (optional)
+    - `items`: List of nested child items (optional)
+    - `selectable`: Whether the item can be selected in sibling menus (optional, defaults to True)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/NestedBreadcrumbs.html
+    - https://mui.com/material-ui/react-breadcrumbs/
+
+    :Example:
+
+    >>> pmui.NestedBreadcrumbs(items=[
+    ...     {
+    ...         'label': 'Projects', 'icon': 'folder', 'items': [
+    ...             {'label': 'A', 'icon': 'category', 'items': [
+    ...                 {'label': 'A1', 'icon': 'grain'},
+    ...                 {'label': 'A2', 'icon': 'grain'},
+    ...             ]},
+    ...             {'label': 'B', 'icon': 'category', 'items': [
+    ...                 {'label': 'B1', 'icon': 'grain'},
+    ...             ]},
+    ...         ]
+    ...     }
+    ... ], active=(0,))
+    """
+
+    active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
+        The index of the currently selected item. Can be a tuple of indices for nested items.""")
+
+    auto_descend = param.Boolean(default=True, doc="""
+        Whether to automatically descend through the first child of each
+        selected item when rendering the breadcrumb path.
+
+        When ``True`` (default), the component will automatically extend the
+        visible path by following first-child items below the current selection.
+
+        When ``False``, the last breadcrumb segment will instead display a
+        "Select…" placeholder with a chevron menu, allowing the user to pick
+        a child manually.""")
+
+    path = param.ClassSelector(default=None, class_=tuple, doc="""
+        The tuple containing indices of the currently rendered path.""")
+
+    _esm_base = "NestedBreadcrumbs.jsx"
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target', 'items', 'selectable']
+
+    def _handle_msg(self, msg):
+        index = msg.get('item')
+        if isinstance(index, list):
+            index = tuple(index)
+        path = msg.get('path')
+        if isinstance(path, list):
+            path = tuple(path)
+        value = None if index is None else self._lookup_item(index)
+        if value is not None:
+            self._process_click(msg, index, value)
+        if path is not None:
+            with _syncing(self, ['path']):
+                self.path = path
+
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'path' in props and isinstance(props['path'], list):
+            props['path'] = tuple(props['path'])
+        return props
+
+
+class MenuList(NestedMenuBase):
+    """
+    The `MenuList` component is used to display a structured group of items, such as menus,
+    navigation links, or settings.
+
+    List items can be strings or objects with properties:
+      - `label`: The label of the list item (required)
+      - `secondary`: The secondary text of the list item (optional)
+      - `icon`: The icon of the list item (optional)
+      - `avatar`: The avatar of the list item (optional)
+      - `color`: The color of the list item (optional)
+      - `actions`: Actions to display on the list item (optional)
+      - `items`: Nested items (optional)
+      - `selectable`: Whether the list item is selectable (optional)
+      - `href`: The URL to navigate to when the list item is clicked (optional)
+      - `target`: The target to open the URL in (optional)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/MenuList.html
+    - https://mui.com/material-ui/react-list/
+
+    :Example:
+
+    >>> pmui.MenuList(items=[
+    ...     {'label': 'Home', 'icon': 'home', 'secondary': 'Overview page'},
+    ...     {'label': 'Gallery', 'icon': 'image', 'secondary': 'Visual overview'},
+    ...     {'label': 'API', 'icon': 'code', 'secondary': 'API Reference'},
+    ...     {'label': 'About', 'icon': 'info'},
+    ... ], active=3)
+    """
+
+    color = param.Selector(default="primary", objects=COLORS, doc="The color of the selected list item.")
+
+    dense = param.Boolean(default=False, doc="Whether to show the list items in a dense format.")
+
+    highlight = param.Boolean(default=True, doc="""
+        Whether to highlight the currently selected menu item.""")
+
+    level_indent = param.Integer(default=16, doc="The number of pixels to indent the list items.")
+
+    removable = param.Boolean(default=False, doc="Whether to allow deleting items.")
+
+    show_children = param.Boolean(default=True, doc="Whether to render children.")
+
+    _esm_base = "List.jsx"
+
+    _item_keys = [
+        'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
+        'href', 'target', 'buttons', 'open'
+    ]
+
+    @property
+    def _descend_children(self):
+        return self.show_children
 
     def on_action(self, action: str, callback: Callable[[DOMEvent], None]):
         """
@@ -262,6 +419,8 @@ class List(MenuBase):
         """
         self._on_action_callbacks[action].remove(callback)
 
+List = MenuList
+        
 
 class Menu(MenuBase):
     """
@@ -289,35 +448,206 @@ class MenuButton(MenuBase, _ButtonBase):
     The `MenuButton` component is a button component that allows selecting from a list of items.
 
     MenuButton items can be strings or objects with properties:
-      - label: The label of the menu button item (required)
-      - icon: The icon of the menu button item (optional)
-      - color: The color of the menu button item (optional)
+      - `label`: The label of the menu button item (required)
+      - `icon`: The icon of the menu button item (optional)
+      - `color`: The color of the menu button item (optional)
+      - `href`: The URL to navigate to when the menu button item is clicked (optional)
+      - `target`: The target to open the URL in (optional)
 
-    Reference: https://mui.com/material-ui/react-menu-button/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/MenuButton.html
+    - https://mui.com/material-ui/react-menu-button/
+
+    :Example:
+
+    >>> pmui.MenuButton(items=[
+    ...     {'label': 'Open', 'icon': 'description'},
+    ...     {'label': 'Save', 'icon': 'save'},
+    ...     {'label': 'Exit', 'icon': 'close'},
+    ... ], label='File', icon='storage')
     """
 
     margin = Margin(default=5)
 
+    disable_elevation = param.Boolean(default=False, doc="Removes the menu's box-shadow for a flat appearance.")
+
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the menu button.")
+
     _esm_base = "MenuButton.jsx"
-    _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
+    _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
-        "attached": None,
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label', 'icon', 'color', 'items']
+    _item_keys = ['label', 'icon', 'color', 'href', 'target', 'icon_size']
+
+
+class SplitButton(MenuBase, _ButtonBase):
+    """
+    The `SplitButton` component combines a button with a dropdown menu, allowing users to quickly access a primary action and related alternatives.
+
+    This component supports two modes:
+
+    - **`split`**: The main button performs a default action, while the dropdown lets users trigger related but independent actions.
+    - **`select`**: Users select an option from the dropdown, and the main button triggers the selected action when clicked.
+
+    Each menu item can be a string or a dictionary with the following keys:
+      - **`label`** (`str`, required): The text displayed for the menu item.
+      - **`icon`** (`str`, optional): An icon to display next to the label.
+      - **`href`** (`str`, optional): A URL to open when the menu item is clicked.
+      - **`target`** (`str`, optional): Where to open the linked URL (e.g., `_blank`).
+
+    The `SplitButton` is ideal for workflows where a primary action is most common, but users may occasionally need to choose an alternative.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/SplitButton.html
+    - https://mui.com/material-ui/react-button-group/#split-button
+
+    :Example:
+
+    >>> pmui.SplitButton(items=[
+    ...     {'label': 'Open'},
+    ...     {'label': 'Save'},
+    ... ], label='Save')
+    """
+
+    mode = param.Selector(default='split', objects=['split', 'select'], doc="""
+        Allows toggling button behavior between split mode (button click and menu click actions raise events) and
+        select mode (only button click raise events).""")
+
+    margin = Margin(default=5)
+
+    _esm_base = "SplitButton.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _source_transforms = {
+        "button_type": None,
+        "button_style": None
+    }
+    _item_keys = ['label', 'icon', 'href', 'target', 'icon_size']
+
+    @param.depends('mode', watch=True, on_init=True)
+    def _switch_mode(self):
+        if self.mode == 'select' and self.value is None:
+            with _syncing(self, ['active', 'value']):
+                self.param.update(active=0, value=self.items[0])
+
+    def _process_click(self, msg, index, value):
+        if self.mode == 'select' and 'item' in msg:
+            with _syncing(self, ['active', 'value']):
+                self.param.update(active=index, value=value)
+            return
+        updates = {'clicks': self.clicks+1}
+        if value is None:
+            value = self.value if self.mode == 'select' else self.label
+        elif not isinstance(value, dict) or value.get('selectable', True):
+            updates.update(active=index, value=value)
+        with _syncing(self, list(updates)):
+            self.param.update(updates)
+        for fn in self._on_click_callbacks:
+            try:
+                state.execute(partial(fn, value))
+            except Exception as e:
+                print(f'List on_click handler errored: {e}')  # noqa
+
+
+class MenuToggle(MenuBase, _ButtonBase):
+    """
+    The `MenuToggle` component is a menu button where individual items can be toggled on/off.
+
+    Unlike MenuButton, MenuToggle allows each menu item to have a toggle state with
+    different icons for active/inactive states (e.g., filled/unfilled heart for favorites).
+
+    MenuToggle items can be strings or objects with properties:
+      - `label`: The label of the menu toggle item (required)
+      - `icon`: The icon when item is not toggled (optional)
+      - `active_icon`: The icon when item is toggled (optional)
+      - `toggled`: Whether the item is currently toggled (optional, default: false)
+      - `color`: The color of the menu toggle item (optional)
+      - `active_color`: The color when toggled (optional)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/MenuToggle.html
+    - https://mui.com/material-ui/react-toggle-button/
+
+    :Example:
+
+    >>> pmui.MenuToggle(items=[
+    ...     {'label': 'Favorite', 'icon': 'favorite_border', 'active_icon': 'favorite', 'toggled': False},
+    ...     {'label': 'Bookmark', 'icon': 'bookmark_border', 'active_icon': 'bookmark', 'toggled': True},
+    ...     {'label': 'Star', 'icon': 'star_border', 'active_icon': 'star', 'toggled': False},
+    ... ], label='Actions', icon='more_vert')
+    """
+
+    toggle_icon = param.String(default=None, doc="""
+        Icon to display when menu is open (if different from base icon).""")
+
+    toggled = param.List(default=[], doc="""
+        List of indices of currently toggled items.""")
+
+    margin = Margin(default=5)
+
+    persistent = param.Boolean(default=True, doc="""
+        Whether the menu stays open after toggling an item.""")
+
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the menu toggle.")
+
+    _esm_base = "MenuToggle.jsx"
+    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _source_transforms = {
+        "button_type": None,
+        "button_style": None,
+    }
+    _item_keys = ['label', 'icon', 'active_icon', 'toggled', 'color', 'active_color', 'icon_size']
+    _rename = {'value': None}
+
+    @param.depends('items', watch=True, on_init=True)
+    def _sync_toggled(self):
+        if self.items:
+            self.toggled = [
+                i for i, item in enumerate(self.items)
+                if isinstance(item, dict) and item.get('toggled', False)
+            ]
+        else:
+            self.toggled = []
+
+    def _handle_msg(self, msg):
+        if msg['type'] == 'toggle_item':
+            index = msg['item']
+            if index in self.toggled:
+                self.toggled = [i for i in self.toggled if i != index]
+            else:
+                self.toggled = self.toggled + [index]
+            # Update the item's toggled state
+            if isinstance(self.items[index], dict):
+                self.items[index]['toggled'] = index in self.toggled
+            # Update value to the clicked item
+            value = self._lookup_item(index)
+            if value.get('selectable', True):
+                self.value = value
+            for fn in self._on_click_callbacks:
+                state.execute(partial(fn, value))
 
 
 class Pagination(MaterialWidget):
     """
     The `Pagination` component allows selecting from a list of pages.
 
-    Reference: https://mui.com/material-ui/react-pagination/
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/Pagination.html
+    - https://mui.com/material-ui/react-pagination/
+
+    :Example:
+
+    >>> pmui.Pagination(count=100)
     """
 
     boundary_count = param.Integer(default=1, bounds=(0, None), doc="The number of boundary pages to show.")
 
-    color = param.Selector(default="default", objects=COLORS, doc="The color of the pagination.")
+    color = param.Selector(default="primary", objects=COLORS, doc="The color of the pagination.")
 
     count = param.Integer(default=1, bounds=(0, None), doc="The total number of pages.")
 
@@ -381,15 +711,27 @@ class SpeedDial(MenuBase):
     list of items.
 
     SpeedDial items can be strings or objects with properties:
-      - label: The label of the speed dial item (required)
-      - icon: The icon of the speed dial item (optional)
-      - avatar: The avatar of the speed dial item (optional)
-      - color: The color of the speed dial item (optional)
 
-    Reference: https://mui.com/material-ui/react-speed-dial/
+    - `label`: The label of the speed dial item (required)
+    - `icon`: The icon of the speed dial item (optional)
+    - `avatar`: The avatar of the speed dial item (optional)
+    - `color`: The color of the speed dial item (optional)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/SpeedDial.html
+    - https://mui.com/material-ui/react-speed-dial/
+
+    :Example:
+
+    >>> pmui.SpeedDial(items=[
+    ...     {'label': 'Camera', 'icon': 'camera'},
+    ...     {'label': 'Photos', 'icon': 'photo'},
+    ...     {'label': 'Documents', 'icon': 'article'},
+    ... ], active=2, margin=(50, 20))
     """
 
-    color = param.Selector(default="default", objects=COLORS, doc="""
+    color = param.Selector(default="primary", objects=COLORS, doc="""
         The color of the menu.""")
 
     direction = param.Selector(default="right", objects=["right", "left", "up", "down"], doc="""
@@ -412,8 +754,11 @@ class SpeedDial(MenuBase):
 
 __all__ = [
     "Breadcrumbs",
-    "List",
     "MenuButton",
+    "MenuList",
+    "MenuToggle",
+    "NestedBreadcrumbs",
     "Pagination",
-    "SpeedDial"
+    "SpeedDial",
+    "SplitButton",
 ]

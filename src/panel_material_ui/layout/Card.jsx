@@ -6,6 +6,7 @@ import Collapse from "@mui/material/Collapse"
 import IconButton from "@mui/material/IconButton"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
+import {apply_flex} from "./utils"
 
 const ExpandMore = styled((props) => {
   const {expand, ...other} = props;
@@ -44,17 +45,25 @@ export function render({model, view}) {
   const [sx] = model.useState("sx")
   const [title] = model.useState("title")
   const [title_css_classes] = model.useState("title_css_classes")
+  const [title_variant] = model.useState("title_variant")
   const [variant] = model.useState("variant")
   const header = model.get_child("header")
   const objects = model.get_child("objects")
 
-  model.on("after_layout", () => {
-    for (const child_view of view.layoutable_views) {
-      if (child_view.el) {
-        child_view.el.style.minHeight = "auto"
-      }
-    }
-  })
+  const shouldHideHeader = hide_header || (!model.header && (!title || title.trim() === ""))
+  const shouldHideContent = objects.length === 0
+
+  React.useEffect(() => {
+    model.on("lifecycle:update_layout", () => {
+      objects.map((object, index) => {
+        apply_flex(view.get_child_view(model.objects[index]), "column")
+      })
+    })
+  }, [])
+
+  if (model.header) {
+    apply_flex(view.get_child_view(model.header), "row")
+  }
 
   return (
     <Card
@@ -64,7 +73,7 @@ export function render({model, view}) {
       variant={variant}
       sx={{display: "flex", flexDirection: "column", width: "100%", height: "100%", ...sx}}
     >
-      {!hide_header && (
+      {!shouldHideHeader && (
         <CardHeader
           action={
             collapsible &&
@@ -78,10 +87,21 @@ export function render({model, view}) {
             </ExpandMore>
           }
           classes={header_css_classes}
-          title={model.header ? header : <Typography classes={title_css_classes} variant="h6">{title}</Typography>}
+          title={model.header ? header : (
+            <Typography
+              classes={title_css_classes}
+              dangerouslySetInnerHTML={{__html: title}}
+              sx={{display: "inline-flex", alignItems: "center", gap: "0.25em", fontSize: "1.15rem", fontWeight: 500}}
+              variant={title_variant}
+            />
+          )}
           sx={{
             backgroundColor: header_background,
             color: header_color,
+            display: "flex",
+            minWidth: 0,
+            p: "12px 16px",
+            "& .MuiCardHeader-content": {minWidth: 0}
           }}
         />
       )}
@@ -98,19 +118,25 @@ export function render({model, view}) {
           },
         }}
       >
-        <CardContent
-          sx={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            "&:last-child": {
-              pb: "16px",
-            },
-          }}
-        >
-          {objects}
-        </CardContent>
+        {!shouldHideContent && (
+          <CardContent
+            sx={{
+              height: "100%",
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              p: shouldHideHeader ? "16px 16px 12px 16px" : "0px 16px 12px 16px",
+              "&:last-child": {
+                pb: "12px",
+              },
+            }}
+          >
+            {objects.map((object, index) => {
+              apply_flex(view.get_child_view(model.objects[index]), "column")
+              return object
+            })}
+          </CardContent>
+        )}
       </Collapse>
     </Card>
   );

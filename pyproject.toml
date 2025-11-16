@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs", "panel >=1.6.3a2", "packaging"]
+requires = ["hatchling", "hatch-vcs", "panel >=1.8.0", "packaging"]
 build-backend = "hatchling.build"
 
 [tool.setuptools_scm]
@@ -32,14 +32,17 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development :: Libraries",
 ]
-dependencies = ['panel >=1.6.3a2', 'bokeh >=3.7.2', 'packaging']
+dependencies = ['panel >=1.8.0', 'bokeh >=3.8.0', 'packaging']
 
 [project.urls]
 Homepage = "https://github.com/panel-extensions/panel-material-ui"
 Source = "https://github.com/panel-extensions/panel-material-ui"
 
-[tool.hatch.build.targets.wheel.force-include]
-"src/panel_material_ui/dist" = "panel_material_ui/dist"
+[tool.hatch.build.targets.wheel]
+artifacts = ["src/panel_material_ui/dist/**"]
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["src/panel_material_ui/dist/**"]
 
 [tool.hatch.version]
 source = "vcs"
@@ -51,9 +54,10 @@ version-file = "src/panel_material_ui/_version.py"
 [project.optional-dependencies]
 dev = [
   'watchfiles',
+  "plotly",
   'pytest',
   'pytest-asyncio',
-  'pytest-rerunfailures',
+  'pytest-rerunfailures <16',
   'pytest-xdist',
 ]
 mypy = ["mypy", "types-requests", "typing-extensions"]

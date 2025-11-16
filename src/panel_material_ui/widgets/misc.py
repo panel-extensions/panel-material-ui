@@ -3,6 +3,8 @@ from __future__ import annotations
 import param
 from panel.widgets.misc import FileDownload as _FileDownload
 
+from ..base import ThemedTransform
+from .base import TooltipTransform
 from .button import _ButtonBase
 
 
@@ -13,7 +15,11 @@ class FileDownload(_ButtonBase, _FileDownload):
     It works either by sending the file data to the browser on initialization
     (`embed`=True), or when the button is clicked.
 
-    Reference: https://panel.holoviz.org/reference/widgets/FileDownload.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/FileDownload.html
+    - https://panel.holoviz.org/reference/widgets/FileDownload.html
+    - https://mui.com/material-ui/react-button/
 
     :Example:
 
@@ -22,9 +28,12 @@ class FileDownload(_ButtonBase, _FileDownload):
 
     icon_size = param.String(default="1em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
+    _syncing = param.Boolean(default=False, doc="""
+        If `auto` is False track syncing data state.""")
 
     _esm_base = "FileDownload.jsx"
-    _rename = {"_clicks": None, "icon": "icon", "icon_size": "icon_size"}
+    _esm_transforms = [TooltipTransform, ThemedTransform]
+    _rename = {"_clicks": None, "icon": "icon", "icon_size": "icon_size", "description": "description"}
     _source_transforms = {"button_type": None, "button_style": None, "callback": None, "file": None, "value": None}
 
     def __init__(self, file=None, **params):
@@ -34,6 +43,27 @@ class FileDownload(_ButtonBase, _FileDownload):
 
     def _handle_click(self, event=None):
         self._clicks += 1
+
+    @param.depends('auto', 'file', 'filename', '_syncing', watch=True)
+    def _update_label(self):
+        label = 'Download' if self._synced or self.auto else 'Fetching' if self._syncing else 'Fetch'
+        if self._default_label:
+            if self.file is None and self.callback is None:
+                label = 'No file set'
+            else:
+                try:
+                    filename = self.filename or self._file_path.name
+                except TypeError:
+                    raise ValueError('Must provide filename if file-like '
+                                     'object is provided.') from None
+                label = f'{label} {filename}'
+            self.label = label
+            self._default_label = True
+
+    def _sync_data(self, fileobj):
+        with self.param.update(_syncing=True):
+            super()._sync_data(fileobj)
+
 
 __all__ = [
     "FileDownload"

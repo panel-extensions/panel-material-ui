@@ -31,21 +31,24 @@ defaults:
   run:
     shell: bash -e {0}
 
+env:
+  COV: "--cov=./src/panel_material_ui --cov-report=xml --cov-append"
+
 jobs:
   pre_commit:
     name: Run pre-commit
     needs: [setup]
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.4
+        uses: prefix-dev/setup-pixi@v0.9.2
       - uses: holoviz-dev/holoviz_tasks/pre-commit@v0
       - uses: pre-commit/action@v3.0.1
         if: needs.setup.outputs.img_change == 'true'
         with:
           extra_args: -a --hook-stage manual oxipng || true --
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: stefanzweifel/git-auto-commit-action@v7
         if: needs.setup.outputs.img_change == 'true'
         with:
           commit_message: "Optimize PNG images (lossless)"
@@ -59,7 +62,7 @@ jobs:
       code_change: ${{ steps.filter.outputs.code }}
       matrix: ${{ env.MATRIX }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: github.event_name != 'pull_request'
       - name: Check for code changes
         uses: dorny/paths-filter@v3
@@ -68,6 +71,7 @@ jobs:
           filters: |
             code:
               - 'src/**'
+              - 'tests/**'
               - 'examples/**'
               - 'pyproject.toml'
               - '.github/workflows/ci.yaml'
@@ -130,9 +134,14 @@ jobs:
           install: false
         id: install
       - name: Unit tests with coverage
-        run: pixi run -e ${{ matrix.environment }} test-coverage --color=yes
+        run: pixi run -e ${{ matrix.environment }} test-coverage --color=yes $COV
       - name: Example tests
         run: pixi run -e ${{ matrix.environment }} test-example
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: panel-extensions/panel-material-ui
   ui_test:
     name: ui:${{ matrix.environment }}:${{ matrix.os }}
     needs: [pre_commit, setup, pixi_lock]
@@ -154,12 +163,20 @@ jobs:
         id: install
       - name: Test UI
         run: |
+          # Create a .uicoveragerc file to set the concurrency library to greenlet
+          # https://github.com/microsoft/playwright-python/issues/313
+          echo "[run]\nconcurrency = greenlet" > .uicoveragerc
           FAIL="--screenshot only-on-failure --full-page-screenshot --output ui_screenshots --tracing retain-on-failure"
-          pixi run -e ${{ matrix.environment }} test-ui --cov-config=.uicoveragerc $FAIL
+          pixi run -e ${{ matrix.environment }} test-ui $COV --cov-config=.uicoveragerc $FAIL
       - name: Upload UI Screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: ui_screenshots_${{ runner.os }}
           path: ./ui_screenshots
           if-no-files-found: ignore
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: panel-extensions/panel-material-ui

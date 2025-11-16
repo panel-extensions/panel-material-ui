@@ -17,14 +17,16 @@ import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
 import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
+import {render_description} from "./description"
+import {CustomMenu} from "./menu"
 
-export function render({model, view}) {
+export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
   const [options] = model.useState("options")
   const [sx] = model.useState("sx")
-  const [placeholder] = model.useState("placeholder")
+  const [size] = model.useState("size")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
@@ -43,15 +45,18 @@ export function render({model, view}) {
   let delete_button = false
   let max_items = 1
   let solid = false
+  let placeholder = null
   if (multi) {
     const [chip_state] = model.useState("chip")
     const [delete_button_state] = model.useState("delete_button")
     const [max_items_state] = model.useState("max_items")
+    const [placeholder_state] = model.useState("placeholder")
     const [solid_state] = model.useState("solid")
     chip = chip_state === undefined ? true : chip_state
     delete_button = delete_button_state === undefined ? true : delete_button_state
     max_items = max_items_state === undefined ? null : max_items_state
     solid = solid_state === undefined ? true : solid_state
+    placeholder = placeholder_state === undefined ? null : placeholder_state
   }
 
   // Select specific props
@@ -75,7 +80,9 @@ export function render({model, view}) {
 
   const menuRef = React.useRef(null)
 
-  const items = processOptions().filter(({label}) => (!filter_on_search || filterStr === "" || matches(label)))
+  const items = processOptions()
+    .filter(({label}) => (!filter_on_search || filterStr === "" || matches(label)))
+    .filter(({value: v}) => !multi || searchable || !value.includes(v))
   const bookmarkedOptions = items.filter(({value}) => bookmarks.includes(value))
   const filteredOptions = items.filter(({value}) => !bookmarks.includes(value))
   let matchedOptions = [...bookmarkedOptions, ...filteredOptions].filter(({label}) => matches(label))
@@ -120,28 +127,33 @@ export function render({model, view}) {
     }
   }, [filterStr])
 
-  const MenuProps = {
+  const nb = document.querySelector(".jp-NotebookPanel");
+
+  const MenuProps = nb ? {} : {
+    container: el,
     disablePortal: true,
-    getContentAnchorEl: null,
-    anchorOrigin: {
-      vertical: "bottom",
-      horizontal: "left",
-    },
     sx: {height: dropdown_height},
     MenuListProps: {
       ref: menuRef,
-    },
+    }
   }
+
+  const spacer = model.description ? "\u00A0" : ""
+  const label_spacer = label ? label+spacer : null
+
+  const hasValue = multi
+    ? Array.isArray(value) && value.length > 0
+    : value !== "" && value != null;
 
   const getInput = () => {
     const inputProps = {
       id: "select-input",
-      label: label || "",
+      label: label_spacer,
       color
     }
     switch (variant) {
       case "outlined":
-        return <OutlinedInput {...inputProps} />
+        return <OutlinedInput notched={hasValue || open} {...inputProps} />
       case "filled":
         return <FilledInput {...inputProps} />
       default:
@@ -150,7 +162,9 @@ export function render({model, view}) {
   }
 
   const renderValue = (selected) => {
-    if (value_label) {
+    if (multi && placeholder && selected.length === 0) {
+      return placeholder
+    } else if (value_label) {
       return value_label
     }
     if (multi && chip) {
@@ -277,9 +291,10 @@ export function render({model, view}) {
                       e.stopPropagation()
                     }}
                     position="end"
+                    size="small"
                     sx={{zIndex: 100}}
                   >
-                    <IconButton>
+                    <IconButton size="small">
                       <ClearIcon/>
                     </IconButton>
                   </InputAdornment>
@@ -367,70 +382,86 @@ export function render({model, view}) {
             </Box>
           )}
         </MenuItem>}
-        {[
-          ...(bookmarkedOptions.length > 0 ? [
-            ...bookmarkedOptions.map(item => ({...item, isBookmarked: true})),
-            {isDivider: true}
-          ] : []),
-          ...filteredOptions.map(item => ({...item, isBookmarked: false}))
-        ].map((item, index) => {
-          if (item.isDivider) {
-            return <MenuItem key={`divider-${index}`} disabled divider />
-          }
-
-          const matched = filterStr && matches(item.label)
-          const {value: opt, label, isBookmarked} = item
-          const handleClick = (e) => {
-            if (!multi) {
-              setValue(opt)
-              return
+        {(bookmarkedOptions.length === 0 && filteredOptions.length === 0) ? (
+          <MenuItem disabled>
+            <ListItemText primary="No choices to choose from" />
+          </MenuItem>
+        ) : (
+          [
+            ...(bookmarkedOptions.length > 0
+              ? [...bookmarkedOptions.map(item => ({...item, isBookmarked: true})), {isDivider: true}]
+              : []),
+            ...filteredOptions.map(item => ({...item, isBookmarked: false}))
+          ].map((item, index) => {
+            if (item.isDivider) {
+              return <MenuItem key={`divider-${index}`} disabled divider />;
             }
-            const isChecked = !value.includes(opt)
-            if (isChecked) {
-              if (max_items && value.length >= max_items) {
-                setValue([...value.slice(1), opt])
-              } else {
-                setValue([...value, opt])
+
+            const matched = filterStr && matches(item.label);
+            const {value: opt, label} = item;
+
+            const handleClick = (e) => {
+              if (!multi) {
+                setValue(opt);
+                setOpen(false);
+                e.stopPropagation();
+                return;
               }
-            } else {
-              setValue(value.filter(v => v !== opt))
-            }
-            e.stopPropagation()
-          }
-
-          return (
-            <MenuItem
-              key={opt}
-              value={opt}
-              disableGutters
-              onClick={handleClick}
-              data-matched={matched}
-              sx={{
-                backgroundColor: matched ? "action.selected" : "inherit",
-                "&:hover": {
-                  backgroundColor: matched ? "action.selected" : "action.hover",
+              const isChecked = !value.includes(opt);
+              if (isChecked) {
+                if (max_items && value.length >= max_items) {
+                  setValue([...value.slice(1), opt]);
+                } else {
+                  setValue([...value, opt]);
                 }
-              }}
-            >
-              {multi && searchable && <Checkbox color={color} checked={value.includes(opt)} onClick={handleClick} />}
-              <ListItemText primary={label} sx={{margin: 2}} />
-            </MenuItem>
-          )
-        })}
+              } else {
+                setValue(value.filter(v => v !== opt));
+              }
+              e.stopPropagation();
+            };
+
+            return (
+              <MenuItem
+                data-matched={matched}
+                disabled={disabled_options?.includes(opt)}
+                disableGutters
+                key={opt}
+                onClick={handleClick}
+                sx={{
+                  backgroundColor: matched ? "action.selected" : "inherit",
+                  "&:hover": {backgroundColor: matched ? "action.selected" : "action.hover"}
+                }}
+                value={opt}
+              >
+                {multi && searchable && (
+                  <Checkbox color={color} checked={value.includes(opt)} onClick={handleClick} />
+                )}
+                <ListItemText primary={label} sx={{margin: 2}} />
+              </MenuItem>
+            );
+          })
+        )}
       </>
     )
   }
 
+  const anchorEl = React.useRef(null)
+
   return (
-    <FormControl disabled={disabled} fullWidth>
-      {label && <InputLabel color={color} id={`select-label-${model.id}`}>{label}</InputLabel>}
+    <FormControl disabled={disabled} fullWidth variant={variant}>
+      {label &&
+       <InputLabel color={color} id={`select-label-${model.id}`} shrink={hasValue || open}>
+         {label}
+         {model.description ? render_description({model, el, view}) : null}
+       </InputLabel>
+      }
       <Select
         color={color}
         disabled={disabled}
         input={getInput()}
+        label={label}
         labelId={`select-label-${model.id}`}
         multiple={multi}
-        onClose={() => setOpen(false)}
         onChange={(event) => {
           const newValue = event.target.value
           if (multi && max_items && newValue.length > max_items) {
@@ -438,17 +469,30 @@ export function render({model, view}) {
           }
           setValue(newValue)
         }}
-        onOpen={() => setOpen(true)}
-        open={open}
+        onClick={() => setOpen(true)}
+        onClose={(e) => { e.stopPropagation(); setOpen(false) }}
+        open={!nb && open}
+        ref={anchorEl}
         renderValue={renderValue}
+        size={size}
         sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
-        placeholder={placeholder}
         value={value}
         variant={variant}
         MenuProps={MenuProps}
       >
-        {renderMenuItems()}
+        {!nb && renderMenuItems()}
       </Select>
+      {nb && (
+        <CustomMenu
+          anchorEl={() => anchorEl.current}
+          open={open}
+          onClose={() => setOpen(false)}
+          ref={menuRef}
+          sx={{maxHeight: dropdown_height}}
+        >
+          {renderMenuItems()}
+        </CustomMenu>
+      )}
     </FormControl>
   )
 }

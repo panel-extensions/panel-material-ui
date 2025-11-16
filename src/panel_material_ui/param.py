@@ -1,7 +1,6 @@
+import param
 from panel.param import Param
 from panel.widgets import WidgetBase
-
-import panel_material_ui.param as param
 
 from .widgets import (
     Button,
@@ -55,6 +54,7 @@ Param.mapping.update({
     param.Color:             ColorPicker,
     param.Date:              DatetimeInput,
     param.Dict:              LiteralInputTyped,
+    param.Event:             Button,
     param.FileSelector:      SingleFileSelector,
     param.Filename:          TextInput,
     param.Foldername:        TextInput,

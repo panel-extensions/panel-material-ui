@@ -6,7 +6,6 @@ import ExpandMore from "@mui/icons-material/ExpandMore"
 import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
 import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemAvatar from "@mui/material/ListItemAvatar"
@@ -15,15 +14,18 @@ import ListSubheader from "@mui/material/ListSubheader"
 import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import MoreVert from "@mui/icons-material/MoreVert"
+import Checkbox from "@mui/material/Checkbox"
 
 export function render({model}) {
   const [active, setActive] = model.useState("active")
   const [color] = model.useState("color")
   const [dense] = model.useState("dense")
+  const [disabled] = model.useState("disabled")
   const [highlight] = model.useState("highlight")
   const [label] = model.useState("label")
   const [items] = model.useState("items")
   const [level_indent] = model.useState("level_indent")
+  const [show_children] = model.useState("show_children")
   const [sx] = model.useState("sx")
   const [open, setOpen] = React.useState({})
   const [menu_open, setMenuOpen] = React.useState({})
@@ -32,6 +34,7 @@ export function render({model}) {
   const current_menu_open = {...menu_open}
 
   const active_array = Array.isArray(active) ? active : [active]
+  const [toggle_values, setToggleValues] = React.useState(new Map())
 
   React.useEffect(() => {
     setOpen(current_open)
@@ -57,9 +60,10 @@ export function render({model}) {
     const icon = item.icon
     const icon_color = item.color || "default"
     const href = item.href
+    const target = item.target
     const avatar = item.avatar
-    const subitems = item.items
-    const item_open = item.open || true
+    const subitems = show_children ? item.items : []
+    const item_open = item.open !== undefined ? item.open : true
     current_open[key] = current_open[key] === undefined ? item_open : current_open[key]
     current_menu_open[key] = current_menu_open[key] === undefined ? false : current_menu_open[key]
 
@@ -89,10 +93,16 @@ export function render({model}) {
       )
     }
 
+    const inline_actions = actions ? actions.filter(b => b.inline) : []
+    const menu_actions = actions ? actions.filter(b => !b.inline) : []
+
     const list_item = (
       <ListItemButton
         disableRipple={!isSelectable}
         color={color}
+        disabled={disabled}
+        href={href}
+        target={target}
         key={`list-item-${key}`}
         onClick={() => {
           if (isSelectable) {
@@ -106,13 +116,112 @@ export function render({model}) {
           "&.MuiListItemButton-root.Mui-selected": {
             bgcolor: isActive ? (
               `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
+            ) : "inherit",
+            borderLeft: `6px solid var(--mui-palette-${color}-main)`,
+            ".MuiListItemText-root": {
+              ".MuiTypography-root.MuiListItemText-primary": {
+                fontWeight: "bold"
+              }
+            }
+          },
+          "&.MuiListItemButton-root.Mui-focusVisible": {
+            borderLeft: isActive ? `6px solid var(--mui-palette-${color}-main)` : "3px solid var(--mui-palette-secondary-main)",
+            borderTop: "3px solid var(--mui-palette-secondary-main)",
+            borderRight: "3px solid var(--mui-palette-secondary-main)",
+            borderBottom: "3px solid var(--mui-palette-secondary-main)",
+            bgcolor: isActive ? (
+              `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
             ) : "inherit"
+          },
+          "&.MuiListItemButton-root:hover": {
+            ".MuiListItemText-root": {
+              ".MuiTypography-root.MuiListItemText-primary": {
+                textDecoration: "underline"
+              }
+            }
           }
         }}
       >
         {leadingComponent}
         <ListItemText primary={label} secondary={secondary} />
-        {actions && (
+        {inline_actions.map((action, index) => {
+          const icon = action.icon
+          const icon_color = action.color
+          const active_icon = action.active_icon || icon
+          const active_color = action.active_color || icon_color
+          const action_key = action.action || action.label
+          const toggle_key = `${key}-${action_key}`
+          const action_value = toggle_values.get(toggle_key) ?? action.value ?? false
+          toggle_values.set(toggle_key, action_value)
+          return action.toggle ? (
+            <Checkbox
+              checked={action_value}
+              color={action.color}
+              disabled={disabled}
+              selected={action_value}
+              size={"small"}
+              onMouseDown={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              onClick={(e) => {
+                const new_value = !action_value
+                const newMap = new Map(toggle_values)
+                newMap.set(toggle_key, new_value)
+                setToggleValues(newMap)
+                model.send_msg({type: "action", action: action_key, item: path, value: new_value})
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              icon={
+                icon.trim().startsWith("<") ?
+                  <span style={{
+                    maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+                    backgroundColor: "currentColor",
+                    maskRepeat: "no-repeat",
+                    maskSize: "contain",
+                    display: "inline-block"}}
+                  /> :
+                  <Icon
+                    baseClassName={"material-icons-outlined"}
+                    color={icon_color}
+                  >
+                    {icon}
+                  </Icon>
+              }
+              checkedIcon={
+                (active_icon && active_icon.trim().startsWith("<")) ?
+                  <span style={{
+                    maskImage: `url("data:image/svg+xml;base64,${btoa(active_icon)}")`,
+                    backgroundColor: "currentColor",
+                    maskRepeat: "no-repeat",
+                    maskSize: "contain",
+                    display: "inline-block"}}
+                  /> :
+                  <Icon color={active_color}>{active_icon}</Icon>
+              }
+            />
+          ) : (
+            <IconButton
+              color={action.color}
+              key={`action-button-${index}`}
+              size="small"
+              title={action.label}
+              onMouseDown={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              onClick={(e) => {
+                model.send_msg({type: "action", action: action.action || action.label, item: path})
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              sx={{ml: index > 0 ? "0" : "0.5em"}}
+            >
+              {action.icon && <Icon>{action.icon}</Icon>}
+            </IconButton>)
+        })}
+        {menu_actions.length > 0 && (
           <React.Fragment>
             <IconButton
               size="small"
@@ -125,6 +234,7 @@ export function render({model}) {
                 setMenuAnchor(e.currentTarget)
                 e.stopPropagation()
               }}
+              sx={{ml: "0.5em"}}
             >
               <MoreVert />
             </IconButton>
@@ -133,7 +243,7 @@ export function render({model}) {
               open={current_menu_open[key]}
               onClose={() => setMenuOpen({...current_menu_open, [key]: false})}
             >
-              {actions.map((action, index) => {
+              {menu_actions.map((action, index) => {
                 if (action === null) {
                   return <Divider key={`action-divider-${index}`}/>
                 }
@@ -144,11 +254,11 @@ export function render({model}) {
                       e.stopPropagation()
                     }}
                     onClick={(e) => {
-                      model.send_msg({type: "action", action: action.label, item: path})
+                      model.send_msg({type: "action", action: action.action || action.label, item: path})
                       e.stopPropagation()
                     }}
                   >
-                    {action.icon && <Icon>{action.icon}</Icon>}
+                    {action.icon && <Icon sx={{mr: "1em"}}>{action.icon}</Icon>}
                     {action.label}
                   </MenuItem>
                 )
@@ -156,7 +266,7 @@ export function render({model}) {
             </Menu>
           </React.Fragment>
         )}
-        {subitems && (
+        {subitems && subitems.length ? (
           <IconButton
             size="small"
             onMouseDown={(e) => {
@@ -169,11 +279,11 @@ export function render({model}) {
           >
             {current_open[key] ? <ExpandLess/> : <ExpandMore />}
           </IconButton>
-        )}
+        ) : null}
       </ListItemButton>
     )
 
-    if (subitems) {
+    if (subitems && subitems.length) {
       return [
         list_item,
         <Collapse in={current_open[key]} timeout="auto" unmountOnExit>

@@ -1,4 +1,5 @@
 import Button from "@mui/material/Button"
+import CircularProgress from "@mui/material/CircularProgress"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import {useTheme} from "@mui/material/styles"
 
@@ -14,25 +15,36 @@ function dataURItoBlob(dataURI) {
   return bb
 }
 
-export function render({model, view}) {
+export function render(props, ref) {
+  const {data, el, model, view, ...other} = props
   const [auto] = model.useState("auto")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
+  const [disableElevation] = model.useState("disable_elevation")
   const [embed] = model.useState("embed")
+  const [end_icon] = model.useState("end_icon")
   const [filename] = model.useState("filename")
   const [file_data] = model.useState("data")
   const [icon] = model.useState("icon")
   const [icon_size] = model.useState("icon_size")
   const [label] = model.useState("label")
+  const [loading] = model.useState("loading")
+  const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
+  const [_syncing] = model.useState("_syncing")
 
+  const linkClick = React.useRef(false)
   const linkRef = React.useRef(null)
   const theme = useTheme()
 
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
+  }
+
   const downloadFile = () => {
     const link = document.createElement("a")
-    link.download = filename
+    link.download = model.filename
     const blob = dataURItoBlob(model.data)
     link.href = URL.createObjectURL(blob)
     view.container.appendChild(link)
@@ -44,9 +56,16 @@ export function render({model, view}) {
   }
 
   const handleClick = () => {
-    if (embed || (file_data != null && auto)) {
+    if (linkRef.current && file_data != null) {
+      // We temporarily allow a click to trigger a download
+      // this avoids triggering two downloads since otherwise
+      // button and a click events both trigger
+      linkClick.current = true
+      linkRef.current.click()
+      linkClick.current = false
+    } else if (embed || (file_data != null && !auto && !linkRef.current)) {
       downloadFile()
-    } else {
+    } else if (file_data == null) {
       model.send_event("click", {})
     }
   }
@@ -66,17 +85,56 @@ export function render({model, view}) {
     <Button
       color={color}
       disabled={disabled}
+      endIcon={end_icon && (
+        end_icon.trim().startsWith("<") ?
+          <span style={{
+            maskImage: `url("data:image/svg+xml;base64,${btoa(end_icon)}")`,
+            backgroundColor: "currentColor",
+            maskRepeat: "no-repeat",
+            maskSize: "contain",
+            width: icon_size,
+            height: icon_size,
+            display: "inline-block"}}
+          /> :
+          <Icon style={{fontSize: icon_size}}>{end_icon}</Icon>
+      )}
       fullWidth
+      loading={loading}
+      ref={ref}
       startIcon={icon ? (
         icon.trim().startsWith("<") ?
-          <img src={`data:image/svg+xml;base64,${btoa(icon)}`} width={icon_size} height={icon_size} style={{paddingRight: "0.5em"}} /> :
+          <span style={{
+            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+            backgroundColor: "currentColor",
+            maskRepeat: "no-repeat",
+            maskSize: "contain",
+            width: icon_size,
+            height: icon_size,
+            display: "inline-block"}}
+          /> :
           <Icon style={{fontSize: icon_size}}>{icon}</Icon>
-      ): <FileDownloadIcon style={{fontSize: icon_size}}/>}
+      ): auto || model.data != null ? <FileDownloadIcon style={{fontSize: icon_size}} />
+        : _syncing ? <CircularProgress size={icon_size} sx={{color: "var(--variant-containedColor)"}} />
+          : ""}
       onClick={handleClick}
-      sx={sx}
+      onContextMenu={(e) => e.stopPropagation()}
+      size={size}
+      sx={{
+        cursor: _syncing ? "not-allowed" : "pointer",
+        ...sx
+      }}
       variant={variant}
+      {...other}
     >
-      {auto ? label : <a ref={linkRef} href={file_data} download={filename} style={{color: theme.palette[color].contrastText}}>{label}</a>}
+      {auto ? label : <a
+        ref={linkRef}
+        href={file_data == null ? null : URL.createObjectURL(dataURItoBlob(file_data))}
+        download={filename}
+        onClick={(e) => linkClick.current || e.preventDefault()}
+        style={{color: theme.palette[color].contrastText}}
+      >
+        {label}
+      </a>}
     </Button>
   )
 }

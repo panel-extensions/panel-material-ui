@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import param
 from panel.util import edit_readonly, isIn
+from panel.util.parameters import get_params_to_inherit
 from panel.widgets.base import Widget
 from panel.widgets.select import NestedSelect as _PnNestedSelect
 from panel.widgets.select import Select as _PnSelect
 from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
 from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
+from typing_extensions import Self
 
-from ..base import COLORS
+from ..base import COLORS, LoadingTransform, ThemedTransform
 from .base import MaterialWidget
 from .button import _ButtonLike
 
@@ -24,7 +26,7 @@ class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
     This is an abstract base class and should not be used directly.
     """
 
-    value = param.Parameter(default=None, allow_None=True)
+    value = param.Parameter(default=None, allow_None=True, doc="The selected value.")
 
     _allows_values = False
 
@@ -42,13 +44,18 @@ class MaterialMultiSelectBase(MaterialWidget, _PnMultiSelectBase):
     This is an abstract base class and should not be used directly.
     """
 
-    value = param.List(default=[], allow_None=True)
+    value = param.List(default=[], allow_None=True, doc="The selected values.")
 
     _rename = {"name": "name"}
 
     _allows_values = False
 
     __abstract = True
+
+    def __init__(self, **params):
+        if params.get('value') is None:
+            params['value'] = []
+        super().__init__(**params)
 
 
 class AutocompleteInput(MaterialSingleSelectBase):
@@ -60,7 +67,9 @@ class AutocompleteInput(MaterialSingleSelectBase):
     that provide a compatible API and include the  `Select`,
     `RadioBoxGroup` and `RadioButtonGroup` widgets.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/AutocompleteInput.html
     - https://panel.holoviz.org/reference/widgets/AutocompleteInput.html
     - https://mui.com/material-ui/react-autocomplete/
 
@@ -74,7 +83,7 @@ class AutocompleteInput(MaterialSingleSelectBase):
     case_sensitive = param.Boolean(default=True, doc="""
         Enable or disable case sensitivity.""")
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the autocomplete input.")
 
     min_characters = param.Integer(default=2, doc="""
         The number of characters a user must type before
@@ -97,6 +106,12 @@ class AutocompleteInput(MaterialSingleSelectBase):
         completion string. Using `"includes"` means that the user's text can
         match any substring of a completion string.""")
 
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
+        Size of the input field. Options:
+        - 'small': Compact size for dense layouts
+        - 'medium': Standard size (default  for most use cases)
+        - 'large': Larger size for more visibility""")
+
     value_input = param.Parameter(
         default="",
         readonly=True,
@@ -104,7 +119,7 @@ class AutocompleteInput(MaterialSingleSelectBase):
         Initial or entered text value updated on every key press.""",
     )
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="Variant style of the autocomplete input.")
 
     _allows_none = True
 
@@ -113,14 +128,14 @@ class AutocompleteInput(MaterialSingleSelectBase):
     _rename = {"name": "name"}
 
     def _process_property_change(self, msg):
-        if 'value' in msg and msg['value'] is None:
-            return msg
-        if not self.restrict and 'value' in msg:
-            try:
-                return super()._process_property_change(msg)
-            except Exception:
-                return Widget._process_property_change(self, msg)
-        return super()._process_property_change(msg)
+        is_none = 'value' in msg and not msg['value']
+        try:
+            params = super()._process_property_change(msg)
+        except Exception:
+            params = Widget._process_property_change(self, msg)
+        if is_none:
+            params['value'] = None if self.restrict else ''
+        return params
 
     def _process_param_change(self, msg):
         if 'value' in msg and not self.restrict and not isIn(msg['value'], self.values):
@@ -134,7 +149,24 @@ class AutocompleteInput(MaterialSingleSelectBase):
     @param.depends('value', watch=True, on_init=True)
     def _sync_value_input(self):
         with edit_readonly(self):
-            self.value_input = self.value
+            self.value_input = '' if self.value is None else self.value
+
+    def clone(self, **params) -> Self:
+        """
+        Makes a copy of the object sharing the same parameters.
+
+        Parameters
+        ----------
+        params: Keyword arguments override the parameters on the clone.
+
+        Returns
+        -------
+        Cloned Viewable object
+        """
+        inherited = get_params_to_inherit(self)
+        if 'value_input' in inherited:
+            del inherited['value_input']
+        return type(self)(**dict(inherited, **params))
 
 
 class _SelectDropdownBase(MaterialWidget):
@@ -160,9 +192,7 @@ class _SelectDropdownBase(MaterialWidget):
 
     dropdown_open = param.Boolean(default=False, doc="Whether the dropdown is open")
 
-    placeholder = param.String(default="", doc="Placeholder text for the dropdown")
-
-    searchable = param.Boolean(default=True, doc="Whether the dropdown is searchable")
+    searchable = param.Boolean(default=False, doc="Whether the dropdown is searchable")
 
     value_label = param.String(doc="Custom label to describe the current option(s).")
 
@@ -177,7 +207,9 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     that provide a compatible API and include the  `AutocompleteInput`,
     `RadioBoxGroup` and `RadioButtonGroup` widgets.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Select.html
     - https://panel.holoviz.org/reference/widgets/Select.html
     - https://mui.com/material-ui/react-select/
 
@@ -186,7 +218,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     >>> Select(label='Study', options=['Biology', 'Chemistry', 'Physics'])
     """
 
-    color = param.Selector(objects=COLORS, default="default")
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the select widget.")
 
     groups = param.Dict(default=None, nested_refs=True, doc="""
         Dictionary whose keys are used to visually group the options
@@ -194,17 +226,20 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
         to select from. Mutually exclusive with ``options``  and valid only
         if ``size`` is 1.""")
 
-    size = param.Integer(default=1, bounds=(1, None), doc="""
-        Declares how many options are displayed at the same time.
-        If set to 1 displays options as dropdown otherwise displays
-        scrollable area.""")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium")
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the select widget.")
 
     _constants = {"multi": False}
     _esm_base = "Select.jsx"
     _rename = {"name": "name", "groups": None}
 
+    def _validate_options_groups(self, *events):
+        if self.options and self.groups:
+            raise ValueError(
+                f'{type(self).__name__} options and groups parameters '
+                'are mutually exclusive.'
+            )
 
 class _RadioGroup(MaterialWidget):
     """
@@ -215,7 +250,11 @@ class _RadioGroup(MaterialWidget):
     a list of options, such as radio buttons and checkboxes.
     """
 
-    color = param.Selector(default="primary", objects=COLORS)
+    color = param.Selector(default="primary", objects=COLORS, doc="""
+        The color of the widget.""")
+
+    label_placement = param.Selector(default="end", objects=["bottom", "start", "top", "end"], doc="""
+        Placement of the option labels.""")
 
     inline = param.Boolean(default=False, doc="""
         Whether the items be arrange vertically (``False``) or
@@ -238,7 +277,9 @@ class RadioBoxGroup(_RadioGroup, MaterialSingleSelectBase):
     that provide a compatible API and include the  `AutocompleteInput`,
     `Select` and `RadioButtonGroup` widgets.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/RadioBoxGroup.html
     - https://panel.holoviz.org/reference/widgets/RadioBoxGroup.html
     - https://mui.com/material-ui/react-radio-button/
 
@@ -248,9 +289,6 @@ class RadioBoxGroup(_RadioGroup, MaterialSingleSelectBase):
     ...     label='Study', options=['Biology', 'Chemistry', 'Physics'],
     ... )
     """
-
-    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""")
 
     value = param.Parameter(default=None, allow_None=True)
 
@@ -265,9 +303,11 @@ class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
     It falls into the broad category of multi-option selection widgets that
     provide a compatible API that also include the `CheckButtonGroup` widget.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/CheckBoxGroup.html
     - https://panel.holoviz.org/reference/widgets/CheckBoxGroup.html
-    - https://mui.com/material-ui/react-radio-button/
+    - https://mui.com/material-ui/react-checkbox/#formgroup
 
     :Example:
 
@@ -275,13 +315,6 @@ class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
     ...     name='Fruits', value=['Apple', 'Pear'], options=['Apple', 'Banana', 'Pear', 'Strawberry'],
     ... )
     """
-
-    orientation = param.Selector(
-        default="horizontal",
-        objects=["horizontal", "vertical"],
-        doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""",
-    )
 
     value = param.List(default=None, allow_None=True)
 
@@ -302,11 +335,13 @@ class _ButtonGroup(_ButtonLike):
     orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
         Button group orientation, either 'horizontal' (default) or 'vertical'.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="The size of the button group.")
 
     width = param.Integer(default=None)
 
     _esm_base = "ButtonGroup.jsx"
+
+    _esm_transforms = [LoadingTransform, ThemedTransform]
 
     _rename = {"name": "name"}
 
@@ -322,7 +357,9 @@ class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
     that provide a compatible API and include the `AutocompleteInput`, `Select`,
     and `RadioBoxGroup` widgets.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/RadioButtonGroup.html
     - https://panel.holoviz.org/reference/widgets/RadioButtonGroup.html
     - https://mui.com/material-ui/react-toggle-button/
 
@@ -346,14 +383,16 @@ class CheckButtonGroup(_ButtonGroup, MaterialMultiSelectBase):
     It falls into the broad category of multi-option selection widgets that
     provide a compatible API that also include the `CheckBoxGroup` widget.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/CheckButtonGroup.html
     - https://panel.holoviz.org/reference/widgets/CheckButtonGroup.html
     - https://mui.com/material-ui/react-toggle-button/
 
     :Example:
 
     >>> CheckButtonGroup(
-    ...     name='Regression Models', value=['Lasso', 'Ridge'],
+    ...     label='Regression Models', value=['Lasso', 'Ridge'],
     ...     options=['Lasso', 'Linear', 'Ridge', 'Polynomial']
     ... )
 
@@ -371,12 +410,17 @@ class MultiSelect(MaterialMultiSelectBase):
     that provide a compatible API and include the `MultiSelect`,
     `CrossSelector`, `CheckBoxGroup` and `CheckButtonGroup` widgets.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/MultiSelect.html
     - https://panel.holoviz.org/reference/widgets/MultiSelect.html
     - https://mui.com/material-ui/react-select/#multiple-select
+
+    >>> pmui.MultiSelect(label='MultiSelect', value=['Apple', 'Pear'],
+    ...     options=['Apple', 'Banana', 'Pear', 'Strawberry'], size=8)
     """
 
-    color = param.Selector(objects=COLORS, default="primary")
+    color = param.Selector(objects=COLORS, default="primary", doc="Color of the multi-select component.")
 
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         Maximum number of options that can be selected.""")
@@ -386,7 +430,7 @@ class MultiSelect(MaterialMultiSelectBase):
 
     value = param.List(default=[], allow_None=True)
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined")
+    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="Variant style of the multi-select component.")
 
     _esm_base = "MultiSelect.jsx"
 
@@ -403,14 +447,16 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
     The `MultiChoice` widget provides a much more compact UI than
     `MultiSelect`.
 
-    References:
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/MultiChoice.html
     - https://panel.holoviz.org/reference/widgets/MultiChoice.html
     - https://mui.com/material-ui/react-select/#multiple-select
 
     :Example:
 
     >>> MultiChoice(
-    ...     name='Favourites', value=['Panel', 'hvPlot'],
+    ...     label='Favourites', value=['Panel', 'hvPlot'],
     ...     options=['Panel', 'hvPlot', 'HoloViews', 'GeoViews', 'Datashader', 'Param', 'Colorcet'],
     ...     max_items=2
     ... )
@@ -438,12 +484,53 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
     _rename = {"name": None}
 
 
+class CrossSelector(MaterialMultiSelectBase):
+    """
+    The `CrossSelector` widget allows selecting multiple values from a list of
+    `options`.
+
+    It falls into the broad category of multi-value, option-selection widgets
+    that provide a compatible API and include the `MultiSelect`,
+    `CrossSelector`, `CheckBoxGroup` and `CheckButtonGroup` widgets.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/CrossSelector.html
+    - https://panel.holoviz.org/reference/widgets/CrossSelector.html
+    - https://mui.com/material-ui/react-select/#multiple-select
+
+    :Example:
+
+    >>> CrossSelector(
+    ...     label='Favourites', value=['Panel', 'hvPlot'],
+    ...     options=['Panel', 'hvPlot', 'HoloViews', 'GeoViews', 'Datashader', 'Param', 'Colorcet'],
+    ...     max_items=2
+    ... )
+    """
+
+    color = param.Selector(objects=COLORS, default="primary", doc="""The color of the cross selector widget.""")
+
+    searchable = param.Boolean(default=True, doc="Whether the dropdown is searchable")
+
+    width = param.Integer(default=None, doc="Width of the widget")
+
+    size = param.Integer(default=10, doc="""
+        The number of options shown at once (note this is the only way
+        to control the height of this widget)""")
+
+    _esm_base = "CrossSelector.jsx"
+
+
 class NestedSelect(_PnNestedSelect):
     """
     The `NestedSelect` widget is composed of multiple widgets, where subsequent select options
     depend on the parent's value.
 
-    Reference: https://panel.holoviz.org/reference/widgets/NestedSelect.html
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/NestedSelect.html
+    - https://panel.holoviz.org/reference/widgets/NestedSelect.html
+    - https://mui.com/material-ui/react-select/
 
     :Example:
 
@@ -472,6 +559,7 @@ class NestedSelect(_PnNestedSelect):
 
 __all__ = [
     "AutocompleteInput",
+    "CrossSelector",
     "Select",
     "RadioBoxGroup",
     "CheckBoxGroup",

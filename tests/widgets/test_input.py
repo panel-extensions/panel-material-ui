@@ -1,38 +1,10 @@
-import numpy as np
 import pytest
 
-from pathlib import Path
 from panel import config
-from datetime import date, datetime, time as dt_time
+from datetime import date
 
-from panel_material_ui.widgets import FileInput, IntInput, FloatInput, DatePicker
-
-
-
-@pytest.mark.from_panel
-def test_file_input(document, comm):
-    file_input = FileInput(accept='.txt')
-
-    file_input._process_events({'mime_type': 'text/plain', 'value': 'U29tZSB0ZXh0Cg==', 'filename': 'testfile'})
-    assert file_input.value == b'Some text\n'
-    assert file_input.mime_type == 'text/plain'
-    assert file_input.accept == '.txt'
-    assert file_input.filename == 'testfile'
-
-
-@pytest.mark.from_panel
-def test_file_input_save_one_file(document, comm, tmpdir):
-    file_input = FileInput(accept='.txt')
-
-    file_input._process_events({'mime_type': 'text/plain', 'value': 'U29tZSB0ZXh0Cg==', 'filename': 'testfile'})
-
-    fpath = Path(tmpdir) / 'out.txt'
-    file_input.save(str(fpath))
-
-    assert fpath.exists()
-    content = fpath.read_text()
-    assert content == 'Some text\n'
-
+from panel_material_ui.widgets import IntInput, FloatInput, DatePicker
+from panel_material_ui.chat import ChatAreaInput
 
 @pytest.mark.from_panel
 @pytest.mark.xfail(reason='')
@@ -116,3 +88,105 @@ def test_date_picker_options():
     )
     assert datetime_picker.value == date(2018, 9, 2)
     assert datetime_picker.enabled_dates == options
+
+def test_datepicker_accepts_strings():
+    DatePicker(
+        label='Date Picker',
+        start="2024-04-01",
+        end="2024-04-07",
+        value="2024-04-01"
+    )
+
+
+# ChatAreaInput accept parameter validation tests
+def test_chat_area_input_valid_accept_formats():
+    """Test that valid accept formats don't raise errors."""
+    # Valid file extensions
+    ChatAreaInput(accept=".csv")
+    ChatAreaInput(accept=".csv,.json")
+    ChatAreaInput(accept=".pdf,.txt,.xlsx")
+
+    # Valid MIME types
+    ChatAreaInput(accept="text/csv")
+    ChatAreaInput(accept="application/json")
+    ChatAreaInput(accept="image/png,image/jpeg")
+    ChatAreaInput(accept="text/csv,application/json")
+
+    # Mixed formats
+    ChatAreaInput(accept=".csv,text/plain")
+    ChatAreaInput(accept="image/*,.pdf")
+
+    # Wildcards
+    ChatAreaInput(accept="image/*")
+    ChatAreaInput(accept="text/*,image/*")
+
+    # None should be allowed
+    ChatAreaInput(accept=None)
+
+    # Empty string should be allowed
+    ChatAreaInput(accept="")
+
+
+def test_chat_area_input_invalid_file_extensions():
+    """Test that file extensions without dots raise appropriate errors."""
+    with pytest.raises(ValueError, match="File extension 'csv' should start with a dot"):
+        ChatAreaInput(accept="csv")
+
+    with pytest.raises(ValueError, match="File extension 'json' should start with a dot"):
+        ChatAreaInput(accept="json")
+
+    with pytest.raises(ValueError, match="File extension 'csv' should start with a dot"):
+        ChatAreaInput(accept="csv,txt")
+
+
+def test_chat_area_input_invalid_mime_types():
+    """Test that malformed MIME types raise appropriate errors."""
+    # MIME type with dot in subtype
+    with pytest.raises(ValueError, match="Invalid MIME type 'text/.csv'. The subtype '.csv' should not start with a dot"):
+        ChatAreaInput(accept="text/.csv")
+
+    with pytest.raises(ValueError, match="Invalid MIME type 'application/.json'"):
+        ChatAreaInput(accept="application/.json")
+
+    # Malformed MIME types - missing subtype
+    with pytest.raises(ValueError, match="Invalid MIME type 'text/'. MIME types should be in format 'type/subtype'"):
+        ChatAreaInput(accept="text/")
+
+    # Malformed MIME types - missing type
+    with pytest.raises(ValueError, match="Invalid MIME type '/csv'. MIME types should be in format 'type/subtype'"):
+        ChatAreaInput(accept="/csv")
+
+    # Too many slashes
+    with pytest.raises(ValueError, match="Invalid MIME type 'text/csv/extra'. MIME types should be in format 'type/subtype'"):
+        ChatAreaInput(accept="text/csv/extra")
+
+
+def test_chat_area_input_mixed_valid_invalid():
+    """Test that one invalid entry in a list causes the whole thing to fail."""
+    with pytest.raises(ValueError, match="File extension 'csv' should start with a dot"):
+        ChatAreaInput(accept=".json,csv")
+
+    with pytest.raises(ValueError, match="Invalid MIME type 'text/.pdf'"):
+        ChatAreaInput(accept="text/csv,text/.pdf")
+
+
+def test_chat_area_input_edge_cases():
+    """Test edge cases in accept parameter validation."""
+    # Whitespace should be handled
+    ChatAreaInput(accept=" .csv , .json ")
+    ChatAreaInput(accept=" text/csv , application/json ")
+
+    # Empty entries should be skipped
+    ChatAreaInput(accept=".csv,,,.json")
+
+    # Long extensions (>10 chars) should not be flagged as missing dot
+    ChatAreaInput(accept="verylongextensionname")
+
+
+def test_chat_area_input_basic_functionality():
+    """Test basic ChatAreaInput functionality without accept parameter."""
+    chat_input = ChatAreaInput(placeholder="Test placeholder")
+    assert chat_input.placeholder == "Test placeholder"
+    assert chat_input.accept is None
+    assert chat_input.enable_upload is True
+    assert chat_input.enter_sends is True
