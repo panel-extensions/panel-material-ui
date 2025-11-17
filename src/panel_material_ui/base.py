@@ -174,7 +174,7 @@ function {output}(props) {{
     <ThemeProvider theme={{theme}}>
       <CssBaseline />
       <{input} {{...props}}/>
-      {attached.length ? <div class="attached">{{attached}}</div> : null}
+      {{attached.length ? <div class="attached">{{attached}}</div> : null}}
     </ThemeProvider>
   )
 }}
