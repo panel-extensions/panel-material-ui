@@ -23,7 +23,7 @@ from ..base import MaterialComponent
 from .input import ChatAreaInput
 
 _MESSAGE_BG = ":host(.message), .message { background-color: unset !important; box-shadow: unset !important; }"
-_MESSAGE_STYLESHEET = ".message { font-size: 1.1em; overflow-wrap: anywhere; word-break: break-word; width; max-width: calc(100% - 20px); }"
+_MESSAGE_STYLESHEET = ".message { font-size: 1.1em; overflow-wrap: anywhere; word-break: break-word; width; max-width: calc(100% - 20px); padding-inline: 8px; }"
 
 DEFAULT_AVATARS = {
     "system": {"type": "icon", "icon": "settings"},
