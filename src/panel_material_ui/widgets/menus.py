@@ -420,27 +420,6 @@ class MenuList(NestedMenuBase):
         self._on_action_callbacks[action].remove(callback)
 
 List = MenuList
-        
-
-class Menu(MenuBase):
-    """
-    The `Menu` component is a menu component that allows selecting from a list of items.
-
-    Menu items can be strings or objects with properties:
-      - label: The label of the menu item (required)
-      - icon: The icon of the menu item (optional)
-      - color: The color of the menu item (optional)
-
-    Reference: https://mui.com/material-ui/react-menu/
-    """
-
-    dense = param.Boolean(default=False, doc="Whether to show the menu items in a dense format.")
-
-    open = param.Boolean(default=False, doc="Whether the menu is open.")
-
-    _esm_base = "Menu.jsx"
-
-    _item_keys = ['label', 'icon', 'color', 'items']
 
 
 class MenuButton(MenuBase, _ButtonBase):

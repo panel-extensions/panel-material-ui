@@ -166,6 +166,7 @@ import {{apply_global_css, install_theme_hooks}} from "./utils"
 
 function {output}(props) {{
   const theme = install_theme_hooks(props)
+  const attached = props.model.get_child("attached")
   if (props.view.is_root && document.documentElement.getAttribute("data-theme-managed") === "false") {{
     apply_global_css(props.model, props.view, theme)
   }}
@@ -173,6 +174,7 @@ function {output}(props) {{
     <ThemeProvider theme={{theme}}>
       <CssBaseline />
       <{input} {{...props}}/>
+      {attached.length ? <div class="attached">{{attached}}</div> : null}
     </ThemeProvider>
   )
 }}
@@ -266,7 +268,7 @@ class MaterialComponent(ReactComponent):
             "@fontsource/roboto/": "https://esm.sh/@fontsource/roboto@5.2.5/"
         }
     }
-    _rename = {'loading': 'loading', 'attached': 'elements'}
+    _rename = {'loading': 'loading'}
     _source_transforms = {'attached': None}
 
     __abstract = True
@@ -355,17 +357,11 @@ class MaterialComponent(ReactComponent):
             return CDN_DIST
         return super()._render_esm(compiled=True, server=server)
 
-    def _get_children(self, data_model, doc, root, parent, comm):
-        children, old_models = super()._get_children(data_model, doc, root, parent, comm)
-        children.pop('attached', None)
-        return children, old_models
-
     def _get_model(
         self, doc: Document, root: Model | None = None,
         parent: Model | None = None, comm: Comm | None = None
     ) -> Model:
         model = super()._get_model(doc, root, parent, comm)
-        model.elements, _ = self._get_child_model(self.attached, doc, model or root, parent, comm)
         # Ensure model loads ESM and CSS bundles from CDN
         # if requested or if in notebook
         if (
