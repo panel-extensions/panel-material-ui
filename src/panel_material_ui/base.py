@@ -166,6 +166,7 @@ import {{apply_global_css, install_theme_hooks}} from "./utils"
 
 function {output}(props) {{
   const theme = install_theme_hooks(props)
+  const attached = props.view.model.data.hasOwnProperty("attached") ? props.model.get_child("attached") : []
   if (props.view.is_root && document.documentElement.getAttribute("data-theme-managed") === "false") {{
     apply_global_css(props.model, props.view, theme)
   }}
@@ -173,6 +174,7 @@ function {output}(props) {{
     <ThemeProvider theme={{theme}}>
       <CssBaseline />
       <{input} {{...props}}/>
+      {{attached.length ? <div class="attached">{{attached}}</div> : null}}
     </ThemeProvider>
   )
 }}
@@ -263,6 +265,8 @@ class MaterialComponent(ReactComponent):
         }
     }
     _rename = {'loading': 'loading'}
+    _source_transforms = {'attached': None}
+    _target_transforms = {'attached': None}
 
     __abstract = True
 
