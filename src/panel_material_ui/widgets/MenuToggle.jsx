@@ -26,6 +26,10 @@ export function render(props, ref) {
   const [open, setOpen] = React.useState(false)
   const anchorEl = React.useRef(null)
 
+  model.on("msg:custom", (msg) => {
+    anchorEl.current?.focus()
+  })
+
   const handleItemClick = (event, index, item) => {
     // Prevent menu from closing when clicking on item in persistent mode
     if (persistent) {

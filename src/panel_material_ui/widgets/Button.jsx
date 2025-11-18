@@ -17,8 +17,11 @@ export function render(props, ref) {
   const [target] = model.useState("target")
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
-    ref = undefined
+    ref = React.useRef(null)
   }
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
 
   const standard_size = ["small", "medium", "large"].includes(size)
   const font_size = standard_size ? icon_size : size

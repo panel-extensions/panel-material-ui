@@ -66,3 +66,11 @@ def test_fileinput_multiple_files(page):
 
     wait_until(lambda: isinstance(widget.value, list), page)
     assert [v.decode('utf-8') for v in widget.value] == [data1, data2]
+
+def test_fileinput_focus(page):
+    widget = FileInput()
+    serve_component(page, widget)
+    file_input = page.locator('input[type="file"]')
+    expect(file_input).to_have_count(1)
+    widget.focus()
+    expect(file_input).to_be_focused()

@@ -790,6 +790,39 @@ class Drawer(MaterialListLike):
         return toggle
 
 
+class Popup(MaterialListLike):
+    """
+    The `Popup` component displays content in an anchored overlay that
+    requires user interaction. It is commonly used for contextual
+    menus, confirmations, forms, or any UI element that should appear
+    relative to another component or screen position.
+
+    Reference: https://mui.com/material-ui/react-menu/
+    """
+
+    anchor_origin = param.Dict(default={"horizontal": "right", "vertical": "bottom" })
+
+    anchor_position = param.XYCoordinates(default=None)
+
+    close_on_click = param.Boolean(default=True, doc="""
+        Close when clicking outside the Popup area.""")
+
+    enforce_focus = param.Boolean(default=True, doc="""
+        Whether to enforce focus on the Popup while it is open.""")
+
+    hide_backdrop = param.Boolean(default=False, doc="""
+        Whether to hide the backdrop when the Popup is open.""")
+
+    elevation = param.Integer(default=1, bounds=(0, None), doc="Elevation of the paper surface.")
+
+    open = param.Boolean(default=False, doc="Whether the pop-up is open.")
+
+    transform_origin = param.Dict(default=None)
+
+    _esm_base = "Popup.jsx"
+
+
+
 __all__ = [
     "Accordion",
     "Alert",
@@ -803,6 +836,7 @@ __all__ = [
     "FlexBox",
     "Grid",
     "Paper",
+    "Popup",
     "Row",
     "Tabs",
 ]

@@ -16,6 +16,11 @@ export function render({model, el, view}) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   function CustomPopper(props) {
     return <Popper {...props} container={el} />
   }
@@ -53,6 +58,7 @@ export function render({model, el, view}) {
           {...params}
           color={color}
           label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
+          inputRef={ref}
           placeholder={placeholder}
           onChange={(event) => {
             setValueInput(event.target.value)

@@ -14,6 +14,14 @@ def test_checkbox(page):
     serve_component(page, widget)
     expect(page.locator('.checkbox')).to_have_count(1)
 
+def test_checkbox_focus(page):
+    widget = Checkbox(label='Test Checkbox', value=True)
+    serve_component(page, widget)
+    checkbox = page.locator('.PrivateSwitchBase-input')
+    expect(checkbox).to_have_count(1)
+    widget.focus()
+    expect(checkbox).to_be_focused()
+
 def test_checkbox_basic_functionality(page):
     widget = Checkbox(label='Test Checkbox', value=False)
     serve_component(page, widget)

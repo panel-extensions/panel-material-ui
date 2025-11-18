@@ -23,6 +23,9 @@ export function render(props, ref) {
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
     ref = undefined
   }
+  model.on("msg:custom", (msg) => {
+    anchorEl.current?.focus()
+  })
 
   return (
     <div ref={ref}>
