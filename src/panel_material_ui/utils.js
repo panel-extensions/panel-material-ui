@@ -86,6 +86,8 @@ export function render_theme_css(theme) {
       --dark-border-subtle: ${dark ? "#343a40" : "#adb5bd"};
       --bokeh-font-size: ${theme.typography.htmlFontSize}px;
       --bokeh-base-font: ${theme.typography.fontFamily};
+      --divider-color: ${theme.palette.divider};
+      --border-color: rgba(${theme.palette.common.onBackgroundChannel} / 0.23);
     }
   `
 }
@@ -655,7 +657,16 @@ function apply_plotly_theme(model, theme, dark, font_family) {
 function apply_bokeh_theme(model, theme, dark, font_family) {
   const model_props = {}
   const model_type = model.type
-  if (model_type.endsWith("Axis")) {
+  if (model_type.endsWith("ReactiveESM") && model.class_name.endsWith("Split")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    const elevation = find_on_parent(view, "elevation")
+    model.stylesheets = [...model.stylesheets, `
+      :host {
+        --border-color: rgba(${theme.palette.common.onBackgroundChannel} / 0.23);
+        --panel-background-color: ${elevation_color(elevation, theme, dark)};
+      }
+    `]
+  } else if (model_type.endsWith("Axis")) {
     model_props.axis_label_text_color = theme.palette.text.primary
     model_props.axis_label_text_font = font_family
     model_props.axis_line_alpha = dark ? 0 : 1
@@ -705,7 +716,7 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     }
   } else if (model_type.endsWith("Toolbar")) {
     const stylesheet = `.bk-right.bk-active, .bk-above.bk-active {
---highlight-color: ${theme.palette.primary.main} !important;
+      --highlight-color: ${theme.palette.primary.main} !important;
     }`
     model_props.stylesheets = [...model.stylesheets, stylesheet]
   } else if (model_type.endsWith("Tooltip")) {
@@ -715,7 +726,22 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
       `
     ]
   } else if (model_type.endsWith("AcePlot")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
     model_props.theme = dark ? "github_dark" : "github_light_default"
+    model.stylesheets = [...model.stylesheets, `
+      :host {
+        --border-color: rgba(${theme.palette.common.onBackgroundChannel} / 0.23);
+      }
+    `]
+  } else if (model_type.endsWith("DataTabulator")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    const elevation = view ? find_on_parent(view, "elevation") : 0
+    model.stylesheets = [...model.stylesheets, `
+      :host {
+        --mdc-theme-background: ${elevation_color(elevation, theme, dark)};
+        --mdc-theme-surface: ${elevation_color(elevation+1, theme, dark)};
+      }
+    `]
   } else if (model_type.endsWith("VegaPlot")) {
     model_props.theme = dark ? "dark" : null
   } else if (model_type.endsWith("PlotlyPlot")) {
