@@ -33,8 +33,11 @@ export function render(props, ref) {
   const text_size = standard_size ? SIZES[size] : font_size
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
-    ref = undefined
+    ref = React.useRef(null)
   }
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
 
   return (
     <Box sx={{display: "flex", alignItems: "center", flexDirection: "row"}}>

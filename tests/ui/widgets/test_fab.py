@@ -102,3 +102,11 @@ def test_fab_icon_size(page):
     # Verify icon size
     expect(page.locator('.MuiFab-root')).to_have_count(1)
     expect(page.locator('.material-icons')).to_have_css('font-size', '28px')
+
+def test_fab_focus(page):
+    widget = Fab(icon='add')
+    serve_component(page, widget)
+    fab = page.locator('.MuiFab-root')
+    expect(fab).to_have_count(1)
+    widget.focus()
+    expect(fab).to_be_focused()

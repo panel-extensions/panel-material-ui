@@ -24,6 +24,11 @@ export function render(props, ref) {
   const [selectedIndex, setSelectedIndex] = React.useState(active)
   const anchorEl = React.useRef(null)
 
+  const btnRef = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    btnRef.current?.focus()
+  })
+
   const handleMenuItemClick = (event, selectedIndex) => {
     setSelectedIndex(selectedIndex)
     setOpen(false)
@@ -76,6 +81,7 @@ export function render(props, ref) {
           )}
           loading={loading}
           onClick={() => model.send_msg({type: "click"})}
+          ref={btnRef}
           sx={{
             ...sx,
             borderBottomRightRadius: 0,

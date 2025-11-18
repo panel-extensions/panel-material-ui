@@ -16,6 +16,11 @@ export function render({model, view, el}) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   const handleChange = (event) => {
     const {options} = event.target
     const newSelections = []
@@ -45,6 +50,13 @@ export function render({model, view, el}) {
   const label_spacer = label ? label+spacer : null
 
   const inputId = `select-multiple-native-${model.id}`
+
+  const inputProps = {
+    inputRef: ref,
+    id: inputId,
+    label: label_spacer
+  };
+
   return (
     <FormControl disabled={disabled} fullWidth variant={variant}>
       {label &&
@@ -55,11 +67,12 @@ export function render({model, view, el}) {
       }
       <Select
         color={color}
-        input={variant === "outlined" ?
-          <OutlinedInput id={inputId} label={label_spacer}/> :
-          variant === "filled" ?
-            <FilledInput id={inputId} label={label_spacer}/> :
-            <Input id={inputId} label={label_spacer}/>
+        input={
+          variant === "outlined" ?
+            <OutlinedInput {...inputProps}/> :
+            variant === "filled" ?
+              <FilledInput {...inputProps}/> :
+              <Input {...inputProps}/>
         }
         labelId={`select-multiple-label-${model.id}`}
         multiple

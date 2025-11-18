@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import FloatInput, TextInput, PasswordInput
+from panel_material_ui.widgets import FloatInput, TextInput, PasswordInput, NumberInput
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -18,6 +18,14 @@ def test_text_input_variant(page, variant):
         expect(page.locator('.MuiInput-root')).to_have_count(1)
     else:
         expect(page.locator(f'.Mui{variant.capitalize()}Input-root')).to_have_count(1)
+
+def test_text_input_focus(page):
+    widget = TextInput(name='Test', placeholder='Type something...')
+    serve_component(page, widget)
+    input = page.locator('.MuiInputBase-input')
+    expect(input).to_have_count(1)
+    widget.focus()
+    expect(input).to_be_focused()
 
 def test_text_input_typing(page):
     widget = TextInput(name='Test', placeholder='Type something...')
@@ -82,6 +90,14 @@ def test_textinput_max_length(page):
     expect(input_area).to_have_value("12")
     wait_until(lambda: widget.value_input == "12", page)
 
+def test_password_input_focus(page):
+    widget = PasswordInput(label='Password', placeholder='Enter your password here ...')
+    serve_component(page, widget)
+    input = page.locator('.MuiInputBase-input')
+    expect(input).to_have_count(1)
+    widget.focus()
+    expect(input).to_be_focused()
+
 def test_password_show_hide(page):
     widget = PasswordInput(label='Password', placeholder='Enter your password here ...')
     serve_component(page, widget)
@@ -116,3 +132,11 @@ def test_float_input_typing(page):
     input_area.press("Enter")
     expect(input_area).to_have_value("1.23")
     wait_until(lambda: widget.value == 1.23, page)
+
+def test_number_input_focus(page):
+    widget = NumberInput(value=5, start=0, end=10)
+    serve_component(page, widget)
+    input_element = page.locator('.MuiInputBase-input')
+    expect(input_element).to_have_count(1)
+    widget.focus()
+    expect(input_element).to_be_focused()

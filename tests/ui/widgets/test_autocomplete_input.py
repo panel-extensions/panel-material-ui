@@ -9,6 +9,14 @@ from playwright.sync_api import expect
 pytestmark = pytest.mark.ui
 
 
+def test_autocomplete_input_focus(page):
+    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
+    serve_component(page, widget)
+    input = page.locator('.MuiInputBase-input')
+    expect(input).to_have_count(1)
+    widget.focus()
+    expect(input).to_be_focused()
+
 def test_autocomplete_input_value_updates(page):
     widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
     serve_component(page, widget)

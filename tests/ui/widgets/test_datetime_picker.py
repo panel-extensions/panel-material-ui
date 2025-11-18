@@ -30,6 +30,15 @@ def test_datetime_picker(page):
     assert datetime_picker.value.hour == 14
     assert datetime_picker.value.minute == 30
 
+def test_datetime_picker_focus(page):
+    widget = DatetimePicker(value=datetime.datetime(2023, 6, 15, 14, 30))
+    serve_component(page, widget)
+    wait_until(lambda: "2023-06-15" in page.locator(".MuiInputBase-input").input_value(), page)
+    input_element = page.locator(".MuiInputBase-input")
+    expect(input_element).to_have_count(1)
+    widget.focus()
+    expect(input_element).to_be_focused()
+
 
 def test_datetime_picker_with_string(page):
     """Test DatetimePicker with string datetime value."""

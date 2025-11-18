@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import Select
+from panel_material_ui.widgets import MultiSelect, Select
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -16,6 +16,14 @@ def test_select_variant(page, variant):
 
     expect(page.locator(".select")).to_have_count(1)
     expect(page.locator(f".MuiSelect-{variant}")).to_have_count(1)
+
+def test_select_focus(page):
+    widget = Select(label='Select test', options=["Option 1", "Option 2", "Option 3"])
+    serve_component(page, widget)
+    select = page.locator('.MuiSelect-select')
+    expect(select).to_have_count(1)
+    widget.focus()
+    expect(select).to_be_focused()
 
 def test_select_disabled_options(page):
     widget = Select(name='Select test', options=["Option 1", "Option 2", "Option 3"], disabled_options=["Option 2"])
@@ -171,3 +179,11 @@ def test_select_clear_selection(page):
     # Try to clear by selecting empty option (should not be possible)
     page.locator(".select").click()
     expect(page.locator(".MuiMenuItem-root")).to_have_count(2)  # No empty option
+
+def test_multiselect_focus(page):
+    widget = MultiSelect(options=["Option 1", "Option 2", "Option 3"], value=["Option 1"])
+    serve_component(page, widget)
+    select = page.locator('.MuiNativeSelect-select')
+    expect(select).to_have_count(1)
+    widget.focus()
+    expect(select).to_be_focused()

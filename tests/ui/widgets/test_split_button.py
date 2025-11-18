@@ -66,3 +66,12 @@ def test_split_button_select_mode(page):
     button.nth(0).click()
     wait_until(lambda: len(events) == 2, page)
     assert events[1] == items[2]
+
+def test_split_button_focus(page):
+    items = [{'label': 'Option 1'}, {'label': 'Option 2'}]
+    widget = SplitButton(items=items, label='Menu')
+    serve_component(page, widget)
+    button = page.locator('.MuiButtonBase-root').nth(0)
+    expect(button).to_have_count(1)
+    widget.focus()
+    expect(button).to_be_focused()

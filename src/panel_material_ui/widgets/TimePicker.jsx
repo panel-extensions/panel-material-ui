@@ -18,6 +18,11 @@ export function render({model, el, view}) {
   const [modelValue, setModelValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   function parseTime(timeString) {
     if (!timeString) { return null; }
 
@@ -42,7 +47,7 @@ export function render({model, el, view}) {
     } else {
       setModelValue(null)
     }
-  };
+  }
 
   const views = seconds ? ["hours", "minutes", "seconds"] : ["hours", "minutes"];
   const media_query = mode === "auto" ? "@media (pointer:fine)" : (mode === "digital" ? "@media all" : "@media (width: 0px)");
@@ -54,6 +59,7 @@ export function render({model, el, view}) {
         desktopModeMediaQuery={media_query}
         disabled={disabled}
         format={format}
+        inputRef={ref}
         label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
         onChange={handleChange}
         minTime={min_time ? parseTime(min_time) : undefined}
@@ -64,5 +70,5 @@ export function render({model, el, view}) {
         views={views}
       />
     </LocalizationProvider>
-  );
+  )
 }

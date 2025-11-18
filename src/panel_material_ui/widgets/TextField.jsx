@@ -14,11 +14,17 @@ export function render({model, el, view}) {
   const [value_input, setValueInput] = model.useState("value_input")
   const [variant] = model.useState("variant")
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   return (
     <TextField
       color={color}
       disabled={disabled}
       error={error_state}
+      inputRef={ref}
       fullWidth
       inputProps={{maxLength: max_length}}
       label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
