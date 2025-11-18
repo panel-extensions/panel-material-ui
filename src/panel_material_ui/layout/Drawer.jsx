@@ -30,8 +30,6 @@ export function render({model, view}) {
     })
   }, [])
 
-  const anchorEl = view.parent.element_views.includes(view) ? view.parent.el : anchor
-
   return (
     <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} PaperProps={{sx: {...dims, ...sx}}} variant={variant}>
       {objects.map((object, index) => {
