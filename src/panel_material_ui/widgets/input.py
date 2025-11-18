@@ -1284,7 +1284,12 @@ class LiteralInput(TextInput, _PnLiteralInput):
 
     value_input = param.Parameter()
 
-    _rename = {'type': None}
+    _rename = {"type": None}
+    _source_transforms = {
+        "attached": None,
+        "serializer": None,
+        "value": """JSON.parse(value.replace(/'/g, '"'))"""
+    }
 
     def _process_property_change(self, msg):
         if msg.get('enter_pressed'):
