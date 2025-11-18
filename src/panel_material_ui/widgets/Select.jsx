@@ -30,6 +30,11 @@ export function render({model, el, view}) {
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   // SelectSearch specific props
   const [bookmarks] = model.useState("bookmarks", [])
   const [dropdown_height] = model.useState("dropdown_height")
@@ -149,7 +154,8 @@ export function render({model, el, view}) {
     const inputProps = {
       id: "select-input",
       label: label_spacer,
-      color
+      inputRef: ref,
+      color,
     }
     switch (variant) {
       case "outlined":

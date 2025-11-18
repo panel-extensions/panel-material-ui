@@ -23,6 +23,11 @@ export function render({model, el, view}) {
   const [sx] = model.useState("sx")
   const [value, setValue] = model.useState("value")
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   const empty = empty_icon || icon
   el.style.overflowY = "clip"
 
@@ -62,6 +67,7 @@ export function render({model, el, view}) {
               /> : <Icon color={color}>{icon}</Icon>
           ) : undefined
         }
+        ref={ref}
         max={end}
         onChange={(event, newValue) => setValue(newValue)}
         precision={precision}

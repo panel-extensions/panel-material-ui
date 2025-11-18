@@ -20,8 +20,11 @@ export function render(props, ref) {
   const [color_variant, setColorVariant] = React.useState(null)
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
-    ref = undefined
+    ref = React.useRef(null)
   }
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
 
   const handleClick = (e) => {
     model.send_event("click", e)

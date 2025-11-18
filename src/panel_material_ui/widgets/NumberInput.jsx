@@ -25,6 +25,11 @@ export function render({model, el, view}) {
   const [editableValue, setEditableValue] = React.useState(value)
   const [valueLabel, setValueLabel] = React.useState()
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   const validate = (value) => {
     const regex = model.mode == "int" ? int_regex : float_regex
     if (value === "" || ["", "-", ".", "-."].includes(value)) {
@@ -94,6 +99,7 @@ export function render({model, el, view}) {
       color={color}
       disabled={disabled}
       fullWidth
+      inputRef={ref}
       label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
       onBlur={() => setFocused(false)}
       onChange={(event) => { setEditableValue(event.target.value) }}

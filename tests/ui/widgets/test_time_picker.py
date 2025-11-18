@@ -33,6 +33,14 @@ def test_time_picker(page):
     except Exception:
         assert time_picker.value == datetime.time(12, 30)
 
+def test_time_picker_focus(page):
+    widget = TimePicker(value="12:00:00")
+    serve_component(page, widget)
+    input_element = page.locator(".MuiInputBase-input")
+    expect(input_element).to_have_count(1)
+    widget.focus()
+    expect(input_element).to_be_focused()
+
 def test_time_picker_with_datetime_time(page):
     """Test TimePicker with datetime.time instance."""
     time_value = datetime.time(12, 59, 30)

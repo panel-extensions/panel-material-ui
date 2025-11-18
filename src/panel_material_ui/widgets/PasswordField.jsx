@@ -19,6 +19,11 @@ export function render({model, el, view}) {
   const [variant] = model.useState("variant")
   const [showPassword, setShowPassword] = React.useState(false)
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   return (
     <TextField
       color={color}
@@ -26,6 +31,7 @@ export function render({model, el, view}) {
       error={error_state}
       fullWidth
       inputProps={{maxLength: max_length}}
+      inputRef={ref}
       label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
       onBlur={() => setValue(value_input)}
       onChange={(event) => setValueInput(event.target.value)}

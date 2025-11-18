@@ -81,6 +81,12 @@ class MaterialWidget(MaterialComponent, WidgetBase):
             props["description"] = description
         return props
 
+    def focus(self):
+        """
+        Sends a message to the frontend to focus the widget.
+        """
+        self._send_msg({"action": "focus"})
+
     @classmethod
     def from_param(cls: type[T], parameter: param.Parameter, **params) -> T:
         """

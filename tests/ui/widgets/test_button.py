@@ -11,7 +11,7 @@ pytestmark = pytest.mark.ui
 
 @pytest.mark.parametrize('button_style', ['contained', 'outlined', 'text'])
 def test_button_style(page, button_style):
-    widget = Button(name='Click', button_style=button_style, button_type='primary')
+    widget = Button(label='Click', button_style=button_style, button_type='primary')
     serve_component(page, widget)
     button_format = page.locator(f'.MuiButton-{button_style}Primary')
     expect(button_format).to_have_count(1)
@@ -19,17 +19,25 @@ def test_button_style(page, button_style):
 
 @pytest.mark.parametrize('button_type', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
 def test_button_type(page, button_type):
-    widget = Button(name='Click', button_style='contained', button_type=button_type)
+    widget = Button(label='Click', button_style='contained', button_type=button_type)
     serve_component(page, widget)
     button_format = page.locator(f'.MuiButton-contained{button_type.capitalize()}')
     expect(button_format).to_have_count(1)
+
+def test_button_focus(page):
+    widget = Button(label='Click')
+    serve_component(page, widget)
+    button = page.locator('.MuiButton-root')
+    expect(button).to_have_count(1)
+    widget.focus()
+    expect(button).to_be_focused()
 
 def test_button_on_click(page):
     events = []
     def cb(event):
         events.append(event)
 
-    widget = Button(name='Click', on_click=cb)
+    widget = Button(label='Click', on_click=cb)
     serve_component(page, widget)
     button = page.locator('.button')
     expect(button).to_have_count(1)
@@ -37,7 +45,7 @@ def test_button_on_click(page):
     wait_until(lambda: len(events) == 1, page)
 
 def test_button_handle_click(page):
-    widget = Button(name='Click')
+    widget = Button(label='Click')
     assert widget.clicks == 0
     serve_component(page, widget)
     button = page.locator('.button')

@@ -11,6 +11,11 @@ export function render({model, el, view}) {
   const [sx] = model.useState("sx")
   const [checked, setChecked] = model.useState("value")
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   return (
     <FormControlLabel
       control={
@@ -19,6 +24,7 @@ export function render({model, el, view}) {
           checked={checked}
           disabled={disabled}
           indeterminate={indeterminate}
+          inputRef={ref}
           size={size}
           onChange={(event) => setChecked(event.target.checked)}
           sx={{p: "6px", ...sx}}

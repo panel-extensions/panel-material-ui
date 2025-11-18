@@ -72,6 +72,11 @@ export function render({model, view, el}) {
   const [internalValue, setInternalValue] = React.useState(() => parseDate(modelValue));
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
   const lastCommittedRef = React.useRef(null);
+  const ref = React.useRef(null);
+
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
 
   // Update local state when model value changes from Python
   React.useEffect(() => {
@@ -233,6 +238,7 @@ export function render({model, view, el}) {
           textField: {
             variant,
             color,
+            inputRef: ref,
             onBlur: handleBlur,
             onKeyDown: handleKeyDown,
             InputProps: {
