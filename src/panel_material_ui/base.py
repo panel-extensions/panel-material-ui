@@ -270,6 +270,7 @@ class MaterialComponent(ReactComponent):
     }
     _rename = {'loading': 'loading'}
     _source_transforms = {'attached': None}
+    _target_transforms = {'attached': None}
 
     __abstract = True
 
