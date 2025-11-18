@@ -389,7 +389,6 @@ class MaterialComponent(ReactComponent):
 
     def _get_properties(self, doc: Document | None) -> dict[str, Any]:
         props = super()._get_properties(doc)
-        props.pop('elements', None)
         props.pop('loading', None)
         props['data'].loading = self.loading
         return props
