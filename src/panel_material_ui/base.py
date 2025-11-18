@@ -41,7 +41,7 @@ from panel.models import ReactComponent as BkReactComponent
 from panel.pane import HTML
 from panel.param import Param
 from panel.util import base_version, classproperty
-from panel.viewable import Children, Viewable
+from panel.viewable import Viewable
 from panel.widgets.base import CompositeWidget, WidgetBase
 
 from .__version import __version__  # noqa
@@ -166,7 +166,7 @@ import {{apply_global_css, install_theme_hooks}} from "./utils"
 
 function {output}(props) {{
   const theme = install_theme_hooks(props)
-  const attached = props.model.get_child("attached")
+  const attached = props.view.model.data.hasOwnProperty("attached") ? props.model.get_child("attached") : []
   if (props.view.is_root && document.documentElement.getAttribute("data-theme-managed") === "false") {{
     apply_global_css(props.model, props.view, theme)
   }}
@@ -226,10 +226,6 @@ class MaterialComponent(ReactComponent):
     Baseclass for all MaterialComponents which defines the bundle location,
     the JS dependencies and theming support via the ThemedTransform.
     """
-
-    attached = Children(doc="""
-        Elements that are attached to this object but are not direct
-        children.""")
 
     dark_theme = param.Boolean(doc="""
         Whether to use dark theme. If not specified, will default to Panel's

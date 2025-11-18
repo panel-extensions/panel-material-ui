@@ -161,7 +161,7 @@ class DateSlider(_ContinuousSlider):
     _rename = {"as_datetime": None}
     _source_transforms = {
         "value": None, "value_throttled": None, "value_start": None,
-        "value_end": None, "start": None, "end": None
+        "value_end": None, "start": None, "end": None, "attached": None
     }
 
     def _process_param_change(self, msg):
@@ -365,7 +365,7 @@ class DateRangeSlider(_RangeSliderBase):
     _rename = {'value_start': None, 'value_end': None}
     _source_transforms = {
         "value": None, "value_throttled": None, "value_start": None,
-        "value_end": None, "start": None, "end": None
+        "value_end": None, "start": None, "end": None, "attached": None
     }
 
     def _process_param_change(self, msg):

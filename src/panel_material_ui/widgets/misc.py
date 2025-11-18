@@ -33,8 +33,13 @@ class FileDownload(_ButtonBase, _FileDownload):
 
     _esm_base = "FileDownload.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
-    _rename = {"_clicks": None, "icon": "icon", "icon_size": "icon_size", "description": "description"}
-    _source_transforms = {"button_type": None, "button_style": None, "callback": None, "file": None, "value": None}
+    _rename = {
+        "_clicks": None, "icon": "icon", "icon_size": "icon_size", "description": "description"
+    }
+    _source_transforms = {
+        "button_type": None, "button_style": None, "callback": None,
+        "file": None, "value": None, "attached": None
+    }
 
     def __init__(self, file=None, **params):
         self._default_label = 'label' not in params

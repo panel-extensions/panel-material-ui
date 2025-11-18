@@ -46,7 +46,7 @@ class MenuBase(MaterialWidget):
     _item_keys = ['label', 'items']
     _descend_children = True
     _rename = {'value': None}
-    _source_transforms = {'attached': None, "value": None, 'items': None}
+    _source_transforms = {"value": None, "items": None, "attached": None}
 
     __abstract = True
 
@@ -456,6 +456,7 @@ class MenuButton(MenuBase, _ButtonBase):
     _esm_base = "MenuButton.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
+        "attached": None,
         "button_type": None,
         "button_style": None
     }
@@ -501,6 +502,7 @@ class SplitButton(MenuBase, _ButtonBase):
     _esm_base = "SplitButton.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
+        "attached": None,
         "button_type": None,
         "button_style": None
     }
@@ -576,6 +578,7 @@ class MenuToggle(MenuBase, _ButtonBase):
     _esm_base = "MenuToggle.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
+        "attached": None,
         "button_type": None,
         "button_style": None,
     }

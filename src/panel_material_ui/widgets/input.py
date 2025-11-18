@@ -393,8 +393,9 @@ class FileInput(_FileUploadArea, _ButtonBase, _PnFileInput):
     _esm_base = "FileInput.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
-        'filename': None,
-        'value': "'data:' + source.mime_type + ';base64,' + value"
+        "attached": None,
+        "filename": None,
+        "value": "'data:' + source.mime_type + ';base64,' + value",
     }
 
     def _update_file(
@@ -995,7 +996,7 @@ class DatetimePicker(_DatetimePickerBase):
         The current value. Can be a datetime object or a string in ISO format.""")
 
     _source_transforms = {
-        "value": None, "start": None, "end": None
+        "value": None, "start": None, "end": None, "attached": None
     }
 
     def _serialize_value(self, value):
@@ -1317,7 +1318,7 @@ class DatetimeInput(TextInput, _PnDatetimeInput):
         The current value. Can be a datetime object or a string in ISO format.""")
 
     _source_transforms = {
-        "value": None, "value_input": None, "start": None, "end": None
+        "value": None, "value_input": None, "start": None, "end": None, "attached": None
     }
 
     def _process_param_change(self, msg):

@@ -38,7 +38,7 @@ class _ButtonLike(MaterialWidget):
 
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _rename = {"button_style": None, "button_type": None}
-    _source_transforms = {"button_style": None, "button_type": None}
+    _source_transforms = {"button_style": None, "button_type": None, "attached": None}
 
     __abstract = True
 
