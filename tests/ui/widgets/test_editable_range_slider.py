@@ -1,5 +1,6 @@
 import pytest
 import math
+import sys
 
 pytest.importorskip("playwright")
 
@@ -198,28 +199,35 @@ def test_editable_range_slider_increment_decrement_buttons(page):
     inputs = page.locator("input[type='text']")
 
     # Test increment button
-    page.locator(".MuiIconButton-root").nth(1).click()
+    page.locator(".MuiIconButton-root").nth(0).click()
     expect(inputs.nth(0)).to_have_value("2.10")  # Should increment by step
 
     # Test decrement button
-    page.locator(".MuiIconButton-root").nth(0).click()
+    page.locator(".MuiIconButton-root").nth(1).click()
     expect(inputs.nth(0)).to_have_value("2")  # Should decrement by step
 
     # Test increment button on second input
-    page.locator(".MuiIconButton-root").nth(3).click()
+    page.locator(".MuiIconButton-root").nth(2).click()
     expect(inputs.nth(1)).to_have_value("8.10")  # Should increment by step
 
     # Test decrement button on second input
-    page.locator(".MuiIconButton-root").nth(2).click()
+    page.locator(".MuiIconButton-root").nth(3).click()
     expect(inputs.nth(1)).to_have_value("8")  # Should decrement by step
 
-def test_editable_range_slider_slider_interaction(page):
+
+@pytest.mark.parametrize("inline_layout,targets", [
+    (False, [90, 210, 250]),
+    (True, [38, 87, 103])
+])
+def test_editable_range_slider_slider_interaction(page, inline_layout, targets):
+    x1, x2, x3 = targets
     widget = EditableRangeSlider(
         name='Range Slider',
         start=0,
         end=10,
         value=(2, 8),
-        step=0.1
+        step=0.1,
+        inline_layout=inline_layout
     )
     serve_component(page, widget)
 
@@ -227,16 +235,17 @@ def test_editable_range_slider_slider_interaction(page):
     slider = page.locator(".MuiSlider-thumb")
 
     # Test moving first thumb
-    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": 90, "y": 0}, force=True)
+    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x1, "y": 0}, force=True)
     expect(inputs.nth(0)).to_have_value("3")  # Should update input value
 
     # Test moving second thumb
-    slider.nth(1).drag_to(page.locator(".MuiSlider-rail"), target_position={"x": 210, "y": 0}, force=True)
-    expect(inputs.nth(1)).to_have_value("7")  # Should update input value
+    slider.nth(1).drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x2, "y": 0}, force=True)
+    expect(inputs.nth(1)).to_have_value("7" if sys.platform.startswith("linux") or not inline_layout else "6.90")  # Should update input value
 
     # Test that thumbs can't cross each other
-    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": 250, "y": 0}, force=True)
-    expect(inputs.nth(0)).to_have_value("7")  # Should be limited by second thumb
+    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x3, "y": 0}, force=True)
+    expect(inputs.nth(0)).to_have_value("7" if sys.platform.startswith("linux") or not inline_layout else "6.90")  # Should be limited by second thumb
+    expect(inputs.nth(1)).to_have_value("8.30" if sys.platform.startswith("linux") or not inline_layout else "8.20")  # Should follow movement and be set to the value corresponding to the drag movement
 
 def test_editable_int_range_slider_increment_decrement_buttons(page):
     widget = EditableIntRangeSlider(
@@ -251,28 +260,34 @@ def test_editable_int_range_slider_increment_decrement_buttons(page):
     inputs = page.locator("input[type='text']")
 
     # Test increment button
-    page.locator(".MuiIconButton-root").nth(1).click()
+    page.locator(".MuiIconButton-root").nth(0).click()
     expect(inputs.nth(0)).to_have_value("3")  # Should increment by step
 
     # Test decrement button
-    page.locator(".MuiIconButton-root").nth(0).click()
+    page.locator(".MuiIconButton-root").nth(1).click()
     expect(inputs.nth(0)).to_have_value("2")  # Should decrement by step
 
     # Test increment button on second input
-    page.locator(".MuiIconButton-root").nth(3).click()
+    page.locator(".MuiIconButton-root").nth(2).click()
     expect(inputs.nth(1)).to_have_value("9")  # Should increment by step
 
     # Test decrement button on second input
-    page.locator(".MuiIconButton-root").nth(2).click()
+    page.locator(".MuiIconButton-root").nth(3).click()
     expect(inputs.nth(1)).to_have_value("8")  # Should decrement by step
 
-def test_editable_int_range_slider_slider_interaction(page):
+@pytest.mark.parametrize("inline_layout,targets", [
+    (False, [90, 210, 250]),
+    (True, [38, 87, 103])
+])
+def test_editable_int_range_slider_slider_interaction(page, inline_layout, targets):
+    x1, x2, x3 = targets
     widget = EditableIntRangeSlider(
         name='Int Range Slider',
         start=0,
         end=10,
         value=(2, 8),
-        step=1
+        step=1,
+        inline_layout=inline_layout
     )
     serve_component(page, widget)
 
@@ -280,16 +295,17 @@ def test_editable_int_range_slider_slider_interaction(page):
     slider = page.locator(".MuiSlider-thumb")
 
     # Test moving first thumb
-    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": 90, "y": 0}, force=True)
+    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x1, "y": 0}, force=True)
     expect(inputs.nth(0)).to_have_value("3")  # Should update input value with integer
 
     # Test moving second thumb
-    slider.nth(1).drag_to(page.locator(".MuiSlider-rail"), target_position={"x": 210, "y": 0}, force=True)
+    slider.nth(1).drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x2, "y": 0}, force=True)
     expect(inputs.nth(1)).to_have_value("7")  # Should update input value with integer
 
     # Test that thumbs can't cross each other
-    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": 250, "y": 0}, force=True)
+    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x3, "y": 0}, force=True)
     expect(inputs.nth(0)).to_have_value("7")  # Should be limited by second thumb
+    expect(inputs.nth(1)).to_have_value("8")  # Should follow movement and be set to the value corresponding to the drag movement
 
 def test_editable_range_slider_sync_input_slider(page):
     widget = EditableRangeSlider(
