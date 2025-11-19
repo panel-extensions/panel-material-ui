@@ -166,7 +166,7 @@ import {{apply_global_css, install_theme_hooks}} from "./utils"
 
 function {output}(props) {{
   const theme = install_theme_hooks(props)
-  const attached = props.view.model.data.hasOwnProperty("attached") ? props.model.get_child("attached") : []
+  const attached = ("attached" in props.view.model.data.properties) ? props.model.get_child("attached") : []
   if (props.view.is_root && document.documentElement.getAttribute("data-theme-managed") === "false") {{
     apply_global_css(props.model, props.view, theme)
   }}
