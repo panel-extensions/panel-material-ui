@@ -17,6 +17,11 @@ export function render({model, el}) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   el.style.display = "flex"
 
   let props = {}
@@ -40,6 +45,7 @@ export function render({model, el}) {
       error={error_state}
       fullWidth
       inputProps={{maxLength: max_length}}
+      inputRef={ref}
       label={model.description ? <>{label}{render_description({model, el})}</> : label}
       multiline
       maxRows={max_rows}

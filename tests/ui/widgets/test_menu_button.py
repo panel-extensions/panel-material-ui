@@ -280,3 +280,11 @@ def test_menu_button_mixed_items(page):
     assert menu_items.nth(0).get_attribute('href') is None
     assert menu_items.nth(3).get_attribute('href') is None
     assert menu_items.nth(4).get_attribute('href') is None
+
+def test_menu_button_focus(page):
+    widget = MenuButton(items=['Option 1', 'Option 2'], label='Menu')
+    serve_component(page, widget)
+    button = page.locator('.MuiButton-root')
+    expect(button).to_have_count(1)
+    widget.focus()
+    expect(button).to_be_focused()

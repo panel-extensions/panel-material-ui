@@ -31,6 +31,15 @@ def test_slider_value_update(page):
         expect(slider_value).to_have_text(str(i))
 
 
+def test_slider_focus(page):
+    widget = IntSlider(value=5, start=0, end=10)
+    serve_component(page, widget)
+    slider = page.locator('.MuiSlider-thumb > input')
+    expect(slider).to_have_count(1)
+    widget.focus()
+    expect(slider).to_be_focused()
+
+
 @pytest.mark.parametrize('color', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
 def test_slider_color(page, color):
     widget = IntSlider(value=5, start=0, end=10, color=color)

@@ -13,8 +13,11 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
-    ref = undefined
+    ref = React.useRef(null)
   }
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
 
   return (
     <ToggleButton

@@ -115,3 +115,11 @@ def test_text_area_max_length(page):
     input_area.type("123")
     expect(input_area).to_have_value("12")
     wait_until(lambda: widget.value_input == "12", page)
+
+def test_text_area_focus(page):
+    widget = TextAreaInput(label='Description', placeholder='Enter your description here...')
+    serve_component(page, widget)
+    textarea = page.locator('.MuiInputBase-input')
+    expect(textarea).to_have_count(2)
+    widget.focus()
+    expect(textarea.nth(0)).to_be_focused()

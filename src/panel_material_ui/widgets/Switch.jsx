@@ -11,6 +11,11 @@ export function render({model, el, view}) {
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   return (
     <FormControlLabel
       control={
@@ -19,6 +24,7 @@ export function render({model, el, view}) {
           checked={checked}
           disabled={disabled}
           edge={edge}
+          inputRef={ref}
           onChange={(event) => setChecked(event.target.checked)}
           size={size}
           sx={sx}

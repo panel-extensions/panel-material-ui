@@ -15,6 +15,11 @@ export function render({model, view}) {
   const [sx] = model.useState("sx")
   const [label] = model.useState("label")
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   const margin = (() => {
     switch (direction) {
       case "left":
@@ -36,6 +41,7 @@ export function render({model, view}) {
       direction={direction}
       FabProps={{color, disabled}}
       icon={icon ? <Icon>{icon}</Icon> : <SpeedDialIcon openIcon={open_icon ? open_icon : undefined} />}
+      ref={ref}
       sx={{
         "& .MuiSpeedDial-actions": {
           position: "absolute",

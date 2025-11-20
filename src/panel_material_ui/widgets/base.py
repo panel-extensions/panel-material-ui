@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, TypeVar
 
 import param
 from panel._param import Margin
+from panel.viewable import Children
 from panel.widgets.base import WidgetBase
 
 from ..base import ESMTransform, MaterialComponent
@@ -55,6 +56,9 @@ class MaterialWidget(MaterialComponent, WidgetBase):
     >>> MaterialWidget(label='My Widget', description='Helpful info')
     """
 
+    attached = Children(doc="""
+        Elements that are attached to this object but are not direct
+        children.""")
     description = param.String(default="", doc="Tooltip text to display when hovering over the widget.")
     disabled = param.Boolean(default=False, doc="Whether the widget is disabled.")
     label = param.String(default="", doc="The label for the widget.")
@@ -80,6 +84,12 @@ class MaterialWidget(MaterialComponent, WidgetBase):
         if description:
             props["description"] = description
         return props
+
+    def focus(self):
+        """
+        Sends a message to the frontend to focus the widget.
+        """
+        self._send_msg({"action": "focus"})
 
     @classmethod
     def from_param(cls: type[T], parameter: param.Parameter, **params) -> T:

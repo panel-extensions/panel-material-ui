@@ -18,8 +18,11 @@ export function render(props, ref) {
   const padding = variant === "extended" ? "1.2em" : "0.2em"
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
-    ref = undefined
+    ref = React.useRef(null)
   }
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
 
   return (
     <Fab

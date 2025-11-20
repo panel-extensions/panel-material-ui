@@ -34,6 +34,17 @@ export function render({model, el, view}) {
   let [end, setEnd] = model.useState("end")
   let [start, setStart] = model.useState("start")
 
+  const ref = React.useRef(null)
+  const editableRef = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    if (editable && editableRef.current) {
+      editableRef.current?.focus()
+    } else {
+      const thumb = ref.current?.querySelector(".MuiSlider-thumb").children[0]
+      thumb?.focus()
+    }
+  })
+
   const date = model.esm_constants.date
   const datetime = model.esm_constants.datetime
   const discrete = model.esm_constants.discrete
@@ -235,6 +246,7 @@ export function render({model, el, view}) {
             <TextField
               color={color}
               disabled={disabled}
+              inputRef={editableRef}
               onBlur={() => { setFocused(false); commitValue(0) }}
               onChange={(e) => handleChange(e, 0)}
               onFocus={() => setFocused(true)}
@@ -322,6 +334,7 @@ export function render({model, el, view}) {
         orientation={orientation}
         onChange={(_, newValue) => setValue(newValue)}
         onChangeCommitted={(_, newValue) => setValueThrottled(newValue)}
+        ref={ref}
         size={size}
         step={date ? step*86400000 : (datetime ? step*1000 : step)}
         sx={{

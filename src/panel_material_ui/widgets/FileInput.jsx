@@ -144,7 +144,9 @@ export function render(props, ref) {
   }
 
   model.on("msg:custom", (msg) => {
-    if (msg.status === "finished") {
+    if (msg.action === "focus") {
+      fileInputRef.current?.focus()
+    } else if (msg.status === "finished") {
       setStatus("completed")
       setTimeout(() => {
         setStatus("idle")

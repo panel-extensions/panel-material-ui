@@ -17,6 +17,11 @@ export function render({model, el, view}) {
   const [value, setValue] = model.useState("value")
   const exclusive = model.esm_constants.exclusive
 
+  const ref = React.useRef(null)
+  model.on("msg:custom", (msg) => {
+    ref.current?.focus()
+  })
+
   const RadioButton = exclusive ? Radio : Checkbox
 
   return (
@@ -25,6 +30,7 @@ export function render({model, el, view}) {
       <RadioGroup
         aria-labelledby="radio-group-label"
         fullWidth
+        ref={ref}
         row={inline}
         sx={sx}
         value={value}

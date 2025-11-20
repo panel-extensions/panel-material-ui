@@ -280,3 +280,11 @@ def test_menutoggle_multiple_toggles(page):
     expect(icons[0]).to_have_text('radio_button_checked')
     expect(icons[1]).to_have_text('radio_button_unchecked')
     expect(icons[2]).to_have_text('radio_button_checked')
+
+def test_menu_toggle_focus(page):
+    widget = MenuToggle(items=[{'label': 'Item 1'}, {'label': 'Item 2'}], label='Menu')
+    serve_component(page, widget)
+    button = page.locator('.MuiButton-root')
+    expect(button).to_have_count(1)
+    widget.focus()
+    expect(button).to_be_focused()
