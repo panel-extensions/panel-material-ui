@@ -422,6 +422,107 @@ class MenuList(NestedMenuBase):
 List = MenuList
 
 
+class Tree(NestedMenuBase):
+    """
+    The `Tree` component displays hierarchical data using a Material UI
+    `RichTreeView`, with optional checkboxes and multi-selection.
+
+    Items follow the same convention as `MenuList`:
+
+    Each item is a dictionary with at least:
+
+      - ``id`` (str): Unique identifier of the node.
+      - ``label`` (str): Display label of the node.
+
+    Optional item fields:
+
+      - ``items`` (list): Nested children, each with the same schema.
+      - ``icon`` (str): MUI icon name (rendered via ``<Icon>``).
+      - ``file_type`` (str): Helper for common icons, one of
+        ``"image"``, ``"pdf"``, ``"doc"``, ``"video"``, ``"folder"``,
+        ``"pinned"``, ``"trash"``.
+      - ``disabled`` (bool): Whether the item is disabled.
+
+    :Example:
+
+    >>> pmui.Tree(
+    ...     items=[
+    ...         {
+    ...             "id": "documents",
+    ...             "label": "Documents",
+    ...             "file_type": "folder",
+    ...             "items": [
+    ...                 {
+    ...                     "id": "invoice",
+    ...                     "label": "Invoice Q1.pdf",
+    ...                     "file_type": "pdf",
+    ...                 },
+    ...                 {
+    ...                     "id": "notes",
+    ...                     "label": "Meeting notes.docx",
+    ...                     "file_type": "doc",
+    ...                 },
+    ...             ],
+    ...         },
+    ...         {
+    ...             "id": "trash",
+    ...             "label": "Trash",
+    ...             "file_type": "trash",
+    ...         },
+    ...     ],
+    ...     selected="documents",
+    ... )
+    """
+
+    color = param.Selector(default="primary", objects=COLORS, doc="""
+        Color palette key for the selected node styling.""")
+
+    multi_select = param.Boolean(default=False, doc="""
+        Whether multiple tree items can be selected at once.""")
+
+    checkboxes = param.Boolean(default=False, doc="""
+        Whether to show selection checkboxes next to each tree item.""")
+
+    selected = param.Parameter(default=None, doc="""
+        The currently selected tree item id(s). Can be a single string or a
+        list of strings when ``multi_select=True``.""")
+
+    expanded = param.List(default=[], doc="""
+        List of item ids that are currently expanded.""")
+
+    item_children_indentation = param.Integer(default=24, doc="""
+        Indentation, in pixels, used for each nested level of the tree.""")
+
+    propagate_to_parent = param.Boolean(default=False)
+
+    propagate_to_child = param.Boolean(default=False)
+
+    show_children = param.Boolean(default=True, doc="""
+         Whether to render child items.""")
+
+    _esm_base = "Tree.jsx"
+
+    _item_keys = [
+        "id",
+        "label",
+        "items",
+        "icon",
+        "file_type",
+        "disabled",
+        "selectable",
+        "secondary",
+        "actions",
+        "buttons",
+        "color",
+    ]
+
+    @property
+    def _descend_children(self):
+        # This mirrors MenuList: stop descending when show_children is False,
+        # so the front-end won't even receive nested items.
+        return self.show_children
+
+
 class MenuButton(MenuBase, _ButtonBase):
     """
     The `MenuButton` component is a button component that allows selecting from a list of items.
@@ -743,4 +844,5 @@ __all__ = [
     "Pagination",
     "SpeedDial",
     "SplitButton",
+    "Tree"
 ]
