@@ -41,10 +41,10 @@ def test_tree_item_selection_updates_param(page):
     serve_component(page, widget)
 
     page.get_by_role("treeitem", name="Logs").click()
-    wait_until(lambda: widget.selected == "logs", page)
+    wait_until(lambda: widget.selected == (0, 1), page)
 
     page.get_by_role("treeitem", name="Settings").click()
-    wait_until(lambda: widget.selected == "settings", page)
+    wait_until(lambda: widget.selected == (1,), page)
 
 
 def test_tree_honors_selectable_flag(page):
@@ -56,11 +56,37 @@ def test_tree_honors_selectable_flag(page):
     serve_component(page, widget)
 
     page.get_by_role("treeitem", name="Allowed").click()
-    wait_until(lambda: widget.selected == "allowed", page)
+    wait_until(lambda: widget.selected == (0,), page)
 
     page.get_by_role("treeitem", name="Blocked").click()
     # Non-selectable item should not change the selected value
-    wait_until(lambda: widget.selected == "allowed", page)
+    wait_until(lambda: widget.selected == (0,), page)
+
+
+def test_tree_selection_without_ids(page):
+    widget = Tree(items=[
+        {"label": "Alpha"},
+        {"label": "Beta", "items": [{"label": "Nested"}]}
+    ], expanded=[(1,)])
+    serve_component(page, widget)
+
+    page.get_by_role("treeitem", name="Nested").click()
+    wait_until(lambda: widget.selected == (1, 0), page)
+
+
+def test_tree_checkbox_selection(page):
+    widget = Tree(items=_tree_items(), checkboxes=True, expanded=[(0,)])
+    serve_component(page, widget)
+
+    checkboxes = page.get_by_role("checkbox")
+
+    # Select "Reports"
+    checkboxes.nth(1).click()
+    wait_until(lambda: widget.selected == [(0, 0)], page)
+
+    # Select "Logs" as well
+    checkboxes.nth(2).click()
+    wait_until(lambda: widget.selected == [(0, 0), (0, 1)], page)
 
 
 def test_tree_secondary_and_buttons_render(page):

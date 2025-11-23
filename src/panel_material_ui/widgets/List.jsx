@@ -21,6 +21,7 @@ export function render({model}) {
   const [color] = model.useState("color")
   const [dense] = model.useState("dense")
   const [disabled] = model.useState("disabled")
+  const [expanded, setExpanded] = model.useState("expanded")
   const [highlight] = model.useState("highlight")
   const [label] = model.useState("label")
   const [items] = model.useState("items")
@@ -30,14 +31,12 @@ export function render({model}) {
   const [open, setOpen] = React.useState({})
   const [menu_open, setMenuOpen] = React.useState({})
   const [menu_anchor, setMenuAnchor] = React.useState(null)
-  const current_open = {...open}
   const current_menu_open = {...menu_open}
 
   const active_array = Array.isArray(active) ? active : [active]
   const [toggle_values, setToggleValues] = React.useState(new Map())
 
   React.useEffect(() => {
-    setOpen(current_open)
     setMenuOpen(current_menu_open)
   }, [])
 
@@ -63,8 +62,8 @@ export function render({model}) {
     const target = item.target
     const avatar = item.avatar
     const subitems = show_children ? item.items : []
-    const item_open = item.open !== undefined ? item.open : true
-    current_open[key] = current_open[key] === undefined ? item_open : current_open[key]
+    const item_open = expanded.map((e) => e.toString()).includes(path.toString()) || (item.open !== undefined ? item.open : false)
+
     current_menu_open[key] = current_menu_open[key] === undefined ? false : current_menu_open[key]
 
     let leadingComponent = null
@@ -112,13 +111,12 @@ export function render({model}) {
         }}
         selected={highlight && isActive}
         sx={{
-          p: `0 4px 0 ${(indent+1) * level_indent}px`,
+          m: `0 4px 0 ${indent * level_indent}px`,
           "&.MuiListItemButton-root.Mui-selected": {
             bgcolor: isActive ? (
               `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
             ) : "inherit",
             borderLeft: `6px solid var(--mui-palette-${color}-main)`,
-            pl: "10px",
             ".MuiListItemText-root": {
               ".MuiTypography-root.MuiListItemText-primary": {
                 fontWeight: "bold"
@@ -275,10 +273,17 @@ export function render({model}) {
             }}
             onClick={(e) => {
               e.stopPropagation()
-              setOpen({...current_open, [key]: !current_open[key]})
+              const index = expanded.map((e) => e.toString()).indexOf(key.toString())
+              const new_expanded = [...expanded]
+              if (index === -1) {
+                new_expanded.push(key)
+              } else {
+                new_expanded.splice(index, 1)
+              }
+              setExpanded(new_expanded)
             }}
           >
-            {current_open[key] ? <ExpandLess/> : <ExpandMore />}
+            {item_open ? <ExpandLess/> : <ExpandMore />}
           </IconButton>
         ) : null}
       </ListItemButton>
@@ -287,7 +292,7 @@ export function render({model}) {
     if (subitems && subitems.length) {
       return [
         list_item,
-        <Collapse in={current_open[key]} timeout="auto" unmountOnExit>
+        <Collapse in={item_open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding dense={dense}>
             {subitems.map((subitem, index) => {
               return render_item(subitem, index, path, indent+1)
@@ -303,7 +308,7 @@ export function render({model}) {
     <List
       dense={dense}
       component="nav"
-      sx={sx}
+      sx={{p: 0, ...sx}}
       subheader={label && (
         <ListSubheader component="div" id="nested-list-subheader">
           {label}

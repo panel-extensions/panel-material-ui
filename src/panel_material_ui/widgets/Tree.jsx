@@ -31,6 +31,7 @@ import {TreeItemIcon} from "@mui/x-tree-view/TreeItemIcon"
 import {TreeItemProvider} from "@mui/x-tree-view/TreeItemProvider"
 import {TreeItemDragAndDropOverlay} from "@mui/x-tree-view/TreeItemDragAndDropOverlay"
 import {useTreeItemModel} from "@mui/x-tree-view/hooks"
+import {CustomMenu} from "./menu"
 
 const TreeItemRoot = styled("li")(({theme}) => ({
   listStyle: "none",
@@ -54,46 +55,39 @@ const TreeItemContent = styled("div")(({theme, ["data-color"]: dataColor, ["data
     position: "relative",
     cursor: "pointer",
     WebkitTapHighlightColor: "transparent",
-
-    // spacing
     paddingTop: theme.spacing(0.75),
     paddingBottom: theme.spacing(0.75),
     paddingRight: theme.spacing(1.5),
     // base indent + per-level indent for nested nodes
-    paddingLeft: theme.spacing(0.75),
-
+    paddingLeft: "10px",
     gap: theme.spacing(1),
-
     // default (unselected) appearance
     color: theme.palette.text.secondary,
-
-    "&[data-selected]": showHighlight ? {
-      backgroundColor: theme.palette[dataColor || "primary"].main,
-      color: theme.palette[dataColor || "primary"].contrastText,
-      fontWeight: 600,
-      "& .MuiSvgIcon-root, & .MuiTypography-root": {
-        color: theme.palette[dataColor || "primary"].contrastText
-      },
-    } : {
-      fontWeight: 600,
-    },
-
+    // selected
+    "&[data-selected]": (showHighlight ? (
+      {
+        backgroundColor: `rgba(var(--mui-palette-${dataColor}-mainChannel) / var(--mui-palette-action-selectedOpacity))`,
+        borderLeft: `6px solid var(--mui-palette-${dataColor}-main)`,
+        color: theme.palette.text.primary,
+        fontWeight: 600,
+        "& .MuiSvgIcon-root, & .MuiTypography-root": {
+          color: theme.palette.text.primary
+        },
+        paddingLeft: "4px",
+      }) : {fontWeight: 600}
+    ),
+    // focused
     "&[data-focused]": {
-      outline: (props) =>
-        `2px solid ${theme.palette[props["data-color"] || "primary"].main}`,
+      outline: (props) => `2px solid ${theme.palette[props["data-color"] || "primary"].main}`,
       outlineOffset: -2,
     },
-
+    // hovered
     "&:not([data-selected]):hover": {
       backgroundColor: theme.palette.action.hover,
       color: theme.palette.text.primary,
     },
   })
 })
-
-function TransitionComponent(props) {
-  return <Collapse {...props} />;
-}
 
 const TreeItemLabelText = styled(Typography)({
   color: "inherit",
@@ -181,6 +175,12 @@ const getIconFromFileType = (fileType) => {
  * Normalize Menu-style items (children in `items`) to the
  * shape expected by RichTreeView (`children`).
  */
+const pathKey = (path) => (
+  Array.isArray(path) && path.length ? path.join(",") : "root"
+)
+
+const generateNodeId = (path) => `pmui-${pathKey(path)}`
+
 const normalizeItems = (items, showChildren, parentPath = []) => {
   if (!Array.isArray(items)) { return [] }
 
@@ -193,6 +193,7 @@ const normalizeItems = (items, showChildren, parentPath = []) => {
       const currentPath = parentPath.concat(index)
       const normalized = {
         ...rest,
+        id: rest.id ?? generateNodeId(currentPath),
         pmui_path: currentPath
       }
 
@@ -208,14 +209,18 @@ const normalizeItems = (items, showChildren, parentPath = []) => {
 }
 
 const buildItemMetadata = (items) => {
-  const map = new Map()
+  const byId = new Map()
+  const byPath = new Map()
   const visit = (nodes) => {
     nodes.forEach((node) => {
       if (!node || typeof node !== "object") {
         return
       }
       if (node.id) {
-        map.set(node.id, node)
+        byId.set(node.id, node)
+      }
+      if (Array.isArray(node.pmui_path)) {
+        byPath.set(pathKey(node.pmui_path), node)
       }
       if (Array.isArray(node.children) && node.children.length) {
         visit(node.children)
@@ -223,18 +228,94 @@ const buildItemMetadata = (items) => {
     })
   }
   visit(items)
-  return map
+  return {byId, byPath}
 }
 
-const selectionsEqual = (current, next) => {
-  if (Array.isArray(current) && Array.isArray(next)) {
-    if (current.length !== next.length) {
-      return false
-    }
-    return current.every((value, index) => value === next[index])
-  }
+const isPathArray = (value) => (
+  Array.isArray(value) && value.every((entry) => typeof entry === "number")
+)
 
-  return current === next
+const pathEquals = (a, b) => {
+  if (a === b) {
+    return true
+  }
+  if (!Array.isArray(a) || !Array.isArray(b)) {
+    return false
+  }
+  if (a.length !== b.length) {
+    return false
+  }
+  return a.every((value, index) => value === b[index])
+}
+
+const selectionsEqual = (current, next, multiple) => {
+  const currentList = Array.isArray(current) ? current : []
+  const nextList = Array.isArray(next) ? next : []
+  if (currentList.length !== nextList.length) {
+    return false
+  }
+  return currentList.every((path, index) => pathEquals(path, nextList[index]))
+}
+
+const selectionEntryToPath = (entry, metadata) => {
+  if (entry == null) {
+    return null
+  }
+  if (isPathArray(entry)) {
+    return entry
+  }
+  if (typeof entry === "number") {
+    return [entry]
+  }
+  if (typeof entry === "string") {
+    return metadata.byId.get(entry)?.pmui_path ?? null
+  }
+  return null
+}
+
+const selectionValueToPaths = (value, metadata) => {
+  const entries = Array.isArray(value)
+    ? value
+    : value == null
+      ? []
+      : [value]
+  return entries
+    .map((entry) => selectionEntryToPath(entry, metadata))
+    .filter((path) => Array.isArray(path))
+}
+
+const idToPath = (value, metadata) => {
+  if (value == null) {
+    return null
+  }
+  if (isPathArray(value)) {
+    return value
+  }
+  return metadata.byId.get(value)?.pmui_path ?? null
+}
+
+const idsToPaths = (value, metadata) => {
+  const entries = Array.isArray(value)
+    ? value
+    : value == null
+      ? []
+      : [value]
+  return entries
+    .map((entry) => idToPath(entry, metadata))
+    .filter((path) => Array.isArray(path))
+}
+
+const pathToId = (path, metadata) => {
+  if (!Array.isArray(path)) {
+    return null
+  }
+  return metadata.byPath.get(pathKey(path))?.id ?? null
+}
+
+const pathsToIds = (value, metadata) => {
+  return (value || [])
+    .map((path) => pathToId(path, metadata))
+    .filter((id) => id != null)
 }
 
 /**
@@ -270,6 +351,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   const [menuAnchor, setMenuAnchor] = React.useState(null)
   const menuOpen = Boolean(menuAnchor)
   const [toggleValues, setToggleValues] = React.useState(new Map())
+  const iconContainerRef = React.useRef(null)
 
   const buildToggleKey = React.useCallback(
     (actionKey) => `${itemId}-${actionKey}`,
@@ -277,16 +359,37 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   )
 
   React.useEffect(() => {
-    const initial = new Map()
-    inlineActions.forEach((action) => {
-      if (action?.toggle) {
+    setToggleValues((previous) => {
+      const next = new Map(previous)
+      let changed = false
+      const validKeys = new Set()
+
+      inlineActions.forEach((action) => {
+        if (!action?.toggle) {
+          return
+        }
         const actionKey = action.action || action.label
-        if (actionKey) {
-          initial.set(buildToggleKey(actionKey), action.value ?? false)
+        if (!actionKey) {
+          return
+        }
+        const toggleKey = buildToggleKey(actionKey)
+        validKeys.add(toggleKey)
+        const defaultValue = action.value ?? false
+        if (!next.has(toggleKey)) {
+          next.set(toggleKey, defaultValue)
+          changed = true
+        }
+      })
+
+      for (const key of next.keys()) {
+        if (!validKeys.has(key)) {
+          next.delete(key)
+          changed = true
         }
       }
+
+      return changed ? next : previous
     })
-    setToggleValues(initial)
   }, [inlineActions, buildToggleKey])
 
   const sendAction = React.useCallback(
@@ -445,7 +548,6 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
             event.preventDefault()
             sendAction(actionKey)
           }}
-          sx={{ml: index > 0 ? 0 : 0.5}}
         >
           {action.icon && <Icon>{action.icon}</Icon>}
         </IconButton>
@@ -474,19 +576,39 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
               sendAction(actionName, button.value)
             }
           }}
-          sx={{ml: index ? 0.5 : 1}}
+          sx={{ml: index ? 0.25 : 0.5}}
         >
           {button.label}
         </Button>
       )
     })
 
+  const contentProps = getContentProps()
+  const iconContainerProps = getIconContainerProps()
+
+  // Wrap content onClick to prevent selection when clicking icon container
+  const wrappedContentProps = {
+    ...contentProps,
+    onClick: (event) => {
+      // Check if click originated from icon container
+      if (iconContainerRef.current && iconContainerRef.current.contains(event.target)) {
+        return
+      }
+      if (contentProps.onClick) {
+        contentProps.onClick(event)
+      }
+    }
+  }
+
   return (
     <TreeItemProvider {...getContextProviderProps()}>
       <TreeItemRoot {...getRootProps(other)}>
-        <TreeItemContent data-color={resolvedColor} data-highlight={highlightSelection} {...getContentProps()}>
+        <TreeItemContent data-color={resolvedColor} data-highlight={highlightSelection} {...wrappedContentProps}>
           {children.length ? (
-            <TreeItemIconContainer {...getIconContainerProps()}>
+            <TreeItemIconContainer
+              {...iconContainerProps}
+              ref={iconContainerRef}
+            >
               <TreeItemIcon status={status} />
             </TreeItemIconContainer>
           ) : null}
@@ -502,7 +624,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
           />
 
           {(buttons.length || inlineActions.length || menuActions.length) ? (
-            <Box sx={{display: "flex", alignItems: "center", gap: 4, ml: "auto"}}>
+            <Box sx={{display: "flex", alignItems: "center", gap: 1, ml: "auto"}}>
               {renderButtons()}
               {renderInlineActions()}
               {menuActions.length ? (
@@ -513,11 +635,10 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
                       event.stopPropagation()
                     }}
                     onClick={handleMenuOpen}
-                    sx={{ml: 0.5}}
                   >
                     <MoreVert />
                   </IconButton>
-                  <Menu
+                  <CustomMenu
                     anchorEl={menuAnchor}
                     open={menuOpen}
                     onClose={handleMenuClose}
@@ -547,7 +668,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
                         </MenuItem>
                       )
                     })}
-                  </Menu>
+                  </CustomMenu>
                 </React.Fragment>
               ) : null}
             </Box>
@@ -566,10 +687,10 @@ export function render({model}) {
   const [checkboxes] = model.useState("checkboxes")
   const [color] = model.useState("color")
   const [items] = model.useState("items")
-  const [selected, setSelected] = model.useState("selected")
+  const [selected, setSelected] = model.useState("active")
   const [expanded, setExpanded] = model.useState("expanded")
   const [multi_select] = model.useState("multi_select")
-  const [item_children_indentation] = model.useState("item_children_indentation")
+  const [item_children_indentation] = model.useState("level_indent")
   const [propagate_to_parent] = model.useState("propagate_to_parent")
   const [propagate_to_child] = model.useState("propagate_to_child")
   const [show_children] = model.useState("show_children")
@@ -585,16 +706,15 @@ export function render({model}) {
     [treeItems]
   )
 
-  const isItemSelectable = React.useCallback(
-    (itemId) => {
-      if (itemId == null) {
+  const allowMultipleSelection = multi_select || checkboxes
+
+  const isPathSelectable = React.useCallback(
+    (path) => {
+      if (!Array.isArray(path)) {
         return true
       }
-      const meta = itemMetadata.get(itemId)
-      if (!meta) {
-        return true
-      }
-      if (meta.selectable === undefined) {
+      const meta = itemMetadata.byPath.get(pathKey(path))
+      if (!meta || meta.selectable === undefined) {
         return true
       }
       return meta.selectable
@@ -602,47 +722,63 @@ export function render({model}) {
     [itemMetadata]
   )
 
+  const selectedPaths = React.useMemo(
+    () => selectionValueToPaths(selected, itemMetadata),
+    [selected, itemMetadata]
+  )
+
+  const selectedIds = React.useMemo(
+    () => pathsToIds(selectedPaths, itemMetadata),
+    [selectedPaths, itemMetadata, allowMultipleSelection]
+  )
+
+  const expandedPaths = React.useMemo(
+    () => idsToPaths(expanded, itemMetadata),
+    [expanded, itemMetadata]
+  )
+
+  const expandedIds = React.useMemo(
+    () => pathsToIds(expandedPaths, itemMetadata),
+    [expandedPaths, itemMetadata]
+  )
+
   const filterSelection = React.useCallback(
     (value) => {
-      if (value == null) {
-        return value
+      if (!value) {
+        return []
       }
-      if (Array.isArray(value)) {
-        return value.filter(isItemSelectable)
-      }
-      return isItemSelectable(value) ? value : selected
+      return value.filter(isPathSelectable)
     },
-    [isItemSelectable, selected]
+    [allowMultipleSelection, isPathSelectable, selectedPaths]
   )
 
   const handleSelectedChange = (event, newSelected) => {
-    const filteredSelection = filterSelection(newSelected)
-    if (selectionsEqual(selected, filteredSelection)) {
+    const selectedIds = allowMultipleSelection ? newSelected : [newSelected]
+    const newSelectionPaths = idsToPaths(newSelected, itemMetadata)
+    const filteredSelection = filterSelection(newSelectionPaths)
+    if (selectionsEqual(selectedPaths, filteredSelection)) {
       return
     }
     setSelected(filteredSelection)
-    model.send_msg({
-      type: "select",
-      selected: filteredSelection
-    })
   }
 
   const handleExpandedChange = (event, newExpanded) => {
-    setExpanded(newExpanded)
-    model.send_msg({
-      type: "expand",
-      expanded: newExpanded
-    })
+    const nextExpandedPaths = idsToPaths(newExpanded, itemMetadata)
+    if (selectionsEqual(expandedPaths, nextExpandedPaths)) {
+      return
+    }
+    setExpanded(nextExpandedPaths)
   }
 
   return (
     <RichTreeView
+      expansionTrigger="iconContainer"
       items={treeItems}
       slots={{item: CustomTreeItem}}
       slotProps={{item: {color, model, highlightSelection: !checkboxes}}}
-      selectedItems={selected}
+      selectedItems={selectedIds}
       onSelectedItemsChange={handleSelectedChange}
-      expandedItems={expanded}
+      expandedItems={expandedIds}
       onExpandedItemsChange={handleExpandedChange}
       multiSelect={multi_select}
       checkboxSelection={checkboxes}
