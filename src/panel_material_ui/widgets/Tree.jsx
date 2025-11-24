@@ -751,8 +751,13 @@ export function render({model}) {
   )
 
   const handleSelectedChange = (_, newSelected) => {
-    const newSelectionPaths = idsToPaths(newSelected, itemMetadata)
+    const selectedIds = allowMultipleSelection ? newSelected : [newSelected]
+    const newSelectionPaths = idsToPaths(selectedIds, itemMetadata)
     const filteredSelection = filterSelection(newSelectionPaths)
+    if (filteredSelection.length === 0 && newSelected.length > 0) {
+      // If a selectable=False item is selected, do not clear the selection
+      return
+    }
     if (!selectionsEqual(selectedPaths, filteredSelection)) {
       setSelected(filteredSelection.slice().reverse())
     }
