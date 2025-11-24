@@ -34,9 +34,25 @@ export function render({model}) {
 
   const active_array = Array.isArray(active) ? active : [active]
   const [toggle_values, setToggleValues] = React.useState(new Map())
+  const toggle_ref = React.useRef(toggle_values)
+
+  const setAction = (key, value) => {
+    const newMap = new Map(toggle_ref.current)
+    newMap.set(key, value)
+    setToggleValues(newMap)
+    toggle_ref.current = newMap
+  }
 
   React.useEffect(() => {
     setMenuOpen(current_menu_open)
+    const handler = (msg) => {
+      if (msg.type == "toggle_action") {
+        const toggle_key = `${msg.index.join(",")}-${msg.action}`
+        setAction(toggle_key, msg.value)
+      }
+    }
+    model.on("msg:custom", handler)
+    return () => model.off("msg:custom", handler)
   }, [])
 
   const render_item = (item, index, path, indent=0) => {
@@ -112,10 +128,12 @@ export function render({model}) {
         sx={{
           m: `0 4px 0 ${indent * level_indent}px`,
           pr: 0,
+          "&.MuiListItemButton-root": {ml: "6px", pl: 1.5},
           "&.MuiListItemButton-root.Mui-selected": {
             bgcolor: isActive ? (
               `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
             ) : "inherit",
+            ml: "0",
             borderLeft: `6px solid var(--mui-palette-${color}-main)`,
             ".MuiListItemText-root": {
               ".MuiTypography-root.MuiListItemText-primary": {
@@ -150,14 +168,12 @@ export function render({model}) {
           const active_color = action.active_color || icon_color
           const action_key = action.action || action.label
           const toggle_key = `${key}-${action_key}`
-          const action_value = toggle_values.get(toggle_key) ?? action.value ?? false
-          toggle_values.set(toggle_key, action_value)
+          const action_value = toggle_ref.current.get(toggle_key) ?? action.value ?? false
           return action.toggle ? (
             <Checkbox
               checked={action_value}
               color={action.color}
               disabled={disabled}
-              selected={action_value}
               size={"small"}
               onMouseDown={(e) => {
                 e.stopPropagation()
@@ -165,9 +181,7 @@ export function render({model}) {
               }}
               onClick={(e) => {
                 const new_value = !action_value
-                const newMap = new Map(toggle_values)
-                newMap.set(toggle_key, new_value)
-                setToggleValues(newMap)
+                setAction(toggle_key, new_value)
                 model.send_msg({type: "action", action: action_key, item: path, value: new_value})
                 e.stopPropagation()
                 e.preventDefault()

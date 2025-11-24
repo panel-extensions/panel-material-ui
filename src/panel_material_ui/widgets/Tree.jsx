@@ -349,6 +349,25 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   const menuOpen = Boolean(menuAnchor)
   const [toggleValues, setToggleValues] = React.useState(new Map())
   const iconContainerRef = React.useRef(null)
+  const toggle_ref = React.useRef(toggleValues)
+
+  const setAction = (key, value) => {
+    const newMap = new Map(toggle_ref.current)
+    newMap.set(key, value)
+    setToggleValues(newMap)
+    toggle_ref.current = newMap
+  }
+
+  React.useEffect(() => {
+    const handler = (msg) => {
+      if (msg.type == "toggle_action") {
+        const toggle_key = `${msg.index.join(",")}-${msg.action}`
+        setAction(toggle_key, msg.value)
+      }
+    }
+    model.on("msg:custom", handler)
+    return () => model.off("msg:custom", handler)
+  }, [])
 
   const buildToggleKey = React.useCallback(
     (actionKey) => `${itemId}-${actionKey}`,
