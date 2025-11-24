@@ -1,4 +1,3 @@
-import pytest
 from panel_material_ui import Tree
 
 
@@ -80,4 +79,6 @@ def test_expanded_remap_nested():
 
     # New expected expanded:
     # root     → (0,)
-    # wrapper  → (0, 0
+    # wrapper  → (0, 0)
+    # section  → (0, 0, 0)
+    assert t.expanded == [(0,), (0, 0), (0, 0, 0)]

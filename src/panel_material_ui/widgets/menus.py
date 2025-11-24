@@ -417,7 +417,7 @@ class TreeLikeBase(NestedMenuBase):
 
         expanded = []
         for item in expanded_items:
-            path = self._lookup_path(item)
+            path = self._lookup_path(item, new_items)
             if path is not None:
                 expanded.append(path)
         self.expanded = expanded
@@ -530,7 +530,7 @@ class Tree(TreeLikeBase):
     ...             "file_type": "trash",
     ...         },
     ...     ],
-    ...     selected="documents",
+    ...     active=[(0,)],
     ... )
     """
 
@@ -548,11 +548,27 @@ class Tree(TreeLikeBase):
     multi_select = param.Boolean(default=True, doc="""
         Whether multiple tree items can be selected at once.""")
 
-    propagate_to_parent = param.Boolean(default=False)
+    propagate_to_parent = param.Boolean(default=False, doc="""
+        Whether checkbox selection propagates from child nodes to parent nodes.
+        If True, selecting a child will also select its parent(s).
+    """)
 
-    propagate_to_child = param.Boolean(default=False)
+    propagate_to_child = param.Boolean(default=False, doc="""
+        Whether checkbox selection propagates from parent nodes to child nodes.
+        If True, selecting a parent node will automatically select all its child nodes.
+        If False, selection is independent for each node.
+    """)
 
-    value = param.List(default=[], item_type=dict)
+    value = param.List(
+        default=[],
+        item_type=dict,
+        doc="""
+        The list of currently selected item dictionaries. This parameter is
+        synchronized with the `active` parameter and reflects the items that
+        are currently selected in the tree. Each item is represented as a
+        dictionary containing its properties (e.g., 'id', 'label', etc.).
+        """
+    )
 
     _esm_base = "Tree.jsx"
 
@@ -578,7 +594,7 @@ class Tree(TreeLikeBase):
     @param.depends('value', watch=True)
     def _sync_value(self):
         index = [self._lookup_path(v) for v in self.value]
-        with _syncing(self, ['selected']):
+        with _syncing(self, ['active']):
             self.active = index
 
     def _process_property_change(self, props):
