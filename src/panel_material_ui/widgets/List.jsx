@@ -28,7 +28,6 @@ export function render({model}) {
   const [level_indent] = model.useState("level_indent")
   const [show_children] = model.useState("show_children")
   const [sx] = model.useState("sx")
-  const [open, setOpen] = React.useState({})
   const [menu_open, setMenuOpen] = React.useState({})
   const [menu_anchor, setMenuAnchor] = React.useState(null)
   const current_menu_open = {...menu_open}
@@ -112,6 +111,7 @@ export function render({model}) {
         selected={highlight && isActive}
         sx={{
           m: `0 4px 0 ${indent * level_indent}px`,
+          pr: 0,
           "&.MuiListItemButton-root.Mui-selected": {
             bgcolor: isActive ? (
               `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
@@ -282,6 +282,7 @@ export function render({model}) {
               }
               setExpanded(new_expanded)
             }}
+            sx={{ml: 0.25}}
           >
             {item_open ? <ExpandLess/> : <ExpandMore />}
           </IconButton>

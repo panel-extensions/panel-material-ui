@@ -50,7 +50,7 @@ def test_menu_list_nested(page):
     serve_component(page, widget)
 
     # Click to expand
-    page.locator('.MuiListItemButton-root').first.click()
+    page.locator('.MuiListItemButton-root > .MuiIconButton-root').first.click()
 
     # Check subitems are visible
     subitems = page.locator('.MuiCollapse-root .MuiListItemButton-root')
@@ -107,20 +107,20 @@ def test_menu_list_nested_items(page):
     serve_component(page, widget)
 
     # Verify initial state
-    expect(page.locator('.MuiListItemButton-root')).to_have_count(4)  # Main items
-    expect(page.locator('.MuiCollapse-root')).to_have_count(1)  # Nested container
+    expect(page.locator('.MuiListItemButton-root')).to_have_count(2)  # Main items
 
     # Expand nested items
-    page.locator('.MuiListItemButton-root').nth(1).locator('button').click()
-    expect(page.locator('.MuiCollapse-root .MuiListItemButton-root')).to_have_count(0)
-    page.locator('.MuiListItemButton-root').nth(1).locator('button').click()
+    page.locator('.MuiListItemButton-root').nth(1).locator('.MuiIconButton-root').click()
     expect(page.locator('.MuiCollapse-root .MuiListItemButton-root')).to_have_count(2)
     expect(page.locator('.MuiCollapse-root .MuiListItemButton-root').nth(0)).to_have_text('NNested 1')
     expect(page.locator('.MuiCollapse-root .MuiListItemButton-root').nth(1)).to_have_text('NNested 2')
 
-    # Select nested item
     page.locator('.MuiCollapse-root .MuiListItemButton-root').first.click()
     wait_until(lambda: widget.active == (1, 0), page)
+
+    page.locator('.MuiListItemButton-root').nth(1).locator('.MuiIconButton-root').click() # Collapse nested items
+    expect(page.locator('.MuiCollapse-root .MuiListItemButton-root')).to_have_count(0)
+
 
 def test_menu_list_with_icons(page):
     widget = MenuList(items=[
