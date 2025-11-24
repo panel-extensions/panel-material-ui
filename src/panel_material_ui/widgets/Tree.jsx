@@ -62,6 +62,9 @@ const TreeItemContent = styled("div")(({theme, ["data-color"]: dataColor, ["data
     gap: theme.spacing(1),
     // default (unselected) appearance
     color: theme.palette.text.secondary,
+    "&[data-disabled='true']": {
+      color: "var(--mui-palette-text-disabled)"
+    },
     // selected
     "&[data-selected]": (showHighlight ? (
       {
@@ -81,7 +84,7 @@ const TreeItemContent = styled("div")(({theme, ["data-color"]: dataColor, ["data
       outlineOffset: -2,
     },
     // hovered
-    "&:not([data-selected]):hover": {
+    "&:not([data-selected]):not([data-disabled='true']):hover": {
       backgroundColor: theme.palette.action.hover,
       color: theme.palette.text.primary,
     },
@@ -293,13 +296,8 @@ const idToPath = (value, metadata) => {
   return metadata.byId.get(value)?.pmui_path ?? null
 }
 
-const idsToPaths = (value, metadata) => {
-  const entries = Array.isArray(value)
-    ? value
-    : value == null
-      ? []
-      : [value]
-  return entries
+const idsToPaths = (values, metadata) => {
+  return values
     .map((entry) => idToPath(entry, metadata))
     .filter((path) => Array.isArray(path))
 }
@@ -322,8 +320,9 @@ const pathsToIds = (value, metadata) => {
  * Uses item metadata (`icon`, `file_type`) to choose the label icon.
  */
 const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
-  const {id, itemId, label, disabled, children, color, model, highlightSelection, ...other} = props
+  const {id, itemId, label, children, color, model, highlightSelection, ...other} = props
 
+  const item = useTreeItemModel(itemId)
   const {
     getContextProviderProps,
     getRootProps,
@@ -334,9 +333,8 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
     getGroupTransitionProps,
     getDragAndDropOverlayProps,
     status
-  } = useTreeItem({id, itemId, children, label, disabled, rootRef: ref})
+  } = useTreeItem({id, itemId, children, label, disabled: item.disabled, rootRef: ref})
 
-  const item = useTreeItemModel(itemId)
   const itemPath = item?.pmui_path
   const resolvedColor = (item && item.color) || color || "primary"
   const actions = Array.isArray(item?.actions) ? item.actions : []
@@ -515,7 +513,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
             key={`tree-action-toggle-${actionKey}`}
             checked={actionValue}
             color={action.color}
-            disabled={disabled}
+            disabled={item.disabled}
             size="small"
             onMouseDown={(event) => {
               event.stopPropagation()
@@ -588,6 +586,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   // Wrap content onClick to prevent selection when clicking icon container
   const wrappedContentProps = {
     ...contentProps,
+    ["data-disabled"]: item.disabled ?? false,
     onClick: (event) => {
       // Check if click originated from icon container
       if (iconContainerRef.current && iconContainerRef.current.contains(event.target)) {
@@ -751,28 +750,26 @@ export function render({model}) {
     [allowMultipleSelection, isPathSelectable, selectedPaths]
   )
 
-  const handleSelectedChange = (event, newSelected) => {
-    const selectedIds = allowMultipleSelection ? newSelected : [newSelected]
+  const handleSelectedChange = (_, newSelected) => {
     const newSelectionPaths = idsToPaths(newSelected, itemMetadata)
     const filteredSelection = filterSelection(newSelectionPaths)
-    if (selectionsEqual(selectedPaths, filteredSelection)) {
-      return
+    if (!selectionsEqual(selectedPaths, filteredSelection)) {
+      setSelected(filteredSelection.slice().reverse())
     }
-    setSelected(filteredSelection)
   }
 
-  const handleExpandedChange = (event, newExpanded) => {
+  const handleExpandedChange = (_, newExpanded) => {
     const nextExpandedPaths = idsToPaths(newExpanded, itemMetadata)
-    if (selectionsEqual(expandedPaths, nextExpandedPaths)) {
-      return
+    if (!selectionsEqual(expandedPaths, nextExpandedPaths)) {
+      setExpanded(nextExpandedPaths.slice().reverse())
     }
-    setExpanded(nextExpandedPaths)
   }
 
   return (
     <RichTreeView
       expansionTrigger="iconContainer"
       items={treeItems}
+      isItemDisabled={(item) => item.disabled ?? false}
       slots={{item: CustomTreeItem}}
       slotProps={{item: {color, model, highlightSelection: !checkboxes}}}
       selectedItems={selectedIds}

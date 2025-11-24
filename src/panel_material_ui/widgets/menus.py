@@ -17,15 +17,6 @@ from .base import MaterialWidget, TooltipTransform
 from .button import _ButtonBase
 
 
-def filter_item(item, keys):
-    if isinstance(item, dict):
-        item = {k: v for k, v in item.items() if k in keys}
-        if 'items' in item:
-            item['items'] = [filter_item(child, keys) for child in item['items']]
-        return item
-    return item
-
-
 class MenuBase(MaterialWidget):
 
     active = param.Integer(default=None, doc="""
@@ -75,7 +66,7 @@ class MenuBase(MaterialWidget):
                         items.append(item)
             else:
                 items = params['items']
-            params['items'] = [filter_item(item, self._item_keys) for item in items]
+            params['items'] = [self._filter_item(item, self._item_keys) for item in items]
         return params
 
     def _process_property_change(self, props):
@@ -104,6 +95,16 @@ class MenuBase(MaterialWidget):
             else:
                 self.active = index if 'items' in self._item_keys else index[0]
 
+    def _filter_item(self, item, keys, depth=0):
+        if isinstance(item, dict):
+            item = {k: v for k, v in item.items() if k in keys}
+            if 'items' in item:
+                item['items'] = [
+                    self._filter_item(child, keys, depth=depth+1)
+                    for child in item['items']
+                ]
+        return item
+
     def _lookup_path(self, item, items=None):
         items = self.items if items is None else items
         if not items:
@@ -116,7 +117,7 @@ class MenuBase(MaterialWidget):
                 if current == item:
                     return tuple(current_path)
                 if isinstance(current, dict):
-                    if filter_item(current, self._item_keys) == filter_item(item, self._item_keys):
+                    if current is item or self._filter_item(current, self._item_keys) == self._filter_item(item, self._item_keys):
                         return tuple(current_path)
                     if 'items' in current and self._descend_children:
                         queue.append((current_path, depth + 1, current['items']))
@@ -550,25 +551,19 @@ class Tree(TreeLikeBase):
 
     propagate_to_parent = param.Boolean(default=False, doc="""
         Whether checkbox selection propagates from child nodes to parent nodes.
-        If True, selecting a child will also select its parent(s).
-    """)
+        If True, selecting a child will also select its parent(s).""")
 
     propagate_to_child = param.Boolean(default=False, doc="""
         Whether checkbox selection propagates from parent nodes to child nodes.
         If True, selecting a parent node will automatically select all its child nodes.
-        If False, selection is independent for each node.
-    """)
+        If False, selection is independent for each node.""")
 
-    value = param.List(
-        default=[],
-        item_type=dict,
-        doc="""
+    value = param.List(default=[], item_type=dict, doc="""
         The list of currently selected item dictionaries. This parameter is
         synchronized with the `active` parameter and reflects the items that
         are currently selected in the tree. Each item is represented as a
         dictionary containing its properties (e.g., 'id', 'label', etc.).
-        """
-    )
+        """)
 
     _esm_base = "Tree.jsx"
 
@@ -583,7 +578,7 @@ class Tree(TreeLikeBase):
         "secondary",
         "actions",
         "buttons",
-        "color",
+        "color"
     ]
 
     @param.depends('active', watch=True)
