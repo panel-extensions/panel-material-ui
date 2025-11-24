@@ -320,7 +320,7 @@ const pathsToIds = (value, metadata) => {
  * Uses item metadata (`icon`, `file_type`) to choose the label icon.
  */
 const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
-  const {id, itemId, label, children, color, model, highlightSelection, ...other} = props
+  const {id, itemId, label, children, color, model, highlightSelection, setToggleValues, toggle_ref, ...other} = props
 
   const item = useTreeItemModel(itemId)
   const {
@@ -347,9 +347,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
 
   const [menuAnchor, setMenuAnchor] = React.useState(null)
   const menuOpen = Boolean(menuAnchor)
-  const [toggleValues, setToggleValues] = React.useState(new Map())
   const iconContainerRef = React.useRef(null)
-  const toggle_ref = React.useRef(toggleValues)
 
   const setAction = (key, value) => {
     const newMap = new Map(toggle_ref.current)
@@ -361,7 +359,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   React.useEffect(() => {
     const handler = (msg) => {
       if (msg.type == "toggle_action") {
-        const toggle_key = `${msg.index.join(",")}-${msg.action}`
+        const toggle_key = buildToggleKey(msg.action)
         setAction(toggle_key, msg.value)
       }
     }
@@ -373,40 +371,6 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
     (actionKey) => `${itemId}-${actionKey}`,
     [itemId]
   )
-
-  React.useEffect(() => {
-    setToggleValues((previous) => {
-      const next = new Map(previous)
-      let changed = false
-      const validKeys = new Set()
-
-      inlineActions.forEach((action) => {
-        if (!action?.toggle) {
-          return
-        }
-        const actionKey = action.action || action.label
-        if (!actionKey) {
-          return
-        }
-        const toggleKey = buildToggleKey(actionKey)
-        validKeys.add(toggleKey)
-        const defaultValue = action.value ?? false
-        if (!next.has(toggleKey)) {
-          next.set(toggleKey, defaultValue)
-          changed = true
-        }
-      })
-
-      for (const key of next.keys()) {
-        if (!validKeys.has(key)) {
-          next.delete(key)
-          changed = true
-        }
-      }
-
-      return changed ? next : previous
-    })
-  }, [inlineActions, buildToggleKey])
 
   const sendAction = React.useCallback(
     (actionName, value) => {
@@ -435,11 +399,10 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
     const currentValue =
       toggle_ref.current.get(toggleKey) ?? action.value ?? false
     const newValue = !currentValue
-    setToggleValues((prev) => {
-      const next = new Map(prev)
-      next.set(toggleKey, newValue)
-      return next
-    })
+    const next = new Map(toggle_ref.current)
+    next.set(toggleKey, newValue)
+    toggle_ref.current = next
+    setToggleValues(next)
     sendAction(actionKey, newValue)
   }
 
@@ -487,7 +450,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
       }
       const toggleKey = buildToggleKey(actionKey)
       const actionValue =
-        toggleValues.get(toggleKey) ?? action.value ?? false
+        toggle_ref.current.get(toggleKey) ?? action.value ?? false
 
       if (action.toggle) {
         const iconContent =
@@ -713,6 +676,9 @@ export function render({model}) {
   const [show_children] = model.useState("show_children")
   const [sx] = model.useState("sx")
 
+  const [toggleValues, setToggleValues] = React.useState(new Map())
+  const toggle_ref = React.useRef(toggleValues)
+
   const treeItems = React.useMemo(
     () => normalizeItems(items || [], show_children),
     [items, show_children]
@@ -795,7 +761,7 @@ export function render({model}) {
       items={treeItems}
       isItemDisabled={(item) => item.disabled ?? false}
       slots={{item: CustomTreeItem}}
-      slotProps={{item: {color, model, highlightSelection: !checkboxes}}}
+      slotProps={{item: {color, model, highlightSelection: !checkboxes, setToggleValues, toggle_ref}}}
       selectedItems={selectedIds}
       onSelectedItemsChange={handleSelectedChange}
       expandedItems={expandedIds}
