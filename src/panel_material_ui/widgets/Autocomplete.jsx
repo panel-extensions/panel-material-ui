@@ -31,7 +31,7 @@ export function render({model, el, view}) {
 
   React.useEffect(() => {
     const handler = (msg) => {
-      if (msg && msg.type === "focus") {
+      if (msg && msg.action === "focus") {
         ref.current?.focus()
       } else if (msg && msg.type === "search_response" && msg.id !== undefined) {
         const resolver = pendingQueries.current.get(msg.id)
