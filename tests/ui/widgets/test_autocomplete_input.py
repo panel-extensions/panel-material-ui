@@ -239,3 +239,164 @@ def test_autocomplete_input_disabled_state(page):
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
     expect(page.locator("input")).to_be_disabled()
+
+def test_autocomplete_lazy_search_basic(page):
+    """Test basic lazy search functionality"""
+    widget = AutocompleteInput(
+        label='Search',
+        options=['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry'],
+        lazy_search=True,
+        min_characters=2
+    )
+    serve_component(page, widget)
+
+    # Type in the autocomplete input
+    input_field = page.locator('.MuiAutocomplete-input')
+    expect(input_field).to_have_count(1)
+
+    # Type "Ba" - should trigger lazy search
+    input_field.fill("Ba")
+    page.wait_for_timeout(500)  # Wait for debounce and response
+
+    # Should show filtered results (Banana)
+    expect(page.locator(".MuiAutocomplete-option")).to_have_count(1)
+    expect(page.locator(".MuiAutocomplete-option")).to_have_text("Banana")
+
+def test_autocomplete_lazy_search_min_characters(page):
+    """Test that lazy search respects min_characters"""
+    widget = AutocompleteInput(
+        label='Search',
+        options=['Apple', 'Banana', 'Cherry'],
+        lazy_search=True,
+        min_characters=3
+    )
+    serve_component(page, widget)
+
+    input_field = page.locator('.MuiAutocomplete-input')
+
+    # Type "Ba" - should not trigger search (only 2 characters)
+    input_field.fill("Ba")
+    page.wait_for_timeout(500)
+
+    # Should show no options (below min_characters)
+    expect(page.locator(".MuiAutocomplete-option")).to_have_count(0)
+
+    # Type "Ban" - should trigger search (3 characters)
+    input_field.fill("Ban")
+    page.wait_for_timeout(500)
+
+    # Should show filtered results
+    expect(page.locator(".MuiAutocomplete-option")).to_have_count(1)
+
+def test_autocomplete_lazy_search_case_sensitive(page):
+    """Test lazy search with case sensitivity"""
+
+    widget = AutocompleteInput(
+        label='Search',
+        options=['Apple', 'Banana', 'Cherry'],
+        lazy_search=True,
+        case_sensitive=True,
+        min_characters=2
+    )
+    serve_component(page, widget)
+
+    input_field = page.locator('.MuiAutocomplete-input')
+
+    # Type "ba" (lowercase) with case_sensitive=True
+    input_field.fill("ba")
+    page.wait_for_timeout(500)
+
+    # Should not find "Banana" (case mismatch)
+    expect(page.locator(".MuiAutocomplete-option")).to_have_count(0)
+
+    # Type "Ba" (capital B) - should find Banana
+    input_field.fill("Ba")
+    page.wait_for_timeout(500)
+    expect(page.locator(".MuiAutocomplete-option")).to_have_count(1)
+
+def test_autocomplete_lazy_search_case_insensitive(page):
+    """Test lazy search with case insensitive"""
+    widget = AutocompleteInput(
+        label='Search',
+        options=['Apple', 'Banana', 'Cherry'],
+        lazy_search=True,
+        case_sensitive=False,
+        min_characters=2
+    )
+    serve_component(page, widget)
+
+    input_field = page.locator('.MuiAutocomplete-input')
+
+    # Type "ba" (lowercase) with case_sensitive=False
+    input_field.fill("ba")
+    page.wait_for_timeout(500)
+
+    # Should find "Banana" (case insensitive)
+    expect(page.locator(".MuiAutocomplete-option")).to_have_count(1)
+    expect(page.locator(".MuiAutocomplete-option")).to_have_text("Banana")
+
+def test_autocomplete_lazy_search_includes_strategy(page):
+    """Test lazy search with includes search strategy"""
+    widget = AutocompleteInput(
+        label='Search',
+        options=['Apple', 'Banana', 'Cherry', 'Pineapple'],
+        lazy_search=True,
+        search_strategy='includes',
+        min_characters=2,
+        case_sensitive=False
+    )
+    serve_component(page, widget)
+
+    input_field = page.locator('.MuiAutocomplete-input')
+
+    # Type "app" - should find both Apple and Pineapple (includes strategy)
+    input_field.fill("app")
+    page.wait_for_timeout(500)
+
+    # Should show filtered results
+    options = page.locator(".MuiAutocomplete-option")
+    expect(options).to_have_count(2)
+    expect(options.nth(0)).to_have_text("Apple")
+    expect(options.nth(1)).to_have_text("Pineapple")
+
+def test_autocomplete_lazy_search_starts_with_strategy(page):
+    """Test lazy search with starts_with search strategy"""
+    widget = AutocompleteInput(
+        label='Search',
+        options=['Apple', 'Banana', 'Cherry', 'Pineapple'],
+        lazy_search=True,
+        search_strategy='starts_with',
+        min_characters=2,
+        case_sensitive=False
+    )
+    serve_component(page, widget)
+
+    input_field = page.locator('.MuiAutocomplete-input')
+
+    # Type "app" - should only find Apple (starts_with strategy)
+    input_field.fill("app")
+    page.wait_for_timeout(500)
+
+    # Should show only Apple (Pineapple doesn't start with "app")
+    expect(page.locator(".MuiAutocomplete-option")).to_have_count(1)
+    expect(page.locator(".MuiAutocomplete-option")).to_have_text("Apple")
+
+def test_autocomplete_lazy_search_vs_local(page):
+    """Test that lazy_search=False uses local filtering"""
+    widget = AutocompleteInput(
+        label='Search',
+        options=['Apple', 'Banana', 'Cherry'],
+        lazy_search=False,
+        min_characters=2
+    )
+    serve_component(page, widget)
+
+    input_field = page.locator('.MuiAutocomplete-input')
+
+    # Type "Ba" - should use local filtering
+    input_field.fill("Ba")
+    page.wait_for_timeout(100)  # Less wait needed for local filtering
+
+    # Should show filtered results
+    expect(page.locator(".MuiAutocomplete-option")).to_have_count(1)
+    expect(page.locator(".MuiAutocomplete-option")).to_have_text("Banana")
