@@ -433,7 +433,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
     }
     const toggleKey = buildToggleKey(actionKey)
     const currentValue =
-      toggleValues.get(toggleKey) ?? action.value ?? false
+      toggle_ref.current.get(toggleKey) ?? action.value ?? false
     const newValue = !currentValue
     setToggleValues((prev) => {
       const next = new Map(prev)

@@ -175,6 +175,29 @@ def test_menu_list_with_actions(page):
     expect(page.locator('.MuiMenu-root .MuiMenuItem-root')).to_have_text('deleteDelete')
     expect(page.locator('.MuiMenu-root .material-icons')).to_have_text('delete')
 
+def test_menu_list_with_toggle_actions(page):
+    widget = MenuList(items=[{
+        "label": "Item 1",
+        "actions": [
+            {"label": "Edit", "icon": "edit", "inline": True, "toggle": True},
+            {"label": "Delete", "icon": "delete", "inline": False, "toggle": True}
+        ]
+    }])
+
+    edit_actions, delete_actions = [], []
+    widget.on_action("Edit", lambda item: edit_actions.append(item['actions'][0]['value']))
+    widget.on_action("Delete", lambda item: edit_actions.append(item['actions'][1]['value']))
+    serve_component(page, widget)
+
+    # Verify inline action
+    expect(page.locator('.MuiListItemButton-root .MuiCheckbox-root .material-icons-outlined')).to_have_text('edit')
+    page.locator('.MuiListItemButton-root .MuiCheckbox-root').click()
+    expect(page.locator('.MuiListItemButton-root .MuiCheckbox-root .material-icons')).to_have_text('edit')
+    wait_until(lambda: edit_actions == [True], page)
+
+    widget.toggle_action(widget.items[0], "Edit", False)
+    expect(page.locator('.MuiListItemButton-root .MuiCheckbox-root .material-icons-outlined')).to_have_text('edit')
+
 def test_menu_list_with_dividers(page):
     widget = MenuList(items=[
         "Item 1",
