@@ -172,8 +172,8 @@ export function render({model}) {
 
     model.send_msg({
       type: "click",
-      item: base,   // explicit
-      path: full    // resolved for rendering
+      item: base,
+      path: full
     })
   }
 
@@ -190,12 +190,12 @@ export function render({model}) {
       return newExplicit.concat(item ? descendFirsts(item) : [])
     })()
 
-    closeMenu()
     model.send_msg({
       type: "click",
-      item: newExplicit, // explicit
-      path: resolved     // resolved
+      item: newExplicit,
+      path: resolved
     })
+    closeMenu()
   }
 
   function renderSegment(item, depth) {
@@ -301,7 +301,6 @@ export function render({model}) {
         const depth = chain.length
         const siblings = siblingsAtDepth(depth)
         const isOpen = menuDepth === depth
-        const selectedIdx = -1 // none selected
 
         return [
           <span key={`seg-placeholder-${depth}`} style={{display: "inline-flex", alignItems: "center"}}>
@@ -330,7 +329,6 @@ export function render({model}) {
                       <MenuItem
                         disabled={!isSelectable}
                         key={`d${depth}-i${idx}`}
-                        selected={selectedIdx === idx /* always false */}
                         onClick={() => isSelectable && selectAtDepth(depth, idx)}
                       >
                         {sib.icon ? <Icon sx={{mr: 1}}>{sib.icon}</Icon> : null}
