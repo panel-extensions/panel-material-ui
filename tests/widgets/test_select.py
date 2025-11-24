@@ -262,7 +262,7 @@ def test_select_change_options_on_watch(document, comm):
     assert model.data.value == 'D'
     assert model.data.options == list(select.options)
 
-def test_autocomplete_lazy_search_options_none(document, comm):
+def test_autocomplete_lazy_search_options_empty(document, comm):
     """Test that when lazy_search is True, model.data.options is None"""
     opts = {'A': 'a', '1': 1, 'B': 'b'}
     select = AutocompleteInput(options=opts, value=opts['1'], name='Autocomplete', lazy_search=True)
@@ -272,7 +272,7 @@ def test_autocomplete_lazy_search_options_none(document, comm):
     assert model.data.label == 'Autocomplete'
     assert model.data.value == str(opts['1'])
     # Options should be None when lazy_search is True to prevent sending all options to frontend
-    assert model.data.options is None
+    assert model.data.options == []
 
 def test_autocomplete_lazy_search_options_present(document, comm):
     """Test that when lazy_search is False, model.data.options is present"""
