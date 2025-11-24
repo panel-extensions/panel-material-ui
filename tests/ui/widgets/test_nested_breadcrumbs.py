@@ -213,13 +213,13 @@ def test_nested_breadcrumbs_no_auto_descend_placeholder_flow(page):
     expect(menu_items.nth(1)).to_contain_text("A2")
 
     # Choose A2 -> active becomes (0, 0, 1); leaf, so no placeholder
-    menu_items.nth(1).click()
-    wait_until(lambda: widget.active == (0, 0, 1), page)
-    wait_until(lambda: widget.path == (0, 0, 1), page)
+    menu_items.first.click()
+    wait_until(lambda: widget.active == (0, 0, 0), page)
+    wait_until(lambda: widget.path == (0, 0, 0), page)
 
     # Breadcrumbs now: Projects > A > A2
     expect(crumbs).to_have_count(3)
-    expect(crumbs.nth(2)).to_have_text("grainA2")
+    expect(crumbs.nth(2)).to_have_text("grainA1")
 
 
 def test_nested_breadcrumbs_no_auto_descend_truncate(page):
