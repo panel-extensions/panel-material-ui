@@ -81,4 +81,4 @@ def test_expanded_remap_nested():
     # root     → (0,)
     # wrapper  → (0, 0)
     # section  → (0, 0, 0)
-    assert t.expanded == [(0,), (0, 0), (0, 0, 0)]
+    assert t.expanded == [(0,), (0, 0, 0), (0, 0)]

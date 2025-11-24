@@ -95,15 +95,28 @@ class MenuBase(MaterialWidget):
             else:
                 self.active = index if 'items' in self._item_keys else index[0]
 
-    def _filter_item(self, item, keys, depth=0):
+    def _filter_item(self, item, keys: list[str], depth: int = 0, children: bool = True):
         if isinstance(item, dict):
-            item = {k: v for k, v in item.items() if k in keys}
+            item = {k: v for k, v in item.items() if k in keys and (children or k != "items")}
             if 'items' in item:
                 item['items'] = [
                     self._filter_item(child, keys, depth=depth+1)
                     for child in item['items']
                 ]
         return item
+
+    def _items_equal(self, item1, item2):
+        if item1 is item2:
+            return True
+        elif not (isinstance(item1, dict) and isinstance(item2, dict)):
+            return False
+        id1 = item1.get("id")
+        id2 = item2.get("id")
+        if id1 is not None and item2 is not None:
+            return id1 == id2
+        filtered1 = self._filter_item(item1, self._item_keys, children=False)
+        filtered2 = self._filter_item(item2, self._item_keys, children=False)
+        return filtered1 == filtered2
 
     def _lookup_path(self, item, items=None):
         items = self.items if items is None else items
@@ -114,13 +127,10 @@ class MenuBase(MaterialWidget):
             path, depth, items = queue.pop(0)
             for i, current in enumerate(items):
                 current_path = path + [i]
-                if current == item:
+                if self._items_equal(current, item):
                     return tuple(current_path)
-                if isinstance(current, dict):
-                    if current is item or self._filter_item(current, self._item_keys) == self._filter_item(item, self._item_keys):
-                        return tuple(current_path)
-                    if 'items' in current and self._descend_children:
-                        queue.append((current_path, depth + 1, current['items']))
+                if isinstance(current, dict) and 'items' in current and self._descend_children:
+                    queue.append((current_path, depth + 1, current['items']))
         return None
 
     def _lookup_item(self, index, items=None):
