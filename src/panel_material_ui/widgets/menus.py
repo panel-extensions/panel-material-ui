@@ -250,6 +250,55 @@ class Breadcrumbs(BreadcrumbsBase):
     _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
 
 
+class TabMenu(MenuBase):
+    """
+    The `TabMenu` component is used to display a group of tabs that allow users to switch
+    between different views or sections of content. It provides a clean, organized way to
+    navigate between related items.
+
+    Tab items can be strings or objects with properties:
+
+    - `label`: The label of the tab item (required)
+    - `icon`: The icon of the tab item (optional)
+    - `avatar`: The avatar of the tab item (optional)
+    - `href`: Link to navigate to when clicking the tab item (optional)
+    - `target`: Link target (e.g. `"_blank"`) (optional)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/TabMenu.html
+    - https://mui.com/material-ui/react-tabs/
+
+    :Example:
+
+    >>> pmui.TabMenu(items=[
+    ...     {'label': 'Home', 'icon': 'home'},
+    ...     {'label': 'Gallery', 'icon': 'image'},
+    ...     {'label': 'Settings', 'icon': 'settings'},
+    ... ], active=0)
+    """
+
+    centered = param.Boolean(default=False, doc="""
+        Whether the tabs should be centered.""")
+
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the tabs.")
+
+    icon_position = param.Selector(objects=["start", "top", "end", "bottom"], doc="""
+        The position of the icon relative to the tab label.""")
+
+    scroll_buttons = param.Selector(default="auto", objects=["auto", "true", "false"], doc="""
+        Determine behavior of scroll buttons when tabs are set to scroll.
+        - "auto" will only present them when not all the items are visible.
+        - "true" will always present them.
+        - "false" will never present them.""")
+
+    variant = param.Selector(default="standard", objects=["standard", "scrollable", "fullWidth"], doc="""
+        The variant to use for the tabs.""")
+
+    _esm_base = "TabMenu.jsx"
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
+
+
 class NestedMenuBase(MenuBase):
 
     active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
@@ -950,5 +999,6 @@ __all__ = [
     "Pagination",
     "SpeedDial",
     "SplitButton",
+    "TabMenu",
     "Tree"
 ]
