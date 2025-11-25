@@ -23,9 +23,11 @@ export function render(props, ref) {
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
     ref = undefined
   }
-  model.on("msg:custom", (msg) => {
-    anchorEl.current?.focus()
-  })
+  React.useEffect(() => {
+    const focus_cb = (msg) => anchorEl.current?.focus()
+    model.on("msg:custom", focus_cb)
+    return () => model.off("msg:custom", focus_cb)
+  }, [])
 
   return (
     <div ref={ref}>
