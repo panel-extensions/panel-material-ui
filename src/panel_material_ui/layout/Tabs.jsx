@@ -18,10 +18,33 @@ export function render({model, view}) {
   const objects = model.get_child("objects")
 
   const theme = useTheme()
+  const contentRef = React.useRef(null)
+  const [minHeight, setMinHeight] = React.useState(null)
 
   const handleChange = (event, newValue) => {
+    // Capture current height before changing tabs
+    if (contentRef.current) {
+      const height = contentRef.current.scrollHeight
+      if (height > 0) {
+        setMinHeight(height)
+      }
+    }
     setActive(newValue);
   };
+
+  React.useLayoutEffect(() => {
+    // Update min-height after new content is rendered
+    if (contentRef.current) {
+      const height = contentRef.current.scrollHeight
+      if (height > 0) {
+        // Use a small delay to allow content to fully render
+        const timeoutId = setTimeout(() => {
+          setMinHeight(height)
+        }, 50)
+        return () => clearTimeout(timeoutId)
+      }
+    }
+  }, [active])
 
   const orientation = (location === "above" || location === "below") ? "horizontal" : "vertical"
 
@@ -81,6 +104,8 @@ export function render({model, view}) {
       ))}
     </Tabs>
   )
+  const content = apply_flex(view.get_child_view(model.objects[active]), "column") || objects[active]
+
   return (
     <Box
       className="MuiTabsPanel"
@@ -88,11 +113,32 @@ export function render({model, view}) {
         display: objects.length === 0 ? "none" : "flex",
         flexDirection: (location === "left" || location === "right") ? "row" : "column",
         height: "100%",
-        maxWidth: "100%"
+        maxWidth: "100%",
+        position: "relative"
       }}
     >
       { (location === "left" || location === "above") && tabs }
-      {apply_flex(view.get_child_view(model.objects[active]), "column") || objects[active]}
+      <Box
+        key={`tab-content-${active}`}
+        ref={contentRef}
+        sx={{
+          flex: 1,
+          minHeight: minHeight ? `${minHeight}px` : 0,
+          minWidth: 0,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "auto",
+          position: "relative",
+          width: "100%",
+          opacity: 1,
+          transition: theme.transitions.create(["opacity", "min-height"], {
+            duration: theme.transitions.duration.short,
+            easing: theme.transitions.easing.easeInOut
+          })
+        }}
+      >
+        {content}
+      </Box>
       { (location === "right" || location === "below") && tabs }
     </Box>
   );
