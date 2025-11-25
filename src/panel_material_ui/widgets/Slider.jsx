@@ -36,14 +36,18 @@ export function render({model, el, view}) {
 
   const ref = React.useRef(null)
   const editableRef = React.useRef(null)
-  model.on("msg:custom", (msg) => {
-    if (editable && editableRef.current) {
-      editableRef.current?.focus()
-    } else {
-      const thumb = ref.current?.querySelector(".MuiSlider-thumb").children[0]
-      thumb?.focus()
+  React.useEffect(() => {
+    const handler = () => {
+      if (editable && editableRef.current) {
+        editableRef.current?.focus()
+      } else {
+        const thumb = ref.current?.querySelector(".MuiSlider-thumb").children[0]
+        thumb?.focus()
+      }
     }
-  })
+    model.on("msg:custom", handler)
+    return () => model.off("msg:custom", handler)
+  }, [])
 
   const date = model.esm_constants.date
   const datetime = model.esm_constants.datetime

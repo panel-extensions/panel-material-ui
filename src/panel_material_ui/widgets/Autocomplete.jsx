@@ -42,9 +42,7 @@ export function render({model, el, view}) {
       }
     }
     model.on("msg:custom", handler)
-    return () => {
-      model.off("msg:custom", handler)
-    }
+    return () => model.off("msg:custom", handler)
   }, [model])
 
   function CustomPopper(props) {
