@@ -222,3 +222,27 @@ def test_tree_mixed_disabled_and_selectable(page):
     # Try disabled - should not change
     page.get_by_role("treeitem").nth(2).click(force=True)
     wait_until(lambda: widget.active == [(0,)], page)
+
+
+def test_menu_list_with_toggle_actions(page):
+    widget = Tree(items=[{
+        "label": "Item 1",
+        "actions": [
+            {"label": "Edit", "icon": "edit", "inline": True, "toggle": True},
+            {"label": "Delete", "icon": "delete", "inline": False, "toggle": True}
+        ]
+    }])
+
+    edit_actions, delete_actions = [], []
+    widget.on_action("Edit", lambda item: edit_actions.append(item['actions'][0]['value']))
+    widget.on_action("Delete", lambda item: edit_actions.append(item['actions'][1]['value']))
+    serve_component(page, widget)
+
+    # Verify inline action
+    expect(page.get_by_role("treeitem").locator('.MuiCheckbox-root .material-icons-outlined')).to_have_text('edit')
+    page.get_by_role("treeitem").locator('.MuiCheckbox-root').click()
+    expect(page.get_by_role("treeitem").locator('.MuiCheckbox-root .material-icons')).to_have_text('edit')
+    wait_until(lambda: edit_actions == [True], page)
+
+    widget.toggle_action(widget.items[0], "Edit", False)
+    expect(page.get_by_role("treeitem").locator('.MuiCheckbox-root .material-icons-outlined')).to_have_text('edit')

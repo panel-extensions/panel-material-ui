@@ -388,6 +388,24 @@ class TreeLikeBase(NestedMenuBase):
         """
         self._on_action_callbacks[action].append(callback)
 
+    def toggle_action(self, item: dict, action: str, value: bool):
+        """
+        Toggle an action for an item.
+
+        Parameters
+        ----------
+        item: (dict)
+            The item to toggle the action on.
+        action: (str)
+            The label of the action to toggle.
+        value: (bool)
+            The value to set the action to.
+        """
+        index = self._lookup_path(item)
+        if index is None:
+            raise ValueError("Item {item} was not found.")
+        self._send_msg({"type": "toggle_action", "index": index, "action": action, "value": value})
+
     def remove_on_action(self, action: str, callback: Callable[[DOMEvent], None]):
         """
         Remove a previously added action handler.
