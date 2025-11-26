@@ -26,6 +26,9 @@ class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
     This is an abstract base class and should not be used directly.
     """
 
+    loading_inset = param.Integer(default=-6, doc="""
+        Loading spinner wrapper inset style rule value.""")
+
     value = param.Parameter(default=None, allow_None=True, doc="The selected value.")
 
     _allows_values = False
@@ -43,6 +46,9 @@ class MaterialMultiSelectBase(MaterialWidget, _PnMultiSelectBase):
 
     This is an abstract base class and should not be used directly.
     """
+
+    loading_inset = param.Integer(default=-6, doc="""
+        Loading spinner wrapper inset style rule value.""")
 
     value = param.List(default=[], allow_None=True, doc="The selected values.")
 
