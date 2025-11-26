@@ -31,6 +31,9 @@ logger = getLogger(__name__)
 
 class MaterialInputWidget(MaterialWidget):
 
+    loading_inset = param.Integer(default=-6, doc="""
+        Loading spinner wrapper inset style rule value.""")
+
     color = param.Selector(objects=COLORS, default="primary", doc="""
         The color variant of the input.""")
 
@@ -1155,6 +1158,9 @@ class Checkbox(MaterialWidget):
 
     >>> Checkbox(label='Works with the tools you know and love', value=True)
     """
+
+    loading_inset = param.Integer(default=-6, doc="""
+        Loading spinner wrapper inset style rule value.""")
 
     color = param.Selector(objects=COLORS, default="primary", doc="""
         The color of the checkbox.""")

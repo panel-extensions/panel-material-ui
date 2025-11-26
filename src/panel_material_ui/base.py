@@ -191,6 +191,7 @@ import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
 
 function {output}(props) {{
   const [loading] = props.model.useState('loading')
+  const [loading_inset] = props.model.useState('loading_inset')
   const theme = useMuiTheme()
 
   const overlayColor = theme.palette.mode === 'dark'
@@ -203,7 +204,7 @@ function {output}(props) {{
       {{loading && (
         <div style={{{{
           position: 'absolute',
-          inset: -6,
+          inset: loading_inset,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -230,6 +231,9 @@ class MaterialComponent(ReactComponent):
 
     loading = param.Boolean(default=False, doc="""
         If True displays a loading spinner on top of the component.""")
+
+    loading_inset = param.Integer(default=0, doc="""
+        Loading spinner wrapper inset style rule value.""")
 
     theme_config = param.Dict(default=None, nested_refs=True, doc="""
         Options to configure the ThemeProvider.
