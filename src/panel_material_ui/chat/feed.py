@@ -36,6 +36,10 @@ class ChatFeed(_PnChatFeed):
     _message_type = ChatMessage
     _step_type = ChatStep
 
+    def __init__(self, *objects, **params):
+        super().__init__(*objects, **params)
+        self._card.sx = {".MuiCollapse-vertical > .MuiCardContent-root": {"p": 0, "pb": 0}}
+
     def _build_steps_layout(self, step, layout_params, default_layout):
         layout_params = layout_params or {}
         input_layout_params = dict(

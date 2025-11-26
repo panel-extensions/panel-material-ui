@@ -21,24 +21,38 @@ export function render({model}) {
   const [color] = model.useState("color")
   const [dense] = model.useState("dense")
   const [disabled] = model.useState("disabled")
+  const [expanded, setExpanded] = model.useState("expanded")
   const [highlight] = model.useState("highlight")
   const [label] = model.useState("label")
   const [items] = model.useState("items")
   const [level_indent] = model.useState("level_indent")
   const [show_children] = model.useState("show_children")
   const [sx] = model.useState("sx")
-  const [open, setOpen] = React.useState({})
   const [menu_open, setMenuOpen] = React.useState({})
   const [menu_anchor, setMenuAnchor] = React.useState(null)
-  const current_open = {...open}
   const current_menu_open = {...menu_open}
 
   const active_array = Array.isArray(active) ? active : [active]
   const [toggle_values, setToggleValues] = React.useState(new Map())
+  const toggle_ref = React.useRef(toggle_values)
+
+  const setAction = (key, value) => {
+    const newMap = new Map(toggle_ref.current)
+    newMap.set(key, value)
+    setToggleValues(newMap)
+    toggle_ref.current = newMap
+  }
 
   React.useEffect(() => {
-    setOpen(current_open)
     setMenuOpen(current_menu_open)
+    const handler = (msg) => {
+      if (msg.type == "toggle_action") {
+        const toggle_key = `${msg.index.join(",")}-${msg.action}`
+        setAction(toggle_key, msg.value)
+      }
+    }
+    model.on("msg:custom", handler)
+    return () => model.off("msg:custom", handler)
   }, [])
 
   const render_item = (item, index, path, indent=0) => {
@@ -63,8 +77,8 @@ export function render({model}) {
     const target = item.target
     const avatar = item.avatar
     const subitems = show_children ? item.items : []
-    const item_open = item.open !== undefined ? item.open : true
-    current_open[key] = current_open[key] === undefined ? item_open : current_open[key]
+    const item_open = expanded.map((e) => e.toString()).includes(path.toString()) || (item.open !== undefined ? item.open : false)
+
     current_menu_open[key] = current_menu_open[key] === undefined ? false : current_menu_open[key]
 
     let leadingComponent = null
@@ -112,13 +126,15 @@ export function render({model}) {
         }}
         selected={highlight && isActive}
         sx={{
-          p: `0 4px 0 ${(indent+1) * level_indent}px`,
+          m: `0 4px 0 ${indent * level_indent}px`,
+          pr: 0,
+          "&.MuiListItemButton-root": {ml: "6px", pl: 1.5},
           "&.MuiListItemButton-root.Mui-selected": {
             bgcolor: isActive ? (
               `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
             ) : "inherit",
+            ml: "0",
             borderLeft: `6px solid var(--mui-palette-${color}-main)`,
-            pl: "10px",
             ".MuiListItemText-root": {
               ".MuiTypography-root.MuiListItemText-primary": {
                 fontWeight: "bold"
@@ -152,14 +168,12 @@ export function render({model}) {
           const active_color = action.active_color || icon_color
           const action_key = action.action || action.label
           const toggle_key = `${key}-${action_key}`
-          const action_value = toggle_values.get(toggle_key) ?? action.value ?? false
-          toggle_values.set(toggle_key, action_value)
+          const action_value = toggle_ref.current.get(toggle_key) ?? action.value ?? false
           return action.toggle ? (
             <Checkbox
               checked={action_value}
               color={action.color}
               disabled={disabled}
-              selected={action_value}
               size={"small"}
               onMouseDown={(e) => {
                 e.stopPropagation()
@@ -167,9 +181,7 @@ export function render({model}) {
               }}
               onClick={(e) => {
                 const new_value = !action_value
-                const newMap = new Map(toggle_values)
-                newMap.set(toggle_key, new_value)
-                setToggleValues(newMap)
+                setAction(toggle_key, new_value)
                 model.send_msg({type: "action", action: action_key, item: path, value: new_value})
                 e.stopPropagation()
                 e.preventDefault()
@@ -275,10 +287,18 @@ export function render({model}) {
             }}
             onClick={(e) => {
               e.stopPropagation()
-              setOpen({...current_open, [key]: !current_open[key]})
+              const index = expanded.map((e) => e.toString()).indexOf(key.toString())
+              const new_expanded = [...expanded]
+              if (index === -1) {
+                new_expanded.push(key)
+              } else {
+                new_expanded.splice(index, 1)
+              }
+              setExpanded(new_expanded)
             }}
+            sx={{ml: 0.25}}
           >
-            {current_open[key] ? <ExpandLess/> : <ExpandMore />}
+            {item_open ? <ExpandLess/> : <ExpandMore />}
           </IconButton>
         ) : null}
       </ListItemButton>
@@ -287,7 +307,7 @@ export function render({model}) {
     if (subitems && subitems.length) {
       return [
         list_item,
-        <Collapse in={current_open[key]} timeout="auto" unmountOnExit>
+        <Collapse in={item_open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding dense={dense}>
             {subitems.map((subitem, index) => {
               return render_item(subitem, index, path, indent+1)
@@ -303,7 +323,7 @@ export function render({model}) {
     <List
       dense={dense}
       component="nav"
-      sx={sx}
+      sx={{p: 0, ...sx}}
       subheader={label && (
         <ListSubheader component="div" id="nested-list-subheader">
           {label}

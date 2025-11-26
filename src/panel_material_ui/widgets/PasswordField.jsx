@@ -20,9 +20,11 @@ export function render({model, el, view}) {
   const [showPassword, setShowPassword] = React.useState(false)
 
   const ref = React.useRef(null)
-  model.on("msg:custom", (msg) => {
-    ref.current?.focus()
-  })
+  React.useEffect(() => {
+    const focus_cb = () => ref.current?.focus()
+    model.on("msg:custom", focus_cb)
+    return () => model.off("msg:custom", focus_cb)
+  }, [])
 
   return (
     <TextField

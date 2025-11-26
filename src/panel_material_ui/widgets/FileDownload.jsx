@@ -41,6 +41,11 @@ export function render(props, ref) {
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
     ref = undefined
   }
+  React.useEffect(() => {
+    const focus_cb = () => ref.current?.focus()
+    model.on("msg:custom", focus_cb)
+    return () => model.off("msg:custom", focus_cb)
+  }, [])
 
   const downloadFile = () => {
     const link = document.createElement("a")

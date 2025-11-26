@@ -16,9 +16,11 @@ export function render({model, view}) {
   const [label] = model.useState("label")
 
   const ref = React.useRef(null)
-  model.on("msg:custom", (msg) => {
-    ref.current?.focus()
-  })
+  React.useEffect(() => {
+    const focus_cb = () => ref.current?.focus()
+    model.on("msg:custom", focus_cb)
+    return () => model.off("msg:custom", focus_cb)
+  }, [])
 
   const margin = (() => {
     switch (direction) {

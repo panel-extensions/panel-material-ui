@@ -166,7 +166,7 @@ import {{apply_global_css, install_theme_hooks}} from "./utils"
 
 function {output}(props) {{
   const theme = install_theme_hooks(props)
-  const attached = props.view.model.data.hasOwnProperty("attached") ? props.model.get_child("attached") : []
+  const attached = ("attached" in props.view.model.data.properties) ? props.model.get_child("attached") : []
   if (props.view.is_root && document.documentElement.getAttribute("data-theme-managed") === "false") {{
     apply_global_css(props.model, props.view, theme)
   }}
@@ -255,9 +255,10 @@ class MaterialComponent(ReactComponent):
     _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
         "imports": {
-            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@7.3.1/",
-            "@mui/material/": "https://esm.sh/@mui/material@7.3.1/",
+            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@7.3.5/",
+            "@mui/material/": "https://esm.sh/@mui/material@7.3.5/",
             "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.28.0",
+            "@mui/x-tree-view": "https://esm.sh/@mui/x-tree-view@8.18.0",
             "mui-color-input": "https://esm.sh/mui-color-input@7.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
             "notistack": "https://esm.sh/notistack@3.0.2",

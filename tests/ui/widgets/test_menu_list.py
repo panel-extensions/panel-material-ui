@@ -50,7 +50,7 @@ def test_menu_list_nested(page):
     serve_component(page, widget)
 
     # Click to expand
-    page.locator('.MuiListItemButton-root').first.click()
+    page.locator('.MuiListItemButton-root > .MuiIconButton-root').first.click()
 
     # Check subitems are visible
     subitems = page.locator('.MuiCollapse-root .MuiListItemButton-root')
@@ -107,20 +107,20 @@ def test_menu_list_nested_items(page):
     serve_component(page, widget)
 
     # Verify initial state
-    expect(page.locator('.MuiListItemButton-root')).to_have_count(4)  # Main items
-    expect(page.locator('.MuiCollapse-root')).to_have_count(1)  # Nested container
+    expect(page.locator('.MuiListItemButton-root')).to_have_count(2)  # Main items
 
     # Expand nested items
-    page.locator('.MuiListItemButton-root').nth(1).locator('button').click()
-    expect(page.locator('.MuiCollapse-root .MuiListItemButton-root')).to_have_count(0)
-    page.locator('.MuiListItemButton-root').nth(1).locator('button').click()
+    page.locator('.MuiListItemButton-root').nth(1).locator('.MuiIconButton-root').click()
     expect(page.locator('.MuiCollapse-root .MuiListItemButton-root')).to_have_count(2)
     expect(page.locator('.MuiCollapse-root .MuiListItemButton-root').nth(0)).to_have_text('NNested 1')
     expect(page.locator('.MuiCollapse-root .MuiListItemButton-root').nth(1)).to_have_text('NNested 2')
 
-    # Select nested item
     page.locator('.MuiCollapse-root .MuiListItemButton-root').first.click()
     wait_until(lambda: widget.active == (1, 0), page)
+
+    page.locator('.MuiListItemButton-root').nth(1).locator('.MuiIconButton-root').click() # Collapse nested items
+    expect(page.locator('.MuiCollapse-root .MuiListItemButton-root')).to_have_count(0)
+
 
 def test_menu_list_with_icons(page):
     widget = MenuList(items=[
@@ -174,6 +174,29 @@ def test_menu_list_with_actions(page):
     page.locator('.MuiListItemButton-root button').nth(1).click()
     expect(page.locator('.MuiMenu-root .MuiMenuItem-root')).to_have_text('deleteDelete')
     expect(page.locator('.MuiMenu-root .material-icons')).to_have_text('delete')
+
+def test_menu_list_with_toggle_actions(page):
+    widget = MenuList(items=[{
+        "label": "Item 1",
+        "actions": [
+            {"label": "Edit", "icon": "edit", "inline": True, "toggle": True},
+            {"label": "Delete", "icon": "delete", "inline": False, "toggle": True}
+        ]
+    }])
+
+    edit_actions, delete_actions = [], []
+    widget.on_action("Edit", lambda item: edit_actions.append(item['actions'][0]['value']))
+    widget.on_action("Delete", lambda item: edit_actions.append(item['actions'][1]['value']))
+    serve_component(page, widget)
+
+    # Verify inline action
+    expect(page.locator('.MuiListItemButton-root .MuiCheckbox-root .material-icons-outlined')).to_have_text('edit')
+    page.locator('.MuiListItemButton-root .MuiCheckbox-root').click()
+    expect(page.locator('.MuiListItemButton-root .MuiCheckbox-root .material-icons')).to_have_text('edit')
+    wait_until(lambda: edit_actions == [True], page)
+
+    widget.toggle_action(widget.items[0], "Edit", False)
+    expect(page.locator('.MuiListItemButton-root .MuiCheckbox-root .material-icons-outlined')).to_have_text('edit')
 
 def test_menu_list_with_dividers(page):
     widget = MenuList(items=[

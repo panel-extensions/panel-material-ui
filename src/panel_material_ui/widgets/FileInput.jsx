@@ -143,20 +143,24 @@ export function render(props, ref) {
     }
   }
 
-  model.on("msg:custom", (msg) => {
-    if (msg.action === "focus") {
-      fileInputRef.current?.focus()
-    } else if (msg.status === "finished") {
-      setStatus("completed")
-      setTimeout(() => {
-        setStatus("idle")
-        clearInputOnly() // Clear only the input after successful upload to enable reupload
-      }, 2000)
-    } else if (msg.status === "error") {
-      setErrorMessage(msg.error)
-      setStatus("error")
+  React.useEffect(() => {
+    const handler = (msg) => {
+      if (msg.action === "focus") {
+        fileInputRef.current?.focus()
+      } else if (msg.status === "finished") {
+        setStatus("completed")
+        setTimeout(() => {
+          setStatus("idle")
+          clearInputOnly() // Clear only the input after successful upload to enable reupload
+        }, 2000)
+      } else if (msg.status === "error") {
+        setErrorMessage(msg.error)
+        setStatus("error")
+      }
     }
-  })
+    model.on("msg:custom", handler)
+    return () => model.off("msg:custom", handler)
+  }, [])
 
   const dynamic_icon = (() => {
     switch (status) {

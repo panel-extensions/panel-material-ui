@@ -274,7 +274,7 @@ export function render({model, view}) {
         flexShrink: 0,
         width: contextbar_width,
         zIndex: (theme) => theme.zIndex.drawer + 2,
-        [`& .MuiDrawer-paper`]: {width: contextbar_width, padding: "0.5em", boxSizing: "border-box"},
+        [`& .MuiDrawer-paper`]: {width: contextbar_width, boxSizing: "border-box"},
       }}
       variant="temporary"
     >
