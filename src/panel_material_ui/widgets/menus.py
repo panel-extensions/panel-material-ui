@@ -395,17 +395,18 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
 
     def _process_param_change(self, params):
         props = super()._process_param_change(params)
-        if "active" in props and "path" not in props:
+        if props.get("active") is not None and "path" not in props:
             active = props["active"]
             if isinstance(active, int):
                 active = (active,)
             new_path = []
-            for i, p in enumerate(self.path):
+            for i, p in enumerate(self.path or ()):
                 if i < len(active) and active[i] != p:
                     new_path.append(active[i])
                     break
                 else:
                     new_path.append(p)
+            new_path.extend(active[len(new_path):])
             props["path"] = tuple(new_path)
         return props
 
