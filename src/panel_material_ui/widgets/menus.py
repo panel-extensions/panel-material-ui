@@ -393,6 +393,12 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
             with _syncing(self, ['path']):
                 self.path = path
 
+    def _process_param_change(self, params):
+        props = super()._process_param_change(params)
+        if "active" in props and "path" not in props:
+            props["path"] = props["active"]
+        return props
+
     def _process_property_change(self, props):
         props = super()._process_property_change(props)
         if 'path' in props and isinstance(props['path'], list):
