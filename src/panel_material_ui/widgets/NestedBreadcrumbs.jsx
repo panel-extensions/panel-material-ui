@@ -85,20 +85,19 @@ export function render({model}) {
   const [color] = model.useState("color")
   const [items] = model.useState("items")
   const [max_items] = model.useState("max_items")
-  const [path] = model.useState("path")
+  const [path, setPath] = model.useState("path")
   const [separator] = model.useState("separator")
   const [sx] = model.useState("sx")
 
   const theme = useTheme()
 
-  let activeArr = Array.isArray(active)
+  const activeArr = Array.isArray(active)
     ? active : (active != null ? [active] : [])
 
   if (path && path.length) {
     const overlap = overlapPrefix(activeArr, path)
     if (overlap.length !== activeArr.length) {
-      activeArr = overlap
-      setActive(activeArr)
+      setPath(activeArr)
     }
   }
 
