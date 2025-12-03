@@ -85,7 +85,7 @@ export function render({model}) {
   const [color] = model.useState("color")
   const [items] = model.useState("items")
   const [max_items] = model.useState("max_items")
-  const [path, setPath] = model.useState("path")
+  const [path] = model.useState("path")
   const [separator] = model.useState("separator")
   const [sx] = model.useState("sx")
 
@@ -93,14 +93,6 @@ export function render({model}) {
 
   const activeArr = Array.isArray(active)
     ? active : (active != null ? [active] : [])
-
-  if (path && path.length) {
-    const overlap = overlapPrefix(activeArr, path)
-    // If path does not include activeArr OR path does not overlap with active, override path
-    if ((path.length <= activeArr.length || overlap.length !== activeArr.length) && (JSON.stringify(activeArr) !== JSON.stringify(path))) {
-      setPath(activeArr)
-    }
-  }
 
   // Resolved path for rendering depends on auto_descend
   const resolvedActive = React.useMemo(() => {
