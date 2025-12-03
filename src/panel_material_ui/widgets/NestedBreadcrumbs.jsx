@@ -96,7 +96,8 @@ export function render({model}) {
 
   if (path && path.length) {
     const overlap = overlapPrefix(activeArr, path)
-    if (overlap.length !== activeArr.length) {
+    // If path does not include activeArr OR path does not overlap with active, override path
+    if (path.length <= activeArr.length || overlap.length !== activeArr.length) {
       setPath(activeArr)
     }
   }
