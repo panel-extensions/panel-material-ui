@@ -91,16 +91,8 @@ export function render({model}) {
 
   const theme = useTheme()
 
-  let activeArr = Array.isArray(active)
+  const activeArr = Array.isArray(active)
     ? active : (active != null ? [active] : [])
-
-  if (path && path.length) {
-    const overlap = overlapPrefix(activeArr, path)
-    if (overlap.length !== activeArr.length) {
-      activeArr = overlap
-      setActive(activeArr)
-    }
-  }
 
   // Resolved path for rendering depends on auto_descend
   const resolvedActive = React.useMemo(() => {

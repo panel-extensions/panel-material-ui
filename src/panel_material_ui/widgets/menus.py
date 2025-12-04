@@ -393,6 +393,31 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
             with _syncing(self, ['path']):
                 self.path = path
 
+    @classmethod
+    def _truncate_path(cls, path1, path2, extend=True):
+        new_path = []
+        for i, p in enumerate(path1 or ()):
+            if i < len(path2) and path2[i] != p:
+                if extend:
+                    new_path.append(path2[i])
+                break
+            else:
+                new_path.append(p)
+        if extend:
+            new_path.extend(path2[len(new_path):])
+        return tuple(new_path)
+
+    def _process_param_change(self, params):
+        props = super()._process_param_change(params)
+        if props.get("active") is not None and "path" not in props:
+            active = props["active"]
+            if isinstance(active, int):
+                active = (active,)
+            self.path = props["path"] = self._truncate_path(self.path, active)
+        elif props.get("path") is not None and "active" not in props:
+            self.active = props["active"] = self._truncate_path(self.active, props["path"], extend=False)
+        return props
+
     def _process_property_change(self, props):
         props = super()._process_property_change(props)
         if 'path' in props and isinstance(props['path'], list):
