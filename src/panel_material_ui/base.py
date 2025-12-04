@@ -191,7 +191,7 @@ import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
 
 function {output}(props) {{
   const [loading] = props.model.useState('loading')
-  const [loading_inset] = props.model.useState('loading_inset')
+  const loading_inset = props.model.esm_constants.loading_inset
   const theme = useMuiTheme()
 
   const overlayColor = theme.palette.mode === 'dark'
@@ -232,9 +232,6 @@ class MaterialComponent(ReactComponent):
     loading = param.Boolean(default=False, doc="""
         If True displays a loading spinner on top of the component.""")
 
-    loading_inset = param.Integer(default=0, doc="""
-        Loading spinner wrapper inset style rule value.""")
-
     theme_config = param.Dict(default=None, nested_refs=True, doc="""
         Options to configure the ThemeProvider.
         See https://mui.com/material-ui/customization/theme-overview/ for more information.""")
@@ -246,6 +243,7 @@ class MaterialComponent(ReactComponent):
         in the component's documentation.""")
 
     _bundle = BASE_PATH / "dist" / "panel-material-ui.bundle.js"
+    _constants = {"loading_inset": 0}
     _esm_base = None
     _esm_shared = {
         'utils': BASE_PATH / "utils.js",

@@ -26,12 +26,10 @@ class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
     This is an abstract base class and should not be used directly.
     """
 
-    loading_inset = param.Integer(default=-6, doc="""
-        Loading spinner wrapper inset style rule value.""")
-
     value = param.Parameter(default=None, allow_None=True, doc="The selected value.")
 
     _allows_values = False
+    _constants = {"loading_inset": -6}
 
     __abstract = True
 
@@ -47,10 +45,9 @@ class MaterialMultiSelectBase(MaterialWidget, _PnMultiSelectBase):
     This is an abstract base class and should not be used directly.
     """
 
-    loading_inset = param.Integer(default=-6, doc="""
-        Loading spinner wrapper inset style rule value.""")
-
     value = param.List(default=[], allow_None=True, doc="The selected values.")
+
+    _constants = {"loading_inset": -6}
 
     _rename = {"name": "name"}
 
@@ -306,7 +303,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the select widget.")
 
-    _constants = {"multi": False}
+    _constants = {"multi": False, "loading_inset": -6}
     _esm_base = "Select.jsx"
     _rename = {"name": "name", "groups": None}
 
@@ -368,7 +365,7 @@ class RadioBoxGroup(_RadioGroup, MaterialSingleSelectBase):
 
     value = param.Parameter(default=None, allow_None=True)
 
-    _constants = {"exclusive": True}
+    _constants = {"exclusive": True, "loading_inset": -6}
 
 
 class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
@@ -394,7 +391,7 @@ class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
 
     value = param.List(default=None, allow_None=True)
 
-    _constants = {"exclusive": False}
+    _constants = {"exclusive": False, "loading_inset": -6}
 
 
 class _ButtonGroup(_ButtonLike):
@@ -448,7 +445,7 @@ class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
 
     value = param.Parameter()
 
-    _constants = {"exclusive": True}
+    _constants = {"exclusive": True, "loading_inset": -6}
 
 
 class CheckButtonGroup(_ButtonGroup, MaterialMultiSelectBase):
@@ -474,7 +471,7 @@ class CheckButtonGroup(_ButtonGroup, MaterialMultiSelectBase):
 
     """
 
-    _constants = {"exclusive": False}
+    _constants = {"exclusive": False, "loading_inset": -6}
 
 
 class MultiSelect(MaterialMultiSelectBase):
@@ -555,7 +552,7 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
     solid = param.Boolean(default=True, doc="""
         Whether to display chips with solid or outlined style.""")
 
-    _constants = {"multi": True}
+    _constants = {"multi": True, "loading_inset": -6}
     _esm_base = "Select.jsx"
     _rename = {"name": None}
 
