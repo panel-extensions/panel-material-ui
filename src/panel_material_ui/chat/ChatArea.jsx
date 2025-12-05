@@ -467,12 +467,14 @@ export function render({model, view}) {
                   icon={<SpeedDialIcon color={color}/>}
                   sx={{zIndex: 1000, ml: "-4px"}}
                 >
-                  <SpeedDialAction
-                    icon={<AttachFileIcon />}
-                    tooltipTitle="Attach files"
-                    slotProps={{popper: {container: view.container}}}
-                    onClick={() => fileInputRef.current?.click()}
-                  />
+                  {enable_upload && (
+                    <SpeedDialAction
+                      icon={<AttachFileIcon />}
+                      tooltipTitle="Attach files"
+                      slotProps={{popper: {container: view.container}}}
+                      onClick={() => fileInputRef.current?.click()}
+                    />
+                  )}
                   {Object.keys(actions).map((action) => (
                     <SpeedDialAction
                       key={action}
