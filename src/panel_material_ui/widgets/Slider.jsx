@@ -15,6 +15,27 @@ import dayjs from "dayjs"
 import {render_description} from "./description"
 import {int_regex, float_regex} from "./utils"
 
+const spinner = (increment, index) => {
+  return (
+    <Grid container>
+      <Grid item size={12}>
+        <InputAdornment position="end">
+          <IconButton onClick={(e) => { increment(index, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
+            <ArrowDropUpIcon fontSize="small" />
+          </IconButton>
+        </InputAdornment>
+      </Grid>
+      <Grid item size={12}>
+        <InputAdornment position="end">
+          <IconButton onClick={(e) => { increment(index, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
+            <ArrowDropDownIcon fontSize="small" />
+          </IconButton>
+        </InputAdornment>
+      </Grid>
+    </Grid>
+  )
+}
+
 export function render({model, el, view}) {
   const [bar_color] = model.useState("bar_color")
   const [color] = model.useState("color")
@@ -260,30 +281,12 @@ export function render({model, el, view}) {
               onFocus={() => setFocused(true)}
               onKeyDown={(e) => handleKeyDown(e, 0)}
               size="small"
-              sx={{flexGrow: 1, minWidth: 0, mr: "0.5em", border: "2px solid grey", borderRadius: "var(--mui-shape-borderRadius)"}}
+              sx={{flexGrow: 1, minWidth: 0, mr: "0.5em"}}
               value={Array.isArray(value) ? (editableValue ? editableValue[0] : "") : editableValue}
               variant="standard"
               InputProps={{
-                disableUnderline: true,
                 sx: {ml: "0.5em", mt: "0.2em"},
-                endAdornment: (
-                  <Grid container>
-                    <Grid item size={12}>
-                      <InputAdornment position="end">
-                        <IconButton onClick={(e) => { increment(0, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                          <ArrowDropUpIcon fontSize="small" />
-                        </IconButton>
-                      </InputAdornment>
-                    </Grid>
-                    <Grid item size={12}>
-                      <InputAdornment position="end">
-                        <IconButton onClick={(e) => { increment(0, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                          <ArrowDropDownIcon fontSize="small" />
-                        </IconButton>
-                      </InputAdornment>
-                    </Grid>
-                  </Grid>
-                ),
+                endAdornment: spinner(increment, 0),
               }}
             />}
             {(!inline_layout || orientation === "vertical") && Array.isArray(value) && (
@@ -297,30 +300,12 @@ export function render({model, el, view}) {
                   onFocus={() => setFocused(true)}
                   onKeyDown={(e) => handleKeyDown(e, 1)}
                   size="small"
-                  sx={{flexGrow: 1, minWidth: 0, ml: "0.5em", border: "2px solid grey", borderRadius: "var(--mui-shape-borderRadius)"}}
+                  sx={{flexGrow: 1, minWidth: 0, ml: "0.5em"}}
                   value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
                   variant="standard"
                   InputProps={{
-                    disableUnderline: true,
                     sx: {ml: "0.5em", mt: "0.2em"},
-                    endAdornment: (
-                      <Grid container>
-                        <Grid item size={12}>
-                          <InputAdornment position="end">
-                            <IconButton onClick={(e) => { increment(1, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                              <ArrowDropUpIcon fontSize="small" />
-                            </IconButton>
-                          </InputAdornment>
-                        </Grid>
-                        <Grid item size={12}>
-                          <InputAdornment position="end">
-                            <IconButton onClick={(e) => { increment(1, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                              <ArrowDropDownIcon fontSize="small" />
-                            </IconButton>
-                          </InputAdornment>
-                        </Grid>
-                      </Grid>
-                    ),
+                    endAdornment: spinner(increment, 1)
                   }}
                 />
               </>
@@ -348,30 +333,12 @@ export function render({model, el, view}) {
             onFocus={() => setFocused(true)}
             onKeyDown={(e) => handleKeyDown(e, 0)}
             size="small"
-            sx={{...orientation !== "vertical" ? {flexShrink: 1.2} : {}, mr: "0.8em", minWidth: 0, border: "2px solid grey", borderRadius: "var(--mui-shape-borderRadius)"}}
+            sx={{...orientation !== "vertical" ? {flexShrink: 1.2} : {}, mr: "0.8em", minWidth: 0}}
             value={Array.isArray(value) ? (editableValue ? editableValue[0] : "") : editableValue}
             variant="standard"
             InputProps={{
-              disableUnderline: true,
               sx: {ml: "0.5em", mt: "0.2em"},
-              endAdornment: (
-                <Grid container>
-                  <Grid item size={12}>
-                    <InputAdornment position="end">
-                      <IconButton onClick={(e) => { increment(0, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                        <ArrowDropUpIcon fontSize="small" />
-                      </IconButton>
-                    </InputAdornment>
-                  </Grid>
-                  <Grid item size={12}>
-                    <InputAdornment position="end">
-                      <IconButton onClick={(e) => { increment(0, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                        <ArrowDropDownIcon fontSize="small" />
-                      </IconButton>
-                    </InputAdornment>
-                  </Grid>
-                </Grid>
-              ),
+              endAdornment: spinner(increment, 0),
             }}
           />)}
         <Slider
@@ -414,30 +381,12 @@ export function render({model, el, view}) {
             onFocus={() => setFocused(true)}
             onKeyDown={(e) => handleKeyDown(e, 1)}
             size="small"
-            sx={{flexShrink: Array.isArray(value) ? 1.2 : 2.3, minWidth: 0, ml: "0.8em", border: "2px solid grey", borderRadius: "var(--mui-shape-borderRadius)"}}
+            sx={{flexShrink: Array.isArray(value) ? 1.2 : 2.3, minWidth: 0, ml: "0.8em"}}
             value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
             variant="standard"
             InputProps={{
-              disableUnderline: true,
               sx: {ml: "0.5em", mt: "0.2em"},
-              endAdornment: (
-                <Grid container>
-                  <Grid item size={12}>
-                    <InputAdornment position="end">
-                      <IconButton onClick={(e) => { increment(Array.isArray(value) ? 1 : 0, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                        <ArrowDropUpIcon fontSize="small" />
-                      </IconButton>
-                    </InputAdornment>
-                  </Grid>
-                  <Grid item size={12}>
-                    <InputAdornment position="end">
-                      <IconButton onClick={(e) => { increment(Array.isArray(value) ? 1 : 0, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                        <ArrowDropDownIcon fontSize="small" />
-                      </IconButton>
-                    </InputAdornment>
-                  </Grid>
-                </Grid>
-              ),
+              endAdornment: spinner(Array.isArray(value) ? 1 : 0, 0)
             }}
           />
         )}
