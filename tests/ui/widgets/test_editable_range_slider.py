@@ -216,7 +216,7 @@ def test_editable_range_slider_increment_decrement_buttons(page):
 
 @pytest.mark.parametrize("inline_layout,targets", [
     (False, [87, 200, 240]),
-    (True, [47, 109, 130])
+    (True, [57, 132, 157])
 ])
 def test_editable_range_slider_slider_interaction(page, inline_layout, targets):
     x1, x2, x3 = targets
@@ -227,7 +227,7 @@ def test_editable_range_slider_slider_interaction(page, inline_layout, targets):
         value=(2, 8),
         step=0.1,
         inline_layout=inline_layout,
-        width=350 if inline_layout else 300
+        width=400 if inline_layout else 300
     )
     serve_component(page, widget)
 
