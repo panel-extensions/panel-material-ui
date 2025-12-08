@@ -93,7 +93,7 @@ class IntSlider(_ContinuousSlider):
 
     value_throttled = param.Integer(default=0, constant=True)
 
-    _constants = {"int": True}
+    _constants = {"int": True, "loading_inset": -6}
 
 
 class FloatSlider(_ContinuousSlider):
@@ -159,7 +159,7 @@ class DateSlider(_ContinuousSlider):
     value_throttled = param.Date(default=None, constant=True, doc="""
         The value of the slider. Updated when the slider handle is released.""")
 
-    _constants = {"date": True}
+    _constants = {"date": True, "loading_inset": -6}
     _rename = {"as_datetime": None}
     _source_transforms = {
         "value": None, "value_throttled": None, "value_start": None,
@@ -216,7 +216,7 @@ class DatetimeSlider(DateSlider):
 
     _property_conversion = staticmethod(value_as_datetime)
 
-    _constants = {"datetime": True}
+    _constants = {"datetime": True, "loading_inset": -6}
 
 
 class _RangeSliderBase(_ContinuousSlider):
@@ -307,7 +307,7 @@ class IntRangeSlider(_RangeSliderBase):
 
     value_end = param.Integer(default=100, readonly=True, doc="""The upper value of the selected range.""")
 
-    _constants = {"int": True}
+    _constants = {"int": True, "loading_inset": -6}
 
 
 class DateRangeSlider(_RangeSliderBase):
@@ -360,7 +360,7 @@ class DateRangeSlider(_RangeSliderBase):
     format = param.String(default=None, doc="""
         Datetime format used for parsing and formatting the date.""")
 
-    _constants = {"date": True}
+    _constants = {"date": True, "loading_inset": -6}
 
     _property_conversion = staticmethod(value_as_date)
 
@@ -426,7 +426,7 @@ class DatetimeRangeSlider(DateRangeSlider):
 
     _property_conversion = staticmethod(value_as_datetime)
 
-    _constants = {"datetime": True}
+    _constants = {"datetime": True, "loading_inset": -6}
 
 
 class DiscreteSlider(IntSlider, _PnSingleSelectBase):
@@ -455,7 +455,7 @@ class DiscreteSlider(IntSlider, _PnSingleSelectBase):
     step = param.Integer(default=1, readonly=True)
 
     _allows_values = False
-    _constants = {"discrete": True}
+    _constants = {"discrete": True, "loading_inset": -6}
 
     @param.depends("options", watch=True)
     def _update_bounds(self):
@@ -536,7 +536,7 @@ class Rating(MaterialWidget):
 
 class _EditableContinuousSliderBase(_ContinuousSlider):
 
-    _constants = {"editable": True}
+    _constants = {"editable": True, "loading_inset": -6}
 
 
 class EditableFloatSlider(_EditableContinuousSliderBase, FloatSlider):
@@ -589,14 +589,14 @@ class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
     fixed_end = param.Integer(default=None, doc="""
        A fixed upper bound for the slider and input.""")
 
-    _constants = {"editable": True, "int": True}
+    _constants = {"editable": True, "int": True, "loading_inset": -6}
 
 
 class _EditableRangeSliderBase(_RangeSliderBase):
 
     value = param.Range(default=(0, 100))
 
-    _constants = {"editable": True}
+    _constants = {"editable": True, "loading_inset": -6}
 
 
 class EditableRangeSlider(_EditableRangeSliderBase, RangeSlider):
@@ -634,7 +634,7 @@ class EditableIntRangeSlider(_EditableRangeSliderBase, IntRangeSlider):
     fixed_end = param.Integer(default=None, doc="""
         A fixed upper bound for the slider and input.""")
 
-    _constants = {"editable": True, "int": True}
+    _constants = {"editable": True, "int": True, "loading_inset": -6}
 
 
 __all__ = [

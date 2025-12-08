@@ -20,6 +20,7 @@ paper_color = ColorPicker(value='#ffffff', name='Paper', sizing_mode='stretch_wi
 font_size = IntInput(value=14, name='Font Size', step=1, start=2, end=100, sizing_mode='stretch_width')
 
 busy = Button(label='Busy', on_click=lambda e: time.sleep(2))
+loading_switch = Switch(name='Loading')
 
 theme_config = {
     "light": {
@@ -99,14 +100,14 @@ def show_variants(component, variants=None, **kwargs):
     )
 
 
-def render_spec(spec, depth=0, label='main'):
+def render_spec(spec, depth=0, label='main', loading=False):
     if isinstance(spec, dict):
         tabs = Tabs(*(
-            (title, render_spec(subspec, depth+1, label=title)) for title, subspec in spec.items()
+            (title, render_spec(subspec, depth+1, label=title, loading=loading)) for title, subspec in spec.items()
         ), sizing_mode='stretch_width')
     else:
         tabs = Tabs(*(
-            pn.param.ParamFunction(pn.bind(show_variants, component, variants=varss, **kwargs), lazy=True, name=component.name)
+            pn.param.ParamFunction(pn.bind(show_variants, component, variants=varss, **kwargs, loading=loading), lazy=True, name=component.name)
             for component, varss,  kwargs in spec
         ), dynamic=True)
     pn.state.location.sync(tabs, dict(active=f'active{label}'))
@@ -234,6 +235,10 @@ spec = {
     },
 }
 
+
+def loading_render_spec(loading):
+    return render_spec(spec, loading=loading)
+
 notifications = pn.state.notifications.demo(sizing_mode='stretch_width')
 
 page = Page(
@@ -241,12 +246,13 @@ page = Page(
         '### Context'
     ],
     busy_indicator='linear',
-    main=[render_spec(spec)],
+    main=[pn.bind(loading_render_spec, loading_switch)],
     sidebar=[
         primary_color,
         secondary_color,
         paper_color,
         font_size,
+        loading_switch,
         '### Notifications',
         notifications,
         busy

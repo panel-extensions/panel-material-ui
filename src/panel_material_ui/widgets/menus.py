@@ -17,15 +17,6 @@ from .base import MaterialWidget, TooltipTransform
 from .button import _ButtonBase
 
 
-def filter_item(item, keys):
-    if isinstance(item, dict):
-        item = {k: v for k, v in item.items() if k in keys}
-        if 'items' in item:
-            item['items'] = [filter_item(child, keys) for child in item['items']]
-        return item
-    return item
-
-
 class MenuBase(MaterialWidget):
 
     active = param.Integer(default=None, doc="""
@@ -75,7 +66,7 @@ class MenuBase(MaterialWidget):
                         items.append(item)
             else:
                 items = params['items']
-            params['items'] = [filter_item(item, self._item_keys) for item in items]
+            params['items'] = [self._filter_item(item, self._item_keys) for item in items]
         return params
 
     def _process_property_change(self, props):
@@ -97,36 +88,59 @@ class MenuBase(MaterialWidget):
 
     @param.depends('value', watch=True)
     def _sync_value(self):
-        index = self._lookup_active_by_value(self.value)
+        index = self._lookup_path(self.value)
         with _syncing(self, ['active']):
             if index is None:
                 self.active = None
             else:
                 self.active = index if 'items' in self._item_keys else index[0]
 
-    def _lookup_active_by_value(self, item):
-        if not self.items:
+    def _filter_item(self, item, keys: list[str], depth: int = 0, children: bool = True):
+        if isinstance(item, dict):
+            item = {k: v for k, v in item.items() if k in keys and (children or k != "items")}
+            if 'items' in item:
+                item['items'] = [
+                    self._filter_item(child, keys, depth=depth+1)
+                    for child in item['items']
+                ]
+        return item
+
+    def _items_equal(self, item1, item2):
+        if item1 is item2:
+            return True
+        elif not (isinstance(item1, dict) and isinstance(item2, dict)):
+            return False
+        id1 = item1.get("id")
+        id2 = item2.get("id")
+        if id1 is not None and item2 is not None:
+            return id1 == id2
+        filtered1 = self._filter_item(item1, self._item_keys, children=False)
+        filtered2 = self._filter_item(item2, self._item_keys, children=False)
+        return filtered1 == filtered2
+
+    def _lookup_path(self, item, items=None):
+        items = self.items if items is None else items
+        if not items:
             return None
-        queue = [([], 0, self.items)]
+        queue = [([], 0, items)]
         while queue:
             path, depth, items = queue.pop(0)
             for i, current in enumerate(items):
                 current_path = path + [i]
-                if current == item:
+                if self._items_equal(current, item):
                     return tuple(current_path)
-                if isinstance(current, dict):
-                    if current == item:
-                        return tuple(current_path)
-                    if 'items' in current and self._descend_children:
-                        queue.append((current_path, depth + 1, current['items']))
+                if isinstance(current, dict) and 'items' in current and self._descend_children:
+                    queue.append((current_path, depth + 1, current['items']))
         return None
 
-    def _lookup_item(self, index):
+    def _lookup_item(self, index, items=None):
         if index is None:
             return
         indexes = index if isinstance(index, tuple) else [index]
-        value = self.items
+        value = self.items if items is None else items
         for i, idx in enumerate(indexes):
+            if idx >= len(value):
+                return None
             value = value[idx]
             if isinstance(value, dict) and (i != len(indexes)-1) and self._descend_children:
                 value = value['items']
@@ -236,6 +250,55 @@ class Breadcrumbs(BreadcrumbsBase):
     _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
 
 
+class TabMenu(MenuBase):
+    """
+    The `TabMenu` component is used to display a group of tabs that allow users to switch
+    between different views or sections of content. It provides a clean, organized way to
+    navigate between related items.
+
+    Tab items can be strings or objects with properties:
+
+    - `label`: The label of the tab item (required)
+    - `icon`: The icon of the tab item (optional)
+    - `avatar`: The avatar of the tab item (optional)
+    - `href`: Link to navigate to when clicking the tab item (optional)
+    - `target`: Link target (e.g. `"_blank"`) (optional)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/TabMenu.html
+    - https://mui.com/material-ui/react-tabs/
+
+    :Example:
+
+    >>> pmui.TabMenu(items=[
+    ...     {'label': 'Home', 'icon': 'home'},
+    ...     {'label': 'Gallery', 'icon': 'image'},
+    ...     {'label': 'Settings', 'icon': 'settings'},
+    ... ], active=0)
+    """
+
+    centered = param.Boolean(default=False, doc="""
+        Whether the tabs should be centered.""")
+
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the tabs.")
+
+    icon_position = param.Selector(objects=["start", "top", "end", "bottom"], doc="""
+        The position of the icon relative to the tab label.""")
+
+    scroll_buttons = param.Selector(default="auto", objects=["auto", "true", "false"], doc="""
+        Determine behavior of scroll buttons when tabs are set to scroll.
+        - "auto" will only present them when not all the items are visible.
+        - "true" will always present them.
+        - "false" will never present them.""")
+
+    variant = param.Selector(default="standard", objects=["standard", "scrollable", "fullWidth"], doc="""
+        The variant to use for the tabs.""")
+
+    _esm_base = "TabMenu.jsx"
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
+
+
 class NestedMenuBase(MenuBase):
 
     active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
@@ -330,6 +393,31 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
             with _syncing(self, ['path']):
                 self.path = path
 
+    @classmethod
+    def _truncate_path(cls, path1, path2, extend=True):
+        new_path = []
+        for i, p in enumerate(path1 or ()):
+            if i < len(path2) and path2[i] != p:
+                if extend:
+                    new_path.append(path2[i])
+                break
+            else:
+                new_path.append(p)
+        if extend:
+            new_path.extend(path2[len(new_path):])
+        return tuple(new_path)
+
+    def _process_param_change(self, params):
+        props = super()._process_param_change(params)
+        if props.get("active") is not None and "path" not in props:
+            active = props["active"]
+            if isinstance(active, int):
+                active = (active,)
+            self.path = props["path"] = self._truncate_path(self.path, active)
+        elif props.get("path") is not None and "active" not in props:
+            self.active = props["active"] = self._truncate_path(self.active, props["path"], extend=False)
+        return props
+
     def _process_property_change(self, props):
         props = super()._process_property_change(props)
         if 'path' in props and isinstance(props['path'], list):
@@ -337,7 +425,108 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
         return props
 
 
-class MenuList(NestedMenuBase):
+class TreeLikeBase(NestedMenuBase):
+    """
+    The `TreeLikeBase` component is a base class for components that are tree-like, such as `MenuList` and `Tree`.
+    """
+
+    expanded = param.List(default=[], doc="""
+        List of tree paths (tuples of indices) that are currently expanded.""")
+
+    level_indent = param.Integer(default=16, doc="""
+        Indentation, in pixels, used for each nested level of the tree.""")
+
+    show_children = param.Boolean(default=True, doc="Whether to render children.")
+
+    __abstract = True
+
+    def __init__(self, **params):
+        super().__init__(**params)
+        self.param.watch(self._update_expanded, "items")
+        self.param.trigger("items")
+
+    @property
+    def _descend_children(self):
+        return self.show_children
+
+    def on_action(self, action: str, callback: Callable[[DOMEvent], None]):
+        """
+        Register a callback to be executed when an action is clicked.
+
+        Parameters
+        ----------
+        action: (str)
+            The action to register a callback for.
+        callback: (callable)
+            The callback to run on action events.
+        """
+        self._on_action_callbacks[action].append(callback)
+
+    def toggle_action(self, item: dict, action: str, value: bool):
+        """
+        Toggle an action for an item.
+
+        Parameters
+        ----------
+        item: (dict)
+            The item to toggle the action on.
+        action: (str)
+            The label of the action to toggle.
+        value: (bool)
+            The value to set the action to.
+        """
+        index = self._lookup_path(item)
+        if index is None:
+            raise ValueError("Item {item} was not found.")
+        self._send_msg({"type": "toggle_action", "index": index, "action": action, "value": value})
+
+    def remove_on_action(self, action: str, callback: Callable[[DOMEvent], None]):
+        """
+        Remove a previously added action handler.
+
+        Parameters
+        ----------
+        action: (str)
+            The action to remove a callback for.
+        callback: (callable)
+            The callback to remove.
+        """
+        self._on_action_callbacks[action].remove(callback)
+
+    def _update_expanded(self, event):
+        """
+        Remap self.expanded (paths into old items) to paths into new items
+        based on stable item['id'] values.
+        """
+        old_items = event.old or []
+        new_items = event.new or []
+
+        expanded_items = []
+        for path in self.expanded:
+            item = self._lookup_item(path, old_items)
+            if item is not None:
+                expanded_items.append(item)
+
+        def descend(items, path=()):
+            for idx, item in enumerate(items):
+                current_path = path + (idx,)
+                if isinstance(item, dict):
+                    if item.get("open", False):
+                        expanded_items.append(item)
+                    if "items" in item and self.show_children:
+                        descend(item["items"], current_path)
+
+        descend(new_items)
+
+        expanded = []
+        for item in expanded_items:
+            path = self._lookup_path(item, new_items)
+            if path is not None:
+                expanded.append(path)
+        self.expanded = expanded
+
+
+class MenuList(TreeLikeBase):
     """
     The `MenuList` component is used to display a structured group of items, such as menus,
     navigation links, or settings.
@@ -371,55 +560,147 @@ class MenuList(NestedMenuBase):
 
     color = param.Selector(default="primary", objects=COLORS, doc="The color of the selected list item.")
 
-    dense = param.Boolean(default=False, doc="Whether to show the list items in a dense format.")
+    dense = param.Boolean(default=True, doc="Whether to show the list items in a dense format.")
 
     highlight = param.Boolean(default=True, doc="""
         Whether to highlight the currently selected menu item.""")
 
-    level_indent = param.Integer(default=16, doc="The number of pixels to indent the list items.")
-
     removable = param.Boolean(default=False, doc="Whether to allow deleting items.")
-
-    show_children = param.Boolean(default=True, doc="Whether to render children.")
 
     _esm_base = "List.jsx"
 
     _item_keys = [
         'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
-        'href', 'target', 'buttons', 'open'
+        'href', 'target', 'buttons'
     ]
 
-    @property
-    def _descend_children(self):
-        return self.show_children
-
-    def on_action(self, action: str, callback: Callable[[DOMEvent], None]):
-        """
-        Register a callback to be executed when an action is clicked.
-
-        Parameters
-        ----------
-        action: (str)
-            The action to register a callback for.
-        callback: (callable)
-            The callback to run on action events.
-        """
-        self._on_action_callbacks[action].append(callback)
-
-    def remove_on_action(self, action: str, callback: Callable[[DOMEvent], None]):
-        """
-        Remove a previously added action handler.
-
-        Parameters
-        ----------
-        action: (str)
-            The action to remove a callback for.
-        callback: (callable)
-            The callback to remove.
-        """
-        self._on_action_callbacks[action].remove(callback)
-
 List = MenuList
+
+
+class Tree(TreeLikeBase):
+    """
+    The `Tree` component displays hierarchical data using a Material UI
+    `RichTreeView`, with optional checkboxes and multi-selection.
+
+    Items follow the same convention as `MenuList`:
+
+    Each item is a dictionary with at least:
+
+      - ``label`` (str): Display label of the node.
+
+    The ``id`` field is optional. When omitted, a stable internal id is generated
+    from the item's position, so the simplest ``{"label": "Node"}`` form works
+    without any additional bookkeeping.
+
+    Optional item fields:
+
+      - ``items`` (list): Nested children, each with the same schema.
+      - ``icon`` (str): MUI icon name (rendered via ``<Icon>``).
+      - ``file_type`` (str): Helper for common icons, one of
+        ``"image"``, ``"pdf"``, ``"doc"``, ``"video"``, ``"folder"``,
+        ``"pinned"``, ``"trash"``.
+      - ``disabled`` (bool): Whether the item is disabled.
+      - ``selectable`` (bool): Whether the item is selectable.
+      - ``secondary`` (str): The secondary text of the item.
+      - ``actions`` (list): Actions to display on the item.
+      - ``buttons`` (list): Buttons to display on the item.
+      - ``color`` (str): The color of the item.
+
+    :Example:
+
+    >>> pmui.Tree(
+    ...     items=[
+    ...         {
+    ...             "id": "documents",
+    ...             "label": "Documents",
+    ...             "file_type": "folder",
+    ...             "items": [
+    ...                 {
+    ...                     "id": "invoice",
+    ...                     "label": "Invoice Q1.pdf",
+    ...                     "file_type": "pdf",
+    ...                 },
+    ...                 {
+    ...                     "id": "notes",
+    ...                     "label": "Meeting notes.docx",
+    ...                     "file_type": "doc",
+    ...                 },
+    ...             ],
+    ...         },
+    ...         {
+    ...             "id": "trash",
+    ...             "label": "Trash",
+    ...             "file_type": "trash",
+    ...         },
+    ...     ],
+    ...     active=[(0,)],
+    ... )
+    """
+
+    active = param.List(default=None, item_type=tuple, doc="""
+        The index(es) of currently selected items. Provide a list of tuples of indices,
+        e.g. ``[(0, 1)]`` to refer to the second child beneath the first root
+        node.""")
+
+    checkboxes = param.Boolean(default=False, doc="""
+        Whether to show selection checkboxes next to each tree item.""")
+
+    color = param.Selector(default="primary", objects=COLORS, doc="""
+        Color palette key for the selected node styling.""")
+
+    multi_select = param.Boolean(default=True, doc="""
+        Whether multiple tree items can be selected at once.""")
+
+    propagate_to_parent = param.Boolean(default=False, doc="""
+        Whether checkbox selection propagates from child nodes to parent nodes.
+        If True, selecting a child will also select its parent(s).""")
+
+    propagate_to_child = param.Boolean(default=False, doc="""
+        Whether checkbox selection propagates from parent nodes to child nodes.
+        If True, selecting a parent node will automatically select all its child nodes.
+        If False, selection is independent for each node.""")
+
+    value = param.List(default=[], item_type=dict, doc="""
+        The list of currently selected item dictionaries. This parameter is
+        synchronized with the `active` parameter and reflects the items that
+        are currently selected in the tree. Each item is represented as a
+        dictionary containing its properties (e.g., 'id', 'label', etc.).
+        """)
+
+    _esm_base = "Tree.jsx"
+
+    _item_keys = [
+        "id",
+        "label",
+        "items",
+        "icon",
+        "file_type",
+        "disabled",
+        "selectable",
+        "secondary",
+        "actions",
+        "buttons",
+        "color"
+    ]
+
+    @param.depends('active', watch=True)
+    def _sync_active(self):
+        with _syncing(self, ['value']):
+            self.value = [self._lookup_item(s) for s in self.active]
+
+    @param.depends('value', watch=True)
+    def _sync_value(self):
+        index = [self._lookup_path(v) for v in self.value]
+        with _syncing(self, ['active']):
+            self.active = index
+
+    def _process_property_change(self, props):
+        props = super()._process_property_change(props)
+        if 'active' in props:
+            props['active'] = [tuple(sel) for sel in props['active']]
+        if 'expanded' in props:
+            props['expanded'] = [tuple(sel) for sel in props['expanded']]
+        return props
 
 
 class MenuButton(MenuBase, _ButtonBase):
@@ -743,4 +1024,6 @@ __all__ = [
     "Pagination",
     "SpeedDial",
     "SplitButton",
+    "TabMenu",
+    "Tree"
 ]

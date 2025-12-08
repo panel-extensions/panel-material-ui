@@ -29,6 +29,7 @@ class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
     value = param.Parameter(default=None, allow_None=True, doc="The selected value.")
 
     _allows_values = False
+    _constants = {"loading_inset": -6}
 
     __abstract = True
 
@@ -45,6 +46,8 @@ class MaterialMultiSelectBase(MaterialWidget, _PnMultiSelectBase):
     """
 
     value = param.List(default=[], allow_None=True, doc="The selected values.")
+
+    _constants = {"loading_inset": -6}
 
     _rename = {"name": "name"}
 
@@ -85,15 +88,16 @@ class AutocompleteInput(MaterialSingleSelectBase):
 
     color = param.Selector(objects=COLORS, default="primary", doc="The color of the autocomplete input.")
 
+    lazy_search = param.Boolean(default=False, doc="""
+        If True, search queries are sent to the backend for processing.
+        This is useful when options are large or need server-side filtering.""")
+
     min_characters = param.Integer(default=2, doc="""
         The number of characters a user must type before
         completions are presented.""")
 
-    placeholder = param.String(
-        default="",
-        doc="""
-        Placeholder for empty input field.""",
-    )
+    placeholder = param.String(default="", doc="""
+        Placeholder for empty input field.""")
 
     restrict = param.Boolean(default=True, doc="""
         Set to False in order to allow users to enter text that is not
@@ -112,12 +116,8 @@ class AutocompleteInput(MaterialSingleSelectBase):
         - 'medium': Standard size (default  for most use cases)
         - 'large': Larger size for more visibility""")
 
-    value_input = param.Parameter(
-        default="",
-        readonly=True,
-        doc="""
-        Initial or entered text value updated on every key press.""",
-    )
+    value_input = param.Parameter(default="", readonly=True, doc="""
+        Initial or entered text value updated on every key press.""")
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="Variant style of the autocomplete input.")
 
@@ -138,18 +138,91 @@ class AutocompleteInput(MaterialSingleSelectBase):
         return params
 
     def _process_param_change(self, msg):
+        props = super()._process_param_change(msg)
         if 'value' in msg and not self.restrict and not isIn(msg['value'], self.values):
             with param.parameterized.discard_events(self):
-                props = super()._process_param_change(msg)
                 self.value = props['value'] = msg['value']
-        else:
-            props = super()._process_param_change(msg)
+        elif self.lazy_search and "options" in props:
+            del props['options']
         return props
 
     @param.depends('value', watch=True, on_init=True)
     def _sync_value_input(self):
         with edit_readonly(self):
             self.value_input = '' if self.value is None else self.value
+
+    def _handle_msg(self, msg: dict) -> None:
+        """
+        Process messages from the frontend.
+
+        Parameters
+        ----------
+        msg : dict
+            Message from the frontend. Expected keys:
+            - type: "search" for search queries
+            - id: unique message ID for response matching
+            - query: search query string
+            - case_sensitive: whether search should be case sensitive
+            - search_strategy: "starts_with" or "includes"
+        """
+        if msg.get('type') != 'search':
+            return
+        query_id = msg.get('id')
+        query = msg.get('query', '')
+        case_sensitive = msg.get('case_sensitive', self.case_sensitive)
+        search_strategy = msg.get('search_strategy', self.search_strategy)
+
+        filtered = self._filter_options(query, case_sensitive, search_strategy)
+        self._send_msg({
+            'type': 'search_response',
+            'id': query_id,
+            'options': filtered
+        })
+
+    def _filter_options(self, query: str, case_sensitive: bool = None, search_strategy: str = None) -> list:
+        """
+        Filter options based on query string.
+
+        Parameters
+        ----------
+        query : str
+            Search query string
+        case_sensitive : bool, optional
+            Whether search should be case sensitive. Defaults to self.case_sensitive
+        search_strategy : str, optional
+            Search strategy: "starts_with" or "includes". Defaults to self.search_strategy
+
+        Returns
+        -------
+        list
+            Filtered list of options
+        """
+        if case_sensitive is None:
+            case_sensitive = self.case_sensitive
+        if search_strategy is None:
+            search_strategy = self.search_strategy
+
+        if not query or len(query) < self.min_characters:
+            return []
+
+        options = self.values
+        if not case_sensitive:
+            query = query.lower()
+
+        filtered = []
+        for opt in options:
+            opt_str = str(opt)
+            if not case_sensitive:
+                opt_str = opt_str.lower()
+
+            if search_strategy == 'includes':
+                if query in opt_str:
+                    filtered.append(opt)
+            else:  # starts_with
+                if opt_str.startswith(query):
+                    filtered.append(opt)
+
+        return filtered
 
     def clone(self, **params) -> Self:
         """
@@ -230,7 +303,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
 
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the select widget.")
 
-    _constants = {"multi": False}
+    _constants = {"multi": False, "loading_inset": -6}
     _esm_base = "Select.jsx"
     _rename = {"name": "name", "groups": None}
 
@@ -292,7 +365,7 @@ class RadioBoxGroup(_RadioGroup, MaterialSingleSelectBase):
 
     value = param.Parameter(default=None, allow_None=True)
 
-    _constants = {"exclusive": True}
+    _constants = {"exclusive": True, "loading_inset": -6}
 
 
 class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
@@ -318,7 +391,7 @@ class CheckBoxGroup(_RadioGroup, MaterialMultiSelectBase):
 
     value = param.List(default=None, allow_None=True)
 
-    _constants = {"exclusive": False}
+    _constants = {"exclusive": False, "loading_inset": -6}
 
 
 class _ButtonGroup(_ButtonLike):
@@ -372,7 +445,7 @@ class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
 
     value = param.Parameter()
 
-    _constants = {"exclusive": True}
+    _constants = {"exclusive": True, "loading_inset": -6}
 
 
 class CheckButtonGroup(_ButtonGroup, MaterialMultiSelectBase):
@@ -398,7 +471,7 @@ class CheckButtonGroup(_ButtonGroup, MaterialMultiSelectBase):
 
     """
 
-    _constants = {"exclusive": False}
+    _constants = {"exclusive": False, "loading_inset": -6}
 
 
 class MultiSelect(MaterialMultiSelectBase):
@@ -479,7 +552,7 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
     solid = param.Boolean(default=True, doc="""
         Whether to display chips with solid or outlined style.""")
 
-    _constants = {"multi": True}
+    _constants = {"multi": True, "loading_inset": -6}
     _esm_base = "Select.jsx"
     _rename = {"name": None}
 

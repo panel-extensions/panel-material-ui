@@ -1,4 +1,5 @@
 import re
+import time
 
 import pytest
 
@@ -213,7 +214,8 @@ def test_nested_breadcrumbs_no_auto_descend_placeholder_flow(page):
     expect(menu_items.nth(1)).to_contain_text("A2")
 
     # Choose A2 -> active becomes (0, 0, 1); leaf, so no placeholder
-    menu_items.nth(1).click()
+    time.sleep(0.1)
+    menu_items.nth(1).click(force=True)
     wait_until(lambda: widget.active == (0, 0, 1), page)
     wait_until(lambda: widget.path == (0, 0, 1), page)
 

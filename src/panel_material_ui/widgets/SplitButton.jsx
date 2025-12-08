@@ -25,9 +25,11 @@ export function render(props, ref) {
   const anchorEl = React.useRef(null)
 
   const btnRef = React.useRef(null)
-  model.on("msg:custom", (msg) => {
-    btnRef.current?.focus()
-  })
+  React.useEffect(() => {
+    const focus_cb = () => btnRef.current?.focus()
+    model.on("msg:custom", focus_cb)
+    return () => model.off("msg:custom", focus_cb)
+  }, [])
 
   const handleMenuItemClick = (event, selectedIndex) => {
     setSelectedIndex(selectedIndex)

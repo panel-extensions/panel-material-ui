@@ -166,7 +166,7 @@ import {{apply_global_css, install_theme_hooks}} from "./utils"
 
 function {output}(props) {{
   const theme = install_theme_hooks(props)
-  const attached = props.view.model.data.hasOwnProperty("attached") ? props.model.get_child("attached") : []
+  const attached = ("attached" in props.view.model.data.properties) ? props.model.get_child("attached") : []
   if (props.view.is_root && document.documentElement.getAttribute("data-theme-managed") === "false") {{
     apply_global_css(props.model, props.view, theme)
   }}
@@ -191,10 +191,11 @@ import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
 
 function {output}(props) {{
   const [loading] = props.model.useState('loading')
+  const loading_inset = props.model.esm_constants.loading_inset
   const theme = useMuiTheme()
 
   const overlayColor = theme.palette.mode === 'dark'
-    ? 'rgba(0, 0, 0, 0.7)'
+    ? 'rgba(18, 18, 18, 0.7)'
     : 'rgba(255, 255, 255, 0.5)'
 
   return (
@@ -203,10 +204,7 @@ function {output}(props) {{
       {{loading && (
         <div style={{{{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          inset: loading_inset,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -245,6 +243,7 @@ class MaterialComponent(ReactComponent):
         in the component's documentation.""")
 
     _bundle = BASE_PATH / "dist" / "panel-material-ui.bundle.js"
+    _constants = {"loading_inset": 0}
     _esm_base = None
     _esm_shared = {
         'utils': BASE_PATH / "utils.js",
@@ -254,9 +253,10 @@ class MaterialComponent(ReactComponent):
     _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
         "imports": {
-            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@7.3.1/",
-            "@mui/material/": "https://esm.sh/@mui/material@7.3.1/",
+            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@7.3.5/",
+            "@mui/material/": "https://esm.sh/@mui/material@7.3.5/",
             "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.28.0",
+            "@mui/x-tree-view": "https://esm.sh/@mui/x-tree-view@8.18.0",
             "mui-color-input": "https://esm.sh/mui-color-input@7.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
             "notistack": "https://esm.sh/notistack@3.0.2",
