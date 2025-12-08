@@ -386,7 +386,7 @@ export function render({model, el, view}) {
             variant="standard"
             InputProps={{
               sx: {ml: "0.5em", mt: "0.2em"},
-              endAdornment: spinner(Array.isArray(value) ? 1 : 0, 0)
+              endAdornment: spinner(increment, Array.isArray(value) ? 1 : 0)
             }}
           />
         )}
