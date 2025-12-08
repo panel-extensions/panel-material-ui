@@ -560,6 +560,8 @@ class MenuList(TreeLikeBase):
 
     color = param.Selector(default="primary", objects=COLORS, doc="The color of the selected list item.")
 
+    collapsed = param.Boolean(default=False, doc="Whether to collapse the tree to show only the icons and no child items.")
+
     dense = param.Boolean(default=True, doc="Whether to show the list items in a dense format.")
 
     highlight = param.Boolean(default=True, doc="""

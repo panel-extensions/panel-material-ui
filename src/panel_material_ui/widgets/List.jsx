@@ -15,10 +15,12 @@ import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import MoreVert from "@mui/icons-material/MoreVert"
 import Checkbox from "@mui/material/Checkbox"
+import Tooltip from "@mui/material/Tooltip"
 
 export function render({model}) {
   const [active, setActive] = model.useState("active")
   const [color] = model.useState("color")
+  const [collapsed] = model.useState("collapsed")
   const [dense] = model.useState("dense")
   const [disabled] = model.useState("disabled")
   const [expanded, setExpanded] = model.useState("expanded")
@@ -114,6 +116,7 @@ export function render({model}) {
       <ListItemButton
         disableRipple={!isSelectable}
         color={color}
+        className={collapsed ? "collapsed" : null}
         disabled={disabled}
         href={href}
         target={target}
@@ -128,40 +131,49 @@ export function render({model}) {
         sx={{
           m: `0 4px 0 ${indent * level_indent}px`,
           pr: 0,
-          "&.MuiListItemButton-root": {ml: "6px", pl: 1.5},
-          "&.MuiListItemButton-root.Mui-selected": {
-            bgcolor: isActive ? (
-              `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
-            ) : "inherit",
-            ml: "0",
-            borderLeft: `6px solid var(--mui-palette-${color}-main)`,
-            ".MuiListItemText-root": {
-              ".MuiTypography-root.MuiListItemText-primary": {
-                fontWeight: "bold"
+          "&.MuiListItemButton-root": {
+            ml: "6px",
+            pl: 1.5,
+            "&.collapsed": {
+              pl: 0.5,
+              ".MuiListItemIcon-root": {minWidth: "unset"}
+            },
+            "&.Mui-selected": {
+              bgcolor: isActive
+                ? `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
+                : "inherit",
+              ml: "0",
+              borderLeft: `6px solid var(--mui-palette-${color}-main)`,
+              ".MuiListItemText-root": {
+                ".MuiTypography-root.MuiListItemText-primary": {
+                  fontWeight: "bold"
+                }
+              }
+            },
+            "&.Mui-focusVisible": {
+              borderLeft: isActive
+                ? `6px solid var(--mui-palette-${color}-main)`
+                : "3px solid var(--mui-palette-secondary-main)",
+              borderTop: "3px solid var(--mui-palette-secondary-main)",
+              borderRight: "3px solid var(--mui-palette-secondary-main)",
+              borderBottom: "3px solid var(--mui-palette-secondary-main)",
+              bgcolor: isActive
+                ? `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
+                : "inherit"
+            },
+            "&:hover": {
+              ".MuiListItemText-root": {
+                ".MuiTypography-root.MuiListItemText-primary": {
+                  textDecoration: "underline"
+                }
               }
             }
           },
-          "&.MuiListItemButton-root.Mui-focusVisible": {
-            borderLeft: isActive ? `6px solid var(--mui-palette-${color}-main)` : "3px solid var(--mui-palette-secondary-main)",
-            borderTop: "3px solid var(--mui-palette-secondary-main)",
-            borderRight: "3px solid var(--mui-palette-secondary-main)",
-            borderBottom: "3px solid var(--mui-palette-secondary-main)",
-            bgcolor: isActive ? (
-              `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
-            ) : "inherit"
-          },
-          "&.MuiListItemButton-root:hover": {
-            ".MuiListItemText-root": {
-              ".MuiTypography-root.MuiListItemText-primary": {
-                textDecoration: "underline"
-              }
-            }
-          }
         }}
       >
         {leadingComponent}
-        <ListItemText primary={label} secondary={secondary} />
-        {inline_actions.map((action, index) => {
+        {!collapsed && <ListItemText primary={label} secondary={secondary} />}
+        {!collapsed && inline_actions.map((action, index) => {
           const icon = action.icon
           const icon_color = action.color
           const active_icon = action.active_icon || icon
@@ -234,7 +246,7 @@ export function render({model}) {
               {action.icon && <Icon>{action.icon}</Icon>}
             </IconButton>)
         })}
-        {menu_actions.length > 0 && (
+        {!collapsed && menu_actions.length > 0 && (
           <React.Fragment>
             <IconButton
               size="small"
@@ -279,7 +291,7 @@ export function render({model}) {
             </Menu>
           </React.Fragment>
         )}
-        {subitems && subitems.length ? (
+        {!collapsed && subitems && subitems.length ? (
           <IconButton
             size="small"
             onMouseDown={(e) => {
@@ -304,7 +316,7 @@ export function render({model}) {
       </ListItemButton>
     )
 
-    if (subitems && subitems.length) {
+    if (!collapsed && subitems && subitems.length) {
       return [
         list_item,
         <Collapse in={item_open} timeout="auto" unmountOnExit>
@@ -315,6 +327,12 @@ export function render({model}) {
           </List>
         </Collapse>
       ]
+    } else if (collapsed) {
+      return (
+        <Tooltip title={label} placement="right">
+          {list_item}
+        </Tooltip>
+      )
     }
     return list_item
   }
