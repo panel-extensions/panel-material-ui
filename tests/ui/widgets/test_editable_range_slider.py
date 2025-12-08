@@ -216,15 +216,15 @@ def test_editable_range_slider_increment_decrement_buttons(page):
 
 @pytest.mark.parametrize("inline_layout,targets", [
     (False, [87, 200, 240]),
-    (True, [78, 179.5, 216])
+    (True, [78, 180, 215])
 ])
 def test_editable_range_slider_slider_interaction(page, inline_layout, targets):
     x1, x2, x3 = targets
     widget = EditableRangeSlider(
         name='Range Slider',
         start=0,
-        end=10,
-        value=(2, 8),
+        end=5,
+        value=(1, 4),
         step=0.1,
         inline_layout=inline_layout,
         width=500 if inline_layout else 300
@@ -236,16 +236,16 @@ def test_editable_range_slider_slider_interaction(page, inline_layout, targets):
 
     # Test moving first thumb
     slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x1, "y": 0}, force=True)
-    expect(inputs.nth(0)).to_have_value("2.90")  # Should update input value
+    expect(inputs.nth(0)).to_have_value("1.40")  # Should update input value
 
     # Test moving second thumb
     slider.nth(1).drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x2, "y": 0}, force=True)
-    expect(inputs.nth(1)).to_have_value("6.70")  # Should update input value
+    expect(inputs.nth(1)).to_have_value("3.30")  # Should update input value
 
     # Test that thumbs can't cross each other
     slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x3, "y": 0}, force=True)
-    expect(inputs.nth(0)).to_have_value("6.70")  # Should be limited by second thumb
-    expect(inputs.nth(1)).to_have_value("8")  # Should follow movement and be set to the value corresponding to the drag movement
+    expect(inputs.nth(0)).to_have_value("3.30")  # Should be limited by second thumb
+    expect(inputs.nth(1)).to_have_value("4")  # Should follow movement and be set to the value corresponding to the drag movement
 
 def test_editable_int_range_slider_increment_decrement_buttons(page):
     widget = EditableIntRangeSlider(
