@@ -129,13 +129,15 @@ export function render({model}) {
         }}
         selected={highlight && isActive}
         sx={{
-          m: `0 4px 0 ${indent * level_indent}px`,
+          m: `0 0 0 ${indent * level_indent}px`,
           pr: 0,
           "&.MuiListItemButton-root": {
-            ml: "6px",
+            ml: highlight ? "6px" : 0,
+            mr: 0,
             pl: 1.5,
             "&.collapsed": {
               pl: 0.5,
+              pr: 1,
               ".MuiListItemIcon-root": {minWidth: "unset"}
             },
             "&.Mui-selected": {
