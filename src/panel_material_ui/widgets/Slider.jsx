@@ -1,16 +1,40 @@
 import Box from "@mui/material/Box"
 import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
+import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton"
 import InputAdornment from "@mui/material/InputAdornment"
 import RemoveIcon from "@mui/icons-material/Remove"
 import AddIcon from "@mui/icons-material/Add"
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp"
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import Slider from "@mui/material/Slider"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import dayjs from "dayjs"
 import {render_description} from "./description"
 import {int_regex, float_regex} from "./utils"
+
+const spinner = (increment, index) => {
+  return (
+    <Grid container>
+      <Grid item size={12}>
+        <InputAdornment position="end">
+          <IconButton onClick={(e) => { increment(index, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
+            <ArrowDropUpIcon fontSize="small" />
+          </IconButton>
+        </InputAdornment>
+      </Grid>
+      <Grid item size={12}>
+        <InputAdornment position="end">
+          <IconButton onClick={(e) => { increment(index, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
+            <ArrowDropDownIcon fontSize="small" />
+          </IconButton>
+        </InputAdornment>
+      </Grid>
+    </Grid>
+  )
+}
 
 export function render({model, el, view}) {
   const [bar_color] = model.useState("bar_color")
@@ -30,6 +54,7 @@ export function render({model, el, view}) {
   const [value, setValue] = model.useState("value")
   const [valueLabel] = model.useState("value_label")
   const [_, setValueThrottled] = model.useState("value_throttled")
+  const [inline_layout] = model.useState("inline_layout")
   const [value_label, setValueLabel] = React.useState()
   let [end, setEnd] = model.useState("end")
   let [start, setStart] = model.useState("start")
@@ -243,11 +268,11 @@ export function render({model, el, view}) {
     <FormControl disabled={disabled} fullWidth sx={orientation === "vertical" ? {height: "100%", ...sx} : {...sx}}>
       {editable ? (
         <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", width: "100%"}}>
-          <FormLabel sx={{maxWidth: "50%", overflowWrap: "break-word", whiteSpace: "normal"}}>
+          <FormLabel sx={{mr: "0.5em", maxWidth: "50%", overflowWrap: "break-word", whiteSpace: "normal"}}>
             {label && `${label}: `}
           </FormLabel>
           <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
-            <TextField
+            {(!inline_layout || orientation === "vertical") && <TextField
               color={color}
               disabled={disabled}
               inputRef={editableRef}
@@ -256,31 +281,17 @@ export function render({model, el, view}) {
               onFocus={() => setFocused(true)}
               onKeyDown={(e) => handleKeyDown(e, 0)}
               size="small"
-              sx={{flexGrow: 1, minWidth: 0}}
+              sx={{flexGrow: 1, minWidth: 0, mr: "0.5em"}}
               value={Array.isArray(value) ? (editableValue ? editableValue[0] : "") : editableValue}
               variant="standard"
               InputProps={{
-                disableUnderline: true,
                 sx: {ml: "0.5em", mt: "0.2em"},
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <IconButton onClick={(e) => { increment(0, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                      <RemoveIcon fontSize="small" />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={(e) => { increment(0, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                      <AddIcon fontSize="small" />
-                    </IconButton>
-                  </InputAdornment>
-                ),
+                endAdornment: spinner(increment, 0),
               }}
-            />
-            {Array.isArray(value) && (
+            />}
+            {(!inline_layout || orientation === "vertical") && Array.isArray(value) && (
               <>
-                <Typography sx={{alignSelf: "end", fontWeight: 600}}>...</Typography>
+                <Typography sx={{alignSelf: "center", fontWeight: 600}}>-</Typography>
                 <TextField
                   color={color}
                   disabled={disabled}
@@ -289,26 +300,12 @@ export function render({model, el, view}) {
                   onFocus={() => setFocused(true)}
                   onKeyDown={(e) => handleKeyDown(e, 1)}
                   size="small"
-                  sx={{flexGrow: 1, minWidth: 0, mr: "0.5em"}}
+                  sx={{flexGrow: 1, minWidth: 0, ml: "0.5em"}}
                   value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
                   variant="standard"
                   InputProps={{
-                    disableUnderline: true,
                     sx: {ml: "0.5em", mt: "0.2em"},
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <IconButton onClick={(e) => { increment(1, -1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                          <RemoveIcon fontSize="small" />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={(e) => { increment(1, 1); e.stopPropagation(); e.preventDefault(); }} size="small" color="default" sx={{p: 0}}>
-                          <AddIcon fontSize="small" />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                    endAdornment: spinner(increment, 1)
                   }}
                 />
               </>
@@ -326,36 +323,74 @@ export function render({model, el, view}) {
           }
           {model.description && render_description({model, el, view})}
         </FormLabel>)}
-      <Slider
-        color={color}
-        dir={direction}
-        disabled={disabled}
-        getAriaLabel={() => label}
-        getAriaValueText={format_value}
-        marks={ticks}
-        max={end}
-        min={start}
-        orientation={orientation}
-        onChange={(_, newValue) => setValue(newValue)}
-        onChangeCommitted={(_, newValue) => setValueThrottled(newValue)}
-        ref={ref}
-        size={size}
-        step={date ? step*86400000 : (datetime ? step*1000 : step)}
-        sx={{
-          "& .MuiSlider-track": {
-            backgroundColor: bar_color,
-            borderColor: bar_color
-          },
-          "& .MuiSlider-rail": {
-            backgroundColor: bar_color,
-          },
-          ...sx
-        }}
-        track={track}
-        value={value}
-        valueLabelDisplay={tooltips === "auto" ? "auto" : tooltips ? "on" : "off"}
-        valueLabelFormat={format_value}
-      />
+      <Box sx={{display: "flex", flexDirection: orientation !== "vertical"? "row" : "initial", alignItems: "center", width: "100%", height: "100%"}}>
+        {editable && inline_layout && orientation !== "vertical" && Array.isArray(value) && (
+          <TextField
+            color={color}
+            disabled={disabled}
+            onBlur={() => { setFocused(false); commitValue(0) }}
+            onChange={(e) => handleChange(e, 0)}
+            onFocus={() => setFocused(true)}
+            onKeyDown={(e) => handleKeyDown(e, 0)}
+            size="small"
+            sx={{...orientation !== "vertical" ? {flexShrink: 1.2} : {}, mr: "0.8em", minWidth: 0}}
+            value={Array.isArray(value) ? (editableValue ? editableValue[0] : "") : editableValue}
+            variant="standard"
+            InputProps={{
+              sx: {ml: "0.5em", mt: "0.2em"},
+              endAdornment: spinner(increment, 0),
+            }}
+          />)}
+        <Slider
+          color={color}
+          dir={direction}
+          disabled={disabled}
+          getAriaLabel={() => label}
+          getAriaValueText={format_value}
+          marks={ticks}
+          max={end}
+          min={start}
+          orientation={orientation}
+          onChange={(_, newValue) => setValue(newValue)}
+          onChangeCommitted={(_, newValue) => setValueThrottled(newValue)}
+          ref={ref}
+          size={size}
+          step={date ? step*86400000 : (datetime ? step*1000 : step)}
+          sx={{
+            ...orientation !== "vertical" ? {width: "100%"} : {},
+            "& .MuiSlider-track": {
+              backgroundColor: bar_color,
+              borderColor: bar_color
+            },
+            "& .MuiSlider-rail": {
+              backgroundColor: bar_color,
+            },
+            ...sx
+          }}
+          track={track}
+          value={value}
+          valueLabelDisplay={tooltips === "auto" ? "auto" : tooltips ? "on" : "off"}
+          valueLabelFormat={format_value}
+        />
+        {editable && inline_layout && orientation !== "vertical" && (
+          <TextField
+            color={color}
+            disabled={disabled}
+            onBlur={() => { setFocused(false); commitValue(1) }}
+            onChange={(e) => handleChange(e, 1)}
+            onFocus={() => setFocused(true)}
+            onKeyDown={(e) => handleKeyDown(e, 1)}
+            size="small"
+            sx={{flexShrink: Array.isArray(value) ? 1.2 : 2.3, minWidth: 0, ml: "0.8em"}}
+            value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
+            variant="standard"
+            InputProps={{
+              sx: {ml: "0.5em", mt: "0.2em"},
+              endAdornment: spinner(increment, Array.isArray(value) ? 1 : 0)
+            }}
+          />
+        )}
+      </Box>
     </FormControl>
   )
 }
