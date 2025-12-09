@@ -212,7 +212,7 @@ export function render({model}) {
                     display: "inline-block"}}
                   /> :
                   <Icon
-                    baseClassName={parseIconName(icon).baseClassName}
+                    baseClassName={parseIconName(icon, "-outlined").baseClassName}
                     color={icon_color}
                   >
                     {parseIconName(icon).iconName}

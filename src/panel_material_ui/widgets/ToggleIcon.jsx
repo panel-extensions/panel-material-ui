@@ -65,7 +65,7 @@ export function render(props, ref) {
               display: "inline-block"}}
             /> :
             <Icon
-              baseClassName={parseIconName(icon).baseClassName}
+              baseClassName={parseIconName(icon, "-outlined").baseClassName}
               color={color_state}
               fontSize={icon_font_size}
               sx={icon_size ? {fontSize: icon_size} : {}}

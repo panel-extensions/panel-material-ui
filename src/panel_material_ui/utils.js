@@ -1446,7 +1446,7 @@ export function isFileAccepted(file, accept) {
  * parseIconName("lightbulb_rounded") // {baseClassName: "material-icons-rounded", iconName: "lightbulb"}
  * parseIconName("lightbulb") // {baseClassName: "material-icons", iconName: "lightbulb"}
  */
-export function parseIconName(iconName) {
+export function parseIconName(iconName, dflt = "") {
   if (!iconName || typeof iconName !== "string") {
     return {baseClassName: "material-icons", iconName: iconName || ""}
   }
@@ -1470,7 +1470,7 @@ export function parseIconName(iconName) {
 
   // Default to filled icons
   return {
-    baseClassName: "material-icons",
+    baseClassName: `material-icons${dflt}`,
     iconName
   }
 }

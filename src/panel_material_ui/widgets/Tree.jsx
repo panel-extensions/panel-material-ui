@@ -468,7 +468,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
             />
           ) : (
             action.icon && (
-              <Icon baseClassName={parseIconName(action.icon).baseClassName} color={action.color}>
+              <Icon baseClassName={parseIconName(action.icon, "-outlined").baseClassName} color={action.color}>
                 {parseIconName(action.icon).iconName}
               </Icon>
             )
