@@ -301,16 +301,20 @@ def test_menu_list_collapsed(page):
 
     # Verify tooltips display labels on hover
     # Hover over first item with icon
+    tooltip = page.locator('.MuiTooltip-popper')
     page.locator('.MuiListItemButton-root').nth(0).hover()
-    wait_until(lambda: page.locator('.MuiTooltip-popper').is_visible(), page, timeout=2000)
-    expect(page.locator('.MuiTooltip-popper')).to_have_text('Item 1')
+    expect(tooltip).to_have_count(1)
+    expect(tooltip).to_be_visible()
+    expect(tooltip).to_have_text('Item 1')
 
     # Hover over second item with icon
     page.locator('.MuiListItemButton-root').nth(1).hover()
-    wait_until(lambda: page.locator('.MuiTooltip-popper').nth(1).is_visible(), page, timeout=2000)
-    expect(page.locator('.MuiTooltip-popper').nth(1)).to_have_text('Item 2')
+    expect(tooltip).to_have_count(1)
+    expect(tooltip).to_be_visible()
+    expect(tooltip).to_have_text('Item 2')
 
     # Hover over third item with avatar
     page.locator('.MuiListItemButton-root').nth(2).hover()
-    wait_until(lambda: page.locator('.MuiTooltip-popper').nth(2).is_visible(), page, timeout=2000)
-    expect(page.locator('.MuiTooltip-popper').nth(2)).to_have_text('Item 3')
+    expect(tooltip).to_have_count(1)
+    expect(tooltip).to_be_visible()
+    expect(tooltip).to_have_text('Item 3')
