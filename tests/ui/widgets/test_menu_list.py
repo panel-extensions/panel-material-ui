@@ -273,3 +273,44 @@ def test_menu_list_non_selectable_items(page):
     page.locator('.MuiListItemButton-root').nth(1).click()
     expect(page.locator('.MuiListItemButton-root').nth(1)).not_to_have_class('Mui-selected')
     assert widget.active is None
+
+def test_menu_list_collapsed(page):
+    widget = MenuList(items=[
+        {"label": "Item 1", "icon": "home"},
+        {"label": "Item 2", "icon": "settings"},
+        {"label": "Item 3"}  # No icon, should show avatar
+    ], collapsed=True)
+    serve_component(page, widget)
+
+    # Verify ListItemText is not rendered when collapsed
+    expect(page.locator('.MuiListItemText-root')).to_have_count(0)
+
+    # Verify icons are still rendered
+    icons = page.locator('.MuiListItemIcon-root .material-icons')
+    expect(icons).to_have_count(2)
+    expect(icons.nth(0)).to_have_text('home')
+    expect(icons.nth(1)).to_have_text('settings')
+
+    # Verify avatar is rendered for item without icon
+    avatars = page.locator('.MuiAvatar-root')
+    expect(avatars).to_have_count(1)
+    expect(avatars.nth(0)).to_have_text('I')  # First letter of "Item 3"
+
+    # Verify collapsed class is applied
+    expect(page.locator('.MuiListItemButton-root.collapsed')).to_have_count(3)
+
+    # Verify tooltips display labels on hover
+    # Hover over first item with icon
+    page.locator('.MuiListItemButton-root').nth(0).hover()
+    wait_until(lambda: page.locator('.MuiTooltip-popper').is_visible(), page, timeout=2000)
+    expect(page.locator('.MuiTooltip-popper')).to_have_text('Item 1')
+
+    # Hover over second item with icon
+    page.locator('.MuiListItemButton-root').nth(1).hover()
+    wait_until(lambda: page.locator('.MuiTooltip-popper').nth(1).is_visible(), page, timeout=2000)
+    expect(page.locator('.MuiTooltip-popper').nth(1)).to_have_text('Item 2')
+
+    # Hover over third item with avatar
+    page.locator('.MuiListItemButton-root').nth(2).hover()
+    wait_until(lambda: page.locator('.MuiTooltip-popper').nth(2).is_visible(), page, timeout=2000)
+    expect(page.locator('.MuiTooltip-popper').nth(2)).to_have_text('Item 3')
