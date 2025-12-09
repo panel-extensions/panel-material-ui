@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box"
 import Checkbox from "@mui/material/Checkbox"
 import Typography from "@mui/material/Typography"
+import {parseIconName} from "./utils"
 
 const SIZES = {
   small: "1.5em",
@@ -64,12 +65,12 @@ export function render(props, ref) {
               display: "inline-block"}}
             /> :
             <Icon
-              baseClassName={"material-icons-outlined"}
+              baseClassName={parseIconName(icon).baseClassName}
               color={color_state}
               fontSize={icon_font_size}
               sx={icon_size ? {fontSize: icon_size} : {}}
             >
-              {icon}
+              {parseIconName(icon).iconName}
             </Icon>
         }
         checkedIcon={
@@ -82,8 +83,10 @@ export function render(props, ref) {
               width: text_size,
               height: text_size,
               display: "inline-block"}}
-            /> :
-            <Icon color={color_state} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{active_icon || icon}</Icon>
+            /> : (() => {
+              const iconData = parseIconName(active_icon || icon)
+              return <Icon baseClassName={iconData.baseClassName} color={color_state} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{iconData.iconName}</Icon>
+            })()
         }
         sx={{p: PADDING[size], ...sx}}
         {...other}

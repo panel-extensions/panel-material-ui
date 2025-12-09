@@ -2,6 +2,7 @@ import Alert from "@mui/material/Alert"
 import Icon from "@mui/material/Icon"
 import {SnackbarProvider, useSnackbar} from "notistack"
 import {useTheme} from "@mui/material/styles"
+import {parseIconName} from "./utils"
 
 function standardize_color(str) {
   const ctx = document.createElement("canvas").getContext("2d")
@@ -39,7 +40,10 @@ function NotificationArea({model, view}) {
       autoHideDuration: notification.duration,
       content: (
         <Alert
-          icon={icon ? <Icon>{icon}</Icon> : undefined}
+          icon={icon ? (() => {
+            const iconData = parseIconName(icon)
+            return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
+          })() : undefined}
           onClose={() => notification._uuid && closeSnackbar(notification._uuid)}
           severity={notification.notification_type}
           id={uuid ?? notification._uuid}

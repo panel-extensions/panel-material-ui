@@ -1,5 +1,6 @@
 import Chip from "@mui/material/Chip"
 import Icon from "@mui/material/Icon"
+import {parseIconName} from "./utils"
 
 const SIZES = {
   small: "1.2em",
@@ -33,10 +34,10 @@ export function render({model}) {
             display: "inline-block"}}
           /> :
           <Icon
-            baseClassName={"material-icons-outlined"}
+            baseClassName={parseIconName(icon).baseClassName}
             style={{fontSize: font_size}}
           >
-            {icon}
+            {parseIconName(icon).iconName}
           </Icon>) : null
       }
       label={label}

@@ -4,6 +4,7 @@ import Link from "@mui/material/Link"
 import Typography from "@mui/material/Typography"
 import Icon from "@mui/material/Icon"
 import NavigateNextIcon from "@mui/icons-material/NavigateNext"
+import {parseIconName} from "./utils"
 import {useTheme, styled} from "@mui/material/styles"
 
 const StyledAvatar = styled(Avatar)(({color, spacing}) => ({
@@ -39,9 +40,10 @@ export function render({model}) {
       if (item.href && index < items.length - 1) {
         return (
           <Link href={item.href} target={item.target} {...props}>
-            {item.icon ?
-              <Icon color={color_string} sx={{mr: 0.5}}>{item.icon}</Icon> : null
-            }
+            {item.icon ? (() => {
+              const iconData = parseIconName(item.icon)
+              return <Icon baseClassName={iconData.baseClassName} color={color_string} sx={{mr: 0.5}}>{iconData.iconName}</Icon>
+            })() : null}
             {item.avatar ?
               <StyledAvatar color={theme.palette[color_string]?.main || color_string} spacing={theme.spacing(0.5)}>{item.avatar}</StyledAvatar> : null
             }
@@ -51,7 +53,10 @@ export function render({model}) {
       } else {
         return (
           <Typography {...props}>
-            {item.icon ? <Icon color={color_string} sx={{mr: 0.5}}>{item.icon}</Icon> : null}
+            {item.icon ? (() => {
+              const iconData = parseIconName(item.icon)
+              return <Icon baseClassName={iconData.baseClassName} color={color_string} sx={{mr: 0.5}}>{iconData.iconName}</Icon>
+            })() : null}
             {item.avatar ?
               <StyledAvatar color={theme.palette[color_string]?.main || color_string} spacing={theme.spacing(0.5)}>{item.avatar}</StyledAvatar> : null
             }

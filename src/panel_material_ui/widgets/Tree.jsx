@@ -9,6 +9,7 @@ import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
 import MenuItem from "@mui/material/MenuItem"
 import Typography from "@mui/material/Typography"
+import {parseIconName} from "./utils"
 
 import ArticleIcon from "@mui/icons-material/Article"
 import DeleteIcon from "@mui/icons-material/Delete"
@@ -408,7 +409,8 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
 
   let IconComponent = null
   if (item && item.icon) {
-    IconComponent = (iconProps) => <Icon {...iconProps}>{item.icon}</Icon>
+    const iconData = parseIconName(item.icon)
+    IconComponent = (iconProps) => <Icon baseClassName={iconData.baseClassName} {...iconProps}>{iconData.iconName}</Icon>
   } else if (item && item.file_type) {
     IconComponent = getIconFromFileType(item.file_type)
   } else if (status.expandable) {
@@ -466,8 +468,8 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
             />
           ) : (
             action.icon && (
-              <Icon baseClassName={"material-icons-outlined"} color={action.color}>
-                {action.icon}
+              <Icon baseClassName={parseIconName(action.icon).baseClassName} color={action.color}>
+                {parseIconName(action.icon).iconName}
               </Icon>
             )
           )
@@ -484,11 +486,14 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
                 }}
               />
             ) : (
-              (action.active_icon || action.icon) && (
-                <Icon color={action.active_color || action.color}>
-                  {action.active_icon || action.icon}
-                </Icon>
-              )
+              (() => {
+                const iconData = parseIconName(action.active_icon || action.icon)
+                return iconData.iconName && (
+                  <Icon baseClassName={iconData.baseClassName} color={action.active_color || action.color}>
+                    {iconData.iconName}
+                  </Icon>
+                )
+              })()
             )
         return (
           <Checkbox
@@ -528,7 +533,10 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
             sendAction(actionKey)
           }}
         >
-          {action.icon && <Icon>{action.icon}</Icon>}
+          {action.icon && (() => {
+            const iconData = parseIconName(action.icon)
+            return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
+          })()}
         </IconButton>
       )
     })
@@ -547,7 +555,10 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
           size={button.size || "small"}
           href={button.href}
           target={button.target}
-          startIcon={button.icon ? <Icon>{button.icon}</Icon> : null}
+          startIcon={button.icon ? (() => {
+            const iconData = parseIconName(button.icon)
+            return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
+          })() : null}
           onClick={(event) => {
             event.stopPropagation()
             if (!button.href) {
@@ -643,7 +654,10 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
                             sendAction(actionKey)
                           }}
                         >
-                          {action.icon && <Icon sx={{mr: 1}}>{action.icon}</Icon>}
+                          {action.icon && (() => {
+                            const iconData = parseIconName(action.icon)
+                            return <Icon baseClassName={iconData.baseClassName} sx={{mr: 1}}>{iconData.iconName}</Icon>
+                          })()}
                           {action.label}
                         </MenuItem>
                       )

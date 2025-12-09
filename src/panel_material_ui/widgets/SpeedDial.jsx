@@ -3,6 +3,7 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon"
 import SpeedDialAction from "@mui/material/SpeedDialAction"
 import SpeedDial from "@mui/material/SpeedDial"
 import Icon from "@mui/material/Icon"
+import {parseIconName} from "./utils"
 
 export function render({model, view}) {
   const [color] = model.useState("color")
@@ -42,7 +43,10 @@ export function render({model, view}) {
       ariaLabel={label}
       direction={direction}
       FabProps={{color, disabled}}
-      icon={icon ? <Icon>{icon}</Icon> : <SpeedDialIcon openIcon={open_icon ? open_icon : undefined} />}
+      icon={icon ? (() => {
+        const iconData = parseIconName(icon)
+        return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
+      })() : <SpeedDialIcon openIcon={open_icon ? open_icon : undefined} />}
       ref={ref}
       sx={{
         "& .MuiSpeedDial-actions": {
@@ -59,9 +63,10 @@ export function render({model, view}) {
         return (
           <SpeedDialAction
             key={`speed-dial-action-${index}`}
-            icon={item.icon ? (
-              <Icon color={item.color}>{item.icon}</Icon>
-            ) : (
+            icon={item.icon ? (() => {
+              const iconData = parseIconName(item.icon)
+              return <Icon baseClassName={iconData.baseClassName} color={item.color}>{iconData.iconName}</Icon>
+            })() : (
               <Avatar color={item.color}>{avatar}</Avatar>
             )}
             tooltipTitle={item.label}

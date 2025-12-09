@@ -1,5 +1,6 @@
 import IconButton from "@mui/material/IconButton"
 import {useTheme} from "@mui/material/styles"
+import {parseIconName} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -54,7 +55,7 @@ export function render(props, ref) {
       target={target}
       {...other}
     >
-      {current_icon.trim().startsWith("<") ?
+      {current_icon.trim().startsWith("<") ? (
         <span style={{
           maskImage: `url("data:image/svg+xml;base64,${btoa(current_icon)}")`,
           backgroundColor: "currentColor",
@@ -63,8 +64,10 @@ export function render(props, ref) {
           width: font_size,
           height: font_size,
           display: "inline-block"}}
-        /> :
-        <Icon fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{current_icon}</Icon>
+        />) : (() => {
+        const iconData = parseIconName(current_icon)
+        return <Icon baseClassName={iconData.baseClassName} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{iconData.iconName}</Icon>
+      })()
       }
     </IconButton>
   )

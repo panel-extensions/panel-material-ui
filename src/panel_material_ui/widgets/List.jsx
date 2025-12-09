@@ -5,6 +5,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess"
 import ExpandMore from "@mui/icons-material/ExpandMore"
 import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
+import {parseIconName} from "./utils"
 import List from "@mui/material/List"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
@@ -87,11 +88,14 @@ export function render({model}) {
     if (icon === null) {
       leadingComponent = null
     } else if (icon) {
-      leadingComponent = (
-        <ListItemIcon>
-          <Icon color={icon_color}>{icon}</Icon>
-        </ListItemIcon>
-      )
+      leadingComponent = (() => {
+        const iconData = parseIconName(icon)
+        return (
+          <ListItemIcon>
+            <Icon baseClassName={iconData.baseClassName} color={icon_color}>{iconData.iconName}</Icon>
+          </ListItemIcon>
+        )
+      })()
     } else {
       leadingComponent = (
         <ListItemAvatar>
@@ -208,22 +212,25 @@ export function render({model}) {
                     display: "inline-block"}}
                   /> :
                   <Icon
-                    baseClassName={"material-icons-outlined"}
+                    baseClassName={parseIconName(icon).baseClassName}
                     color={icon_color}
                   >
-                    {icon}
+                    {parseIconName(icon).iconName}
                   </Icon>
               }
               checkedIcon={
-                (active_icon && active_icon.trim().startsWith("<")) ?
+                (active_icon && active_icon.trim().startsWith("<")) ? (
                   <span style={{
                     maskImage: `url("data:image/svg+xml;base64,${btoa(active_icon)}")`,
                     backgroundColor: "currentColor",
                     maskRepeat: "no-repeat",
                     maskSize: "contain",
                     display: "inline-block"}}
-                  /> :
-                  <Icon color={active_color}>{active_icon}</Icon>
+                  />) :
+                  (() => {
+                    const iconData = parseIconName(active_icon)
+                    return <Icon baseClassName={iconData.baseClassName} color={active_color}>{iconData.iconName}</Icon>
+                  })()
               }
             />
           ) : (
@@ -243,7 +250,10 @@ export function render({model}) {
               }}
               sx={{ml: index > 0 ? "0" : "0.5em"}}
             >
-              {action.icon && <Icon>{action.icon}</Icon>}
+              {action.icon && (() => {
+                const iconData = parseIconName(action.icon)
+                return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
+              })()}
             </IconButton>)
         })}
         {!collapsed && menu_actions.length > 0 && (
@@ -283,7 +293,10 @@ export function render({model}) {
                       e.stopPropagation()
                     }}
                   >
-                    {action.icon && <Icon sx={{mr: "1em"}}>{action.icon}</Icon>}
+                    {action.icon && (() => {
+                      const iconData = parseIconName(action.icon)
+                      return <Icon baseClassName={iconData.baseClassName} sx={{mr: "1em"}}>{iconData.iconName}</Icon>
+                    })()}
                     {action.label}
                   </MenuItem>
                 )

@@ -4,6 +4,7 @@ import Tab from "@mui/material/Tab"
 import Icon from "@mui/material/Icon"
 import Box from "@mui/material/Box"
 import {useTheme, styled} from "@mui/material/styles"
+import {parseIconName} from "./utils"
 
 const StyledAvatar = styled(Avatar)(({theme, color, spacing}) => ({
   backgroundColor: color,
@@ -42,7 +43,10 @@ export function render({model}) {
       return (
         <Tab
           key={index}
-          icon={<Icon>{icon}</Icon>}
+          icon={(() => {
+            const iconData = parseIconName(icon)
+            return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
+          })()}
           iconPosition={iconPosition || "start"}
           href={href}
           target={target}
@@ -54,7 +58,10 @@ export function render({model}) {
     // Otherwise, build label content with icon/avatar/label
     const labelContent = (
       <Box sx={{display: "flex", alignItems: "center", gap: 0.5}}>
-        {icon ? <Icon sx={{fontSize: "1.2rem"}}>{icon}</Icon> : null}
+        {icon ? (() => {
+          const iconData = parseIconName(icon)
+          return <Icon baseClassName={iconData.baseClassName} sx={{fontSize: "1.2rem"}}>{iconData.iconName}</Icon>
+        })() : null}
         {avatar ? (
           <StyledAvatar
             theme={theme}

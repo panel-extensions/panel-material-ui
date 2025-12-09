@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Icon from "@mui/material/Icon";
+import {parseIconName} from "./utils";
 
 export function render({model}) {
   const [color] = model.useState("color")
@@ -21,7 +22,10 @@ export function render({model}) {
           aria-label="menu"
           sx={{mr: 2}}
         >
-          <Icon>menu</Icon>
+          {(() => {
+            const iconData = parseIconName("menu")
+            return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
+          })()}
         </IconButton>
         <Typography variant="h3" component="div" sx={{flexGrow: 1}}>
           {title}
