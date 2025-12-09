@@ -342,7 +342,7 @@ export function render({model}) {
       ]
     } else if (collapsed) {
       return (
-        <Tooltip title={label} placement="right" disableInteractive sx={{zIndex: 999}}>
+        <Tooltip title={label} placement="right" disableInteractive>
           {list_item}
         </Tooltip>
       )
