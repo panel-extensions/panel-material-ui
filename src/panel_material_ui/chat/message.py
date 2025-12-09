@@ -22,8 +22,7 @@ from panel.widgets import Widget
 from ..base import MaterialComponent
 from .input import ChatAreaInput
 
-_MESSAGE_BG = ":host(.message), .message { background-color: unset !important; box-shadow: unset !important; }"
-_MESSAGE_STYLESHEET = ".message { font-size: 1.1em; overflow-wrap: anywhere; word-break: break-word; width; max-width: calc(100% - 20px); padding-inline: 8px; }"
+_MESSAGE_STYLESHEET = ":host(.message), .message { background-color: unset !important; box-shadow: unset !important; font-size: 1.1em; padding-inline: 8px; }"
 
 DEFAULT_AVATARS = {
     "system": {"type": "icon", "icon": "settings"},
@@ -173,7 +172,7 @@ class ChatMessage(MaterialComponent, ChatMessage):
 
     def _include_styles(self, obj):
         obj = as_panel(obj)
-        combined = self._stylesheets + self.stylesheets + [_MESSAGE_BG]
+        combined = self._stylesheets + self.stylesheets + [_MESSAGE_STYLESHEET]
         for o in obj.select():
             params = {
                 "stylesheets": [
@@ -192,7 +191,7 @@ class ChatMessage(MaterialComponent, ChatMessage):
 
     def _process_param_change(self, params):
         params = super()._process_param_change(params)
-        if 'stylesheets' in params:
+        if 'stylesheets' in params and _MESSAGE_STYLESHEET not in params['stylesheets']:
             params['stylesheets'] += [_MESSAGE_STYLESHEET]
         return params
 
