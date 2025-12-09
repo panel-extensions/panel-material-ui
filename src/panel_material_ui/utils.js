@@ -1454,7 +1454,7 @@ export function parseIconName(iconName) {
   // Material Icons variants: outlined, rounded, sharp
   const variantMap = {
     _outlined: "material-icons-outlined",
-    _rounded: "material-icons-rounded",
+    _rounded: "material-icons-round",
     _sharp: "material-icons-sharp"
   }
 

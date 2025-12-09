@@ -110,6 +110,11 @@ panel.io.convert.loading_resources = lambda template, inline: [PN_LOADING_MSG_CS
 
 FONT_CSS = [
     str(p) for p in DIST_PATH.glob('material-icons-*.woff*')
+    if not (
+        'material-icons-round' in p.name or
+        'material-icons-sharp' in p.name or
+        'material-icons-two-tone' in p.name
+    )
 ] + [
     str(p) for p in DIST_PATH.glob('roboto-latin-?00-normal*.woff*')
 ] + [

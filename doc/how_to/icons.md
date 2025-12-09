@@ -6,14 +6,14 @@
 
 Many components in **panel-material-ui** accept the `icon` parameter. This can be a string referring to the *snake_case* name of the icon, which you can find in the [Material icon library](https://fonts.google.com/icons?icon.set=Material+Icons).
 
-You can choose between filled and outlined icons by adding `_outlined` to the icon name:
+You can choose between filled and outlined icon variants by appending `_outlined` to the icon name:
 
 ```{pyodide}
 import panel_material_ui as pmui
 
 pmui.Row(
   pmui.ButtonIcon(icon="lightbulb"),
-  pmui.ButtonIcon(icon="lightbulb_outline")
+  pmui.ButtonIcon(icon="lightbulb_outlined"),
 )
 ```
 
