@@ -7,6 +7,7 @@ import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
 import ContentCopyIcon from "@mui/icons-material/ContentCopy"
 import EditNoteIcon from "@mui/icons-material/EditNote"
+import {parseIconName} from "./utils"
 
 function PlaceholderAvatar() {
   return (
@@ -110,7 +111,10 @@ export function render({model, view}) {
       src={avatar.type === "image" ? avatar.src : null}
       sx={{margin: placement === "left" ? "1em 0.5em 0 0" : "1em 0 0 0.5em", bgcolor: "background.paper", color: "text.primary", boxShadow: 3}}
     >
-      {avatar.type !== "image" && (avatar.type == "text" ? isEmoji(avatar.text) ? avatar.text : [...avatar.text][0] : <Icon>{avatar.icon}</Icon>)}
+      {avatar.type !== "image" && (avatar.type == "text" ? isEmoji(avatar.text) ? avatar.text : [...avatar.text][0] : (() => {
+        const iconData = parseIconName(avatar.icon)
+        return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
+      })())}
     </Avatar>
   ))
 
@@ -139,7 +143,11 @@ export function render({model, view}) {
           </IconButton>}
           {show_reaction_icons && reactions.map((reaction) => (
             <IconButton key={`reaction-${reaction}`} disableRipple size="small" sx={{padding: "0 0.1em"}} onClick={() => { model.send_msg(reaction) }}>
-              <Icon sx={{width: "0.5em"}}>{reaction_icons[reaction] || reaction}</Icon>
+              {(() => {
+                const iconName = reaction_icons[reaction] || reaction
+                const iconData = parseIconName(iconName)
+                return <Icon baseClassName={iconData.baseClassName} sx={{width: "0.5em"}}>{iconData.iconName}</Icon>
+              })()}
             </IconButton>
           ))}
         </Stack>

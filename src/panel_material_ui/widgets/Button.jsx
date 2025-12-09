@@ -1,4 +1,5 @@
 import Button from "@mui/material/Button"
+import {parseIconName} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -44,8 +45,10 @@ export function render(props, ref) {
             width: font_size,
             height: font_size,
             display: "inline-block"}}
-          /> :
-          <Icon fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{end_icon}</Icon>
+          /> : (() => {
+            const iconData = parseIconName(end_icon)
+            return <Icon baseClassName={iconData.baseClassName} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{iconData.iconName}</Icon>
+          })()
       )}
       fullWidth
       href={href}
@@ -63,8 +66,10 @@ export function render(props, ref) {
             width: font_size,
             height: font_size,
             display: "inline-block"}}
-          /> :
-          <Icon fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{icon}</Icon>
+          /> : (() => {
+            const iconData = parseIconName(icon)
+            return <Icon baseClassName={iconData.baseClassName} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{iconData.iconName}</Icon>
+          })()
       )}
       size={size}
       sx={{height: "100%", ".MuiButton-startIcon": {mr: label.length ? "8px": 0}, ...sx}}

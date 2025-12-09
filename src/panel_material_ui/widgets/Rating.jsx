@@ -2,6 +2,7 @@ import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
 import Icon from "@mui/material/Icon"
 import Rating from "@mui/material/Rating"
+import {parseIconName} from "./utils"
 
 const SIZES = {
   small: "1.5em",
@@ -50,7 +51,10 @@ export function render({model, el, view}) {
                 width: SIZES[size],
                 height: SIZES[size],
                 display: "inline-block"}}
-              /> : <Icon baseClassName={"material-icons-outlined"}>{empty}</Icon>
+              /> : (() => {
+                const iconData = parseIconName(empty)
+                return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
+              })()
           ) : undefined
         }
         fullWidth
@@ -66,7 +70,10 @@ export function render({model, el, view}) {
                 width: SIZES[size],
                 height: SIZES[size],
                 display: "inline-block"}}
-              /> : <Icon color={color}>{icon}</Icon>
+              /> : (() => {
+                const iconData = parseIconName(icon)
+                return <Icon baseClassName={iconData.baseClassName} color={color}>{iconData.iconName}</Icon>
+              })()
           ) : undefined
         }
         ref={ref}

@@ -1434,3 +1434,43 @@ export function isFileAccepted(file, accept) {
     return false
   })
 }
+
+/**
+ * Parses an icon name with optional variant suffix and returns the baseClassName and clean icon name.
+ *
+ * @param {string} iconName - Icon name with optional suffix (e.g., "lightbulb_outlined", "lightbulb_rounded", "lightbulb")
+ * @returns {{baseClassName: string, iconName: string}} - Object with baseClassName and the clean icon name
+ *
+ * @example
+ * parseIconName("lightbulb_outlined") // {baseClassName: "material-icons-outlined", iconName: "lightbulb"}
+ * parseIconName("lightbulb_rounded") // {baseClassName: "material-icons-rounded", iconName: "lightbulb"}
+ * parseIconName("lightbulb") // {baseClassName: "material-icons", iconName: "lightbulb"}
+ */
+export function parseIconName(iconName, dflt = "") {
+  if (!iconName || typeof iconName !== "string") {
+    return {baseClassName: "material-icons", iconName: iconName || ""}
+  }
+
+  // Material Icons variants: outlined, rounded, sharp
+  const variantMap = {
+    _outlined: "material-icons-outlined",
+    _rounded: "material-icons-round",
+    _sharp: "material-icons-sharp"
+  }
+
+  // Check for variant suffix
+  for (const [suffix, baseClassName] of Object.entries(variantMap)) {
+    if (iconName.endsWith(suffix)) {
+      return {
+        baseClassName,
+        iconName: iconName.slice(0, -suffix.length)
+      }
+    }
+  }
+
+  // Default to filled icons
+  return {
+    baseClassName: `material-icons${dflt}`,
+    iconName
+  }
+}
