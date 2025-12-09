@@ -191,10 +191,11 @@ import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
 
 function {output}(props) {{
   const [loading] = props.model.useState('loading')
+  const loading_inset = props.model.esm_constants.loading_inset
   const theme = useMuiTheme()
 
   const overlayColor = theme.palette.mode === 'dark'
-    ? 'rgba(0, 0, 0, 0.7)'
+    ? 'rgba(18, 18, 18, 0.7)'
     : 'rgba(255, 255, 255, 0.5)'
 
   return (
@@ -203,10 +204,7 @@ function {output}(props) {{
       {{loading && (
         <div style={{{{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          inset: loading_inset,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -245,6 +243,7 @@ class MaterialComponent(ReactComponent):
         in the component's documentation.""")
 
     _bundle = BASE_PATH / "dist" / "panel-material-ui.bundle.js"
+    _constants = {"loading_inset": 0}
     _esm_base = None
     _esm_shared = {
         'utils': BASE_PATH / "utils.js",

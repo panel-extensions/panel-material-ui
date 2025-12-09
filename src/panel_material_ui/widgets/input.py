@@ -37,6 +37,7 @@ class MaterialInputWidget(MaterialWidget):
     variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="""
         The variant of the input.""")
 
+    _constants = {"loading_inset": -6}
     __abstract = True
 
 
@@ -72,7 +73,7 @@ class _TextInputBase(MaterialInputWidget):
         Initial or entered text value updated on every key press.""",
     )
 
-    _constants = {"multiline": False}
+    _constants = {"multiline": False, "loading_inset": -6}
 
     __abstract = True
 
@@ -726,7 +727,7 @@ class _DatePickerBase(MaterialInputWidget):
 
     _esm_base = "DateTimePicker.jsx"
 
-    _constants = {'range': False, 'time': False}
+    _constants = {'loading_inset': -6, 'range': False, 'time': False}
 
     __abstract = True
 
@@ -781,7 +782,7 @@ class DatePicker(_DatePickerBase):
     ... )
     """
 
-    _constants = {'range': False, 'time': False}
+    _constants = {'loading_inset': -6, 'range': False, 'time': False}
 
     value = Date(default=None, doc="""
         The current value. Can be a datetime object or a string in ISO format.""")
@@ -824,7 +825,7 @@ class _DatetimePickerBase(_DatePickerBase):
     views = param.List(default=['year', 'month', 'day', 'hours', 'minutes'], doc="""
       The views that are available for the date picker.""")
 
-    _constants = {'range': False, 'time': True}
+    _constants = {'loading_inset': -6, 'range': False, 'time': True}
 
     __abstract = True
 
@@ -1174,6 +1175,7 @@ class Checkbox(MaterialWidget):
 
     width = param.Integer(default=None)
 
+    _constants = {"loading_inset": -6}
     _esm_base = "Checkbox.jsx"
     _esm_transforms = [LoadingTransform, ThemedTransform]
 

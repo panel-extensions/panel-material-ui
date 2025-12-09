@@ -28,6 +28,7 @@ class FileDownload(_ButtonBase, _FileDownload):
 
     icon_size = param.String(default="1em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
+
     _syncing = param.Boolean(default=False, doc="""
         If `auto` is False track syncing data state.""")
 
@@ -45,6 +46,19 @@ class FileDownload(_ButtonBase, _FileDownload):
         self._default_label = 'label' not in params
         self._synced = False
         super().__init__(file=file, **params)
+
+    def transfer(self, download: bool = False):
+        """
+        Transfers current data to the frontend.
+
+        Parameters
+        ----------
+        download: bool
+            If True, the data will automatically be downloaded
+            once the data is transferred.
+        """
+        with self.param.update(auto=download):
+            self._transfer()
 
     def _handle_click(self, event=None):
         self._clicks += 1
