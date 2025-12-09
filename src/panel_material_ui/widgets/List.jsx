@@ -131,9 +131,9 @@ export function render({model}) {
         selected={highlight && isActive}
         sx={{
           m: `0 0 0 ${combined_indent + (highlight ? 6 : 0)}px`,
-          pr: 1,
+          pr: 1.5,
+          pl: 1.5,
           "&.MuiListItemButton-root": {
-            pl: 1.5,
             "&.collapsed": {
               pl: 1,
               ".MuiListItemIcon-root": {minWidth: "unset"}
@@ -329,7 +329,7 @@ export function render({model}) {
       ]
     } else if (collapsed) {
       return (
-        <Tooltip title={label} placement="right" disableInteractive>
+        <Tooltip title={label} placement="right" disableInteractive sx={{zIndex: 999}}>
           {list_item}
         </Tooltip>
       )
