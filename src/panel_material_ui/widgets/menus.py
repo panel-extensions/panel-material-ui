@@ -901,21 +901,22 @@ class MenuToggle(MenuBase, _ButtonBase):
             self.toggled = []
 
     def _handle_msg(self, msg):
-        if msg['type'] == 'toggle_item':
-            index = msg['item']
-            if index in self.toggled:
-                self.toggled = [i for i in self.toggled if i != index]
-            else:
-                self.toggled = self.toggled + [index]
-            # Update the item's toggled state
-            if isinstance(self.items[index], dict):
-                self.items[index]['toggled'] = index in self.toggled
-            # Update value to the clicked item
-            value = self._lookup_item(index)
-            if value.get('selectable', True):
-                self.value = value
-            for fn in self._on_click_callbacks:
-                state.execute(partial(fn, value))
+        if msg['type'] != 'toggle_item':
+            return
+        index = msg['item']
+        if index in self.toggled:
+            self.toggled = [i for i in self.toggled if i != index]
+        else:
+            self.toggled = self.toggled + [index]
+        # Update the item's toggled state
+        if isinstance(self.items[index], dict):
+            self.items[index]['toggled'] = index in self.toggled
+        # Update value to the clicked item
+        value = self._lookup_item(index)
+        if value.get('selectable', True):
+            self.value = value
+        for fn in self._on_click_callbacks:
+            state.execute(partial(fn, value))
 
 
 class Pagination(MaterialWidget):
