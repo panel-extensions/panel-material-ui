@@ -25,24 +25,19 @@ export function render({model, view}) {
     // Capture current height before changing tabs
     if (contentRef.current) {
       const height = contentRef.current.scrollHeight
-      if (height > 0) {
-        setMinHeight(height)
-      }
+      setMinHeight(height > 0 ? height : 0)
     }
-    setActive(newValue);
-  };
+    setActive(newValue)
+  }
 
   React.useLayoutEffect(() => {
     // Update min-height after new content is rendered
     if (contentRef.current) {
-      const height = contentRef.current.scrollHeight
-      if (height > 0) {
-        // Use a small delay to allow content to fully render
-        const timeoutId = setTimeout(() => {
-          setMinHeight(height)
-        }, 50)
-        return () => clearTimeout(timeoutId)
-      }
+      // Use a small delay to allow content to fully render
+      const timeoutId = setTimeout(() => {
+        setMinHeight(0)
+      }, 50)
+      return () => clearTimeout(timeoutId)
     }
   }, [active])
 
