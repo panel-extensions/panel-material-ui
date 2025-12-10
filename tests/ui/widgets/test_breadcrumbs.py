@@ -46,3 +46,43 @@ def test_breadcrumbs_click(page):
     breadcrumbs.click()
     wait_until(lambda: len(events) == 1, page)
     assert events[0] == 'Library'
+
+def test_breadcrumbs_update_item(page):
+    """Test updating a breadcrumb item and verifying it renders in the frontend"""
+    items = [
+        {'label': 'Home'},
+        {'label': 'Dashboard'},
+        {'label': 'Profile'}
+    ]
+    widget = Breadcrumbs(items=items)
+    serve_component(page, widget)
+
+    # Verify initial state
+    breadcrumbs = page.locator('.MuiBreadcrumbs-ol .MuiBreadcrumbs-li')
+    expect(breadcrumbs.nth(1)).to_have_text('Dashboard')
+
+    # Update the item
+    item_to_update = items[1]
+    widget.update_item(item_to_update, label='Settings')
+
+    assert widget.items[1]['label'] == 'Settings'
+    expect(breadcrumbs.nth(1)).to_have_text('Settings')
+    expect(breadcrumbs.nth(0)).to_have_text('Home')  # Other items unchanged
+    expect(breadcrumbs.nth(2)).to_have_text('Profile')
+
+def test_breadcrumbs_update_item_with_icon(page):
+    """Test updating a breadcrumb item to add an icon"""
+    items = [
+        {'label': 'Home'},
+        {'label': 'Dashboard'}
+    ]
+    widget = Breadcrumbs(items=items)
+    serve_component(page, widget)
+
+    # Update item to add icon
+    item_to_update = items[0]
+    widget.update_item(item_to_update, icon='home')
+
+    assert 'icon' in widget.items[0] and widget.items[0]['icon'] == 'home'
+
+    expect(page.locator('.MuiBreadcrumbs-li').nth(0).locator('.material-icons')).to_have_text('home')

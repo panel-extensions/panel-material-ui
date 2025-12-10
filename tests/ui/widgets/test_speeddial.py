@@ -86,3 +86,56 @@ def test_speeddial_selection(page):
 
     wait_until(lambda: len(events) == 1, page)
     assert widget.value == items[1]
+
+def test_speeddial_update_item(page):
+    """Test updating a speed dial item and verifying it renders in the frontend"""
+    items = [
+        {'label': 'Camera', 'icon': 'camera'},
+        {'label': 'Photos', 'icon': 'photo'}
+    ]
+    widget = SpeedDial(items=items)
+    serve_component(page, widget)
+
+    # Open speed dial
+    page.locator('.MuiSpeedDial-fab').click()
+    wait_until(lambda: page.locator('.MuiSpeedDial-actions').is_visible(), page)
+
+    actions = page.locator('.MuiSpeedDialAction-fab')
+    # Hover to see tooltip
+    actions.nth(0).hover()
+    tooltip = page.locator('#-action-0')
+    expect(tooltip).to_have_text('Camera')
+
+    # Update the item
+    item_to_update = items[0]
+    widget.update_item(item_to_update, label='Video Camera', icon='videocam', color='secondary')
+
+    # Wait for frontend to update
+    assert widget.items[0]['label'] == 'Video Camera'
+
+    # Verify update (hover again to see updated tooltip)
+    actions.nth(0).hover()
+    wait_until(lambda: tooltip.text_content() == 'Video Camera', page)
+    expect(tooltip).to_have_text('Video Camera')
+
+def test_speeddial_update_item_with_avatar(page):
+    """Test updating a speed dial item with avatar"""
+    items = [
+        {'label': 'Action 1', 'icon': 'add'}
+    ]
+    widget = SpeedDial(items=items)
+    serve_component(page, widget)
+
+    # Open speed dial
+    page.locator('.MuiSpeedDial-fab').click()
+    wait_until(lambda: page.locator('.MuiSpeedDial-actions').is_visible(), page)
+
+    # Update item to add avatar
+    item_to_update = items[0]
+    widget.update_item(item_to_update, avatar='A', icon=None, color='primary')
+
+    assert 'avatar' in widget.items[0] and widget.items[0]['avatar'] == 'A'
+
+    # Verify avatar is rendered (speed dial shows avatar when provided)
+    actions = page.locator('.MuiSpeedDialAction-fab')
+    expect(actions.nth(0).locator('.MuiAvatar-root')).to_have_text('A')

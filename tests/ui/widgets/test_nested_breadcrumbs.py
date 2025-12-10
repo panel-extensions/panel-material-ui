@@ -300,3 +300,53 @@ def test_nested_breadcrumbs_restore_non_active_path_from_python(page):
 
     expect(crumbs.nth(1)).to_have_text("categoryA")
     expect(crumbs.nth(2)).to_have_text("grainA1")
+
+def test_nested_breadcrumbs_update_item(page):
+    """Test updating a nested breadcrumb item and verifying it renders in the frontend"""
+    items = [
+        {
+            'label': 'Projects',
+            'items': [
+                {'label': 'Project A'},
+                {'label': 'Project B'}
+            ]
+        }
+    ]
+    widget = NestedBreadcrumbs(items=items, active=(0,))
+    serve_component(page, widget)
+
+    # Verify initial state
+    crumbs = page.locator('.MuiBreadcrumbs-ol .MuiBreadcrumbs-li')
+    expect(crumbs.nth(0)).to_contain_text('Projects')
+
+    item_to_update = items[0]
+    widget.update_item(item_to_update, label='Workspaces', icon='folder')
+
+    assert widget.items[0]['label'] == 'Workspaces'
+    expect(crumbs.nth(0)).to_contain_text('Workspaces')
+    expect(crumbs.nth(0).locator('.material-icons')).to_have_text('folder')
+
+def test_nested_breadcrumbs_update_item_nested(page):
+    """Test updating a nested item in breadcrumbs"""
+    items = [
+        {
+            'label': 'Projects',
+            'items': [
+                {'label': 'Project A'},
+                {'label': 'Project B'}
+            ]
+        }
+    ]
+    widget = NestedBreadcrumbs(items=items, active=(0, 0))
+    serve_component(page, widget)
+
+    # Verify initial state
+    crumbs = page.locator('.MuiBreadcrumbs-ol .MuiBreadcrumbs-li')
+    expect(crumbs.nth(1)).to_contain_text('Project A')
+
+    # Update the nested item
+    child_to_update = items[0]['items'][0]
+    widget.update_item(child_to_update, label='Project Alpha', selectable=False)
+
+    assert widget.items[0]['items'][0]['label'] == 'Project Alpha'
+    expect(crumbs.nth(1)).to_contain_text('Project Alpha')

@@ -288,3 +288,51 @@ def test_menu_button_focus(page):
     expect(button).to_have_count(1)
     widget.focus()
     expect(button).to_be_focused()
+
+def test_menu_button_update_item(page):
+    """Test updating a menu button item and verifying it renders in the frontend"""
+    items = [
+        {'label': 'Open'},
+        {'label': 'Save'},
+        {'label': 'Exit'}
+    ]
+    widget = MenuButton(items=items, label='File')
+    serve_component(page, widget)
+
+    # Open menu to see items
+    page.locator('.MuiButton-root').click()
+    menu_items = page.locator('.MuiMenuItem-root')
+    expect(menu_items.nth(1)).to_have_text('Save')
+
+    # Update the item
+    item_to_update = items[1]
+    widget.update_item(item_to_update, label='Save As', icon='save')
+    assert widget.items[1]['label'] == 'Save As'
+
+    # Reopen menu to verify update
+    page.locator('.MuiButton-root').click(force=True)
+    expect(menu_items.nth(1)).to_have_text('saveSave As')
+    expect(menu_items.nth(1).locator('.material-icons')).to_have_text('save')
+    expect(menu_items.nth(0)).to_have_text('Open')  # Other items unchanged
+
+
+def test_menu_button_update_item_with_color(page):
+    """Test updating a menu button item with color"""
+    items = [
+        {'label': 'Option 1'},
+        {'label': 'Option 2'}
+    ]
+    widget = MenuButton(items=items, label='Menu')
+    serve_component(page, widget)
+
+    # Open menu
+    page.locator('.MuiButton-root').click()
+
+    # Update item to add color and icon
+    item_to_update = items[0]
+    widget.update_item(item_to_update, color='primary', icon='star')
+    assert 'color' in widget.items[0] and widget.items[0]['color'] == 'primary'
+
+    # Reopen menu to verify
+    page.locator('.MuiButton-root').click(force=True)
+    expect(page.locator('.MuiMenuItem-root').nth(0).locator('.material-icons')).to_have_text('star')

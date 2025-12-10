@@ -246,3 +246,68 @@ def test_menu_list_with_toggle_actions(page):
 
     widget.toggle_action(widget.items[0], "Edit", False)
     expect(page.get_by_role("treeitem").locator('.MuiCheckbox-root .material-icons-outlined')).to_have_text('edit')
+
+def test_tree_update_item(page):
+    """Test updating a tree item and verifying it renders in the frontend"""
+    items = [
+        {'id': '1', 'label': 'Node 1'},
+        {'id': '2', 'label': 'Node 2'}
+    ]
+    widget = Tree(items=items)
+    serve_component(page, widget)
+
+    # Verify initial state
+    tree_items = page.locator('[role="treeitem"]')
+    expect(tree_items.nth(0)).to_have_text('Node 1')
+
+    # Update the item
+    item_to_update = items[0]
+    widget.update_item(item_to_update, label='Updated Node 1', disabled=True)
+    assert widget.items[0]['label'] == 'Updated Node 1'
+
+    expect(tree_items.nth(0)).to_have_text('Updated Node 1')
+    expect(tree_items.nth(0).locator('[data-disabled="true"]')).to_have_count(1)
+    expect(tree_items.nth(1)).to_have_text('Node 2')  # Other item unchanged
+
+def test_tree_update_item_nested(page):
+    """Test updating a nested tree item"""
+    items = [
+        {
+            'id': 'parent',
+            'label': 'Parent',
+            'items': [
+                {'id': 'child1', 'label': 'Child 1'},
+                {'id': 'child2', 'label': 'Child 2'}
+            ]
+        }
+    ]
+    widget = Tree(items=items, expanded=[(0,)])
+    serve_component(page, widget)
+
+    # Verify initial state
+    child_items = page.locator('[role="treeitem"]')
+    expect(child_items.nth(1)).to_have_text('Child 1')
+
+    # Update the nested item
+    child_to_update = items[0]['items'][0]
+    widget.update_item(child_to_update, label='Updated Child', file_type='pdf')
+    assert widget.items[0]['items'][0]['label'] == 'Updated Child'
+
+    expect(child_items.nth(1)).to_have_text('Updated Child')
+    expect(child_items.nth(2)).to_have_text('Child 2')  # Other child unchanged
+
+def test_tree_update_item_with_secondary(page):
+    """Test updating a tree item with secondary text"""
+    items = [
+        {'id': '1', 'label': 'Node 1'},
+        {'id': '2', 'label': 'Node 2'}
+    ]
+    widget = Tree(items=items)
+    serve_component(page, widget)
+
+    # Update item to add secondary text
+    item_to_update = items[1]
+    widget.update_item(item_to_update, secondary='Secondary text', selectable=False)
+
+    assert 'secondary' in widget.items[1] and widget.items[1]['secondary'] == 'Secondary text'
+    expect(page.locator('[role="treeitem"]').nth(1)).to_contain_text('Secondary text')
