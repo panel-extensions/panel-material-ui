@@ -182,6 +182,28 @@ class MenuBase(MaterialWidget):
         elif msg['type'] == 'action':
             self._process_action(msg, index, value)
 
+    def update_item(self, item, **updates):
+        """
+        Update an item in the menu.
+
+        Parameters
+        ----------
+        item: (dict)
+            The item to update.
+        updates: (dict)
+            The updates to apply to the item.
+        """
+        path= self._lookup_path(item)
+        new_item = dict(item, **updates)
+        *path, index = path
+        root_items = items = list(self.items)
+        for p in path:
+            subitem = dict(items[p])
+            items[p] = subitem
+            subitem["items"] = items = list(subitem["items"])
+        items[index] = new_item
+        self.items = root_items
+
     def on_click(self, callback: Callable[[DOMEvent], None]):
         """
         Register a callback to be executed when a list item
@@ -879,21 +901,22 @@ class MenuToggle(MenuBase, _ButtonBase):
             self.toggled = []
 
     def _handle_msg(self, msg):
-        if msg['type'] == 'toggle_item':
-            index = msg['item']
-            if index in self.toggled:
-                self.toggled = [i for i in self.toggled if i != index]
-            else:
-                self.toggled = self.toggled + [index]
-            # Update the item's toggled state
-            if isinstance(self.items[index], dict):
-                self.items[index]['toggled'] = index in self.toggled
-            # Update value to the clicked item
-            value = self._lookup_item(index)
-            if value.get('selectable', True):
-                self.value = value
-            for fn in self._on_click_callbacks:
-                state.execute(partial(fn, value))
+        if msg['type'] != 'toggle_item':
+            return
+        index = msg['item']
+        if index in self.toggled:
+            self.toggled = [i for i in self.toggled if i != index]
+        else:
+            self.toggled = self.toggled + [index]
+        # Update the item's toggled state
+        if isinstance(self.items[index], dict):
+            self.items[index]['toggled'] = index in self.toggled
+        # Update value to the clicked item
+        value = self._lookup_item(index)
+        if value.get('selectable', True):
+            self.value = value
+        for fn in self._on_click_callbacks:
+            state.execute(partial(fn, value))
 
 
 class Pagination(MaterialWidget):

@@ -318,3 +318,77 @@ def test_menu_list_collapsed(page):
     expect(tooltip).to_have_count(1)
     expect(tooltip).to_be_visible()
     expect(tooltip).to_have_text('Item 3')
+
+def test_menu_list_update_item(page):
+    """Test updating a menu list item and verifying it renders in the frontend"""
+    items = [
+        {'label': 'Home'},
+        {'label': 'Dashboard'},
+        {'label': 'Profile'}
+    ]
+    widget = MenuList(items=items)
+    serve_component(page, widget)
+
+    # Verify initial state
+    list_items = page.locator('.MuiListItemButton-root')
+    expect(list_items.nth(1)).to_have_text('DDashboard')
+
+    # Update the item
+    item_to_update = items[1]
+    widget.update_item(item_to_update, label='Settings', secondary='Settings page')
+
+    # Wait for frontend to update
+    assert widget.items[1]['label'] == 'Settings'
+    expect(list_items.nth(1).locator('.MuiListItemText-primary')).to_have_text('Settings')
+    expect(list_items.nth(1).locator('.MuiListItemText-secondary')).to_have_text('Settings page')
+    expect(list_items.nth(0).locator('.MuiListItemText-primary')).to_have_text('Home')  # Other items unchanged
+
+def test_menu_list_update_item_nested(page):
+    """Test updating a nested menu list item"""
+    items = [
+        {
+            'label': 'Parent',
+            'items': [
+                {'label': 'Child 1'},
+                {'label': 'Child 2'}
+            ]
+        }
+    ]
+    widget = MenuList(items=items)
+    serve_component(page, widget)
+
+    # Expand parent to show children
+    page.locator('.MuiListItemButton-root').first.locator('.MuiIconButton-root').click()
+    wait_until(lambda: page.locator('.MuiCollapse-root .MuiListItemButton-root').count() == 2, page)
+
+    # Verify initial state
+    child_items = page.locator('.MuiCollapse-root .MuiListItemButton-root')
+    expect(child_items.nth(0).locator('.MuiListItemText-primary')).to_have_text('Child 1')
+
+    # Update the nested item
+    child_to_update = items[0]['items'][0]
+    widget.update_item(child_to_update, label='Updated Child', icon='star')
+
+    assert widget.items[0]['items'][0]['label'] == 'Updated Child'
+    expect(child_items.nth(0).locator('.MuiListItemText-primary')).to_have_text('Updated Child')
+    expect(child_items.nth(0).locator('.material-icons')).to_have_text('star')
+    expect(child_items.nth(1).locator('.MuiListItemText-primary')).to_have_text('Child 2')  # Other child unchanged
+
+
+def test_menu_list_update_item_with_icon(page):
+    """Test updating a menu list item to add an icon"""
+    items = [
+        {'label': 'Home'},
+        {'label': 'Dashboard'}
+    ]
+    widget = MenuList(items=items)
+    serve_component(page, widget)
+
+    # Update item to add icon
+    item_to_update = items[0]
+    widget.update_item(item_to_update, icon='home')
+
+    assert 'icon' in widget.items[0] and widget.items[0]['icon'] == 'home'
+
+    # Verify icon is rendered
+    expect(page.locator('.MuiListItemButton-root').nth(0).locator('.material-icons')).to_have_text('home')

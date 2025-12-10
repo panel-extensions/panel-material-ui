@@ -312,10 +312,11 @@ export function render({model}) {
             }}
             onClick={(e) => {
               e.stopPropagation()
+              const new_key = Number(key)
               const index = expanded.map((e) => e.toString()).indexOf(key.toString())
               const new_expanded = [...expanded]
               if (index === -1) {
-                new_expanded.push(key)
+                new_expanded.push(new_key)
               } else {
                 new_expanded.splice(index, 1)
               }

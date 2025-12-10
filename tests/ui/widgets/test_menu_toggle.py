@@ -288,3 +288,51 @@ def test_menu_toggle_focus(page):
     expect(button).to_have_count(1)
     widget.focus()
     expect(button).to_be_focused()
+
+def test_menu_toggle_update_item(page):
+    """Test updating a menu toggle item and verifying it renders in the frontend"""
+    items = [
+        {'label': 'Favorite', 'icon': 'favorite_border'},
+        {'label': 'Bookmark', 'icon': 'bookmark_border'}
+    ]
+    widget = MenuToggle(items=items, label='Actions')
+    serve_component(page, widget)
+
+    # Open menu to see items
+    page.locator('.MuiButton-root').click()
+    menu_items = page.locator('.MuiMenuItem-root')
+    icons = page.locator('.MuiMenuItem-root .material-icons')
+    expect(icons.nth(0)).to_have_text('favorite_border')
+
+    # Update the item
+    item_to_update = items[0]
+    widget.update_item(item_to_update, active_icon='favorite', toggled=True)
+    assert 'active_icon' in widget.items[0] and widget.items[0]['active_icon'] == 'favorite'
+
+    # Reopen menu to verify update (toggled items show active_icon)
+    page.locator('.MuiButton-root').click(force=True)
+
+    assert widget.items[0].get('toggled', False)
+    expect(icons.nth(0)).to_have_text('favorite')
+
+
+def test_menu_toggle_update_item_with_colors(page):
+    """Test updating a menu toggle item with colors"""
+    items = [
+        {'label': 'Star', 'icon': 'star_border'}
+    ]
+    widget = MenuToggle(items=items, label='Actions')
+    serve_component(page, widget)
+
+    # Open menu
+    page.locator('.MuiButton-root').click(force=True)
+
+    # Update item to add colors
+    item_to_update = items[0]
+    widget.update_item(item_to_update, color='default', active_color='primary')
+    assert 'color' in widget.items[0] and widget.items[0]['color'] == 'default'
+
+    # Reopen menu to verify
+    page.locator('.MuiButton-root').click(force=True)
+    # Colors are applied via CSS, verify the item exists
+    expect(page.locator('.MuiMenuItem-root')).to_have_count(1)
