@@ -217,7 +217,7 @@ class Column(MaterialListLike):
     """
 
     _esm_base = "Box.jsx"
-    _constants = {"direction": "column"}
+    _constants = {"direction": "column", "loading_inset": 0}
 
 
 class Row(MaterialListLike):
@@ -226,7 +226,7 @@ class Row(MaterialListLike):
     """
 
     _esm_base = "Box.jsx"
-    _constants = {"direction": "row"}
+    _constants = {"direction": "row", "loading_inset": 0}
 
 
 class FlexBox(MaterialListLike):
