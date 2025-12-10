@@ -196,7 +196,7 @@ import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
 
 function {output}(props) {{
   const [loading] = props.model.useState('loading')
-  const loading_inset = props.model.esm_constants.loading_inset
+  const loading_inset = props.model.esm_constants.loading_inset || 0
   const theme = useMuiTheme()
 
   const overlayColor = theme.palette.mode === 'dark'
