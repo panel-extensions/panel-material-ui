@@ -213,9 +213,9 @@ spec = {
         ],
         'Selection': [
             (AutocompleteInput, (['variant'], ['disabled']), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Autocomplete')),
-            (CheckBoxGroup, (['color', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='CheckBoxGroup', value=['Bar'])),
+            (CheckBoxGroup, (['color', 'inline'],), dict(options=['Foo', 'Bar', 'Baz'], label='CheckBoxGroup', value=['Bar'])),
             (CheckButtonGroup, (['button_type', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='CheckButtonGroup', value=['Foo', 'Bar'])),
-            (RadioBoxGroup, (['color', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='RadioBoxGroup', value='Foo')),
+            (RadioBoxGroup, (['color', 'inline'],), dict(options=['Foo', 'Bar', 'Baz'], label='RadioBoxGroup', value='Foo')),
             (RadioButtonGroup, (['button_type', 'button_style'], ['size'], ['orientation']), dict(options=['Foo', 'Bar', 'Baz'], label='RadioButtonGroup', value='Foo')),
             (MultiSelect, (['variant', 'color'], ['disabled'],), dict(options=['Foo', 'Bar', 'Baz'], label='Select')),
             (MultiChoice, (['variant', 'color'], ['disabled'],), dict(options=['Foo', 'Bar', 'Baz'], label='Select')),
