@@ -4,7 +4,6 @@ pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component
 from panel_material_ui.chat import ChatMessage
-from panel.pane import Markdown, HTML
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
