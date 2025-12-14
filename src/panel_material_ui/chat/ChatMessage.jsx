@@ -96,8 +96,8 @@ export function render({model, view}) {
   const [timestamp] = model.useState("_internal_state.timestamp")
   const object = model.get_child("_object_panel")
 
-  const [header] = model.get_child("header_objects")
-  const [footer] = model.get_child("footer_objects")
+  const header = model.get_child("header_objects")
+  const footer = model.get_child("footer_objects")
 
   model.on("msg:custom", (msg) => {
     navigator.clipboard.writeText(msg.text)
