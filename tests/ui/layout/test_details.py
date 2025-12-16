@@ -71,12 +71,12 @@ def test_details_collapse_expand(page):
 
     # Content should now be visible
     expect(content_area).to_be_visible()
-    wait_until(lambda: widget.collapsed == False, page)
+    wait_until(lambda: not widget.collapsed, page)
 
     # Click header to collapse again
     header.click()
     expect(content_area).not_to_be_visible()
-    wait_until(lambda: widget.collapsed == True, page)
+    wait_until(lambda: widget.collapsed, page)
 
 def test_details_three_states(page):
     """Test Details three expansion states: collapsed, expanded (scrollable), fully expanded."""
@@ -95,7 +95,7 @@ def test_details_three_states(page):
     # Expand to state 2: Expanded with scrollable area
     header = page.locator('.details-header').first
     header.click()
-    wait_until(lambda: widget.collapsed == False, page)
+    wait_until(lambda: not widget.collapsed, page)
     expect(content_area).to_be_visible()
 
     # Check for expand full button
@@ -104,7 +104,7 @@ def test_details_three_states(page):
 
     # Expand to state 3: Fully expanded
     expand_full_button.click()
-    wait_until(lambda: widget.fully_expanded == True, page)
+    wait_until(lambda: widget.fully_expanded, page)
 
     # Check for collapse to scrollable button
     collapse_button = page.locator('button[aria-label="collapse to scrollable"]')
@@ -112,7 +112,7 @@ def test_details_three_states(page):
 
     # Collapse back to scrollable
     collapse_button.click()
-    wait_until(lambda: widget.fully_expanded == False, page)
+    wait_until(lambda: not widget.fully_expanded, page)
 
 def test_details_custom_header(page):
     """Test Details with custom header component."""
@@ -229,12 +229,12 @@ def test_details_collapse_resets_fully_expanded(page):
     serve_component(page, widget)
 
     # Verify fully expanded
-    wait_until(lambda: widget.fully_expanded == True, page)
+    wait_until(lambda: widget.fully_expanded, page)
 
     # Collapse
     header = page.locator('.details-header').first
     header.click()
-    wait_until(lambda: widget.collapsed == True, page)
+    wait_until(lambda: widget.collapsed, page)
 
     # fully_expanded should be reset
-    wait_until(lambda: widget.fully_expanded == False, page)
+    wait_until(lambda: not widget.fully_expanded, page)
