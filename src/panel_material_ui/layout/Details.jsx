@@ -34,7 +34,7 @@ const ExpandFull = styled(IconButton, {
   }),
 }))
 
-export function render({model, view}) {
+export function render({model, view, el}) {
   const [collapsed, setCollapsed] = model.useState("collapsed")
   const [fully_expanded, setFullyExpanded] = model.useState("fully_expanded")
   const [header_color] = model.useState("header_color")
@@ -54,6 +54,22 @@ export function render({model, view}) {
   const shouldHideContent = objects.length === 0
   const isExpanded = !collapsed
   const isFullyExpanded = isExpanded && fully_expanded
+  const isStretched = model.objects.some((object) => object.sizing_mode === "stretch_both" || object.sizing_mode === "stretch_height")
+
+  const initialized = React.useRef(false)
+  const updateHeight = () => {
+    if (model.height != null) {
+      const height = isFullyExpanded ? `${model.height}px` : "auto"
+      view.el.style.height = el.style.height = height
+    }
+  }
+  if (!initialized.current) {
+    updateHeight()
+    initialized.current = true
+  }
+  React.useEffect(() => {
+    updateHeight()
+  }, [isExpanded, isFullyExpanded])
 
   React.useEffect(() => {
     model.on("lifecycle:update_layout", () => {
@@ -94,6 +110,7 @@ export function render({model, view}) {
         flexDirection: "column",
         width: "100%",
         height: "100%",
+        minHeight: model.min_height ? `${model.min_height}px` : 0,
         border: `1px solid ${theme.palette.divider}`,
         borderRadius: square ? 0 : "4px",
         overflow: "hidden",
@@ -165,10 +182,10 @@ export function render({model, view}) {
         timeout="auto"
         unmountOnExit
         sx={{
-          flexGrow: isFullyExpanded ? 1 : 0,
+          flexGrow: 1,
           width: "100%",
           "& .MuiCollapse-wrapper": {
-            height: isFullyExpanded ? "100% !important" : "auto",
+            height: (isFullyExpanded || isStretched) ? "100% !important" : "auto",
           },
         }}
       >
@@ -179,7 +196,8 @@ export function render({model, view}) {
               display: "flex",
               flexDirection: "column",
               height: isFullyExpanded ? "100%" : "auto",
-              maxHeight: isFullyExpanded ? "none" : (`${scrollable_height}px` || "150px"),
+              maxHeight: isFullyExpanded ? "none" : `${scrollable_height}px`,
+              minHeight: (isStretched && !isFullyExpanded && scrollable_height) ? `${scrollable_height}px` : "none",
               overflowY: isFullyExpanded ? "visible" : "auto",
               overflowX: "hidden",
             }}

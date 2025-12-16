@@ -466,7 +466,8 @@ class Details(MaterialNamedListLike, PaperMixin):
 
     outlined = param.Boolean(default=True, doc="Whether the details is outlined.")
 
-    scrollable_height = param.Integer(default=200, doc="Height of the scrollable area before it is fully expanded.")
+    scrollable_height = param.Integer(default=150, allow_None=True, doc="""
+        Height of the scrollable area before it is fully expanded.""")
 
     title = param.String(doc="""
         A title to be displayed in the Details header, will be overridden
