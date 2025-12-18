@@ -427,6 +427,64 @@ class Card(MaterialNamedListLike, PaperMixin):
         return ([] if self.header is None else self.header.select(selector)) + super().select(selector)
 
 
+class Details(MaterialNamedListLike, PaperMixin):
+    """
+    A `Details` layout allows arranging multiple panel objects in a
+    compact, collapsible container with three expansion states:
+    collapsed, expanded (with scrollable area), and fully expanded.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Details.html
+
+    :Example:
+
+    >>> Details(some_widget, some_pane, some_python_object, title='Details')
+    """
+
+    collapsed = param.Boolean(default=True, doc="""
+        Whether the contents of the Details are collapsed.""")
+
+    fully_expanded = param.Boolean(default=False, doc="""
+        Whether the Details are fully expanded (no scrollable area).
+        Only applies when collapsed is False.""")
+
+    header = Child(doc="""
+        A Panel component to display in the header bar of the Details.
+        Will override the given title if defined.""")
+
+    header_background = param.Color(doc="""
+        The background color of the Details header.""")
+
+    header_color = param.Color(doc="""
+        The text color of the Details header.""")
+
+    header_css_classes = param.List(doc="""
+        List of CSS classes to apply to DetailsHeader component.""")
+
+    hide_header = param.Boolean(default=False, doc="Whether to hide the details header.")
+
+    outlined = param.Boolean(default=True, doc="Whether the details is outlined.")
+
+    scrollable_height = param.Integer(default=150, allow_None=True, doc="""
+        Height of the scrollable area before it is fully expanded.""")
+
+    title = param.String(doc="""
+        A title to be displayed in the Details header, will be overridden
+        by the header if defined.""")
+
+    title_css_classes = param.List(doc="""
+        List of CSS classes to apply to DetailsTitle component.""")
+
+    _direction = "vertical"
+    _esm_base = "Details.jsx"
+
+    _rename = {"objects": "objects", "title": "title", "header": "header"}
+
+    def select(self, selector: type | Callable[[Viewable], bool] | None = None) -> list[Viewable]:
+        return ([] if self.header is None else self.header.select(selector)) + super().select(selector)
+
+
 class Accordion(MaterialNamedListLike, PaperMixin):
     """
     The `Accordion` layout is a type of `Card` layout that allows switching
@@ -830,6 +888,7 @@ __all__ = [
     "Card",
     "Column",
     "Container",
+    "Details",
     "Dialog",
     "Divider",
     "Drawer",
