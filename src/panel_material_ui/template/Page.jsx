@@ -323,7 +323,7 @@ export function render({model, view}) {
           </Box>
           {theme_toggle &&
             <Tooltip enterDelay={500} title="Toggle theme">
-              <IconButton onClick={toggleTheme} aria-label="Toggle theme" color="inherit" align="right" sx={{mr: "1em"}}>
+              <IconButton onClick={toggleTheme} aria-label="Toggle theme" color="inherit" align="right">
                 {dark_theme ? <DarkMode /> : <LightMode />}
               </IconButton>
             </Tooltip>
