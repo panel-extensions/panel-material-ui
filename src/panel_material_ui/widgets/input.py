@@ -185,7 +185,13 @@ class TextAreaInput(_TextInputBase):
         Can only be set during initialization.""",
     )
 
+    enter_pressed = param.Event(doc="""
+        Event when the enter key has been pressed.""")
+
     _esm_base = "TextArea.jsx"
+
+    def _handle_enter(self, event: DOMEvent):
+        self.param.trigger('enter_pressed')
 
 
 class MissingFileChunkError(RuntimeError):

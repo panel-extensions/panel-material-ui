@@ -54,6 +54,7 @@ export function render({model, el}) {
       onKeyDown={(e) => {
         if (e.key === "Enter" && e.shiftKey) {
           e.preventDefault()
+          model.send_event("enter", e)
           setValue(value_input)
         }
       }}

@@ -123,3 +123,36 @@ def test_text_area_focus(page):
     expect(textarea).to_have_count(2)
     widget.focus()
     expect(textarea.nth(0)).to_be_focused()
+
+def test_text_area_enter_pressed(page):
+    widget = TextAreaInput()
+    clicks = [0]
+
+    def on_enter(event):
+        clicks[0] += 1
+
+    widget.param.watch(on_enter, "enter_pressed")
+    serve_component(page, widget)
+
+    # Find the textarea and type into it
+    textarea = page.locator('textarea').nth(0)
+    textarea.click()
+    textarea.type('Hello', delay=50)
+
+    # Press Enter (without Shift) - should insert newline, not trigger enter_pressed
+    textarea.press('Enter')
+    wait_until(lambda: widget.value_input == 'Hello\n', page)
+    # clicks should still be 0, value should not be updated yet
+    assert clicks[0] == 0
+    assert widget.value == ''
+
+    # Press Shift+Enter - should trigger enter_pressed and update value
+    textarea.press('Shift+Enter')
+    wait_until(lambda: clicks[0] == 1, page)
+    wait_until(lambda: widget.value == 'Hello\n', page)
+
+    # Type more and press Shift+Enter again
+    textarea.type(' World', delay=50)
+    textarea.press('Shift+Enter')
+    wait_until(lambda: clicks[0] == 2, page)
+    wait_until(lambda: widget.value == 'Hello\n World', page)
