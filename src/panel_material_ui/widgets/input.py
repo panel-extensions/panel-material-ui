@@ -186,7 +186,7 @@ class TextAreaInput(_TextInputBase):
     )
 
     enter_pressed = param.Event(doc="""
-        Event when the enter key has been pressed.""")
+        Event when Shift+Enter has been pressed.""")
 
     _esm_base = "TextArea.jsx"
 
