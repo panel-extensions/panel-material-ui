@@ -41,7 +41,7 @@ from panel.models import ReactComponent as BkReactComponent
 from panel.pane import HTML
 from panel.param import Param
 from panel.util import base_version, classproperty
-from panel.viewable import Viewable
+from panel.viewable import Child, Children, Viewable
 from panel.widgets.base import CompositeWidget, WidgetBase
 
 from .__version import __version__  # noqa
@@ -52,6 +52,8 @@ if TYPE_CHECKING:
     from bokeh.document import Document
     from bokeh.model import Model
     from pyviz_comms import Comm
+
+_IGNORED_ESM_PROPERTIES = ('js_event_callbacks', 'esm_constants', 'js_property_callbacks', 'subscribed_events', 'syncable')
 
 COLORS = ["default", "primary", "secondary", "error", "info", "success", "warning", "light", "dark", "danger"]
 
@@ -358,6 +360,15 @@ class MaterialComponent(ReactComponent):
         elif not config.autoreload and (not (config.inline or server) or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
             return CDN_DIST
         return super()._render_esm(compiled=True, server=server)
+
+    @property
+    def _linked_properties(self) -> tuple[str, ...]:
+        mapping = {v: k for k, v in self._property_mapping.items() if v is not None}
+        params = self.param.objects(instance=False)
+        return tuple(
+            p for p in self._data_model.properties()
+            if p not in _IGNORED_ESM_PROPERTIES and not isinstance(params[mapping.get(p, p)], (Child, Children))
+        )
 
     def _get_model(
         self, doc: Document, root: Model | None = None,
