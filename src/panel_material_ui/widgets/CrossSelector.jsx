@@ -117,7 +117,7 @@ export function render({model, el, view}) {
   }
 
   const customList = (title, items, filterStr, setFilterStr) => (
-    <Card sx={{height: "100%"}}>
+    <Card sx={{height: "100%", overflowY: "auto"}}>
       <CardHeader
         sx={{p: "1em 0.8em 1em 0"}}
         avatar={
@@ -213,9 +213,9 @@ export function render({model, el, view}) {
   )
 
   return (
-    <Box sx={{display: "flex", flexDirection: "column", gap: "0.5em", ...sx}}>
+    <Box sx={{display: "flex", height: "100%", flexDirection: "column", gap: "0.5em", ...sx}}>
       {label && <InputLabel>{label}{model.description ? render_description({model, el, view}) : null}</InputLabel>}
-      <Box sx={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
+      <Box sx={{display: "flex", flexGrow: 1, maxHeight: "calc(100% - 2em)", flexDirection: "row", justifyContent: "center"}}>
         {customList(left_title, filteredAvailable, left_filter, setLeftFilter)}
         <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: "0 1em"}}>
           <Button
