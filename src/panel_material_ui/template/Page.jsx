@@ -149,7 +149,7 @@ export function render({model, view}) {
     setTimeout(() => setHighlight(false), 300)
   }
 
-  const endDrag = React.useCallback(() => {
+  const handleDragEnd = React.useCallback(() => {
     setIsDragging(false)
     setDragStartX(null)
     setDragStartWidth(null)
@@ -176,17 +176,13 @@ export function render({model, view}) {
     if (newWidth < 50) {
       setOpen(false)
       triggerHighlight()
-      endDrag()
+      handleDragEnd()
     } else {
       // Update width immediately for responsive feedback
       setSidebarWidth(Math.round(newWidth))
     }
     e.preventDefault()
-  }, [isDragging, dragStartX, dragStartWidth, setOpen])
-
-  const handleDragEnd = React.useCallback(() => {
-    endDrag()
-  }, [])
+  }, [isDragging, dragStartX, dragStartWidth, setOpen, triggerHighlight, handleDragEnd])
 
   // Add global mouse/touch event listeners when dragging
   React.useEffect(() => {
