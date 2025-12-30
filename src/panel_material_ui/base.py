@@ -18,6 +18,7 @@ from __future__ import annotations
 import inspect
 import io
 import json
+import mimetypes
 import os
 import pathlib
 import re
@@ -126,6 +127,9 @@ FONT_CSS = [
 ] + [
     str(p) for p in DIST_PATH.glob('roboto-symbols-?00-normal*.woff*')
 ]
+
+mimetypes.add_type("font/woff", ".woff")
+mimetypes.add_type("font/woff2", ".woff2")
 
 try:
     panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
