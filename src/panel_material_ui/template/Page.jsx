@@ -142,6 +142,20 @@ export function render({model, view}) {
   setup_global_styles(view, theme)
   React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
 
+  const [highlight, setHighlight] = React.useState(false)
+
+  const triggerHighlight = () => {
+    setHighlight(true)
+    setTimeout(() => setHighlight(false), 300)
+  }
+
+  const endDrag = React.useCallback(() => {
+    setIsDragging(false)
+    setDragStartX(null)
+    setDragStartWidth(null)
+    document.body.style.cursor = ""
+  }, [])
+
   // Drag handlers for sidebar resizing
   const handleDragStart = React.useCallback((e) => {
     const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX
@@ -161,6 +175,8 @@ export function render({model, view}) {
     // If width gets close to 0, collapse the sidebar completely
     if (newWidth < 50) {
       setOpen(false)
+      triggerHighlight()
+      endDrag()
     } else {
       // Update width immediately for responsive feedback
       setSidebarWidth(Math.round(newWidth))
@@ -169,7 +185,7 @@ export function render({model, view}) {
   }, [isDragging, dragStartX, dragStartWidth, setOpen])
 
   const handleDragEnd = React.useCallback(() => {
-    setIsDragging(false)
+    endDrag()
   }, [])
 
   // Add global mouse/touch event listeners when dragging
@@ -301,7 +317,15 @@ export function render({model, view}) {
                 aria-label={open ? "Close drawer" : "Open drawer"}
                 onClick={() => setOpen(!open)}
                 edge="start"
-                sx={{mr: 2}}
+                sx={{
+                  mr: 2,
+                  ...(highlight && {animation: "pulse 300ms ease-out"}),
+                  "@keyframes pulse": {
+                    "0%": {transform: "scale(1)"},
+                    "50%": {transform: "scale(1.25)"},
+                    "100%": {transform: "scale(1)"}
+                  }
+                }}
               >
                 {open ? <MenuOpenIcon/> : <MenuIcon />}
               </IconButton>
