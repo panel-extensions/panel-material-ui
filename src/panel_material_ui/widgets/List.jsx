@@ -135,13 +135,14 @@ export function render({model}) {
         selected={highlight && isActive}
         sx={{
           m: `0 0 0 ${combined_indent + (highlight ? 6 : 0)}px`,
-          pr: 1.5,
-          pl: 1.5,
+          pr: 1,
+          pl: 1,
           "&.MuiListItemButton-root": {
             "&.collapsed": {
               pl: 1,
-              ".MuiListItemIcon-root": {minWidth: "unset"}
+              ".MuiListItemIcon-root": {pr: 0}
             },
+            ".MuiListItemIcon-root": {minWidth: "unset", pr: 1},
             "&.Mui-selected": {
               bgcolor: isActive
                 ? `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`

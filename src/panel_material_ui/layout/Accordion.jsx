@@ -56,14 +56,14 @@ export function render({model}) {
               sx={{
                 backgroundColor: active.includes(index) ? active_header_background || header_background : header_background,
                 color: active.includes(index) ? active_header_color || header_color : header_color,
-                "& .MuiAccordionSummary-content.Mui-expanded": {margin: "12px 0"}
+                "& .MuiAccordionSummary-content.Mui-expanded": {mt: 1, mb: 1}
               }}
             >
               {names[index] ? (
                 <Typography className="title" variant={title_variant} sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
               ) : headers[index]}
             </AccordionSummary>
-            <AccordionDetails sx={{p: "0 12px", "&.MuiAccordionDetails-root": {p: "0 calc(2 * var(--mui-spacing))"}}}>{obj}</AccordionDetails>
+            <AccordionDetails sx={{pb: 1, pl: 1, pr: 1}}>{obj}</AccordionDetails>
           </Accordion>
         )
       }) }
