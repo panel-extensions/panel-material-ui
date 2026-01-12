@@ -1207,7 +1207,7 @@ export function isNumber(obj) {
 }
 
 export function apply_flex(view, direction) {
-  if (view == null) {
+  if (view == null || view.parent_style == null) {
     return
   }
   const sizing = view.box_sizing()

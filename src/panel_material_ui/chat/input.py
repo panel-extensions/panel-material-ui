@@ -64,9 +64,18 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         doc="If True, pressing the Enter key sends the message, if False it is sent by pressing the Ctrl+Enter.",
     )
 
+    transferred = param.Event(
+        default=False,
+        doc="Event triggered when a programmatic file transfer (triggered by transfer()) is complete."
+    )
+
     loading = param.Boolean(default=False)
 
     max_rows = param.Integer(default=10)
+
+    pending_uploads = param.Integer(default=0, readonly=True, doc="""
+        The number of files currently queued for upload but not yet transferred.
+        This is updated automatically when files are added or removed in the UI.""")
 
     max_length = param.Integer(default=50000, doc="""
         Max count of characters in the input field.""")
@@ -163,6 +172,8 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
             with param.discard_events(self):
                 self.value = ""
                 self.views = []
+        elif msg['type'] == 'transfer_done':
+            self.transferred = True
         elif msg['type'] == 'action':
             for callback in self._action_callbacks.get(msg['action'], []):
                 try:
@@ -227,6 +238,36 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         """
         if name in self._action_callbacks:
             self._action_callbacks[name].remove(callback)
+
+    def transfer(self):
+        """
+        Transfers currently uploaded files to the server without requiring
+        the user to press enter or click submit. This allows programmatic
+        control over when file uploads are processed.
+
+        This method is asynchronous - it sends a message to the frontend
+        to initiate the transfer and returns immediately. To access the
+        uploaded file data, watch for the `transferred` event or monitor
+        the `value_uploaded` parameter.
+
+        Example
+        -------
+        Using the transferred event:
+
+        >>> def on_transfer_complete(event):
+        ...     print(chat_area.value_uploaded)
+        >>> chat_area.param.watch(on_transfer_complete, 'transferred')
+        >>> chat_area.transfer()  # Returns immediately
+
+        Using value_uploaded watcher:
+
+        >>> def on_files_uploaded(event):
+        ...     if event.new:
+        ...         print(f"Files uploaded: {list(event.new.keys())}")
+        >>> chat_area.param.watch(on_files_uploaded, 'value_uploaded')
+        >>> chat_area.transfer()
+        """
+        self._send_msg({"type": "transfer"})
 
     def _update_loading(self, *_) -> None:
         """
