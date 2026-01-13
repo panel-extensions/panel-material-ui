@@ -88,26 +88,3 @@ def test_chat_area_send_transfers_files(page):
 
     wait_until(lambda: file_name in widget.value_uploaded, page)
     assert widget.value_uploaded[file_name]['value'] == file_content
-
-
-def test_chat_area_transferred_event(page):
-    widget = ChatAreaInput()
-    serve_component(page, widget)
-
-    transferred_triggered = []
-
-    def on_transferred(event):
-        transferred_triggered.append(True)
-
-    widget.param.watch(on_transferred, 'transferred')
-
-    file_input = page.locator('input[type="file"]')
-    file_input.set_input_files({"name": "event_test.txt", "mimeType": "text/plain", "buffer": b"test"})
-
-    wait_until(lambda: widget.pending_uploads == 1, page)
-
-    widget.transfer()
-
-    # Wait for transferred event to fire
-    wait_until(lambda: len(transferred_triggered) > 0, page)
-    assert len(transferred_triggered) == 1

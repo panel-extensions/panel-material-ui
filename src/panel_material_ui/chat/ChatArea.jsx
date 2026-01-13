@@ -289,7 +289,6 @@ export function render({model, view}) {
       file_data_ref.current = []
       setProgress(undefined)
     }
-    model.send_msg({type: "transfer_done"})
   }
 
   const send = async () => {

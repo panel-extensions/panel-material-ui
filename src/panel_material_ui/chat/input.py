@@ -64,11 +64,6 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         doc="If True, pressing the Enter key sends the message, if False it is sent by pressing the Ctrl+Enter.",
     )
 
-    transferred = param.Event(
-        default=False,
-        doc="Event triggered when a programmatic file transfer (triggered by transfer()) is complete."
-    )
-
     loading = param.Boolean(default=False)
 
     max_rows = param.Integer(default=10)
@@ -172,8 +167,6 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
             with param.discard_events(self):
                 self.value = ""
                 self.views = []
-        elif msg['type'] == 'transfer_done':
-            self.transferred = True
         elif msg['type'] == 'action':
             for callback in self._action_callbacks.get(msg['action'], []):
                 try:
@@ -247,20 +240,10 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
 
         This method is asynchronous - it sends a message to the frontend
         to initiate the transfer and returns immediately. To access the
-        uploaded file data, watch for the `transferred` event or monitor
-        the `value_uploaded` parameter.
+        uploaded file data, watch for changes to the `value_uploaded` parameter.
 
         Example
         -------
-        Using the transferred event:
-
-        >>> def on_transfer_complete(event):
-        ...     print(chat_area.value_uploaded)
-        >>> chat_area.param.watch(on_transfer_complete, 'transferred')
-        >>> chat_area.transfer()  # Returns immediately
-
-        Using value_uploaded watcher:
-
         >>> def on_files_uploaded(event):
         ...     if event.new:
         ...         print(f"Files uploaded: {list(event.new.keys())}")
