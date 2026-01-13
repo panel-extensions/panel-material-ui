@@ -13,6 +13,7 @@ export function render({model, view}) {
   const [items] = model.useState("items")
   const [open_icon] = model.useState("open_icon")
   const [persistent_tooltips] = model.useState("persistent_tooltips")
+  const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [label] = model.useState("label")
 
@@ -42,7 +43,7 @@ export function render({model, view}) {
     <SpeedDial
       ariaLabel={label}
       direction={direction}
-      FabProps={{color, disabled}}
+      FabProps={{color, disabled, size}}
       icon={icon ? (() => {
         const iconData = parseIconName(icon)
         return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>

@@ -1034,6 +1034,8 @@ class SpeedDial(MenuBase):
     persistent_tooltips = param.Boolean(default=False, doc="""
         Whether to show persistent tooltips next to the menu items.""")
 
+    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the dial.")
+
     _esm_base = "SpeedDial.jsx"
 
     _item_keys = ['label', 'icon', 'avatar', 'color']
