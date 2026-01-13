@@ -232,14 +232,14 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         if name in self._action_callbacks:
             self._action_callbacks[name].remove(callback)
 
-    def transfer(self):
+    def sync(self):
         """
-        Transfers currently uploaded files to the server without requiring
+        Syncs currently uploaded files to the server without requiring
         the user to press enter or click submit. This allows programmatic
         control over when file uploads are processed.
 
         This method is asynchronous - it sends a message to the frontend
-        to initiate the transfer and returns immediately. To access the
+        to initiate the sync and returns immediately. To access the
         uploaded file data, watch for changes to the `value_uploaded` parameter.
 
         Example
@@ -248,9 +248,9 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         ...     if event.new:
         ...         print(f"Files uploaded: {list(event.new.keys())}")
         >>> chat_area.param.watch(on_files_uploaded, 'value_uploaded')
-        >>> chat_area.transfer()
+        >>> chat_area.sync()
         """
-        self._send_msg({"type": "transfer"})
+        self._send_msg({"type": "sync"})
 
     def _update_loading(self, *_) -> None:
         """

@@ -234,9 +234,9 @@ export function render({model, view}) {
     model.on("msg:custom", (msg) => {
       if (msg.status === "finished") {
         upload_ref.current = msg
-      } else if (msg.type === "transfer") {
-        // Programmatically trigger file transfer using ref to get current file_data
-        transferFilesFromRef()
+      } else if (msg.type === "sync") {
+        // Programmatically trigger file sync using ref to get current file_data
+        syncFilesFromRef()
       }
     })
 
@@ -269,7 +269,7 @@ export function render({model, view}) {
   }
 
   // Version that reads from ref (for use in msg:custom handler to avoid stale closure)
-  const transferFilesFromRef = async () => {
+  const syncFilesFromRef = async () => {
     const currentFiles = file_data_ref.current
     if (currentFiles.length) {
       let validFiles = currentFiles
