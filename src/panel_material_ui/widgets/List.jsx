@@ -270,7 +270,7 @@ export function render({model}) {
                 setMenuAnchor(e.currentTarget)
                 e.stopPropagation()
               }}
-              sx={{ml: "0.5em"}}
+              sx={{ml: "0.5em", color: "text.secondary"}}
             >
               <MoreVert />
             </IconButton>
