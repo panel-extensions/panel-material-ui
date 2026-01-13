@@ -626,6 +626,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
                       event.stopPropagation()
                     }}
                     onClick={handleMenuOpen}
+                    sx={{color: "text.secondary"}}
                   >
                     <MoreVert />
                   </IconButton>
