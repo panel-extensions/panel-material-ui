@@ -28,7 +28,7 @@ def test_chat_area_pending_uploads(page):
     wait_until(lambda: widget.pending_uploads == 2, page)
 
 
-def test_chat_area_pending_uploads_reset_after_transfer(page):
+def test_chat_area_pending_uploads_reset_after_sync(page):
     widget = ChatAreaInput()
     serve_component(page, widget)
 
@@ -37,10 +37,10 @@ def test_chat_area_pending_uploads_reset_after_transfer(page):
 
     wait_until(lambda: widget.pending_uploads == 1, page)
 
-    # Transfer files
-    widget.transfer()
+    # Sync files
+    widget.sync()
 
-    # Pending uploads should reset to 0 after transfer
+    # Pending uploads should reset to 0 after sync
     wait_until(lambda: widget.pending_uploads == 0, page)
     assert "test.txt" in widget.value_uploaded
 
@@ -61,8 +61,8 @@ def test_chat_area_transfer(page):
     # Verify value_uploaded is initially empty
     assert widget.value_uploaded == {}
 
-    # Trigger transfer programmatically
-    widget.transfer()
+    # Trigger sync programmatically
+    widget.sync()
 
     # Wait for the upload to complete and sync back to python
     wait_until(lambda: file_name in widget.value_uploaded, page)
@@ -72,7 +72,7 @@ def test_chat_area_transfer(page):
     assert widget.value_uploaded[file_name]['mime_type'] == "text/plain"
 
 
-def test_chat_area_send_transfers_files(page):
+def test_chat_area_send_syncs_files(page):
     widget = ChatAreaInput()
     serve_component(page, widget)
 
