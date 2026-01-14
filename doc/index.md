@@ -31,10 +31,6 @@ Access a growing collection of Material UI–inspired components (Buttons, Slide
 - **Powerful Theming Inheritance**
   Define a theme at a parent level and let it automatically apply to child components without extra configuration, reducing repetitive code while maintaining consistent branding.
 
-Panel Material UI is still fairly new—first released in May 2025. As with any young library, you might run into a few rough edges as we continue to shape and improve it.
-
-We’re already using it in production, so development is active and updates are ongoing.
-
 Thanks for your support as we (and maybe you?) keep making Panel Material UI even better!
 
 Want to get involved? [Contribute on GitHub](https://github.com/panel-extensions/panel-material-ui/blob/main/DEVELOPER_GUIDE.md) or share your feedback, we’d love to hear from you.
