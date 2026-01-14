@@ -17,6 +17,7 @@ import MenuItem from "@mui/material/MenuItem"
 import MoreVert from "@mui/icons-material/MoreVert"
 import Checkbox from "@mui/material/Checkbox"
 import Tooltip from "@mui/material/Tooltip"
+import {render_icon} from "./utils"
 
 export function render({model}) {
   const [active, setActive] = model.useState("active")
@@ -189,8 +190,10 @@ export function render({model}) {
           return action.toggle ? (
             <Checkbox
               checked={action_value}
+              checkedIcon={active_icon && render_icon(active_icon, active_color || color, null, null)}
               color={action.color}
               disabled={disabled}
+              icon={render_icon(icon, icon_color, null, null, "-outlined")}
               size={"small"}
               onMouseDown={(e) => {
                 e.stopPropagation()
@@ -203,36 +206,6 @@ export function render({model}) {
                 e.stopPropagation()
                 e.preventDefault()
               }}
-              icon={
-                icon.trim().startsWith("<") ?
-                  <span style={{
-                    maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-                    backgroundColor: "currentColor",
-                    maskRepeat: "no-repeat",
-                    maskSize: "contain",
-                    display: "inline-block"}}
-                  /> :
-                  <Icon
-                    baseClassName={parseIconName(icon, "-outlined").baseClassName}
-                    color={icon_color}
-                  >
-                    {parseIconName(icon).iconName}
-                  </Icon>
-              }
-              checkedIcon={
-                (active_icon && active_icon.trim().startsWith("<")) ? (
-                  <span style={{
-                    maskImage: `url("data:image/svg+xml;base64,${btoa(active_icon)}")`,
-                    backgroundColor: "currentColor",
-                    maskRepeat: "no-repeat",
-                    maskSize: "contain",
-                    display: "inline-block"}}
-                  />) :
-                  (() => {
-                    const iconData = parseIconName(active_icon)
-                    return <Icon baseClassName={iconData.baseClassName} color={active_color}>{iconData.iconName}</Icon>
-                  })()
-              }
             />
           ) : (
             <IconButton
@@ -251,10 +224,7 @@ export function render({model}) {
               }}
               sx={{ml: index > 0 ? "0" : "0.5em"}}
             >
-              {action.icon && (() => {
-                const iconData = parseIconName(action.icon)
-                return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
-              })()}
+              {action.icon && render_icon(action.icon)}
             </IconButton>)
         })}
         {!collapsed && menu_actions.length > 0 && (
@@ -294,10 +264,7 @@ export function render({model}) {
                       e.stopPropagation()
                     }}
                   >
-                    {action.icon && (() => {
-                      const iconData = parseIconName(action.icon)
-                      return <Icon baseClassName={iconData.baseClassName} sx={{mr: "1em"}}>{iconData.iconName}</Icon>
-                    })()}
+                    {action.icon && render_icon(action.icon)}
                     {action.label}
                   </MenuItem>
                 )

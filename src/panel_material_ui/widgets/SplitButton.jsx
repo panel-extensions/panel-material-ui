@@ -4,6 +4,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import ClickAwayListener from "@mui/material/ClickAwayListener"
 import MenuItem from "@mui/material/MenuItem"
 import {CustomMenu} from "./menu"
+import {render_icon} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -68,19 +69,7 @@ export function render(props, ref) {
       >
         <Button
           color={color}
-          startIcon={current_icon && (
-            current_icon.trim().startsWith("<") ?
-              <span style={{
-                maskImage: `url("data:image/svg+xml;base64,${btoa(current_icon)}")`,
-                backgroundColor: "currentColor",
-                maskRepeat: "no-repeat",
-                maskSize: "contain",
-                width: icon_size,
-                height: icon_size,
-                display: "inline-block"}}
-              /> :
-              <Icon style={{fontSize: icon_size}}>{current_icon}</Icon>
-          )}
+          startIcon={current_icon && render_icon(current_icon, null, size, icon_size)}
           loading={loading}
           onClick={() => model.send_msg({type: "click"})}
           ref={btnRef}
@@ -125,19 +114,7 @@ export function render(props, ref) {
             onClick={(event) => handleMenuItemClick(event, index)}
             target={option.target}
           >
-            {option.icon && (
-              option.icon.trim().startsWith("<") ?
-                <span style={{
-                  maskImage: `url("data:image/svg+xml;base64,${btoa(option.icon)}")`,
-                  backgroundColor: "currentColor",
-                  maskRepeat: "no-repeat",
-                  maskSize: "contain",
-                  width: option.icon_size || "1em",
-                  height: option.icon_size || "1em",
-                  display: "inline-block"}}
-                /> :
-                <Icon style={{fontSize: option.icon_size || "1em", paddingRight: "1.5em"}}>{option.icon}</Icon>
-            )}
+            {option.icon && render_icon(option.icon, null, null, option.icon_size, null, {pr: "1.5em"})}
             {option.label}
           </MenuItem>
         ))}

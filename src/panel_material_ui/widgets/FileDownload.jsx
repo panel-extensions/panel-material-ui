@@ -2,6 +2,7 @@ import Button from "@mui/material/Button"
 import CircularProgress from "@mui/material/CircularProgress"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import {useTheme} from "@mui/material/styles"
+import {render_icon} from "./utils"
 
 function dataURItoBlob(dataURI) {
   const byteString = atob(dataURI.split(",")[1])
@@ -90,37 +91,16 @@ export function render(props, ref) {
     <Button
       color={color}
       disabled={disabled}
-      endIcon={end_icon && (
-        end_icon.trim().startsWith("<") ?
-          <span style={{
-            maskImage: `url("data:image/svg+xml;base64,${btoa(end_icon)}")`,
-            backgroundColor: "currentColor",
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
-            display: "inline-block"}}
-          /> :
-          <Icon style={{fontSize: icon_size}}>{end_icon}</Icon>
-      )}
+      endIcon={end_icon && render_icon(end_icon, null, null, icon_size)}
       fullWidth
       loading={loading}
       ref={ref}
-      startIcon={icon ? (
-        icon.trim().startsWith("<") ?
-          <span style={{
-            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-            backgroundColor: "currentColor",
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
-            display: "inline-block"}}
-          /> :
-          <Icon style={{fontSize: icon_size}}>{icon}</Icon>
-      ): auto || model.data != null ? <FileDownloadIcon style={{fontSize: icon_size}} />
-        : _syncing ? <CircularProgress size={icon_size} sx={{color: "var(--variant-containedColor)"}} />
-          : ""}
+      startIcon={icon ? render_icon(icon, null, null, icon_size) : (auto || model.data != null) ? (
+        <FileDownloadIcon style={{fontSize: icon_size}} />
+      ) : _syncing ? (
+        <CircularProgress size={icon_size} sx={{color: "var(--variant-containedColor)"}} />
+      ) : ""
+      }
       onClick={handleClick}
       onContextMenu={(e) => e.stopPropagation()}
       size={size}

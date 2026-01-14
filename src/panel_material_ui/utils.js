@@ -1,4 +1,5 @@
 import * as React from "react"
+import Icon from "@mui/material/Icon"
 import {grey} from "@mui/material/colors"
 import {createTheme} from "@mui/material/styles"
 import {deepmerge} from "@mui/utils"
@@ -1473,4 +1474,26 @@ export function parseIconName(iconName, dflt = "") {
     baseClassName: `material-icons${dflt}`,
     iconName
   }
+}
+
+export function render_icon(icon, color, size, icon_size, variant, sx) {
+  const standard_size = ["small", "medium", "large"].includes(size)
+  const font_size = standard_size ? icon_size : size
+  const icon_font_size = (["small", "medium", "large"].includes(icon_size) ? icon_size : size) || "1em"
+
+  return icon.trim().startsWith("<") ? (
+    <span style={{
+      maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
+      backgroundColor: color || "currentColor",
+      maskRepeat: "no-repeat",
+      maskSize: "contain",
+      width: font_size || "1em",
+      height: font_size || "1em",
+      display: "inline-block"
+    }}
+    />
+  ) : (() => {
+    const iconData = parseIconName(icon, variant || "")
+    return <Icon baseClassName={iconData.baseClassName} color={color || undefined} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size, ...(sx || {})} : (sx || {})}>{iconData.iconName}</Icon>
+  })()
 }

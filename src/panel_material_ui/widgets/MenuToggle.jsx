@@ -6,6 +6,7 @@ import ListItemText from "@mui/material/ListItemText"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp"
 import {CustomMenu} from "./menu"
+import {render_icon} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -26,6 +27,9 @@ export function render(props, ref) {
   const [open, setOpen] = React.useState(false)
   const anchorEl = React.useRef(null)
 
+  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+    ref = undefined
+  }
   React.useEffect(() => {
     const focus_cb = (msg) => anchorEl.current?.focus()
     model.on("msg:custom", focus_cb)
@@ -71,20 +75,7 @@ export function render(props, ref) {
         onClick={() => setOpen(!open)}
         ref={anchorEl}
         size={size}
-        startIcon={currentIcon && (
-          currentIcon.trim().startsWith("<") ?
-            <span style={{
-              maskImage: `url("data:image/svg+xml;base64,${btoa(currentIcon)}")`,
-              backgroundColor: "currentColor",
-              maskRepeat: "no-repeat",
-              maskSize: "contain",
-              width: icon_size,
-              height: icon_size,
-              display: "inline-block"
-            }}
-            /> :
-            <Icon fontSize={icon_size}>{currentIcon}</Icon>
-        )}
+        startIcon={currentIcon && render_icon(currentIcon, null, size, icon_size)}
         sx={sx}
         variant={variant}
         {...other}
@@ -116,19 +107,7 @@ export function render(props, ref) {
             >
               {itemIcon && (
                 <ListItemIcon sx={itemColor ? {color: itemColor} : {}}>
-                  {itemIcon.trim().startsWith("<") ?
-                    <span style={{
-                      maskImage: `url("data:image/svg+xml;base64,${btoa(itemIcon)}")`,
-                      backgroundColor: "currentColor",
-                      maskRepeat: "no-repeat",
-                      maskSize: "contain",
-                      width: item.icon_size || "1em",
-                      height: item.icon_size || "1em",
-                      display: "inline-block"
-                    }}
-                    /> :
-                    <Icon style={{fontSize: item.icon_size}}>{itemIcon}</Icon>
-                  }
+                  {render_icon(itemIcon, null, null, item.icon_size)}
                 </ListItemIcon>
               )}
               <ListItemText>{item.label}</ListItemText>

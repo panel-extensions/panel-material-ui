@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box"
 import Checkbox from "@mui/material/Checkbox"
 import Typography from "@mui/material/Typography"
-import {parseIconName} from "./utils"
+import {render_icon} from "./utils"
 
 const SIZES = {
   small: "1.5em",
@@ -29,7 +29,6 @@ export function render(props, ref) {
 
   const standard_size = ["small", "medium", "large"].includes(size)
   const font_size = standard_size ? icon_size : size
-  const icon_font_size = ["small", "medium", "large"].includes(icon_size) ? icon_size : size
   const color_state = disabled ? "disabled" : color
   const text_size = standard_size ? SIZES[size] : font_size
 
@@ -47,47 +46,14 @@ export function render(props, ref) {
     <Box sx={{display: "flex", alignItems: "center", flexDirection: "row"}}>
       <Checkbox
         checked={value}
+        checkedIcon={render_icon(active_icon || icon, color_state, size, icon_size)}
         color={color_state}
         disabled={disabled}
+        icon={render_icon(icon, color_state, size, icon_size, "-outlined")}
         ref={ref}
         selected={value}
         size={size}
         onClick={(e, newValue) => setValue(!value)}
-        icon={
-          icon.trim().startsWith("<") ?
-            <span style={{
-              maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-              backgroundColor: "currentColor",
-              maskRepeat: "no-repeat",
-              maskSize: "contain",
-              width: text_size,
-              height: text_size,
-              display: "inline-block"}}
-            /> :
-            <Icon
-              baseClassName={parseIconName(icon, "-outlined").baseClassName}
-              color={color_state}
-              fontSize={icon_font_size}
-              sx={icon_size ? {fontSize: icon_size} : {}}
-            >
-              {parseIconName(icon).iconName}
-            </Icon>
-        }
-        checkedIcon={
-          active_icon.trim().startsWith("<") ?
-            <span style={{
-              maskImage: `url("data:image/svg+xml;base64,${btoa(active_icon || icon)}")`,
-              backgroundColor: "currentColor",
-              maskRepeat: "no-repeat",
-              maskSize: "contain",
-              width: text_size,
-              height: text_size,
-              display: "inline-block"}}
-            /> : (() => {
-              const iconData = parseIconName(active_icon || icon)
-              return <Icon baseClassName={iconData.baseClassName} color={color_state} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{iconData.iconName}</Icon>
-            })()
-        }
         sx={{p: PADDING[size], ...sx}}
         {...other}
       />

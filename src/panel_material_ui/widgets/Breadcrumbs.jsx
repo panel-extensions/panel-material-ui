@@ -4,7 +4,7 @@ import Link from "@mui/material/Link"
 import Typography from "@mui/material/Typography"
 import Icon from "@mui/material/Icon"
 import NavigateNextIcon from "@mui/icons-material/NavigateNext"
-import {parseIconName} from "./utils"
+import {render_icon} from "./utils"
 import {useTheme, styled} from "@mui/material/styles"
 
 const StyledAvatar = styled(Avatar)(({color, spacing}) => ({
@@ -53,10 +53,7 @@ export function render({model}) {
       } else {
         return (
           <Typography {...props}>
-            {item.icon ? (() => {
-              const iconData = parseIconName(item.icon)
-              return <Icon baseClassName={iconData.baseClassName} color={color_string} sx={{mr: 0.5}}>{iconData.iconName}</Icon>
-            })() : null}
+            {item.icon ? render_icon(item.icon, color_string, null, null, null, {mr: 0.5}) : null}
             {item.avatar ?
               <StyledAvatar color={theme.palette[color_string]?.main || color_string} spacing={theme.spacing(0.5)}>{item.avatar}</StyledAvatar> : null
             }

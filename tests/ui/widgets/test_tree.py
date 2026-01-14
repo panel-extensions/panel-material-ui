@@ -224,7 +224,7 @@ def test_tree_mixed_disabled_and_selectable(page):
     wait_until(lambda: widget.active == [(0,)], page)
 
 
-def test_menu_list_with_toggle_actions(page):
+def test_tree_with_toggle_actions(page):
     widget = Tree(items=[{
         "label": "Item 1",
         "actions": [
