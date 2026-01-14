@@ -91,11 +91,11 @@ export function render(props, ref) {
     <Button
       color={color}
       disabled={disabled}
-      endIcon={end_icon && render_icon(end_icon, null, null, icon_size)}
+      endIcon={end_icon && render_icon(end_icon, null, size, icon_size)}
       fullWidth
       loading={loading}
       ref={ref}
-      startIcon={icon ? render_icon(icon, null, null, icon_size) : (auto || model.data != null) ? (
+      startIcon={icon ? render_icon(icon, null, size, icon_size) : (auto || model.data != null) ? (
         <FileDownloadIcon style={{fontSize: icon_size}} />
       ) : _syncing ? (
         <CircularProgress size={icon_size} sx={{color: "var(--variant-containedColor)"}} />
