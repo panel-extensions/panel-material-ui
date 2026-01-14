@@ -197,7 +197,7 @@ export function render({model}) {
 
     const labelBits = (
       <>
-        {item.icon ? render_icon(item.icon, null, null, null, null, {mr: 0.5}) : null}
+        {item.icon ? render_icon(item.icon, colorStr, null, null, null, {mr: 0.5}) : null}
         {item.avatar ? (
           <StyledAvatar
             color={theme.palette[colorStr]?.main || colorStr}
