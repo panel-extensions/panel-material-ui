@@ -2,6 +2,7 @@ import Button from "@mui/material/Button"
 import CircularProgress from "@mui/material/CircularProgress"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import {useTheme} from "@mui/material/styles"
+import {render_icon} from "./utils"
 
 function dataURItoBlob(dataURI) {
   const byteString = atob(dataURI.split(",")[1])

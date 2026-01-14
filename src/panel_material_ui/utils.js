@@ -1494,6 +1494,6 @@ export function render_icon(icon, color, size, icon_size, variant, sx) {
     />
   ) : (() => {
     const iconData = parseIconName(icon, variant || "")
-    return <Icon baseClassName={iconData.baseClassName} color={color || "currentColor"} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size, ...(sx || {})} : (sx || {})}>{iconData.iconName}</Icon>
+    return <Icon baseClassName={iconData.baseClassName} color={color || undefined} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size, ...(sx || {})} : (sx || {})}>{iconData.iconName}</Icon>
   })()
 }

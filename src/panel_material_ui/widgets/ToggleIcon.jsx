@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box"
 import Checkbox from "@mui/material/Checkbox"
 import Typography from "@mui/material/Typography"
-import {parseIconName} from "./utils"
+import {render_icon} from "./utils"
 
 const SIZES = {
   small: "1.5em",
@@ -29,7 +29,6 @@ export function render(props, ref) {
 
   const standard_size = ["small", "medium", "large"].includes(size)
   const font_size = standard_size ? icon_size : size
-  const icon_font_size = ["small", "medium", "large"].includes(icon_size) ? icon_size : size
   const color_state = disabled ? "disabled" : color
   const text_size = standard_size ? SIZES[size] : font_size
 

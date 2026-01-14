@@ -40,7 +40,7 @@ export function render({model, el, view}) {
       <Rating
         color={color}
         disabled={disabled}
-        empty={empty ? render_icon(empty, null, size, SIZES[size]) : null}
+        emptyIcon={empty ? render_icon(empty, null, size, SIZES[size]) : null}
         fullWidth
         highlightSelectedOnly={only_selected}
         icon={icon ? render_icon(icon, color, size, SIZES[size]) : null}
