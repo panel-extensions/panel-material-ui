@@ -17,7 +17,7 @@ export function render({model}) {
   return (
     <Chip
       color={color}
-      icon={icon ? render_icon(icon, null, size, icon_size[size]) : null}
+      icon={icon ? render_icon(icon, null, size, SIZES[size]) : null}
       label={label}
       size={size}
       sx={sx}
