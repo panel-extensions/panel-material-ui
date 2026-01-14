@@ -1479,7 +1479,8 @@ export function parseIconName(iconName, dflt = "") {
 export function render_icon(icon, color, size, icon_size, variant, sx) {
   const standard_size = ["small", "medium", "large"].includes(size)
   const font_size = standard_size ? icon_size : size
-  const icon_font_size = (["small", "medium", "large"].includes(icon_size) ? icon_size : size) || "1em"
+  const standard_icon_size = ["small", "medium", "large"].includes(icon_size)
+  const icon_font_size = (standard_icon_size ? icon_size : standard_size ? size : undefined)
 
   return icon.trim().startsWith("<") ? (
     <span style={{
@@ -1494,6 +1495,6 @@ export function render_icon(icon, color, size, icon_size, variant, sx) {
     />
   ) : (() => {
     const iconData = parseIconName(icon, variant || "")
-    return <Icon baseClassName={iconData.baseClassName} color={color || undefined} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size, ...(sx || {})} : (sx || {})}>{iconData.iconName}</Icon>
+    return <Icon baseClassName={iconData.baseClassName} color={color || undefined} fontSize={icon_font_size} sx={sx} style={standard_icon_size ? {} : {fontSize: icon_size}}>{iconData.iconName}</Icon>
   })()
 }
