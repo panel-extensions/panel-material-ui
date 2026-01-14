@@ -1,6 +1,5 @@
 import Chip from "@mui/material/Chip"
-import Icon from "@mui/material/Icon"
-import {parseIconName} from "./utils"
+import {render_icon} from "./utils"
 
 const SIZES = {
   small: "1.2em",
@@ -15,31 +14,10 @@ export function render({model}) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
-  const standard_size = ["small", "medium"].includes(size)
-  const font_size = standard_size ? null : size
-  const text_size = standard_size ? SIZES[size] : font_size
-
   return (
     <Chip
       color={color}
-      icon={
-        icon ? (icon.trim().startsWith("<") ?
-          <span style={{
-            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-            backgroundColor: "currentColor",
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            width: text_size,
-            height: text_size,
-            display: "inline-block"}}
-          /> :
-          <Icon
-            baseClassName={parseIconName(icon).baseClassName}
-            style={{fontSize: font_size}}
-          >
-            {parseIconName(icon).iconName}
-          </Icon>) : null
-      }
+      icon={icon ? render_icon(icon, null, size, icon_size[size]) : null}
       label={label}
       size={size}
       sx={sx}

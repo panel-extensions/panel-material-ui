@@ -1,4 +1,5 @@
 import ToggleButton from "@mui/material/ToggleButton"
+import {render_icon} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -34,33 +35,9 @@ export function render(props, ref) {
       variant={variant}
       {...other}
     >
-      {icon && (
-        icon.trim().startsWith("<") ?
-          <span style={{
-            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-            backgroundColor: "currentColor",
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
-            display: "inline-block"}}
-          /> :
-          <Icon style={{fontSize: icon_size}}>{icon}</Icon>
-      )}
+      {icon && render_icon(icon, null, null, icon_size)}
       {label}
-      {end_icon && (
-        end_icon.trim().startsWith("<") ?
-          <span style={{
-            maskImage: `url("data:image/svg+xml;base64,${btoa(end_icon)}")`,
-            backgroundColor: "currentColor",
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
-            display: "inline-block"}}
-          /> :
-          <Icon style={{fontSize: icon_size}}>{end_icon}</Icon>
-      )}
+      {end_icon && render_icon(end_icon, null, null, icon_size)}
     </ToggleButton>
   )
 }

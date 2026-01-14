@@ -9,7 +9,7 @@ import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
 import MenuItem from "@mui/material/MenuItem"
 import Typography from "@mui/material/Typography"
-import {parseIconName} from "./utils"
+import {render_icon} from "./utils"
 
 import ArticleIcon from "@mui/icons-material/Article"
 import DeleteIcon from "@mui/icons-material/Delete"
@@ -455,46 +455,8 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
         toggle_ref.current.get(toggleKey) ?? action.value ?? false
 
       if (action.toggle) {
-        const iconContent =
-          typeof action.icon === "string" && action.icon.trim().startsWith("<") ? (
-            <span
-              style={{
-                maskImage: `url("data:image/svg+xml;base64,${btoa(action.icon)}")`,
-                backgroundColor: "currentColor",
-                maskRepeat: "no-repeat",
-                maskSize: "contain",
-                display: "inline-block"
-              }}
-            />
-          ) : (
-            action.icon && (
-              <Icon baseClassName={parseIconName(action.icon, "-outlined").baseClassName} color={action.color}>
-                {parseIconName(action.icon).iconName}
-              </Icon>
-            )
-          )
-        const activeIconContent =
-          typeof action.active_icon === "string" &&
-          action.active_icon.trim().startsWith("<") ? (
-              <span
-                style={{
-                  maskImage: `url("data:image/svg+xml;base64,${btoa(action.active_icon)}")`,
-                  backgroundColor: "currentColor",
-                  maskRepeat: "no-repeat",
-                  maskSize: "contain",
-                  display: "inline-block"
-                }}
-              />
-            ) : (
-              (() => {
-                const iconData = parseIconName(action.active_icon || action.icon)
-                return iconData.iconName && (
-                  <Icon baseClassName={iconData.baseClassName} color={action.active_color || action.color}>
-                    {iconData.iconName}
-                  </Icon>
-                )
-              })()
-            )
+        const iconContent = typeof action.icon === "string" && render_icon(action.icon, action.color)
+        const activeIconContent = typeof action.active_icon === "string" && render_icon(action.active_icon, action.active_color || action.color)
         return (
           <Checkbox
             key={`tree-action-toggle-${actionKey}`}

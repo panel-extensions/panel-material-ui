@@ -4,6 +4,7 @@ import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import {CustomMenu} from "./menu"
+import {render_icon} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -39,19 +40,7 @@ export function render(props, ref) {
         onClick={() => setOpen(!open)}
         ref={anchorEl}
         size={size}
-        startIcon={icon && (
-          icon.trim().startsWith("<") ?
-            <span style={{
-              maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-              backgroundColor: "currentColor",
-              maskRepeat: "no-repeat",
-              maskSize: "contain",
-              width: icon_size,
-              height: icon_size,
-              display: "inline-block"}}
-            /> :
-            <Icon style={{fontSize: icon_size}}>{icon}</Icon>
-        )}
+        startIcon={icon && render_icon(icon, null, size, icon_size)}
         sx={sx}
         variant={variant}
         {...other}
@@ -78,19 +67,7 @@ export function render(props, ref) {
               }}
               target={item.href ? (item.target ?? "_blank") : null}
             >
-              {item.icon && (
-                item.icon.trim().startsWith("<") ?
-                  <span style={{
-                    maskImage: `url("data:image/svg+xml;base64,${btoa(item.icon)}")`,
-                    backgroundColor: "currentColor",
-                    maskRepeat: "no-repeat",
-                    maskSize: "contain",
-                    width: item.icon_size || "1em",
-                    height: item.icon_size || "1em",
-                    display: "inline-block"}}
-                  /> :
-                  <Icon style={{fontSize: item.icon_size, paddingRight: "1.5em"}}>{item.icon}</Icon>
-              )}
+              {item.icon && render_icon(item.icon, null, null, item.icon_size, null, {paddingRight: "1.5em"})}
               {item.label}
             </MenuItem>
           )

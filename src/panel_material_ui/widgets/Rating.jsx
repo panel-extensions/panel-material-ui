@@ -2,7 +2,7 @@ import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
 import Icon from "@mui/material/Icon"
 import Rating from "@mui/material/Rating"
-import {parseIconName} from "./utils"
+import {render_icon} from "./utils"
 
 const SIZES = {
   small: "1.5em",
@@ -40,42 +40,10 @@ export function render({model, el, view}) {
       <Rating
         color={color}
         disabled={disabled}
-        emptyIcon={
-          empty ? (
-            empty.trim().startsWith("<") ?
-              <span style={{
-                maskImage: `url("data:image/svg+xml;base64,${btoa(empty)}")`,
-                backgroundColor: "currentColor",
-                maskRepeat: "no-repeat",
-                maskSize: "contain",
-                width: SIZES[size],
-                height: SIZES[size],
-                display: "inline-block"}}
-              /> : (() => {
-                const iconData = parseIconName(empty)
-                return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
-              })()
-          ) : undefined
-        }
+        empty={empty ? render_icon(empty, null, size, SIZES[size]) : null}
         fullWidth
         highlightSelectedOnly={only_selected}
-        icon={
-          icon ? (
-            icon.trim().startsWith("<") ?
-              <span style={{
-                maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-                backgroundColor: "currentColor",
-                maskRepeat: "no-repeat",
-                maskSize: "contain",
-                width: SIZES[size],
-                height: SIZES[size],
-                display: "inline-block"}}
-              /> : (() => {
-                const iconData = parseIconName(icon)
-                return <Icon baseClassName={iconData.baseClassName} color={color}>{iconData.iconName}</Icon>
-              })()
-          ) : undefined
-        }
+        icon={icon ? render_icon(icon, color, size, SIZES[size]) : null}
         ref={ref}
         max={end}
         onChange={(event, newValue) => setValue(newValue)}

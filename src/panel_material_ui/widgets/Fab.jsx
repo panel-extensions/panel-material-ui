@@ -1,5 +1,5 @@
 import Fab from "@mui/material/Fab"
-import {parseIconName} from "./utils"
+import {render_icon} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -42,43 +42,9 @@ export function render(props, ref) {
       variant={variant}
       {...other}
     >
-      {
-        icon && (
-          icon.trim().startsWith("<") ? (
-            <span style={{
-              maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-              backgroundColor: "currentColor",
-              maskRepeat: "no-repeat",
-              maskSize: "contain",
-              width: icon_size,
-              height: icon_size,
-              paddingRight: padding,
-              display: "inline-block"}}
-            />) : (() => {
-            const iconData = parseIconName(icon)
-            return <Icon baseClassName={iconData.baseClassName} style={{fontSize: icon_size}} sx={{pr: padding}}>{iconData.iconName}</Icon>
-          })()
-        )
-      }
+      {icon && render_icon(icon, null, null, icon_size, null, {pr: padding})}
       {variant === "extended" && label}
-      {
-        end_icon && (
-          end_icon.trim().startsWith("<") ? (
-            <span style={{
-              maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-              backgroundColor: "currentColor",
-              maskRepeat: "no-repeat",
-              maskSize: "contain",
-              width: icon_size,
-              height: icon_size,
-              paddingRight: padding,
-              display: "inline-block"}}
-            />) : (() => {
-            const iconData = parseIconName(end_icon)
-            return <Icon baseClassName={iconData.baseClassName} style={{fontSize: icon_size}} sx={{pr: padding}}>{iconData.iconName}</Icon>
-          })()
-        )
-      }
+      {end_icon && render_icon(end_icon, null, null, icon_size, null, {pl: padding})}
     </Fab>
   )
 }

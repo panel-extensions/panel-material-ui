@@ -10,7 +10,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import {useTheme, styled} from "@mui/material/styles"
 import {CustomMenu} from "./menu"
-import {parseIconName} from "./utils"
+import {render_icon} from "./utils"
 
 const StyledAvatar = styled(Avatar)(({color, spacing}) => ({
   backgroundColor: color,
@@ -197,10 +197,7 @@ export function render({model}) {
 
     const labelBits = (
       <>
-        {item.icon ? (() => {
-          const iconData = parseIconName(item.icon)
-          return <Icon baseClassName={iconData.baseClassName} color={colorStr} sx={{mr: 0.5}}>{iconData.iconName}</Icon>
-        })() : null}
+        {item.icon ? render_icon(item.icon, null, null, null, null, {mr: 0.5}) : null}
         {item.avatar ? (
           <StyledAvatar
             color={theme.palette[colorStr]?.main || colorStr}
@@ -273,10 +270,7 @@ export function render({model}) {
                       selected={selectedIdx === idx}
                       onClick={() => isSelectable && selectAtDepth(depth, idx)}
                     >
-                      {sib.icon ? (() => {
-                        const iconData = parseIconName(sib.icon)
-                        return <Icon baseClassName={iconData.baseClassName} sx={{mr: 1}}>{iconData.iconName}</Icon>
-                      })() : null}
+                      {sib.icon ? render_icon(sib.icon, null, null, null, null, {mr: 1}) : null}
                       {sib.avatar ? (
                         <StyledAvatar spacing={theme.spacing(0.5)} sx={{mr: 1}}>
                           {sib.avatar}
@@ -330,10 +324,7 @@ export function render({model}) {
                         key={`d${depth}-i${idx}`}
                         onClick={() => isSelectable && selectAtDepth(depth, idx)}
                       >
-                        {sib.icon ? (() => {
-                          const iconData = parseIconName(sib.icon)
-                          return <Icon baseClassName={iconData.baseClassName} sx={{mr: 1}}>{iconData.iconName}</Icon>
-                        })() : null}
+                        {sib.icon ? render_icon(sib.icon, null, null, null, null, {mr: 1}) : null}
                         {sib.avatar ? (
                           <StyledAvatar spacing={theme.spacing(0.5)} sx={{mr: 1}}>
                             {sib.avatar}

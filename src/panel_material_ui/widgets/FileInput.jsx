@@ -5,7 +5,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import ErrorIcon from "@mui/icons-material/Error"
 import TaskAltIcon from "@mui/icons-material/TaskAlt"
 import {useTheme} from "@mui/material/styles"
-import {isFileAccepted, processFilesChunked} from "./utils"
+import {isFileAccepted, processFilesChunked, render_icon} from "./utils"
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -205,37 +205,13 @@ export function render(props, ref) {
       color={color}
       component="label"
       disabled={disabled}
-      endIcon={end_icon && (
-        end_icon.trim().startsWith("<") ?
-          <span style={{
-            maskImage: `url("data:image/svg+xml;base64,${btoa(end_icon)}")`,
-            backgroundColor: "currentColor",
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
-            display: "inline-block"}}
-          /> :
-          <Icon style={{fontSize: icon_size}}>{end_icon}</Icon>
-      )}
+      endIcon={end_icon && render_icon(end_icon, null, null, icon_size)}
       fullWidth
       loading={loading}
       loadingPosition="start"
       ref={ref}
       role={undefined}
-      startIcon={icon ? (
-        icon.trim().startsWith("<") ?
-          <span style={{
-            maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-            backgroundColor: "currentColor",
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            width: icon_size,
-            height: icon_size,
-            display: "inline-block"}}
-          /> :
-          <Icon style={{fontSize: icon_size}}>{icon}</Icon>
-      ) : dynamic_icon}
+      startIcon={icon ? render_icon(icon, null, null, icon_size) : dynamic_icon}
       sx={{
         ...sx,
         ...(isDragOver && {

@@ -47,47 +47,14 @@ export function render(props, ref) {
     <Box sx={{display: "flex", alignItems: "center", flexDirection: "row"}}>
       <Checkbox
         checked={value}
+        checkedIcon={render_icon(active_icon || icon, color_state, size, icon_size)}
         color={color_state}
         disabled={disabled}
+        icon={render_icon(icon, color_state, size, icon_size, "-outlined")}
         ref={ref}
         selected={value}
         size={size}
         onClick={(e, newValue) => setValue(!value)}
-        icon={
-          icon.trim().startsWith("<") ?
-            <span style={{
-              maskImage: `url("data:image/svg+xml;base64,${btoa(icon)}")`,
-              backgroundColor: "currentColor",
-              maskRepeat: "no-repeat",
-              maskSize: "contain",
-              width: text_size,
-              height: text_size,
-              display: "inline-block"}}
-            /> :
-            <Icon
-              baseClassName={parseIconName(icon, "-outlined").baseClassName}
-              color={color_state}
-              fontSize={icon_font_size}
-              sx={icon_size ? {fontSize: icon_size} : {}}
-            >
-              {parseIconName(icon).iconName}
-            </Icon>
-        }
-        checkedIcon={
-          active_icon.trim().startsWith("<") ?
-            <span style={{
-              maskImage: `url("data:image/svg+xml;base64,${btoa(active_icon || icon)}")`,
-              backgroundColor: "currentColor",
-              maskRepeat: "no-repeat",
-              maskSize: "contain",
-              width: text_size,
-              height: text_size,
-              display: "inline-block"}}
-            /> : (() => {
-              const iconData = parseIconName(active_icon || icon)
-              return <Icon baseClassName={iconData.baseClassName} color={color_state} fontSize={icon_font_size} sx={icon_size ? {fontSize: icon_size} : {}}>{iconData.iconName}</Icon>
-            })()
-        }
         sx={{p: PADDING[size], ...sx}}
         {...other}
       />
