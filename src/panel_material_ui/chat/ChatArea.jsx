@@ -220,12 +220,23 @@ export function render({model, view}) {
 
   const [progress, setProgress] = React.useState(undefined)
   const [file_data, setFileData] = React.useState([])
+  const [pending_uploads, setPendingUploads] = model.useState("pending_uploads")
   const upload_ref = React.useRef(null)
+  const file_data_ref = React.useRef(file_data)
+
+  // Keep ref and pending_uploads in sync with state
+  React.useEffect(() => {
+    file_data_ref.current = file_data
+    setPendingUploads(file_data.length)
+  }, [file_data])
 
   React.useEffect(() => {
     model.on("msg:custom", (msg) => {
       if (msg.status === "finished") {
         upload_ref.current = msg
+      } else if (msg.type === "sync") {
+        // Programmatically trigger file sync using ref to get current file_data
+        syncFilesFromRef()
       }
     })
 
@@ -257,6 +268,29 @@ export function render({model, view}) {
     props = {rows}
   }
 
+  // Version that reads from ref (for use in msg:custom handler to avoid stale closure)
+  const syncFilesFromRef = async () => {
+    const currentFiles = file_data_ref.current
+    if (currentFiles.length) {
+      let validFiles = currentFiles
+      if (accept) {
+        validFiles = Array.from(currentFiles).filter(file => isFileAccepted(file, accept))
+      }
+      const count = await processFilesChunked(
+        validFiles,
+        model,
+        model.max_file_size,
+        model.max_total_file_size,
+        model.chunk_size || 10 * 1024 * 1024,
+        setProgress,
+        upload_ref
+      )
+      setFileData([])
+      file_data_ref.current = []
+      setProgress(undefined)
+    }
+  }
+
   const send = async () => {
     if (disabled) {
       return
@@ -279,6 +313,7 @@ export function render({model, view}) {
     model.send_msg({type: "input", value: value_input})
     await waitForRef(upload_ref)
     setFileData([])
+    file_data_ref.current = []
     setValueInput("")
     setProgress(undefined)
   }
@@ -323,13 +358,16 @@ export function render({model, view}) {
     if (accept) {
       validFiles = files.filter(file => isFileAccepted(file, accept))
     }
-    setFileData([...file_data, ...validFiles])
+    const newFiles = [...file_data, ...validFiles]
+    setFileData(newFiles)
+    file_data_ref.current = newFiles
   }
 
   const removeFile = (index) => {
     const newFiles = [...file_data]
     newFiles.splice(index, 1)
     setFileData(newFiles)
+    file_data_ref.current = newFiles
   }
 
   const FilePreview = () => (
@@ -426,7 +464,9 @@ export function render({model, view}) {
               if (accept) {
                 validFiles = files.filter(file => isFileAccepted(file, accept))
               }
-              setFileData([...file_data, ...validFiles])
+              const newFiles = [...file_data, ...validFiles]
+              setFileData(newFiles)
+              file_data_ref.current = newFiles
             }
           }}
         />

@@ -68,6 +68,10 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
 
     max_rows = param.Integer(default=10)
 
+    pending_uploads = param.Integer(default=0, readonly=True, doc="""
+        The number of files currently queued for upload but not yet transferred.
+        This is updated automatically when files are added or removed in the UI.""")
+
     max_length = param.Integer(default=50000, doc="""
         Max count of characters in the input field.""")
 
@@ -227,6 +231,26 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         """
         if name in self._action_callbacks:
             self._action_callbacks[name].remove(callback)
+
+    def sync(self):
+        """
+        Syncs currently uploaded files to the server without requiring
+        the user to press enter or click submit. This allows programmatic
+        control over when file uploads are processed.
+
+        This method is asynchronous - it sends a message to the frontend
+        to initiate the sync and returns immediately. To access the
+        uploaded file data, watch for changes to the `value_uploaded` parameter.
+
+        Example
+        -------
+        >>> def on_files_uploaded(event):
+        ...     if event.new:
+        ...         print(f"Files uploaded: {list(event.new.keys())}")
+        >>> chat_area.param.watch(on_files_uploaded, 'value_uploaded')
+        >>> chat_area.sync()
+        """
+        self._send_msg({"type": "sync"})
 
     def _update_loading(self, *_) -> None:
         """
