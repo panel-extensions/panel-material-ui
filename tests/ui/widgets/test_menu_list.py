@@ -237,6 +237,23 @@ def test_menu_list_with_href(page):
     expect(page.locator('.MuiListItemButton-root').nth(1)).to_have_attribute('href', 'https://example.org')
     expect(page.locator('.MuiListItemButton-root').nth(1)).to_have_attribute('target', '_blank')
 
+
+def test_menu_list_with_href_disable_link(page):
+    widget = MenuList(items=[
+        {"label": "Link 1", "href": "https://example.com", "disable_link": True},
+        {"label": "Link 2", "href": "https://example.org", "target": "_blank"}
+    ])
+    serve_component(page, widget)
+
+    item = page.locator(".MuiListItemButton-root").nth(0)
+
+    expect(item).to_have_attribute("href", "https://example.com")
+
+    # Ensure URL is not updated on click
+    before_url = page.url
+    item.click()
+    expect(page).to_have_url(before_url)
+
 def test_menu_list_with_label(page):
     label = "List Label"
     widget = MenuList(items=["Item 1", "Item 2"], label=label)

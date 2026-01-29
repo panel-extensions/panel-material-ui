@@ -595,7 +595,7 @@ class MenuList(TreeLikeBase):
 
     _item_keys = [
         'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
-        'href', 'target', 'buttons'
+        'href', 'target', 'buttons', 'disable_link'
     ]
 
 List = MenuList
