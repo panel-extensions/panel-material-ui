@@ -127,11 +127,15 @@ export function render({model}) {
         href={href}
         target={target}
         key={`list-item-${key}`}
-        onClick={() => {
+        onClick={(e) => {
           if (isSelectable) {
             setActive(path)
           }
           model.send_msg({type: "click", item: path})
+          if (item.disable_link) {
+            e.preventDefault()
+            e.stopPropagation()
+          }
         }}
         selected={highlight && isActive}
         sx={{
