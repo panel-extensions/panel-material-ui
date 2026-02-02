@@ -3,8 +3,6 @@ from panel_material_ui.base import MaterialUIComponent
 
 class _TestComponent(MaterialUIComponent):
     _esm_base = (
-        'import {apply_global_css, install_theme_hooks} from "./utils"\n'
-        'import * as React from "react"\n'
         "export function render() { return null }\n"
     )
     _esm_transforms = []
