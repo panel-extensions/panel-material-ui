@@ -655,7 +655,7 @@ function apply_plotly_theme(model, theme, dark, font_family) {
   })
 }
 
-function apply_bokeh_theme(model, theme, dark, font_family) {
+function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   const model_props = {}
   const model_type = model.type
   if (model_type.endsWith("ReactiveESM") && model.class_name.endsWith("Split")) {
@@ -667,7 +667,7 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
         --panel-background-color: ${elevation_color(elevation, theme, dark)};
       }
     `]
-  } else if (model_type.endsWith("Axis")) {
+  } else if (model_type.endsWith("Axis") && custom_theme.includes("Axis")) {
     model_props.axis_label_text_color = theme.palette.text.primary
     model_props.axis_label_text_font = font_family
     model_props.axis_line_alpha = dark ? 0 : 1
@@ -678,7 +678,7 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     model_props.major_tick_line_color = theme.palette.text.primary
     model_props.minor_tick_line_alpha = dark ? 0 : 1
     model_props.minor_tick_line_color = theme.palette.text.primary
-  } else if (model_type.endsWith("Legend")) {
+  } else if (model_type.endsWith("Legend") && !custom_theme.includes("Legend")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = view ? find_on_parent(view, "elevation") : 0
     model_props.background_fill_color = elevation_color(elevation, theme, dark)
@@ -687,7 +687,7 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     model_props.title_text_font = font_family
     model_props.label_text_color = theme.palette.text.primary
     model_props.label_text_font = font_family
-  } else if (model_type.endsWith("ColorBar")) {
+  } else if (model_type.endsWith("ColorBar") && !custom_theme.includes("ColorBar")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = view ? find_on_parent(view, "elevation") : 0
     model_props.background_fill_color = elevation_color(elevation, theme, dark)
@@ -695,17 +695,17 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     model_props.title_text_font = font_family
     model_props.major_label_text_color = theme.palette.text.primary
     model_props.major_label_text_font = font_family
-  } else if (model_type.endsWith("Title")) {
+  } else if (model_type.endsWith("Title") && !custom_theme.includes("Title")) {
     model_props.text_color = theme.palette.text.primary
     model_props.text_font = font_family
-  } else if (model_type.endsWith("Grid")) {
+  } else if (model_type.endsWith("Grid") && !custom_theme.includes("Grid")) {
     if (model_props.grid_line_color != null) {
       model_props.grid_line_color = theme.palette.text.primary
       model_props.grid_line_alpha = dark ? 0.25 : 0.5
     }
-  } else if (model_type.endsWith("Canvas")) {
+  } else if (model_type.endsWith("Canvas") && !custom_theme.includes("Canvas")) {
     model_props.stylesheets = [...model.stylesheets, ":host { --highlight-color: none }"]
-  } else if (model_type.endsWith("Figure")) {
+  } else if (model_type.endsWith("Figure") && !custom_theme.includes("Figure")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = view ? find_on_parent(view, "elevation") : 0
     model_props.background_fill_color = theme.palette.background.paper
@@ -713,7 +713,7 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     model_props.outline_line_color = theme.palette.text.primary
     model_props.outline_line_alpha = dark ? 0.25 : 0
     if (view) {
-      apply_bokeh_theme(view.canvas_view.model, theme, dark, font_family)
+      apply_bokeh_theme(view.canvas_view.model, theme, dark, font_family, custom_theme)
     }
   } else if (model_type.endsWith("Toolbar")) {
     const stylesheet = `.bk-right.bk-active, .bk-above.bk-active {
@@ -751,7 +751,7 @@ function apply_bokeh_theme(model, theme, dark, font_family) {
     const view = Bokeh.index.find_one_by_id(model.id)
     if (view) {
       view.ttmodels.forEach(ttmodel => {
-        apply_bokeh_theme(ttmodel, theme, dark, font_family)
+        apply_bokeh_theme(ttmodel, theme, dark, font_family, custom_theme)
       })
     }
   }
@@ -1005,7 +1005,7 @@ export const apply_global_css = (model, view, theme) => {
   }, [theme])
 }
 
-export const setup_global_styles = (view, theme) => {
+export const setup_global_styles = (view, theme, custom_theme=[]) => {
   const doc = view.model.document
   let global_style_el = document.querySelector("#global-styles-panel-mui")
   const template_style_el = document.querySelector("#template-styles")
@@ -1060,9 +1060,9 @@ export const setup_global_styles = (view, theme) => {
       )
       models.forEach(model => {
         model.references().forEach((ref) => {
-          apply_bokeh_theme(ref, theme, dark, font_family)
+          apply_bokeh_theme(ref, theme, dark, font_family, custom_theme)
         })
-        apply_bokeh_theme(model, theme, dark, font_family)
+        apply_bokeh_theme(model, theme, dark, font_family, custom_theme)
       })
     }
     doc.on_change(cb)
@@ -1077,7 +1077,7 @@ export const setup_global_styles = (view, theme) => {
     ) : (
       theme.typography.fontFamily
     )
-    doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family))
+    doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family, custom_theme))
     global_style_el.textContent = render_theme_css(theme)
     page_style_el.textContent = render_page_css(theme)
   }, [theme])
@@ -1402,7 +1402,7 @@ export async function processFilesChunked(files, model, maxFileSize, maxTotalFil
     }
     return fileArray.length
   } catch (error) {
-    model.send_msg({status: "error", error: error.message})
+    model.send_msg({status: "error", error: error.message, type: "status"})
     throw error
   }
 }
