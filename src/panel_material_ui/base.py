@@ -634,7 +634,7 @@ class MaterialUIComponent(MaterialComponent):
 
     @classmethod
     def _render_esm_base(cls):
-        esm = cls._esm_base
+        esm = cls._esm_base or cls._esm
         if not esm.endswith(('.js', '.jsx', '.ts', '.tsx')):
             esm_base = esm
         else:
