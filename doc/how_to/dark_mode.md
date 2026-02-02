@@ -1,4 +1,4 @@
-# Dark Mode
+# Control Dark Mode
 
 The `panel-material-ui` components automatically integrate with Panel’s dark mode configuration and allow you to force dark mode by setting `dark_theme=True` at the component level or in your Panel extension.
 

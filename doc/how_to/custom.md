@@ -1,4 +1,4 @@
-# Custom Components
+# Build Custom Components
 
 The `panel-material-ui` package ships with a number of custom Material UI components that are built on top of the Material UI library. However, in some cases, you may need to create your own custom components.
 
@@ -49,7 +49,7 @@ class RainbowButton(MaterialUIComponent):
     interval = param.Integer(default=200, doc="""
         Time in ms between color changes.""")
 
-    _esm_base = "RainbowButton.jsx"
+    _esm = "RainbowButton.jsx"
     _importmap = {
       "imports": {
           "confetti": "https://esm.sh/canvas-confetti@1.6.0"

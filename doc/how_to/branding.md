@@ -1,4 +1,4 @@
-# How to Brand Your Panel Material-UI Application
+# Apply Branding
 
 This guide demonstrates how to create a cohesive brand experience in your Panel Material-UI applications using the "Orbitron" brand example. You'll learn how to structure your brand assets, configure consistent theming, and apply your brand across all components.
 

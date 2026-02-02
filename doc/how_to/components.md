@@ -1,4 +1,4 @@
-# Themed Components
+# Theme Components
 
 You can customize `panel-material-ui` components—changing default props, styles, or adding new variants—by defining a `components` key within your `theme_config`. This approach is ideal for ensuring a consistent look and feel across your entire application. If your customizations are extensive, however, consider creating new component classes for maintainability.
 

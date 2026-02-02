@@ -21,8 +21,10 @@ from ..widgets.base import MaterialWidget
 
 if TYPE_CHECKING:
     from bokeh.document import Document
+    from bokeh.model import Model
     from panel.io.location import LocationAreaBase
     from panel.io.resources import ResourcesType
+    from pyviz_comms import Comm
 
 SIDEBAR_VARIANTS = ["persistent", "temporary", "permanent", "auto"]
 
@@ -122,6 +124,8 @@ class Page(MaterialComponent, ResourceComponent):
 
     title = param.String(doc="Title of the application.")
 
+    _custom_theme = param.List(default=[])
+
     _esm_base = "Page.jsx"
     _rename = {"config": None, "meta": None, "favicon": None, "apple_touch_icon": None, "template": None}
     _source_transforms = {
@@ -199,6 +203,15 @@ class Page(MaterialComponent, ResourceComponent):
             template_variables['apple_touch_icon'] = _read_icon(apple_touch_icon)
         template_variables['resources'] = self.resolve_resources()
         template_variables['is_page'] = True
+
+    def get_root(
+        self, doc: Document | None = None, comm: Comm | None = None,
+        preprocess: bool = True
+    ) -> Model:
+        root = super().get_root(doc, comm, preprocess)
+        if doc and doc.theme is not self._design.theme.bokeh_theme:
+            root.data._custom_theme = list(doc.theme._json.get("attrs", {}))
+        return root
 
     def resolve_resources(
         self,

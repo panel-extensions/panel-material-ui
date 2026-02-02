@@ -1,4 +1,4 @@
-# Color
+# Pick Colors
 
 Convey meaning through color. By default, `panel-material-ui` provides access to the [Material Design color system](https://m2.material.io/design/color/the-color-system.html#color-usage-and-palettes), allowing you to choose from a broad set of hues and shade combinations.
 
