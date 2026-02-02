@@ -1,4 +1,4 @@
-# Bokeh, hvPlot, and HoloViews
+# Theme Bokeh, hvPlot, and HoloViews
 
 Panel Material UI has integrated theming support for Bokeh, hvPlot, and HoloViews. This means that the plots will automatically adapt to the active theme, including respecting the primary color, the font family, and toggling between dark and light mode.
 
