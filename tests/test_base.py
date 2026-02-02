@@ -5,8 +5,6 @@ class _TestComponent(MaterialUIComponent):
     _esm_base = (
         "export function render() { return null }\n"
     )
-    _esm_transforms = []
-    __abstract = False
 
 
 def test_render_esm_base_patches_utils_import():
