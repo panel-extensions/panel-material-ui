@@ -139,7 +139,7 @@ export function render({model, view}) {
     setDarkTheme(!dark_theme)
   }
 
-  setup_global_styles(view, theme)
+  setup_global_styles(view, theme, view.model.data._custom_theme)
   React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
 
   const [highlight, setHighlight] = React.useState(false)

@@ -657,17 +657,8 @@ function apply_plotly_theme(model, theme, dark, font_family) {
 
 function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   const model_props = {}
-  const model_type = model.type
-  if (model_type.endsWith("ReactiveESM") && model.class_name.endsWith("Split")) {
-    const view = Bokeh.index.find_one_by_id(model.id)
-    const elevation = find_on_parent(view, "elevation")
-    model.stylesheets = [...model.stylesheets, `
-      :host {
-        --border-color: rgba(${theme.palette.common.onBackgroundChannel} / 0.23);
-        --panel-background-color: ${elevation_color(elevation, theme, dark)};
-      }
-    `]
-  } else if (model_type.endsWith("Axis") && custom_theme.includes("Axis")) {
+  const model_type = model.type.endsWith("ReactiveESM") ? model.class_name : model.type
+  if (model_type.endsWith("Axis") && !custom_theme.includes("Axis")) {
     model_props.axis_label_text_color = theme.palette.text.primary
     model_props.axis_label_text_font = font_family
     model_props.axis_line_alpha = dark ? 0 : 1
@@ -747,6 +738,15 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     model_props.theme = dark ? "dark" : null
   } else if (model_type.endsWith("PlotlyPlot")) {
     apply_plotly_theme(model, theme, dark, font_family)
+  } else if (model_type.endsWith("Split")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    const elevation = find_on_parent(view, "elevation")
+    model.stylesheets = [...model.stylesheets, `
+      :host {
+        --border-color: rgba(${theme.palette.common.onBackgroundChannel} / 0.23);
+        --panel-background-color: ${elevation_color(elevation, theme, dark)};
+      }
+    `]
   } else if (model_type.endsWith("HoverTool")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     if (view) {

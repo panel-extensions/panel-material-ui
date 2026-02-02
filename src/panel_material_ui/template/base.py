@@ -210,7 +210,7 @@ class Page(MaterialComponent, ResourceComponent):
     ) -> Model:
         root = super().get_root(doc, comm, preprocess)
         if doc and doc.theme is not self._design.theme.bokeh_theme:
-            root.data._custom_theme = list(doc.theme._json)
+            root.data._custom_theme = list(doc.theme._json.get("attrs", {}))
         return root
 
     def resolve_resources(
