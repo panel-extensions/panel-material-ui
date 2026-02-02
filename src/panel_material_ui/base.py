@@ -325,7 +325,7 @@ class MaterialComponent(ReactComponent):
             "react-is": ["*react_is"],
             "react-dom": ["*react_dom"],
             "react/jsx-runtime": [("jsx", "jsxs", "Fragment")],
-            "./utils": [("install_theme_hooks",)],
+            "./utils": [("apply_global_css","install_theme_hooks",)],
             "@mui/material/styles": ["*material_styles"],
             "@mui/material": ["*material_ui"],
         })
@@ -646,7 +646,8 @@ class MaterialUIComponent(MaterialComponent):
                 esm_base, component_name = transform.apply(cls, esm_base, component_name)
             esm_base += f'\nexport default {{ render: {component_name} }}'
         esm_base = esm_base.replace(
-            'import {install_theme_hooks} from "./utils"', 'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks'
+            'import {apply_global_css, install_theme_hooks} from "./utils"',
+            'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks; const apply_global_css = pnmui.apply_global_css;'
         ).replace(
             'import * as React from "react"', ''
         )
