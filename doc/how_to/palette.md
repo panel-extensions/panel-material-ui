@@ -1,4 +1,4 @@
-# Palette
+# Customize Color Palettes
 
 The `panel-material-ui` palette system allows you to customize component colors to suit your brand. Colors are grouped into default categories (primary, secondary, error, warning, info, success) or custom categories that you define yourself.
 

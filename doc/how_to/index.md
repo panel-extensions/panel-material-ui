@@ -12,17 +12,17 @@ Welcome to the **Panel Material UI** how-to guides. These guides walk you throug
 ::::{grid} 1 2 2 3
 :gutter: 1 1 1 2
 
-:::{grid-item-card} {octicon}`tools;2.5em;sd-mr-1` How to Customize
+:::{grid-item-card} {octicon}`tools;2.5em;sd-mr-1` Customize Themes & Styles
 :link: customize
 :link-type: doc
 
 Explore the fundamentals of customizing **panel-material-ui** components. Learn one-off styling with `sx`, overriding nested elements, global CSS overrides, and theme inheritance.
 
 +++
-[Learn more »](how_to_customize)
+[Learn more »](customize)
 :::
 
-:::{grid-item-card} {octicon}`list-unordered;2.5em;sd-mr-1` Palette
+:::{grid-item-card} {octicon}`list-unordered;2.5em;sd-mr-1` Configure Color Palettes
 :link: palette
 :link-type: doc
 
@@ -32,7 +32,7 @@ Customize the default primary, secondary, and intent-based colors. Set up advanc
 [Learn more »](palette)
 :::
 
-:::{grid-item-card} {octicon}`typography;2.5em;sd-mr-1` Typography
+:::{grid-item-card} {octicon}`typography;2.5em;sd-mr-1` Configure Typography
 :link: typography
 :link-type: doc
 
@@ -42,17 +42,17 @@ Learn how to customize fonts, sizes, and text styles.
 [Learn more »](typography)
 :::
 
-:::{grid-item-card} {octicon}`apps;2.5em;sd-mr-1` Themed Components
+:::{grid-item-card} {octicon}`apps;2.5em;sd-mr-1` Theme Components
 :link: components
 :link-type: doc
 
-Customize components changing default props, styles, or adding new variants—by defining a `components` key within your `theme_config`..
+Customize components changing default props, styles, or adding new variants—by defining a `components` key within your `theme_config`.
 
 +++
 [Learn more »](components)
 :::
 
-:::{grid-item-card} {octicon}`moon;2.5em;sd-mr-1` Dark Mode
+:::{grid-item-card} {octicon}`moon;2.5em;sd-mr-1` Control Dark Mode
 :link: dark_mode
 :link-type: doc
 
@@ -62,7 +62,7 @@ Seamlessly toggle between light and dark palettes, or enforce one mode across yo
 [Learn more »](dark_mode)
 :::
 
-:::{grid-item-card} {octicon}`paintbrush;2.5em;sd-mr-1` Color
+:::{grid-item-card} {octicon}`paintbrush;2.5em;sd-mr-1` Pick Colors
 :link: color
 :link-type: doc
 
@@ -72,7 +72,7 @@ Dive into the Material Design color system. Create harmonious palettes, pick acc
 [Learn more »](color)
 :::
 
-:::{grid-item-card} {octicon}`image;2.5em;sd-mr-1` Icons
+:::{grid-item-card} {octicon}`image;2.5em;sd-mr-1` Use Icons
 :link: icons
 :link-type: doc
 
@@ -82,24 +82,24 @@ Learn how to use icons in **panel-material-ui**.
 [Learn more »](icons)
 :::
 
-:::{grid-item-card} {octicon}`code;2.5em;sd-mr-1` Custom Components
+:::{grid-item-card} {octicon}`code;2.5em;sd-mr-1` Build Custom Components
 :link: custom
 :link-type: doc
 
 Learn how to build custom components extending **panel-material-ui**.
 
 +++
-[Learn more »](branding)
+[Learn more »](custom)
 :::
 
-:::{grid-item-card} {octicon}`paintbrush;2.5em;sd-mr-1` Branding
+:::{grid-item-card} {octicon}`paintbrush;2.5em;sd-mr-1` Apply Branding
 :link: branding
 :link-type: doc
 
 Learn how to brand your **panel-material-ui** apps.
 
 +++
-[Learn more »](custom)
+[Learn more »](branding)
 :::
 
 ::::
@@ -151,6 +151,7 @@ components
 dark_mode
 color
 icons
+custom
 branding
 bokeh_holoviews
 plotly

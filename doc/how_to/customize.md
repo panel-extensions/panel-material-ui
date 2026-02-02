@@ -1,4 +1,4 @@
-# How to Customize
+# Customize Themes & Styles
 
 Customization of Panel Mui components inherits all the benefits of having a consistent design language that Mui provides. Styling can be applied using the `sx` parameter, while theming is achieved through the inheritable `theme_config`. Let us walk through these two different approaches through a series of examples.
 

@@ -1,4 +1,4 @@
-# Plotly Theming
+# Theme Plotly
 
 Panel Material UI provides integrated theming support for Plotly, which is applied automatically.
 
