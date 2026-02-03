@@ -105,19 +105,34 @@ export function render(props, ref) {
         open={open}
         onClose={() => setOpen(false)}
       >
-        {items.map((option, index) => (
-          <MenuItem
-            key={`menu-item-${index}`}
-            component={option.href ? "a" : "li"}
-            href={option.href}
-            selected={mode === "select" && index === selectedIndex}
-            onClick={(event) => handleMenuItemClick(event, index)}
-            target={option.target}
-          >
-            {option.icon && render_icon(option.icon, null, null, option.icon_size, null, {pr: "1.5em"})}
-            {render_icon_text(option.label)}
-          </MenuItem>
-        ))}
+        {items.map((option, index) => {
+          const menuItem = (
+            <MenuItem
+              key={`menu-item-${index}`}
+              component={option.href ? "a" : "li"}
+              href={option.href}
+              selected={mode === "select" && index === selectedIndex}
+              onClick={(event) => handleMenuItemClick(event, index)}
+              target={option.target}
+            >
+              {option.icon && render_icon(option.icon, null, null, option.icon_size, null, {pr: "1.5em"})}
+              {render_icon_text(option.label)}
+            </MenuItem>
+          )
+          if (option.tooltip) {
+            return (
+              <Tooltip
+                key={`menu-item-tooltip-${index}`}
+                title={render_icon_text(option.tooltip)}
+                placement="right"
+                disableInteractive
+              >
+                {menuItem}
+              </Tooltip>
+            )
+          }
+          return menuItem
+        })}
       </CustomMenu>
     </div>
   )

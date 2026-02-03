@@ -8,6 +8,7 @@ import Divider from "@mui/material/Divider"
 import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
 import MenuItem from "@mui/material/MenuItem"
+import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
 import {parseIconName, render_icon, render_icon_text} from "./utils"
 
@@ -600,7 +601,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
                       if (!actionKey) {
                         return null
                       }
-                      return (
+                      const menuItem = (
                         <MenuItem
                           key={`tree-action-menu-${actionKey}`}
                           onMouseDown={(event) => {
@@ -616,6 +617,19 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
                           {render_icon_text(action.label)}
                         </MenuItem>
                       )
+                      if (action.tooltip) {
+                        return (
+                          <Tooltip
+                            key={`tree-action-menu-${actionKey}-tooltip`}
+                            title={render_icon_text(action.tooltip)}
+                            placement="right"
+                            disableInteractive
+                          >
+                            {menuItem}
+                          </Tooltip>
+                        )
+                      }
+                      return menuItem
                     })}
                   </CustomMenu>
                 </React.Fragment>

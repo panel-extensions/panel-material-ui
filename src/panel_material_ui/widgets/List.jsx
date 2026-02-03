@@ -262,7 +262,7 @@ export function render({model}) {
                 if (action === null) {
                   return <Divider key={`action-divider-${index}`}/>
                 }
-                return (
+                const menuItem = (
                   <MenuItem
                     key={`action-${index}`}
                     onMouseDown={(e) => {
@@ -277,6 +277,19 @@ export function render({model}) {
                     {render_icon_text(action.label)}
                   </MenuItem>
                 )
+                if (action.tooltip) {
+                  return (
+                    <Tooltip
+                      key={`action-${index}-tooltip`}
+                      title={render_icon_text(action.tooltip)}
+                      placement="right"
+                      disableInteractive
+                    >
+                      {menuItem}
+                    </Tooltip>
+                  )
+                }
+                return menuItem
               })}
             </Menu>
           </React.Fragment>

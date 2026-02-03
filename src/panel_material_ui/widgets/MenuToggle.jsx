@@ -98,7 +98,7 @@ export function render(props, ref) {
           const itemIcon = itemToggled && item.active_icon ? item.active_icon : item.icon
           const itemColor = itemToggled && item.active_color ? item.active_color : item.color
 
-          return (
+          const menuItem = (
             <MenuItem
               key={`menu-item-${index}`}
               onClick={(e) => handleItemClick(e, index, item)}
@@ -113,6 +113,19 @@ export function render(props, ref) {
               <ListItemText>{render_icon_text(item.label)}</ListItemText>
             </MenuItem>
           )
+          if (item.tooltip) {
+            return (
+              <Tooltip
+                key={`menu-item-tooltip-${index}`}
+                title={render_icon_text(item.tooltip)}
+                placement="right"
+                disableInteractive
+              >
+                {menuItem}
+              </Tooltip>
+            )
+          }
+          return menuItem
         })}
       </CustomMenu>
     </div>
