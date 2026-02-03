@@ -42,11 +42,11 @@ pmui.Select(
 )
 ```
 
-You can also pass per-icon options after the icon name using `@key:value` pairs:
+You can also pass per-icon options after the icon name using `@key=value` pairs:
 
 ```{pyodide}
 pmui.Button(
-  name="Warn :material/zoom@size:large,color:warning:",
+  name="Warn :material/zoom@size=large,color=warning:",
 )
 ```
 

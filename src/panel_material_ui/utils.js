@@ -1504,7 +1504,7 @@ export function render_icon_text(text, iconProps = {}) {
     return text
   }
 
-  const pattern = /:material\/([a-zA-Z0-9_]+)(?:@([a-zA-Z0-9_]+:[^,:]+(?:,[a-zA-Z0-9_]+:[^,:]+)*))?:/g
+  const pattern = /:material\/([^:@]+)(?:@([^:]+))?:/g
   let match = null
   let lastIndex = 0
   const parts = []
@@ -1516,8 +1516,8 @@ export function render_icon_text(text, iconProps = {}) {
     const options = {}
     if (match[2]) {
       for (const pair of match[2].split(",")) {
-        const [key, ...rest] = pair.split(":")
-        const value = rest.join(":")
+        const [key, ...rest] = pair.split("=")
+        const value = rest.join("=")
         if (!key) {
           continue
         }
