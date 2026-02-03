@@ -181,7 +181,7 @@ class RainbowButton(MaterialUIComponent):
       }
     }
 
-    _esm_base = """
+    _esm = """
 import Button from "@mui/material/Button";
 import confetti from "confetti"
 
@@ -248,7 +248,7 @@ Give it a try, hover over the button to see it cycle through the rainbow colors 
 
 When you need to use MUI icons, add explicit imports for each icon to the `_importmap`. This ensures the icons load as separate ESM modules while sharing the React instance.
 
-```python
+```{pyodide}
 import panel as pn
 
 from panel_material_ui import MaterialUIComponent
@@ -278,6 +278,8 @@ export function render({ model }) {
   );
 }
 """
+
+IconComponent()
 ```
 
 ## Summary
