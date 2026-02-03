@@ -557,6 +557,83 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
     _rename = {"name": None}
 
 
+class Pill(MaterialSingleSelectBase):
+    """
+    The `Pill` widget allows selecting a single value from a list of `options`
+    rendered as clickable pills.
+
+    It falls into the broad category of single-value, option-selection widgets
+    that provide a compatible API and include the `Select`, `AutocompleteInput`,
+    `RadioBoxGroup` and `RadioButtonGroup` widgets.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Pill.html
+    - https://panel.holoviz.org/reference/widgets/Pill.html
+    - https://mui.com/material-ui/react-chip/
+
+    :Example:
+
+    >>> Pill(label="Study", options=["Biology", "Chemistry", "Physics"])
+    """
+
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of the selected pill.")
+
+    disabled_options = param.List(default=[], nested_refs=True, doc="""
+        Optional list of ``options`` that are disabled, i.e. unusable and
+        un-clickable. If ``options`` is a dictionary the list items have to
+        correspond to the values in the options dictionary.""")
+
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="Size of the pills.")
+
+    variant = param.Selector(objects=["filled", "outlined"], default="outlined", doc="""
+        Variant style of the pills.""")
+
+    _constants = {"multi": False, "loading_inset": -6}
+    _rename = {"name": "label"}
+    _esm_base = "Pill.jsx"
+
+
+class MultiPill(MaterialMultiSelectBase):
+    """
+    The `MultiPill` widget allows selecting multiple values from a list of
+    `options` rendered as clickable pills.
+
+    It falls into the broad category of multi-value, option-selection widgets
+    that provide a compatible API and include the `MultiSelect`, `MultiChoice`,
+    `CheckBoxGroup` and `CheckButtonGroup` widgets.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/MultiPill.html
+    - https://panel.holoviz.org/reference/widgets/MultiPill.html
+    - https://mui.com/material-ui/react-chip/
+
+    :Example:
+
+    >>> MultiPill(label="Favourites", value=["Panel", "hvPlot"],
+    ...     options=["Panel", "hvPlot", "HoloViews", "GeoViews"])
+    """
+
+    color = param.Selector(objects=COLORS, default="primary", doc="The color of selected pills.")
+
+    disabled_options = param.List(default=[], nested_refs=True, doc="""
+        Optional list of ``options`` that are disabled, i.e. unusable and
+        un-clickable. If ``options`` is a dictionary the list items have to
+        correspond to the values in the options dictionary.""")
+
+    max_items = param.Integer(default=None, bounds=(1, None), doc="""
+        Maximum number of options that can be selected.""")
+
+    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="Size of the pills.")
+
+    variant = param.Selector(objects=["filled", "outlined"], default="outlined", doc="""
+        Variant style of the pills.""")
+
+    _constants = {"multi": True, "loading_inset": -6}
+    _esm_base = "Pill.jsx"
+
+
 class CrossSelector(MaterialMultiSelectBase):
     """
     The `CrossSelector` widget allows selecting multiple values from a list of
@@ -640,5 +717,7 @@ __all__ = [
     "CheckButtonGroup",
     "MultiSelect",
     "MultiChoice",
+    "Pill",
+    "MultiPill",
     "NestedSelect",
 ]
