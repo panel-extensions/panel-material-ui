@@ -51,6 +51,13 @@ export function render({model, el, view}) {
     px: 1.5,
     "& .MuiChip-label": {px: 1}
   } : {}
+  const outlinedSx = chipVariant === "outlined"
+    ? {
+      borderColor: (theme) => (
+        theme.palette.mode === "light" ? theme.palette.grey[300] : theme.palette.divider
+      )
+    }
+    : {}
 
   const selectedValues = multi ? (Array.isArray(value) ? value : []) : value
   const items = processOptions()
@@ -100,7 +107,7 @@ export function render({model, el, view}) {
               onClick={() => handleSelect(item.value)}
               ref={index === 0 ? focusRef : null}
               size={chipSize}
-              sx={largeChipSx}
+              sx={{...outlinedSx, ...largeChipSx}}
               label={item.label}
               variant={isSelected ? chipVariant : "outlined"}
             />

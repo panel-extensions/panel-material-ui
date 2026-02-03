@@ -586,7 +586,7 @@ class Pill(MaterialSingleSelectBase):
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="Size of the pills.")
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="""
+    variant = param.Selector(objects=["filled", "outlined"], default="outlined", doc="""
         Variant style of the pills.""")
 
     _constants = {"multi": False, "loading_inset": -6}
@@ -627,7 +627,7 @@ class MultiPill(MaterialMultiSelectBase):
 
     size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="Size of the pills.")
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="""
+    variant = param.Selector(objects=["filled", "outlined"], default="outlined", doc="""
         Variant style of the pills.""")
 
     _constants = {"multi": True, "loading_inset": -6}
