@@ -4,7 +4,7 @@ import Tab from "@mui/material/Tab"
 import Icon from "@mui/material/Icon"
 import Box from "@mui/material/Box"
 import {useTheme, styled} from "@mui/material/styles"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 const StyledAvatar = styled(Avatar)(({theme, color, spacing}) => ({
   backgroundColor: color,
@@ -47,7 +47,7 @@ export function render({model}) {
           iconPosition={iconPosition || "start"}
           href={href}
           target={target}
-          label={label}
+          label={render_icon_text(label)}
         />
       )
     }
@@ -65,7 +65,7 @@ export function render({model}) {
             {avatar}
           </StyledAvatar>
         ) : null}
-        {label}
+        {render_icon_text(label)}
       </Box>
     )
 

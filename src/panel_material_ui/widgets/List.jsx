@@ -17,7 +17,7 @@ import MenuItem from "@mui/material/MenuItem"
 import MoreVert from "@mui/icons-material/MoreVert"
 import Checkbox from "@mui/material/Checkbox"
 import Tooltip from "@mui/material/Tooltip"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 export function render({model}) {
   const [active, setActive] = model.useState("active")
@@ -182,7 +182,12 @@ export function render({model}) {
         }}
       >
         {leadingComponent}
-        {!collapsed && <ListItemText primary={label} secondary={secondary} />}
+        {!collapsed && (
+          <ListItemText
+            primary={render_icon_text(label)}
+            secondary={render_icon_text(secondary)}
+          />
+        )}
         {!collapsed && inline_actions.map((action, index) => {
           const icon = action.icon
           const icon_color = action.color
@@ -269,7 +274,7 @@ export function render({model}) {
                     }}
                   >
                     {action.icon && render_icon(action.icon)}
-                    {action.label}
+                    {render_icon_text(action.label)}
                   </MenuItem>
                 )
               })}
@@ -315,7 +320,7 @@ export function render({model}) {
       ]
     } else if (collapsed) {
       return (
-        <Tooltip title={label} placement="right" disableInteractive>
+        <Tooltip title={render_icon_text(label)} placement="right" disableInteractive>
           {list_item}
         </Tooltip>
       )
@@ -330,7 +335,7 @@ export function render({model}) {
       sx={{p: 0, ...sx}}
       subheader={label && (
         <ListSubheader component="div" id="nested-list-subheader">
-          {label}
+          {render_icon_text(label)}
         </ListSubheader>
       )}
     >

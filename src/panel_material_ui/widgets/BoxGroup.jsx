@@ -3,6 +3,7 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
+import {render_icon_text} from "./utils"
 
 export function render({model}) {
   const [disabled] = model.useState("disabled");
@@ -14,7 +15,7 @@ export function render({model}) {
 
   return (
     <FormControl component="fieldset" disabled={disabled} fullWidth>
-      {label && <FormLabel id="radio-buttons-group-label">{label}</FormLabel>}
+      {label && <FormLabel id="radio-buttons-group-label">{render_icon_text(label)}</FormLabel>}
       <RadioGroup
         aria-labelledby="radio-buttons-group-label"
         row={orientation === "horizontal" ? true : false}
@@ -24,7 +25,7 @@ export function render({model}) {
           <FormControlLabel
             key={option}
             value={option}
-            label={option}
+            label={render_icon_text(option)}
             control={<Radio onChange={(e) => setValue("option")}/>}
             sx={sx}
           />

@@ -2,6 +2,7 @@ import Box from "@mui/material/Box"
 import CircularProgress from "@mui/material/CircularProgress"
 import Typography from "@mui/material/Typography"
 import {useTheme} from "@mui/material/styles"
+import {render_icon_text} from "./utils"
 
 export function render({model, el}) {
   const [bgcolor] = model.useState("bgcolor")
@@ -67,7 +68,11 @@ export function render({model, el}) {
           </Box>
         )}
       </Box>
-      {label && <Typography sx={{color: "text.primary", ml: 1, fontSize: `${size/2}px`}}>{label}</Typography>}
+      {label && (
+        <Typography sx={{color: "text.primary", ml: 1, fontSize: `${size/2}px`}}>
+          {render_icon_text(label)}
+        </Typography>
+      )}
     </Box>
   )
 }

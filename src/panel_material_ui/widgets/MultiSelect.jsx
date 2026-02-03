@@ -5,6 +5,7 @@ import OutlinedInput from "@mui/material/OutlinedInput"
 import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
 import {render_description} from "./description"
+import {render_icon_text} from "./utils"
 
 export function render({model, view, el}) {
   const [color] = model.useState("color")
@@ -63,7 +64,7 @@ export function render({model, view, el}) {
     <FormControl disabled={disabled} fullWidth variant={variant}>
       {label &&
         <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
-          {label}
+          {render_icon_text(label)}
           {model.description ? render_description({model, el, view}) : null}
         </InputLabel>
       }

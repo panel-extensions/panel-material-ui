@@ -1,5 +1,5 @@
 import ToggleButton from "@mui/material/ToggleButton"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -36,7 +36,7 @@ export function render(props, ref) {
       {...other}
     >
       {icon && render_icon(icon, null, null, icon_size)}
-      {label}
+      {render_icon_text(label)}
       {end_icon && render_icon(end_icon, null, null, icon_size)}
     </ToggleButton>
   )

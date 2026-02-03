@@ -1,5 +1,5 @@
 import Button from "@mui/material/Button"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -45,7 +45,7 @@ export function render(props, ref) {
       variant={variant}
       {...other}
     >
-      {label}
+      {render_icon_text(label)}
     </Button>
   )
 }

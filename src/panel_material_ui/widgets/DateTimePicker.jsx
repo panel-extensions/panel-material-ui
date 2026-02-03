@@ -4,6 +4,7 @@ import {DatePicker} from "@mui/x-date-pickers/DatePicker"
 import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker"
 import dayjs from "dayjs"
 import {render_description} from "./description"
+import {render_icon_text} from "./utils"
 
 export function render({model, view, el}) {
   const [clearable] = model.useState("clearable")
@@ -221,7 +222,7 @@ export function render({model, view, el}) {
         disablePast={disable_past}
         format={format}
         fullWidth
-        label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
+        label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
         minDate={min_date ? parseDate(min_date) : undefined}
         maxDate={max_date ? parseDate(max_date) : undefined}
         openTo={open_to}

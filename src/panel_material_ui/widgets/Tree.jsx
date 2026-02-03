@@ -9,7 +9,7 @@ import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
 import MenuItem from "@mui/material/MenuItem"
 import Typography from "@mui/material/Typography"
-import {parseIconName, render_icon} from "./utils"
+import {parseIconName, render_icon, render_icon_text} from "./utils"
 
 import ArticleIcon from "@mui/icons-material/Article"
 import DeleteIcon from "@mui/icons-material/Delete"
@@ -134,7 +134,7 @@ function CustomLabel({icon: IconComponent, expandable, children, secondary, ...o
             overflow: "hidden"
           }}
         >
-          {children}
+          {render_icon_text(children)}
         </TreeItemLabelText>
         {secondary ? (
           <Typography
@@ -145,7 +145,7 @@ function CustomLabel({icon: IconComponent, expandable, children, secondary, ...o
               lineHeight: 1.2
             }}
           >
-            {secondary}
+            {render_icon_text(secondary)}
           </Typography>
         ) : null}
       </Box>
@@ -525,7 +525,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
           }}
           sx={{ml: index ? 0.25 : 0.5}}
         >
-          {button.label}
+          {render_icon_text(button.label)}
         </Button>
       )
     })
@@ -613,7 +613,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
                           }}
                         >
                           {action.icon && render_icon(action.icon)}
-                          {action.label}
+                          {render_icon_text(action.label)}
                         </MenuItem>
                       )
                     })}

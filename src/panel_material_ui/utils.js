@@ -1498,3 +1498,66 @@ export function render_icon(icon, color, size, icon_size, variant, sx) {
     return <Icon baseClassName={iconData.baseClassName} color={color || undefined} fontSize={icon_font_size} sx={sx} style={standard_icon_size ? {} : {fontSize: icon_size}}>{iconData.iconName}</Icon>
   })()
 }
+
+export function render_icon_text(text, iconProps = {}) {
+  if (text == null || typeof text !== "string") {
+    return text
+  }
+
+  const pattern = /:material\/([^:@]+)(?:@([^:]+))?:/g
+  let match = null
+  let lastIndex = 0
+  const parts = []
+
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index))
+    }
+    const options = {}
+    if (match[2]) {
+      for (const pair of match[2].split(",")) {
+        const [key, ...rest] = pair.split("=")
+        const value = rest.join("=")
+        if (!key) {
+          continue
+        }
+        if (["color", "size", "icon_size", "variant"].includes(key)) {
+          options[key] = value
+        }
+      }
+    }
+    parts.push({icon: match[1], options})
+    lastIndex = pattern.lastIndex
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex))
+  }
+
+  if (parts.length === 0 || parts.every((part) => typeof part === "string")) {
+    return text
+  }
+
+  return (
+    <span style={{display: "inline-flex", alignItems: "center", gap: "0.25em"}}>
+      {parts.map((part, idx) => {
+        if (typeof part === "string") {
+          return <span key={`icon-text-${idx}`}>{part}</span>
+        }
+        const mergedProps = {...iconProps, ...part.options}
+        return (
+          <span key={`icon-text-${idx}`} style={{display: "inline-flex", alignItems: "center"}}>
+            {render_icon(
+              part.icon,
+              mergedProps.color,
+              mergedProps.size,
+              mergedProps.icon_size ?? "1em",
+              mergedProps.variant,
+              mergedProps.sx
+            )}
+          </span>
+        )
+      })}
+    </span>
+  )
+}

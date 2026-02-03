@@ -13,7 +13,7 @@ import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import dayjs from "dayjs"
 import {render_description} from "./description"
-import {int_regex, float_regex} from "./utils"
+import {int_regex, float_regex, render_icon_text} from "./utils"
 
 const spinner = (increment, index) => {
   return (
@@ -254,11 +254,14 @@ export function render({model, el, view}) {
           if (date || datetime) {
             tick = {...tick, value: dayjs.unix(tick.value / 1000)}
           }
+          if (typeof tick.label === "string") {
+            tick = {...tick, label: render_icon_text(tick.label)}
+          }
           return tick
         }
         return {
           value: date || datetime ? dayjs.unix(tick / 1000) : tick,
-          label: format_value(tick, tick, false)
+          label: render_icon_text(format_value(tick, tick, false))
         }
       })
     }
@@ -269,7 +272,7 @@ export function render({model, el, view}) {
       {editable ? (
         <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", width: "100%"}}>
           <FormLabel sx={{mr: "0.5em", maxWidth: "50%", overflowWrap: "break-word", whiteSpace: "normal"}}>
-            {label && `${label}: `}
+            {label && <>{render_icon_text(label)}: </>}
           </FormLabel>
           <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
             {(!inline_layout || orientation === "vertical") && <TextField
@@ -315,10 +318,10 @@ export function render({model, el, view}) {
         </Box>
       ) : (
         <FormLabel>
-          {label && `${label}: `}
+          {label && <>{render_icon_text(label)}: </>}
           { show_value &&
           <strong>
-            {value_label}
+            {render_icon_text(value_label)}
           </strong>
           }
           {model.description && render_description({model, el, view})}

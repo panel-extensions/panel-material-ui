@@ -2,7 +2,7 @@ import Button from "@mui/material/Button"
 import CircularProgress from "@mui/material/CircularProgress"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import {useTheme} from "@mui/material/styles"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 function dataURItoBlob(dataURI) {
   const byteString = atob(dataURI.split(",")[1])
@@ -111,14 +111,14 @@ export function render(props, ref) {
       variant={variant}
       {...other}
     >
-      {auto ? label : <a
+      {auto ? render_icon_text(label) : <a
         ref={linkRef}
         href={file_data == null ? null : URL.createObjectURL(dataURItoBlob(file_data))}
         download={filename}
         onClick={(e) => linkClick.current || e.preventDefault()}
         style={{color: theme.palette[color].contrastText}}
       >
-        {label}
+        {render_icon_text(label)}
       </a>}
     </Button>
   )

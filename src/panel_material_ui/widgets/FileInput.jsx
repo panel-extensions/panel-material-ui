@@ -5,7 +5,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import ErrorIcon from "@mui/icons-material/Error"
 import TaskAltIcon from "@mui/icons-material/TaskAlt"
 import {useTheme} from "@mui/material/styles"
-import {isFileAccepted, processFilesChunked, render_icon} from "./utils"
+import {isFileAccepted, processFilesChunked, render_icon, render_icon_text} from "./utils"
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -228,7 +228,7 @@ export function render(props, ref) {
       onDrop={handleDrop}
       {...other}
     >
-      {title}
+      {render_icon_text(title)}
       <VisuallyHiddenInput
         ref={(ref) => {
           fileInputRef.current = ref

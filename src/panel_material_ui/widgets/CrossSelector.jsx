@@ -17,6 +17,7 @@ import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArro
 import InputLabel from "@mui/material/InputLabel"
 import Box from "@mui/material/Box"
 import {render_description} from "./description"
+import {render_icon_text} from "./utils"
 
 function not(a, b) {
   return a.filter((value) => !b.includes(value))
@@ -135,7 +136,7 @@ export function render({model, el, view}) {
             }}
           />
         }
-        title={title}
+        title={render_icon_text(title)}
         subheader={`${numberOfChecked(items)}/${items.length} selected`}
       />
       {searchable && (
@@ -204,7 +205,7 @@ export function render({model, el, view}) {
                   }}
                 />
               </ListItemIcon>
-              <ListItemText id={labelId} primary={item.label} />
+              <ListItemText id={labelId} primary={render_icon_text(item.label)} />
             </ListItemButton>
           )
         })}
@@ -214,7 +215,12 @@ export function render({model, el, view}) {
 
   return (
     <Box sx={{display: "flex", height: "100%", flexDirection: "column", gap: "0.5em", ...sx}}>
-      {label && <InputLabel>{label}{model.description ? render_description({model, el, view}) : null}</InputLabel>}
+      {label && (
+        <InputLabel>
+          {render_icon_text(label)}
+          {model.description ? render_description({model, el, view}) : null}
+        </InputLabel>
+      )}
       <Box sx={{display: "flex", flexGrow: 1, maxHeight: "calc(100% - 2em)", flexDirection: "row", justifyContent: "center"}}>
         {customList(left_title, filteredAvailable, left_filter, setLeftFilter)}
         <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: "0 1em"}}>

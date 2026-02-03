@@ -27,3 +27,27 @@ pmui.Column(
   'Here is an outlined lightbulb: <span class="material-icons-outlined" style="font-size: 2em;">lightbulb</span>'
 )
 ```
+
+## Icons in widget labels and options
+
+You can embed icons directly in widget labels and options using the `:material/...:` token syntax:
+
+```{pyodide}
+pmui.Select(
+  name="Mode",
+  options=[
+    "Zoom :material/zoom:",
+    "Explore :material/explore:",
+  ],
+)
+```
+
+You can also pass per-icon options after the icon name using `@key=value` pairs:
+
+```{pyodide}
+pmui.Button(
+  name="Warn :material/zoom@size=large,color=warning:",
+)
+```
+
+Supported per-icon options include `color`, `size`, `icon_size`, and `variant`. These overrides apply only to the icon token where they appear.

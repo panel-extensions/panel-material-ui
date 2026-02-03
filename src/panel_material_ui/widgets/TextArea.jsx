@@ -1,5 +1,6 @@
 import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
+import {render_icon_text} from "./utils"
 
 export function render({model, el}) {
   const [autogrow] = model.useState("auto_grow")
@@ -48,7 +49,7 @@ export function render({model, el}) {
       fullWidth
       inputProps={{maxLength: max_length}}
       inputRef={ref}
-      label={model.description ? <>{label}{render_description({model, el})}</> : label}
+      label={model.description ? <>{render_icon_text(label)}{render_description({model, el})}</> : render_icon_text(label)}
       multiline
       maxRows={max_rows}
       onKeyDown={(e) => {

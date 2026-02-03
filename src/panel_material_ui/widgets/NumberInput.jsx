@@ -3,7 +3,7 @@ import InputAdornment from "@mui/material/InputAdornment"
 import IconButton from "@mui/material/IconButton"
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
-import {int_regex, float_regex} from "./utils"
+import {int_regex, float_regex, render_icon_text} from "./utils"
 import {render_description} from "./description"
 
 export function render({model, el, view}) {
@@ -100,7 +100,7 @@ export function render({model, el, view}) {
       disabled={disabled}
       fullWidth
       inputRef={ref}
-      label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
+      label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
       onBlur={() => setFocused(false)}
       onChange={(event) => { setEditableValue(event.target.value) }}
       onFocus={() => setFocused(true)}
