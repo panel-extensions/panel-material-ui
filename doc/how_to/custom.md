@@ -244,6 +244,42 @@ RainbowButton(name="Unicorn Power!", mode="hover", interval=150)
 
 Give it a try, hover over the button to see it cycle through the rainbow colors and click it to see the confetti effect!
 
+## Icon imports
+
+When you need to use MUI icons, add explicit imports for each icon to the `_importmap`. This ensures the icons load as separate ESM modules while sharing the React instance.
+
+```python
+import panel as pn
+
+from panel_material_ui import MaterialUIComponent
+
+pn.extension()
+
+class IconComponent(MaterialUIComponent):
+    """MUI IconButton with Favorite icon."""
+
+    _importmap = {
+        "imports": {
+            # Explicit import for each icon used - ?external=react shares React instance
+            "@mui/icons-material/Favorite": "https://esm.sh/@mui/icons-material@5.16.7/Favorite?external=react",
+            "@mui/icons-material/Delete": "https://esm.sh/@mui/icons-material@5.16.7/Delete?external=react",
+        }
+    }
+
+    _esm = """
+import IconButton from "@mui/material/IconButton";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+
+export function render({ model }) {
+    return (
+      <IconButton id="icon-btn" color="primary" style={{ padding: '8px' }}>
+        <FavoriteIcon size="large"/>
+      </IconButton>
+  );
+}
+"""
+```
+
 ## Summary
 
 Hopefully, this has given you a good introduction to building custom Material UI components using Panel. The `MaterialUIComponent` class not only allows you to build custom components leveraging the powerful `@mui/material` library, but handles theming and styling out of the box and lets you extend it by importing additional libraries to add completely novel functionality.
