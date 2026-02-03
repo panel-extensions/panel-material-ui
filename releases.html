@@ -1,0 +1,1267 @@
+
+<!DOCTYPE html>
+
+<html data-content_root="./" data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="site.webmanifest" rel="manifest"/>
+<title>Release Notes — Panel Material UI v0.9.0</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+<!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+<noscript>
+<style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+</noscript>
+<!-- Loaded before other Sphinx assets -->
+<link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="_static/pygments.css?v=03e43079" rel="stylesheet" type="text/css"/>
+<link href="_static/graphviz.css?v=4ae1632d" rel="stylesheet" type="text/css"/>
+<link href="_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="_static/sphinx-design.min.css?v=95c83b7e" rel="stylesheet" type="text/css"/>
+<link href="_static/nbsite.css?v=d9d93254" rel="stylesheet" type="text/css"/>
+<link href="_static/notebook.css?v=19946987" rel="stylesheet" type="text/css"/>
+<link href="_static/gallery.css?v=0a3248cd" rel="stylesheet" type="text/css"/>
+<link href="_static/alert.css?v=c26666be" rel="stylesheet" type="text/css"/>
+<link href="_static/dataframe.css?v=a0f274c1" rel="stylesheet" type="text/css"/>
+<link href="_static/scroller.css?v=2dcde208" rel="stylesheet" type="text/css"/>
+<link href="_static/hv-sidebar-dropdown.css?v=3e2b0152" rel="stylesheet" type="text/css"/>
+<link href="_static/css/custom.css?v=5eb3e485" rel="stylesheet" type="text/css"/>
+<!-- So that users can add custom icons -->
+<script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<link as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<script src="_static/documentation_options.js?v=39bb1c6d"></script>
+<script src="_static/doctools.js?v=fd6eb6e6"></script>
+<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+<script src="_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="_static/copybutton.js?v=f281be69"></script>
+<script src="_static/design-tabs.js?v=f930bc37"></script>
+<script src="_static/ServiceHandler.js"></script>
+<script>
+    window.goatcounter = {
+        path: function(p) { return location.host + p }
+    }
+</script>
+<script async="async" data-goatcounter="https://holoviz.goatcounter.com/count" src="_static/js/goatcounter.js?v=f53f84b8"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'releases';</script>
+<script type="esms-options">{"shimMode": true}</script>
+<script src="https://cdn.holoviz.org/panel/1.8.7/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js"></script>
+<link href="_static/favicon.ico" rel="icon"/>
+<link href="genindex.html" rel="index" title="Index"/>
+<link href="search.html" rel="search" title="Search"/>
+<link href="reference/global/Notifications.html" rel="prev" title="Notifications"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="0.9.0" name="docsearch:version"/>
+<meta content="2026-02-03" name="docbuild:last-update"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="light" data-offset="180">
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="#main-content">Skip to main content</a></div>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>Back to top</button>
+<dialog id="pst-search-dialog">
+<form action="search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="Version warning" class="d-none d-print-none" id="bd-header-version-warning"></aside>
+</div>
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+<button aria-label="Site navigation" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="index.html">
+<img alt="Panel Material UI v0.9.0 - Home" class="logo__image only-light" src="_static/logo_horizontal_light_theme.png"/>
+<img alt="Panel Material UI v0.9.0 - Home" class="logo__image only-dark pst-js-only" src="_static/logo_horizontal_dark_theme.png"/>
+</a></div>
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="how_to/index.html">
+    How-To
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="reference/index.html">
+    Component Gallery
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="#">
+    Release Notes
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/panel-extensions/panel-material-ui" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-square-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://twitter.com/Panel_Org" rel="noopener" target="_blank" title="Twitter"><i aria-hidden="true" class="fa-brands fa-twitter-square fa-lg"></i>
+<span class="sr-only">Twitter</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discourse.holoviz.org/c/panel/5" rel="noopener" target="_blank" title="Discourse"><i aria-hidden="true" class="fa-brands fa-discourse fa-lg"></i>
+<span class="sr-only">Discourse</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discord.gg/UXdtYyGVQX" rel="noopener" target="_blank" title="Discord"><i aria-hidden="true" class="fa-brands fa-discord fa-lg"></i>
+<span class="sr-only">Discord</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="On this page" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="how_to/index.html">
+    How-To
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="reference/index.html">
+    Component Gallery
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="#">
+    Release Notes
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/panel-extensions/panel-material-ui" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-square-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://twitter.com/Panel_Org" rel="noopener" target="_blank" title="Twitter"><i aria-hidden="true" class="fa-brands fa-twitter-square fa-lg"></i>
+<span class="sr-only">Twitter</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discourse.holoviz.org/c/panel/5" rel="noopener" target="_blank" title="Discourse"><i aria-hidden="true" class="fa-brands fa-discourse fa-lg"></i>
+<span class="sr-only">Discourse</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discord.gg/UXdtYyGVQX" rel="noopener" target="_blank" title="Discord"><i aria-hidden="true" class="fa-brands fa-discord fa-lg"></i>
+<span class="sr-only">Discord</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item"><!-- Adapted from sidebar-nav-bs.html (1.15.2) with the following changes
+
+  - Commented out the tag that adds the "Section Navigation" title
+  - Call generate_toctree_html with startdepth=0
+
+Please update this file when required when bumping the max pin of pydata-sphinx-theme.
+-->
+<nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<!-- <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p> -->
+<div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">FOR USERS</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="how_to/index.html">How-To</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="how_to/customize.html">Customize Themes &amp; Styles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/palette.html">Customize Color Palettes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/typography.html">Customize Typography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/components.html">Theme Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/dark_mode.html">Control Dark Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/color.html">Pick Colors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/icons.html">Use Icons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/custom.html">Build Custom Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/branding.html">Apply Branding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/bokeh_holoviews.html">Theme Bokeh, hvPlot, and HoloViews</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/plotly.html">Theme Plotly</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Component Gallery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/widgets/index.html">Widgets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/AutocompleteInput.html">AutocompleteInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/Button.html">Button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/CheckBoxGroup.html">CheckBoxGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/CheckButtonGroup.html">CheckButtonGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/Checkbox.html">Checkbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/ColorPicker.html">ColorPicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/CrossSelector.html">CrossSelector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/DatePicker.html">DatePicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/DateRangeSlider.html">DateRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/DateSlider.html">DateSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/DatetimePicker.html">DatetimePicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/DatetimeRangeSlider.html">DatetimeRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/DatetimeSlider.html">DatetimeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/DiscreteSlider.html">DiscreteSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/EditableFloatSlider.html">EditableFloatSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/EditableIntRangeSlider.html">EditableIntRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/EditableIntSlider.html">EditableIntSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/EditableRangeSlider.html">EditableRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/Fab.html">Fab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/FileDownload.html">FileDownload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/FileInput.html">FileInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/FloatInput.html">FloatInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/FloatSlider.html">FloatSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/IconButton.html">IconButton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/IntInput.html">IntInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/IntRangeSlider.html">IntRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/IntSlider.html">IntSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/LiteralInput.html">LiteralInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/MultiChoice.html">MultiChoice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/MultiPill.html">MultiPill</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/MultiSelect.html">MultiSelect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/NestedSelect.html">NestedSelect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/PasswordInput.html">PasswordInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/Pill.html">Pill</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/RadioBoxGroup.html">RadioBoxGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/RadioButtonGroup.html">RadioButtonGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/RangeSlider.html">RangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/Rating.html">Rating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/Select.html">Select</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/Switch.html">Switch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/TextAreaInput.html">TextAreaInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/TextInput.html">TextInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/TimePicker.html">TimePicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/Toggle.html">Toggle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/widgets/ToggleIcon.html">ToggleIcon</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/menus/index.html">Menus</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/menus/Breadcrumbs.html">Breadcrumbs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/menus/MenuButton.html">MenuButton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/menus/MenuList.html">MenuList</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/menus/MenuToggle.html">MenuToggle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/menus/NestedBreadcrumbs.html">NestedBreadcrumbs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/menus/Pagination.html">Pagination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/menus/SpeedDial.html">SpeedDial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/menus/SplitButton.html">SplitButton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/menus/TabMenu.html">TabMenu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/menus/Tree.html">Tree</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/layouts/index.html">Layouts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Accordion.html">Accordion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Backdrop.html">Backdrop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Card.html">Card</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Container.html">Container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Details.html">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Dialog.html">Dialog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Drawer.html">Drawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/FlexBox.html">FlexBox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Grid.html">Grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Paper.html">Paper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Popup.html">Popup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/layouts/Tabs.html">Tabs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/panes/index.html">Panes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/panes/Avatar.html">Avatar</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/panes/Chip.html">Chip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/panes/Skeleton.html">Skeleton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/panes/Typography.html">Typography</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/page/index.html">Page</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/page/BreakpointSwitcher.html">BreakpointSwitcher</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/page/Manual.html">Manual</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/page/Page.html">Page</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/page/ThemeToggle.html">ThemeToggle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/chat/index.html">Chat</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/chat/ChatAreaInput.html">ChatAreaInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/chat/ChatFeed.html">ChatFeed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/chat/ChatInterface.html">ChatInterface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/chat/ChatMessage.html">ChatMessage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/chat/ChatStep.html">ChatStep</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/indicators/index.html">Indicators</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/indicators/CircularProgress.html">CircularProgress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/indicators/LinearProgress.html">LinearProgress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/global/index.html">Global</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/global/Notifications.html">Notifications</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Release Notes</a></li>
+</ul>
+</div>
+</nav></div>
+<div class="sidebar-primary-item">
+<div class="hv-sb-dd">
+<div class="btn-group">
+<a class="btn hv-sb-dd-value" href="https://holoviz.org" target="_blank">HoloViz.org<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a>
+<button aria-expanded="false" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" type="button">
+<span class="visually-hidden"></span>
+</button>
+<ul class="dropdown-menu">
+<li><a class="dropdown-item" href="https://hvplot.holoviz.org" target="_blank" title="Quickly return interactive HoloViews, GeoViews, or Panel objects from Pandas, Xarray, or other data structures">hvPlot<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://holoviews.org" target="_blank" title="Declarative objects for instantly visualizable data, building Bokeh plots from convenient high-level specifications">HoloViews<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://geoviews.org" target="_blank" title="Visualizable geographic data that that can be mixed and matched with HoloViews objects">GeoViews<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://datashader.org" target="_blank" title="Rasterizing huge datasets quickly as fixed-size images">Datashader<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://param.holoviz.org" target="_blank" title="Make your Python code clearer and more reliable by declaring Parameters">Param<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://lumen.holoviz.org" target="_blank" title="Framework for visual analytics that allows users to build data-driven dashboards from a simple YAML specification">Lumen<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://colorcet.holoviz.org" target="_blank" title="A wide range of perceptually uniform continuous colormaps and perceptually based categorical color sets for use with the other libraries">Colorcet<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><hr class="dropdown-divider"/></li>
+<li><a class="dropdown-item" href="https://examples.holoviz.org" target="_blank" title=" Visualization-focused examples using HoloViz for specific topics ">Examples Gallery<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://blog.holoviz.org" target="_blank" title="HoloViz blog">Blog<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+<div class="sidebar-primary-item">
+<div class="flat" data-ea-manual="true" data-ea-publisher="readthedocs" data-ea-type="readthedocs-sidebar" id="ethical-ad-placement">
+</div></div>
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumb" class="d-print-none">
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis">Release Notes</span></li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article">
+<section id="release-notes">
+<h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
+<section id="version-0-9-0">
+<h2>Version 0.9.0<a class="headerlink" href="#version-0-9-0" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, and documentation updates.</p>
+<section id="enhancements">
+<h3>✨ Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add support for providing tooltip for menu items (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/570">#570</a>)</p></li>
+<li><p>Support icon shorthand for all widgets and menus (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/569">#569</a>)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">Pill</span></code> and <code class="docutils literal notranslate"><span class="pre">MultiPill</span></code> widgets (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/568">#568</a>)</p></li>
+<li><p>Allow providing Theme overrides (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/565">#565</a>)</p></li>
+<li><p>Add ability to disable link on click in <code class="docutils literal notranslate"><span class="pre">MenuList</span></code> (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/560">#560</a>)</p></li>
+</ul>
+</section>
+<section id="bug-fixes">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">MaterialUIComponent</span></code> (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/566">#566</a>)</p></li>
+<li><p>Ensure <code class="docutils literal notranslate"><span class="pre">icon_size</span></code> overrides standard size (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/556">#556</a>)</p></li>
+</ul>
+</section>
+<section id="documentation">
+<h3>📚 Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Document how to use custom icons in MaterialUIComponent (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/571">#571</a>)</p></li>
+<li><p>Improve how-to indexing and titles (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/567">#567</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-8-1">
+<h2>Version 0.8.1<a class="headerlink" href="#version-0-8-1" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, documentation updates, and developer/infrastructure improvements.</p>
+<section id="id1">
+<h3>✨ Enhancements<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Unify Icon rendering (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/555">#555</a>)</p></li>
+<li><p>Add sync method to <code class="docutils literal notranslate"><span class="pre">ChatAreaInput</span></code> (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/552">#552</a>)</p></li>
+<li><p>Expose <code class="docutils literal notranslate"><span class="pre">SpeedDial.size</span></code> (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/554">#554</a>)</p></li>
+<li><p>Tweak styles (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/553">#553</a>)</p></li>
+</ul>
+</section>
+<section id="infrastructure-developer-experience">
+<h3>🧪 Infrastructure &amp; Developer Experience<a class="headerlink" href="#infrastructure-developer-experience" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Bump the gh-actions group with 2 updates (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/549">#549</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-8-0">
+<h2>Version 0.8.0<a class="headerlink" href="#version-0-8-0" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, developer/infrastructure improvements, and additional changes.</p>
+<section id="id2">
+<h3>✨ Enhancements<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Padding and sizing adjustments for MenuList, Accordion and CrossSelector (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/544">#544</a>)</p></li>
+<li><p>Implement new Details layout (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/533">#533</a>)</p></li>
+<li><p>Add support for TextAreaInput.enter_pressed (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/537">#537</a>)</p></li>
+<li><p>Reduce margin on Page theme toggle (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/536">#536</a>)</p></li>
+<li><p>Add Menu.update_item method (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/522">#522</a>)</p></li>
+<li><p>Implement MenuList.collapsed for condensed menu (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/519">#519</a>)</p></li>
+<li><p>EditableSlider UI/UX improvements (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/501">#501</a>)</p></li>
+<li><p>LoadingTransform UI/UX improvements (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/503">#503</a>)</p></li>
+<li><p>Add FileDownload.transfer method (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/515">#515</a>)</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ensure mime types are set for woff font files (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/546">#546</a>)</p></li>
+<li><p>Fix Button variant documentation (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/538">#538</a>)</p></li>
+<li><p>Fix CheckBox/RadioBoxGroup widgets error in components.py and update docs (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/527">#527</a>)</p></li>
+<li><p>Ensure ChatMessage header and footer objects are rendered (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/530">#530</a>)</p></li>
+<li><p>Fix missing loading_inset on Column/Row (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/524">#524</a>)</p></li>
+<li><p>Correctly handle different Icon variants (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/521">#521</a>)</p></li>
+<li><p>Ensure NestedBreadcrumbs path does not override active (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/517">#517</a>)</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>🧪 Infrastructure &amp; Developer Experience<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Bump the gh-actions group with 2 updates (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/516">#516</a>)</p></li>
+</ul>
+</section>
+<section id="other">
+<h3>🗂️ Other<a class="headerlink" href="#other" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Animate Page sidebar collapse (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/545">#545</a>)</p></li>
+<li><p>Reset Tabs min-height after transition (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/523">#523</a>)</p></li>
+<li><p>Always apply ChatMessage style overrides (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/520">#520</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-7-0">
+<h2>Version 0.7.0<a class="headerlink" href="#version-0-7-0" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, and developer/infrastructure improvements.</p>
+<section id="id5">
+<h3>✨ Enhancements<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Improve Tabs height transitions (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/514">#514</a>)</p></li>
+<li><p>Reduce padding (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/513">#513</a>)</p></li>
+<li><p>Add TabMenu component (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/511">#511</a>)</p></li>
+<li><p>Add MenuList and Tree toggle_action (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/509">#509</a>)</p></li>
+<li><p>Add lazy_search to AutocompleteInput (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/507">#507</a>)</p></li>
+<li><p>Add Tree Menu component (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/506">#506</a>)</p></li>
+<li><p>Adjust theming of some components (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/505">#505</a>)</p></li>
+<li><p>Implement attached views anchored to the parent (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/174">#174</a>)</p></li>
+<li><p>Add Widget.focus() method (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/504">#504</a>)</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ensure focus callback is registered once and cleaned up (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/510">#510</a>)</p></li>
+<li><p>Fix NestedBreadcrumbs UI test on windows (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/508">#508</a>)</p></li>
+</ul>
+</section>
+<section id="id7">
+<h3>🧪 Infrastructure &amp; Developer Experience<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Bump panel-material-ui version to 7.3.5 (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/512">#512</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-6-0">
+<h2>Version 0.6.0<a class="headerlink" href="#version-0-6-0" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, developer/infrastructure improvements, and additional changes.</p>
+<section id="id8">
+<h3>✨ Enhancements<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>FileDownload UI/UX improvements (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/496">#496</a>)</p></li>
+<li><p>Add MenuList.show_children parameter (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/494">#494</a>)</p></li>
+<li><p>Do not attempt to jslink parameters that do not support it (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/493">#493</a>)</p></li>
+<li><p>Add draggable/resizable sidebar functionality to MUI Drawer-based sidebar (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/476">#476</a>)</p></li>
+<li><p>Add NestedBreadcrumbs menu component (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/488">#488</a>)</p></li>
+<li><p>MenuList UX/UI improvements (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/486">#486</a>)</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fix initialization of ChatMessage.avatar param (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/498">#498</a>)</p></li>
+<li><p>Various fixes to avoid parameter de-referencing (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/495">#495</a>)</p></li>
+<li><p>Ensure provided Menu value is not overridden by None active value (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/492">#492</a>)</p></li>
+<li><p>Ensure adding ThemeToggle to an app enables managed theme support (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/491">#491</a>)</p></li>
+<li><p>Fix ChatArea status_ref handling (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/490">#490</a>)</p></li>
+<li><p>Fix TextArea.auto_grow (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/489">#489</a>)</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3>🧪 Infrastructure &amp; Developer Experience<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>chore: Update pre-commit and fixes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/502">#502</a>)</p></li>
+<li><p>Bump the gh-actions group with 4 updates (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/487">#487</a>)</p></li>
+</ul>
+</section>
+<section id="id11">
+<h3>🗂️ Other<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Remove button label as a link for FileDownload button when auto is False (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/500">#500</a>)</p></li>
+<li><p>Clear ChatAreaInput status ref before removal (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/499">#499</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-5-1">
+<h2>Version 0.5.1<a class="headerlink" href="#version-0-5-1" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, and developer/infrastructure improvements.</p>
+<section id="id12">
+<h3>✨ Enhancements<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Align Button icon_size (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/473">#473</a>)</p></li>
+<li><p>Expose control over Accordion, Card, Dialog title_variant (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/472">#472</a>)</p></li>
+<li><p>enh: Improve FileInput (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/471">#471</a>)</p></li>
+</ul>
+</section>
+<section id="id13">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ensure TextAreaInput height is respected (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/474">#474</a>)</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3>🧪 Infrastructure &amp; Developer Experience<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Bump the gh-actions group across 1 directory with 5 updates (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/478">#478</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-5-0">
+<h2>Version 0.5.0<a class="headerlink" href="#version-0-5-0" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, documentation updates, developer/infrastructure improvements, and additional changes.</p>
+<section id="id15">
+<h3>✨ Enhancements<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Register HoloViews widgets and template (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/469">#469</a>)</p></li>
+<li><p>Reduce Accordion padding (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/468">#468</a>)</p></li>
+<li><p>Implement TextArea.resizable (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/436">#436</a>)</p></li>
+<li><p>Update to Mui v7 (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/459">#459</a>)</p></li>
+<li><p>enh: Add size to CrossSelector (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/456">#456</a>)</p></li>
+<li><p>Implement support for reconnect notifications (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/444">#444</a>)</p></li>
+<li><p>Improve upload progress reporting (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/458">#458</a>)</p></li>
+<li><p>Minor Chat tweaks (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/451">#451</a>)</p></li>
+<li><p>Improve ChatAreaInput’s upload experience (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/440">#440</a>)</p></li>
+<li><p>Add border to active MenuList item (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/449">#449</a>)</p></li>
+<li><p>Implement IconButton href and target (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/435">#435</a>)</p></li>
+<li><p>Align button menu components (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/425">#425</a>)</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fix href support on MenuButton items (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/467">#467</a>)</p></li>
+<li><p>Ensure FileDownload fetches latest data (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/464">#464</a>)</p></li>
+<li><p>Fix default item open state handling in List component #454 (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/455">#455</a>)</p></li>
+<li><p>Ensure CSS icon_size is permitted on IconButton and ToggleIcon (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/453">#453</a>)</p></li>
+<li><p>Fix Dialog padding and close button alignment (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/452">#452</a>)</p></li>
+<li><p>Fix Accordion header color (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/447">#447</a>)</p></li>
+<li><p>Revert “Ensure material-variables CSS does not override font and color” (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/419">#419</a>) (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/445">#445</a>)</p></li>
+<li><p>Ensure components in header adapt to header color (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/438">#438</a>)</p></li>
+<li><p>Ensure Select outlined variant is notched when updating value (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/434">#434</a>)</p></li>
+</ul>
+</section>
+<section id="id17">
+<h3>📚 Documentation<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Align documentation of color variants (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/450">#450</a>)</p></li>
+</ul>
+</section>
+<section id="id18">
+<h3>🧪 Infrastructure &amp; Developer Experience<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Register CDN and dist directory with panel (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/463">#463</a>)</p></li>
+</ul>
+</section>
+<section id="id19">
+<h3>🗂️ Other<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Replace pyodide loader (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/466">#466</a>)</p></li>
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">mui.py</span></code> for page.meta changes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/441">#441</a>)</p></li>
+<li><p>Trigger send event if sending empty message with uploaded files (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/460">#460</a>)</p></li>
+<li><p>Wait to send ChatAreaInput message until files are uploaded (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/457">#457</a>)</p></li>
+<li><p>Portal tooltips into Page root (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/439">#439</a>)</p></li>
+<li><p>Hide selected options in MultiChoice option list (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/432">#432</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-4-0">
+<h2>Version 0.4.0<a class="headerlink" href="#version-0-4-0" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, documentation updates, and additional changes.</p>
+<section id="id20">
+<h3>✨ Enhancements<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add missing notebooks (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/368">#368</a>)</p></li>
+<li><p>Add MenuToggle (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/406">#406</a>)</p></li>
+<li><p>Align IconButton and ToggleIcon sizing (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/411">#411</a>)</p></li>
+<li><p>Allow rendering components into Accordion and Tabs headers (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/409">#409</a>)</p></li>
+<li><p>Add input params (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/401">#401</a>)</p></li>
+<li><p>Make adjustments to font-size after changing defaults (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/404">#404</a>)</p></li>
+<li><p>Optimize font CSS lookups (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/399">#399</a>)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">SplitButton</span></code> widget (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/284">#284</a>)</p></li>
+<li><p>Reduce default Typography header size (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/394">#394</a>)</p></li>
+<li><p>Allow setting open on MenuList items (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/395">#395</a>)</p></li>
+<li><p>Consistently support Widget.description tooltips (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/393">#393</a>)</p></li>
+</ul>
+</section>
+<section id="id21">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ensure material-variables CSS does not override font and color (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/419">#419</a>)</p></li>
+<li><p>fix link (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/415">#415</a>)</p></li>
+<li><p>Handle sync of MuiNotification model (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/412">#412</a>)</p></li>
+<li><p>Fix handling of decimal values in NumberInput validation (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/413">#413</a>)</p></li>
+<li><p>Ensure classic panel components are styled correctly (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/408">#408</a>)</p></li>
+<li><p>Fix regression adding items to MenuList (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/396">#396</a>)</p></li>
+</ul>
+</section>
+<section id="id22">
+<h3>📚 Documentation<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Review SplitButton Reference Guide (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/398">#398</a>)</p></li>
+</ul>
+</section>
+<section id="id23">
+<h3>🗂️ Other<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Change ChatMessage placeholder loading animation (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/417">#417</a>)</p></li>
+<li><p>Switch to outlined info icon for description (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/414">#414</a>)</p></li>
+<li><p>More alignment of component title sizes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/410">#410</a>)</p></li>
+<li><p>Only jslink on Widget instances, not WidgetBase (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/390">#390</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-3-3">
+<h2>Version 0.3.3<a class="headerlink" href="#version-0-3-3" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements and bug fixes.</p>
+<section id="id24">
+<h3>✨ Enhancements<a class="headerlink" href="#id24" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Allow switching Page.logo based on theme (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/388">#388</a>)</p></li>
+</ul>
+</section>
+<section id="id25">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id25" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ensure FileDownload filename can be set inside callback (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/386">#386</a>)</p></li>
+<li><p>Ensure Select menu in notebook is scrollable (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/385">#385</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-3-2">
+<h2>Version 0.3.2<a class="headerlink" href="#version-0-3-2" title="Link to this heading">#</a></h2>
+<p>This release includes bug fixes and documentation updates.</p>
+<section id="id26">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id26" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ensure icon_size is not dropped (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/384">#384</a>)</p></li>
+<li><p>Ensure Card and ChatStep titles wrap (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/383">#383</a>)</p></li>
+</ul>
+</section>
+<section id="id27">
+<h3>📚 Documentation<a class="headerlink" href="#id27" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Update Backdrop.ipynb text (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/381">#381</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-3-1">
+<h2>Version 0.3.1<a class="headerlink" href="#version-0-3-1" title="Link to this heading">#</a></h2>
+<p>This release includes bug fixes, documentation updates, developer/infrastructure improvements, and additional changes.</p>
+<section id="id28">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id28" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fix bug when clearing Tabs (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/374">#374</a>)</p></li>
+<li><p>Fix textual issue in icons.md (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/369">#369</a>)</p></li>
+</ul>
+</section>
+<section id="id29">
+<h3>📚 Documentation<a class="headerlink" href="#id29" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add link in components.md doc (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/370">#370</a>)</p></li>
+<li><p>Add missing doc attributes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/365">#365</a>)</p></li>
+</ul>
+</section>
+<section id="id30">
+<h3>🧪 Infrastructure &amp; Developer Experience<a class="headerlink" href="#id30" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add support for toggle actions on MenuList (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/376">#376</a>)</p></li>
+</ul>
+</section>
+<section id="id31">
+<h3>🗂️ Other<a class="headerlink" href="#id31" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Hide empty Tabs (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/377">#377</a>)</p></li>
+<li><p>Wrap EditableSlider label (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/373">#373</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-3-0">
+<h2>Version 0.3.0<a class="headerlink" href="#version-0-3-0" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, documentation updates, developer/infrastructure improvements, and additional changes.</p>
+<section id="id32">
+<h3>✨ Enhancements<a class="headerlink" href="#id32" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Minor 0.3 improvements (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/364">#364</a>)</p></li>
+<li><p>Implement file upload on ChatAreaInput (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/360">#360</a>)</p></li>
+<li><p>Add CrossSelector widget (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/355">#355</a>)</p></li>
+<li><p>Improve rendering Select and MenuButton in notebooks (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/340">#340</a>)</p></li>
+<li><p>Add pmui Plotly support (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/341">#341</a>)</p></li>
+<li><p>add typography color (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/352">#352</a>)</p></li>
+<li><p>Rename Progress and LoadingSpinner (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/338">#338</a>)</p></li>
+<li><p>Rename List to MenuList (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/336">#336</a>)</p></li>
+<li><p>Improve handling of Page.meta (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/332">#332</a>)</p></li>
+<li><p>Align TextInput, PasswordInput and AutocompleteInput (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/322">#322</a>)</p></li>
+<li><p>Align AutoCompleteInput-DatePicker with guiding principles (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/309">#309</a>)</p></li>
+</ul>
+</section>
+<section id="id33">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id33" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ensure MenuList.active is stable (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/361">#361</a>)</p></li>
+<li><p>fix card collapsed (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/359">#359</a>)</p></li>
+<li><p>Fix updates to Typography pane (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/353">#353</a>)</p></li>
+<li><p>Fix Page header_color (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/329">#329</a>)</p></li>
+</ul>
+</section>
+<section id="id34">
+<h3>📚 Documentation<a class="headerlink" href="#id34" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add pane reference guides (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/358">#358</a>)</p></li>
+<li><p>Documentation Review for 0.3.0 release (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/357">#357</a>)</p></li>
+<li><p>Cleanup of Menu reference docs (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/356">#356</a>)</p></li>
+<li><p>Add pane reference guides (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/354">#354</a>)</p></li>
+<li><p>Review Container reference (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/337">#337</a>)</p></li>
+<li><p>Update NestedSelect doc to indicate examples only work after Notebook execution (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/323">#323</a>)</p></li>
+<li><p>Branding (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/328">#328</a>)</p></li>
+<li><p>Review FileDownload and Fab widget (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/334">#334</a>)</p></li>
+<li><p>Align slider reference docs (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/335">#335</a>)</p></li>
+<li><p>Review TimePicker (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/333">#333</a>)</p></li>
+<li><p>Implement Dialog.show_close_button and update docs (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/331">#331</a>)</p></li>
+<li><p>Review Switch, Toggle, ToggleIcon and CheckBox (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/326">#326</a>)</p></li>
+<li><p>Review Indicators (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/316">#316</a>)</p></li>
+<li><p>Update TextInput.ipynb to removed the word ‘obfuscated’ (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/319">#319</a>)</p></li>
+<li><p>Update Button.ipynb to change section name and minor textual change (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/313">#313</a>)</p></li>
+<li><p>Update Switch.ipynb to mention it is interchangeable not only with Toggle, but also with Checkbox (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/315">#315</a>)</p></li>
+</ul>
+</section>
+<section id="id35">
+<h3>🧪 Infrastructure &amp; Developer Experience<a class="headerlink" href="#id35" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>expose compile-dev (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/363">#363</a>)</p></li>
+</ul>
+</section>
+<section id="id36">
+<h3>🗂️ Other<a class="headerlink" href="#id36" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Enhance ChatAreaInput (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/362">#362</a>)</p></li>
+<li><p>api tab names (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/311">#311</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-2-0">
+<h2>Version 0.2.0<a class="headerlink" href="#version-0-2-0" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, documentation updates, and developer/infrastructure improvements.</p>
+<section id="id37">
+<h3>✨ Enhancements<a class="headerlink" href="#id37" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Support href and target on MenuButton (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/302">#302</a>)</p></li>
+<li><p>Implement EditableRangeSliders (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/299">#299</a>)</p></li>
+</ul>
+</section>
+<section id="id38">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id38" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Correctly resolve themes and set default primary color (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/301">#301</a>)</p></li>
+<li><p>Fix conda install instructions (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/300">#300</a>)</p></li>
+<li><p>Fix FileInput not working (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/287">#287</a>)</p></li>
+</ul>
+</section>
+<section id="id39">
+<h3>📚 Documentation<a class="headerlink" href="#id39" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Consistently use Mui API in reference guide (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/305">#305</a>)</p></li>
+<li><p>Add ThemeToggle reference page (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/304">#304</a>)</p></li>
+<li><p>Reference doc alignment (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/303">#303</a>)</p></li>
+<li><p>Review CheckBoxGroup (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/297">#297</a>)</p></li>
+<li><p>Review follow up (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/296">#296</a>)</p></li>
+<li><p>Review Checkbox (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/293">#293</a>)</p></li>
+<li><p>Review AutocompleteInput (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/291">#291</a>)</p></li>
+</ul>
+</section>
+<section id="id40">
+<h3>🧪 Infrastructure &amp; Developer Experience<a class="headerlink" href="#id40" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Reorganize and add Menu tests (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/295">#295</a>)</p></li>
+<li><p>Reorganize and add tests (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/294">#294</a>)</p></li>
+<li><p>Add support for List inline actions (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/292">#292</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-4">
+<h2>Version 0.1.4<a class="headerlink" href="#version-0-1-4" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, documentation updates, and additional changes.</p>
+<section id="id41">
+<h3>✨ Enhancements<a class="headerlink" href="#id41" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Allow setting Select size variant (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/286">#286</a>)</p></li>
+</ul>
+</section>
+<section id="id42">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id42" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fix FileInput rendering of progress (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/279">#279</a>)</p></li>
+</ul>
+</section>
+<section id="id43">
+<h3>📚 Documentation<a class="headerlink" href="#id43" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>FileInput Guide Review (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/278">#278</a>)</p></li>
+</ul>
+</section>
+<section id="id44">
+<h3>🗂️ Other<a class="headerlink" href="#id44" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Embed iframe content using srcdoc attribute for compatibility (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/285">#285</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-3">
+<h2>Version 0.1.3<a class="headerlink" href="#version-0-1-3" title="Link to this heading">#</a></h2>
+<p>This release includes additional changes.</p>
+<section id="id45">
+<h3>🗂️ Other<a class="headerlink" href="#id45" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Correctly determine sizing_mode on Page (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/276">#276</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-2">
+<h2>Version 0.1.2<a class="headerlink" href="#version-0-1-2" title="Link to this heading">#</a></h2>
+<p>This release includes documentation updates.</p>
+<section id="id46">
+<h3>📚 Documentation<a class="headerlink" href="#id46" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Adjust header of demo example (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/275">#275</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-1">
+<h2>Version 0.1.1<a class="headerlink" href="#version-0-1-1" title="Link to this heading">#</a></h2>
+<p>This release includes additional changes.</p>
+<section id="id47">
+<h3>🗂️ Other<a class="headerlink" href="#id47" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>slider color primary (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/273">#273</a>)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-0">
+<h2>Version 0.1.0<a class="headerlink" href="#version-0-1-0" title="Link to this heading">#</a></h2>
+<p>This release includes enhancements, bug fixes, documentation updates, developer/infrastructure improvements, and additional changes.</p>
+<section id="id48">
+<h3>✨ Enhancements<a class="headerlink" href="#id48" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add Page.site_url option (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/268">#268</a>)</p></li>
+<li><p>Card padding tweaks (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/265">#265</a>)</p></li>
+<li><p>Align IconButton and ToggleIcon sizing (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/264">#264</a>)</p></li>
+<li><p>Add Dialog.close_on_click (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/263">#263</a>)</p></li>
+<li><p>Allow HTML in Card, Accordion and Tabs titles (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/259">#259</a>)</p></li>
+<li><p>Add FlexBox layout (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/257">#257</a>)</p></li>
+<li><p>Allow providing different logos per breakpoint (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/255">#255</a>)</p></li>
+<li><p>Rename to IconButton (and keep ButtonIcon alias) (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/239">#239</a>)</p></li>
+<li><p>Various smaller tweaks (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/254">#254</a>)</p></li>
+<li><p>Allow Page to render local icons and logos (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/236">#236</a>)</p></li>
+<li><p>Add busy indicator to Page (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/235">#235</a>)</p></li>
+<li><p>Add BreakpointSwitcher (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/214">#214</a>)</p></li>
+<li><p>Align import abbreviation on pmui (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/203">#203</a>)</p></li>
+<li><p>Enable deep theme inheritance (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/197">#197</a>)</p></li>
+<li><p>Add flex layouts and handling and improve managed theme (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/196">#196</a>)</p></li>
+<li><p>Refactor theme inheritance and add standalone ThemeToggle (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/187">#187</a>)</p></li>
+<li><p>Add Drawer layout (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/184">#184</a>)</p></li>
+<li><p>Tweaks and fixes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/178">#178</a>)</p></li>
+<li><p>Various cleanup (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/173">#173</a>)</p></li>
+<li><p>Improve handling of theme resources (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/163">#163</a>)</p></li>
+<li><p>Clean up and improve Indicators (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/162">#162</a>)</p></li>
+<li><p>Add Fab button (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/161">#161</a>)</p></li>
+<li><p>Allow providing href to Button (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/160">#160</a>)</p></li>
+<li><p>Clean up widgets and consistently define default palette (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/137">#137</a>)</p></li>
+<li><p>Align widget APIs (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/135">#135</a>)</p></li>
+<li><p>Improve ButtonIcon icon handling (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/130">#130</a>)</p></li>
+<li><p>Add customization guides (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/129">#129</a>)</p></li>
+<li><p>More fixes and cleanup of Select widget(s) (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/128">#128</a>)</p></li>
+<li><p>New widgets : SelectPicker and SelectSearch (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/107">#107</a>)</p></li>
+<li><p>Add theme inheritance (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/124">#124</a>)</p></li>
+<li><p>Implement MaterialComponent.loading using native loading spinner (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/122">#122</a>)</p></li>
+<li><p>Improve Menu API and functionality (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/117">#117</a>)</p></li>
+<li><p>Implement Page.meta to allow setting meta tags in template (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/114">#114</a>)</p></li>
+<li><p>Add Param patches (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/111">#111</a>)</p></li>
+<li><p>Add contextbar to Page (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/105">#105</a>)</p></li>
+<li><p>Unify theme handling (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/103">#103</a>)</p></li>
+<li><p>Add FileDownload widget (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/102">#102</a>)</p></li>
+<li><p>Minor cleanup of Select widgets (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/99">#99</a>)</p></li>
+<li><p>Implement Chat Components (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/100">#100</a>)</p></li>
+<li><p>Add a website (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/101">#101</a>)</p></li>
+<li><p>Implement Notifications (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/94">#94</a>)</p></li>
+<li><p>Add ColorPicker (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/92">#92</a>)</p></li>
+<li><p>Input widgets - implement missing features, bug fixes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/82">#82</a>)</p></li>
+<li><p>Add global control over theme (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/83">#83</a>)</p></li>
+<li><p>Add Menu components (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/77">#77</a>)</p></li>
+<li><p>Improve Select and Slider components (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/71">#71</a>)</p></li>
+<li><p>Allow setting IntSlider.step (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/70">#70</a>)</p></li>
+<li><p>Unify DatePicker implementations (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/69">#69</a>)</p></li>
+<li><p>Update docstrings - add references (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/63">#63</a>)</p></li>
+<li><p>Implement bundling and add more components (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/50">#50</a>)</p></li>
+</ul>
+</section>
+<section id="id49">
+<h3>🐛 Bug Fixes<a class="headerlink" href="#id49" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ensure flex styling is reapplied when update_layout is called (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/270">#270</a>)</p></li>
+<li><p>Ensure template is correctly resolved (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/269">#269</a>)</p></li>
+<li><p>Ensure components in Page follow flex sizing (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/250">#250</a>)</p></li>
+<li><p>Fix embedding of ico files on favicon (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/249">#249</a>)</p></li>
+<li><p>Ensure theme class is correctly replaced on toggle (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/244">#244</a>)</p></li>
+<li><p>Ensure Page manages the theme (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/243">#243</a>)</p></li>
+<li><p>Ensure temporary Drawer does not take up space (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/242">#242</a>)</p></li>
+<li><p>Ensure Select menu is correctly positioned in notebook (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/241">#241</a>)</p></li>
+<li><p>Ensure theme_config can toggle between dark and light themes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/229">#229</a>)</p></li>
+<li><p>Resolve reported documentation issues (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/210">#210</a>)</p></li>
+<li><p>Fix rendering of ChatMessage avatar (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/182">#182</a>)</p></li>
+<li><p>Align theming and ensure variables are set (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/179">#179</a>)</p></li>
+<li><p>Ensure no race conditions and multiple rerenders on theme changes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/172">#172</a>)</p></li>
+<li><p>Ensure ButtonIcon handles clicks (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/159">#159</a>)</p></li>
+<li><p>Consistently handle Widget labels and width (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/158">#158</a>)</p></li>
+<li><p>Fix SvgIcons (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/112">#112</a>)</p></li>
+<li><p>build: Fix small typo (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/113">#113</a>)</p></li>
+<li><p>Fix Checkbox alignment and width (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/98">#98</a>)</p></li>
+<li><p>Fix and improve FileInput (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/97">#97</a>)</p></li>
+<li><p>Fix theming if no theme_config provided (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/93">#93</a>)</p></li>
+<li><p>fix panel pin (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/91">#91</a>)</p></li>
+<li><p>Fix and improve layout components (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/84">#84</a>)</p></li>
+<li><p>Fix datetime picker (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/76">#76</a>)</p></li>
+<li><p>Fix text input (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/74">#74</a>)</p></li>
+<li><p>Fix time picker (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/75">#75</a>)</p></li>
+<li><p>Fix versioning (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/73">#73</a>)</p></li>
+<li><p>fix some dev guide issues (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/68">#68</a>)</p></li>
+<li><p>Fix versioning and CDN loading code (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/65">#65</a>)</p></li>
+</ul>
+</section>
+<section id="id50">
+<h3>📚 Documentation<a class="headerlink" href="#id50" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Use last defined document (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/256">#256</a>)</p></li>
+<li><p>Branded reference app (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/228">#228</a>)</p></li>
+<li><p>DiscreteSlider Follow Up Review (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/247">#247</a>)</p></li>
+<li><p>Button Follow Up Review (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/245">#245</a>)</p></li>
+<li><p>Select Review Feedback (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/234">#234</a>)</p></li>
+<li><p>DiscreteSlider Review (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/237">#237</a>)</p></li>
+<li><p>button docs (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/176">#176</a>)</p></li>
+<li><p>Fixes from non-reference docs review (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/216">#216</a>)</p></li>
+<li><p>Docstring reference improvements (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/219">#219</a>)</p></li>
+<li><p>add showcase (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/209">#209</a>)</p></li>
+<li><p>Add example to homepage (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/207">#207</a>)</p></li>
+<li><p>Document icon usage (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/204">#204</a>)</p></li>
+<li><p>Theming Refactor - HoloViews Example (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/191">#191</a>)</p></li>
+<li><p>Improve and document Page (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/185">#185</a>)</p></li>
+<li><p>Improve and document Notifications (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/181">#181</a>)</p></li>
+<li><p>Clean up chat and add docs (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/180">#180</a>)</p></li>
+<li><p>Clean up and document Menus (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/169">#169</a>)</p></li>
+<li><p>review feedback (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/134">#134</a>)</p></li>
+<li><p>Improve CDN setup in pyodide and docs (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/127">#127</a>)</p></li>
+<li><p>Move examples/reference/layout to examples/reference/layouts (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/126">#126</a>)</p></li>
+<li><p>Review and document layouts (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/125">#125</a>)</p></li>
+<li><p>Cleanup and review of all widgets (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/108">#108</a>)</p></li>
+</ul>
+</section>
+<section id="id51">
+<h3>🧪 Infrastructure &amp; Developer Experience<a class="headerlink" href="#id51" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Bump prefix-dev/setup-pixi from 0.8.4 to 0.8.8 in the gh-actions group (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/220">#220</a>)</p></li>
+<li><p>Bump panel and bokeh versions (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/271">#271</a>)</p></li>
+<li><p>Add more menu tests (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/199">#199</a>)</p></li>
+<li><p>Allow creating custom MaterialComponents using bundle shims (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/177">#177</a>)</p></li>
+<li><p>Bump prefix-dev/setup-pixi from 0.8.3 to 0.8.4 in the gh-actions group (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/115">#115</a>)</p></li>
+<li><p>Add Page.config to add resources (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/116">#116</a>)</p></li>
+<li><p>Bump the gh-actions group with 3 updates (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/79">#79</a>)</p></li>
+<li><p>Simplify pixi installation (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/66">#66</a>)</p></li>
+<li><p>Align CI configuration (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/64">#64</a>)</p></li>
+<li><p>Bump pypa/gh-action-pypi-publish in the gh-actions group (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/52">#52</a>)</p></li>
+<li><p>Remove tests.util module (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/49">#49</a>)</p></li>
+</ul>
+</section>
+<section id="id52">
+<h3>🗂️ Other<a class="headerlink" href="#id52" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Standardize on primary color in theme (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/267">#267</a>)</p></li>
+<li><p>Assorted fixes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/262">#262</a>)</p></li>
+<li><p>Make Page.template configurable (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/261">#261</a>)</p></li>
+<li><p>Treat Page.main as flex container (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/260">#260</a>)</p></li>
+<li><p>Reimplement editable sliders in React (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/258">#258</a>)</p></li>
+<li><p>Make theming robust to failed view lookups (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/251">#251</a>)</p></li>
+<li><p>Minor fixes for DiscreteSlider (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/240">#240</a>)</p></li>
+<li><p>Remove dotted border from bokeh plots (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/238">#238</a>)</p></li>
+<li><p>Toggle dark theme from query parameter (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/211">#211</a>)</p></li>
+<li><p>Automatically jslink widget references (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/206">#206</a>)</p></li>
+<li><p>Define exports of slider module (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/205">#205</a>)</p></li>
+<li><p>Font handling (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/202">#202</a>)</p></li>
+<li><p>Style tooltips (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/201">#201</a>)</p></li>
+<li><p>Automatically set bokeh theme client side (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/200">#200</a>)</p></li>
+<li><p>More layout fixes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/198">#198</a>)</p></li>
+<li><p>Do no export all contents of notification module (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/186">#186</a>)</p></li>
+<li><p>Page theming fixes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/183">#183</a>)</p></li>
+<li><p>Attempt to make test_notifications_destroy passed on Windows (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/157">#157</a>)</p></li>
+<li><p>Remove DateRangePicker and DatetimeRangePicker (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/136">#136</a>)</p></li>
+<li><p>Use image to render SVG icons (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/123">#123</a>)</p></li>
+<li><p>A range of small fixes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/121">#121</a>)</p></li>
+<li><p>More SVG fixes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/120">#120</a>)</p></li>
+<li><p>misc changes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/119">#119</a>)</p></li>
+<li><p>Various fixes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/106">#106</a>)</p></li>
+<li><p>Override ChatMessage background-color (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/104">#104</a>)</p></li>
+<li><p>Reimplement NumberInput widgets (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/95">#95</a>)</p></li>
+<li><p>TextArea sizing fixes and submit on shift+enter (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/96">#96</a>)</p></li>
+<li><p>Various minor widget fixes (<a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/pull/85">#85</a>)</p></li>
+</ul>
+</section>
+</section>
+</section>
+</article>
+<footer class="prev-next-footer d-print-none">
+<div class="prev-next-area">
+<a class="left-prev" href="reference/global/Notifications.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">Notifications</p>
+</div>
+</a>
+</div>
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-9-0">Version 0.9.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enhancements">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">📚 Documentation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-8-1">Version 0.8.1</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#infrastructure-developer-experience">🧪 Infrastructure &amp; Developer Experience</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-8-0">Version 0.8.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">🧪 Infrastructure &amp; Developer Experience</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other">🗂️ Other</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-7-0">Version 0.7.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">🧪 Infrastructure &amp; Developer Experience</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-6-0">Version 0.6.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">🧪 Infrastructure &amp; Developer Experience</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">🗂️ Other</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-5-1">Version 0.5.1</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">🧪 Infrastructure &amp; Developer Experience</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-5-0">Version 0.5.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">📚 Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">🧪 Infrastructure &amp; Developer Experience</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">🗂️ Other</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-4-0">Version 0.4.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">📚 Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">🗂️ Other</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-3-3">Version 0.3.3</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">🐛 Bug Fixes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-3-2">Version 0.3.2</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">📚 Documentation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-3-1">Version 0.3.1</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id29">📚 Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">🧪 Infrastructure &amp; Developer Experience</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id31">🗂️ Other</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-3-0">Version 0.3.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id32">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id33">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id34">📚 Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id35">🧪 Infrastructure &amp; Developer Experience</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id36">🗂️ Other</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-2-0">Version 0.2.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id37">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id38">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id39">📚 Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id40">🧪 Infrastructure &amp; Developer Experience</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-1-4">Version 0.1.4</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id41">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id42">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id43">📚 Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id44">🗂️ Other</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-1-3">Version 0.1.3</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id45">🗂️ Other</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-1-2">Version 0.1.2</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id46">📚 Documentation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-1-1">Version 0.1.1</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id47">🗂️ Other</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-1-0">Version 0.1.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id48">✨ Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id49">🐛 Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id50">📚 Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id51">🧪 Infrastructure &amp; Developer Experience</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id52">🗂️ Other</a></li>
+</ul>
+</li>
+</ul>
+</nav></div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script defer="" src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer="" src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024-2026 Holoviz contributors.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item">
+<p class="theme-version">
+<!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>

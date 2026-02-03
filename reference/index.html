@@ -1,0 +1,1294 @@
+
+<!DOCTYPE html>
+
+<html data-content_root="../" data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="../site.webmanifest" rel="manifest"/>
+<title>Component Gallery — Panel Material UI v0.9.0</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+<!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+<noscript>
+<style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+</noscript>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/pygments.css?v=03e43079" rel="stylesheet" type="text/css"/>
+<link href="../_static/graphviz.css?v=4ae1632d" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css?v=95c83b7e" rel="stylesheet" type="text/css"/>
+<link href="../_static/nbsite.css?v=d9d93254" rel="stylesheet" type="text/css"/>
+<link href="../_static/notebook.css?v=19946987" rel="stylesheet" type="text/css"/>
+<link href="../_static/gallery.css?v=0a3248cd" rel="stylesheet" type="text/css"/>
+<link href="../_static/alert.css?v=c26666be" rel="stylesheet" type="text/css"/>
+<link href="../_static/dataframe.css?v=a0f274c1" rel="stylesheet" type="text/css"/>
+<link href="../_static/scroller.css?v=2dcde208" rel="stylesheet" type="text/css"/>
+<link href="../_static/hv-sidebar-dropdown.css?v=3e2b0152" rel="stylesheet" type="text/css"/>
+<link href="../_static/css/custom.css?v=5eb3e485" rel="stylesheet" type="text/css"/>
+<!-- So that users can add custom icons -->
+<script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+<script src="../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+<script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="../_static/copybutton.js?v=f281be69"></script>
+<script src="../_static/design-tabs.js?v=f930bc37"></script>
+<script src="../_static/ServiceHandler.js"></script>
+<script>
+    window.goatcounter = {
+        path: function(p) { return location.host + p }
+    }
+</script>
+<script async="async" data-goatcounter="https://holoviz.goatcounter.com/count" src="../_static/js/goatcounter.js?v=f53f84b8"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'reference/index';</script>
+<script type="esms-options">{"shimMode": true}</script>
+<script src="https://cdn.holoviz.org/panel/1.8.7/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="widgets/index.html" rel="next" title="Widgets"/>
+<link href="../how_to/plotly.html" rel="prev" title="Theme Plotly"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="0.9.0" name="docsearch:version"/>
+<meta content="2026-02-03" name="docbuild:last-update"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="light" data-offset="180">
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="#main-content">Skip to main content</a></div>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>Back to top</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="Version warning" class="d-none d-print-none" id="bd-header-version-warning"></aside>
+</div>
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+<button aria-label="Site navigation" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<img alt="Panel Material UI v0.9.0 - Home" class="logo__image only-light" src="../_static/logo_horizontal_light_theme.png"/>
+<img alt="Panel Material UI v0.9.0 - Home" class="logo__image only-dark pst-js-only" src="../_static/logo_horizontal_dark_theme.png"/>
+</a></div>
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_to/index.html">
+    How-To
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="#">
+    Component Gallery
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../releases.html">
+    Release Notes
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/panel-extensions/panel-material-ui" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-square-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://twitter.com/Panel_Org" rel="noopener" target="_blank" title="Twitter"><i aria-hidden="true" class="fa-brands fa-twitter-square fa-lg"></i>
+<span class="sr-only">Twitter</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discourse.holoviz.org/c/panel/5" rel="noopener" target="_blank" title="Discourse"><i aria-hidden="true" class="fa-brands fa-discourse fa-lg"></i>
+<span class="sr-only">Discourse</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discord.gg/UXdtYyGVQX" rel="noopener" target="_blank" title="Discord"><i aria-hidden="true" class="fa-brands fa-discord fa-lg"></i>
+<span class="sr-only">Discord</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="On this page" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_to/index.html">
+    How-To
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="#">
+    Component Gallery
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../releases.html">
+    Release Notes
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/panel-extensions/panel-material-ui" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-square-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://twitter.com/Panel_Org" rel="noopener" target="_blank" title="Twitter"><i aria-hidden="true" class="fa-brands fa-twitter-square fa-lg"></i>
+<span class="sr-only">Twitter</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discourse.holoviz.org/c/panel/5" rel="noopener" target="_blank" title="Discourse"><i aria-hidden="true" class="fa-brands fa-discourse fa-lg"></i>
+<span class="sr-only">Discourse</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discord.gg/UXdtYyGVQX" rel="noopener" target="_blank" title="Discord"><i aria-hidden="true" class="fa-brands fa-discord fa-lg"></i>
+<span class="sr-only">Discord</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item"><!-- Adapted from sidebar-nav-bs.html (1.15.2) with the following changes
+
+  - Commented out the tag that adds the "Section Navigation" title
+  - Call generate_toctree_html with startdepth=0
+
+Please update this file when required when bumping the max pin of pydata-sphinx-theme.
+-->
+<nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<!-- <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p> -->
+<div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">FOR USERS</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../how_to/index.html">How-To</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/customize.html">Customize Themes &amp; Styles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/palette.html">Customize Color Palettes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/typography.html">Customize Typography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/components.html">Theme Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/dark_mode.html">Control Dark Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/color.html">Pick Colors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/icons.html">Use Icons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/custom.html">Build Custom Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/branding.html">Apply Branding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/bokeh_holoviews.html">Theme Bokeh, hvPlot, and HoloViews</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/plotly.html">Theme Plotly</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Component Gallery</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="widgets/index.html">Widgets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="widgets/AutocompleteInput.html">AutocompleteInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/Button.html">Button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/CheckBoxGroup.html">CheckBoxGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/CheckButtonGroup.html">CheckButtonGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/Checkbox.html">Checkbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/ColorPicker.html">ColorPicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/CrossSelector.html">CrossSelector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/DatePicker.html">DatePicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/DateRangeSlider.html">DateRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/DateSlider.html">DateSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/DatetimePicker.html">DatetimePicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/DatetimeRangeSlider.html">DatetimeRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/DatetimeSlider.html">DatetimeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/DiscreteSlider.html">DiscreteSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/EditableFloatSlider.html">EditableFloatSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/EditableIntRangeSlider.html">EditableIntRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/EditableIntSlider.html">EditableIntSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/EditableRangeSlider.html">EditableRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/Fab.html">Fab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/FileDownload.html">FileDownload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/FileInput.html">FileInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/FloatInput.html">FloatInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/FloatSlider.html">FloatSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/IconButton.html">IconButton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/IntInput.html">IntInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/IntRangeSlider.html">IntRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/IntSlider.html">IntSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/LiteralInput.html">LiteralInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/MultiChoice.html">MultiChoice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/MultiPill.html">MultiPill</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/MultiSelect.html">MultiSelect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/NestedSelect.html">NestedSelect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/PasswordInput.html">PasswordInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/Pill.html">Pill</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/RadioBoxGroup.html">RadioBoxGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/RadioButtonGroup.html">RadioButtonGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/RangeSlider.html">RangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/Rating.html">Rating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/Select.html">Select</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/Switch.html">Switch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/TextAreaInput.html">TextAreaInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/TextInput.html">TextInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/TimePicker.html">TimePicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/Toggle.html">Toggle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="widgets/ToggleIcon.html">ToggleIcon</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="menus/index.html">Menus</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="menus/Breadcrumbs.html">Breadcrumbs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="menus/MenuButton.html">MenuButton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="menus/MenuList.html">MenuList</a></li>
+<li class="toctree-l3"><a class="reference internal" href="menus/MenuToggle.html">MenuToggle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="menus/NestedBreadcrumbs.html">NestedBreadcrumbs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="menus/Pagination.html">Pagination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="menus/SpeedDial.html">SpeedDial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="menus/SplitButton.html">SplitButton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="menus/TabMenu.html">TabMenu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="menus/Tree.html">Tree</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="layouts/index.html">Layouts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Accordion.html">Accordion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Backdrop.html">Backdrop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Card.html">Card</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Container.html">Container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Details.html">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Dialog.html">Dialog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Drawer.html">Drawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/FlexBox.html">FlexBox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Grid.html">Grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Paper.html">Paper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Popup.html">Popup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layouts/Tabs.html">Tabs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="panes/index.html">Panes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="panes/Avatar.html">Avatar</a></li>
+<li class="toctree-l3"><a class="reference internal" href="panes/Chip.html">Chip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="panes/Skeleton.html">Skeleton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="panes/Typography.html">Typography</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="page/index.html">Page</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="page/BreakpointSwitcher.html">BreakpointSwitcher</a></li>
+<li class="toctree-l3"><a class="reference internal" href="page/Manual.html">Manual</a></li>
+<li class="toctree-l3"><a class="reference internal" href="page/Page.html">Page</a></li>
+<li class="toctree-l3"><a class="reference internal" href="page/ThemeToggle.html">ThemeToggle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="chat/index.html">Chat</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="chat/ChatAreaInput.html">ChatAreaInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chat/ChatFeed.html">ChatFeed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chat/ChatInterface.html">ChatInterface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chat/ChatMessage.html">ChatMessage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chat/ChatStep.html">ChatStep</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="indicators/index.html">Indicators</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="indicators/CircularProgress.html">CircularProgress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="indicators/LinearProgress.html">LinearProgress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="global/index.html">Global</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="global/Notifications.html">Notifications</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Release Notes</a></li>
+</ul>
+</div>
+</nav></div>
+<div class="sidebar-primary-item">
+<div class="hv-sb-dd">
+<div class="btn-group">
+<a class="btn hv-sb-dd-value" href="https://holoviz.org" target="_blank">HoloViz.org<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a>
+<button aria-expanded="false" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" type="button">
+<span class="visually-hidden"></span>
+</button>
+<ul class="dropdown-menu">
+<li><a class="dropdown-item" href="https://hvplot.holoviz.org" target="_blank" title="Quickly return interactive HoloViews, GeoViews, or Panel objects from Pandas, Xarray, or other data structures">hvPlot<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://holoviews.org" target="_blank" title="Declarative objects for instantly visualizable data, building Bokeh plots from convenient high-level specifications">HoloViews<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://geoviews.org" target="_blank" title="Visualizable geographic data that that can be mixed and matched with HoloViews objects">GeoViews<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://datashader.org" target="_blank" title="Rasterizing huge datasets quickly as fixed-size images">Datashader<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://param.holoviz.org" target="_blank" title="Make your Python code clearer and more reliable by declaring Parameters">Param<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://lumen.holoviz.org" target="_blank" title="Framework for visual analytics that allows users to build data-driven dashboards from a simple YAML specification">Lumen<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://colorcet.holoviz.org" target="_blank" title="A wide range of perceptually uniform continuous colormaps and perceptually based categorical color sets for use with the other libraries">Colorcet<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><hr class="dropdown-divider"/></li>
+<li><a class="dropdown-item" href="https://examples.holoviz.org" target="_blank" title=" Visualization-focused examples using HoloViz for specific topics ">Examples Gallery<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://blog.holoviz.org" target="_blank" title="HoloViz blog">Blog<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+<div class="sidebar-primary-item">
+<div class="flat" data-ea-manual="true" data-ea-publisher="readthedocs" data-ea-type="readthedocs-sidebar" id="ethical-ad-placement">
+</div></div>
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumb" class="d-print-none">
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis">Component Gallery</span></li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article">
+<section id="component-gallery">
+<h1>Component Gallery<a class="headerlink" href="#component-gallery" title="Link to this heading">#</a></h1>
+<section id="widgets">
+<h2>Widgets<a class="headerlink" href="#widgets" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-m-0 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-4 sd-row-cols-lg-5 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+AutocompleteInput</div>
+<img alt="AutocompleteInput" src="../_images/AutocompleteInput.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/AutocompleteInput.html"><span class="doc">AutocompleteInput</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Button</div>
+<img alt="Button" src="../_images/Button.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/Button.html"><span class="doc">Button</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+CheckBoxGroup</div>
+<img alt="CheckBoxGroup" src="../_images/CheckBoxGroup.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/CheckBoxGroup.html"><span class="doc">CheckBoxGroup</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+CheckButtonGroup</div>
+<img alt="CheckButtonGroup" src="../_images/CheckButtonGroup.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/CheckButtonGroup.html"><span class="doc">CheckButtonGroup</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Checkbox</div>
+<img alt="Checkbox" src="../_images/Checkbox.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/Checkbox.html"><span class="doc">Checkbox</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+ColorPicker</div>
+<img alt="ColorPicker" src="../_images/ColorPicker.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/ColorPicker.html"><span class="doc">ColorPicker</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+CrossSelector</div>
+<img alt="CrossSelector" src="../_images/CrossSelector.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/CrossSelector.html"><span class="doc">CrossSelector</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+DatePicker</div>
+<img alt="DatePicker" src="../_images/DatePicker.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/DatePicker.html"><span class="doc">DatePicker</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+DateRangeSlider</div>
+<img alt="DateRangeSlider" src="../_images/DateRangeSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/DateRangeSlider.html"><span class="doc">DateRangeSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+DateSlider</div>
+<img alt="DateSlider" src="../_images/DateSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/DateSlider.html"><span class="doc">DateSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+DatetimePicker</div>
+<img alt="DatetimePicker" src="../_images/DatetimePicker.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/DatetimePicker.html"><span class="doc">DatetimePicker</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+DatetimeRangeSlider</div>
+<img alt="DatetimeRangeSlider" src="../_images/DatetimeRangeSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/DatetimeRangeSlider.html"><span class="doc">DatetimeRangeSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+DatetimeSlider</div>
+<img alt="DatetimeSlider" src="../_images/DatetimeSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/DatetimeSlider.html"><span class="doc">DatetimeSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+DiscreteSlider</div>
+<img alt="DiscreteSlider" src="../_images/DiscreteSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/DiscreteSlider.html"><span class="doc">DiscreteSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+EditableFloatSlider</div>
+<img alt="EditableFloatSlider" src="../_images/EditableFloatSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/EditableFloatSlider.html"><span class="doc">EditableFloatSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+EditableIntRangeSlider</div>
+<img alt="EditableIntRangeSlider" src="../_images/EditableIntRangeSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/EditableIntRangeSlider.html"><span class="doc">EditableIntRangeSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+EditableIntSlider</div>
+<img alt="EditableIntSlider" src="../_images/EditableIntSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/EditableIntSlider.html"><span class="doc">EditableIntSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+EditableRangeSlider</div>
+<img alt="EditableRangeSlider" src="../_images/EditableRangeSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/EditableRangeSlider.html"><span class="doc">EditableRangeSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Fab</div>
+<img alt="Fab" src="../_images/Fab.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/Fab.html"><span class="doc">Fab</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+FileDownload</div>
+<img alt="FileDownload" src="../_images/FileDownload.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/FileDownload.html"><span class="doc">FileDownload</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+FileInput</div>
+<img alt="FileInput" src="../_images/FileInput.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/FileInput.html"><span class="doc">FileInput</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+FloatInput</div>
+<img alt="FloatInput" src="../_images/FloatInput.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/FloatInput.html"><span class="doc">FloatInput</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+FloatSlider</div>
+<img alt="FloatSlider" src="../_images/FloatSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/FloatSlider.html"><span class="doc">FloatSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+IconButton</div>
+<img alt="IconButton" src="../_images/IconButton.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/IconButton.html"><span class="doc">IconButton</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+IntInput</div>
+<img alt="IntInput" src="../_images/IntInput.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/IntInput.html"><span class="doc">IntInput</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+IntRangeSlider</div>
+<img alt="IntRangeSlider" src="../_images/IntRangeSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/IntRangeSlider.html"><span class="doc">IntRangeSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+IntSlider</div>
+<img alt="IntSlider" src="../_images/IntSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/IntSlider.html"><span class="doc">IntSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+LiteralInput</div>
+<img alt="LiteralInput" src="../_images/LiteralInput.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/LiteralInput.html"><span class="doc">LiteralInput</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+MultiChoice</div>
+<img alt="MultiChoice" src="../_images/MultiChoice.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/MultiChoice.html"><span class="doc">MultiChoice</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+MultiPill</div>
+<img alt="MultiPill" src="../_images/MultiPill.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/MultiPill.html"><span class="doc">MultiPill</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+MultiSelect</div>
+<img alt="MultiSelect" src="../_images/MultiSelect.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/MultiSelect.html"><span class="doc">MultiSelect</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+NestedSelect</div>
+<img alt="NestedSelect" src="../_images/NestedSelect.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/NestedSelect.html"><span class="doc">NestedSelect</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+PasswordInput</div>
+<img alt="PasswordInput" src="../_images/PasswordInput.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/PasswordInput.html"><span class="doc">PasswordInput</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Pill</div>
+<img alt="Pill" src="../_images/Pill.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/Pill.html"><span class="doc">Pill</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+RadioBoxGroup</div>
+<img alt="RadioBoxGroup" src="../_images/RadioBoxGroup.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/RadioBoxGroup.html"><span class="doc">RadioBoxGroup</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+RadioButtonGroup</div>
+<img alt="RadioButtonGroup" src="../_images/RadioButtonGroup.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/RadioButtonGroup.html"><span class="doc">RadioButtonGroup</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+RangeSlider</div>
+<img alt="RangeSlider" src="../_images/RangeSlider.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/RangeSlider.html"><span class="doc">RangeSlider</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Rating</div>
+<img alt="Rating" src="../_images/Rating.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/Rating.html"><span class="doc">Rating</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Select</div>
+<img alt="Select" src="../_images/Select.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/Select.html"><span class="doc">Select</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Switch</div>
+<img alt="Switch" src="../_images/Switch.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/Switch.html"><span class="doc">Switch</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+TextAreaInput</div>
+<img alt="TextAreaInput" src="../_images/TextAreaInput.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/TextAreaInput.html"><span class="doc">TextAreaInput</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+TextInput</div>
+<img alt="TextInput" src="../_images/TextInput.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/TextInput.html"><span class="doc">TextInput</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+TimePicker</div>
+<img alt="TimePicker" src="../_images/TimePicker.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/TimePicker.html"><span class="doc">TimePicker</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Toggle</div>
+<img alt="Toggle" src="../_images/Toggle.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/Toggle.html"><span class="doc">Toggle</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+ToggleIcon</div>
+<img alt="ToggleIcon" src="../_images/ToggleIcon.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="widgets/ToggleIcon.html"><span class="doc">ToggleIcon</span></a></div>
+</div>
+</div>
+</div>
+</section>
+<section id="menus">
+<h2>Menus<a class="headerlink" href="#menus" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-m-0 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-4 sd-row-cols-lg-5 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Breadcrumbs</div>
+<img alt="Breadcrumbs" src="../_images/Breadcrumbs.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="menus/Breadcrumbs.html"><span class="doc">Breadcrumbs</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+MenuButton</div>
+<img alt="MenuButton" src="../_images/MenuButton.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="menus/MenuButton.html"><span class="doc">MenuButton</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+MenuList</div>
+<img alt="MenuList" src="../_images/MenuList.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="menus/MenuList.html"><span class="doc">MenuList</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+MenuToggle</div>
+<img alt="MenuToggle" src="../_images/MenuToggle.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="menus/MenuToggle.html"><span class="doc">MenuToggle</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+NestedBreadcrumbs</div>
+<img alt="NestedBreadcrumbs" src="../_images/NestedBreadcrumbs.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="menus/NestedBreadcrumbs.html"><span class="doc">NestedBreadcrumbs</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Pagination</div>
+<img alt="Pagination" src="../_images/Pagination.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="menus/Pagination.html"><span class="doc">Pagination</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+SpeedDial</div>
+<img alt="SpeedDial" src="../_images/SpeedDial.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="menus/SpeedDial.html"><span class="doc">SpeedDial</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+SplitButton</div>
+<img alt="SplitButton" src="../_images/SplitButton.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="menus/SplitButton.html"><span class="doc">SplitButton</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+TabMenu</div>
+<img alt="TabMenu" src="../_images/TabMenu.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="menus/TabMenu.html"><span class="doc">TabMenu</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Tree</div>
+<img alt="Tree" src="../_images/Tree.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="menus/Tree.html"><span class="doc">Tree</span></a></div>
+</div>
+</div>
+</div>
+</section>
+<section id="layouts">
+<h2>Layouts<a class="headerlink" href="#layouts" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-m-0 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-4 sd-row-cols-lg-5 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Accordion</div>
+<img alt="Accordion" src="../_images/Accordion.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Accordion.html"><span class="doc">Accordion</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Backdrop</div>
+<img alt="Backdrop" src="../_images/Backdrop.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Backdrop.html"><span class="doc">Backdrop</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Card</div>
+<img alt="Card" src="../_images/Card.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Card.html"><span class="doc">Card</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Container</div>
+<img alt="Container" src="../_images/Container.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Container.html"><span class="doc">Container</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Details</div>
+<img alt="Details" src="../_images/Details.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Details.html"><span class="doc">Details</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Dialog</div>
+<img alt="Dialog" src="../_images/Dialog.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Dialog.html"><span class="doc">Dialog</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Drawer</div>
+<img alt="Drawer" src="../_images/Drawer.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Drawer.html"><span class="doc">Drawer</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+FlexBox</div>
+<img alt="FlexBox" src="../_images/FlexBox.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/FlexBox.html"><span class="doc">FlexBox</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Grid</div>
+<img alt="Grid" src="../_images/Grid.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Grid.html"><span class="doc">Grid</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Paper</div>
+<img alt="Paper" src="../_images/Paper.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Paper.html"><span class="doc">Paper</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Popup</div>
+<img alt="Popup" src="../_images/Popup.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Popup.html"><span class="doc">Popup</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Tabs</div>
+<img alt="Tabs" src="../_images/Tabs.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="layouts/Tabs.html"><span class="doc">Tabs</span></a></div>
+</div>
+</div>
+</div>
+</section>
+<section id="panes">
+<h2>Panes<a class="headerlink" href="#panes" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-m-0 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-4 sd-row-cols-lg-5 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Avatar</div>
+<img alt="Avatar" src="../_images/Avatar.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="panes/Avatar.html"><span class="doc">Avatar</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Chip</div>
+<img alt="Chip" src="../_images/Chip.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="panes/Chip.html"><span class="doc">Chip</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Skeleton</div>
+<img alt="Skeleton" src="../_images/Skeleton.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="panes/Skeleton.html"><span class="doc">Skeleton</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Typography</div>
+<img alt="Typography" src="../_images/Typography.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="panes/Typography.html"><span class="doc">Typography</span></a></div>
+</div>
+</div>
+</div>
+</section>
+<section id="page">
+<h2>Page<a class="headerlink" href="#page" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-m-0 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-4 sd-row-cols-lg-5 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+BreakpointSwitcher</div>
+<img alt="BreakpointSwitcher" src="../_images/BreakpointSwitcher.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="page/BreakpointSwitcher.html"><span class="doc">BreakpointSwitcher</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Manual</div>
+<img alt="Manual" src="../_images/Manual.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="page/Manual.html"><span class="doc">Manual</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Page</div>
+<img alt="Page" src="../_images/Page.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="page/Page.html"><span class="doc">Page</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+ThemeToggle</div>
+<img alt="ThemeToggle" src="../_images/ThemeToggle.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="page/ThemeToggle.html"><span class="doc">ThemeToggle</span></a></div>
+</div>
+</div>
+</div>
+</section>
+<section id="chat">
+<h2>Chat<a class="headerlink" href="#chat" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-m-0 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-4 sd-row-cols-lg-5 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+ChatAreaInput</div>
+<img alt="ChatAreaInput" src="../_images/ChatAreaInput.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="chat/ChatAreaInput.html"><span class="doc">ChatAreaInput</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+ChatFeed</div>
+<img alt="ChatFeed" src="../_images/ChatFeed.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="chat/ChatFeed.html"><span class="doc">ChatFeed</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+ChatInterface</div>
+<img alt="ChatInterface" src="../_images/ChatInterface.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="chat/ChatInterface.html"><span class="doc">ChatInterface</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+ChatMessage</div>
+<img alt="ChatMessage" src="../_images/ChatMessage.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="chat/ChatMessage.html"><span class="doc">ChatMessage</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+ChatStep</div>
+<img alt="ChatStep" src="../_images/ChatStep.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="chat/ChatStep.html"><span class="doc">ChatStep</span></a></div>
+</div>
+</div>
+</div>
+</section>
+<section id="indicators">
+<h2>Indicators<a class="headerlink" href="#indicators" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-m-0 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-4 sd-row-cols-lg-5 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+CircularProgress</div>
+<img alt="CircularProgress" src="../_images/CircularProgress.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="indicators/CircularProgress.html"><span class="doc">CircularProgress</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+LinearProgress</div>
+<img alt="LinearProgress" src="../_images/LinearProgress.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="indicators/LinearProgress.html"><span class="doc">LinearProgress</span></a></div>
+</div>
+</div>
+</div>
+</section>
+<section id="global">
+<h2>Global<a class="headerlink" href="#global" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-m-0 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-4 sd-row-cols-lg-5 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-md sd-card-hover example docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Notifications</div>
+<img alt="Notifications" src="../_images/Notifications.png"/>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="global/Notifications.html"><span class="doc">Notifications</span></a></div>
+</div>
+</div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+</article>
+<footer class="prev-next-footer d-print-none">
+<div class="prev-next-area">
+<a class="left-prev" href="../how_to/plotly.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">Theme Plotly</p>
+</div>
+</a>
+<a class="right-next" href="widgets/index.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">Widgets</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div>
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#widgets">Widgets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#menus">Menus</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#layouts">Layouts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#panes">Panes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#page">Page</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chat">Chat</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#indicators">Indicators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#global">Global</a></li>
+</ul>
+</nav></div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script defer="" src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024-2026 Holoviz contributors.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item">
+<p class="theme-version">
+<!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>

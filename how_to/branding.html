@@ -1,0 +1,876 @@
+
+<!DOCTYPE html>
+
+<html data-content_root="../" data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="../site.webmanifest" rel="manifest"/>
+<title>Apply Branding — Panel Material UI v0.9.0</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+<!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+<noscript>
+<style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+</noscript>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/pygments.css?v=03e43079" rel="stylesheet" type="text/css"/>
+<link href="../_static/graphviz.css?v=4ae1632d" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css?v=95c83b7e" rel="stylesheet" type="text/css"/>
+<link href="../_static/nbsite.css?v=d9d93254" rel="stylesheet" type="text/css"/>
+<link href="../_static/notebook.css?v=19946987" rel="stylesheet" type="text/css"/>
+<link href="../_static/gallery.css?v=0a3248cd" rel="stylesheet" type="text/css"/>
+<link href="../_static/alert.css?v=c26666be" rel="stylesheet" type="text/css"/>
+<link href="../_static/dataframe.css?v=a0f274c1" rel="stylesheet" type="text/css"/>
+<link href="../_static/scroller.css?v=2dcde208" rel="stylesheet" type="text/css"/>
+<link href="../_static/hv-sidebar-dropdown.css?v=3e2b0152" rel="stylesheet" type="text/css"/>
+<link href="../_static/css/custom.css?v=5eb3e485" rel="stylesheet" type="text/css"/>
+<!-- So that users can add custom icons -->
+<script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+<script src="../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+<script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="../_static/copybutton.js?v=f281be69"></script>
+<script src="../_static/design-tabs.js?v=f930bc37"></script>
+<script src="../_static/ServiceHandler.js"></script>
+<script>
+    window.goatcounter = {
+        path: function(p) { return location.host + p }
+    }
+</script>
+<script async="async" data-goatcounter="https://holoviz.goatcounter.com/count" src="../_static/js/goatcounter.js?v=f53f84b8"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'how_to/branding';</script>
+<script type="esms-options">{"shimMode": true}</script>
+<script src="https://cdn.holoviz.org/panel/1.8.7/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="bokeh_holoviews.html" rel="next" title="Theme Bokeh, hvPlot, and HoloViews"/>
+<link href="custom.html" rel="prev" title="Build Custom Components"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="0.9.0" name="docsearch:version"/>
+<meta content="2026-02-03" name="docbuild:last-update"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="light" data-offset="180">
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="#main-content">Skip to main content</a></div>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>Back to top</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="Version warning" class="d-none d-print-none" id="bd-header-version-warning"></aside>
+</div>
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+<button aria-label="Site navigation" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<img alt="Panel Material UI v0.9.0 - Home" class="logo__image only-light" src="../_static/logo_horizontal_light_theme.png"/>
+<img alt="Panel Material UI v0.9.0 - Home" class="logo__image only-dark pst-js-only" src="../_static/logo_horizontal_dark_theme.png"/>
+</a></div>
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="index.html">
+    How-To
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../reference/index.html">
+    Component Gallery
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../releases.html">
+    Release Notes
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/panel-extensions/panel-material-ui" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-square-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://twitter.com/Panel_Org" rel="noopener" target="_blank" title="Twitter"><i aria-hidden="true" class="fa-brands fa-twitter-square fa-lg"></i>
+<span class="sr-only">Twitter</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discourse.holoviz.org/c/panel/5" rel="noopener" target="_blank" title="Discourse"><i aria-hidden="true" class="fa-brands fa-discourse fa-lg"></i>
+<span class="sr-only">Discourse</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discord.gg/UXdtYyGVQX" rel="noopener" target="_blank" title="Discord"><i aria-hidden="true" class="fa-brands fa-discord fa-lg"></i>
+<span class="sr-only">Discord</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="On this page" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="index.html">
+    How-To
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../reference/index.html">
+    Component Gallery
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../releases.html">
+    Release Notes
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/panel-extensions/panel-material-ui" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-square-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://twitter.com/Panel_Org" rel="noopener" target="_blank" title="Twitter"><i aria-hidden="true" class="fa-brands fa-twitter-square fa-lg"></i>
+<span class="sr-only">Twitter</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discourse.holoviz.org/c/panel/5" rel="noopener" target="_blank" title="Discourse"><i aria-hidden="true" class="fa-brands fa-discourse fa-lg"></i>
+<span class="sr-only">Discourse</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://discord.gg/UXdtYyGVQX" rel="noopener" target="_blank" title="Discord"><i aria-hidden="true" class="fa-brands fa-discord fa-lg"></i>
+<span class="sr-only">Discord</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item"><!-- Adapted from sidebar-nav-bs.html (1.15.2) with the following changes
+
+  - Commented out the tag that adds the "Section Navigation" title
+  - Call generate_toctree_html with startdepth=0
+
+Please update this file when required when bumping the max pin of pydata-sphinx-theme.
+-->
+<nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<!-- <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p> -->
+<div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">FOR USERS</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-To</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="customize.html">Customize Themes &amp; Styles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="palette.html">Customize Color Palettes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="typography.html">Customize Typography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.html">Theme Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dark_mode.html">Control Dark Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="color.html">Pick Colors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="icons.html">Use Icons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom.html">Build Custom Components</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Apply Branding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bokeh_holoviews.html">Theme Bokeh, hvPlot, and HoloViews</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotly.html">Theme Plotly</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Component Gallery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/widgets/index.html">Widgets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/AutocompleteInput.html">AutocompleteInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/Button.html">Button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/CheckBoxGroup.html">CheckBoxGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/CheckButtonGroup.html">CheckButtonGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/Checkbox.html">Checkbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/ColorPicker.html">ColorPicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/CrossSelector.html">CrossSelector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/DatePicker.html">DatePicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/DateRangeSlider.html">DateRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/DateSlider.html">DateSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/DatetimePicker.html">DatetimePicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/DatetimeRangeSlider.html">DatetimeRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/DatetimeSlider.html">DatetimeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/DiscreteSlider.html">DiscreteSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/EditableFloatSlider.html">EditableFloatSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/EditableIntRangeSlider.html">EditableIntRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/EditableIntSlider.html">EditableIntSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/EditableRangeSlider.html">EditableRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/Fab.html">Fab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/FileDownload.html">FileDownload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/FileInput.html">FileInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/FloatInput.html">FloatInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/FloatSlider.html">FloatSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/IconButton.html">IconButton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/IntInput.html">IntInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/IntRangeSlider.html">IntRangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/IntSlider.html">IntSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/LiteralInput.html">LiteralInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/MultiChoice.html">MultiChoice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/MultiPill.html">MultiPill</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/MultiSelect.html">MultiSelect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/NestedSelect.html">NestedSelect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/PasswordInput.html">PasswordInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/Pill.html">Pill</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/RadioBoxGroup.html">RadioBoxGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/RadioButtonGroup.html">RadioButtonGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/RangeSlider.html">RangeSlider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/Rating.html">Rating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/Select.html">Select</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/Switch.html">Switch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/TextAreaInput.html">TextAreaInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/TextInput.html">TextInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/TimePicker.html">TimePicker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/Toggle.html">Toggle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/widgets/ToggleIcon.html">ToggleIcon</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/menus/index.html">Menus</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/menus/Breadcrumbs.html">Breadcrumbs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/menus/MenuButton.html">MenuButton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/menus/MenuList.html">MenuList</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/menus/MenuToggle.html">MenuToggle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/menus/NestedBreadcrumbs.html">NestedBreadcrumbs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/menus/Pagination.html">Pagination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/menus/SpeedDial.html">SpeedDial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/menus/SplitButton.html">SplitButton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/menus/TabMenu.html">TabMenu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/menus/Tree.html">Tree</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/layouts/index.html">Layouts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Accordion.html">Accordion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Backdrop.html">Backdrop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Card.html">Card</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Container.html">Container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Details.html">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Dialog.html">Dialog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Drawer.html">Drawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/FlexBox.html">FlexBox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Grid.html">Grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Paper.html">Paper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Popup.html">Popup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/layouts/Tabs.html">Tabs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/panes/index.html">Panes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/panes/Avatar.html">Avatar</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/panes/Chip.html">Chip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/panes/Skeleton.html">Skeleton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/panes/Typography.html">Typography</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/page/index.html">Page</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/page/BreakpointSwitcher.html">BreakpointSwitcher</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/page/Manual.html">Manual</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/page/Page.html">Page</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/page/ThemeToggle.html">ThemeToggle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/chat/index.html">Chat</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/chat/ChatAreaInput.html">ChatAreaInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/chat/ChatFeed.html">ChatFeed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/chat/ChatInterface.html">ChatInterface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/chat/ChatMessage.html">ChatMessage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/chat/ChatStep.html">ChatStep</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/indicators/index.html">Indicators</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/indicators/CircularProgress.html">CircularProgress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/indicators/LinearProgress.html">LinearProgress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/global/index.html">Global</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/global/Notifications.html">Notifications</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Release Notes</a></li>
+</ul>
+</div>
+</nav></div>
+<div class="sidebar-primary-item">
+<div class="hv-sb-dd">
+<div class="btn-group">
+<a class="btn hv-sb-dd-value" href="https://holoviz.org" target="_blank">HoloViz.org<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a>
+<button aria-expanded="false" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" type="button">
+<span class="visually-hidden"></span>
+</button>
+<ul class="dropdown-menu">
+<li><a class="dropdown-item" href="https://hvplot.holoviz.org" target="_blank" title="Quickly return interactive HoloViews, GeoViews, or Panel objects from Pandas, Xarray, or other data structures">hvPlot<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://holoviews.org" target="_blank" title="Declarative objects for instantly visualizable data, building Bokeh plots from convenient high-level specifications">HoloViews<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://geoviews.org" target="_blank" title="Visualizable geographic data that that can be mixed and matched with HoloViews objects">GeoViews<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://datashader.org" target="_blank" title="Rasterizing huge datasets quickly as fixed-size images">Datashader<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://param.holoviz.org" target="_blank" title="Make your Python code clearer and more reliable by declaring Parameters">Param<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://lumen.holoviz.org" target="_blank" title="Framework for visual analytics that allows users to build data-driven dashboards from a simple YAML specification">Lumen<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://colorcet.holoviz.org" target="_blank" title="A wide range of perceptually uniform continuous colormaps and perceptually based categorical color sets for use with the other libraries">Colorcet<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><hr class="dropdown-divider"/></li>
+<li><a class="dropdown-item" href="https://examples.holoviz.org" target="_blank" title=" Visualization-focused examples using HoloViz for specific topics ">Examples Gallery<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+<li><a class="dropdown-item" href="https://blog.holoviz.org" target="_blank" title="HoloViz blog">Blog<i aria-hidden="true" class="fa fa-external-link hv-icon"></i></a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+<div class="sidebar-primary-item">
+<div class="flat" data-ea-manual="true" data-ea-publisher="readthedocs" data-ea-type="readthedocs-sidebar" id="ethical-ad-placement">
+</div></div>
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumb" class="d-print-none">
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="index.html">How-To</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis">Apply Branding</span></li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article">
+<section id="apply-branding">
+<h1>Apply Branding<a class="headerlink" href="#apply-branding" title="Link to this heading">#</a></h1>
+<p>This guide demonstrates how to create a cohesive brand experience in your Panel Material-UI applications using the “Orbitron” brand example. You’ll learn how to structure your brand assets, configure consistent theming, and apply your brand across all components.</p>
+<p><img alt="Orbitron" src="../_images/orbitron-light.png"/></p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>The branding example shows a complete implementation of a branded Panel application with:</p>
+<ul class="simple">
+<li><p>Custom color palettes for light and dark themes</p></li>
+<li><p>Typography and visual styling</p></li>
+<li><p>Brand asset management</p></li>
+<li><p>Component theming</p></li>
+<li><p>Responsive layouts with brand consistency</p></li>
+</ul>
+<blockquote>
+<div><p><strong>💡 Tip:</strong> You can find the complete working example in <a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/tree/main/examples/apps/branding/app.py"><code class="docutils literal notranslate"><span class="pre">examples/apps/branding/</span></code></a> to reference alongside this guide.</p>
+</div></blockquote>
+</section>
+<section id="brand-architecture-overview">
+<h2>1. Brand Architecture Overview<a class="headerlink" href="#brand-architecture-overview" title="Link to this heading">#</a></h2>
+<p>Start by organizing your brand assets in a dedicated package structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>your_app/
+├── app.py                 # Main application
+└── brand/                 # Brand package
+    ├── __init__.py
+    ├── colors.py          # Color definitions
+    ├── mui.py             # Theme configuration
+    └── assets/            # Brand assets
+        ├── __init__.py
+        ├── logo.png
+        ├── favicon.ico
+        ├── style.css
+        └── vision.png
+</pre></div>
+</div>
+<p>This modular approach keeps your brand configuration separate from your application logic, making it easy to maintain and update. See the <a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/tree/main/examples/apps/branding/brand/">complete structure</a> in the example.</p>
+</section>
+<section id="color-system-design">
+<h2>2. Color System Design<a class="headerlink" href="#color-system-design" title="Link to this heading">#</a></h2>
+<p>Define your brand colors using dataclasses for type safety and consistency:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># brand/colors.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">panel_material_ui</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pmui</span>
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ThemeColors</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Container for theme color definitions."""</span>
+    <span class="n">primary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"#4099da"</span>
+    <span class="n">secondary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"#644c76"</span>
+    <span class="n">success</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"#8ecdc8"</span>
+    <span class="n">error</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"#e85757"</span>
+    <span class="n">warning</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"#fdd779"</span>
+    <span class="n">info</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"#644c76"</span>
+
+<span class="c1"># Define light and dark theme variants</span>
+<span class="n">LIGHT_THEME</span> <span class="o">=</span> <span class="n">ThemeColors</span><span class="p">()</span>
+<span class="n">DARK_THEME</span> <span class="o">=</span> <span class="n">ThemeColors</span><span class="p">(</span>
+    <span class="n">primary</span><span class="o">=</span><span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">secondary</span><span class="p">,</span>
+    <span class="n">secondary</span><span class="o">=</span><span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">primary</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Create utility functions for different visualization needs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_categorical_palette</span><span class="p">(</span><span class="n">dark_theme</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">n_colors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Get a categorical color palette based on the theme."""</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">DARK_THEME</span> <span class="k">if</span> <span class="n">dark_theme</span> <span class="k">else</span> <span class="n">LIGHT_THEME</span>
+    <span class="n">palette</span> <span class="o">=</span> <span class="p">[</span><span class="n">colors</span><span class="o">.</span><span class="n">primary</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">secondary</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">success</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">warning</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">error</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">n_colors</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">palette</span><span class="p">[:</span><span class="n">n_colors</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">pmui</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">generate_palette</span><span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">primary</span><span class="p">,</span> <span class="n">n_colors</span><span class="o">=</span><span class="n">n_colors</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_continuous_cmap</span><span class="p">(</span><span class="n">dark_theme</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Get a continuous color map for heatmaps and gradients."""</span>
+    <span class="n">base_color</span> <span class="o">=</span> <span class="n">DARK_THEME</span><span class="o">.</span><span class="n">primary</span> <span class="k">if</span> <span class="n">dark_theme</span> <span class="k">else</span> <span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">primary</span>
+    <span class="n">background</span> <span class="o">=</span> <span class="s2">"#222222"</span> <span class="k">if</span> <span class="n">dark_theme</span> <span class="k">else</span> <span class="s2">"#ffffff"</span>
+    <span class="k">return</span> <span class="n">pmui</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">linear_gradient</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">base_color</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>📝 Reference:</strong> See the complete color system implementation in <a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/tree/main/examples/apps/branding/brand/colors.py"><code class="docutils literal notranslate"><span class="pre">brand/colors.py</span></code></a>.</p>
+</div></blockquote>
+</section>
+<section id="theme-configuration">
+<h2>3. Theme Configuration<a class="headerlink" href="#theme-configuration" title="Link to this heading">#</a></h2>
+<p>Configure Material-UI themes with your brand colors and typography:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># brand/mui.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">panel_material_ui</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pmui</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">panel</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">DARK_THEME</span><span class="p">,</span> <span class="n">LIGHT_THEME</span>
+
+<span class="c1"># Light theme configuration</span>
+<span class="n">LIGHT_THEME_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"palette"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"primary"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"main"</span><span class="p">:</span> <span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">primary</span><span class="p">},</span>
+        <span class="s2">"secondary"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"main"</span><span class="p">:</span> <span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">secondary</span><span class="p">},</span>
+        <span class="s2">"success"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"main"</span><span class="p">:</span> <span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">success</span><span class="p">},</span>
+        <span class="s2">"error"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"main"</span><span class="p">:</span> <span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">error</span><span class="p">},</span>
+        <span class="s2">"warning"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"main"</span><span class="p">:</span> <span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">warning</span><span class="p">},</span>
+        <span class="s2">"info"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"main"</span><span class="p">:</span> <span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">info</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"typography"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"fontFamily"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"Montserrat"</span><span class="p">,</span> <span class="s2">"Helvetica Neue"</span><span class="p">,</span> <span class="s2">"Arial"</span><span class="p">,</span> <span class="s2">"sans-serif"</span><span class="p">),</span>
+        <span class="s2">"fontSize"</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="s2">"fontWeight"</span><span class="p">:</span> <span class="mi">700</span><span class="p">,</span>
+        <span class="s2">"letterSpacing"</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+        <span class="s2">"lineHeight"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"shape"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"borderRadius"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"components"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"MuiButtonBase"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"defaultProps"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"disableRipple"</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Apply the theme configuration to your components:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Configure the complete theme for the application."""</span>
+    <span class="c1"># Set theme configuration</span>
+    <span class="n">pmui</span><span class="o">.</span><span class="n">Page</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">theme_config</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"light"</span><span class="p">:</span> <span class="n">LIGHT_THEME_CONFIG</span><span class="p">,</span>
+        <span class="s2">"dark"</span><span class="p">:</span> <span class="n">DARK_THEME_CONFIG</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Add custom fonts</span>
+    <span class="n">pmui</span><span class="o">.</span><span class="n">Page</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">css_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="s2">"https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&amp;display=swap"</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Configure component defaults</span>
+    <span class="n">pmui</span><span class="o">.</span><span class="n">Button</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">disable_elevation</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>📝 Reference:</strong> See the complete theme configuration in <a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/tree/main/examples/apps/branding/brand/mui.py"><code class="docutils literal notranslate"><span class="pre">brand/mui.py</span></code></a>.</p>
+</div></blockquote>
+</section>
+<section id="asset-management">
+<h2>4. Asset Management<a class="headerlink" href="#asset-management" title="Link to this heading">#</a></h2>
+<p>Organize your brand assets with proper path resolution:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># brand/assets/__init__.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_absolute</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Convert relative path to absolute path string."""</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">ROOT</span> <span class="o">/</span> <span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
+
+<span class="c1"># Brand assets with absolute paths</span>
+<span class="n">FAVICON_PATH</span> <span class="o">=</span> <span class="n">_absolute</span><span class="p">(</span><span class="s2">"favicon.ico"</span><span class="p">)</span>
+<span class="n">LOGO_PATH</span> <span class="o">=</span> <span class="n">_absolute</span><span class="p">(</span><span class="s2">"logo.png"</span><span class="p">)</span>
+<span class="n">VISION_PATH</span> <span class="o">=</span> <span class="n">_absolute</span><span class="p">(</span><span class="s2">"vision.png"</span><span class="p">)</span>
+
+<span class="c1"># Load custom CSS</span>
+<span class="n">css_file</span> <span class="o">=</span> <span class="n">ROOT</span> <span class="o">/</span> <span class="s2">"style.css"</span>
+<span class="n">RAW_CSS</span> <span class="o">=</span> <span class="n">css_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">if</span> <span class="n">css_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="s2">""</span>
+</pre></div>
+</div>
+<p>Configure your page with brand assets:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">():</span>
+    <span class="c1"># Brand assets configuration</span>
+    <span class="n">pmui</span><span class="o">.</span><span class="n">Page</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">logo</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">LOGO_PATH</span>
+    <span class="n">pmui</span><span class="o">.</span><span class="n">Page</span><span class="o">.</span><span class="n">favicon</span> <span class="o">=</span> <span class="n">FAVICON_PATH</span>
+    <span class="n">pmui</span><span class="o">.</span><span class="n">Page</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"Your Brand Name"</span>
+
+    <span class="c1"># Add custom CSS</span>
+    <span class="k">if</span> <span class="n">RAW_CSS</span><span class="p">:</span>
+        <span class="n">pmui</span><span class="o">.</span><span class="n">Page</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">raw_css</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RAW_CSS</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>📝 Reference:</strong> See the asset management implementation in <a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/tree/main/examples/apps/branding/brand/assets/__init__.py"><code class="docutils literal notranslate"><span class="pre">brand/assets/__init__.py</span></code></a>.</p>
+</div></blockquote>
+</section>
+<section id="component-theming">
+<h2>5. Component Theming<a class="headerlink" href="#component-theming" title="Link to this heading">#</a></h2>
+<p>Apply your brand consistently across all Panel Material-UI components:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure component-specific styling</span>
+<span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">stylesheets</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"img {border-radius: 8px}"</span><span class="p">]</span>
+<span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">Tabulator</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">theme</span> <span class="o">=</span> <span class="s2">"materialize"</span>
+</pre></div>
+</div>
+</section>
+<section id="state-management-pattern">
+<h2>6. State Management Pattern<a class="headerlink" href="#state-management-pattern" title="Link to this heading">#</a></h2>
+<p>Use Panel’s reactive system to manage theme state across your application:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">param</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">panel.viewable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viewer</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AppState</span><span class="p">(</span><span class="n">Viewer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Application state management with theme support."""</span>
+
+    <span class="n">dark_theme</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">Boolean</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Dark Theme"</span><span class="p">)</span>
+    <span class="n">currency</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">Selector</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">"EUR"</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[</span><span class="s2">"EUR"</span><span class="p">,</span> <span class="s2">"GBP"</span><span class="p">,</span> <span class="s2">"USD"</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="c1"># Sync with Panel's theme configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dark_theme</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">theme</span> <span class="o">==</span> <span class="s2">"dark"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__panel__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Render state controls."""</span>
+        <span class="k">return</span> <span class="n">pmui</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+            <span class="n">pmui</span><span class="o">.</span><span class="n">Switch</span><span class="o">.</span><span class="n">from_param</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">dark_theme</span><span class="p">),</span>
+            <span class="n">pmui</span><span class="o">.</span><span class="n">Select</span><span class="o">.</span><span class="n">from_param</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">currency</span><span class="p">),</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>📝 Reference:</strong> See the complete state management in <a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/tree/main/examples/apps/branding/app.py#L75-L140"><code class="docutils literal notranslate"><span class="pre">app.py</span></code></a>.</p>
+</div></blockquote>
+</section>
+<section id="responsive-layout-structure">
+<h2>7. Responsive Layout Structure<a class="headerlink" href="#responsive-layout-structure" title="Link to this heading">#</a></h2>
+<p>Create a consistent branded layout using Panel Material-UI components:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_app</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Create the main application with branded layout."""</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">AppState</span><span class="p">()</span>
+
+    <span class="c1"># Create branded page layout</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">pmui</span><span class="o">.</span><span class="n">Page</span><span class="p">(</span>
+        <span class="n">sidebar</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">LOGO_PATH</span><span class="p">,</span> <span class="n">sizing_mode</span><span class="o">=</span><span class="s2">"scale_width"</span><span class="p">),</span>
+            <span class="n">pmui</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+                <span class="s2">"# Settings"</span><span class="p">,</span>
+                <span class="n">state</span><span class="p">,</span>
+                <span class="s2">"### References"</span><span class="p">,</span>
+                <span class="n">pmui</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"Documentation"</span><span class="p">,</span>
+                    <span class="n">href</span><span class="o">=</span><span class="s2">"https://panel-material-ui.holoviz.org/"</span><span class="p">,</span>
+                    <span class="n">target</span><span class="o">=</span><span class="s2">"_blank"</span><span class="p">,</span>
+                    <span class="n">variant</span><span class="o">=</span><span class="s2">"outlined"</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">sidebar_width</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
+        <span class="n">main</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">pmui</span><span class="o">.</span><span class="n">Container</span><span class="p">(</span>
+                <span class="s2">"## Welcome to Your Branded App"</span><span class="p">,</span>
+                <span class="s2">"Your main content goes here..."</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Sync theme state</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">dark_theme</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">dark_theme</span>
+    <span class="k">return</span> <span class="n">page</span>
+</pre></div>
+</div>
+</section>
+<section id="data-visualization-branding">
+<h2>8. Data Visualization Branding<a class="headerlink" href="#data-visualization-branding" title="Link to this heading">#</a></h2>
+<p>Apply your brand colors to charts and data tables:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_branded_chart</span><span class="p">(</span><span class="n">dark_theme</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Create a chart with brand colors."""</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_sample_data</span><span class="p">()</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">get_categorical_palette</span><span class="p">(</span><span class="n">dark_theme</span><span class="o">=</span><span class="n">dark_theme</span><span class="p">,</span> <span class="n">n_colors</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">hvplot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">"category"</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">350</span><span class="p">,</span>
+        <span class="n">responsive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">"Branded Chart"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_branded_table</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Create a table with brand styling."""</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_sample_data</span><span class="p">()</span>
+
+    <span class="c1"># Custom formatters using brand colors</span>
+    <span class="n">formatters</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"progress"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"progress"</span><span class="p">,</span>
+            <span class="s2">"color"</span><span class="p">:</span> <span class="p">[</span><span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">success</span><span class="p">,</span> <span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">warning</span><span class="p">,</span> <span class="n">LIGHT_THEME</span><span class="o">.</span><span class="n">error</span><span class="p">],</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">Tabulator</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">formatters</span><span class="o">=</span><span class="n">formatters</span><span class="p">,</span>
+        <span class="n">theme</span><span class="o">=</span><span class="s2">"materialize"</span><span class="p">,</span>
+        <span class="n">sizing_mode</span><span class="o">=</span><span class="s2">"stretch_width"</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>📝 Reference:</strong> See visualization examples in <a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/tree/main/examples/apps/branding/app.py#L180-L240"><code class="docutils literal notranslate"><span class="pre">app.py</span></code></a>.</p>
+</div></blockquote>
+</section>
+<section id="deployment-considerations">
+<h2>9. Deployment Considerations<a class="headerlink" href="#deployment-considerations" title="Link to this heading">#</a></h2>
+<p>Configure your application for consistent branding across deployments:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">configure_deployment</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Configure deployment-specific brand settings."""</span>
+
+    <span class="c1"># Custom disconnect notification</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">disconnect_notification</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"Connection lost. Please refresh to reconnect to your branded app."</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Ensure theme persistence</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">theme</span> <span class="o">=</span> <span class="s2">"light"</span>  <span class="c1"># or "dark" as default</span>
+
+    <span class="c1"># Configure caching for assets</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">static_dirs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"assets"</span><span class="p">:</span> <span class="s2">"brand/assets"</span><span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Main application entry point."""</span>
+    <span class="c1"># Apply brand configuration</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">brand.mui</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure</span>
+    <span class="n">configure</span><span class="p">()</span>
+
+    <span class="c1"># Configure deployment</span>
+    <span class="n">configure_deployment</span><span class="p">()</span>
+
+    <span class="c1"># Create and serve app</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">create_app</span><span class="p">()</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">servable</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">pn</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">served</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-example">
+<h2>Complete Example<a class="headerlink" href="#complete-example" title="Link to this heading">#</a></h2>
+<p>The complete Orbitron brand example demonstrates all these concepts working together. To run it:</p>
+<ol class="arabic" start="0">
+<li><p>Git clone the project</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/panel-extensions/panel-material-ui.git
+</pre></div>
+</div>
+</li>
+<li><p>Navigate to the examples directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>examples/apps/branding
+</pre></div>
+</div>
+</li>
+<li><p>Run the application:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>panel<span class="w"> </span>serve<span class="w"> </span>app.py<span class="w"> </span>--show
+</pre></div>
+</div>
+</li>
+</ol>
+<p>The example includes:</p>
+<ul class="simple">
+<li><p>✅ Complete brand package structure</p></li>
+<li><p>✅ Light/dark theme support</p></li>
+<li><p>✅ Branded components and layouts</p></li>
+<li><p>✅ Interactive data visualizations</p></li>
+<li><p>✅ Responsive design</p></li>
+<li><p>✅ Asset management</p></li>
+</ul>
+<blockquote>
+<div><p><strong>📁 Complete Code:</strong> Explore the full implementation in <a class="reference external" href="https://github.com/panel-extensions/panel-material-ui/tree/main/examples/apps/branding/app.py"><code class="docutils literal notranslate"><span class="pre">examples/apps/branding/</span></code></a>.</p>
+</div></blockquote>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Customize the color palette for your brand</p></li>
+<li><p>Replace the example assets with your own logos and icons</p></li>
+<li><p>Adapt the typography to match your brand guidelines</p></li>
+<li><p>Extend the theme configuration for additional component customization</p></li>
+<li><p>Test your branded application across different screen sizes and themes</p></li>
+</ul>
+</section>
+<section id="related-resources">
+<h2>Related Resources<a class="headerlink" href="#related-resources" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#../explanation/theming.md"><span class="xref myst">Panel Material-UI Theme Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="#../how_to/styling.md"><span class="xref myst">Component Styling Guide</span></a></p></li>
+<li><p><a class="reference internal" href="#../how_to/layouts.md"><span class="xref myst">Layout Patterns</span></a></p></li>
+</ul>
+</section>
+</section>
+</article>
+<footer class="prev-next-footer d-print-none">
+<div class="prev-next-area">
+<a class="left-prev" href="custom.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">Build Custom Components</p>
+</div>
+</a>
+<a class="right-next" href="bokeh_holoviews.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">Theme Bokeh, hvPlot, and HoloViews</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div>
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#brand-architecture-overview">1. Brand Architecture Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#color-system-design">2. Color System Design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theme-configuration">3. Theme Configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#asset-management">4. Asset Management</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#component-theming">5. Component Theming</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#state-management-pattern">6. State Management Pattern</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#responsive-layout-structure">7. Responsive Layout Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-visualization-branding">8. Data Visualization Branding</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deployment-considerations">9. Deployment Considerations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example">Complete Example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-resources">Related Resources</a></li>
+</ul>
+</nav></div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script defer="" src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024-2026 Holoviz contributors.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item">
+<p class="theme-version">
+<!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>
