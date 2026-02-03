@@ -4,7 +4,7 @@ import Link from "@mui/material/Link"
 import Typography from "@mui/material/Typography"
 import Icon from "@mui/material/Icon"
 import NavigateNextIcon from "@mui/icons-material/NavigateNext"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 import {useTheme, styled} from "@mui/material/styles"
 
 const StyledAvatar = styled(Avatar)(({color, spacing}) => ({
@@ -47,7 +47,7 @@ export function render({model}) {
             {item.avatar ?
               <StyledAvatar color={theme.palette[color_string]?.main || color_string} spacing={theme.spacing(0.5)}>{item.avatar}</StyledAvatar> : null
             }
-            {item.label}
+            {render_icon_text(item.label)}
           </Link>
         )
       } else {
@@ -57,15 +57,15 @@ export function render({model}) {
             {item.avatar ?
               <StyledAvatar color={theme.palette[color_string]?.main || color_string} spacing={theme.spacing(0.5)}>{item.avatar}</StyledAvatar> : null
             }
-            {item.label}
+            {render_icon_text(item.label)}
           </Typography>
         )
       }
     } else {
       if (index < items.length - 1) {
-        return <Link {...props} href="#">{item}</Link>
+        return <Link {...props} href="#">{render_icon_text(item)}</Link>
       } else {
-        return <Typography {...props}>{item}</Typography>
+        return <Typography {...props}>{render_icon_text(item)}</Typography>
       }
     }
   })

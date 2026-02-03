@@ -1,6 +1,7 @@
 import Checkbox from "@mui/material/Checkbox"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import {render_description} from "./description"
+import {render_icon_text} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -32,7 +33,7 @@ export function render({model, el, view}) {
           sx={{p: "6px", ...sx}}
         />
       }
-      label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
+      label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
     />
   )
 }

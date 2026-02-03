@@ -19,6 +19,7 @@ import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
 import {render_description} from "./description"
 import {CustomMenu} from "./menu"
+import {render_icon_text} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -169,11 +170,22 @@ export function render({model, el, view}) {
     }
   }
 
+  const renderSeparated = (values) => (
+    <>
+      {values.map((item, index) => (
+        <React.Fragment key={`${item}-${index}`}>
+          {index > 0 ? ", " : ""}
+          {render_icon_text(item)}
+        </React.Fragment>
+      ))}
+    </>
+  )
+
   const renderValue = (selected) => {
     if (multi && placeholder && selected.length === 0) {
-      return placeholder
+      return render_icon_text(placeholder)
     } else if (value_label) {
-      return value_label
+      return render_icon_text(value_label)
     }
     if (multi && chip) {
       return (
@@ -183,7 +195,7 @@ export function render({model, el, view}) {
               color={color}
               variant={solid ? "filled" : "outlined"}
               key={selected_value}
-              label={selected_value}
+              label={render_icon_text(selected_value)}
               onMouseDown={(event) => event.stopPropagation()}
               onDelete={delete_button ? () => {
                 setValue(value.filter(v => v !== selected_value))
@@ -193,13 +205,13 @@ export function render({model, el, view}) {
         </Box>
       )
     }
-    return multi ? selected.join(", ") : selected
+    return multi ? renderSeparated(selected) : render_icon_text(selected)
   }
 
   const renderMenuItems = () => {
     if (typeof options === "object" && !Array.isArray(options)) {
       return Object.entries(options).flatMap(([groupLabel, groupOptions]) => [
-        <ListSubheader key={`${groupLabel}-header`}>{groupLabel}</ListSubheader>,
+        <ListSubheader key={`${groupLabel}-header`}>{render_icon_text(groupLabel)}</ListSubheader>,
         ...groupOptions.map((option, idx) => {
           const optValue = Array.isArray(option) ? option[1] : option
           const optLabel = Array.isArray(option) ? option[0] : option
@@ -209,7 +221,7 @@ export function render({model, el, view}) {
               value={optValue}
               disabled={disabled_options?.includes(optValue)}
             >
-              {optLabel}
+              {render_icon_text(optLabel)}
             </MenuItem>
           )
         }),
@@ -444,7 +456,7 @@ export function render({model, el, view}) {
                 {multi && searchable && (
                   <Checkbox color={color} checked={value.includes(opt)} onClick={handleClick} />
                 )}
-                <ListItemText primary={label} sx={{margin: 2}} />
+                <ListItemText primary={render_icon_text(label)} sx={{margin: 2}} />
               </MenuItem>
             );
           })
@@ -459,7 +471,7 @@ export function render({model, el, view}) {
     <FormControl disabled={disabled} fullWidth variant={variant}>
       {label &&
        <InputLabel color={color} id={`select-label-${model.id}`} shrink={hasValue || open}>
-         {label}
+         {render_icon_text(label)}
          {model.description ? render_description({model, el, view}) : null}
        </InputLabel>
       }

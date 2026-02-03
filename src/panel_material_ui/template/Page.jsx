@@ -14,7 +14,7 @@ import TocIcon from "@mui/icons-material/Toc";
 import Tooltip from "@mui/material/Tooltip";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
-import {apply_flex, dark_mode, setup_global_styles} from "./utils"
+import {apply_flex, dark_mode, setup_global_styles, render_icon_text} from "./utils"
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && prop !== "variant" && prop !== "sidebar_width"})(
   ({sidebar_width, theme, open, variant}) => {
@@ -331,7 +331,7 @@ export function render({model, view}) {
           {title && (
             <a href={site_url} style={{textDecoration: "none"}}>
               <Typography variant="h3" className="title" sx={{color: "white"}}>
-                {title}
+                {render_icon_text(title)}
               </Typography>
             </a>
           )}

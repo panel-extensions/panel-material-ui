@@ -10,7 +10,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import {useTheme, styled} from "@mui/material/styles"
 import {CustomMenu} from "./menu"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 const StyledAvatar = styled(Avatar)(({color, spacing}) => ({
   backgroundColor: color,
@@ -207,7 +207,7 @@ export function render({model}) {
             {item.avatar}
           </StyledAvatar>
         ) : null}
-        {item.label}
+        {render_icon_text(item.label)}
       </>
     )
 
@@ -276,7 +276,7 @@ export function render({model}) {
                           {sib.avatar}
                         </StyledAvatar>
                       ) : null}
-                      <Typography>{sib.label}</Typography>
+                      <Typography>{render_icon_text(sib.label)}</Typography>
                     </MenuItem>
                   )
                 })}
@@ -330,7 +330,7 @@ export function render({model}) {
                             {sib.avatar}
                           </StyledAvatar>
                         ) : null}
-                        <Typography>{sib.label}</Typography>
+                        <Typography>{render_icon_text(sib.label)}</Typography>
                       </MenuItem>
                     )
                   })}

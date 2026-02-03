@@ -4,7 +4,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import ClickAwayListener from "@mui/material/ClickAwayListener"
 import MenuItem from "@mui/material/MenuItem"
 import {CustomMenu} from "./menu"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -80,7 +80,7 @@ export function render(props, ref) {
           }}
           variant={variant}
         >
-          {current_label}
+          {render_icon_text(current_label)}
         </Button>
         <Button
           aria-controls={open ? "split-button-menu" : undefined}
@@ -115,7 +115,7 @@ export function render(props, ref) {
             target={option.target}
           >
             {option.icon && render_icon(option.icon, null, null, option.icon_size, null, {pr: "1.5em"})}
-            {option.label}
+            {render_icon_text(option.label)}
           </MenuItem>
         ))}
       </CustomMenu>

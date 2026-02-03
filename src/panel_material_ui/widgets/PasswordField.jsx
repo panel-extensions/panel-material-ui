@@ -4,6 +4,7 @@ import TextField from "@mui/material/TextField"
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff"
 import {render_description} from "./description"
+import {render_icon_text} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -34,7 +35,7 @@ export function render({model, el, view}) {
       fullWidth
       inputProps={{maxLength: max_length}}
       inputRef={ref}
-      label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
+      label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
       onBlur={() => setValue(value_input)}
       onChange={(event) => setValueInput(event.target.value)}
       onKeyDown={(event) => {

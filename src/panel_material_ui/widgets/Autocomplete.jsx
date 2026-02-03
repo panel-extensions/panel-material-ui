@@ -2,6 +2,7 @@ import Autocomplete from "@mui/material/Autocomplete"
 import Popper from "@mui/material/Popper"
 import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
+import {render_icon_text} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -123,6 +124,24 @@ export function render({model, el, view}) {
   const displayOptions = lazy_search ? filteredOptions : options
   const filterOptions = lazy_search ? undefined : filt_func
 
+  const renderOptionLabel = (option) => {
+    if (typeof option === "string") {
+      return render_icon_text(option)
+    }
+    if (typeof option === "number") {
+      return option
+    }
+    if (option && typeof option === "object") {
+      if (typeof option.label === "string") {
+        return render_icon_text(option.label)
+      }
+      if (typeof option.value === "string") {
+        return render_icon_text(option.value)
+      }
+    }
+    return String(option ?? "")
+  }
+
   return (
     <Autocomplete
       color={color}
@@ -137,7 +156,7 @@ export function render({model, el, view}) {
         <TextField
           {...params}
           color={color}
-          label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
+          label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
           inputRef={ref}
           placeholder={placeholder}
           onChange={(event) => {
@@ -166,6 +185,9 @@ export function render({model, el, view}) {
           size={size}
           variant={variant}
         />
+      )}
+      renderOption={(props, option) => (
+        <li {...props}>{renderOptionLabel(option)}</li>
       )}
       size={size}
       sx={sx}

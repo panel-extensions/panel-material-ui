@@ -4,7 +4,7 @@ import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import {CustomMenu} from "./menu"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -45,7 +45,7 @@ export function render(props, ref) {
         variant={variant}
         {...other}
       >
-        {label}
+        {render_icon_text(label)}
       </Button>
       <CustomMenu
         anchorEl={() => anchorEl.current}
@@ -68,7 +68,7 @@ export function render(props, ref) {
               target={item.href ? (item.target ?? "_blank") : null}
             >
               {item.icon && render_icon(item.icon, null, null, item.icon_size, null, {paddingRight: "1.5em"})}
-              {item.label}
+              {render_icon_text(item.label)}
             </MenuItem>
           )
         })}

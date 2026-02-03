@@ -1,5 +1,5 @@
 import Chip from "@mui/material/Chip"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 const SIZES = {
   small: "1.2em",
@@ -18,7 +18,7 @@ export function render({model}) {
     <Chip
       color={color}
       icon={icon ? render_icon(icon, null, size, SIZES[size]) : null}
-      label={label}
+      label={render_icon_text(label)}
       size={size}
       sx={sx}
       variant={variant}

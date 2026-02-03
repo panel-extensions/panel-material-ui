@@ -3,7 +3,7 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon"
 import SpeedDialAction from "@mui/material/SpeedDialAction"
 import SpeedDial from "@mui/material/SpeedDial"
 import Icon from "@mui/material/Icon"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 export function render({model, view}) {
   const [color] = model.useState("color")
@@ -64,7 +64,7 @@ export function render({model, view}) {
             icon={item.icon ? render_icon(item.icon, item.color, size) : (
               <Avatar color={item.color}>{avatar}</Avatar>
             )}
-            tooltipTitle={item.label}
+            tooltipTitle={render_icon_text(item.label)}
             tooltipOpen={persistent_tooltips}
             slotProps={{popper: {container: view.container}}}
             onClick={() => { model.send_msg({type: "click", item: index}) }}

@@ -3,6 +3,7 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
 import {TimePicker} from "@mui/x-date-pickers/TimePicker"
 import dayjs from "dayjs"
 import {render_description} from "./description"
+import {render_icon_text} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -62,7 +63,7 @@ export function render({model, el, view}) {
         disabled={disabled}
         format={format}
         inputRef={ref}
-        label={model.description ? <>{label}{render_description({model, el, view})}</> : label}
+        label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
         onChange={handleChange}
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}

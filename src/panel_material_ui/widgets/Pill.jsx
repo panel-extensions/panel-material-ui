@@ -3,6 +3,7 @@ import Chip from "@mui/material/Chip"
 import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
 import {render_description} from "./description"
+import {render_icon_text} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -85,7 +86,7 @@ export function render({model, el, view}) {
     <FormControl component="fieldset" disabled={disabled} fullWidth>
       {label && (
         <FormLabel component="legend" sx={{mb: 0.5}}>
-          {label}
+          {render_icon_text(label)}
           {model.description ? render_description({model, el, view}) : null}
         </FormLabel>
       )}
@@ -108,7 +109,7 @@ export function render({model, el, view}) {
               ref={index === 0 ? focusRef : null}
               size={chipSize}
               sx={{...outlinedSx, ...largeChipSx}}
-              label={item.label}
+              label={render_icon_text(item.label)}
               variant={isSelected ? chipVariant : "outlined"}
             />
           )

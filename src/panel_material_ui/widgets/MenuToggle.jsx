@@ -6,7 +6,7 @@ import ListItemText from "@mui/material/ListItemText"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp"
 import {CustomMenu} from "./menu"
-import {render_icon} from "./utils"
+import {render_icon, render_icon_text} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -80,7 +80,7 @@ export function render(props, ref) {
         variant={variant}
         {...other}
       >
-        {label}
+        {render_icon_text(label)}
       </Button>
       <CustomMenu
         anchorEl={() => anchorEl.current}
@@ -110,7 +110,7 @@ export function render(props, ref) {
                   {render_icon(itemIcon, null, null, item.icon_size)}
                 </ListItemIcon>
               )}
-              <ListItemText>{item.label}</ListItemText>
+              <ListItemText>{render_icon_text(item.label)}</ListItemText>
             </MenuItem>
           )
         })}
