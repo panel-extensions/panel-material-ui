@@ -1,4 +1,4 @@
-# Configure Typography
+# Customize Typography
 
 `panel_material_ui` provides a robust typography system inspired by Material UI. Fonts and sizes can be customized globally with a `theme_config`, or overridden at the component level.
 

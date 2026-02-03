@@ -22,7 +22,7 @@ Explore the fundamentals of customizing **panel-material-ui** components. Learn 
 [Learn more »](customize)
 :::
 
-:::{grid-item-card} {octicon}`list-unordered;2.5em;sd-mr-1` Configure Color Palettes
+:::{grid-item-card} {octicon}`list-unordered;2.5em;sd-mr-1` Customize Color Palettes
 :link: palette
 :link-type: doc
 
@@ -32,7 +32,7 @@ Customize the default primary, secondary, and intent-based colors. Set up advanc
 [Learn more »](palette)
 :::
 
-:::{grid-item-card} {octicon}`typography;2.5em;sd-mr-1` Configure Typography
+:::{grid-item-card} {octicon}`typography;2.5em;sd-mr-1` Customize Typography
 :link: typography
 :link-type: doc
 
