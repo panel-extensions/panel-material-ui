@@ -137,6 +137,42 @@ export function render({model}) {
 - We style the MUI `<Button>` using the current rainbow color
 - We use the `confetti` library to create a confetti effect when the button is clicked
 
+## Icon imports
+
+When you need to use MUI icons, add explicit imports for each icon to the `_importmap`. This ensures the icons load as separate ESM modules while sharing the React instance.
+
+```python
+import panel as pn
+
+from panel_material_ui import MaterialUIComponent
+
+pn.extension()
+
+class IconComponent(MaterialUIComponent):
+    """MUI IconButton with Favorite icon."""
+
+    _importmap = {
+        "imports": {
+            # Explicit import for each icon used - ?external=react shares React instance
+            "@mui/icons-material/Favorite": "https://esm.sh/@mui/icons-material@5.16.7/Favorite?external=react",
+            "@mui/icons-material/Delete": "https://esm.sh/@mui/icons-material@5.16.7/Delete?external=react",
+        }
+    }
+
+    _esm = """
+import IconButton from "@mui/material/IconButton";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+
+export function render({ model }) {
+    return (
+      <IconButton id="icon-btn" color="primary" style={{ padding: '8px' }}>
+        <FavoriteIcon size="large"/>
+      </IconButton>
+  );
+}
+"""
+```
+
 ## Usage
 
 To see what we have built in action, let's quickly put it all together. We will inline ESM code in the Python side and render it:
