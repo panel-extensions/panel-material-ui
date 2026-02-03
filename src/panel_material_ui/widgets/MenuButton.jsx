@@ -1,7 +1,7 @@
 import Button from "@mui/material/Button"
 import Divider from "@mui/material/Divider"
-import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
+import Tooltip from "@mui/material/Tooltip"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import {CustomMenu} from "./menu"
 import {render_icon, render_icon_text} from "./utils"
@@ -56,7 +56,7 @@ export function render(props, ref) {
           if (item === null || item.label === "---") {
             return <Divider/>
           }
-          return (
+          const menuItem = (
             <MenuItem
               key={`menu-item-${index}`}
               component={item.href == null ? "li" : "a"}
@@ -71,6 +71,19 @@ export function render(props, ref) {
               {render_icon_text(item.label)}
             </MenuItem>
           )
+          if (item.tooltip) {
+            return (
+              <Tooltip
+                key={`menu-item-tooltip-${index}`}
+                title={render_icon_text(item.tooltip)}
+                placement="right"
+                disableInteractive
+              >
+                {menuItem}
+              </Tooltip>
+            )
+          }
+          return menuItem
         })}
       </CustomMenu>
     </div>

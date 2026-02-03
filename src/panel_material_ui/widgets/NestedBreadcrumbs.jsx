@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography"
 import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
 import MenuItem from "@mui/material/MenuItem"
+import Tooltip from "@mui/material/Tooltip"
 import NavigateNextIcon from "@mui/icons-material/NavigateNext"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import {useTheme, styled} from "@mui/material/styles"
@@ -263,7 +264,7 @@ export function render({model}) {
               <CustomMenu anchorEl={anchorEl} open={isOpen} onClose={closeMenu} keepMounted>
                 {siblings.map((sib, idx) => {
                   const isSelectable = sib.selectable ?? true
-                  return (
+                  const menuItem = (
                     <MenuItem
                       disabled={!isSelectable}
                       key={`d${depth}-i${idx}`}
@@ -279,6 +280,19 @@ export function render({model}) {
                       <Typography>{render_icon_text(sib.label)}</Typography>
                     </MenuItem>
                   )
+                  if (sib.tooltip) {
+                    return (
+                      <Tooltip
+                        key={`d${depth}-i${idx}-tooltip`}
+                        title={render_icon_text(sib.tooltip)}
+                        placement="right"
+                        disableInteractive
+                      >
+                        {menuItem}
+                      </Tooltip>
+                    )
+                  }
+                  return menuItem
                 })}
               </CustomMenu>
             </>
@@ -318,7 +332,7 @@ export function render({model}) {
                 <CustomMenu anchorEl={anchorEl} open={isOpen} onClose={closeMenu} keepMounted>
                   {siblings.map((sib, idx) => {
                     const isSelectable = sib.selectable ?? true
-                    return (
+                    const menuItem = (
                       <MenuItem
                         disabled={!isSelectable}
                         key={`d${depth}-i${idx}`}
@@ -333,6 +347,19 @@ export function render({model}) {
                         <Typography>{render_icon_text(sib.label)}</Typography>
                       </MenuItem>
                     )
+                    if (sib.tooltip) {
+                      return (
+                        <Tooltip
+                          key={`d${depth}-i${idx}-tooltip`}
+                          title={render_icon_text(sib.tooltip)}
+                          placement="right"
+                          disableInteractive
+                        >
+                          {menuItem}
+                        </Tooltip>
+                      )
+                    }
+                    return menuItem
                   })}
                 </CustomMenu>
               </>

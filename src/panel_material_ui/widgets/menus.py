@@ -34,7 +34,7 @@ class MenuBase(MaterialWidget):
     width = param.Integer(default=None, doc="""
         The width of the menu.""")
 
-    _item_keys = ['label', 'items']
+    _item_keys = ['label', 'items', 'tooltip']
     _descend_children = True
     _rename = {'value': None}
     _source_transforms = {"value": None, "items": None, "attached": None}
@@ -252,6 +252,7 @@ class Breadcrumbs(BreadcrumbsBase):
     - `icon`: The icon of the breadcrumb item (optional)
     - `avatar`: The avatar of the breadcrumb item (optional)
     - `href`: Link to navigate to when clicking the breadcrumb item (optional)
+    - `tooltip`: The tooltip text shown on hover (optional)
 
     :References:
 
@@ -269,7 +270,7 @@ class Breadcrumbs(BreadcrumbsBase):
     """
 
     _esm_base = "Breadcrumbs.jsx"
-    _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target', 'tooltip']
 
 
 class TabMenu(MenuBase):
@@ -285,6 +286,7 @@ class TabMenu(MenuBase):
     - `avatar`: The avatar of the tab item (optional)
     - `href`: Link to navigate to when clicking the tab item (optional)
     - `target`: Link target (e.g. `"_blank"`) (optional)
+    - `tooltip`: The tooltip text shown on hover (optional)
 
     :References:
 
@@ -318,7 +320,7 @@ class TabMenu(MenuBase):
         The variant to use for the tabs.""")
 
     _esm_base = "TabMenu.jsx"
-    _item_keys = ['label', 'icon', 'avatar', 'href', 'target']
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target', 'tooltip']
 
 
 class NestedMenuBase(MenuBase):
@@ -358,6 +360,7 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
     - `target`: Link target (e.g. `"_blank"`) (optional)
     - `items`: List of nested child items (optional)
     - `selectable`: Whether the item can be selected in sibling menus (optional, defaults to True)
+    - `tooltip`: The tooltip text shown on hover (optional)
 
     :References:
 
@@ -399,7 +402,7 @@ class NestedBreadcrumbs(NestedMenuBase, BreadcrumbsBase):
         The tuple containing indices of the currently rendered path.""")
 
     _esm_base = "NestedBreadcrumbs.jsx"
-    _item_keys = ['label', 'icon', 'avatar', 'href', 'target', 'items', 'selectable']
+    _item_keys = ['label', 'icon', 'avatar', 'href', 'target', 'items', 'selectable', 'tooltip']
 
     def _handle_msg(self, msg):
         index = msg.get('item')
@@ -564,6 +567,7 @@ class MenuList(TreeLikeBase):
       - `selectable`: Whether the list item is selectable (optional)
       - `href`: The URL to navigate to when the list item is clicked (optional)
       - `target`: The target to open the URL in (optional)
+      - `tooltip`: The tooltip text shown on hover (optional)
 
     :References:
 
@@ -595,7 +599,7 @@ class MenuList(TreeLikeBase):
 
     _item_keys = [
         'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
-        'href', 'target', 'buttons', 'disable_link'
+        'href', 'target', 'buttons', 'disable_link', 'tooltip'
     ]
 
 List = MenuList
@@ -629,6 +633,7 @@ class Tree(TreeLikeBase):
       - ``actions`` (list): Actions to display on the item.
       - ``buttons`` (list): Buttons to display on the item.
       - ``color`` (str): The color of the item.
+      - ``tooltip`` (str): The tooltip text shown on hover.
 
     :Example:
 
@@ -704,7 +709,8 @@ class Tree(TreeLikeBase):
         "secondary",
         "actions",
         "buttons",
-        "color"
+        "color",
+        "tooltip"
     ]
 
     @param.depends('active', watch=True)
@@ -737,6 +743,7 @@ class MenuButton(MenuBase, _ButtonBase):
       - `color`: The color of the menu button item (optional)
       - `href`: The URL to navigate to when the menu button item is clicked (optional)
       - `target`: The target to open the URL in (optional)
+      - `tooltip`: The tooltip text shown on hover (optional)
 
     :References:
 
@@ -765,7 +772,7 @@ class MenuButton(MenuBase, _ButtonBase):
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label', 'icon', 'color', 'href', 'target', 'icon_size']
+    _item_keys = ['label', 'icon', 'color', 'href', 'target', 'icon_size', 'tooltip']
 
 
 class SplitButton(MenuBase, _ButtonBase):
@@ -782,6 +789,7 @@ class SplitButton(MenuBase, _ButtonBase):
       - **`icon`** (`str`, optional): An icon to display next to the label.
       - **`href`** (`str`, optional): A URL to open when the menu item is clicked.
       - **`target`** (`str`, optional): Where to open the linked URL (e.g., `_blank`).
+      - **`tooltip`** (`str`, optional): Tooltip text shown on hover.
 
     The `SplitButton` is ideal for workflows where a primary action is most common, but users may occasionally need to choose an alternative.
 
@@ -811,7 +819,7 @@ class SplitButton(MenuBase, _ButtonBase):
         "button_type": None,
         "button_style": None
     }
-    _item_keys = ['label', 'icon', 'href', 'target', 'icon_size']
+    _item_keys = ['label', 'icon', 'href', 'target', 'icon_size', 'tooltip']
 
     @param.depends('mode', watch=True, on_init=True)
     def _switch_mode(self):
@@ -852,6 +860,7 @@ class MenuToggle(MenuBase, _ButtonBase):
       - `toggled`: Whether the item is currently toggled (optional, default: false)
       - `color`: The color of the menu toggle item (optional)
       - `active_color`: The color when toggled (optional)
+      - `tooltip`: The tooltip text shown on hover (optional)
 
     :References:
 
@@ -887,7 +896,7 @@ class MenuToggle(MenuBase, _ButtonBase):
         "button_type": None,
         "button_style": None,
     }
-    _item_keys = ['label', 'icon', 'active_icon', 'toggled', 'color', 'active_color', 'icon_size']
+    _item_keys = ['label', 'icon', 'active_icon', 'toggled', 'color', 'active_color', 'icon_size', 'tooltip']
     _rename = {'value': None}
 
     @param.depends('items', watch=True, on_init=True)
