@@ -71,4 +71,5 @@ Then [discover the components](reference/index) and [how-to customize and extend
 
 how_to/index
 reference/index
+releases
 ```
