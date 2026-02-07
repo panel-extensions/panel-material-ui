@@ -1,5 +1,6 @@
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
@@ -365,7 +366,13 @@ export function render({model, view}) {
             <CircularProgress
               disableShrink
               size="1.4em"
-              sx={{color: "white"}}
+              sx={{
+                color: "inherit",
+                opacity: idle ? 0 : 1,
+                transition: theme.transitions.create("opacity", {
+                  duration: theme.transitions.duration.short,
+                })
+              }}
               thickness={5}
               variant={idle ? "determinate" : "indeterminate"}
               value={idle ? 100 : 0}
