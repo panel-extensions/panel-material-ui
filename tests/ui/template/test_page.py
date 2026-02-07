@@ -184,3 +184,57 @@ def test_page_sidebar_width_persistence(page):
     # Check that the CSS reflects the new width
     sidebar_paper = page.locator(".MuiDrawer-paper.sidebar")
     expect(sidebar_paper).to_have_css("width", "450px")
+
+
+def test_page_circular_spinner_hidden_when_idle(page):
+    """Test that circular spinner is hidden (opacity: 0) when not busy."""
+    pg = Page(
+        busy_indicator='circular',
+        main=[pn.pane.Markdown("# Content")]
+    )
+
+    serve_component(page, pg)
+
+    # Wait for page to load
+    page.wait_for_timeout(500)
+
+    # Find the CircularProgress component
+    spinner = page.locator(".MuiCircularProgress-root")
+    
+    # Spinner should exist in the DOM
+    expect(spinner).to_be_attached()
+    
+    # Spinner should be hidden (opacity: 0) when idle
+    expect(spinner).to_have_css("opacity", "0")
+
+
+def test_page_circular_spinner_visible_when_busy(page):
+    """Test that circular spinner is visible (opacity: 1) when busy."""
+    import time
+    
+    def slow_operation(event):
+        time.sleep(2)
+    
+    button = pn.widgets.Button(name='Trigger Busy', on_click=slow_operation)
+    
+    pg = Page(
+        busy_indicator='circular',
+        main=[button]
+    )
+
+    serve_component(page, pg)
+
+    # Find the spinner
+    spinner = page.locator(".MuiCircularProgress-root")
+    
+    # Initially should be hidden
+    expect(spinner).to_have_css("opacity", "0")
+    
+    # Click button to trigger busy state
+    page.locator('button:has-text("Trigger Busy")').click()
+    
+    # Wait a bit for the busy state to activate (1 second debounce)
+    page.wait_for_timeout(1100)
+    
+    # Spinner should now be visible
+    expect(spinner).to_have_css("opacity", "1")
