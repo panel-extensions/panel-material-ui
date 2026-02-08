@@ -380,7 +380,13 @@ export function render({model, view}) {
         </Toolbar>
         {busy_indicator === "linear" &&
           <LinearProgress
-            sx={{width: "100%"}}
+            sx={{
+              width: "100%",
+              opacity: idle ? 0 : 1,
+              transition: theme.transitions.create("opacity", {
+                duration: theme.transitions.duration.short,
+              })
+            }}
             variant={idle ? "determinate" : "indeterminate"}
             color="primary"
             value={idle ? 100 : 0}
