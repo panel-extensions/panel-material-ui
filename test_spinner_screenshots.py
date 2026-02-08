@@ -26,9 +26,6 @@ def test_spinner_hiding_demo_with_screenshots(page: PlaywrightPage):
     """
     Comprehensive test with screenshots showing spinner hiding behavior.
     """
-    # Start video recording
-    context = page.context
-    
     def slow_operation(event):
         time.sleep(3)
     
