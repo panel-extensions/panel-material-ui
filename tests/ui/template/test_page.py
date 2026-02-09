@@ -200,10 +200,10 @@ def test_page_linear_progress_hidden_when_idle(page):
 
     # Find the LinearProgress component
     progress = page.locator(".MuiLinearProgress-root")
-    
+
     # Progress should exist in the DOM
     expect(progress).to_be_attached()
-    
+
     # Progress should be hidden (opacity: 0) when idle
     expect(progress).to_have_css("opacity", "0")
 
@@ -211,12 +211,12 @@ def test_page_linear_progress_hidden_when_idle(page):
 def test_page_linear_progress_visible_when_busy(page):
     """Test that linear progress bar is visible (opacity: 1) when busy."""
     import time
-    
+
     def slow_operation(event):
         time.sleep(2)
-    
+
     button = pn.widgets.Button(name='Trigger Busy', on_click=slow_operation)
-    
+
     pg = Page(
         busy_indicator='linear',
         main=[button]
@@ -226,15 +226,15 @@ def test_page_linear_progress_visible_when_busy(page):
 
     # Find the progress bar
     progress = page.locator(".MuiLinearProgress-root")
-    
+
     # Initially should be hidden
     expect(progress).to_have_css("opacity", "0")
-    
+
     # Click button to trigger busy state
     page.locator('button:has-text("Trigger Busy")').click()
-    
+
     # Wait a bit for the busy state to activate (1 second debounce)
     page.wait_for_timeout(1100)
-    
+
     # Progress bar should now be visible
     expect(progress).to_have_css("opacity", "1")
