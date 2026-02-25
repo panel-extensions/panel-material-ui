@@ -51,6 +51,8 @@ class ChatInterface(ChatFeed, PnChatInterface):
     _rename = {"loading": "loading"}
 
     def __init__(self, **params):
+        if params.get('sizing_mode') is None and params.get('height') is None:
+            params['sizing_mode'] = 'stretch_both'
         self._widget = None
         self._send_watcher = None
         super().__init__(**params)
