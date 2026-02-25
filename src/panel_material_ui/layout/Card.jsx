@@ -113,7 +113,7 @@ export function render({model, view}) {
           flexGrow: 1,
           height: "100%",
           width: "100%",
-          "& .MuiCollapse-wrapper": {
+          "& .MuiCollapse-wrapper, & .MuiCollapse-wrapperInner": {
             height: "100% !important",
           },
         }}
