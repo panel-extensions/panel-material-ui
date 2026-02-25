@@ -416,6 +416,14 @@ export function render({model, view}) {
 
   const inputRef = React.useRef(null);
 
+  const prevLoadingRef = React.useRef(false)
+  React.useEffect(() => {
+    if (prevLoadingRef.current && !loading) {
+      inputRef.current?.focus()
+    }
+    prevLoadingRef.current = loading
+  }, [loading])
+
   return (
     <Box
       sx={{
