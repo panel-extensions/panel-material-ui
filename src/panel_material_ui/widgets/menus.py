@@ -136,7 +136,7 @@ class MenuBase(MaterialWidget):
     def _lookup_item(self, index, items=None):
         if index is None:
             return
-        indexes = index if isinstance(index, tuple) else [index]
+        indexes = index if isinstance(index, (tuple, list)) else [index]
         value = self.items if items is None else items
         for i, idx in enumerate(indexes):
             if idx >= len(value):

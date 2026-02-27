@@ -116,6 +116,19 @@ export function render({model}) {
 
     const inline_actions = actions ? actions.filter(b => b.inline) : []
     const menu_actions = actions ? actions.filter(b => !b.inline) : []
+    const hasSubitems = !collapsed && subitems && subitems.length > 0
+    const tooltip_text = isObject ? item.tooltip : null
+
+    const toggleExpand = () => {
+      const index = expanded.map((e) => e.toString()).indexOf(key.toString())
+      const new_expanded = [...expanded]
+      if (index === -1) {
+        new_expanded.push(path)
+      } else {
+        new_expanded.splice(index, 1)
+      }
+      setExpanded(new_expanded)
+    }
 
     const combined_indent = indent * level_indent
     const list_item = (
@@ -132,6 +145,9 @@ export function render({model}) {
             setActive(path)
           }
           model.send_msg({type: "click", item: path})
+          if (hasSubitems) {
+            toggleExpand()
+          }
           if (item.disable_link) {
             e.preventDefault()
             e.stopPropagation()
@@ -294,7 +310,7 @@ export function render({model}) {
             </Menu>
           </React.Fragment>
         )}
-        {!collapsed && subitems && subitems.length ? (
+        {hasSubitems ? (
           <IconButton
             size="small"
             onMouseDown={(e) => {
@@ -302,15 +318,7 @@ export function render({model}) {
             }}
             onClick={(e) => {
               e.stopPropagation()
-              const new_key = Number(key)
-              const index = expanded.map((e) => e.toString()).indexOf(key.toString())
-              const new_expanded = [...expanded]
-              if (index === -1) {
-                new_expanded.push(new_key)
-              } else {
-                new_expanded.splice(index, 1)
-              }
-              setExpanded(new_expanded)
+              toggleExpand()
             }}
             sx={{ml: 0.25}}
           >
@@ -321,9 +329,13 @@ export function render({model}) {
     )
 
     if (!collapsed && subitems && subitems.length) {
-      return [
-        list_item,
-        <Collapse in={item_open} timeout="auto" unmountOnExit>
+      const item_with_collapse = [
+        tooltip_text ? (
+          <Tooltip key={`tooltip-${key}`} title={render_icon_text(tooltip_text)} placement="right" disableInteractive>
+            {list_item}
+          </Tooltip>
+        ) : list_item,
+        <Collapse key={`collapse-${key}`} in={item_open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding dense={dense}>
             {subitems.map((subitem, index) => {
               return render_item(subitem, index, path, indent+1)
@@ -331,9 +343,17 @@ export function render({model}) {
           </List>
         </Collapse>
       ]
+      return item_with_collapse
     } else if (collapsed) {
       return (
-        <Tooltip title={render_icon_text(label)} placement="right" disableInteractive>
+        <Tooltip title={render_icon_text(tooltip_text || label)} placement="right" disableInteractive>
+          {list_item}
+        </Tooltip>
+      )
+    }
+    if (tooltip_text) {
+      return (
+        <Tooltip title={render_icon_text(tooltip_text)} placement="right" disableInteractive>
           {list_item}
         </Tooltip>
       )
