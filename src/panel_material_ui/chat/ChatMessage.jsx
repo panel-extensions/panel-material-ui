@@ -150,7 +150,7 @@ export function render({model, view}) {
     }
     // Listen for user-initiated scroll events on the feed container.
     const feed = scrollContainerRef.current;
-    if (!feed) return;
+    if (!feed) { return; }
     let prevScrollTop = feed.scrollTop;
     const onScroll = () => {
       const currentTop = feed.scrollTop;
@@ -169,7 +169,7 @@ export function render({model, view}) {
   }, []);
 
   React.useEffect(() => {
-    if (!paperRef.current) return;
+    if (!paperRef.current) { return; }
     let layoutTimer = null;
     const observer = new ResizeObserver(() => {
       // Debounce layout invalidation to avoid thrashing during streaming.
