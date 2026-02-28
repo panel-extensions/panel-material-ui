@@ -121,6 +121,78 @@ export function render({model, view}) {
   const obj_model = view.model.data._object_panel
   const isResponsive = obj_model.sizing_mode && (obj_model.sizing_mode.includes("width") || obj_model.sizing_mode.includes("both"))
 
+  const paperRef = React.useRef(null);
+
+  // Find and cache the scrollable feed ancestor once on mount.
+  // Walk up from view.el, crossing shadow DOM boundaries via getRootNode().host.
+  const scrollContainerRef = React.useRef(null);
+  // Track whether the user has manually scrolled up. Reset when they
+  // scroll back near the bottom. This lets us distinguish "user scrolled
+  // up to read history" from "content grew and pushed the scroll position".
+  const userScrolledUpRef = React.useRef(false);
+  React.useEffect(() => {
+    let el = view.el;
+    while (el) {
+      // +1 accounts for subpixel rounding differences across browsers
+      if (el.scrollHeight > el.clientHeight + 1) {
+        const style = getComputedStyle(el);
+        if (style.overflowY === "auto" || style.overflowY === "scroll") {
+          scrollContainerRef.current = el;
+          break;
+        }
+      }
+      if (el.parentElement) {
+        el = el.parentElement;
+      } else {
+        const root = el.getRootNode();
+        el = root instanceof ShadowRoot ? root.host : null;
+      }
+    }
+    // Listen for user-initiated scroll events on the feed container.
+    const feed = scrollContainerRef.current;
+    if (!feed) return;
+    let prevScrollTop = feed.scrollTop;
+    const onScroll = () => {
+      const currentTop = feed.scrollTop;
+      const distFromBottom = feed.scrollHeight - currentTop - feed.clientHeight;
+      if (currentTop < prevScrollTop) {
+        // User scrolled up
+        userScrolledUpRef.current = true;
+      } else if (distFromBottom < 50) {
+        // User scrolled back to (near) the bottom — re-enable auto-scroll
+        userScrolledUpRef.current = false;
+      }
+      prevScrollTop = currentTop;
+    };
+    feed.addEventListener("scroll", onScroll);
+    return () => feed.removeEventListener("scroll", onScroll);
+  }, []);
+
+  React.useEffect(() => {
+    if (!paperRef.current) return;
+    let layoutTimer = null;
+    const observer = new ResizeObserver(() => {
+      // Debounce layout invalidation to avoid thrashing during streaming.
+      clearTimeout(layoutTimer);
+      layoutTimer = setTimeout(() => view.invalidate_layout(), 50);
+      // Scroll the feed to show new/expanded content after React paints,
+      // but only if the user hasn't manually scrolled up.
+      if (!userScrolledUpRef.current) {
+        requestAnimationFrame(() => {
+          const feed = scrollContainerRef.current;
+          if (feed) {
+            feed.scrollTop = feed.scrollHeight;
+          }
+        });
+      }
+    });
+    observer.observe(paperRef.current);
+    return () => {
+      observer.disconnect();
+      clearTimeout(layoutTimer);
+    };
+  }, []);
+
   return (
     <Box sx={{flexDirection: "row", display: "flex", maxWidth: "100%"}}>
       {placement === "left" && avatar_component}
@@ -131,7 +203,7 @@ export function render({model, view}) {
         <Stack direction="row" spacing={0}>
           {header}
         </Stack>
-        <Paper elevation={elevation} sx={{bgcolor: "background.paper", width: isResponsive ? "100%" : "fit-content"}}>
+        <Paper ref={paperRef} elevation={elevation} sx={{bgcolor: "background.paper", width: isResponsive ? "100%" : "fit-content"}}>
           {object}
         </Paper>
         <Stack direction="row" spacing={0}>

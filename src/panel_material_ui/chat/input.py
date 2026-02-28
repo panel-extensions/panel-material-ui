@@ -252,6 +252,10 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         """
         self._send_msg({"type": "sync"})
 
+    def focus(self):
+        """Focus the input element."""
+        self._send_msg({"type": "focus"})
+
     def _update_loading(self, *_) -> None:
         """
         Loading handler handled client-side.
