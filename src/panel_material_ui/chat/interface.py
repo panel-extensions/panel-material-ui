@@ -54,12 +54,29 @@ class ChatInterface(ChatFeed, PnChatInterface):
         self._widget = None
         self._send_watcher = None
         super().__init__(**params)
+        # Make the chat log fill available space in the Card's flex layout
+        # and scroll when content overflows. Without this, the Feed grows
+        # unbounded and pushes the input off-screen.
+        # Note: sizing_mode alone doesn't work because _chat_log.height_policy
+        # is bound to a reactive expression from _stretches_height(self) that
+        # reads the ChatInterface's sizing_mode, not the Feed's. We must use
+        # CSS !important to override the flex value that apply_flex computes.
+        self._chat_log.stylesheets = [
+            *self._chat_log.stylesheets,
+            ":host { flex: 1 1 0px !important; min-height: 0 !important; }"
+        ]
+        # Panel's default auto_scroll_limit (200px) is too small — when
+        # streaming replaces message content with taller text, the distance
+        # from the bottom can exceed 200px and scroll_to_latest bails out.
+        if 'auto_scroll_limit' not in params:
+            self.auto_scroll_limit = 2000
 
     @param.depends("_callback_state", watch=True)
     async def _update_input_disabled(self):
         busy_states = (CallbackState.RUNNING, CallbackState.GENERATING)
         if not self.show_stop or self._callback_state not in busy_states or self._callback_future is None:
             self._widget.loading = False
+            self._widget.focus()
         else:
             self._widget.loading = True
 
