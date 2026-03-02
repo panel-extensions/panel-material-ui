@@ -18,8 +18,6 @@ panel = ">=1.8.0"
 bokeh = ">=3.8.0"
 packaging = "*"
 watchfiles = "*"
-
-[host-dependencies]
 pip = "*"
 setuptools = ">=61"
 setuptools-scm = "*"
