@@ -237,6 +237,12 @@ export function render({model, view}) {
       } else if (msg.type === "sync") {
         // Programmatically trigger file sync using ref to get current file_data
         syncFilesFromRef()
+      } else if (msg.type === "focus") {
+        // Defer focus to next frame so React re-renders complete first.
+        setTimeout(() => {
+          const textarea = view.container.querySelector("textarea")
+          textarea?.focus()
+        }, 0)
       }
     })
 
@@ -415,6 +421,29 @@ export function render({model, view}) {
   )
 
   const inputRef = React.useRef(null);
+
+  // Auto-focus the textarea on initial mount.
+  React.useEffect(() => {
+    setTimeout(() => {
+      const textarea = view.container.querySelector("textarea")
+      textarea?.focus()
+    }, 0)
+  }, [])
+
+  // Focus the textarea when loading transitions from true → false
+  // (i.e. when the callback finishes). This runs entirely on the frontend,
+  // avoiding Python→JS message timing issues.
+  const prevLoadingRef = React.useRef(loading);
+  React.useEffect(() => {
+    if (prevLoadingRef.current && !loading) {
+      // Defer to next frame so React re-renders (e.g. disabled state) complete first
+      setTimeout(() => {
+        const textarea = view.container.querySelector("textarea")
+        textarea?.focus()
+      }, 0)
+    }
+    prevLoadingRef.current = loading;
+  }, [loading])
 
   return (
     <Box
