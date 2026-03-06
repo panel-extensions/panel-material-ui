@@ -35,6 +35,9 @@ class ChatInterface(ChatFeed, PnChatInterface):
     >>> ChatInterface().servable()
     """
 
+    placeholder = param.String(default="Send a message", doc="""
+        The placeholder text for the input widget.""")
+
     input_params = param.Dict(
         default={}, doc="Additional parameters to pass to the ChatAreaInput widget, like `enable_upload`."
     )
@@ -83,7 +86,7 @@ class ChatInterface(ChatFeed, PnChatInterface):
     @param.depends("button_properties", watch=True)
     def _init_widgets(self):
         if self._widget is None:
-            self._widget = ChatAreaInput(sizing_mode="stretch_width", disabled=self.param.disabled, **self.input_params)
+            self._widget = ChatAreaInput(sizing_mode="stretch_width", disabled=self.param.disabled, placeholder=self.placeholder, **self.input_params)
             self._widget.on_action("stop", self._click_stop)
             input_container = Row(self._widget, sizing_mode="stretch_width")
             self._input_container.objects = [input_container]
@@ -122,6 +125,12 @@ class ChatInterface(ChatFeed, PnChatInterface):
             return
         value = Column(*objects) if len(objects) > 1 else objects[0]
         self.send(value=value, user=self.user, avatar=self.avatar, respond=True)
+
+    @param.depends("placeholder", watch=True)
+    def _update_input_placeholder(self):
+        """Sync placeholder to the input widget when changed dynamically."""
+        if self._widget is not None:
+            self._widget.placeholder = self.placeholder
 
     @param.depends("placeholder_text", "placeholder_params", watch=True, on_init=True)
     def _update_placeholder(self):

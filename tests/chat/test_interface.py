@@ -55,3 +55,23 @@ def test_chat_interface_focus_after_callback_state():
         # Simulate callback finishing — loading goes to False and focus is called
         asyncio.get_event_loop().run_until_complete(chat._update_input_disabled())
         mock_focus.assert_called_once()
+
+
+def test_placeholder_default():
+    """Default placeholder should be 'Send a message' (inherited from Panel)."""
+    chat = ChatInterface()
+    assert chat._widget.placeholder == "Send a message"
+
+
+def test_placeholder_init():
+    """Placeholder set at init should propagate to the input widget."""
+    chat = ChatInterface(placeholder="Type here...")
+    assert chat._widget.placeholder == "Type here..."
+
+
+def test_placeholder_dynamic_update():
+    """Changing placeholder after init should update the input widget."""
+    chat = ChatInterface(placeholder="Initial")
+    assert chat._widget.placeholder == "Initial"
+    chat.placeholder = "Updated placeholder"
+    assert chat._widget.placeholder == "Updated placeholder"
