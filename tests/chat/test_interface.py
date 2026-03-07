@@ -57,21 +57,32 @@ def test_chat_interface_focus_after_callback_state():
         mock_focus.assert_called_once()
 
 
-def test_placeholder_default():
-    """Default placeholder should be 'Send a message' (inherited from Panel)."""
-    chat = ChatInterface()
-    assert chat._widget.placeholder == "Send a message"
-
-
-def test_placeholder_init():
-    """Placeholder set at init should propagate to the input widget."""
-    chat = ChatInterface(placeholder="Type here...")
+def test_input_params_placeholder_init():
+    """Placeholder set via input_params at init should propagate to the input widget."""
+    chat = ChatInterface(input_params={"placeholder": "Type here..."})
     assert chat._widget.placeholder == "Type here..."
 
 
-def test_placeholder_dynamic_update():
-    """Changing placeholder after init should update the input widget."""
-    chat = ChatInterface(placeholder="Initial")
+def test_input_params_dynamic_update():
+    """Changing input_params after init should update the input widget."""
+    chat = ChatInterface(input_params={"placeholder": "Initial"})
     assert chat._widget.placeholder == "Initial"
-    chat.placeholder = "Updated placeholder"
+    chat.input_params = {"placeholder": "Updated placeholder"}
     assert chat._widget.placeholder == "Updated placeholder"
+
+
+def test_input_params_multiple_keys():
+    """Multiple input_params should all propagate to the input widget."""
+    chat = ChatInterface(input_params={"placeholder": "Ask me...", "max_rows": 5})
+    assert chat._widget.placeholder == "Ask me..."
+    assert chat._widget.max_rows == 5
+
+
+def test_input_params_ignores_managed_keys():
+    """Managed keys (disabled, sizing_mode) in input_params should not crash."""
+    chat = ChatInterface(input_params={"disabled": True, "placeholder": "Test"})
+    # disabled is managed separately via self.param.disabled, so input_params value is ignored
+    assert chat._widget.placeholder == "Test"
+    # dynamic update should also skip managed keys
+    chat.input_params = {"sizing_mode": "fixed", "placeholder": "Updated"}
+    assert chat._widget.placeholder == "Updated"
