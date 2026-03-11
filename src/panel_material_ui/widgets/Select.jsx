@@ -135,7 +135,18 @@ export function render({model, el, view}) {
     }
   }, [filterStr])
 
-  const nb = document.querySelector(".jp-NotebookPanel");
+  let nb = document.querySelector(".jp-NotebookPanel");
+  let node = view.el
+  while (node != null) {
+    if (node.host != null) {
+      node = node.host
+    } else {
+      node = node.parentNode
+    }
+    if (node?.className?.includes("react-flow")) {
+      nb = true
+    }
+  }
 
   const MenuProps = nb ? {} : {
     container: el,
@@ -509,6 +520,7 @@ export function render({model, el, view}) {
           onClose={() => setOpen(false)}
           ref={menuRef}
           sx={{maxHeight: dropdown_height}}
+          view={view}
         >
           {renderMenuItems()}
         </CustomMenu>

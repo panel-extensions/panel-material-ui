@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import param
-from panel.util import edit_readonly, isIn
+from panel.util import edit_readonly, indexOf, isIn
 from panel.util.parameters import get_params_to_inherit
 from panel.widgets.base import Widget
 from panel.widgets.select import NestedSelect as _PnNestedSelect
@@ -149,7 +149,12 @@ class AutocompleteInput(MaterialSingleSelectBase):
     @param.depends('value', watch=True, on_init=True)
     def _sync_value_input(self):
         with edit_readonly(self):
-            self.value_input = '' if self.value is None else self.value
+            if self.value is None:
+                self.value_input = ''
+            elif isinstance(self.options, dict) and isIn(self.value, self.values):
+                self.value_input = self.labels[indexOf(self.value, self.values)]
+            else:
+                self.value_input = self.value
 
     def _handle_msg(self, msg: dict) -> None:
         """

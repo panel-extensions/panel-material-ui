@@ -392,6 +392,83 @@ def test_menu_list_update_item_nested(page):
     expect(child_items.nth(1).locator('.MuiListItemText-primary')).to_have_text('Child 2')  # Other child unchanged
 
 
+def test_menu_list_expand_on_label_click(page):
+    """Clicking the parent item label text should toggle expand/collapse, not just the icon button."""
+    widget = MenuList(items=[
+        {
+            "label": "Parent",
+            "items": [
+                {"label": "Child 1"},
+                {"label": "Child 2"},
+            ],
+        }
+    ])
+    serve_component(page, widget)
+
+    # Click on the parent item's label text (not the expand icon button)
+    page.locator(".MuiListItemText-root").first.click()
+
+    # Subitems should become visible
+    subitems = page.locator(".MuiCollapse-root .MuiListItemButton-root")
+    expect(subitems).to_have_count(2)
+    expect(subitems.nth(0)).to_have_text("CChild 1")
+    expect(subitems.nth(1)).to_have_text("CChild 2")
+
+
+def test_menu_list_nested_expand(page):
+    """Nested child groups should be expandable after expanding the top-level parent."""
+    widget = MenuList(items=[
+        {
+            "label": "Top",
+            "items": [
+                {
+                    "label": "Sub Group",
+                    "items": [
+                        {"label": "Leaf 1"},
+                        {"label": "Leaf 2"},
+                    ],
+                }
+            ],
+        }
+    ])
+    serve_component(page, widget)
+
+    # Expand top-level parent via the icon button (this works)
+    page.locator(".MuiListItemButton-root").first.locator(".MuiIconButton-root").click()
+    subitems = page.locator(".MuiCollapse-root .MuiListItemButton-root")
+    expect(subitems).to_have_count(1)
+
+    # Now expand the nested child group via its icon button
+    subitems.first.locator(".MuiIconButton-root").click()
+
+    # Leaf items should become visible
+    leaf_items = page.locator(".MuiCollapse-root .MuiCollapse-root .MuiListItemButton-root")
+    expect(leaf_items).to_have_count(2)
+    expect(leaf_items.nth(0)).to_have_text("LLeaf 1")
+    expect(leaf_items.nth(1)).to_have_text("LLeaf 2")
+
+
+def test_menu_list_item_tooltip(page):
+    """Items with a 'tooltip' property should show a tooltip on hover even when not collapsed."""
+    widget = MenuList(
+        items=[
+            {"label": "Item 1", "icon": "home", "tooltip": "Go Home"},
+            {"label": "Item 2", "icon": "settings", "tooltip": "Open Settings"},
+        ],
+        collapsed=False,
+    )
+    serve_component(page, widget)
+
+    # Hover over the first item
+    page.locator(".MuiListItemButton-root").nth(0).hover()
+
+    # Tooltip should appear with the item's tooltip text
+    tooltip = page.locator(".MuiTooltip-popper")
+    expect(tooltip).to_have_count(1)
+    expect(tooltip).to_be_visible()
+    expect(tooltip).to_have_text("Go Home")
+
+
 def test_menu_list_update_item_with_icon(page):
     """Test updating a menu list item to add an icon"""
     items = [

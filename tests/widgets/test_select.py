@@ -262,6 +262,21 @@ def test_select_change_options_on_watch(document, comm):
     assert model.data.value == 'D'
     assert model.data.options == list(select.options)
 
+def test_autocomplete_dict_options_value_input():
+    w = AutocompleteInput(
+        options={"Biology": 1, "Chemistry": 2, "Physics": 3},
+        value=1,
+    )
+    assert w.value == 1
+    assert w.value_input == "Biology"
+
+    w.value = 2
+    assert w.value_input == "Chemistry"
+
+    w.value = None
+    assert w.value_input == ""
+
+
 def test_autocomplete_lazy_search_options_empty(document, comm):
     """Test that when lazy_search is True, model.data.options is None"""
     opts = {'A': 'a', '1': 1, 'B': 'b'}
