@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+import subprocess
 import typing as t
 
 from pathlib import Path
@@ -36,6 +37,12 @@ def compile_bundle():
 
         flags = fcntl.fcntl(sys.stdout, fcntl.F_GETFL)
         fcntl.fcntl(sys.stdout, fcntl.F_SETFL, flags & ~os.O_NONBLOCK)
+
+    subprocess.run(
+        [sys.executable, str(BASE_DIR / "scripts" / "generate_font_css.py")],
+        cwd=BASE_DIR,
+        check=True,
+    )
 
     if not errors:
         print(f"{GREEN}[PANEL-MATERIAL-UI]{RESET} Finished building bundle", flush=True)
