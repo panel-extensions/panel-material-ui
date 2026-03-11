@@ -322,7 +322,7 @@ const pathsToIds = (value, metadata) => {
  * Uses item metadata (`icon`, `file_type`) to choose the label icon.
  */
 const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
-  const {id, itemId, label, children, color, model, highlightSelection, setToggleValues, toggle_ref, ...other} = props
+  const {id, itemId, label, children, color, model, highlightSelection, setToggleValues, toggle_ref, view, ...other} = props
 
   const item = useTreeItemModel(itemId)
   const {
@@ -592,6 +592,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
                     anchorEl={menuAnchor}
                     open={menuOpen}
                     onClose={handleMenuClose}
+                    view={view}
                   >
                     {menuActions.map((action, index) => {
                       if (action === null) {
@@ -646,7 +647,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   )
 })
 
-export function render({model}) {
+export function render({model, view}) {
   const [checkboxes] = model.useState("checkboxes")
   const [color] = model.useState("color")
   const [items] = model.useState("items")
@@ -744,7 +745,7 @@ export function render({model}) {
       items={treeItems}
       isItemDisabled={(item) => item.disabled ?? false}
       slots={{item: CustomTreeItem}}
-      slotProps={{item: {color, model, highlightSelection: !checkboxes, setToggleValues, toggle_ref}}}
+      slotProps={{item: {color, model, highlightSelection: !checkboxes, setToggleValues, toggle_ref, view}}}
       selectedItems={selectedIds}
       onSelectedItemsChange={handleSelectedChange}
       expandedItems={expandedIds}

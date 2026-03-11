@@ -81,7 +81,7 @@ function overlapPrefix(a, b) {
   return out
 }
 
-export function render({model}) {
+export function render({model, view}) {
   const [active, setActive] = model.useState("active")
   const [auto_descend] = model.useState("auto_descend")
   const [color] = model.useState("color")
@@ -261,7 +261,7 @@ export function render({model}) {
               >
                 <ArrowDropDownIcon fontSize="small" />
               </IconButton>
-              <CustomMenu anchorEl={anchorEl} open={isOpen} onClose={closeMenu} keepMounted>
+              <CustomMenu anchorEl={anchorEl} open={isOpen} onClose={closeMenu} keepMounted view={view}>
                 {siblings.map((sib, idx) => {
                   const isSelectable = sib.selectable ?? true
                   const menuItem = (
@@ -329,7 +329,7 @@ export function render({model}) {
                 >
                   <ArrowDropDownIcon fontSize="small" />
                 </IconButton>
-                <CustomMenu anchorEl={anchorEl} open={isOpen} onClose={closeMenu} keepMounted>
+                <CustomMenu anchorEl={anchorEl} open={isOpen} onClose={closeMenu} keepMounted view={view}>
                   {siblings.map((sib, idx) => {
                     const isSelectable = sib.selectable ?? true
                     const menuItem = (
