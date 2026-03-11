@@ -88,6 +88,7 @@ export function render(props, ref) {
         // For persistent mode, we still want backdrop clicks to close the menu
         onClick={() => persistent || e.stopPropagation()}
         onClose={() => setOpen(false)}
+        view={view}
       >
         {items.map((item, index) => {
           if (item === null || item.label === "---") {

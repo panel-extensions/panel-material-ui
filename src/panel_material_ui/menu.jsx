@@ -5,8 +5,19 @@ import Menu from "@mui/material/Menu"
 import Paper from "@mui/material/Paper"
 import Popper from "@mui/material/Popper"
 
-export function CustomMenu({open, anchorEl, onClose, children, sx, keepMounted}) {
-  const nb = document.querySelector(".jp-NotebookPanel");
+export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMounted}) {
+  let nb = document.querySelector(".jp-NotebookPanel");
+  let node = view.el
+  while (node != null) {
+    if (node.host != null) {
+      node = node.host
+    } else {
+      node = node.parentNode
+    }
+    if (node?.className?.includes("react-flow")) {
+      nb = true
+    }
+  }
 
   if (nb == null) {
     return (
