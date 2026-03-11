@@ -111,7 +111,7 @@ panel.io.convert.BASE_TEMPLATE = panel.io.resources.BASE_TEMPLATE = BASE_TEMPLAT
 
 panel.io.convert.loading_resources = lambda template, inline: [PN_LOADING_MSG_CSS]
 
-FONT_CSS = [
+FONT_WOFF = [
     str(p) for p in DIST_PATH.glob('material-icons-*.woff*')
     if not (
         'material-icons-round' in p.name or
@@ -127,6 +127,8 @@ FONT_CSS = [
 ] + [
     str(p) for p in DIST_PATH.glob('roboto-symbols-?00-normal*.woff*')
 ]
+
+FONT_CSS = [str(DIST_PATH / "material-icons.css")]
 
 mimetypes.add_type("font/woff", ".woff")
 mimetypes.add_type("font/woff2", ".woff2")
