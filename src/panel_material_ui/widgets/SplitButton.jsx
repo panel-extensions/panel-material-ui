@@ -104,6 +104,7 @@ export function render(props, ref) {
         anchorEl={() => anchorEl.current}
         open={open}
         onClose={() => setOpen(false)}
+        view={view}
       >
         {items.map((option, index) => {
           const menuItem = (

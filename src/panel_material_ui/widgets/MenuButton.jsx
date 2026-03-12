@@ -50,6 +50,7 @@ export function render(props, ref) {
         anchorEl={() => anchorEl.current}
         open={open}
         onClose={() => setOpen(false)}
+        view={view}
       >
         {items.map((item, index) => {
           if (item === null || item.label === "---") {
