@@ -16,67 +16,28 @@ Welcome to the **Panel Material UI** how-to guides. These guides walk you throug
 :link: customize
 :link-type: doc
 
-Explore the fundamentals of customizing **panel-material-ui** components. Learn one-off styling with `sx`, overriding nested elements, global CSS overrides, and theme inheritance.
+Everything you need to style and theme **panel-material-ui** apps: choosing the right tool (`styles`, `stylesheets`, `sx`, `theme_config`), colors, typography, dark mode, icons, component defaults, and theming Plotly, hvPlot, and Bokeh plots.
 
 +++
 [Learn more »](customize)
 :::
 
-:::{grid-item-card} {octicon}`list-unordered;2.5em;sd-mr-1` Customize Color Palettes
-:link: palette
+:::{grid-item-card} {octicon}`paintbrush;2.5em;sd-mr-1` Apply Branding
+:link: branding
 :link-type: doc
 
-Customize the default primary, secondary, and intent-based colors. Set up advanced palette configurations including custom tokens and color schemes.
+End-to-end example of packaging colors, typography, assets, and component defaults into a
+reusable brand module for your **panel-material-ui** app.
 
 +++
-[Learn more »](palette)
-:::
-
-:::{grid-item-card} {octicon}`typography;2.5em;sd-mr-1` Customize Typography
-:link: typography
-:link-type: doc
-
-Learn how to customize fonts, sizes, and text styles.
-
-+++
-[Learn more »](typography)
-:::
-
-:::{grid-item-card} {octicon}`apps;2.5em;sd-mr-1` Theme Components
-:link: components
-:link-type: doc
-
-Customize components changing default props, styles, or adding new variants—by defining a `components` key within your `theme_config`.
-
-+++
-[Learn more »](components)
-:::
-
-:::{grid-item-card} {octicon}`moon;2.5em;sd-mr-1` Control Dark Mode
-:link: dark_mode
-:link-type: doc
-
-Seamlessly toggle between light and dark palettes, or enforce one mode across your application. Perfect for low-light usage and user preference support.
-
-+++
-[Learn more »](dark_mode)
-:::
-
-:::{grid-item-card} {octicon}`paintbrush;2.5em;sd-mr-1` Pick Colors
-:link: color
-:link-type: doc
-
-Dive into the Material Design color system. Create harmonious palettes, pick accessible shades, and apply them to your Panel components.
-
-+++
-[Learn more »](color)
+[Learn more »](branding)
 :::
 
 :::{grid-item-card} {octicon}`image;2.5em;sd-mr-1` Use Icons
 :link: icons
 :link-type: doc
 
-Learn how to use icons in **panel-material-ui**.
+Learn how to use Material UI icons in components, Markdown, HTML, and widget labels.
 
 +++
 [Learn more »](icons)
@@ -92,52 +53,12 @@ Learn how to build custom components extending **panel-material-ui**.
 [Learn more »](custom)
 :::
 
-:::{grid-item-card} {octicon}`paintbrush;2.5em;sd-mr-1` Apply Branding
-:link: branding
-:link-type: doc
-
-Learn how to brand your **panel-material-ui** apps.
-
-+++
-[Learn more »](branding)
-:::
-
 ::::
-
-## Integrations
-
-Discover **panel-material-ui** integrates with different libraries to create beautiful, theme-aware plots, tables and more.
-
-::::{grid} 1 2 2 3
-:gutter: 1 1 1 2
-
-:::{grid-item-card} {octicon}`project;2.5em;sd-mr-1` Bokeh, hvPlot and HoloViews
-:link: bokeh_holoviews
-:link-type: doc
-
-Integrate **panel-material-ui** with **Bokeh**, **hvPlot** and **HoloViews** to create beautiful, theme-aware plots.
-
-+++
-[Learn more »](bokeh_holoviews)
-:::
-
-:::{grid-item-card} {octicon}`project;2.5em;sd-mr-1` Plotly
-:link: plotly
-:link-type: doc
-
-Integrate **panel-material-ui** with **Plotly** to create beautiful, theme-aware plots.
-
-+++
-[Learn more »](bokeh_holoviews)
-:::
-
-::::
-
 
 ## Where to go next?
 
-- If you’re new to **Panel**, check out the [Getting Started](https://panel.holoviz.org/getting_started/index.html) guides to learn the basics.
-- Already confident with Panel? Dive deeper into advanced theming and usage within these customization guides, or reference [Material UI’s design principles](https://mui.com/) for additional inspiration.
+- If you're new to **Panel**, check out the [Getting Started](https://panel.holoviz.org/getting_started/index.html) guides to learn the basics.
+- Already confident with Panel? Dive deeper into advanced theming and usage within these customization guides, or reference [Material UI's design principles](https://mui.com/) for additional inspiration.
 
 ```{toctree}
 :titlesonly:
@@ -145,14 +66,7 @@ Integrate **panel-material-ui** with **Plotly** to create beautiful, theme-aware
 :maxdepth: 2
 
 customize
-palette
-typography
-components
-dark_mode
-color
+branding
 icons
 custom
-branding
-bokeh_holoviews
-plotly
 ```
