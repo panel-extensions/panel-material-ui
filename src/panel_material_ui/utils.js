@@ -734,6 +734,8 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
         --mdc-theme-surface: ${elevation_color(elevation+1, theme, dark)};
       }
     `]
+  } else if (model_type.endsWith("ReactFlow")) {
+    model.data.color_mode = dark ? "dark" : "light"
   } else if (model_type.endsWith("VegaPlot")) {
     model_props.theme = dark ? "dark" : null
   } else if (model_type.endsWith("PlotlyPlot")) {
