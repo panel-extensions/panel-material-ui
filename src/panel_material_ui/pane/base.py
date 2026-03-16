@@ -216,6 +216,11 @@ class Chip(ClickablePaneBase):
         like 'primary', 'secondary', 'default', 'error', 'info', 'success', 'warning'."""
     )
 
+    disabled = param.Boolean(
+        default=False,
+        doc="Disables the Chip component, making it opaque and disabling click events."
+    )
+
     icon = param.String(
         default=None,
         doc="""
