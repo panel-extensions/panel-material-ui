@@ -71,3 +71,89 @@ jobs:
           aws-region: us-east-1
       - name: Upload to S3
         run: aws s3 sync ./dist s3://cdn.holoviz.org/panel-material-ui/${{ env.TAG_NAME }}/
+  publish_npm:
+    name: Publish npm package
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v7
+        with:
+          name: cdn
+          path: dist/
+      - name: Derive npm package version
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/v}"
+          export TAG_NAME
+          python - <<'PY'
+          import os
+          import re
+          import sys
+
+          tag = os.environ["TAG_NAME"]
+          pattern = re.compile(r"^(\d+\.\d+\.\d+)(?:(a|b|rc)(\d+))?$")
+          match = pattern.match(tag)
+          if not match:
+              print(f"Unsupported release tag format: {tag}", file=sys.stderr)
+              sys.exit(1)
+
+          base, prerelease_label, prerelease_number = match.groups()
+          npm_version = base
+          npm_tag = "latest"
+
+          if prerelease_label:
+              label_map = {"a": "alpha", "b": "beta", "rc": "rc"}
+              npm_version = f"{base}-{label_map[prerelease_label]}.{prerelease_number}"
+              npm_tag = "next"
+
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
+              env.write(f"NPM_VERSION={npm_version}\n")
+              env.write(f"NPM_TAG={npm_tag}\n")
+          PY
+      - name: Create npm package metadata
+        working-directory: dist
+        run: |
+          cat <<EOF > package.json
+          {
+            "name": "@holoviz/panel-material-ui",
+            "version": "${NPM_VERSION}",
+            "description": "Panel Material UI frontend bundle assets.",
+            "license": "BSD-3-Clause",
+            "homepage": "https://github.com/panel-extensions/panel-material-ui",
+            "repository": {
+              "type": "git",
+              "url": "https://github.com/panel-extensions/panel-material-ui.git"
+            },
+            "publishConfig": {
+              "access": "public"
+            },
+            "files": [
+              "*"
+            ]
+          }
+          EOF
+      - name: Copy README and license
+        run: |
+          cp README.md dist/README.md
+          cp LICENSE.txt dist/LICENSE.txt
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: npm dev deploy
+        if: contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc')
+        working-directory: dist
+        run: |
+          npm publish --access public --tag dev --provenance
+      - name: npm main deploy
+        if: ${{ !contains(github.ref_name, 'a') && !contains(github.ref_name, 'b') && !contains(github.ref_name, 'rc') }}
+        working-directory: dist
+        run: |
+          npm publish --access public --tag latest --provenance
