@@ -148,12 +148,12 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
       - name: npm dev deploy
-        if: contains(env.TAG, 'a') || contains(env.TAG, 'b') || contains(env.TAG, 'rc')
+        if: contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc')
         working-directory: dist
         run: |
           npm publish --access public --tag dev --provenance
       - name: npm main deploy
-        if: (!(contains(env.TAG, 'a') || contains(env.TAG, 'b') || contains(env.TAG, 'rc')))
+        if: ${{ !contains(github.ref_name, 'a') && !contains(github.ref_name, 'b') && !contains(github.ref_name, 'rc') }}
         working-directory: dist
         run: |
           npm publish --access public --tag latest --provenance
