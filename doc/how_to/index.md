@@ -111,24 +111,14 @@ Discover **panel-material-ui** integrates with different libraries to create bea
 ::::{grid} 1 2 2 3
 :gutter: 1 1 1 2
 
-:::{grid-item-card} {octicon}`project;2.5em;sd-mr-1` Bokeh, hvPlot and HoloViews
-:link: bokeh_holoviews
+:::{grid-item-card} {octicon}`project;2.5em;sd-mr-1` Theme Plotting Libraries
+:link: plotting
 :link-type: doc
 
-Integrate **panel-material-ui** with **Bokeh**, **hvPlot** and **HoloViews** to create beautiful, theme-aware plots.
+Integrate **panel-material-ui** with **Bokeh**, **hvPlot**, **HoloViews**, and **Plotly** to create beautiful, theme-aware plots.
 
 +++
-[Learn more »](bokeh_holoviews)
-:::
-
-:::{grid-item-card} {octicon}`project;2.5em;sd-mr-1` Plotly
-:link: plotly
-:link-type: doc
-
-Integrate **panel-material-ui** with **Plotly** to create beautiful, theme-aware plots.
-
-+++
-[Learn more »](bokeh_holoviews)
+[Learn more »](plotting)
 :::
 
 ::::
@@ -136,8 +126,8 @@ Integrate **panel-material-ui** with **Plotly** to create beautiful, theme-aware
 
 ## Where to go next?
 
-- If you’re new to **Panel**, check out the [Getting Started](https://panel.holoviz.org/getting_started/index.html) guides to learn the basics.
-- Already confident with Panel? Dive deeper into advanced theming and usage within these customization guides, or reference [Material UI’s design principles](https://mui.com/) for additional inspiration.
+- If you're new to **Panel**, check out the [Getting Started](https://panel.holoviz.org/getting_started/index.html) guides to learn the basics.
+- Already confident with Panel? Dive deeper into advanced theming and usage within these customization guides, or reference [Material UI's design principles](https://mui.com/) for additional inspiration.
 
 ```{toctree}
 :titlesonly:
@@ -153,6 +143,5 @@ color
 icons
 custom
 branding
-bokeh_holoviews
-plotly
+plotting
 ```

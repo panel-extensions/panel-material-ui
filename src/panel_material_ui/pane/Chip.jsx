@@ -8,6 +8,7 @@ const SIZES = {
 
 export function render({model}) {
   const [color] = model.useState("color")
+  const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
   const [label] = model.useState("object")
   const [size] = model.useState("size")
@@ -17,6 +18,7 @@ export function render({model}) {
   return (
     <Chip
       color={color}
+      disabled={disabled}
       icon={icon ? render_icon(icon, null, size, SIZES[size]) : null}
       label={render_icon_text(label)}
       size={size}

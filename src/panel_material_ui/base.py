@@ -64,7 +64,11 @@ STYLE_ALIASES = {"outline": "outlined"}
 BASE_PATH = pathlib.Path(__file__).parent
 DIST_PATH = BASE_PATH / 'dist'
 IS_RELEASE = __version__ == base_version(__version__)
-CDN_BASE = f"https://cdn.holoviz.org/panel-material-ui/v{base_version(__version__)}"
+CDN_ROOT = os.environ.get(
+    "PANEL_MATERIAL_UI_CDN_ROOT",
+    "https://cdn.holoviz.org/panel-material-ui/v"
+)
+CDN_BASE = f"{CDN_ROOT}{base_version(__version__)}"
 CDN_DIST = f"{CDN_BASE}/panel-material-ui.bundle.js"
 RE_IMPORT = re.compile(r'import\s+(\w+)\s+from\s+[\'"]@mui/material/(\w+)[\'"]')
 RE_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'

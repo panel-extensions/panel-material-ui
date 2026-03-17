@@ -1,5 +1,35 @@
 # Release Notes
 
+## Version 0.9.1
+
+Panel Material UI 0.9.1 focuses on improving chat components, layout polish, and better integration with related Panel extensions such as `panel-reactflow`. The release also includes several UI fixes and documentation improvements.
+
+Many thanks to the contributors to this release including: @philippjfr, @ghostiee-11, @ahuang11, @MarcSkovMadsen, and @hoxbro.
+
+### ✨ Enhancements
+
+* Add `Chip.disabled` parameter to allow disabling chips ([#599](https://github.com/panel-extensions/panel-material-ui/pull/599))
+* Add theme switching support for `panel-reactflow` integration ([#594](https://github.com/panel-extensions/panel-material-ui/pull/594))
+
+### 🐛 Bug Fixes
+
+* Fix `ChatMessage` edit functionality when rendered via React ESM components ([#600](https://github.com/panel-extensions/panel-material-ui/pull/600))
+* Fix `ChatInterface` scroll behavior, focus handling, and message overflow ([#585](https://github.com/panel-extensions/panel-material-ui/pull/585))
+* Fix `MenuList` rendering issues ([#584](https://github.com/panel-extensions/panel-material-ui/pull/584))
+* Fix `Autocomplete` not updating correctly when using dictionaries
+* Fix menu rendering when used inside `panel-reactflow` layouts ([#590](https://github.com/panel-extensions/panel-material-ui/pull/590))
+
+### 🎨 UI Improvements
+
+* Align `Page` logo correctly with the title ([#593](https://github.com/panel-extensions/panel-material-ui/pull/593))
+* Hide `LinearProgress` indicator when idle in the `Page` header ([#574](https://github.com/panel-extensions/panel-material-ui/pull/574))
+* Ensure bundled font files are loaded correctly ([#591](https://github.com/panel-extensions/panel-material-ui/pull/591))
+
+### 📚 Documentation
+
+* Combine training materials and improve documentation structure ([#598](https://github.com/panel-extensions/panel-material-ui/pull/598))
+* Merge Plotly and Bokeh/HoloViews documentation sections ([#597](https://github.com/panel-extensions/panel-material-ui/pull/597))
+
 ## Version 0.9.0
 
 This release includes enhancements, bug fixes, and documentation updates.

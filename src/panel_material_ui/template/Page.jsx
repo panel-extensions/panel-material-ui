@@ -327,13 +327,26 @@ export function render({model, view}) {
               </IconButton>
             </Tooltip>
           }
-          {logo && <a href={site_url}><img src={logoContent} alt="Logo" className="logo" style={{height: "2.5em", paddingRight: "1em"}} /></a>}
-          {title && (
-            <a href={site_url} style={{textDecoration: "none"}}>
-              <Typography variant="h3" className="title" sx={{color: "white"}}>
-                {render_icon_text(title)}
-              </Typography>
-            </a>
+          {(logo || title) && (
+            <Box sx={{display: "flex", alignItems: "center", gap: 2}}>
+              {logo && (
+                <a href={site_url} style={{display: "flex", alignItems: "center"}}>
+                  <img
+                    src={logoContent}
+                    alt="Logo"
+                    className="logo"
+                    style={{height: "2.5em", display: "block"}}
+                  />
+                </a>
+              )}
+              {title && (
+                <a href={site_url} style={{textDecoration: "none", display: "flex", alignItems: "center"}}>
+                  <Typography variant="h3" className="title" sx={{color: "white", lineHeight: 1}}>
+                    {render_icon_text(title)}
+                  </Typography>
+                </a>
+              )}
+            </Box>
           )}
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
             {header.map((object, index) => {

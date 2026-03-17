@@ -143,7 +143,17 @@ class ChatMessage(MaterialComponent, ChatMessage):
 
     def _handle_msg(self, msg):
         if msg == 'edit':
-            self._toggle_edit(msg)
+            # Toggle between edit area and object panel since the
+            # React frontend renders _object_panel directly (not _placeholder)
+            if self._object_panel is self._edit_area:
+                self._object_panel = self._original_object_panel
+            else:
+                self._original_object_panel = self._object_panel
+                if isinstance(self._object_panel, HTMLBasePane):
+                    self._edit_area.value = self._object_panel.object
+                elif isinstance(self._object_panel, Widget):
+                    self._edit_area.value = self._object_panel.value
+                self._object_panel = self._edit_area
         elif msg == 'copy':
             object_panel = self._object_panel
             if isinstance(object_panel, HTMLBasePane):
@@ -152,8 +162,22 @@ class ChatMessage(MaterialComponent, ChatMessage):
                 object_panel = object_panel.value
             self._send_msg({"type": "copy", "text": object_panel if isinstance(object_panel, str) else ""})
 
+    def _submit_edit(self, event):
+        # Restore the original panel and update the object with edited content
+        if hasattr(self, '_original_object_panel'):
+            self._object_panel = self._original_object_panel
+        if isinstance(self.object, HTMLBasePane):
+            self.object.object = self._edit_area.value
+        elif isinstance(self.object, Widget):
+            self.object.value = self._edit_area.value
+        else:
+            self.object = self._edit_area.value
+        self.param.trigger("object")
+        self.edited = True
+
     def _build_layout(self):
         self._object_panel = self._create_panel(self.object)
+        self._original_object_panel = self._object_panel
         self._placeholder = Placeholder(
             object=self._object_panel,
             css_classes=["placeholder"],
@@ -166,7 +190,6 @@ class ChatMessage(MaterialComponent, ChatMessage):
         )
         self.param.watch(self._update_object_pane, "object")
         self.param.watch(self._update_reaction_icons, "reaction_icons")
-        self.edit_icon.param.watch(self._toggle_edit, "value")
         self._edit_area.param.watch(self._submit_edit, "enter_pressed")
         self._composite = Row()
 
