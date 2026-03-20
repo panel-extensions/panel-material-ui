@@ -23,6 +23,7 @@ from ..base import MaterialComponent
 from .input import ChatAreaInput
 
 _MESSAGE_STYLESHEET = ":host(.message), .message { background-color: unset !important; box-shadow: unset !important; font-size: 1.1em; padding-inline: 8px; }"
+_EDIT_STRETCH_STYLESHEET = ".MuiPaper-root:has(.edit-area) { width: 100% !important; }"
 
 DEFAULT_AVATARS = {
     "system": {"type": "icon", "icon": "settings"},
@@ -186,7 +187,9 @@ class ChatMessage(MaterialComponent, ChatMessage):
         )
         self._edit_area = ChatAreaInput(
             css_classes=["edit-area"],
-            stylesheets=self._stylesheets + self.param.stylesheets.rx()
+            stylesheets=self._stylesheets + self.param.stylesheets.rx(),
+            sizing_mode='stretch_width',
+            placeholder="Edit message...",
         )
         self.param.watch(self._update_object_pane, "object")
         self.param.watch(self._update_reaction_icons, "reaction_icons")
@@ -214,8 +217,11 @@ class ChatMessage(MaterialComponent, ChatMessage):
 
     def _process_param_change(self, params):
         params = super()._process_param_change(params)
-        if 'stylesheets' in params and _MESSAGE_STYLESHEET not in params['stylesheets']:
-            params['stylesheets'] += [_MESSAGE_STYLESHEET]
+        if 'stylesheets' in params:
+            if _MESSAGE_STYLESHEET not in params['stylesheets']:
+                params['stylesheets'] += [_MESSAGE_STYLESHEET]
+            if _EDIT_STRETCH_STYLESHEET not in params['stylesheets']:
+                params['stylesheets'] += [_EDIT_STRETCH_STYLESHEET]
         return params
 
 __all__ = ["ChatMessage"]
