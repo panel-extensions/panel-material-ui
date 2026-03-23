@@ -18,10 +18,7 @@ export function render({model, view}) {
   const objects = model.get_child("objects")
   const flexDirection = model.esm_constants.direction
   const boxRef = React.useRef(null)
-  const updatingRef = React.useRef(false)
-  const userScrollingRef = React.useRef(false)
-  const userScrollFramesRef = React.useRef(0)
-  const userScrollRafRef = React.useRef(null)
+  const syncingScrollRef = React.useRef(false)
   const prevObjectsLengthRef = React.useRef(objects.length)
   const [showScrollButton, setShowScrollButton] = React.useState(false)
 
@@ -56,9 +53,7 @@ export function render({model, view}) {
       return
     }
     const relativeTop = child.offsetTop - el.offsetTop + el.scrollTop
-    updatingRef.current = true
     setScrollPosition(Math.round(relativeTop))
-    updatingRef.current = false
   }, [setScrollPosition])
 
   const scrollToLatest = React.useCallback((scrollLimit = null) => {
@@ -69,13 +64,11 @@ export function render({model, view}) {
     if (scrollLimit !== null && distanceFromLatest(el) > scrollLimit) {
       return
     }
-    requestAnimationFrame(() => {
-      updatingRef.current = true
-      el.scrollTo({top: el.scrollHeight, behavior: "instant"})
-      setScrollPosition(Math.round(el.scrollTop))
-      updatingRef.current = false
-      updateScrollButton(el)
-    })
+    syncingScrollRef.current = true
+    el.scrollTo({top: el.scrollHeight, behavior: "instant"})
+    setScrollPosition(Math.round(el.scrollTop))
+    syncingScrollRef.current = false
+    updateScrollButton(el)
   }, [distanceFromLatest, setScrollPosition, updateScrollButton])
 
   React.useEffect(() => {
@@ -84,24 +77,8 @@ export function render({model, view}) {
       return
     }
     const onScroll = () => {
-      if (updatingRef.current) {
+      if (syncingScrollRef.current) {
         return
-      }
-      userScrollingRef.current = true
-      // Keep user-scrolling lock for a couple of animation frames
-      // to avoid bouncing when synced scroll_position updates round-trip.
-      userScrollFramesRef.current = 2
-      if (userScrollRafRef.current === null) {
-        const tick = () => {
-          if (userScrollFramesRef.current > 0) {
-            userScrollFramesRef.current -= 1
-            userScrollRafRef.current = requestAnimationFrame(tick)
-          } else {
-            userScrollingRef.current = false
-            userScrollRafRef.current = null
-          }
-        }
-        userScrollRafRef.current = requestAnimationFrame(tick)
       }
       setScrollPosition(Math.round(el.scrollTop))
       updateScrollButton(el)
@@ -110,29 +87,21 @@ export function render({model, view}) {
     updateScrollButton(el)
     return () => {
       el.removeEventListener("scroll", onScroll)
-      if (userScrollRafRef.current !== null) {
-        cancelAnimationFrame(userScrollRafRef.current)
-        userScrollRafRef.current = null
-      }
-      userScrollFramesRef.current = 0
-      userScrollingRef.current = false
     }
   }, [managedScroll, setScrollPosition, updateScrollButton])
 
   React.useEffect(() => {
     const el = boxRef.current
-    if (!managedScroll || !el || updatingRef.current || userScrollingRef.current) {
+    if (!managedScroll || !el || syncingScrollRef.current) {
       return
     }
     if (Math.abs(el.scrollTop - scroll_position) <= 1) {
       return
     }
-    requestAnimationFrame(() => {
-      updatingRef.current = true
-      el.scrollTo({top: scroll_position, behavior: "instant"})
-      updatingRef.current = false
-      updateScrollButton(el)
-    })
+    syncingScrollRef.current = true
+    el.scrollTo({top: scroll_position, behavior: "instant"})
+    syncingScrollRef.current = false
+    updateScrollButton(el)
   }, [managedScroll, scroll_position, updateScrollButton])
 
   React.useEffect(() => {
