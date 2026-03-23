@@ -30,6 +30,7 @@ def test_column_scroll_features_render(page):
     assert col.scroll_position >= 0
     assert col.view_latest is True
 
+
 def test_column_scroll_button_click_event(page):
     col = Column(
         *list(range(60)),

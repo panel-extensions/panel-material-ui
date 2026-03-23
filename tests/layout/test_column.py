@@ -16,7 +16,6 @@ def test_column_scroll_params_available():
     assert col.scroll_index == 1
     assert col.view_latest is True
 
-
 def test_column_scroll_to_updates_scroll_index():
     col = Column("a", "b", "c")
     events = []
@@ -25,13 +24,3 @@ def test_column_scroll_to_updates_scroll_index():
     col.scroll_to(2)
 
     assert events == [{"type": "scroll_to", "index": 2}]
-
-
-def test_column_on_click_watches_scroll_button_event():
-    col = Column()
-    events = []
-    col.on_click(events.append)
-
-    col.param.trigger("scroll_button_click")
-
-    assert len(events) == 1
