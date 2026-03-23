@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any, Callable, Iterable
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Iterable
 
 import param
 from bokeh.models import Spacer as BkSpacer
 from panel._param import Margin
-from panel.layout.base import ListLike, NamedListLike, SizingModeMixin
+from panel.io.resources import CDN_DIST
+from panel.layout.base import _SCROLL_MAPPING, ListLike, NamedListLike, SizingModeMixin
 from panel.pane import panel
 from panel.util import param_name
 from panel.viewable import Child, Children, Viewable
@@ -48,7 +49,34 @@ class MaterialLayout(MaterialComponent, SizingModeMixin):
 
 class MaterialListLike(MaterialLayout, ListLike):
 
+    scroll = param.Selector(
+        default=False,
+        objects=[False, True, "both-auto", "y-auto", "x-auto", "both", "x", "y"],
+        doc="""Whether to add scrollbars if the content overflows the size
+        of the container. If "both-auto", will only add scrollbars if
+        the content overflows in either directions. If "x-auto" or "y-auto",
+        will only add scrollbars if the content overflows in the
+        respective direction. If "both", will always add scrollbars.
+        If "x" or "y", will always add scrollbars in the respective
+        direction. If False, overflowing content will be clipped.
+        If True, will only add scrollbars in the direction of the container,
+        (e.g. Column: vertical, Row: horizontal).""")
+
+    _stylesheets: ClassVar[list[str]] = [f'{CDN_DIST}css/listpanel.css']
+
     __abstract = True
+
+    def _process_param_change(self, params: dict[str, Any]) -> dict[str, Any]:
+        if (scroll := params.get('scroll')):
+            css_classes = params.get('css_classes', self.css_classes)
+            if scroll in _SCROLL_MAPPING:
+                scroll_class = _SCROLL_MAPPING[scroll]
+            elif self._direction:
+                scroll_class = f'scrollable-{self._direction}'
+            else:
+                scroll_class = 'scrollable'
+            params['css_classes'] = css_classes + [scroll_class]
+        return super()._process_param_change(params)
 
 
 class MaterialNamedListLike(MaterialLayout, NamedListLike):
@@ -216,8 +244,57 @@ class Column(MaterialListLike):
     The `Column` layout arranges its contents vertically.
     """
 
+    auto_scroll_limit = param.Integer(bounds=(0, None), doc="""
+        Max pixel distance from the latest object in the Column to
+        activate automatic scrolling upon update. Setting to 0
+        disables auto-scrolling.""")
+
+    scroll_button_threshold = param.Integer(bounds=(0, None), doc="""
+        Min pixel distance from the latest object in the Column to
+        display the scroll button. Setting to 0
+        disables the scroll button.""")
+
+    scroll_position = param.Integer(default=0, doc="""
+        Current scroll position of the Column. Setting this value
+        will update the scroll position of the Column. Setting to
+        0 will scroll to the top.""")
+
+    scroll_index = param.Integer(default=None, allow_None=True, doc="""
+        Index of the object to scroll to. Setting this value will
+        scroll the Column to the object at the given index.""")
+
+    view_latest = param.Boolean(default=False, doc="""
+        Whether to scroll to the latest object on init. If not
+        enabled the view will be on the first object.""")
+
+    scroll_button_click = param.Event(doc="""
+        Triggered when the scroll-to-latest button is clicked.""")
+
+    _event = "dom_event"
+    _rename = {"scroll_button_click": None}
+
     _esm_base = "Box.jsx"
     _constants = {"direction": "column", "loading_inset": 0}
+
+    def __init__(self, *objects, **params):
+        click_handler = params.pop("on_click", None)
+        super().__init__(*objects, **params)
+        if click_handler:
+            self.on_click(click_handler)
+
+    def _handle_click(self, event=None):
+        self.param.trigger("scroll_button_click")
+
+    def scroll_to(self, index: int):
+        """
+        Scrolls to the child at the provided index.
+
+        Parameters
+        ----------
+        index: int
+            Index of the child object to scroll to.
+        """
+        self._send_msg({"type": "scroll_to", "index": index})
 
 
 class Row(MaterialListLike):
