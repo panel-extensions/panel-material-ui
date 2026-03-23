@@ -109,7 +109,7 @@ select = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--pyargs --doctest-ignore-import-errors --color=yes"
+addopts = "--import-mode=importlib --pyargs --doctest-ignore-import-errors --color=yes"
 norecursedirs = "doc .git dist build _build .ipynb_checkpoints examples"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
