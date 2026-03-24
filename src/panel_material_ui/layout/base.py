@@ -1,15 +1,28 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Iterable
+from collections.abc import Mapping
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    ClassVar,
+    Iterable,
+)
 
 import param
 from bokeh.models import Spacer as BkSpacer
 from panel._param import Margin
 from panel.io.resources import CDN_DIST
-from panel.layout.base import _SCROLL_MAPPING, ListLike, NamedListLike, SizingModeMixin
+from panel.layout.base import (
+    _SCROLL_MAPPING,
+    ListLike,
+    NamedListLike,
+    SizingModeMixin,
+)
 from panel.pane import panel
-from panel.util import param_name
+from panel.util import edit_readonly, isIn, param_name
 from panel.viewable import Child, Children, Viewable
 
 from ..base import COLORS, MaterialComponent
@@ -18,7 +31,7 @@ from ..widgets import ToggleIcon
 if TYPE_CHECKING:
     from bokeh.document import Document
     from bokeh.model import Model
-    from panel.viewable import Viewable
+    from bokeh.models.ui.ui_element import UIElement
     from pyviz_comms import Comm
 
 
@@ -285,6 +298,12 @@ class Column(MaterialListLike):
     def _handle_click(self, event=None):
         self.param.trigger("scroll_button_click")
 
+    def on_click(self, callback: Callable[[param.parameterized.Event], None | Awaitable[None]]) -> param.parameterized.Watcher:
+        """
+        Register a callback invoked when the scroll-to-latest button is clicked.
+        """
+        return self.param.watch(callback, "scroll_button_click", onlychanged=False)
+
     def scroll_to(self, index: int):
         """
         Scrolls to the child at the provided index.
@@ -295,6 +314,199 @@ class Column(MaterialListLike):
             Index of the child object to scroll to.
         """
         self._send_msg({"type": "scroll_to", "index": index})
+
+
+class Feed(Column):
+    """
+    The `Feed` layout is a buffered `Column` optimized for long, dynamic lists.
+    """
+
+    load_buffer = param.Integer(default=10, bounds=(0, None), doc="""
+        The number of objects loaded on each side of the visible objects.
+        When scrolled halfway into the buffer, the feed will automatically
+        load additional objects while unloading objects on the opposite side.""")
+
+    scroll = param.Selector(
+        default="y",
+        objects=[False, True, "both-auto", "y-auto", "x-auto", "both", "x", "y"],
+        doc="""Whether to add scrollbars if the content overflows the size
+        of the container. If "both-auto", will only add scrollbars if
+        the content overflows in either directions. If "x-auto" or "y-auto",
+        will only add scrollbars if the content overflows in the
+        respective direction. If "both", will always add scrollbars.
+        If "x" or "y", will always add scrollbars in the respective
+        direction. If False, overflowing content will be clipped.
+        If True, will only add scrollbars in the direction of the container,
+        (e.g. Column: vertical, Row: horizontal).""")
+
+    visible_children = param.List(default=[], item_type=str, doc="""
+        Internal list of currently visible frontend child model ids.""")
+
+    visible_range = param.Range(readonly=True, doc="""
+        Read-only upper and lower bounds of the currently visible feed objects.
+        This range is automatically updated based on scrolling.""")
+
+    _esm_base = "Feed.jsx"
+    _rename: ClassVar[Mapping[str, str | None]] = {
+        **Column._rename, "load_buffer": None, "visible_range": None,
+    }
+
+    def __init__(self, *objects, **params):
+        for height_param in ("height", "min_height", "max_height"):
+            if height_param in params:
+                break
+        else:
+            # Set a default height to ensure a bounded scroll viewport.
+            params["height"] = 300
+
+        super().__init__(*objects, **params)
+        self._last_synced: tuple[int, int] | None = None
+        self.param.watch(self._trigger_view_latest, "objects")
+
+    @param.depends("visible_range", "load_buffer", watch=True)
+    def _trigger_get_objects(self):
+        if self.visible_range is None or self._last_synced is None:
+            return
+
+        # visible start, end / synced start, end
+        vs, ve = self.visible_range
+        ss, se = self._last_synced
+        half_buffer = self.load_buffer // 2
+
+        top_trigger = (vs - ss) < half_buffer
+        bottom_trigger = (se - ve) < half_buffer
+        invalid_trigger = (
+            # Prevent being trapped with too few rendered children.
+            ve - vs < self.load_buffer and
+            ve - vs < len(self.objects)
+        )
+        if top_trigger or bottom_trigger or invalid_trigger:
+            self.param.trigger("objects")
+
+    def _trigger_view_latest(self, event):
+        if (
+            event.type == "triggered" or not self.view_latest or
+            not event.new or event.new[-1] in event.old
+        ):
+            return
+        self.scroll_to_latest()
+
+    @property
+    def _synced_range(self) -> tuple[int, int]:
+        n = len(self.objects)
+        if self.visible_range:
+            return (
+                max(self.visible_range[0] - self.load_buffer, 0),
+                min(self.visible_range[-1] + self.load_buffer, n),
+            )
+        if self.view_latest:
+            return (max(n - self.load_buffer * 2, 0), n)
+        return (0, min(self.load_buffer, n))
+
+    def _process_property_change(self, msg):
+        if "visible_children" in msg:
+            visible = msg["visible_children"]
+            for model, _ in self._models.values():
+                refs = [c.ref["id"] for c in getattr(model.data, "objects", [])]
+                if visible and visible[0] in refs:
+                    indexes = sorted(refs.index(v) for v in visible if v in refs)
+                    break
+            else:
+                return super()._process_property_change(msg)
+
+            offset = self._last_synced[0] if self._last_synced is not None else self._synced_range[0]
+            n = len(self.objects)
+            visible_range = [
+                max(offset + indexes[0], 0),
+                min(offset + indexes[-1] + 1, n),
+            ]
+            if visible_range[0] >= visible_range[1]:
+                visible_range[0] = max(visible_range[1] - self.load_buffer, 0)
+            with edit_readonly(self):
+                self.visible_range = tuple(visible_range)
+        return super()._process_property_change(msg)
+
+    def _process_param_change(self, msg):
+        msg.pop("visible_range", None)
+        return super()._process_param_change(msg)
+
+    def _get_child_model(
+        self, child: Viewable, doc: Document, root: Model, parent: Model,
+        comm: Comm | None
+    ) -> tuple[list[UIElement] | UIElement | None, list[UIElement]]:
+        if child is not self.objects:
+            return super()._get_child_model(child, doc, root, parent, comm)
+
+        # If no previously visible objects are visible now, reset the visible range.
+        events = self._in_process__events.get(doc, {})
+        if (
+            self._last_synced and
+            "visible_range" not in events and
+            not any(isIn(obj, self.objects) for obj in child[slice(*self._last_synced)])
+        ):
+            with edit_readonly(self):
+                self.visible_range = None
+
+        from panel.pane.base import RerenderError
+        new_models, old_models = [], []
+        self._last_synced = self._synced_range
+
+        current_objects = list(self.objects)
+        ref = root.ref["id"]
+        for i in range(*self._last_synced):
+            pane = current_objects[i]
+            if ref in pane._models:
+                child, _ = pane._models[root.ref["id"]]
+                old_models.append(child)
+            else:
+                try:
+                    child = pane._get_model(doc, root, parent, comm)
+                except RerenderError as e:
+                    if e.layout is not None and e.layout is not self:
+                        raise e
+                    e.layout = None
+                    return self._get_child_model(current_objects[:i], doc, root, parent, comm)
+            new_models.append(child)
+        return new_models, old_models
+
+    def _process_event(self, event=None) -> None:
+        """
+        Process a scroll-button click event by forcing range to latest window.
+        """
+        if not self.visible_range:
+            return
+
+        # Need to get all the way to the bottom rather than the center
+        # of the buffer zone.
+        load_buffer = self.load_buffer
+        with param.discard_events(self):
+            self.load_buffer = 1
+
+        n = len(self.objects)
+        n_visible = self.visible_range[-1] - self.visible_range[0]
+        with edit_readonly(self):
+            # plus one to center on the last object
+            self.visible_range = (min(max(n - n_visible + 1, 0), n), n)
+
+        with param.discard_events(self):
+            self.load_buffer = load_buffer
+
+    def _handle_click(self, event=None):
+        self._process_event()
+        super()._handle_click(event)
+
+    def _handle_msg(self, msg: dict[str, Any]) -> None:
+        if msg.get("type") == "request_latest":
+            self.scroll_to_latest(scroll_limit=msg.get("scroll_limit"))
+
+    def scroll_to_latest(self, scroll_limit: float | None = None) -> None:
+        """
+        Scrolls the Feed to the latest entry.
+        """
+        rerender = bool(self._last_synced and self._last_synced[-1] < len(self.objects))
+        if rerender:
+            self._process_event()
+        self._send_msg({"type": "scroll_latest", "rerender": rerender, "scroll_limit": scroll_limit})
 
 
 class Row(MaterialListLike):
@@ -969,6 +1181,7 @@ __all__ = [
     "Dialog",
     "Divider",
     "Drawer",
+    "Feed",
     "FlexBox",
     "Grid",
     "Paper",

@@ -168,31 +168,6 @@ export function render({model, view}) {
     return () => feed.removeEventListener("scroll", onScroll);
   }, []);
 
-  React.useEffect(() => {
-    if (!paperRef.current) { return; }
-    let layoutTimer = null;
-    const observer = new ResizeObserver(() => {
-      // Debounce layout invalidation to avoid thrashing during streaming.
-      clearTimeout(layoutTimer);
-      layoutTimer = setTimeout(() => view.invalidate_layout(), 50);
-      // Scroll the feed to show new/expanded content after React paints,
-      // but only if the user hasn't manually scrolled up.
-      if (!userScrolledUpRef.current) {
-        requestAnimationFrame(() => {
-          const feed = scrollContainerRef.current;
-          if (feed) {
-            feed.scrollTop = feed.scrollHeight;
-          }
-        });
-      }
-    });
-    observer.observe(paperRef.current);
-    return () => {
-      observer.disconnect();
-      clearTimeout(layoutTimer);
-    };
-  }, []);
-
   return (
     <Box sx={{flexDirection: "row", display: "flex", maxWidth: "100%"}}>
       {placement === "left" && avatar_component}
