@@ -6,6 +6,8 @@ import dayjs from "dayjs"
 import {render_description} from "./description"
 import {render_icon_text} from "./utils"
 
+const DATE_TIME_PICKER_BASE_SX = {width: "100%"}
+
 export function render({model, view, el}) {
   const [clearable] = model.useState("clearable")
   const [color] = model.useState("color")
@@ -23,6 +25,10 @@ export function render({model, view, el}) {
   const [variant] = model.useState("variant")
   const [modelValue] = model.useState("value")
   const [views] = model.useState("views")
+  const pickerSx = React.useMemo(
+    () => (sx ? [DATE_TIME_PICKER_BASE_SX, sx] : DATE_TIME_PICKER_BASE_SX),
+    [sx]
+  )
 
   const time = model.esm_constants.time
 
@@ -75,9 +81,13 @@ export function render({model, view, el}) {
   const lastCommittedRef = React.useRef(null);
   const ref = React.useRef(null);
 
-  model.on("msg:custom", (msg) => {
-    ref.current?.focus()
-  })
+  React.useEffect(() => {
+    const handler = () => {
+      ref.current?.focus()
+    }
+    model.on("msg:custom", handler)
+    return () => model.off("msg:custom", handler)
+  }, [model])
 
   // Update local state when model value changes from Python
   React.useEffect(() => {
@@ -231,7 +241,7 @@ export function render({model, view, el}) {
         onClose={handleClose}
         onOpen={handleOpen}
         shouldDisableDate={shouldDisableDate}
-        sx={{width: "100%", ...sx}}
+        sx={pickerSx}
         value={internalValue}
         views={views}
         slotProps={{

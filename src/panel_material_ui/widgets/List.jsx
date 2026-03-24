@@ -19,6 +19,49 @@ import Checkbox from "@mui/material/Checkbox"
 import Tooltip from "@mui/material/Tooltip"
 import {render_icon, render_icon_text} from "./utils"
 
+const LIST_SX = {p: 0}
+
+const LIST_ITEM_BUTTON_SX = {
+  m: 0,
+  pr: 1,
+  pl: 1,
+  ml: "var(--pmui-base-ml, 0px)",
+  "&.MuiListItemButton-root": {
+    "&.collapsed": {
+      pl: 1,
+      ".MuiListItemIcon-root": {pr: 0}
+    },
+    ".MuiListItemIcon-root": {minWidth: "unset", pr: 1},
+    "&.Mui-selected": {
+      bgcolor: "rgba(var(--pmui-accent-main-channel) / var(--mui-palette-action-selectedOpacity))",
+      ml: "var(--pmui-selected-ml, 0px)",
+      borderLeft: "6px solid var(--pmui-accent-main)",
+      ".MuiListItemText-root": {
+        ".MuiTypography-root.MuiListItemText-primary": {
+          fontWeight: "bold"
+        }
+      }
+    },
+    "&.Mui-focusVisible": {
+      borderLeft: "3px solid var(--mui-palette-secondary-main)",
+      borderTop: "3px solid var(--mui-palette-secondary-main)",
+      borderRight: "3px solid var(--mui-palette-secondary-main)",
+      borderBottom: "3px solid var(--mui-palette-secondary-main)",
+    },
+    "&.Mui-focusVisible.Mui-selected": {
+      borderLeft: "6px solid var(--pmui-accent-main)",
+      bgcolor: "rgba(var(--pmui-accent-main-channel) / var(--mui-palette-action-selectedOpacity))"
+    },
+    "&:hover": {
+      ".MuiListItemText-root": {
+        ".MuiTypography-root.MuiListItemText-primary": {
+          textDecoration: "underline"
+        }
+      }
+    }
+  },
+}
+
 export function render({model}) {
   const [active, setActive] = model.useState("active")
   const [color] = model.useState("color")
@@ -35,6 +78,7 @@ export function render({model}) {
   const [menu_open, setMenuOpen] = React.useState({})
   const [menu_anchor, setMenuAnchor] = React.useState(null)
   const current_menu_open = {...menu_open}
+  const listSx = React.useMemo(() => ({...LIST_SX, ...(sx || {})}), [sx])
 
   const active_array = Array.isArray(active) ? active : [active]
   const [toggle_values, setToggleValues] = React.useState(new Map())
@@ -131,6 +175,12 @@ export function render({model}) {
     }
 
     const combined_indent = indent * level_indent
+    const itemStyle = {
+      "--pmui-base-ml": `${combined_indent + (highlight ? 6 : 0)}px`,
+      "--pmui-selected-ml": `${combined_indent}px`,
+      "--pmui-accent-main": `var(--mui-palette-${color}-main)`,
+      "--pmui-accent-main-channel": `var(--mui-palette-${color}-mainChannel)`,
+    }
     const list_item = (
       <ListItemButton
         disableRipple={!isSelectable}
@@ -154,48 +204,8 @@ export function render({model}) {
           }
         }}
         selected={highlight && isActive}
-        sx={{
-          m: `0 0 0 ${combined_indent + (highlight ? 6 : 0)}px`,
-          pr: 1,
-          pl: 1,
-          "&.MuiListItemButton-root": {
-            "&.collapsed": {
-              pl: 1,
-              ".MuiListItemIcon-root": {pr: 0}
-            },
-            ".MuiListItemIcon-root": {minWidth: "unset", pr: 1},
-            "&.Mui-selected": {
-              bgcolor: isActive
-                ? `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
-                : "inherit",
-              ml: `${combined_indent}px`,
-              borderLeft: `6px solid var(--mui-palette-${color}-main)`,
-              ".MuiListItemText-root": {
-                ".MuiTypography-root.MuiListItemText-primary": {
-                  fontWeight: "bold"
-                }
-              }
-            },
-            "&.Mui-focusVisible": {
-              borderLeft: isActive
-                ? `6px solid var(--mui-palette-${color}-main)`
-                : "3px solid var(--mui-palette-secondary-main)",
-              borderTop: "3px solid var(--mui-palette-secondary-main)",
-              borderRight: "3px solid var(--mui-palette-secondary-main)",
-              borderBottom: "3px solid var(--mui-palette-secondary-main)",
-              bgcolor: isActive
-                ? `rgba(var(--mui-palette-${color}-mainChannel) / var(--mui-palette-action-selectedOpacity))`
-                : "inherit"
-            },
-            "&:hover": {
-              ".MuiListItemText-root": {
-                ".MuiTypography-root.MuiListItemText-primary": {
-                  textDecoration: "underline"
-                }
-              }
-            }
-          },
-        }}
+        sx={LIST_ITEM_BUTTON_SX}
+        style={itemStyle}
       >
         {leadingComponent}
         {!collapsed && (
@@ -247,7 +257,7 @@ export function render({model}) {
                 e.stopPropagation()
                 e.preventDefault()
               }}
-              sx={{ml: index > 0 ? "0" : "0.5em"}}
+              style={{marginLeft: index > 0 ? 0 : "0.5em"}}
             >
               {action.icon && render_icon(action.icon)}
             </IconButton>)
@@ -365,7 +375,7 @@ export function render({model}) {
     <List
       dense={dense}
       component="nav"
-      sx={{p: 0, ...sx}}
+      sx={listSx}
       subheader={label && (
         <ListSubheader component="div" id="nested-list-subheader">
           {render_icon_text(label)}
