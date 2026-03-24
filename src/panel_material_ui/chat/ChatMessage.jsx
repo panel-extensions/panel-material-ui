@@ -98,6 +98,7 @@ export function render({model, view}) {
 
   const header = model.get_child("header_objects")
   const footer = model.get_child("footer_objects")
+  const footerActions = model.get_child("footer_actions")
 
   model.on("msg:custom", (msg) => {
     navigator.clipboard.writeText(msg.text)
@@ -206,7 +207,8 @@ export function render({model, view}) {
         <Paper ref={paperRef} elevation={elevation} sx={{bgcolor: "background.paper", width: isResponsive ? "100%" : "fit-content"}}>
           {object}
         </Paper>
-        <Stack direction="row" spacing={0}>
+        <Stack direction="row" spacing={0} sx={{position: "relative", zIndex: 1}}>
+          {footerActions}
           {show_edit_icon && <IconButton disableRipple size="small" sx={{padding: "0 0.1em"}} onClick={() => { model.send_msg("edit") }}>
             <EditNoteIcon sx={{width: "0.8em"}} color="lightgray"/>
           </IconButton>}
