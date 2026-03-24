@@ -4,6 +4,10 @@ import Typography from "@mui/material/Typography"
 import {useTheme} from "@mui/material/styles"
 import {render_icon_text} from "./utils"
 
+const CIRCULAR_PROGRESS_ROOT_SX = {display: "flex", alignItems: "center", flexDirection: "row"}
+const CIRCULAR_PROGRESS_CONTAINER_SX = {position: "relative", overflow: "hidden"}
+const CIRCULAR_PROGRESS_BASE_SX = {position: "absolute", left: 0}
+
 export function render({model, el}) {
   const [bgcolor] = model.useState("bgcolor")
   const [color] = model.useState("color")
@@ -17,11 +21,15 @@ export function render({model, el}) {
 
   //el.style.overflow = "hidden"
   const theme = useTheme()
+  const progressSx = React.useMemo(
+    () => (sx ? [CIRCULAR_PROGRESS_BASE_SX, sx] : CIRCULAR_PROGRESS_BASE_SX),
+    [sx]
+  )
 
   const idle = (variant == "indeterminate" && !value)
   return (
-    <Box sx={{display: "flex", alignItems: "center", flexDirection: "row"}}>
-      <Box sx={{position: "relative", width: `${size}px`, height: `${size}px`, overflow: "hidden"}}>
+    <Box sx={CIRCULAR_PROGRESS_ROOT_SX}>
+      <Box sx={[CIRCULAR_PROGRESS_CONTAINER_SX, {width: `${size}px`, height: `${size}px`}]}>
         {bgcolor && (
           <CircularProgress
             sx={{
@@ -36,11 +44,7 @@ export function render({model, el}) {
         <CircularProgress
           color={idle ? (model.dark_theme ? "dark" : "light") : color}
           size={size}
-          sx={{
-            position: "absolute",
-            left: 0,
-            ...sx
-          }}
+          sx={progressSx}
           thickness={thickness}
           value={idle ? 100 : (typeof value === "boolean") ? 0 : value}
           variant={idle ? "determinate" : variant}

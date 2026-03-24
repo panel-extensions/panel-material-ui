@@ -2,6 +2,11 @@ import IconButton from "@mui/material/IconButton"
 import {useTheme} from "@mui/material/styles"
 import {render_icon} from "./utils"
 
+const BASE_ICON_BUTTON_SX = {
+  width: "100%",
+  color: "var(--pmui-iconbutton-color, inherit)"
+}
+
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
   const [active_icon] = model.useState("active_icon")
@@ -19,22 +24,44 @@ export function render(props, ref) {
   const theme = useTheme()
   const [current_icon, setIcon] = React.useState(icon)
   const [color_variant, setColorVariant] = React.useState(null)
+  const timeoutRef = React.useRef(null)
+  const iconButtonSx = React.useMemo(
+    () => (sx ? [BASE_ICON_BUTTON_SX, sx] : BASE_ICON_BUTTON_SX),
+    [sx]
+  )
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
     ref = React.useRef(null)
   }
-  model.on("msg:custom", (msg) => {
-    ref.current?.focus()
-  })
+
+  React.useEffect(() => {
+    const handler = () => {
+      ref.current?.focus()
+    }
+    model.on("msg:custom", handler)
+    return () => model.off("msg:custom", handler)
+  }, [model, ref])
+
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
 
   const handleClick = (e) => {
     model.send_event("click", e)
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
     if (active_icon || active_icon === icon) {
       setIcon(active_icon)
-      setTimeout(() => setIcon(icon), toggle_duration)
+      timeoutRef.current = setTimeout(() => setIcon(icon), toggle_duration)
     } else {
-      setColorVariant(theme.palette[color].dark)
-      setTimeout(() => setColorVariant(null), toggle_duration)
+      const paletteEntry = theme.palette[color] || theme.palette.primary
+      setColorVariant(paletteEntry.dark)
+      timeoutRef.current = setTimeout(() => setColorVariant(null), toggle_duration)
     }
   }
 
@@ -47,7 +74,8 @@ export function render(props, ref) {
       onClick={handleClick}
       ref={ref}
       size={size}
-      sx={{color: color_variant, width: "100%", ...sx}}
+      sx={iconButtonSx}
+      style={{"--pmui-iconbutton-color": color_variant || "inherit"}}
       target={target}
       {...other}
     >

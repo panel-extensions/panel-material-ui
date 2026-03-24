@@ -19,6 +19,15 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 })
 
+const FILE_INPUT_BUTTON_SX = {
+  "--pmui-fileinput-transform": "none",
+  "--pmui-fileinput-border-style": "solid",
+  "--pmui-fileinput-transition": "none",
+  borderStyle: "var(--pmui-fileinput-border-style)",
+  transform: "var(--pmui-fileinput-transform)",
+  transition: "var(--pmui-fileinput-transition)"
+}
+
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
   const [accept] = model.useState("accept")
@@ -41,6 +50,10 @@ export function render(props, ref) {
   const [isDragOver, setIsDragOver] = React.useState(false)
   const fileInputRef = React.useRef(null)
   const theme = useTheme()
+  const buttonSx = React.useMemo(
+    () => (sx ? [FILE_INPUT_BUTTON_SX, sx] : FILE_INPUT_BUTTON_SX),
+    [sx]
+  )
 
   const N = uploadedFiles.length
 
@@ -212,13 +225,11 @@ export function render(props, ref) {
       ref={ref}
       role={undefined}
       startIcon={icon ? render_icon(icon, null, null, icon_size) : dynamic_icon}
-      sx={{
-        ...sx,
-        ...(isDragOver && {
-          borderStyle: "dashed",
-          transform: "scale(1.02)",
-          transition: "all 0.2s ease-in-out"
-        })
+      sx={buttonSx}
+      style={{
+        "--pmui-fileinput-border-style": isDragOver ? "dashed" : "solid",
+        "--pmui-fileinput-transform": isDragOver ? "scale(1.02)" : "none",
+        "--pmui-fileinput-transition": isDragOver ? "all 0.2s ease-in-out" : "none",
       }}
       tabIndex={-1}
       variant={variant}

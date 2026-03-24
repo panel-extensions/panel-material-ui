@@ -16,11 +16,13 @@ export function render({model, view}, ref) {
   const anchorEl = view.parent?.child_views.includes(view) ? view.parent.el : null
 
   React.useEffect(() => {
-    model.on("lifecycle:update_layout", () => {
+    const handler = () => {
       objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), "column")
       })
-    })
+    }
+    model.on("lifecycle:update_layout", handler)
+    return () => model.off("lifecycle:update_layout", handler)
   }, [])
 
   return (

@@ -481,25 +481,26 @@ export function render({model, view}) {
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        {enable_upload && <HiddenFileInput
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept={accept}
-          onChange={(event) => {
-            if (event.target.files && event.target.files.length > 0) {
-              const files = Array.from(event.target.files)
-              let validFiles = files
-              if (accept) {
-                validFiles = files.filter(file => isFileAccepted(file, accept))
+        {enable_upload && (
+          <HiddenFileInput
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept={accept}
+            onChange={(event) => {
+              if (event.target.files && event.target.files.length > 0) {
+                const files = Array.from(event.target.files)
+                let validFiles = files
+                if (accept) {
+                  validFiles = files.filter(file => isFileAccepted(file, accept))
+                }
+                const newFiles = [...file_data, ...validFiles]
+                setFileData(newFiles)
+                file_data_ref.current = newFiles
               }
-              const newFiles = [...file_data, ...validFiles]
-              setFileData(newFiles)
-              file_data_ref.current = newFiles
-            }
-          }}
-        />
-        }
+            }}
+          />
+        )}
         <OutlinedInput
           multiline
           color={color}
