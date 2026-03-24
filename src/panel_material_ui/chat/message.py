@@ -22,8 +22,10 @@ from panel.widgets import Widget
 from ..base import MaterialComponent
 from .input import ChatAreaInput
 
-_MESSAGE_STYLESHEET = ":host(.message), .message { background-color: unset !important; box-shadow: unset !important; font-size: 1.1em; padding-inline: 8px; }"
-_EDIT_STRETCH_STYLESHEET = ".MuiPaper-root:has(.edit-area) { width: 100% !important; }"
+_MESSAGE_STYLESHEET = (
+    ":host(.message), .message { background-color: unset !important; box-shadow: unset !important; font-size: 1.1em; padding-inline: 8px; }"
+    " .MuiPaper-root:has(.edit-area) { width: 100% !important; }"
+)
 
 DEFAULT_AVATARS = {
     "system": {"type": "icon", "icon": "settings"},
@@ -217,11 +219,8 @@ class ChatMessage(MaterialComponent, ChatMessage):
 
     def _process_param_change(self, params):
         params = super()._process_param_change(params)
-        if 'stylesheets' in params:
-            if _MESSAGE_STYLESHEET not in params['stylesheets']:
-                params['stylesheets'] += [_MESSAGE_STYLESHEET]
-            if _EDIT_STRETCH_STYLESHEET not in params['stylesheets']:
-                params['stylesheets'] += [_EDIT_STRETCH_STYLESHEET]
+        if 'stylesheets' in params and _MESSAGE_STYLESHEET not in params['stylesheets']:
+            params['stylesheets'] += [_MESSAGE_STYLESHEET]
         return params
 
 __all__ = ["ChatMessage"]
