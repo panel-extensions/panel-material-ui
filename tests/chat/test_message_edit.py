@@ -73,3 +73,15 @@ def test_edit_area_is_chat_area_input():
     """The edit area should be a ChatAreaInput instance."""
     msg = ChatMessage(object="Hello")
     assert isinstance(msg._edit_area, ChatAreaInput)
+
+
+def test_edit_area_has_stretch_width():
+    """The edit area should have sizing_mode='stretch_width' so background stretches."""
+    msg = ChatMessage(object="Hello")
+    assert msg._edit_area.sizing_mode == 'stretch_width'
+
+
+def test_edit_area_has_edit_css_class():
+    """The edit area should have 'edit-area' CSS class for Paper width detection."""
+    msg = ChatMessage(object="Hello")
+    assert 'edit-area' in msg._edit_area.css_classes
