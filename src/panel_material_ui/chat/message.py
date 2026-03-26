@@ -16,7 +16,7 @@ from panel.pane import panel as as_panel
 from panel.pane.image import FileBase, Image, ImageBase
 from panel.pane.markup import HTMLBasePane
 from panel.util import isfile
-from panel.viewable import Child
+from panel.viewable import Child, Children
 from panel.widgets import Widget
 
 from ..base import MaterialComponent
@@ -76,6 +76,10 @@ class ChatMessage(MaterialComponent, ChatMessage):
     default_layout = param.ClassSelector(class_=(Panel), precedence=-1)
 
     elevation = param.Integer(default=2, doc="The elevation of the message.")
+
+    footer_actions = Children(default=[], doc="""
+        A list of icon button objects to display in the action row
+        of the message footer, after the copy, edit, and reaction icons.""")
 
     placement = param.Selector(default="left", objects=["left", "right"], doc="The placement of the message.")
 

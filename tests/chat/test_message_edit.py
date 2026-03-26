@@ -2,6 +2,7 @@ import panel as pn
 
 from panel_material_ui.chat import ChatMessage
 from panel_material_ui.chat.input import ChatAreaInput
+from panel_material_ui.widgets import IconButton
 
 pn.extension()
 
@@ -73,3 +74,11 @@ def test_edit_area_is_chat_area_input():
     """The edit area should be a ChatAreaInput instance."""
     msg = ChatMessage(object="Hello")
     assert isinstance(msg._edit_area, ChatAreaInput)
+
+
+def test_footer_actions_accepts_icon_buttons():
+    """footer_actions should accept a list of objects and expose them."""
+    btn = IconButton(icon="lightbulb", size="small")
+    msg = ChatMessage(object="Hello", footer_actions=[btn])
+    assert len(msg.footer_actions) == 1
+    assert msg.footer_actions[0] is btn
