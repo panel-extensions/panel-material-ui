@@ -79,7 +79,7 @@ class ChatMessage(MaterialComponent, ChatMessage):
 
     footer_actions = Children(default=[], doc="""
         A list of icon button objects to display in the action row
-        of the message footer, alongside the edit and copy icons.""")
+        of the message footer, after the copy, edit, and reaction icons.""")
 
     placement = param.Selector(default="left", objects=["left", "right"], doc="The placement of the message.")
 
