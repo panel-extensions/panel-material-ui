@@ -21,6 +21,8 @@ import {render_description} from "./description"
 import {CustomMenu} from "./menu"
 import {render_icon_text} from "./utils"
 
+const SELECT_BASE_SX = {padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}}
+
 export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -30,6 +32,7 @@ export function render({model, el, view}) {
   const [size] = model.useState("size")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
+  const selectSx = React.useMemo(() => (sx ? [SELECT_BASE_SX, sx] : SELECT_BASE_SX), [sx])
 
   const ref = React.useRef(null)
   React.useEffect(() => {
@@ -506,7 +509,7 @@ export function render({model, el, view}) {
         ref={anchorEl}
         renderValue={renderValue}
         size={size}
-        sx={{padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}, ...sx}}
+        sx={selectSx}
         value={value}
         variant={variant}
         MenuProps={MenuProps}

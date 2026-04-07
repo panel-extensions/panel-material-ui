@@ -41,6 +41,19 @@ export function render({model, el}) {
           : resizable
 
   const effectiveResize = autogrow ? "none" : resizeMode
+  const textAreaBaseSx = React.useMemo(() => ({
+    flexGrow: 1,
+    "& .MuiInputBase-root": {
+      flexGrow: 1,
+      alignItems: "stretch",
+    },
+    "& .MuiInputBase-inputMultiline": {
+      resize: effectiveResize,
+      height: (resizeMode === "vertical" || resizeMode === "both" || autogrow) ? "unset" : "100% !important",
+      overflow: "auto"
+    }
+  }), [effectiveResize, resizeMode, autogrow])
+  const textAreaSx = React.useMemo(() => (sx ? [sx, textAreaBaseSx] : textAreaBaseSx), [sx, textAreaBaseSx])
   return (
     <TextField
       color={color}
@@ -62,21 +75,7 @@ export function render({model, el}) {
       onBlur={() => setValue(value_input)}
       onChange={(event) => setValueInput(event.target.value)}
       placeholder={placeholder}
-      sx={{
-        ...sx,
-        ...{
-          flexGrow: 1,
-          "& .MuiInputBase-root": {
-            flexGrow: 1,
-            alignItems: "stretch",
-          },
-          "& .MuiInputBase-inputMultiline": {
-            resize: effectiveResize,
-            height: (resizeMode === "vertical" || resizeMode === "both" || autogrow) ? "unset" : "100% !important",
-            overflow: "auto"
-          }
-        }
-      }}
+      sx={textAreaSx}
       value={value_input}
       variant={variant}
       {...props}

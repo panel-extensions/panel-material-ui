@@ -1,6 +1,11 @@
 import Button from "@mui/material/Button"
 import {render_icon, render_icon_text} from "./utils"
 
+const BUTTON_BASE_SX = {
+  height: "100%",
+  ".MuiButton-startIcon": {mr: "var(--pmui-starticon-mr, 8px)"}
+}
+
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
   const [color] = model.useState("color")
@@ -16,6 +21,10 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
   const [target] = model.useState("target")
+  const buttonSx = React.useMemo(
+    () => (sx ? [BUTTON_BASE_SX, sx] : BUTTON_BASE_SX),
+    [sx]
+  )
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
     ref = React.useRef(null)
@@ -40,7 +49,8 @@ export function render(props, ref) {
       ref={ref}
       size={size}
       startIcon={icon && render_icon(icon, null, size, icon_size)}
-      sx={{height: "100%", ".MuiButton-startIcon": {mr: label.length ? "8px": 0}, ...sx}}
+      sx={buttonSx}
+      style={{"--pmui-starticon-mr": label.length ? "8px" : "0px"}}
       target={target}
       variant={variant}
       {...other}
