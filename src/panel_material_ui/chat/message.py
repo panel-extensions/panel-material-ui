@@ -25,6 +25,7 @@ from .input import ChatAreaInput
 _MESSAGE_STYLESHEET = (
     ":host(.message), .message { background-color: unset !important; box-shadow: unset !important; font-size: 1.1em; padding-inline: 8px; }"
     " .MuiPaper-root:has(.edit-area) { width: 100% !important; }"
+    ".edit-area { height: unset; }"
 )
 
 DEFAULT_AVATARS = {
