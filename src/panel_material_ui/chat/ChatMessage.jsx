@@ -123,6 +123,17 @@ export function render({model, view}) {
 
   const paperRef = React.useRef(null);
 
+  // Detect when the edit area is swapped into the Paper and stretch width accordingly.
+  const [isEditing, setIsEditing] = React.useState(false)
+  React.useEffect(() => {
+    if (!paperRef.current) { return }
+    const observer = new MutationObserver(() => {
+      setIsEditing(!!paperRef.current?.querySelector(".edit-area"))
+    })
+    observer.observe(paperRef.current, {childList: true, subtree: true})
+    return () => observer.disconnect()
+  }, [])
+
   // Find and cache the scrollable feed ancestor once on mount.
   // Walk up from view.el, crossing shadow DOM boundaries via getRootNode().host.
   const scrollContainerRef = React.useRef(null);
@@ -203,10 +214,10 @@ export function render({model, view}) {
         <Stack direction="row" spacing={0}>
           {header}
         </Stack>
-        <Paper ref={paperRef} elevation={elevation} sx={{bgcolor: "background.paper", width: isResponsive ? "100%" : "fit-content"}}>
+        <Paper ref={paperRef} elevation={elevation} sx={{bgcolor: "background.paper", width: (isResponsive || isEditing) ? "100%" : "fit-content"}}>
           {object}
         </Paper>
-        <Stack direction="row" spacing={0}>
+        <Stack direction="row" spacing={0} sx={{position: "relative", zIndex: 1}}>
           {show_edit_icon && <IconButton disableRipple size="small" sx={{padding: "0 0.1em"}} onClick={() => { model.send_msg("edit") }}>
             <EditNoteIcon sx={{width: "0.8em"}} color="lightgray"/>
           </IconButton>}
