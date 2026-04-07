@@ -55,3 +55,34 @@ def test_chat_interface_focus_after_callback_state():
         # Simulate callback finishing — loading goes to False and focus is called
         asyncio.get_event_loop().run_until_complete(chat._update_input_disabled())
         mock_focus.assert_called_once()
+
+
+def test_input_params_placeholder_init():
+    """Placeholder set via input_params at init should propagate to the input widget."""
+    chat = ChatInterface(input_params={"placeholder": "Type here..."})
+    assert chat._widget.placeholder == "Type here..."
+
+
+def test_input_params_dynamic_update():
+    """Changing input_params after init should update the input widget."""
+    chat = ChatInterface(input_params={"placeholder": "Initial"})
+    assert chat._widget.placeholder == "Initial"
+    chat.input_params = {"placeholder": "Updated placeholder"}
+    assert chat._widget.placeholder == "Updated placeholder"
+
+
+def test_input_params_multiple_keys():
+    """Multiple input_params should all propagate to the input widget."""
+    chat = ChatInterface(input_params={"placeholder": "Ask me...", "max_rows": 5})
+    assert chat._widget.placeholder == "Ask me..."
+    assert chat._widget.max_rows == 5
+
+
+def test_input_params_ignores_managed_keys():
+    """Managed keys (disabled, sizing_mode) in input_params should not crash."""
+    chat = ChatInterface(input_params={"disabled": True, "placeholder": "Test"})
+    # disabled is managed separately via self.param.disabled, so input_params value is ignored
+    assert chat._widget.placeholder == "Test"
+    # dynamic update should also skip managed keys
+    chat.input_params = {"sizing_mode": "fixed", "placeholder": "Updated"}
+    assert chat._widget.placeholder == "Updated"

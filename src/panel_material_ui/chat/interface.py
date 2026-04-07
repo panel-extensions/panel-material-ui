@@ -36,7 +36,11 @@ class ChatInterface(ChatFeed, PnChatInterface):
     """
 
     input_params = param.Dict(
-        default={}, doc="Additional parameters to pass to the ChatAreaInput widget, like `enable_upload`."
+        default={}, doc="""
+        Additional parameters to pass to the ChatAreaInput widget.
+        Supported keys include any ChatAreaInput param, e.g.
+        ``placeholder``, ``enable_upload``, ``max_rows``, ``rows``.
+        Updates are applied dynamically after initialization."""
     )
 
     on_submit = param.Callable(default=None, doc="""
@@ -83,7 +87,8 @@ class ChatInterface(ChatFeed, PnChatInterface):
     @param.depends("button_properties", watch=True)
     def _init_widgets(self):
         if self._widget is None:
-            self._widget = ChatAreaInput(sizing_mode="stretch_width", disabled=self.param.disabled, **self.input_params)
+            kw = {k: v for k, v in self.input_params.items() if k not in ("sizing_mode", "disabled")}
+            self._widget = ChatAreaInput(sizing_mode="stretch_width", disabled=self.param.disabled, **kw)
             self._widget.on_action("stop", self._click_stop)
             input_container = Row(self._widget, sizing_mode="stretch_width")
             self._input_container.objects = [input_container]
@@ -122,6 +127,16 @@ class ChatInterface(ChatFeed, PnChatInterface):
             return
         value = Column(*objects) if len(objects) > 1 else objects[0]
         self.send(value=value, user=self.user, avatar=self.avatar, respond=True)
+
+    _MANAGED_KEYS = frozenset(("sizing_mode", "disabled"))
+
+    @param.depends("input_params", watch=True)
+    def _update_input_params(self):
+        """Sync input_params to the input widget when changed dynamically."""
+        if self._widget is not None:
+            for key, value in self.input_params.items():
+                if key not in self._MANAGED_KEYS and key in self._widget.param:
+                    setattr(self._widget, key, value)
 
     @param.depends("placeholder_text", "placeholder_params", watch=True, on_init=True)
     def _update_placeholder(self):
