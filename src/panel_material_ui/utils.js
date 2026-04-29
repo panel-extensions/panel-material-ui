@@ -699,7 +699,7 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     model_props.text_color = theme.palette.text.primary
     model_props.text_font = font_family
   } else if (model_type.endsWith("Grid") && !custom_theme.includes("Grid")) {
-    if (model_props.grid_line_color != null) {
+    if (model.grid_line_color != null) {
       model_props.grid_line_color = theme.palette.text.primary
       model_props.grid_line_alpha = dark ? 0.25 : 0.5
     }
