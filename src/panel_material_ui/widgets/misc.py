@@ -35,7 +35,8 @@ class FileDownload(_ButtonBase, _FileDownload):
     _esm_base = "FileDownload.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _rename = {
-        "_clicks": None, "icon": "icon", "icon_size": "icon_size", "description": "description"
+        "_clicks": None, "icon": "icon", "icon_size": "icon_size", "description": "description",
+        "color": "color", "variant": "variant"
     }
     _source_transforms = {
         "button_type": None, "button_style": None, "callback": None,

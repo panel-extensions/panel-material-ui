@@ -37,7 +37,7 @@ class _ButtonLike(MaterialWidget):
         hovered over the Button, default is 500ms.""")
 
     _esm_transforms = [TooltipTransform, ThemedTransform]
-    _rename = {"button_style": None, "button_type": None}
+    _rename = {"button_style": None, "button_type": None, "color": "color", "variant": "variant"}
     _source_transforms = {"button_style": None, "button_type": None, "attached": None}
 
     __abstract = True
@@ -94,7 +94,7 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
     width = param.Integer(default=None, doc="Width of the button in pixels.")
 
     _rename: ClassVar[Mapping[str, str | None]] = {
-        "label": "label"
+        "label": "label", "variant": "variant"
     }
 
     __abstract = True
