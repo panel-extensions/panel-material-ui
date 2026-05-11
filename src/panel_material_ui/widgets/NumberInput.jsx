@@ -26,9 +26,13 @@ export function render({model, el, view}) {
   const [valueLabel, setValueLabel] = React.useState()
 
   const ref = React.useRef(null)
-  model.on("msg:custom", (msg) => {
-    ref.current?.focus()
-  })
+  React.useEffect(() => {
+    const handler = () => {
+      ref.current?.focus()
+    }
+    model.on("msg:custom", handler)
+    return () => model.off("msg:custom", handler)
+  }, [model])
 
   const validate = (value) => {
     const regex = model.mode == "int" ? int_regex : float_regex

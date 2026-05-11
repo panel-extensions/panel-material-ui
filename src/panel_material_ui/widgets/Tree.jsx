@@ -34,6 +34,13 @@ import {TreeItemDragAndDropOverlay} from "@mui/x-tree-view/TreeItemDragAndDropOv
 import {useTreeItemModel} from "@mui/x-tree-view/hooks"
 import {CustomMenu} from "./menu"
 
+const TREE_ITEM_CHECKBOX_SX = {
+  color: "text.secondary",
+  "&.Mui-checked": {
+    color: "var(--pmui-tree-accent-main)"
+  }
+}
+
 const TreeItemRoot = styled("li")(({theme}) => ({
   listStyle: "none",
   margin: 0,
@@ -419,15 +426,8 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   }
 
   const checkboxProps = getCheckboxProps({
-    sx: (theme) => {
-      const c = theme.palette[resolvedColor] || theme.palette.primary
-      return {
-        color: theme.palette.text.secondary,
-        "&.Mui-checked": {
-          color: c.main
-        }
-      }
-    }
+    sx: TREE_ITEM_CHECKBOX_SX,
+    style: {"--pmui-tree-accent-main": `var(--mui-palette-${resolvedColor}-main)`}
   })
 
   const handleMenuOpen = (event) => {

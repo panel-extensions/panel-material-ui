@@ -16,6 +16,41 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
 import {apply_flex, dark_mode, setup_global_styles, render_icon_text} from "./utils"
 
+const PAGE_ROOT_SX = {display: "flex", width: "100vw", height: "100vh", overflow: "hidden"}
+const PAGE_APPBAR_SX = {zIndex: (theme) => theme.zIndex.drawer + 1}
+const PAGE_BUSY_TOOLBAR_SX = {m: "4px"}
+const PAGE_HEADER_ICON_SX = {
+  mr: 2,
+  animation: "var(--pmui-header-menu-animation, none)",
+  "@keyframes pulse": {
+    "0%": {transform: "scale(1)"},
+    "50%": {transform: "scale(1.25)"},
+    "100%": {transform: "scale(1)"}
+  }
+}
+const PAGE_DRAWER_RESIZE_HANDLE_SX = {
+  position: "absolute",
+  top: 0,
+  right: 0,
+  width: "4px",
+  height: "100%",
+  cursor: "col-resize",
+  backgroundColor: "transparent",
+  zIndex: 1000,
+  "&:hover": {
+    borderRightWidth: "2px",
+  },
+  "&:before": {
+    content: '""',
+    position: "absolute",
+    top: 0,
+    right: "-3px",
+    width: "6px",
+    height: "100%",
+    backgroundColor: "transparent"
+  }
+}
+
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open" && prop !== "variant" && prop !== "sidebar_width"})(
   ({sidebar_width, theme, open, variant}) => {
     return ({
@@ -72,6 +107,29 @@ export function render({model, view}) {
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
   const main = model.get_child("main")
+  const toolbarSx = busy_indicator === "linear" ? PAGE_BUSY_TOOLBAR_SX : undefined
+  const pageRootSx = React.useMemo(() => (sx ? [PAGE_ROOT_SX, sx] : PAGE_ROOT_SX), [sx])
+  const drawerSx = React.useMemo(() => ({
+    display: "flex",
+    flexDirection: "column",
+    flexShrink: 0,
+    height: "100vh",
+    "& .MuiDrawer-paper": {
+      width: sidebar_width,
+      height: "100vh",
+      boxSizing: "border-box",
+      position: "relative",
+      overflowX: "hidden"
+    },
+  }), [sidebar_width])
+  const contextDrawerSx = React.useMemo(() => ({
+    display: "flex",
+    flexDirection: "column",
+    flexShrink: 0,
+    width: contextbar_width,
+    zIndex: (theme) => theme.zIndex.drawer + 2,
+    "& .MuiDrawer-paper": {width: contextbar_width, boxSizing: "border-box"},
+  }), [contextbar_width])
 
   const isXl = useMediaQuery(theme.breakpoints.up("xl"))
   const isLg = useMediaQuery(theme.breakpoints.up("lg"))
@@ -104,7 +162,7 @@ export function render({model, view}) {
   }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm, dark_theme])
 
   React.useEffect(() => {
-    model.on("lifecycle:update_layout", () => {
+    const handler = () => {
       sidebar.map((object, index) => {
         apply_flex(view.get_child_view(model.sidebar[index]), "column")
       })
@@ -117,7 +175,9 @@ export function render({model, view}) {
       main.map((object, index) => {
         apply_flex(view.get_child_view(model.main[index]), "column")
       })
-    })
+    }
+    model.on("lifecycle:update_layout", handler)
+    return () => model.off?.("lifecycle:update_layout", handler)
   }, [])
 
   // Set up debouncing of busy indicator
@@ -214,22 +274,10 @@ export function render({model, view}) {
       anchor="left"
       open={open}
       onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        flexShrink: 0,
-        height: "100vh", // Full viewport height
-        [`& .MuiDrawer-paper`]: {
-          width: sidebar_width,
-          height: "100vh", // Full viewport height
-          boxSizing: "border-box",
-          position: "relative", // Enable positioning for drag handle
-          overflowX: "hidden"
-        },
-      }}
+      sx={drawerSx}
       variant={drawer_variant}
     >
-      <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
+      <Toolbar sx={toolbarSx}>
         <Typography variant="h5">&nbsp;</Typography>
       </Toolbar>
       <Box sx={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
@@ -242,31 +290,10 @@ export function render({model, view}) {
         <Box
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
-          sx={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: "4px",
-            height: "100%",
-            cursor: "col-resize",
-            backgroundColor: "transparent",
+          sx={[PAGE_DRAWER_RESIZE_HANDLE_SX, {
             borderRight: `1px solid ${theme.palette.divider}`,
-            zIndex: 1000,
-            "&:hover": {
-              borderRightWidth: "2px",
-              borderRightColor: theme.palette.divider,
-            },
-            // Make the handle slightly larger for easier interaction
-            "&:before": {
-              content: '""',
-              position: "absolute",
-              top: 0,
-              right: "-3px", // Extend hit area beyond visual boundary
-              width: "6px",
-              height: "100%",
-              backgroundColor: "transparent"
-            }
-          }}
+            "&:hover": {borderRightColor: theme.palette.divider, borderRightWidth: "2px"}
+          }]}
           aria-label="Resize sidebar"
           title="Drag to resize sidebar"
         />
@@ -280,14 +307,7 @@ export function render({model, view}) {
       anchor="right"
       open={contextbar_open}
       onClose={() => contextOpen(false)}
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        flexShrink: 0,
-        width: contextbar_width,
-        zIndex: (theme) => theme.zIndex.drawer + 2,
-        [`& .MuiDrawer-paper`]: {width: contextbar_width, boxSizing: "border-box"},
-      }}
+      sx={contextDrawerSx}
       variant="temporary"
     >
       {contextbar.map((object, index) => {
@@ -300,11 +320,15 @@ export function render({model, view}) {
   const color_scheme = dark_theme ? "dark" : "light"
   const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && (model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both")))
   const primary_color = model.theme_config?.palette?.primary?.main ?? model.theme_config?.[color_scheme]?.palette?.primary?.main
-  const header_sx = primary_color == null ? {backgroundColor: "#0072b5", color: "#ffffff"} : {}
+  const header_sx = React.useMemo(
+    () => (primary_color == null ? {backgroundColor: "#0072b5", color: "#ffffff"} : {}),
+    [primary_color]
+  )
+  const appBarSx = React.useMemo(() => [PAGE_APPBAR_SX, header_sx], [header_sx])
 
   return (
-    <Box className={`mui-${color_scheme}`} sx={{display: "flex", width: "100vw", height: "100vh", overflow: "hidden", ...sx}}>
-      <AppBar position="fixed" color="primary" className="header" sx={{zIndex: (theme) => theme.zIndex.drawer + 1, ...header_sx}}>
+    <Box className={`mui-${color_scheme}`} sx={pageRootSx}>
+      <AppBar position="fixed" color="primary" className="header" sx={appBarSx}>
         <Toolbar>
           {(model.sidebar.length > 0 && drawer_variant !== "permanent") &&
             <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>
@@ -313,15 +337,8 @@ export function render({model, view}) {
                 aria-label={open ? "Close drawer" : "Open drawer"}
                 onClick={() => setOpen(!open)}
                 edge="start"
-                sx={{
-                  mr: 2,
-                  ...(highlight && {animation: "pulse 300ms ease-out"}),
-                  "@keyframes pulse": {
-                    "0%": {transform: "scale(1)"},
-                    "50%": {transform: "scale(1.25)"},
-                    "100%": {transform: "scale(1)"}
-                  }
-                }}
+                sx={PAGE_HEADER_ICON_SX}
+                style={{"--pmui-header-menu-animation": highlight ? "pulse 300ms ease-out" : "none"}}
               >
                 {open ? <MenuOpenIcon/> : <MenuIcon />}
               </IconButton>
@@ -414,7 +431,7 @@ export function render({model, view}) {
       </Box>}
       <Main className="main" open={open} sidebar_width={sidebar_width} variant={drawer_variant}>
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
-          <Toolbar sx={busy_indicator === "linear" ? {m: "4px"} : {}}>
+          <Toolbar sx={toolbarSx}>
             <Typography variant="h5">&nbsp;</Typography>
           </Toolbar>
           <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column", overflowY: main_stretch ? "hidden" : "auto"}}>

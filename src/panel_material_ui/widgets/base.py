@@ -65,6 +65,8 @@ class MaterialWidget(MaterialComponent, WidgetBase):
     margin = Margin(default=10, doc="Margin around the widget.")
     width = param.Integer(default=300, bounds=(0, None), allow_None=True, doc="Width of the widget.")
 
+    _rename = {"label": "label"}
+
     __abstract = True
 
     def __init__(self, **params):

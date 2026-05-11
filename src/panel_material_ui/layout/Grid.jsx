@@ -1,5 +1,7 @@
 import Grid from "@mui/material/Grid"
 
+const GRID_BASE_SX = {height: "100%", width: "100%"}
+
 export function render({model, view}) {
   const [columns] = model.useState("columns")
   const [direction] = model.useState("direction")
@@ -11,6 +13,7 @@ export function render({model, view}) {
   const [container] = model.useState("container")
   const [spacing] = model.useState("spacing")
   const objects = model.get_child("objects")
+  const gridSx = React.useMemo(() => (sx ? [GRID_BASE_SX, sx] : GRID_BASE_SX), [sx])
 
   if (view.parent?.model?.class_name === "Grid") {
     return <div style={{display: "contents"}}>{objects}</div>
@@ -24,7 +27,7 @@ export function render({model, view}) {
       rowSpacing={rowSpacing}
       size={size}
       spacing={spacing}
-      sx={{height: "100%", width: "100%", ...sx}}
+      sx={gridSx}
     >
       {models.map((model, index) => {
         const object = objects[index]

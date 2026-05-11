@@ -1,7 +1,6 @@
 """
 A module containing testing utilities and fixtures.
 """
-import asyncio
 import os
 import re
 import socket
@@ -31,11 +30,6 @@ if os.name != 'nt':
 for e in os.environ:
     if e.startswith(('BOKEH_', "PANEL_")) and e not in ("PANEL_LOG_LEVEL", ):
         os.environ.pop(e, None)
-
-try:
-    asyncio.get_event_loop()
-except (RuntimeError, DeprecationWarning):
-    asyncio.set_event_loop(asyncio.new_event_loop())
 
 @cache
 def internet_available(host="8.8.8.8", port=53, timeout=3):
@@ -77,6 +71,14 @@ def pytest_addoption(parser):
                          default=False, help=info['help'])
     parser.addoption('--repeat', action='store',
         help='Number of times to repeat each test')
+
+
+def pytest_configure(config):
+    for marker, info in optional_markers.items():
+        config.addinivalue_line("markers", "{}: {}".format(marker, info['marker-descr']))
+
+    config.addinivalue_line("markers", "from_panel: mark test as being from the panel package")
+    config.addinivalue_line("markers", "internet: mark test as requiring an internet connection")
 
 
 def pytest_generate_tests(metafunc):

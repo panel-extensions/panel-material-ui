@@ -1,18 +1,12 @@
-import Avatar from "@mui/material/Avatar"
 import Tabs from "@mui/material/Tabs"
 import Tab from "@mui/material/Tab"
-import Icon from "@mui/material/Icon"
 import Box from "@mui/material/Box"
-import {useTheme, styled} from "@mui/material/styles"
+import Avatar from "@mui/material/Avatar"
+import {useTheme} from "@mui/material/styles"
 import {render_icon, render_icon_text} from "./utils"
 
-const StyledAvatar = styled(Avatar)(({theme, color, spacing}) => ({
-  backgroundColor: color,
-  fontSize: "1em",
-  width: 24,
-  height: 24,
-  marginRight: spacing || theme?.spacing(0.5) || 4
-}))
+const TABMENU_LABEL_ROW_SX = {display: "flex", alignItems: "center", gap: 0.5}
+const TABMENU_AVATAR_SX = {fontSize: "1em", width: 24, height: 24, marginRight: 4}
 
 export function render({model}) {
   const [color] = model.useState("color")
@@ -25,26 +19,27 @@ export function render({model}) {
   const [iconPosition] = model.useState("icon_position")
 
   const theme = useTheme()
+  const safeItems = Array.isArray(items) ? items : []
+  const resolvedIconPosition = iconPosition || "start"
 
   const handleChange = (event, newValue) => {
     setActive(newValue)
     model.send_msg({type: "click", item: newValue})
   }
 
-  const tabItems = items.map((item, index) => {
+  const tabItems = React.useMemo(() => safeItems.map((item, index) => {
     const label = typeof item === "string" ? item : (item?.label || "")
     const icon = item?.icon
     const avatar = item?.avatar
     const href = item?.href
     const target = item?.target
 
-    // If there's only an icon and no label/avatar, use the icon prop
     if (icon && !avatar) {
       return (
         <Tab
           key={index}
           icon={render_icon(icon)}
-          iconPosition={iconPosition || "start"}
+          iconPosition={resolvedIconPosition}
           href={href}
           target={target}
           label={render_icon_text(label)}
@@ -52,18 +47,16 @@ export function render({model}) {
       )
     }
 
-    // Otherwise, build label content with icon/avatar/label
     const labelContent = (
-      <Box sx={{display: "flex", alignItems: "center", gap: 0.5}}>
+      <Box sx={TABMENU_LABEL_ROW_SX}>
         {icon ? render_icon(icon, null, null, "1.2em") : null}
         {avatar ? (
-          <StyledAvatar
-            theme={theme}
-            color={theme.palette[color]?.main || color}
-            spacing={theme.spacing(0.5)}
+          <Avatar
+            sx={TABMENU_AVATAR_SX}
+            style={{backgroundColor: theme.palette[color]?.main || color}}
           >
             {avatar}
-          </StyledAvatar>
+          </Avatar>
         ) : null}
         {render_icon_text(label)}
       </Box>
@@ -73,15 +66,15 @@ export function render({model}) {
       <Tab
         key={index}
         label={labelContent}
-        iconPosition={iconPosition || "start"}
+        iconPosition={resolvedIconPosition}
         href={href}
         target={target}
       />
     )
-  })
+  }), [safeItems, resolvedIconPosition, theme.palette, color])
 
   // Handle active being None - Tabs requires a number or false
-  const tabValue = active !== null && active !== undefined ? active : false
+  const tabValue = Number.isInteger(active) && active >= 0 && active < safeItems.length ? active : false
 
   // MUI Tabs only supports "primary" and "secondary" for indicatorColor/textColor
   // For other colors, we use custom styling via sx using CSS variables or theme palette
@@ -102,7 +95,12 @@ export function render({model}) {
     }
   } : {}
 
-  const mergedSx = {...customSx, ...sx}
+  const mergedSx = React.useMemo(() => {
+    if (sx) {
+      return [customSx, sx]
+    }
+    return customSx
+  }, [customSx, sx])
 
   return (
     <Tabs

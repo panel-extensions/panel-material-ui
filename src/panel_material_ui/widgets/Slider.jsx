@@ -15,6 +15,16 @@ import dayjs from "dayjs"
 import {render_description} from "./description"
 import {int_regex, float_regex, render_icon_text} from "./utils"
 
+const SLIDER_BASE_SX = {
+  "& .MuiSlider-track": {
+    backgroundColor: "var(--pmui-slider-bar-color)",
+    borderColor: "var(--pmui-slider-bar-color)"
+  },
+  "& .MuiSlider-rail": {
+    backgroundColor: "var(--pmui-slider-bar-color)",
+  }
+}
+
 const spinner = (increment, index) => {
   return (
     <Grid container>
@@ -266,9 +276,19 @@ export function render({model, el, view}) {
       })
     }
   }, [marks, format, labels])
+  const formControlSx = React.useMemo(() => {
+    if (orientation === "vertical") {
+      return sx ? [{height: "100%"}, sx] : {height: "100%"}
+    }
+    return sx || undefined
+  }, [orientation, sx])
+  const sliderSx = React.useMemo(() => {
+    const orientationSx = orientation !== "vertical" ? {width: "100%"} : {}
+    return sx ? [SLIDER_BASE_SX, orientationSx, sx] : [SLIDER_BASE_SX, orientationSx]
+  }, [sx, orientation])
 
   return (
-    <FormControl disabled={disabled} fullWidth sx={orientation === "vertical" ? {height: "100%", ...sx} : {...sx}}>
+    <FormControl disabled={disabled} fullWidth sx={formControlSx}>
       {editable ? (
         <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", width: "100%"}}>
           <FormLabel sx={{mr: "0.5em", maxWidth: "50%", overflowWrap: "break-word", whiteSpace: "normal"}}>
@@ -359,17 +379,8 @@ export function render({model, el, view}) {
           ref={ref}
           size={size}
           step={date ? step*86400000 : (datetime ? step*1000 : step)}
-          sx={{
-            ...orientation !== "vertical" ? {width: "100%"} : {},
-            "& .MuiSlider-track": {
-              backgroundColor: bar_color,
-              borderColor: bar_color
-            },
-            "& .MuiSlider-rail": {
-              backgroundColor: bar_color,
-            },
-            ...sx
-          }}
+          sx={sliderSx}
+          style={{"--pmui-slider-bar-color": bar_color}}
           track={track}
           value={value}
           valueLabelDisplay={tooltips === "auto" ? "auto" : tooltips ? "on" : "off"}

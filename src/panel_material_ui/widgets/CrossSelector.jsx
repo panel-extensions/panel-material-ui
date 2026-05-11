@@ -19,6 +19,13 @@ import Box from "@mui/material/Box"
 import {render_description} from "./description"
 import {render_icon_text} from "./utils"
 
+const CROSS_SELECTOR_ROOT_SX = {
+  display: "flex",
+  height: "100%",
+  flexDirection: "column",
+  gap: "0.5em"
+}
+
 function not(a, b) {
   return a.filter((value) => !b.includes(value))
 }
@@ -40,6 +47,7 @@ export function render({model, el, view}) {
   const [sx] = model.useState("sx")
   const [searchable] = model.useState("searchable")
   const [size] = model.useState("size")
+  const rootSx = React.useMemo(() => (sx ? [CROSS_SELECTOR_ROOT_SX, sx] : CROSS_SELECTOR_ROOT_SX), [sx])
 
   // CrossSelector specific props
   const [left_title] = ["Choices"]
@@ -214,7 +222,7 @@ export function render({model, el, view}) {
   )
 
   return (
-    <Box sx={{display: "flex", height: "100%", flexDirection: "column", gap: "0.5em", ...sx}}>
+    <Box sx={rootSx}>
       {label && (
         <InputLabel>
           {render_icon_text(label)}

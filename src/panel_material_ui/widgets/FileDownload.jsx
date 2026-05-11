@@ -4,6 +4,10 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import {useTheme} from "@mui/material/styles"
 import {render_icon, render_icon_text} from "./utils"
 
+const FILE_DOWNLOAD_BUTTON_SX = {
+  cursor: "var(--pmui-filedownload-cursor, pointer)"
+}
+
 function dataURItoBlob(dataURI) {
   const byteString = atob(dataURI.split(",")[1])
   const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0]
@@ -38,6 +42,10 @@ export function render(props, ref) {
   const linkClick = React.useRef(false)
   const linkRef = React.useRef(null)
   const theme = useTheme()
+  const buttonSx = React.useMemo(
+    () => (sx ? [FILE_DOWNLOAD_BUTTON_SX, sx] : FILE_DOWNLOAD_BUTTON_SX),
+    [sx]
+  )
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
     ref = undefined
@@ -77,15 +85,17 @@ export function render(props, ref) {
   }
 
   React.useEffect(() => {
-    model.on("change:data", () => {
+    const changeDataHandler = () => {
       if (model.data != null && auto) {
         downloadFile()
       } else if (linkRef.current) {
         const blob = dataURItoBlob(model.data)
         linkRef.current.href = URL.createObjectURL(blob)
       }
-    })
-  }, [])
+    }
+    model.on("change:data", changeDataHandler)
+    return () => model.off("change:data", changeDataHandler)
+  }, [model, auto])
 
   return (
     <Button
@@ -104,10 +114,8 @@ export function render(props, ref) {
       onClick={handleClick}
       onContextMenu={(e) => e.stopPropagation()}
       size={size}
-      sx={{
-        cursor: _syncing ? "not-allowed" : "pointer",
-        ...sx
-      }}
+      sx={buttonSx}
+      style={{"--pmui-filedownload-cursor": _syncing ? "not-allowed" : "pointer"}}
       variant={variant}
       {...other}
     >

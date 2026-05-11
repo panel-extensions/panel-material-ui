@@ -5,6 +5,13 @@ import SpeedDial from "@mui/material/SpeedDial"
 import Icon from "@mui/material/Icon"
 import {render_icon, render_icon_text} from "./utils"
 
+const SPEED_DIAL_BASE_SX = {
+  "& .MuiSpeedDial-actions": {
+    position: "absolute",
+    zIndex: "calc(var(--mui-zIndex-fab) + 1)",
+  }
+}
+
 export function render({model, view}) {
   const [color] = model.useState("color")
   const [direction] = model.useState("direction")
@@ -24,7 +31,7 @@ export function render({model, view}) {
     return () => model.off("msg:custom", focus_cb)
   }, [])
 
-  const margin = (() => {
+  const margin = React.useMemo(() => {
     switch (direction) {
       case "left":
         return {marginRight: "16px"}
@@ -37,7 +44,11 @@ export function render({model, view}) {
       default:
         return {}
     }
-  })()
+  }, [direction])
+  const speedDialSx = React.useMemo(() => {
+    const actionSx = {"& .MuiSpeedDial-actions": {...SPEED_DIAL_BASE_SX["& .MuiSpeedDial-actions"], ...margin}}
+    return sx ? [actionSx, sx] : actionSx
+  }, [margin, sx])
 
   return (
     <SpeedDial
@@ -46,14 +57,7 @@ export function render({model, view}) {
       FabProps={{color, disabled, size}}
       icon={icon ? render_icon(icon, null, size) : <SpeedDialIcon openIcon={open_icon ? open_icon : undefined} />}
       ref={ref}
-      sx={{
-        "& .MuiSpeedDial-actions": {
-          position: "absolute",
-          zIndex: "calc(var(--mui-zIndex-fab) + 1)",
-          ...margin
-        },
-        ...sx
-      }}
+      sx={speedDialSx}
     >
       {items.map((item, index) => {
         const label = item.label

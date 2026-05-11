@@ -8,6 +8,14 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
 import {apply_flex} from "./utils"
 
+const DETAILS_BASE_SX = {
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  height: "100%",
+  overflow: "hidden",
+}
+
 const ExpandMore = styled(IconButton, {
   shouldForwardProp: (prop) => prop !== "expand",
 })(({theme, expand}) => ({
@@ -72,11 +80,13 @@ export function render({model, view, el}) {
   }, [isExpanded, isFullyExpanded])
 
   React.useEffect(() => {
-    model.on("lifecycle:update_layout", () => {
+    const handler = () => {
       objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), "column")
       })
-    })
+    }
+    model.on("lifecycle:update_layout", handler)
+    return () => model.off("lifecycle:update_layout", handler)
   }, [])
 
   if (model.header) {
@@ -101,21 +111,23 @@ export function render({model, view, el}) {
     ? theme.palette.grey[900]
     : theme.palette.grey[50]
   const topBarBackground = header_background || defaultHeaderBg
+  const rootSx = React.useMemo(
+    () => [
+      DETAILS_BASE_SX,
+      {
+        minHeight: model.min_height ? `${model.min_height}px` : 0,
+        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: square ? 0 : "4px",
+      },
+      sx || {}
+    ],
+    [model.min_height, theme.palette.divider, square, sx]
+  )
 
   return (
     <Box
       className="details"
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        height: "100%",
-        minHeight: model.min_height ? `${model.min_height}px` : 0,
-        border: `1px solid ${theme.palette.divider}`,
-        borderRadius: square ? 0 : "4px",
-        overflow: "hidden",
-        ...sx
-      }}
+      sx={rootSx}
     >
       {!shouldHideHeader && (
         <Box

@@ -15,6 +15,8 @@ const PADDING = {
   large: "12px"
 }
 
+const TOGGLE_ICON_ROOT_SX = {display: "flex", alignItems: "center", flexDirection: "row"}
+
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
   const [active_icon] = model.useState("active_icon")
@@ -31,6 +33,7 @@ export function render(props, ref) {
   const font_size = standard_size ? icon_size : size
   const color_state = disabled ? "disabled" : color
   const text_size = standard_size ? SIZES[size] : font_size
+  const checkboxSx = React.useMemo(() => (sx ? [{p: PADDING[size]}, sx] : {p: PADDING[size]}), [sx, size])
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
     ref = React.useRef(null)
@@ -43,7 +46,7 @@ export function render(props, ref) {
   }, [])
 
   return (
-    <Box sx={{display: "flex", alignItems: "center", flexDirection: "row"}}>
+    <Box sx={TOGGLE_ICON_ROOT_SX}>
       <Checkbox
         checked={value}
         checkedIcon={render_icon(active_icon || icon, color_state, size, icon_size)}
@@ -54,7 +57,7 @@ export function render(props, ref) {
         selected={value}
         size={size}
         onClick={(e, newValue) => setValue(!value)}
-        sx={{p: PADDING[size], ...sx}}
+        sx={checkboxSx}
         {...other}
       />
       {label && (

@@ -24,7 +24,7 @@ import pathlib
 import re
 import textwrap
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import panel
 import panel.io.convert
@@ -284,6 +284,8 @@ class MaterialComponent(ReactComponent):
     _rename = {'loading': 'loading'}
     _source_transforms = {'attached': None}
     _target_transforms = {'attached': None}
+
+    _busy__ignore: ClassVar[list[str]] = ["dark_theme"]
 
     __abstract = True
 

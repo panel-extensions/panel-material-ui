@@ -5,6 +5,8 @@ import dayjs from "dayjs"
 import {render_description} from "./description"
 import {render_icon_text} from "./utils"
 
+const TIME_PICKER_BASE_SX = {width: "100%"}
+
 export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -18,6 +20,7 @@ export function render({model, el, view}) {
   const [sx] = model.useState("sx")
   const [modelValue, setModelValue] = model.useState("value")
   const [variant] = model.useState("variant")
+  const pickerSx = React.useMemo(() => (sx ? [TIME_PICKER_BASE_SX, sx] : TIME_PICKER_BASE_SX), [sx])
 
   const ref = React.useRef(null)
   React.useEffect(() => {
@@ -68,7 +71,7 @@ export function render({model, el, view}) {
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}
         slotProps={{textField: {variant, color}, popper: {container: view.container}}}
-        sx={{width: "100%", ...sx}}
+        sx={pickerSx}
         value={value}
         views={views}
       />

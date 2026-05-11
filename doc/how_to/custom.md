@@ -285,3 +285,9 @@ IconComponent()
 ## Summary
 
 Hopefully, this has given you a good introduction to building custom Material UI components using Panel. The `MaterialUIComponent` class not only allows you to build custom components leveraging the powerful `@mui/material` library, but handles theming and styling out of the box and lets you extend it by importing additional libraries to add completely novel functionality.
+
+## Distributing Your Extension
+
+Once your custom component is ready to share, you can package it as a proper Python extension. See [**Publish a Panel Extension**](https://panel.holoviz.org/how_to/custom_components/publish_extension.html) in the Panel docs for an overview of packaging extensions using the Panel Extension Copier Template.
+
+For examples of published extensions built on this pattern, browse the [**panel-extensions**](https://github.com/orgs/panel-extensions/repositories) organisation on GitHub.

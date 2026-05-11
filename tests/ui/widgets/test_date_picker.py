@@ -4,7 +4,7 @@ import pytest
 
 pytest.importorskip("playwright")
 
-from panel.tests.util import serve_component
+from panel.tests.util import serve_component, wait_until
 from panel_material_ui.widgets import DatePicker
 
 pytestmark = pytest.mark.ui
@@ -69,3 +69,26 @@ def test_datepicker_disabled_dates(page):
 
     # only enabled dates within the start to end range are selectable
     assert enabled_buttons == ['18', '19', '20']
+
+
+def test_datepicker_clearable_propagates_none(page):
+    widget = DatePicker(value=dt.date(2026, 5, 1), clearable=True)
+    serve_component(page, widget)
+
+    page.locator(".MuiInputBase-root").hover()
+    page.locator("button[title='Clear']").click()
+
+    wait_until(lambda: widget.value is None, page)
+
+
+def test_datepicker_clearable_manual_delete_propagates_none(page):
+    widget = DatePicker(value=dt.date(2026, 5, 1), clearable=True)
+    serve_component(page, widget)
+
+    input_el = page.locator(".MuiInputBase-input")
+    input_el.click()
+    page.keyboard.press("Control+a")
+    page.keyboard.press("Delete")
+    input_el.press("Tab")
+
+    wait_until(lambda: widget.value is None, page)

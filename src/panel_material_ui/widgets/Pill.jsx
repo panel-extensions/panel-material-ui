@@ -5,6 +5,13 @@ import FormLabel from "@mui/material/FormLabel"
 import {render_description} from "./description"
 import {render_icon_text} from "./utils"
 
+const PILL_CONTAINER_SX = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 1,
+  alignItems: "center"
+}
+
 export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -59,6 +66,10 @@ export function render({model, el, view}) {
       )
     }
     : {}
+  const containerSx = React.useMemo(
+    () => (sx ? [PILL_CONTAINER_SX, sx] : PILL_CONTAINER_SX),
+    [sx]
+  )
 
   const selectedValues = multi ? (Array.isArray(value) ? value : []) : value
   const items = processOptions()
@@ -92,7 +103,7 @@ export function render({model, el, view}) {
       )}
       <Box
         role="group"
-        sx={{display: "flex", flexWrap: "wrap", gap: 1, alignItems: "center", ...sx}}
+        sx={containerSx}
       >
         {items.map((item, index) => {
           const isSelected = multi

@@ -6,6 +6,17 @@ import MenuItem from "@mui/material/MenuItem"
 import {CustomMenu} from "./menu"
 import {render_icon, render_icon_text} from "./utils"
 
+const SPLIT_PRIMARY_BUTTON_SX = {
+  borderBottomRightRadius: 0,
+  borderTopRightRadius: 0
+}
+
+const SPLIT_TOGGLE_BUTTON_SX = {
+  borderBottomLeftRadius: 0,
+  borderTopLeftRadius: 0,
+  maxWidth: 50
+}
+
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
   const [active] = model.useState("active")
@@ -20,6 +31,10 @@ export function render(props, ref) {
   const [size] = model.useState("size")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
+  const primaryButtonSx = React.useMemo(
+    () => (sx ? [SPLIT_PRIMARY_BUTTON_SX, sx] : SPLIT_PRIMARY_BUTTON_SX),
+    [sx]
+  )
 
   const [open, setOpen] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(active)
@@ -73,11 +88,7 @@ export function render(props, ref) {
           loading={loading}
           onClick={() => model.send_msg({type: "click"})}
           ref={btnRef}
-          sx={{
-            ...sx,
-            borderBottomRightRadius: 0,
-            borderTopRightRadius: 0
-          }}
+          sx={primaryButtonSx}
           variant={variant}
         >
           {render_icon_text(current_label)}
@@ -90,11 +101,7 @@ export function render(props, ref) {
           disabled={disabled || loading}
           onClick={() => setOpen((prevOpen) => !prevOpen)}
           size="small"
-          sx={{
-            borderBottomLeftRadius: 0,
-            borderTopLeftRadius: 0,
-            maxWidth: 50
-          }}
+          sx={SPLIT_TOGGLE_BUTTON_SX}
           variant={variant}
         >
           <ArrowDropDownIcon />

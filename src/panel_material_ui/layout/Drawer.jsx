@@ -23,15 +23,17 @@ export function render({model, view}) {
   }
 
   React.useEffect(() => {
-    model.on("lifecycle:update_layout", () => {
+    const handler = () => {
       objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), "column")
       })
-    })
+    }
+    model.on("lifecycle:update_layout", handler)
+    return () => model.off("lifecycle:update_layout", handler)
   }, [])
 
   return (
-    <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} PaperProps={{sx: {...dims, ...sx}}} variant={variant}>
+    <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} PaperProps={{sx: [dims, sx || {}]}} variant={variant}>
       {objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), "column")
         return object

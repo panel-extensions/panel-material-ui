@@ -21,6 +21,11 @@ const StyledAvatar = styled(Avatar)(({color, spacing}) => ({
   marginRight: spacing
 }))
 
+const BREADCRUMBS_BASE_SX = {
+  "& .MuiBreadcrumbs-li": {display: "flex", alignItems: "center"},
+  "& .MuiBreadcrumbs-separator": {mx: 0.5, display: "flex", alignItems: "center"}
+}
+
 function selectedRoot(items, active) {
   const roots = Array.isArray(items) ? items : [items]
   const rIdx = (active && active.length ? active[0] : 0) ?? 0
@@ -92,6 +97,10 @@ export function render({model, view}) {
   const [sx] = model.useState("sx")
 
   const theme = useTheme()
+  const breadcrumbsSx = React.useMemo(
+    () => (sx ? [BREADCRUMBS_BASE_SX, sx] : BREADCRUMBS_BASE_SX),
+    [sx]
+  )
 
   const activeArr = Array.isArray(active)
     ? active : (active != null ? [active] : [])
@@ -374,11 +383,7 @@ export function render({model, view}) {
     <Breadcrumbs
       maxItems={max_items || undefined}
       separator={separator || <NavigateNextIcon fontSize="small" />}
-      sx={{
-        ...sx,
-        "& .MuiBreadcrumbs-li": {display: "flex", alignItems: "center"},
-        "& .MuiBreadcrumbs-separator": {mx: 0.5, display: "flex", alignItems: "center"}
-      }}
+      sx={breadcrumbsSx}
     >
       {breadcrumbItems}
     </Breadcrumbs>

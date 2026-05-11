@@ -12,6 +12,7 @@ export function render(props, ref) {
   const [value, setValue] = model.useState("value")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
+  const buttonSx = React.useMemo(() => sx || undefined, [sx])
 
   if (Object.entries(ref).length === 0 && ref.constructor === Object) {
     ref = React.useRef(null)
@@ -30,7 +31,7 @@ export function render(props, ref) {
       selected={value}
       onChange={() => setValue(!value)}
       ref={ref}
-      sx={{...sx}}
+      sx={buttonSx}
       value={value}
       variant={variant}
       {...other}

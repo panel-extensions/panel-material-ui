@@ -86,7 +86,11 @@ export function render(props, ref) {
         anchorEl={() => anchorEl.current}
         open={open}
         // For persistent mode, we still want backdrop clicks to close the menu
-        onClick={() => persistent || e.stopPropagation()}
+        onClick={(event) => {
+          if (!persistent) {
+            event.stopPropagation()
+          }
+        }}
         onClose={() => setOpen(false)}
         view={view}
       >

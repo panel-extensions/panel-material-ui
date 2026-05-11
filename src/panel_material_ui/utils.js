@@ -105,18 +105,27 @@ function find_on_parent(view, prop) {
   return null
 }
 
-function hexToRgb(hex, asString=false) {
-  hex = hex.replace(/^#/, "");
-  if (hex.length === 3) {
-    hex = hex.split("").map(c => c + c).join("");
+const _hexToRgbCache = new Map()
+
+function hexToRgb(hex, asString = false) {
+  const key = `${hex}|${asString}`
+  if (_hexToRgbCache.has(key)) { return _hexToRgbCache.get(key) }
+
+  let normalized = hex.replace(/^#/, "")
+  if (normalized.length === 3) {
+    normalized = normalized.split("").map(c => c + c).join("")
   }
-  const bigint = parseInt(hex, 16);
+
+  const bigint = parseInt(normalized, 16)
   const rgb = {
     r: (bigint >> 16) & 255,
     g: (bigint >> 8) & 255,
     b: bigint & 255
   }
-  return asString ? `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})` : rgb
+
+  const result = asString ? `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})` : rgb
+  _hexToRgbCache.set(key, result)
+  return result
 }
 
 function compositeColors(fg, bg, alpha) {
@@ -690,7 +699,7 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     model_props.text_color = theme.palette.text.primary
     model_props.text_font = font_family
   } else if (model_type.endsWith("Grid") && !custom_theme.includes("Grid")) {
-    if (model_props.grid_line_color != null) {
+    if (model.grid_line_color != null) {
       model_props.grid_line_color = theme.palette.text.primary
       model_props.grid_line_alpha = dark ? 0.25 : 0.5
     }

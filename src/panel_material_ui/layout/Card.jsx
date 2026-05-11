@@ -8,6 +8,13 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
 import {apply_flex} from "./utils"
 
+const CARD_BASE_SX = {
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  height: "100%",
+}
+
 const ExpandMore = styled((props) => {
   const {expand, ...other} = props;
   return <IconButton {...other} />;
@@ -54,12 +61,16 @@ export function render({model, view}) {
   const shouldHideContent = objects.length === 0
 
   React.useEffect(() => {
-    model.on("lifecycle:update_layout", () => {
+    const handler = () => {
       objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), "column")
       })
-    })
+    }
+    model.on("lifecycle:update_layout", handler)
+    return () => model.off("lifecycle:update_layout", handler)
   }, [])
+
+  const cardSx = React.useMemo(() => [CARD_BASE_SX, sx || {}], [sx])
 
   if (model.header) {
     apply_flex(view.get_child_view(model.header), "row")
@@ -71,7 +82,7 @@ export function render({model, view}) {
       square={square}
       raised={raised}
       variant={variant}
-      sx={{display: "flex", flexDirection: "column", width: "100%", height: "100%", ...sx}}
+      sx={cardSx}
     >
       {!shouldHideHeader && (
         <CardHeader
