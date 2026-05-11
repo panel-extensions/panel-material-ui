@@ -1,9 +1,26 @@
 from unittest.mock import patch
 
+import asyncio
+import pytest
 import panel as pn
 from panel_material_ui import ChatInterface
 
 pn.extension()
+
+@pytest.fixture
+def loop():
+    try:
+        loop = asyncio.get_event_loop()
+        is_new = False
+    except (RuntimeError, DeprecationWarning):
+        is_new = True
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    try:
+        yield loop
+    finally:
+        if is_new:
+            loop.close()
 
 
 def test_chat_interface_basic_creation():
@@ -45,15 +62,13 @@ def test_chat_area_input_focus():
         mock_send.assert_called_once_with({"type": "focus"})
 
 
-def test_chat_interface_focus_after_callback_state():
+def test_chat_interface_focus_after_callback_state(loop):
     """_update_input_disabled should call focus() when callback finishes."""
-    import asyncio
-
     chat = ChatInterface()
     with patch.object(chat._widget, 'focus') as mock_focus:
         chat._widget.loading = True
         # Simulate callback finishing — loading goes to False and focus is called
-        asyncio.get_event_loop().run_until_complete(chat._update_input_disabled())
+        loop.run_until_complete(chat._update_input_disabled())
         mock_focus.assert_called_once()
 
 

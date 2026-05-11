@@ -25,6 +25,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Operating System :: OS Independent",
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
@@ -116,7 +117,11 @@ asyncio_default_fixture_loop_scope = "function"
 xfail_strict = true
 minversion = "7"
 log_cli_level = "INFO"
-filterwarnings = ["error", "ignore::DeprecationWarning", "ignore::UserWarning"]
+filterwarnings = [
+  "error",
+  "ignore:.*is shallow and may cause errors:UserWarning",
+  "ignore:unclosed <socket.socket:ResourceWarning", # Windows
+]
 testpaths = ["tests"]
 
 [tool.isort]
