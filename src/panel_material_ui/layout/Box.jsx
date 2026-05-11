@@ -1,5 +1,8 @@
 import Box from "@mui/material/Box"
-import {apply_flex} from "./utils"
+import {
+  apply_flex, child_at_latest, scroll_to_child, scroll_to_latest,
+  update_scroll_button, use_latest_scroll_settlement
+} from "./utils"
 
 const BOX_BASE_SX = {
   height: "100%",
@@ -35,8 +38,13 @@ export function render({model, view}) {
   const objects = model.get_child("objects")
   const boxRef = React.useRef(null)
   const syncingScrollRef = React.useRef(false)
+  const pendingScrollLatestRef = React.useRef(false)
+  const layoutUpdatedRef = React.useRef(false)
   const prevObjectsLengthRef = React.useRef(objects.length)
   const [showScrollButton, setShowScrollButton] = React.useState(false)
+  let scrollToLatest = () => false
+  let startScrollLatestSettlement = () => {}
+  let stopScrollLatestSettlement = () => {}
 
   const managedScroll = isColumn && (
     Boolean(view_latest) ||
@@ -48,17 +56,13 @@ export function render({model, view}) {
 
   if (isColumn) {
 
-    const distanceFromLatest = React.useCallback((el) => {
-      return el.scrollHeight - el.scrollTop - el.clientHeight
-    }, [])
-
     const updateScrollButton = React.useCallback((el) => {
       if (!isColumn || !managedScroll || scroll_button_threshold <= 0) {
         setShowScrollButton(false)
         return
       }
-      setShowScrollButton(distanceFromLatest(el) >= scroll_button_threshold)
-    }, [managedScroll, scroll_button_threshold, distanceFromLatest])
+      update_scroll_button(el, scroll_button_threshold, setShowScrollButton)
+    }, [managedScroll, scroll_button_threshold])
 
     const scrollToIndex = React.useCallback((index) => {
       const el = boxRef.current
@@ -69,24 +73,26 @@ export function render({model, view}) {
       if (!child) {
         return
       }
-      const relativeTop = child.offsetTop - el.offsetTop + el.scrollTop
-      setScrollPosition(Math.round(relativeTop))
+      scroll_to_child(el, child, setScrollPosition)
     }, [setScrollPosition])
 
-    const scrollToLatest = React.useCallback((scrollLimit = null) => {
-      const el = boxRef.current
-      if (!el) {
-        return
-      }
-      if (scrollLimit !== null && distanceFromLatest(el) > scrollLimit) {
-        return
-      }
-      syncingScrollRef.current = true
-      el.scrollTo({top: el.scrollHeight, behavior: "instant"})
-      setScrollPosition(Math.round(el.scrollTop))
-      syncingScrollRef.current = false
-      updateScrollButton(el)
-    }, [distanceFromLatest, setScrollPosition, updateScrollButton])
+    scrollToLatest = React.useCallback((scrollLimit = null) => {
+      return scroll_to_latest(boxRef.current, syncingScrollRef, setScrollPosition, updateScrollButton, scrollLimit)
+    }, [setScrollPosition, updateScrollButton])
+
+    const latestChildAtBottom = React.useCallback((el) => {
+      return child_at_latest(el, el.children.item(objects.length - 1))
+    }, [objects.length])
+
+    const settlement = use_latest_scroll_settlement({
+      boxRef,
+      pendingScrollLatestRef,
+      scrollToLatest,
+      latestChildAtBottom,
+      layoutUpdatedRef,
+    })
+    startScrollLatestSettlement = settlement.startScrollLatestSettlement
+    stopScrollLatestSettlement = settlement.stopScrollLatestSettlement
 
     React.useEffect(() => {
       const el = boxRef.current
@@ -145,12 +151,12 @@ export function render({model, view}) {
         return
       }
       if (view_latest && prevObjectsLengthRef.current === objects.length) {
-        scrollToLatest()
+        startScrollLatestSettlement(null, true)
       } else if (objects.length > prevObjectsLengthRef.current && auto_scroll_limit > 0) {
         scrollToLatest(auto_scroll_limit)
       }
       prevObjectsLengthRef.current = objects.length
-    }, [managedScroll, objects.length, auto_scroll_limit, scrollToLatest, view_latest])
+    }, [managedScroll, objects.length, auto_scroll_limit, scrollToLatest, startScrollLatestSettlement, view_latest])
   }
 
   let props = {}
@@ -171,12 +177,19 @@ export function render({model, view}) {
 
   React.useEffect(() => {
     const handler = () => {
+      layoutUpdatedRef.current = true
       objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), flexDirection)
       })
+      if (pendingScrollLatestRef.current) {
+        scrollToLatest()
+      }
     }
     model.on("lifecycle:update_layout", handler)
-    return () => model.off("lifecycle:update_layout", handler)
+    return () => {
+      stopScrollLatestSettlement?.()
+      model.off("lifecycle:update_layout", handler)
+    }
   }, [])
 
   const boxSx = React.useMemo(
@@ -200,13 +213,13 @@ export function render({model, view}) {
           aria-label="Scroll to latest"
           className={`scroll-button${showScrollButton ? " visible" : ""}`}
           onClick={() => {
-            scrollToLatest()
+            startScrollLatestSettlement()
             model.send_event("click", {})
           }}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault()
-              scrollToLatest()
+              startScrollLatestSettlement()
               model.send_event("click", {})
             }
           }}

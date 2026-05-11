@@ -1,5 +1,8 @@
 import Box from "@mui/material/Box"
-import {apply_flex} from "./utils"
+import {
+  apply_flex, child_at_latest, scroll_to_child, scroll_to_latest,
+  update_scroll_button, use_latest_scroll_settlement
+} from "./utils"
 
 const FEED_BASE_SX = {
   height: "100%",
@@ -25,50 +28,22 @@ export function render({model, view}) {
   const initialLatestDoneRef = React.useRef(!view_latest)
   const topAnchorRef = React.useRef(null)
   const pendingScrollLatestRef = React.useRef(false)
-  const scrollFrameRef = React.useRef(null)
-  const scrollStableFramesRef = React.useRef(0)
-  const scrollHeightRef = React.useRef(null)
-  const scrollSettledCallbackRef = React.useRef(null)
   const layoutUpdatedRef = React.useRef(false)
   const observerRef = React.useRef(null)
   const observedNodesRef = React.useRef(new Map())
 
-  const distanceFromLatest = React.useCallback((el) => {
-    return el.scrollHeight - el.scrollTop - el.clientHeight
-  }, [])
-
   const updateScrollButton = React.useCallback((el) => {
-    if (view.model.data.scroll_button_threshold <= 0) {
-      setShowScrollButton(false)
-      return
-    }
-    setShowScrollButton(distanceFromLatest(el) >= view.model.data.scroll_button_threshold)
+    update_scroll_button(el, view.model.data.scroll_button_threshold, setShowScrollButton)
   }, [])
 
   const scrollToLatest = React.useCallback((scrollLimit = null) => {
-    const el = boxRef.current
-    if (!el) {
-      return false
-    }
-    if (scrollLimit !== null && distanceFromLatest(el) > scrollLimit) {
-      return false
-    }
-    syncingScrollRef.current = true
-    el.scrollTo({top: el.scrollHeight, behavior: "instant"})
-    setScrollPosition(Math.round(el.scrollTop))
-    syncingScrollRef.current = false
-    updateScrollButton(el)
-    return true
+    return scroll_to_latest(boxRef.current, syncingScrollRef, setScrollPosition, updateScrollButton, scrollLimit)
   }, [])
 
   const latestChildAtBottom = React.useCallback((el) => {
     const latest = model.objects[model.objects.length - 1]
     const node = latest ? wrappersRef.current.get(latest.id) : null
-    if (!node) {
-      return false
-    }
-    const bottom = node.offsetTop - el.offsetTop + node.offsetHeight
-    return bottom <= el.scrollTop + el.clientHeight + 1 && distanceFromLatest(el) <= 1
+    return child_at_latest(el, node)
   }, [])
 
   const syncLatestVisibleChild = React.useCallback(() => {
@@ -78,64 +53,15 @@ export function render({model, view}) {
     setVisibleChildren(ordered)
   }, [])
 
-  const stopScrollLatestSettlement = React.useCallback(() => {
-    if (scrollFrameRef.current !== null) {
-      cancelAnimationFrame(scrollFrameRef.current)
-      scrollFrameRef.current = null
-    }
-    scrollStableFramesRef.current = 0
-    scrollHeightRef.current = null
-  }, [])
-
-  const finishScrollLatestSettlement = React.useCallback(() => {
-    pendingScrollLatestRef.current = false
-    scrollStableFramesRef.current = 0
-    scrollHeightRef.current = null
-    const callback = scrollSettledCallbackRef.current
-    scrollSettledCallbackRef.current = null
-    if (callback) {
-      callback()
-    } else {
-      syncLatestVisibleChild()
-    }
-  }, [])
-
-  const startScrollLatestSettlement = React.useCallback((onSettled = null, requireLayoutUpdate = false) => {
-    pendingScrollLatestRef.current = true
-    topAnchorRef.current = null
-    scrollSettledCallbackRef.current = onSettled
-    stopScrollLatestSettlement()
-
-    const tick = (remainingFrames) => {
-      scrollFrameRef.current = null
-      const el = boxRef.current
-      if (!el) {
-        finishScrollLatestSettlement()
-        return
-      }
-
-      scrollToLatest()
-      const heightStable = (
-        scrollHeightRef.current !== null &&
-        Math.abs(el.scrollHeight - scrollHeightRef.current) <= 1
-      )
-      scrollHeightRef.current = el.scrollHeight
-      if (latestChildAtBottom(el) && heightStable && (!requireLayoutUpdate || layoutUpdatedRef.current)) {
-        scrollStableFramesRef.current += 1
-      } else {
-        scrollStableFramesRef.current = 0
-      }
-
-      if (scrollStableFramesRef.current >= 30 || remainingFrames <= -600 || (remainingFrames <= 0 && !requireLayoutUpdate)) {
-        finishScrollLatestSettlement()
-        return
-      }
-
-      scrollFrameRef.current = requestAnimationFrame(() => tick(remainingFrames - 1))
-    }
-
-    scrollFrameRef.current = requestAnimationFrame(() => tick(240))
-  }, [])
+  const {startScrollLatestSettlement, stopScrollLatestSettlement, scrollSettledCallbackRef} = use_latest_scroll_settlement({
+    boxRef,
+    pendingScrollLatestRef,
+    topAnchorRef,
+    scrollToLatest,
+    latestChildAtBottom,
+    onDefaultSettled: syncLatestVisibleChild,
+    layoutUpdatedRef,
+  })
 
   const armScrollLatestAfterRender = React.useCallback(() => {
     pendingScrollLatestRef.current = true
@@ -151,8 +77,7 @@ export function render({model, view}) {
     if (!child) {
       return
     }
-    const relativeTop = child.offsetTop - el.offsetTop + el.scrollTop
-    setScrollPosition(Math.round(relativeTop))
+    scroll_to_child(el, child, setScrollPosition)
   }, [])
 
   const captureTopAnchor = React.useCallback((el) => {
@@ -214,8 +139,10 @@ export function render({model, view}) {
       if (msg?.type === "scroll_to") {
         scrollToIndex(msg.index)
       } else if (msg?.type === "scroll_latest") {
-        if (scrollToLatest(msg.scroll_limit ?? null) && msg.rerender) {
-          startScrollLatestSettlement()
+        if (scrollToLatest(msg.scroll_limit ?? null)) {
+          if (msg.rerender || pendingScrollLatestRef.current) {
+            startScrollLatestSettlement()
+          }
         }
       }
     }
