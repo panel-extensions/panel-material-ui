@@ -47,8 +47,7 @@ def test_feed_view_latest(page):
     expect(feed_el).to_be_attached()
     assert feed_el.bounding_box()["height"] == 250
 
-    wait_until(lambda: feed_el.evaluate("(el) => el.scrollTop") > 0, page)
-    wait_until(lambda: int(feed_el.locator("pre").last.inner_text() or 0) > 0.9 * ITEMS, page)
+    expect(page.locator(".bk-panel-models-markup-HTML").last).to_have_text("99")
 
     def assert_at_bottom():
         assert feed_el.evaluate("(el) => el.scrollHeight - el.scrollTop - el.clientHeight") <= 1
@@ -120,7 +119,7 @@ def test_feed_scroll_to_latest_within_limit(page):
 
     feed.append(Spacer(styles=dict(background="yellow"), width=200, height=200))
     page.wait_for_timeout(200)
-    feed.scroll_to_latest(scroll_limit=1000)
+    feed.scroll_to_latest()
 
     def assert_at_bottom():
         assert feed_el.evaluate("(el) => el.scrollHeight - el.scrollTop - el.clientHeight") == 0

@@ -5,7 +5,7 @@ import {
 } from "./utils"
 
 const FEED_BASE_SX = {
-  height: "100%",
+  minHeight: "100%",
   width: "100%",
   display: "flex",
   position: "relative",
@@ -51,6 +51,21 @@ export function render({model, view}) {
     const ordered = latest ? [latest.id] : []
     visibleSetRef.current = new Set(ordered)
     setVisibleChildren(ordered)
+  }, [])
+
+  const setBoxRef = React.useCallback((node) => {
+    if (!node) {
+      boxRef.current = null
+      return
+    }
+    const root = node.getRootNode()
+    const host = root instanceof ShadowRoot ? root.host : null
+    boxRef.current = (
+      node.closest(".scroll-vertical, .scrollable-vertical, .scrollable") ??
+      host?.closest(".scroll-vertical, .scrollable-vertical, .scrollable") ??
+      host ??
+      node
+    )
   }, [])
 
   const {startScrollLatestSettlement, stopScrollLatestSettlement, scrollSettledCallbackRef} = use_latest_scroll_settlement({
@@ -140,9 +155,7 @@ export function render({model, view}) {
         scrollToIndex(msg.index)
       } else if (msg?.type === "scroll_latest") {
         if (scrollToLatest(msg.scroll_limit ?? null)) {
-          if (msg.rerender || pendingScrollLatestRef.current) {
-            startScrollLatestSettlement()
-          }
+          startScrollLatestSettlement()
         }
       }
     }
@@ -163,7 +176,7 @@ export function render({model, view}) {
       syncLatestVisibleChild()
     }
     const frameId = requestAnimationFrame(() => {
-      startScrollLatestSettlement(settleInitialLatest, true)
+      startScrollLatestSettlement(settleInitialLatest)
     })
     return () => cancelAnimationFrame(frameId)
   }, [view_latest])
@@ -178,7 +191,7 @@ export function render({model, view}) {
         startScrollLatestSettlement(() => {
           initialLatestDoneRef.current = true
           syncLatestVisibleChild()
-        }, true)
+        })
       } else if (pendingScrollLatestRef.current) {
         scrollToLatest()
       }
@@ -272,6 +285,7 @@ export function render({model, view}) {
     if (!el) {
       return
     }
+    updateScrollButton(el)
     if (pendingScrollLatestRef.current) {
       startScrollLatestSettlement(scrollSettledCallbackRef.current)
       return
@@ -297,12 +311,12 @@ export function render({model, view}) {
   }, [objects])
 
   const boxSx = React.useMemo(
-    () => [FEED_BASE_SX, {flexDirection, overflowY: "auto"}, {"& > div": {maxHeight: "unset"}}, sx || {}],
+    () => [FEED_BASE_SX, {flexDirection}, {"& > div": {flex: "0 0 auto", maxHeight: "unset"}}, sx || {}],
     [flexDirection, sx]
   )
 
   return (
-    <Box ref={boxRef} sx={boxSx}>
+    <Box ref={setBoxRef} sx={boxSx}>
       {objects.map((object, index) => {
         const childModel = model.objects[index]
         const childId = childModel?.id ?? `${index}`
