@@ -117,7 +117,11 @@ asyncio_default_fixture_loop_scope = "function"
 xfail_strict = true
 minversion = "7"
 log_cli_level = "INFO"
-filterwarnings = ["error", "ignore:.*is shallow and may cause errors:UserWarning"]
+filterwarnings = [
+  "error",
+  "ignore:.*is shallow and may cause errors:UserWarning",
+  "ignore:unclosed <socket.socket:ResourceWarning", # Windows
+]
 testpaths = ["tests"]
 
 [tool.isort]
