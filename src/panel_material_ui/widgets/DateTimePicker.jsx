@@ -118,8 +118,14 @@ export function render({model, view, el}) {
 
   // Safely update the model value
   function updateModelValue(date) {
-    // Only update if we have a valid date
-    if (!date || !date.isValid()) { return; }
+    if (!date || !date.isValid()) {
+      if (clearable) {
+        lastCommittedRef.current = null;
+        setValue(null);
+        model.value = null;
+      }
+      return;
+    }
 
     const formattedDate = formatDateForPython(date);
     // Skip update if this is the same value we just committed
@@ -245,7 +251,7 @@ export function render({model, view, el}) {
         value={internalValue}
         views={views}
         slotProps={{
-          field: {clearable},
+          field: {clearable, onClear: () => updateModelValue(null)},
           textField: {
             variant,
             color,
