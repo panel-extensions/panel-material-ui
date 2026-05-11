@@ -131,6 +131,7 @@ jobs:
       - uses: holoviz-dev/holoviz_tasks/pixi_install@v0
         with:
           environments: ${{ matrix.environment }}
+          install: false
         id: install
       - name: Unit tests with coverage
         run: pixi run -e ${{ matrix.environment }} test-coverage --color=yes $COV
