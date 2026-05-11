@@ -6,12 +6,14 @@ import {
 
 const FEED_BASE_SX = {
   minHeight: "100%",
-  width: "100%",
   display: "flex",
   position: "relative",
+  alignSelf: "stretch",
+  boxSizing: "border-box",
+  minWidth: 0,
 }
 
-export function render({model, view}) {
+export function render({model, view, el}) {
   const [sx] = model.useState("sx")
   const [scroll_button_threshold] = model.useState("scroll_button_threshold")
   const [scroll_index] = model.useState("scroll_index")
@@ -22,6 +24,7 @@ export function render({model, view}) {
   const flexDirection = model.esm_constants.direction
   const boxRef = React.useRef(null)
   const syncingScrollRef = React.useRef(false)
+  const [scrollbarWidth, setScrollbarWidth] = React.useState(0)
   const [showScrollButton, setShowScrollButton] = React.useState(false)
   const wrappersRef = React.useRef(new Map())
   const visibleSetRef = React.useRef(new Set(visibleChildren || []))
@@ -31,6 +34,8 @@ export function render({model, view}) {
   const layoutUpdatedRef = React.useRef(false)
   const observerRef = React.useRef(null)
   const observedNodesRef = React.useRef(new Map())
+
+  el.style.width = "100%"
 
   const updateScrollButton = React.useCallback((el) => {
     update_scroll_button(el, view.model.data.scroll_button_threshold, setShowScrollButton)
@@ -53,6 +58,14 @@ export function render({model, view}) {
     setVisibleChildren(ordered)
   }, [])
 
+  const updateScrollbarWidth = React.useCallback((el = boxRef.current) => {
+    if (!el) {
+      return
+    }
+    const width = Math.max(el.offsetWidth - el.clientWidth, 0)
+    setScrollbarWidth((current) => current === width ? current : width)
+  }, [])
+
   const setBoxRef = React.useCallback((node) => {
     if (!node) {
       boxRef.current = null
@@ -66,6 +79,7 @@ export function render({model, view}) {
       host ??
       node
     )
+    updateScrollbarWidth(boxRef.current)
   }, [])
 
   const {startScrollLatestSettlement, stopScrollLatestSettlement, scrollSettledCallbackRef} = use_latest_scroll_settlement({
@@ -127,6 +141,7 @@ export function render({model, view}) {
     }
     el.addEventListener("scroll", onScroll)
     updateScrollButton(el)
+    updateScrollbarWidth(el)
     captureTopAnchor(el)
     return () => el.removeEventListener("scroll", onScroll)
   }, [])
@@ -184,6 +199,7 @@ export function render({model, view}) {
   React.useEffect(() => {
     const handler = () => {
       layoutUpdatedRef.current = true
+      updateScrollbarWidth()
       objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), flexDirection)
       })
@@ -285,6 +301,7 @@ export function render({model, view}) {
     if (!el) {
       return
     }
+    updateScrollbarWidth(el)
     updateScrollButton(el)
     if (pendingScrollLatestRef.current) {
       startScrollLatestSettlement(scrollSettledCallbackRef.current)
@@ -311,8 +328,13 @@ export function render({model, view}) {
   }, [objects])
 
   const boxSx = React.useMemo(
-    () => [FEED_BASE_SX, {flexDirection}, {"& > div": {flex: "0 0 auto", maxHeight: "unset"}}, sx || {}],
-    [flexDirection, sx]
+    () => [
+      FEED_BASE_SX,
+      {flexDirection, width: scrollbarWidth ? `calc(100% - ${scrollbarWidth}px)` : "100%"},
+      {"& > div": {flex: "0 0 auto", maxHeight: "unset"}},
+      sx || {},
+    ],
+    [flexDirection, scrollbarWidth, sx]
   )
 
   return (
