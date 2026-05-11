@@ -247,8 +247,8 @@ function getMuiElevatedColor(backgroundHex, elevation, isDarkMode = false) {
   return `rgb(${result.r}, ${result.g}, ${result.b})`;
 }
 
-function elevation_color(elevation, theme, dark) {
-  return (dark && elevation) ? getMuiElevatedColor(theme.palette.background.paper, elevation, dark) : theme.palette.background.paper
+function elevation_color(elevation, theme, dark, force = false) {
+  return (elevation && (dark || force)) ? getMuiElevatedColor(theme.palette.background.paper, elevation, dark) : theme.palette.background.paper
 }
 
 function apply_plotly_theme(model, theme, dark, font_family) {
@@ -730,8 +730,8 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     const elevation = view ? find_on_parent(view, "elevation") : 0
     model.stylesheets = [...model.stylesheets, `
       :host {
-        --mdc-theme-background: ${elevation_color(elevation, theme, dark)};
-        --mdc-theme-surface: ${elevation_color(elevation+1, theme, dark)};
+        --mdc-theme-background: ${elevation_color(elevation, theme, dark, true)};
+        --mdc-theme-surface: ${elevation_color(elevation+1, theme, dark, true)};
       }
     `]
   } else if (model_type.endsWith("ReactFlow")) {
