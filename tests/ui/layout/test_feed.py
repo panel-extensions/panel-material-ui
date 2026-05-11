@@ -50,6 +50,11 @@ def test_feed_view_latest(page):
     wait_until(lambda: feed_el.evaluate("(el) => el.scrollTop") > 0, page)
     wait_until(lambda: int(feed_el.locator("pre").last.inner_text() or 0) > 0.9 * ITEMS, page)
 
+    def assert_at_bottom():
+        assert feed_el.evaluate("(el) => el.scrollHeight - el.scrollTop - el.clientHeight") <= 1
+
+    wait_until(assert_at_bottom, page)
+
 
 def test_feed_scroll_to_latest(page):
     feed = Feed(*list(range(ITEMS)), height=250, css_classes=["test-feed-scroll-latest"])
@@ -140,8 +145,12 @@ def test_feed_view_scroll_button(page):
     expect(scroll_arrow).to_be_visible()
 
     scroll_arrow.click()
-    wait_until(lambda: feed_el.evaluate("(el) => el.scrollTop") > 0, page)
-    wait_until(lambda: int(feed_el.locator("pre").last.inner_text() or 0) > 50, page)
+    wait_until(lambda: int(feed_el.locator("pre").last.inner_text() or 0) > 0.9 * ITEMS, page)
+
+    def assert_at_bottom():
+        assert feed_el.evaluate("(el) => el.scrollHeight - el.scrollTop - el.clientHeight") <= 1
+
+    wait_until(assert_at_bottom, page)
 
 
 def test_feed_dynamic_objects(page):

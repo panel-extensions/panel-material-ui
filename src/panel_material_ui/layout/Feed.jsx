@@ -24,6 +24,12 @@ export function render({model, view}) {
   const visibleSetRef = React.useRef(new Set(visibleChildren || []))
   const initialLatestDoneRef = React.useRef(!view_latest)
   const topAnchorRef = React.useRef(null)
+  const pendingScrollLatestRef = React.useRef(false)
+  const scrollFrameRef = React.useRef(null)
+  const scrollStableFramesRef = React.useRef(0)
+  const scrollHeightRef = React.useRef(null)
+  const scrollSettledCallbackRef = React.useRef(null)
+  const layoutUpdatedRef = React.useRef(false)
   const observerRef = React.useRef(null)
   const observedNodesRef = React.useRef(new Map())
 
@@ -53,6 +59,87 @@ export function render({model, view}) {
     syncingScrollRef.current = false
     updateScrollButton(el)
     return true
+  }, [])
+
+  const latestChildAtBottom = React.useCallback((el) => {
+    const latest = model.objects[model.objects.length - 1]
+    const node = latest ? wrappersRef.current.get(latest.id) : null
+    if (!node) {
+      return false
+    }
+    const bottom = node.offsetTop - el.offsetTop + node.offsetHeight
+    return bottom <= el.scrollTop + el.clientHeight + 1 && distanceFromLatest(el) <= 1
+  }, [])
+
+  const syncLatestVisibleChild = React.useCallback(() => {
+    const latest = model.objects[model.objects.length - 1]
+    const ordered = latest ? [latest.id] : []
+    visibleSetRef.current = new Set(ordered)
+    setVisibleChildren(ordered)
+  }, [])
+
+  const stopScrollLatestSettlement = React.useCallback(() => {
+    if (scrollFrameRef.current !== null) {
+      cancelAnimationFrame(scrollFrameRef.current)
+      scrollFrameRef.current = null
+    }
+    scrollStableFramesRef.current = 0
+    scrollHeightRef.current = null
+  }, [])
+
+  const finishScrollLatestSettlement = React.useCallback(() => {
+    pendingScrollLatestRef.current = false
+    scrollStableFramesRef.current = 0
+    scrollHeightRef.current = null
+    const callback = scrollSettledCallbackRef.current
+    scrollSettledCallbackRef.current = null
+    if (callback) {
+      callback()
+    } else {
+      syncLatestVisibleChild()
+    }
+  }, [])
+
+  const startScrollLatestSettlement = React.useCallback((onSettled = null, requireLayoutUpdate = false) => {
+    pendingScrollLatestRef.current = true
+    topAnchorRef.current = null
+    scrollSettledCallbackRef.current = onSettled
+    stopScrollLatestSettlement()
+
+    const tick = (remainingFrames) => {
+      scrollFrameRef.current = null
+      const el = boxRef.current
+      if (!el) {
+        finishScrollLatestSettlement()
+        return
+      }
+
+      scrollToLatest()
+      const heightStable = (
+        scrollHeightRef.current !== null &&
+        Math.abs(el.scrollHeight - scrollHeightRef.current) <= 1
+      )
+      scrollHeightRef.current = el.scrollHeight
+      if (latestChildAtBottom(el) && heightStable && (!requireLayoutUpdate || layoutUpdatedRef.current)) {
+        scrollStableFramesRef.current += 1
+      } else {
+        scrollStableFramesRef.current = 0
+      }
+
+      if (scrollStableFramesRef.current >= 30 || remainingFrames <= -600 || (remainingFrames <= 0 && !requireLayoutUpdate)) {
+        finishScrollLatestSettlement()
+        return
+      }
+
+      scrollFrameRef.current = requestAnimationFrame(() => tick(remainingFrames - 1))
+    }
+
+    scrollFrameRef.current = requestAnimationFrame(() => tick(240))
+  }, [])
+
+  const armScrollLatestAfterRender = React.useCallback(() => {
+    pendingScrollLatestRef.current = true
+    topAnchorRef.current = null
   }, [])
 
   const scrollToIndex = React.useCallback((index) => {
@@ -127,7 +214,9 @@ export function render({model, view}) {
       if (msg?.type === "scroll_to") {
         scrollToIndex(msg.index)
       } else if (msg?.type === "scroll_latest") {
-        scrollToLatest(msg.scroll_limit ?? null)
+        if (scrollToLatest(msg.scroll_limit ?? null) && msg.rerender) {
+          startScrollLatestSettlement()
+        }
       }
     }
     model.on("msg:custom", handler)
@@ -142,14 +231,34 @@ export function render({model, view}) {
     if (initialLatestDoneRef.current) {
       return
     }
-    const frameId = requestAnimationFrame(() => {
-      scrollToLatest()
+    const settleInitialLatest = () => {
       initialLatestDoneRef.current = true
-      const ordered = model.objects.map((m) => m.id).filter((id) => visibleSetRef.current.has(id))
-      setVisibleChildren(ordered)
+      syncLatestVisibleChild()
+    }
+    const frameId = requestAnimationFrame(() => {
+      startScrollLatestSettlement(settleInitialLatest, true)
     })
     return () => cancelAnimationFrame(frameId)
   }, [view_latest])
+
+  React.useEffect(() => {
+    const handler = () => {
+      layoutUpdatedRef.current = true
+      objects.map((object, index) => {
+        apply_flex(view.get_child_view(model.objects[index]), flexDirection)
+      })
+      if (view_latest && !initialLatestDoneRef.current) {
+        startScrollLatestSettlement(() => {
+          initialLatestDoneRef.current = true
+          syncLatestVisibleChild()
+        }, true)
+      } else if (pendingScrollLatestRef.current) {
+        scrollToLatest()
+      }
+    }
+    model.on("lifecycle:update_layout", handler)
+    return () => model.off("lifecycle:update_layout", handler)
+  }, [])
 
   React.useEffect(() => {
     const root = boxRef.current
@@ -157,6 +266,9 @@ export function render({model, view}) {
       return
     }
     const observer = new IntersectionObserver((entries) => {
+      if (pendingScrollLatestRef.current) {
+        return
+      }
       let changed = false
       const next = new Set(visibleSetRef.current)
       for (const entry of entries) {
@@ -187,6 +299,7 @@ export function render({model, view}) {
     observerRef.current = observer
 
     return () => {
+      stopScrollLatestSettlement()
       for (const node of observedNodesRef.current.values()) {
         observer.unobserve(node)
       }
@@ -229,8 +342,15 @@ export function render({model, view}) {
 
   React.useLayoutEffect(() => {
     const el = boxRef.current
+    if (!el) {
+      return
+    }
+    if (pendingScrollLatestRef.current) {
+      startScrollLatestSettlement(scrollSettledCallbackRef.current)
+      return
+    }
     const anchor = topAnchorRef.current
-    if (!el || !anchor) {
+    if (!anchor) {
       return
     }
     const node = wrappersRef.current.get(anchor.id)
@@ -283,12 +403,14 @@ export function render({model, view}) {
           aria-label="Scroll to latest"
           className={`scroll-button${showScrollButton ? " visible" : ""}`}
           onClick={() => {
+            armScrollLatestAfterRender()
             scrollToLatest()
             model.send_event("click", {})
           }}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault()
+              armScrollLatestAfterRender()
               scrollToLatest()
               model.send_event("click", {})
             }

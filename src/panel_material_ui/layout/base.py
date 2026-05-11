@@ -492,7 +492,7 @@ class Feed(Column):
             self.load_buffer = load_buffer
 
     def _handle_click(self, event=None):
-        self._process_event()
+        self.scroll_to_latest()
         super()._handle_click(event)
 
     def _handle_msg(self, msg: dict[str, Any]) -> None:
