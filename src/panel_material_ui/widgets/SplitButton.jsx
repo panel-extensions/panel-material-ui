@@ -68,8 +68,11 @@ export function render(props, ref) {
   let current_icon = icon
   let current_label = label
   if (mode === "select") {
-    current_label = items[active].label
-    current_icon = items[active].icon ?? icon
+    const currentItem = items[active]
+    if (currentItem != null) {
+      current_label = currentItem.label
+      current_icon = currentItem.icon ?? icon
+    }
   }
 
   return (
