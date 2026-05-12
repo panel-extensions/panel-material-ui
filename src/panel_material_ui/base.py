@@ -236,6 +236,40 @@ function {output}(props) {{
 }}"""
 
 
+class TooltipTransform(ESMTransform):
+    """
+    TooltipTransform wraps a Material UI widget with a tooltip that displays a description.
+
+    This transform is used to provide additional context or help to users when they hover over a widget.
+    """
+
+    _transform = """\
+import Icon from "@mui/material/Icon";
+import Tooltip from "@mui/material/Tooltip";
+
+{esm}
+
+function {output}(props, ref) {{
+  const [description] = props.model.useState("description")
+  const [description_delay] = props.model.useState("description_delay")
+
+  const Wrapped{input} = React.forwardRef({input})
+  return (description ? (
+    <Tooltip
+      title={{description}}
+      arrow
+      enterDelay={{description_delay}}
+      enterNextDelay={{description_delay}}
+      placement="right"
+      slotProps={{{{ popper: {{ container: props.el }} }}}}
+    >
+      <Wrapped{input} {{...props}}/>
+    </Tooltip>) : <{input} {{...props}}/>
+  )
+}}
+"""
+
+
 class MaterialComponent(ReactComponent):
     """
     Baseclass for all MaterialComponents which defines the bundle location,
