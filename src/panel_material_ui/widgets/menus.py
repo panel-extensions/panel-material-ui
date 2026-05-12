@@ -12,8 +12,8 @@ from panel.layout.base import ListLike
 from panel.models.reactive_html import DOMEvent
 from param.parameterized import _syncing
 
-from ..base import COLORS, ThemedTransform
-from .base import MaterialWidget, TooltipTransform
+from ..base import COLORS, ThemedTransform, TooltipTransform
+from .base import MaterialWidget
 from .button import _ButtonBase
 
 
