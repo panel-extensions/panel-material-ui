@@ -343,6 +343,11 @@ class MaterialComponent(ReactComponent):
                 self._target_transforms.get(name, False) is not None
             ):
                 value.jslink(self, **{name: p})
+        theme = "dark" if self.dark_theme else "default"
+        if config.theme != theme:
+            config.theme = theme
+            for c in self.select(MaterialComponent):
+                c.dark_theme = self.dark_theme
 
     async def _watch_esm(self):
         import watchfiles
