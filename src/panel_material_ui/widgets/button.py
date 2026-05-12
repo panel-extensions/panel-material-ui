@@ -11,8 +11,8 @@ import param
 from panel.widgets.button import _ButtonBase as _PnButtonBase
 from panel.widgets.button import _ClickButton
 
-from ..base import COLOR_ALIASES, COLORS, STYLE_ALIASES, LoadingTransform, ThemedTransform
-from .base import MaterialWidget, TooltipTransform
+from ..base import COLOR_ALIASES, COLORS, STYLE_ALIASES, LoadingTransform, ThemedTransform, TooltipTransform
+from .base import MaterialWidget
 
 
 class _ButtonLike(MaterialWidget):

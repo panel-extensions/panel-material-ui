@@ -6,8 +6,8 @@ from typing import Any
 import param
 from panel.links import Callback
 
-from ..base import COLORS, LoadingTransform, ThemedTransform
-from .base import MaterialWidget, TooltipTransform
+from ..base import COLORS, LoadingTransform, ThemedTransform, TooltipTransform
+from .base import MaterialWidget
 from .button import _ButtonBase
 
 

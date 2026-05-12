@@ -7,7 +7,7 @@ const BUTTON_BASE_SX = {
 }
 
 export function render(props, ref) {
-  const {data, el, model, view, ...other} = props
+  const {model, ...other} = props
   const [color] = model.useState("color")
   const [disable_elevation] = model.useState("disable_elevation")
   const [disabled] = model.useState("disabled")

@@ -18,9 +18,9 @@ from panel.widgets.input import FileInput as _PnFileInput
 from panel.widgets.input import LiteralInput as _PnLiteralInput
 
 from .._param import Date, DateList, Datetime
-from ..base import COLORS, LoadingTransform, ThemedTransform
+from ..base import COLORS, LoadingTransform, ThemedTransform, TooltipTransform
 from ._mime import MIME_TYPES, NoConverter
-from .base import MaterialWidget, TooltipTransform
+from .base import MaterialWidget
 from .button import _ButtonBase
 
 if TYPE_CHECKING:
