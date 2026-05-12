@@ -66,7 +66,7 @@ Access a growing collection of Material UI–inspired components (Buttons, Slide
 
 Thanks for your support as we (and maybe you?) keep making Panel Material UI even better!
 
-Want to get involved? [Contribute on GitHub](https://github.com/panel-extensions/panel-material-ui/blob/main/DEVELOPER_GUIDE.md) or share your feedback—we’d love to hear from you. A good starting point for contributions is [GitHub #290 | Review Reference Guides](https://github.com/panel-extensions/panel-material-ui/issues/290).
+Want to get involved? [Contribute on GitHub](https://github.com/panel-extensions/panel-material-ui/blob/main/DEVELOPER_GUIDE.md) or share your feedback - we’d love to hear from you.
 
 ## Installation
 
