@@ -1,6 +1,6 @@
-import pytest
 import math
 
+import pytest
 pytest.importorskip("playwright")
 
 from panel.tests.util import serve_component
@@ -11,7 +11,7 @@ pytestmark = pytest.mark.ui
 
 def test_editable_range_slider_basic(page):
     widget = EditableRangeSlider(
-        name='Range Slider',
+        label='Range Slider',
         start=0,
         end=math.pi,
         value=(math.pi/4, math.pi/2),
@@ -28,7 +28,7 @@ def test_editable_range_slider_basic(page):
 
 def test_editable_range_slider_input_validation(page):
     widget = EditableRangeSlider(
-        name='Range Slider',
+        label='Range Slider',
         start=0,
         end=10,
         fixed_start=0,
@@ -58,7 +58,7 @@ def test_editable_range_slider_input_validation(page):
 
 def test_editable_range_slider_fixed_bounds(page):
     widget = EditableRangeSlider(
-        name='Range Slider',
+        label='Range Slider',
         start=0,
         end=10,
         value=(2, 8),
@@ -81,7 +81,7 @@ def test_editable_range_slider_fixed_bounds(page):
 
 def test_editable_range_slider_formatting(page):
     widget = EditableRangeSlider(
-        name='Range Slider',
+        label='Range Slider',
         start=0,
         end=1000,
         value=(100, 900),
@@ -95,7 +95,7 @@ def test_editable_range_slider_formatting(page):
 
 def test_editable_range_slider_keyboard(page):
     widget = EditableRangeSlider(
-        name='Range Slider',
+        label='Range Slider',
         start=0,
         end=10,
         value=(2, 8),
@@ -120,7 +120,7 @@ def test_editable_range_slider_keyboard(page):
 
 def test_editable_int_range_slider_basic(page):
     widget = EditableIntRangeSlider(
-        name='Int Range Slider',
+        label='Int Range Slider',
         start=0,
         end=10,
         value=(2, 8),
@@ -139,7 +139,7 @@ def test_editable_int_range_slider_basic(page):
 
 def test_editable_int_range_slider_float_handling(page):
     widget = EditableIntRangeSlider(
-        name='Int Range Slider',
+        label='Int Range Slider',
         start=0,
         end=10,
         value=(2, 8),
@@ -164,7 +164,7 @@ def test_editable_int_range_slider_float_handling(page):
 
 def test_editable_int_range_slider_fixed_bounds(page):
     widget = EditableIntRangeSlider(
-        name='Int Range Slider',
+        label='Int Range Slider',
         start=0,
         end=10,
         value=(2, 8),
@@ -187,7 +187,7 @@ def test_editable_int_range_slider_fixed_bounds(page):
 
 def test_editable_range_slider_increment_decrement_buttons(page):
     widget = EditableRangeSlider(
-        name='Range Slider',
+        label='Range Slider',
         start=0,
         end=10,
         value=(2, 8),
@@ -216,12 +216,12 @@ def test_editable_range_slider_increment_decrement_buttons(page):
 
 @pytest.mark.parametrize("inline_layout,targets", [
     (False, [87, 200, 240]),
-    (True, [76, 176, 213])
+    (True, [75, 174, 210])
 ])
 def test_editable_range_slider_slider_interaction(page, inline_layout, targets):
     x1, x2, x3 = targets
     widget = EditableRangeSlider(
-        name='Range Slider',
+        label='Range Slider',
         start=0,
         end=5,
         value=(1, 4),
@@ -249,7 +249,7 @@ def test_editable_range_slider_slider_interaction(page, inline_layout, targets):
 
 def test_editable_int_range_slider_increment_decrement_buttons(page):
     widget = EditableIntRangeSlider(
-        name='Int Range Slider',
+        label='Int Range Slider',
         start=0,
         end=10,
         value=(2, 8),
@@ -282,7 +282,7 @@ def test_editable_int_range_slider_increment_decrement_buttons(page):
 def test_editable_int_range_slider_slider_interaction(page, inline_layout, targets):
     x1, x2, x3 = targets
     widget = EditableIntRangeSlider(
-        name='Int Range Slider',
+        label='Int Range Slider',
         start=0,
         end=10,
         value=(2, 8),
@@ -309,7 +309,7 @@ def test_editable_int_range_slider_slider_interaction(page, inline_layout, targe
 
 def test_editable_range_slider_sync_input_slider(page):
     widget = EditableRangeSlider(
-        name='Range Slider',
+        label='Range Slider',
         start=0,
         end=10,
         value=(2, 8),

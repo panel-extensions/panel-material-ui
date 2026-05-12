@@ -1,5 +1,34 @@
 # Release Notes
 
+## Version 0.10.0
+
+Panel Material UI 0.10.0 introduces new layout and chat capabilities, including a `Feed` layout component, "mention" support in `ChatInterface`, and scroll behaviors for `Column`. The release also brings several menu and navigation improvements, compatibility with the upcoming Panel 1.9.0 release, and a range of bug fixes and UI polish.
+
+Many thanks to the contributors to this release including: @philippjfr, @hoxbro, @ghostiee-11, @ahuang11, and @AtharvaJaiswal005.
+
+### ✨ Enhancements
+
+* Implement `Feed` layout component ([#608](https://github.com/panel-extensions/panel-material-ui/pull/608))
+* Add mention support to `ChatInterface` ([#607](https://github.com/panel-extensions/panel-material-ui/pull/607))
+* Add `placeholder` parameter to `ChatInterface` ([#588](https://github.com/panel-extensions/panel-material-ui/pull/588))
+* Add tooltip support to `Chip` ([#622](https://github.com/panel-extensions/panel-material-ui/pull/622))
+* Add separator support to `MenuButton` ([#620](https://github.com/panel-extensions/panel-material-ui/pull/620))
+* Implement scroll behaviors for `Column` ([#606](https://github.com/panel-extensions/panel-material-ui/pull/606))
+
+### 🐛 Bug Fixes
+* Fix `DatePicker` not clearing correctly ([#618](https://github.com/panel-extensions/panel-material-ui/pull/618))
+* Fix menu divider handling ([#621](https://github.com/panel-extensions/panel-material-ui/pull/621))
+* Fix editing message background fill not stretching with additional lines ([#604](https://github.com/panel-extensions/panel-material-ui/pull/604))
+
+### 📦 Compatibility & Dependency Updates
+
+* Compatibility with Panel 1.9.0 ([#616](https://github.com/panel-extensions/panel-material-ui/pull/616))
+
+### 🎨 UI Improvements
+* Ensure `Tabulator` highlights odd rows correctly in light mode ([#619](https://github.com/panel-extensions/panel-material-ui/pull/619))
+* Ensure grid color is applied to Bokeh plots ([#614](https://github.com/panel-extensions/panel-material-ui/pull/614))
+* Optimize `sx`, RGB calculations, and dark theme toggling ([#609](https://github.com/panel-extensions/panel-material-ui/pull/609))
+
 ## Version 0.9.1
 
 Panel Material UI 0.9.1 focuses on improving chat components, layout polish, and better integration with related Panel extensions such as `panel-reactflow`. The release also includes several UI fixes and documentation improvements.
@@ -29,6 +58,7 @@ Many thanks to the contributors to this release including: @philippjfr, @ghostie
 
 * Combine training materials and improve documentation structure ([#598](https://github.com/panel-extensions/panel-material-ui/pull/598))
 * Merge Plotly and Bokeh/HoloViews documentation sections ([#597](https://github.com/panel-extensions/panel-material-ui/pull/597))
+
 
 ## Version 0.9.0
 

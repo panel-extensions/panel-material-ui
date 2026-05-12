@@ -3,8 +3,7 @@ from __future__ import annotations
 import param
 from panel.widgets.misc import FileDownload as _FileDownload
 
-from ..base import ThemedTransform
-from .base import TooltipTransform
+from ..base import ThemedTransform, TooltipTransform
 from .button import _ButtonBase
 
 

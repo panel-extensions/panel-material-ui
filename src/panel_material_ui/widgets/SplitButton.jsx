@@ -2,6 +2,7 @@ import Button from "@mui/material/Button"
 import ButtonGroup from "@mui/material/ButtonGroup"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import ClickAwayListener from "@mui/material/ClickAwayListener"
+import Divider from "@mui/material/Divider"
 import MenuItem from "@mui/material/MenuItem"
 import {CustomMenu} from "./menu"
 import {render_icon, render_icon_text} from "./utils"
@@ -67,8 +68,11 @@ export function render(props, ref) {
   let current_icon = icon
   let current_label = label
   if (mode === "select") {
-    current_label = items[active].label
-    current_icon = items[active].icon ?? icon
+    const currentItem = items[active]
+    if (currentItem != null) {
+      current_label = currentItem.label
+      current_icon = currentItem.icon ?? icon
+    }
   }
 
   return (
@@ -114,6 +118,9 @@ export function render(props, ref) {
         view={view}
       >
         {items.map((option, index) => {
+          if (option === null || option.label === "---") {
+            return <Divider key={`menu-divider-${index}`} />
+          }
           const menuItem = (
             <MenuItem
               key={`menu-item-${index}`}

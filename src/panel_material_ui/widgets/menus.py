@@ -12,8 +12,8 @@ from panel.layout.base import ListLike
 from panel.models.reactive_html import DOMEvent
 from param.parameterized import _syncing
 
-from ..base import COLORS, ThemedTransform
-from .base import MaterialWidget, TooltipTransform
+from ..base import COLORS, ThemedTransform, TooltipTransform
+from .base import MaterialWidget
 from .button import _ButtonBase
 
 
@@ -821,11 +821,23 @@ class SplitButton(MenuBase, _ButtonBase):
     }
     _item_keys = ['label', 'icon', 'href', 'target', 'icon_size', 'tooltip']
 
+    @staticmethod
+    def _is_divider(item):
+        return item is None or (isinstance(item, dict) and item.get('label') == '---')
+
     @param.depends('mode', watch=True, on_init=True)
     def _switch_mode(self):
         if self.mode == 'select' and self.value is None:
+            active, value = next(
+                (
+                    (index, item)
+                    for index, item in enumerate(self.items)
+                    if not self._is_divider(item)
+                ),
+                (None, None)
+            )
             with _syncing(self, ['active', 'value']):
-                self.param.update(active=0, value=self.items[0])
+                self.param.update(active=active, value=value)
 
     def _process_click(self, msg, index, value):
         if self.mode == 'select' and 'item' in msg:

@@ -1,7 +1,7 @@
 from panel.chat.feed import ChatFeed as _PnChatFeed
 from panel.layout import Column
 
-from ..layout import Card
+from ..layout import Card, Feed
 from .message import ChatMessage
 from .step import ChatStep
 
@@ -33,6 +33,7 @@ class ChatFeed(_PnChatFeed):
     >>> chat_feed.send("Hello World!", user="New User", avatar="😊")
     """
     _card_type = Card
+    _feed_type = Feed
     _message_type = ChatMessage
     _step_type = ChatStep
 

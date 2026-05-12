@@ -67,6 +67,54 @@ def test_split_button_select_mode(page):
     wait_until(lambda: len(events) == 2, page)
     assert events[1] == items[2]
 
+
+def test_split_button_with_dividers(page):
+    items = [
+        {'label': 'Option 1'},
+        None,
+        {'label': 'Option 2'},
+        {'label': '---'},
+        {'label': 'Option 3'},
+    ]
+    widget = SplitButton(items=items, label='Menu')
+    events = []
+    widget.on_click(events.append)
+
+    serve_component(page, widget)
+
+    page.locator('.MuiButtonBase-root').nth(1).click()
+    expect(page.locator('.MuiDivider-root')).to_have_count(2)
+    menu_items = page.locator('.MuiMenuItem-root')
+    expect(menu_items).to_have_count(3)
+
+    menu_items.nth(1).click()
+    wait_until(lambda: len(events) == 1, page)
+    assert events[0] == items[2]
+
+
+def test_split_button_select_mode_with_leading_divider(page):
+    items = [
+        None,
+        {'label': 'Option 1'},
+        {'label': '---'},
+        {'label': 'Option 2'},
+    ]
+    widget = SplitButton(items=items, label='Menu', mode='select')
+
+    serve_component(page, widget)
+
+    button = page.locator('.MuiButtonBase-root')
+    expect(button.nth(0)).to_have_text('Option 1')
+
+    button.nth(1).click()
+    expect(page.locator('.MuiDivider-root')).to_have_count(2)
+    menu_items = page.locator('.MuiMenuItem-root')
+    expect(menu_items).to_have_count(2)
+
+    menu_items.nth(1).click()
+    expect(button.nth(0)).to_have_text('Option 2')
+
+
 def test_split_button_focus(page):
     items = [{'label': 'Option 1'}, {'label': 'Option 2'}]
     widget = SplitButton(items=items, label='Menu')

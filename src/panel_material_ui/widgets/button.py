@@ -11,8 +11,8 @@ import param
 from panel.widgets.button import _ButtonBase as _PnButtonBase
 from panel.widgets.button import _ClickButton
 
-from ..base import COLOR_ALIASES, COLORS, STYLE_ALIASES, LoadingTransform, ThemedTransform
-from .base import MaterialWidget, TooltipTransform
+from ..base import COLOR_ALIASES, COLORS, STYLE_ALIASES, LoadingTransform, ThemedTransform, TooltipTransform
+from .base import MaterialWidget
 
 
 class _ButtonLike(MaterialWidget):
@@ -187,6 +187,9 @@ class Fab(Button):
     :Example:
     >>> Fab(icon='add')
     """
+
+    button_style = param.Selector(objects=["circular", "extended"], default=None, precedence=-1, doc="""
+        The variant of the component (alias for variant to match Panel's Button API).""")
 
     icon = param.String(default="add", allow_None=True, doc="""
         The icon to display on the button.""")

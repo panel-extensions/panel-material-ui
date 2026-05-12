@@ -256,8 +256,8 @@ function getMuiElevatedColor(backgroundHex, elevation, isDarkMode = false) {
   return `rgb(${result.r}, ${result.g}, ${result.b})`;
 }
 
-function elevation_color(elevation, theme, dark) {
-  return (dark && elevation) ? getMuiElevatedColor(theme.palette.background.paper, elevation, dark) : theme.palette.background.paper
+function elevation_color(elevation, theme, dark, force = false) {
+  return (elevation && (dark || force)) ? getMuiElevatedColor(theme.palette.background.paper, elevation, dark) : theme.palette.background.paper
 }
 
 function apply_plotly_theme(model, theme, dark, font_family) {
@@ -739,8 +739,8 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     const elevation = view ? find_on_parent(view, "elevation") : 0
     model.stylesheets = [...model.stylesheets, `
       :host {
-        --mdc-theme-background: ${elevation_color(elevation, theme, dark)};
-        --mdc-theme-surface: ${elevation_color(elevation+1, theme, dark)};
+        --mdc-theme-background: ${elevation_color(elevation, theme, dark, true)};
+        --mdc-theme-surface: ${elevation_color(elevation+1, theme, dark, true)};
       }
     `]
   } else if (model_type.endsWith("ReactFlow")) {
@@ -1259,6 +1259,134 @@ export function apply_flex(view, direction) {
       view.parent_style.append(":host", {width: "auto"})
     }
   }
+}
+
+export function distance_from_latest(el) {
+  return el.scrollHeight - el.scrollTop - el.clientHeight
+}
+
+export function update_scroll_button(el, scroll_button_threshold, setShowScrollButton) {
+  if (scroll_button_threshold <= 0) {
+    setShowScrollButton(false)
+    return
+  }
+  setShowScrollButton(distance_from_latest(el) >= scroll_button_threshold)
+}
+
+export function scroll_to_latest(el, syncingScrollRef, setScrollPosition, updateScrollButton, scrollLimit = null) {
+  if (!el) {
+    return false
+  }
+  if (scrollLimit !== null && distance_from_latest(el) > scrollLimit) {
+    return false
+  }
+  syncingScrollRef.current = true
+  el.scrollTo({top: el.scrollHeight, behavior: "instant"})
+  setScrollPosition(Math.round(el.scrollTop))
+  syncingScrollRef.current = false
+  updateScrollButton(el)
+  return true
+}
+
+export function scroll_to_child(el, child, setScrollPosition) {
+  if (!el || !child) {
+    return
+  }
+  const relativeTop = child.offsetTop - el.offsetTop + el.scrollTop
+  setScrollPosition(Math.round(relativeTop))
+}
+
+export function child_at_latest(el, child) {
+  if (!el || !child) {
+    return false
+  }
+  const bottom = child.offsetTop - el.offsetTop + child.offsetHeight
+  return bottom <= el.scrollTop + el.clientHeight + 1 && distance_from_latest(el) <= 1
+}
+
+export function use_latest_scroll_settlement({
+  boxRef,
+  pendingScrollLatestRef,
+  topAnchorRef = null,
+  scrollToLatest,
+  latestChildAtBottom,
+  onDefaultSettled = null,
+  layoutUpdatedRef = null,
+}) {
+  const scrollFrameRef = React.useRef(null)
+  const scrollStableFramesRef = React.useRef(0)
+  const scrollHeightRef = React.useRef(null)
+  const scrollSettledCallbackRef = React.useRef(null)
+  const scrollToLatestRef = React.useRef(scrollToLatest)
+  const latestChildAtBottomRef = React.useRef(latestChildAtBottom)
+  const onDefaultSettledRef = React.useRef(onDefaultSettled)
+  scrollToLatestRef.current = scrollToLatest
+  latestChildAtBottomRef.current = latestChildAtBottom
+  onDefaultSettledRef.current = onDefaultSettled
+
+  const stopScrollLatestSettlement = React.useCallback(() => {
+    if (scrollFrameRef.current !== null) {
+      cancelAnimationFrame(scrollFrameRef.current)
+      scrollFrameRef.current = null
+    }
+    scrollStableFramesRef.current = 0
+    scrollHeightRef.current = null
+  }, [])
+
+  const finishScrollLatestSettlement = React.useCallback(() => {
+    pendingScrollLatestRef.current = false
+    scrollStableFramesRef.current = 0
+    scrollHeightRef.current = null
+    const callback = scrollSettledCallbackRef.current
+    scrollSettledCallbackRef.current = null
+    if (callback) {
+      callback()
+    } else if (onDefaultSettledRef.current) {
+      onDefaultSettledRef.current()
+    }
+  }, [])
+
+  const startScrollLatestSettlement = React.useCallback((onSettled = null, requireLayoutUpdate = false) => {
+    pendingScrollLatestRef.current = true
+    if (topAnchorRef) {
+      topAnchorRef.current = null
+    }
+    scrollSettledCallbackRef.current = onSettled
+    stopScrollLatestSettlement()
+
+    const tick = (remainingFrames) => {
+      scrollFrameRef.current = null
+      const el = boxRef.current
+      if (!el) {
+        finishScrollLatestSettlement()
+        return
+      }
+
+      scrollToLatestRef.current()
+      const heightStable = (
+        scrollHeightRef.current !== null &&
+        Math.abs(el.scrollHeight - scrollHeightRef.current) <= 1
+      )
+      const layoutReady = !requireLayoutUpdate || layoutUpdatedRef?.current
+      scrollHeightRef.current = el.scrollHeight
+      if (latestChildAtBottomRef.current(el) && heightStable && layoutReady) {
+        scrollStableFramesRef.current += 1
+      } else {
+        scrollStableFramesRef.current = 0
+      }
+
+      if (scrollStableFramesRef.current >= 30 || remainingFrames <= -600 || (remainingFrames <= 0 && !requireLayoutUpdate)) {
+        finishScrollLatestSettlement()
+        return
+      }
+
+      scrollFrameRef.current = requestAnimationFrame(() => tick(remainingFrames - 1))
+    }
+
+    scrollFrameRef.current = requestAnimationFrame(() => tick(240))
+  }, [])
+
+  return {startScrollLatestSettlement, stopScrollLatestSettlement, scrollSettledCallbackRef}
 }
 
 export function findNotebook(el) {
