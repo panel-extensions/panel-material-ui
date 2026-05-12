@@ -284,8 +284,12 @@ export function render({model, el, view}) {
   }, [orientation, sx])
   const sliderSx = React.useMemo(() => {
     const orientationSx = orientation !== "vertical" ? {width: "100%"} : {}
-    return sx ? [SLIDER_BASE_SX, orientationSx, sx] : [SLIDER_BASE_SX, orientationSx]
-  }, [sx, orientation])
+    const baseSx = bar_color == null ? [] : [SLIDER_BASE_SX]
+    return sx ? [...baseSx, orientationSx, sx] : [...baseSx, orientationSx]
+  }, [sx, orientation, bar_color])
+  const sliderStyle = React.useMemo(() => {
+    return bar_color == null ? undefined : {"--pmui-slider-bar-color": bar_color}
+  }, [bar_color])
 
   return (
     <FormControl disabled={disabled} fullWidth sx={formControlSx}>
@@ -380,7 +384,7 @@ export function render({model, el, view}) {
           size={size}
           step={date ? step*86400000 : (datetime ? step*1000 : step)}
           sx={sliderSx}
-          style={{"--pmui-slider-bar-color": bar_color}}
+          style={sliderStyle}
           track={track}
           value={value}
           valueLabelDisplay={tooltips === "auto" ? "auto" : tooltips ? "on" : "off"}

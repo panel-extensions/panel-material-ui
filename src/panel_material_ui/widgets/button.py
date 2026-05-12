@@ -188,6 +188,9 @@ class Fab(Button):
     >>> Fab(icon='add')
     """
 
+    button_style = param.Selector(objects=["circular", "extended"], default=None, precedence=-1, doc="""
+        The variant of the component (alias for variant to match Panel's Button API).""")
+
     icon = param.String(default="add", allow_None=True, doc="""
         The icon to display on the button.""")
 
