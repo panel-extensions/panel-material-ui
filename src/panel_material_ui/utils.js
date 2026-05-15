@@ -664,53 +664,102 @@ function apply_plotly_theme(model, theme, dark, font_family) {
   })
 }
 
+function has_custom_theme(custom_theme, ...names) {
+  return names.some(name => custom_theme.includes(name))
+}
+
+function themed_stylesheets(model, key, stylesheet) {
+  const marker = `/* ${key} */`
+  const next = `${marker}\n${stylesheet}`
+  return [...model.stylesheets.filter(s => !s.includes(marker)), next]
+}
+
+function alpha(theme, channel, value) {
+  const normalizedChannel = channel.trim().split(/\s+/).join(", ")
+  return `rgba(${normalizedChannel}, ${value})`
+}
+
 function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   const model_props = {}
   const model_type = model.type.endsWith("ReactiveESM") ? model.class_name : model.type
-  if (model_type.endsWith("Axis") && !custom_theme.includes("Axis")) {
-    model_props.axis_label_text_color = theme.palette.text.primary
+
+  const text = theme.palette.text.primary
+  const muted = theme.palette.text.secondary
+  const grid = alpha(theme, theme.palette.common.onBackgroundChannel, dark ? 0.12 : 0.10)
+  const axis = alpha(theme, theme.palette.common.onBackgroundChannel, dark ? 0.28 : 0.22)
+  const surface = theme.palette.background.paper
+
+  if (model_type.endsWith("Axis") && !has_custom_theme(custom_theme, "Axis")) {
+    model_props.axis_line_alpha = 0
+    model_props.axis_line_color = axis
+
+    model_props.major_tick_line_alpha = 0
+    model_props.major_tick_line_color = axis
+    model_props.minor_tick_line_alpha = 0
+    model_props.minor_tick_line_color = axis
+
+    model_props.major_label_text_color = muted
+    model_props.major_label_text_font = font_family
+    model_props.major_label_text_font_size = "0.925em"
+    model_props.major_label_text_font_style = "normal"
+
+    model_props.axis_label_text_color = text
     model_props.axis_label_text_font = font_family
-    model_props.axis_line_alpha = dark ? 0 : 1
-    model_props.axis_line_color = theme.palette.text.primary
-    model_props.major_label_text_color = theme.palette.text.primary
-    model_props.major_label_text_font = font_family
-    model_props.major_tick_line_alpha = dark ? 0 : 1
-    model_props.major_tick_line_color = theme.palette.text.primary
-    model_props.minor_tick_line_alpha = dark ? 0 : 1
-    model_props.minor_tick_line_color = theme.palette.text.primary
-  } else if (model_type.endsWith("Legend") && !custom_theme.includes("Legend")) {
-    const view = Bokeh.index.find_one_by_id(model.id)
-    const elevation = view ? find_on_parent(view, "elevation") : 0
-    model_props.background_fill_color = elevation_color(elevation, theme, dark)
-    model_props.border_line_alpha = dark ? 0 : 1
-    model_props.title_text_color = theme.palette.text.primary
-    model_props.title_text_font = font_family
-    model_props.label_text_color = theme.palette.text.primary
+    model_props.axis_label_text_font_size = "1em"
+    model_props.axis_label_text_font_style = "normal"
+    model_props.axis_label_standoff = 12
+  } else if (model_type.endsWith("Legend") && !has_custom_theme(custom_theme, "Legend")) {
+    model_props.border_line_alpha = 0
+    model_props.background_fill_alpha = 0
+    model_props.background_fill_color = surface
+
+    model_props.label_text_color = text
     model_props.label_text_font = font_family
-  } else if (model_type.endsWith("ColorBar") && !custom_theme.includes("ColorBar")) {
-    const view = Bokeh.index.find_one_by_id(model.id)
-    const elevation = view ? find_on_parent(view, "elevation") : 0
-    model_props.background_fill_color = elevation_color(elevation, theme, dark)
-    model_props.title_text_color = theme.palette.text.primary
+    model_props.label_text_font_size = "0.95em"
+    model_props.label_text_font_style = "normal"
+
+    model_props.title_text_color = muted
     model_props.title_text_font = font_family
-    model_props.major_label_text_color = theme.palette.text.primary
+    model_props.title_text_font_size = "0.95em"
+    model_props.title_text_font_style = "normal"
+
+    model_props.spacing = 8
+    model_props.label_standoff = 8
+    model_props.glyph_width = 14
+    model_props.glyph_height = 14
+  } else if (model_type.endsWith("ColorBar") && !has_custom_theme(custom_theme, "BaseColorBar", "ColorBar")) {
+    model_props.background_fill_alpha = 0
+    model_props.background_fill_color = surface
+
+    model_props.title_text_color = text
+    model_props.title_text_font = font_family
+    model_props.title_text_font_size = "0.95em"
+    model_props.title_text_font_style = "normal"
+
+    model_props.major_label_text_color = muted
     model_props.major_label_text_font = font_family
-  } else if (model_type.endsWith("Title") && !custom_theme.includes("Title")) {
-    model_props.text_color = theme.palette.text.primary
+    model_props.major_label_text_font_size = "0.9em"
+    model_props.major_label_text_font_style = "normal"
+
+    model_props.major_tick_line_alpha = 0
+    model_props.minor_tick_line_alpha = 0
+    model_props.bar_line_alpha = 0
+  } else if (model_type.endsWith("Title") && !has_custom_theme(custom_theme, "Title")) {
+    model_props.text_color = text
     model_props.text_font = font_family
-  } else if (model_type.endsWith("Grid") && !custom_theme.includes("Grid")) {
+    model_props.text_font_size = "1.05em"
+    model_props.text_font_style = "normal"
+  } else if (model_type.endsWith("Grid") && !has_custom_theme(custom_theme, "Grid")) {
     if (model.grid_line_color != null) {
-      model_props.grid_line_color = theme.palette.text.primary
-      model_props.grid_line_alpha = dark ? 0.25 : 0.5
+      model_props.grid_line_color = grid
+      model_props.grid_line_alpha = 1
     }
-  } else if (model_type.endsWith("Canvas") && !custom_theme.includes("Canvas")) {
-    model_props.stylesheets = [...model.stylesheets, ":host { --highlight-color: none }"]
-  } else if (model_type.endsWith("Figure") && !custom_theme.includes("Figure")) {
+  } else if ((model_type.endsWith("Figure") | model_type.endsWith("Figure")) && !custom_theme.includes("Plot") && !custom_theme.includes("Figure")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = view ? find_on_parent(view, "elevation") : 0
     model_props.background_fill_color = theme.palette.background.paper
     model_props.border_fill_color = elevation_color(elevation, theme, dark)
-    model_props.outline_line_color = theme.palette.text.primary
+    model_props.outline_line_color = text
     model_props.outline_line_alpha = dark ? 0.25 : 0
     if (view) {
       apply_bokeh_theme(view.canvas_view.model, theme, dark, font_family, custom_theme)
@@ -743,6 +792,32 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
         --mdc-theme-surface: ${elevation_color(elevation+1, theme, dark, true)};
       }
     `]
+  } else if (model_type.endsWith("VizzuChart")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    const elevation = view ? find_on_parent(view, "elevation") : 0
+    const background = elevation_color(elevation, theme, dark, true)
+    model_props.style = deepmerge(model.style ?? {}, {
+      backgroundColor: background,
+      plot: {
+        backgroundColor: background,
+        areaColor: background,
+        xAxis: {
+          color: muted,
+          label: {color: muted},
+          interlacing: {color: background},
+        },
+        yAxis: {
+          color: muted,
+          label: {color: muted},
+          interlacing: {color: background},
+        },
+        marker: {
+          label: {color: text},
+        },
+      },
+      title: {color: text},
+      legend: {label: {color: text}},
+    })
   } else if (model_type.endsWith("ReactFlow")) {
     model.data.color_mode = dark ? "dark" : "light"
   } else if (model_type.endsWith("VegaPlot")) {
