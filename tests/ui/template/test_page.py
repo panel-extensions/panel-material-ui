@@ -7,8 +7,8 @@ pytest.importorskip('playwright')
 import panel as pn
 from panel.tests.util import serve_component
 from playwright.sync_api import expect
-
 from panel_material_ui.template import Page
+from panel_material_ui.widgets import Button
 
 pytestmark = pytest.mark.ui
 
@@ -215,7 +215,7 @@ def test_page_linear_progress_visible_when_busy(page):
     def slow_operation(event):
         time.sleep(2)
 
-    button = pn.widgets.Button(label='Trigger Busy', on_click=slow_operation)
+    button = Button(label='Trigger Busy', on_click=slow_operation)
 
     pg = Page(
         busy_indicator='linear',
@@ -231,7 +231,7 @@ def test_page_linear_progress_visible_when_busy(page):
     expect(progress).to_have_css("opacity", "0")
 
     # Click button to trigger busy state
-    page.locator('button:has-text("Trigger Busy")').click()
+    page.locator('.MuiButton-root').click()
 
     # Wait a bit for the busy state to activate (1 second debounce)
     page.wait_for_timeout(1100)
