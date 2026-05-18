@@ -4,13 +4,13 @@ pytest.importorskip("playwright")
 
 from playwright.sync_api import expect
 
-from panel_material_ui.notifications import NotificationArea
 from panel.config import config
 from panel.io.state import state
 from panel.layout import Row
 from panel.pane import Markdown
 from panel.tests.util import serve_component, wait_until
-from panel.widgets import Button
+from panel_material_ui.notifications import NotificationArea
+from panel_material_ui.widgets import Button
 
 pytestmark = pytest.mark.ui
 
@@ -28,7 +28,7 @@ def test_notifications(page):
 
     serve_component(page, app)
 
-    page.click('.bk-btn')
+    page.click('.MuiButton-root')
 
     expect(page.locator('.MuiAlert-message')).to_have_text('MyError')
 
@@ -50,7 +50,7 @@ def test_notifications_clear(page):
 
     serve_component(page, app)
 
-    page.click('.bk-btn')
+    page.click('.MuiButton-root')
 
     expect(page.locator('.MuiAlert-message')).to_have_count(2)
 
@@ -85,11 +85,11 @@ def test_notifications_destroy(page):
 
     # Add and destroy two notifications
     messages = page.locator('.MuiAlert-message')
-    page.locator('.bk-btn').nth(0).click()
+    page.locator('.MuiButton-root').nth(0).click()
     expect(messages).to_have_count(2)
-    page.locator('.bk-btn').nth(1).click()
+    page.locator('.MuiButton-root').nth(1).click()
     expect(messages).to_have_count(1)
-    page.locator('.bk-btn').nth(1).click()
+    page.locator('.MuiButton-root').nth(1).click()
     expect(messages).to_have_count(0)
 
 
@@ -106,7 +106,7 @@ def test_notifications_custom_background(page):
 
     serve_component(page, app)
 
-    page.click('.bk-btn')
+    page.click('.MuiButton-root')
 
     expect(page.locator('.MuiAlert-message')).to_have_text('Custom notification')
     expect(page.locator('.MuiPaper-root')).to_have_css('background-color', 'rgb(0, 0, 0)')
@@ -126,7 +126,7 @@ def test_notifications_custom_type(page):
 
     serve_component(page, app)
 
-    page.click('.bk-btn')
+    page.click('.MuiButton-root')
 
     expect(page.locator('.MuiAlert-message')).to_have_text('Custom notification')
     expect(page.locator('.MuiPaper-root')).to_have_css('background-color', 'rgb(0, 0, 0)')
@@ -149,7 +149,7 @@ def test_notifications_dismiss(page):
 
     serve_component(page, app)
 
-    page.click('.bk-btn')
+    page.click('.MuiButton-root')
 
     expect(page.locator('.MuiAlert-message')).to_have_text('MyError')
 
@@ -183,7 +183,7 @@ def test_disconnect_notification(page):
 
     serve_component(page, app)
 
-    page.click('.bk-btn')
+    page.click('.MuiButton-root')
 
     expect(page.locator('.MuiAlert-message')).to_have_text('Disconnected!')
 
