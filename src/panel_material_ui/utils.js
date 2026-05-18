@@ -790,7 +790,7 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     const elevation = view ? find_on_parent(view, "elevation") : 0
     model.stylesheets = [...model.stylesheets, `
       :host {
-        --mdc-theme-background: ${elevation_color(elevation, theme, dark, true)};
+        --mdc-theme-background: ${elevation_color(elevation, theme, dark)};
         --mdc-theme-surface: ${elevation_color(elevation+1, theme, dark, true)};
       }
     `]
