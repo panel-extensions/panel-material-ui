@@ -506,24 +506,28 @@ export function render({model, view}) {
           color={color}
           disabled={disabled}
           inputComponent={CustomInput}
-          inputProps={{
-            ref: inputRef,
-            filePreview: (enable_upload && file_data.length > 0) ? <FilePreview /> : null,
-            footerObjects: footer_objects.map((object, index) => {
-              apply_flex(view.get_child_view(model.footer_objects[index]), "row")
-              return object
-            }),
-            value: value_input,
-            onChange: (event) => setValueInput(event.target.value),
-            onKeyDown: (event) => {
-              if (isSendEvent(event)) {
-                event.preventDefault()
-                send()
-              }
+          slotProps={{
+            root: {
+              ref: inputRef,
+              onChange: (event) => setValueInput(event.target.value),
+              onKeyDown: (event) => {
+                if (isSendEvent(event)) {
+                  event.preventDefault()
+                  send()
+                }
+              },
             },
-            maxRows: max_rows,
-            placeholder,
-            ...props,
+            input: {
+              filePreview: (enable_upload && file_data.length > 0) ? <FilePreview /> : null,
+              footerObjects: footer_objects.map((object, index) => {
+                apply_flex(view.get_child_view(model.footer_objects[index]), "row")
+                return object
+              }),
+              value: value_input,
+              maxRows: max_rows,
+              placeholder,
+              ...props,
+            }
           }}
           placeholder={placeholder}
           startAdornment={
@@ -540,8 +544,12 @@ export function render({model, view}) {
                   {enable_upload && (
                     <SpeedDialAction
                       icon={<AttachFileIcon />}
-                      tooltipTitle="Attach files"
-                      slotProps={{popper: {container: view.container}}}
+                      slotProps={{
+                        popper: {container: view.container},
+                        tooltip: {
+                          title: "Attach files"
+                        }
+                      }}
                       onClick={() => fileInputRef.current?.click()}
                     />
                   )}
@@ -549,8 +557,12 @@ export function render({model, view}) {
                     <SpeedDialAction
                       key={action}
                       icon={<Icon>{actions[action].icon}</Icon>}
-                      slotProps={{popper: {container: view.container}}}
-                      tooltipTitle={actions[action].label || action}
+                      slotProps={{
+                        popper: {container: view.container},
+                        tooltip: {
+                          title: actions[action].label || action
+                        }
+                      }}
                       onClick={() => model.send_msg({type: "action", action})}
                     />
                   ))}

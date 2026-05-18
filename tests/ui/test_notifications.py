@@ -22,7 +22,7 @@ def test_notifications(page):
     def app():
         config.notifications = True
         assert isinstance(state.notifications, NotificationArea)
-        button = Button(name='Display error')
+        button = Button(label='Display error')
         button.on_click(callback)
         return button
 
@@ -43,7 +43,7 @@ def test_notifications_clear(page):
     def app():
         config.notifications = True
         assert isinstance(state.notifications, NotificationArea)
-        button = Button(name='Display error')
+        button = Button(label='Display error')
         button.on_click(callback)
         notifications.append(state.notifications)
         return button
@@ -75,8 +75,8 @@ def test_notifications_destroy(page):
     def app():
         config.notifications = True
         assert isinstance(state.notifications, NotificationArea)
-        add = Button(name='Add')
-        remove = Button(name='Remove')
+        add = Button(label='Add')
+        remove = Button(label='Remove')
         add.on_click(add_notifications)
         remove.on_click(destroy_notifications)
         return Row(add, remove)
@@ -100,7 +100,7 @@ def test_notifications_custom_background(page):
     def app():
         config.notifications = True
         assert isinstance(state.notifications, NotificationArea)
-        button = Button(name='Display error')
+        button = Button(label='Display error')
         button.on_click(callback)
         return button
 
@@ -120,7 +120,7 @@ def test_notifications_custom_type(page):
         config.notifications = True
         state.notifications.types = [{'type': 'custom', 'background': '#000000', 'icon': 'home'}]
         assert isinstance(state.notifications, NotificationArea)
-        button = Button(name='Display error')
+        button = Button(label='Display error')
         button.on_click(callback)
         return button
 
@@ -142,7 +142,7 @@ def test_notifications_dismiss(page):
     def app():
         config.notifications = True
         assert isinstance(state.notifications, NotificationArea)
-        button = Button(name='Display error')
+        button = Button(label='Display error')
         button.on_click(callback)
         notifications.append(state.notifications)
         return button
@@ -175,7 +175,7 @@ def test_disconnect_notification(page):
     def app():
         config.disconnect_notification = 'Disconnected!'
         assert isinstance(state.notifications, NotificationArea)
-        button = Button(name='Stop server')
+        button = Button(label='Stop server')
         button.js_on_click(code="""
         Bokeh.documents[0].event_manager.send_event({'event_name': 'connection_lost', 'publish': false})
         """)

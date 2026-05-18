@@ -87,7 +87,7 @@ def test_tabs_disabled(page):
     wait_until(lambda: widget.active == 0, page)
 
 def test_tabs_nested_components(page):
-    button = Button(name="Click Me")
+    button = Button(label="Click Me")
     widget = Tabs(
         ("Tab 1", button)
     )

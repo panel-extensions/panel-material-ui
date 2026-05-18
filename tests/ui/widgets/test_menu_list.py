@@ -9,7 +9,7 @@ from playwright.sync_api import expect
 pytestmark = pytest.mark.ui
 
 def test_menu_list(page):
-    widget = MenuList(name='List test', items=['Item 1', 'Item 2', 'Item 3'])
+    widget = MenuList(label='List test', items=['Item 1', 'Item 2', 'Item 3'])
     serve_component(page, widget)
 
     expect(page.locator(".menu-list")).to_have_count(1)

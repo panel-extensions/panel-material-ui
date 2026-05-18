@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 pytest.importorskip('playwright')
@@ -210,12 +212,10 @@ def test_page_linear_progress_hidden_when_idle(page):
 
 def test_page_linear_progress_visible_when_busy(page):
     """Test that linear progress bar is visible (opacity: 1) when busy."""
-    import time
-
     def slow_operation(event):
         time.sleep(2)
 
-    button = pn.widgets.Button(name='Trigger Busy', on_click=slow_operation)
+    button = pn.widgets.Button(label='Trigger Busy', on_click=slow_operation)
 
     pg = Page(
         busy_indicator='linear',

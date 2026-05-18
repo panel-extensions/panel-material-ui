@@ -43,7 +43,7 @@ def test_popup_visibility(page):
     expect(popup).to_have_count(1)
 
 def test_popup_nested_components(page):
-    button = Button(name="Click Me")
+    button = Button(label="Click Me")
     widget = Popup(
         objects=[button],
         open=True

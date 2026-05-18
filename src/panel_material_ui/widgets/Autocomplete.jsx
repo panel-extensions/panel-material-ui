@@ -193,7 +193,9 @@ export function render({model, el, view}) {
       sx={sx}
       value={value}
       variant={variant}
-      PopperComponent={CustomPopper}
+      slots={{
+        popper: CustomPopper
+      }}
     />
-  )
+  );
 }

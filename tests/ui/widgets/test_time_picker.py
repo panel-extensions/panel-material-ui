@@ -18,15 +18,17 @@ def test_time_picker(page):
     serve_component(page, time_picker)
 
     # Check if the component is rendered
-    expect(page.locator(".MuiInputBase-root")).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root")).to_have_count(1)
 
     # Verify the input value matches the expected time format
-    input_element = page.locator(".MuiInputBase-input")
+    input_element = page.locator(".MuiPickersInputBase-input")
     # Should be in 12h format by default with lowercase am/pm
     assert "06:08 pm" in input_element.input_value().lower()
 
     # Enter a new time value
+    input_element.focus()
     input_element.fill("12:30 pm")
+    input_element.press("Enter")
 
     try:
         wait_until(lambda: time_picker.value == datetime.time(12, 30), page)
@@ -36,10 +38,9 @@ def test_time_picker(page):
 def test_time_picker_focus(page):
     widget = TimePicker(value="12:00:00")
     serve_component(page, widget)
-    input_element = page.locator(".MuiInputBase-input")
-    expect(input_element).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root.Mui-focused")).to_have_count(0)
     widget.focus()
-    expect(input_element).to_be_focused()
+    expect(page.locator(".MuiPickersInputBase-root.Mui-focused")).to_have_count(1)
 
 def test_time_picker_with_datetime_time(page):
     """Test TimePicker with datetime.time instance."""
@@ -49,7 +50,7 @@ def test_time_picker_with_datetime_time(page):
     serve_component(page, time_picker)
 
     # Verify the input value matches the expected time format
-    input_element = page.locator(".MuiInputBase-input")
+    input_element = page.locator(".MuiPickersInputBase-input")
     # Should display 12:59 pm in 12h format by default with leading zeros
     assert "12:59 pm" in input_element.input_value().lower()
 
@@ -66,9 +67,9 @@ def test_time_picker_variant(page, variant):
 
     # Check if the component with the specific variant is rendered
     if variant == "standard":
-        expect(page.locator(".MuiInput-root")).to_have_count(1)
+        expect(page.locator(".MuiPickersInputBase-input")).to_have_count(1)
     else:
-        expect(page.locator(f".Mui{variant.capitalize()}Input-root")).to_have_count(1)
+        expect(page.locator(f".MuiPickers{variant.capitalize()}Input-root")).to_have_count(1)
 
 
 @pytest.mark.parametrize('color', ["primary", "secondary", "error", "info", "success", "warning"])
@@ -79,7 +80,7 @@ def test_time_picker_color(page, color):
     serve_component(page, time_picker)
 
     # Check if the component is rendered
-    expect(page.locator(".MuiInputBase-root")).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root")).to_have_count(1)
 
 
 @pytest.mark.parametrize('clock_format,expected_marker', [
@@ -93,7 +94,7 @@ def test_time_picker_clock_format(page, clock_format, expected_marker):
     serve_component(page, time_picker)
 
     # Get the input value
-    input_value = page.locator(".MuiInputBase-input").input_value().lower()
+    input_value = page.locator(".MuiPickersInputBase-input").input_value().lower()
 
     # Check if the format is correct based on the clock setting
     if expected_marker:
@@ -113,7 +114,7 @@ def test_time_picker_disabled(page):
     serve_component(page, time_picker)
 
     # Check if the component is disabled
-    expect(page.locator(".MuiInputBase-root.Mui-disabled")).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root.Mui-disabled")).to_have_count(1)
 
 
 def test_time_picker_min_max_time(page):
@@ -128,10 +129,10 @@ def test_time_picker_min_max_time(page):
     serve_component(page, time_picker)
 
     # Check if the component is rendered
-    expect(page.locator(".MuiInputBase-root")).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root")).to_have_count(1)
 
     # Verify input value
-    input_value = page.locator(".MuiInputBase-input").input_value().lower()
+    input_value = page.locator(".MuiPickersInputBase-input").input_value().lower()
     assert "12:00" in input_value
 
     # The time value should be valid
@@ -148,7 +149,7 @@ def test_time_picker_with_seconds(page):
     serve_component(page, time_picker)
 
     # Verify the input value includes seconds
-    input_element = page.locator(".MuiInputBase-input")
+    input_element = page.locator(".MuiPickersInputBase-input")
     input_value = input_element.input_value().lower()
 
     # Format should include seconds
@@ -169,17 +170,17 @@ def test_time_picker_format_synchronization(page):
     serve_component(page, time_picker)
 
     # Initially should be in 12h format
-    input_value = page.locator(".MuiInputBase-input").input_value().lower()
+    input_value = page.locator(".MuiPickersInputBase-input").input_value().lower()
     assert "pm" in input_value
 
     # Change to 24h clock
     time_picker.clock = "24h"
 
     # Wait for the update to apply
-    wait_until(lambda: "pm" not in page.locator(".MuiInputBase-input").input_value().lower(), page)
+    wait_until(lambda: "pm" not in page.locator(".MuiPickersInputBase-input").input_value().lower(), page)
 
     # Should now be in 24h format
-    input_value = page.locator(".MuiInputBase-input").input_value()
+    input_value = page.locator(".MuiPickersInputBase-input").input_value()
     assert "18:08" in input_value
     assert "pm" not in input_value.lower()
 
@@ -197,5 +198,5 @@ def test_time_picker_increments(page):
     serve_component(page, time_picker)
 
     # Verify the format shows seconds
-    input_value = page.locator(".MuiInputBase-input").input_value().lower()
+    input_value = page.locator(".MuiPickersInputBase-input").input_value().lower()
     assert "06:08:00 pm" in input_value or "06:08:00pm" in input_value

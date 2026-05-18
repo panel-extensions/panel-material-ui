@@ -18,10 +18,10 @@ def test_datetime_picker(page):
     serve_component(page, datetime_picker)
 
     # Check if the component is rendered
-    expect(page.locator(".MuiInputBase-root")).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root")).to_have_count(1)
 
     # We need to wait for the component to fully initialize
-    wait_until(lambda: "2023-06-15" in page.locator(".MuiInputBase-input").input_value(), page)
+    wait_until(lambda: "2023-06-15" in page.locator(".MuiPickersInputBase-input").input_value(), page)
 
     # The datetime value in Python model should match the original value
     assert datetime_picker.value.year == 2023
@@ -33,12 +33,10 @@ def test_datetime_picker(page):
 def test_datetime_picker_focus(page):
     widget = DatetimePicker(value=datetime.datetime(2023, 6, 15, 14, 30))
     serve_component(page, widget)
-    wait_until(lambda: "2023-06-15" in page.locator(".MuiInputBase-input").input_value(), page)
-    input_element = page.locator(".MuiInputBase-input")
-    expect(input_element).to_have_count(1)
+    wait_until(lambda: "2023-06-15" in page.locator(".MuiPickersInputBase-input").input_value(), page)
+    expect(page.locator(".MuiPickersInputBase-root.Mui-focused")).to_have_count(0)
     widget.focus()
-    expect(input_element).to_be_focused()
-
+    expect(page.locator(".MuiPickersInputBase-root.Mui-focused")).to_have_count(1)
 
 def test_datetime_picker_with_string(page):
     """Test DatetimePicker with string datetime value."""
@@ -47,7 +45,7 @@ def test_datetime_picker_with_string(page):
     serve_component(page, datetime_picker)
 
     # Wait for initialization
-    wait_until(lambda: "2023-06-15" in page.locator(".MuiInputBase-input").input_value(), page)
+    wait_until(lambda: "2023-06-15" in page.locator(".MuiPickersInputBase-input").input_value(), page)
 
     # The datetime value in Python model should be parsed correctly
     assert isinstance(datetime_picker.value, datetime.datetime)
@@ -70,9 +68,9 @@ def test_datetime_picker_variant(page, variant):
 
     # Check if the component with the specific variant is rendered
     if variant == "standard":
-        expect(page.locator(".MuiInput-root")).to_have_count(1)
+        expect(page.locator(".MuiPickersInputBase-root")).to_have_count(1)
     else:
-        expect(page.locator(f".Mui{variant.capitalize()}Input-root")).to_have_count(1)
+        expect(page.locator(f".MuiPickers{variant.capitalize()}Input-root")).to_have_count(1)
 
 
 @pytest.mark.parametrize('color', ["primary", "secondary", "error", "info", "success", "warning"])
@@ -86,7 +84,7 @@ def test_datetime_picker_color(page, color):
     serve_component(page, datetime_picker)
 
     # Check if the component is rendered
-    expect(page.locator(".MuiInputBase-root")).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root")).to_have_count(1)
 
 
 @pytest.mark.parametrize('military_time,expected_format', [
@@ -103,7 +101,7 @@ def test_datetime_picker_time_format(page, military_time, expected_format):
     serve_component(page, datetime_picker)
 
     # Check rendering only for now
-    expect(page.locator(".MuiInputBase-root")).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root")).to_have_count(1)
 
 
 def test_datetime_picker_disabled(page):
@@ -116,7 +114,7 @@ def test_datetime_picker_disabled(page):
     serve_component(page, datetime_picker)
 
     # Check if the component is disabled
-    expect(page.locator(".MuiInputBase-root.Mui-disabled")).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root.Mui-disabled")).to_have_count(1)
 
 
 def test_datetime_picker_min_max(page):
@@ -131,10 +129,10 @@ def test_datetime_picker_min_max(page):
     serve_component(page, datetime_picker)
 
     # Check if the component is rendered
-    expect(page.locator(".MuiInputBase-root")).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root")).to_have_count(1)
 
     # Verify input value
-    input_value = page.locator(".MuiInputBase-input").input_value()
+    input_value = page.locator(".MuiPickersInputBase-input").input_value()
     assert "2023-06-15" in input_value
 
     # The value should be valid
@@ -151,7 +149,7 @@ def test_datetime_picker_with_seconds(page):
     serve_component(page, datetime_picker)
 
     # Wait for initialization
-    wait_until(lambda: "2023-06-15" in page.locator(".MuiInputBase-input").input_value(), page)
+    wait_until(lambda: "2023-06-15" in page.locator(".MuiPickersInputBase-input").input_value(), page)
 
     # Verify the value includes seconds
     assert datetime_picker.value.second == 45
@@ -167,4 +165,4 @@ def test_datetime_picker_format_update(page):
     serve_component(page, datetime_picker)
 
     # Check rendering only for now
-    expect(page.locator(".MuiInputBase-root")).to_have_count(1)
+    expect(page.locator(".MuiPickersInputBase-root")).to_have_count(1)

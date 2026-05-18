@@ -27,14 +27,18 @@ export function render({model, el, view}) {
           checked={checked}
           disabled={disabled}
           edge={edge}
-          inputRef={ref}
           onChange={(event) => setChecked(event.target.checked)}
           size={size}
           sx={sx}
+          slotProps={{
+            input: {
+              ref
+            }
+          }}
         />
       }
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
       sx={{mr: 0}}
     />
-  )
+  );
 }

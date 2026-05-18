@@ -62,7 +62,7 @@ def test_dialog_full_screen(page):
     expect(dialog_paper).to_have_count(1)
 
 def test_dialog_nested_components(page):
-    button = Button(name="Click Me")
+    button = Button(label="Click Me")
     widget = Dialog(
         title="Test Dialog",
         objects=[button],

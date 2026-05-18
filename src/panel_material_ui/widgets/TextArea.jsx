@@ -60,7 +60,7 @@ export function render({model, el}) {
       disabled={disabled}
       error={error_state}
       fullWidth
-      inputProps={{maxLength: max_length}}
+      slotProps={{htmlInput: {maxLength: max_length}}}
       inputRef={ref}
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el})}</> : render_icon_text(label)}
       multiline

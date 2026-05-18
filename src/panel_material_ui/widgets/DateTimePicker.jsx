@@ -238,6 +238,7 @@ export function render({model, view, el}) {
         disablePast={disable_past}
         format={format}
         fullWidth
+        inputRef={ref}
         label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
         minDate={min_date ? parseDate(min_date) : undefined}
         maxDate={max_date ? parseDate(max_date) : undefined}
@@ -255,11 +256,12 @@ export function render({model, view, el}) {
           textField: {
             variant,
             color,
-            inputRef: ref,
             onBlur: handleBlur,
             onKeyDown: handleKeyDown,
-            InputProps: {
-              onBlur: handleBlur
+            slotProps: {
+              input: {
+                onBlur: handleBlur
+              }
             }
           },
           popper: {container: view.container}

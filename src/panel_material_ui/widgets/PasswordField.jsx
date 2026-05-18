@@ -33,7 +33,6 @@ export function render({model, el, view}) {
       disabled={disabled}
       error={error_state}
       fullWidth
-      inputProps={{maxLength: max_length}}
       inputRef={ref}
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
       onBlur={() => setValue(value_input)}
@@ -47,6 +46,7 @@ export function render({model, el, view}) {
       maxLength={max_length}
       size={size}
       slotProps={{
+        htmlInput: {maxLength: max_length},
         input: {
           endAdornment: (
             <InputAdornment position="end">

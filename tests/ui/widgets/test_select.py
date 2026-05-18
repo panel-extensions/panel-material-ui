@@ -26,7 +26,7 @@ def test_select_focus(page):
     expect(select).to_be_focused()
 
 def test_select_disabled_options(page):
-    widget = Select(name='Select test', options=["Option 1", "Option 2", "Option 3"], disabled_options=["Option 2"])
+    widget = Select(label='Select test', options=["Option 1", "Option 2", "Option 3"], disabled_options=["Option 2"])
     serve_component(page, widget)
 
     expect(page.locator(".select")).to_have_count(1)

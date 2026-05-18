@@ -54,7 +54,7 @@ export function render({model, view}) {
     <SpeedDial
       ariaLabel={label}
       direction={direction}
-      FabProps={{color, disabled, size}}
+      slotProps={{fab: {color, disabled, size}}}
       icon={icon ? render_icon(icon, null, size) : <SpeedDialIcon openIcon={open_icon ? open_icon : undefined} />}
       ref={ref}
       sx={speedDialSx}
@@ -68,13 +68,18 @@ export function render({model, view}) {
             icon={item.icon ? render_icon(item.icon, item.color, size) : (
               <Avatar color={item.color}>{avatar}</Avatar>
             )}
-            tooltipTitle={render_icon_text(item.label)}
-            tooltipOpen={persistent_tooltips}
-            slotProps={{popper: {container: view.container}}}
+            slotProps={{
+              popper: {container: view.container},
+
+              tooltip: {
+                title: render_icon_text(item.label),
+                open: persistent_tooltips
+              }
+            }}
             onClick={() => { model.send_msg({type: "click", item: index}) }}
           />
-        )
+        );
       })}
     </SpeedDial>
-  )
+  );
 }

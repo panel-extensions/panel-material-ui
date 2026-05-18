@@ -116,7 +116,7 @@ def test_details_three_states(page):
 
 def test_details_custom_header(page):
     """Test Details with custom header component."""
-    header = Button(name="Custom Header")
+    header = Button(label="Custom Header")
     content = Column("Details Content")
     widget = Details(
         header=header,
@@ -130,7 +130,7 @@ def test_details_custom_header(page):
 
 def test_details_nested_components(page):
     """Test Details with nested interactive components."""
-    button = Button(name="Click Me")
+    button = Button(label="Click Me")
     widget = Details(
         title="Test Details",
         objects=[button],

@@ -180,7 +180,7 @@ export function render({model, view}) {
   }, []);
 
   React.useEffect(() => {
-    if (!paperRef.current || (view.parent.model.type != "panel.models.feed.Feed")) { return; }
+    if (!paperRef.current || (view.parent?.model.type != "panel.models.feed.Feed")) { return; }
     let layoutTimer = null;
     const observer = new ResizeObserver(() => {
       // Debounce layout invalidation to avoid thrashing during streaming.

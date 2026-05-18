@@ -12,7 +12,7 @@ pytestmark = pytest.mark.ui
 
 def test_datepicker_enabled_dates(page):
     widget = DatePicker(
-        name='Date Picker',
+        label='Date Picker',
         start=dt.date(2024, 4, 1),
         end=dt.date(2024, 4, 20),
         enabled_dates=[
@@ -28,7 +28,7 @@ def test_datepicker_enabled_dates(page):
     icon = page.locator(".MuiIconButton-root")
     icon.click()
     # Select all buttons in the date picker
-    buttons = page.locator('.MuiPickersDay-root').all()
+    buttons = page.locator('.MuiPickerDay-root').all()
 
     enabled_buttons = []
     for button in buttons:
@@ -44,7 +44,7 @@ def test_datepicker_enabled_dates(page):
 
 def test_datepicker_disabled_dates(page):
     widget = DatePicker(
-        name='Date Picker',
+        label='Date Picker',
         start=dt.date(2024, 4, 1),
         end=dt.date(2024, 4, 20),
         disabled_dates=[
@@ -57,7 +57,7 @@ def test_datepicker_disabled_dates(page):
     icon = page.locator(".MuiIconButton-root")
     icon.click()
     # Select all buttons in the date picker
-    buttons = page.locator('.MuiPickersDay-root').all()
+    buttons = page.locator('.MuiPickerDay-root').all()
 
     enabled_buttons = []
     for button in buttons:
@@ -75,7 +75,7 @@ def test_datepicker_clearable_propagates_none(page):
     widget = DatePicker(value=dt.date(2026, 5, 1), clearable=True)
     serve_component(page, widget)
 
-    page.locator(".MuiInputBase-root").hover()
+    page.locator(".MuiPickersInputBase-root").hover()
     page.locator("button[title='Clear']").click()
 
     wait_until(lambda: widget.value is None, page)
@@ -85,7 +85,7 @@ def test_datepicker_clearable_manual_delete_propagates_none(page):
     widget = DatePicker(value=dt.date(2026, 5, 1), clearable=True)
     serve_component(page, widget)
 
-    input_el = page.locator(".MuiInputBase-input")
+    input_el = page.locator(".MuiPickersInputBase-root")
     input_el.click()
     page.keyboard.press("Control+a")
     page.keyboard.press("Delete")

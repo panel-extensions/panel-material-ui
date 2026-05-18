@@ -12,7 +12,7 @@ pytestmark = pytest.mark.ui
 @pytest.mark.parametrize('button_type', ["primary", "secondary", "error", "info", "success", "warning"])
 def test_check_button_group_color(page, button_type):
     widget = CheckButtonGroup(
-        name='CheckButtonGroup test',
+        label='CheckButtonGroup test',
         value=[],
         options=["Option 1", "Option 2", "Option 3"],
         button_type=button_type
@@ -29,7 +29,7 @@ def test_check_button_group_color(page, button_type):
 @pytest.mark.parametrize('orientation', ["horizontal", "vertical"])
 def test_check_button_group_orientation(page, orientation):
     widget = CheckButtonGroup(
-        name='CheckButtonGroup test',
+        label='CheckButtonGroup test',
         value=[],
         options=["Option 1", "Option 2", "Option 3"],
         orientation=orientation
@@ -42,7 +42,7 @@ def test_check_button_group_orientation(page, orientation):
 @pytest.mark.parametrize('size', ["small", "medium", "large"])
 def test_check_button_group_size(page, size):
     widget = CheckButtonGroup(
-        name='CheckButtonGroup test',
+        label='CheckButtonGroup test',
         value=[],
         options=["Option 1", "Option 2", "Option 3"],
         size=size
@@ -54,7 +54,7 @@ def test_check_button_group_size(page, size):
 
 def test_check_button_group_selection(page):
     widget = CheckButtonGroup(
-        name='CheckButtonGroup test',
+        label='CheckButtonGroup test',
         value=[],
         options=["Option 1", "Option 2", "Option 3"],
     )
@@ -81,7 +81,7 @@ def test_check_button_group_selection(page):
 
 def test_check_button_group_disabled(page):
     widget = CheckButtonGroup(
-        name='CheckButtonGroup test',
+        label='CheckButtonGroup test',
         value=[],
         options=["Option 1", "Option 2", "Option 3"],
         disabled=True
@@ -92,7 +92,6 @@ def test_check_button_group_disabled(page):
 
 def test_check_button_group_label(page):
     widget = CheckButtonGroup(
-        name='CheckButtonGroup test',
         label='Test Label',
         value=[],
         options=["Option 1", "Option 2", "Option 3"],
@@ -104,7 +103,7 @@ def test_check_button_group_label(page):
 
 def test_check_button_group_width(page):
     widget = CheckButtonGroup(
-        name='CheckButtonGroup test',
+        label='CheckButtonGroup test',
         value=[],
         options=["Option 1", "Option 2", "Option 3"],
         width=400
@@ -118,7 +117,7 @@ def test_check_button_group_width(page):
 
 def test_check_button_group_initial_value(page):
     widget = CheckButtonGroup(
-        name='CheckButtonGroup test',
+        label='CheckButtonGroup test',
         value=["Option 1", "Option 3"],
         options=["Option 1", "Option 2", "Option 3"],
     )
