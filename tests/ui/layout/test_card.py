@@ -110,7 +110,7 @@ def test_card_nested_components(page):
     serve_component(page, widget)
 
     # Check if button is interactive
-    page.locator('.bk-btn').click()
+    page.locator('.MuiButton-root').click()
     wait_until(lambda: button.clicks == 1, page)
 
 def test_card_square(page):
