@@ -311,9 +311,11 @@ export function render({model, el, view}) {
               sx={{flexGrow: 1, minWidth: 0, mr: "0.5em"}}
               value={Array.isArray(value) ? (editableValue ? editableValue[0] : "") : editableValue}
               variant="standard"
-              InputProps={{
-                sx: {ml: "0.5em", mt: "0.2em"},
-                endAdornment: spinner(increment, 0),
+              slotProps={{
+                input: {
+                  sx: {ml: "0.5em", mt: "0.2em"},
+                  endAdornment: spinner(increment, 0),
+                }
               }}
             />}
             {(!inline_layout || orientation === "vertical") && Array.isArray(value) && (
@@ -330,9 +332,11 @@ export function render({model, el, view}) {
                   sx={{flexGrow: 1, minWidth: 0, ml: "0.5em"}}
                   value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
                   variant="standard"
-                  InputProps={{
-                    sx: {ml: "0.5em", mt: "0.2em"},
-                    endAdornment: spinner(increment, 1)
+                  slotProps={{
+                    input: {
+                      sx: {ml: "0.5em", mt: "0.2em"},
+                      endAdornment: spinner(increment, 1)
+                    }
                   }}
                 />
               </>
@@ -360,12 +364,14 @@ export function render({model, el, view}) {
             onFocus={() => setFocused(true)}
             onKeyDown={(e) => handleKeyDown(e, 0)}
             size="small"
-            sx={{...orientation !== "vertical" ? {flexShrink: 1.2} : {}, mr: "0.8em", minWidth: 0}}
+            sx={{...(orientation !== "vertical" ? {flexShrink: 1.2} : {}), mr: "0.8em", minWidth: 0}}
             value={Array.isArray(value) ? (editableValue ? editableValue[0] : "") : editableValue}
             variant="standard"
-            InputProps={{
-              sx: {ml: "0.5em", mt: "0.2em"},
-              endAdornment: spinner(increment, 0),
+            slotProps={{
+              input: {
+                sx: {ml: "0.5em", mt: "0.2em"},
+                endAdornment: spinner(increment, 0),
+              }
             }}
           />)}
         <Slider
@@ -402,13 +408,15 @@ export function render({model, el, view}) {
             sx={{flexShrink: Array.isArray(value) ? 1.2 : 2.3, minWidth: 0, ml: "0.8em"}}
             value={Array.isArray(value) ? (editableValue ? editableValue[1] : "") : editableValue}
             variant="standard"
-            InputProps={{
-              sx: {ml: "0.5em", mt: "0.2em"},
-              endAdornment: spinner(increment, Array.isArray(value) ? 1 : 0)
+            slotProps={{
+              input: {
+                sx: {ml: "0.5em", mt: "0.2em"},
+                endAdornment: spinner(increment, Array.isArray(value) ? 1 : 0)
+              }
             }}
           />
         )}
       </Box>
     </FormControl>
-  )
+  );
 }

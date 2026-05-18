@@ -114,23 +114,25 @@ export function render({model, el, view}) {
       sx={sx}
       value={valueLabel}
       variant={variant}
-      InputProps={{
-        inputMode: "decimal",
-        sx: {padding: 0},
-        startAdornment: (
-          <InputAdornment position="start">
-            <IconButton onClick={() => decrement()} size="small" color="default">
-              <RemoveIcon fontSize="small" />
-            </IconButton>
-          </InputAdornment>
-        ),
-        endAdornment: (
-          <InputAdornment position="end">
-            <IconButton onClick={() => increment()} size="small" color="default">
-              <AddIcon fontSize="small" />
-            </IconButton>
-          </InputAdornment>
-        ),
+      slotProps={{
+        input: {
+          inputMode: "decimal",
+          sx: {padding: 0},
+          startAdornment: (
+            <InputAdornment position="start">
+              <IconButton onClick={() => decrement()} size="small" color="default">
+                <RemoveIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ),
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={() => increment()} size="small" color="default">
+                <AddIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }
       }}
     />
   );

@@ -270,7 +270,7 @@ export function render({model, view}) {
 
   const drawer = sidebar.length > 0 ? (
     <Drawer
-      PaperProps={{className: "sidebar"}}
+      slotProps={{paper: {className: "sidebar"}}}
       anchor="left"
       open={open}
       onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
@@ -303,7 +303,7 @@ export function render({model, view}) {
 
   const context_drawer = contextbar.length > 0 ? (
     <Drawer
-      PaperProps={{className: "contextbar"}}
+      slotProps={{paper: {className: "contextbar"}}}
       anchor="right"
       open={contextbar_open}
       onClose={() => contextOpen(false)}

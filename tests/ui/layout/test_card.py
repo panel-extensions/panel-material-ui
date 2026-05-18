@@ -3,9 +3,9 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.layout import Column
-from panel.widgets import Button
 from panel.tests.util import serve_component, wait_until
 from panel_material_ui.layout import Card
+from panel_material_ui.widgets import Button
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -89,7 +89,7 @@ def test_card_collapsible(page):
     wait_until(lambda: widget.collapsed == False, page)
 
 def test_card_custom_header(page):
-    header = Button(name="Custom Header")
+    header = Button(label="Custom Header")
     content = Column("Card Content")
     widget = Card(
         header=header,
@@ -102,7 +102,7 @@ def test_card_custom_header(page):
     expect(header_content).to_contain_text("Custom Header")
 
 def test_card_nested_components(page):
-    button = Button(name="Click Me")
+    button = Button(label="Click Me")
     widget = Card(
         title="Test Card",
         objects=[button]
@@ -110,7 +110,7 @@ def test_card_nested_components(page):
     serve_component(page, widget)
 
     # Check if button is interactive
-    page.locator('.bk-btn').click()
+    page.locator('.MuiButton-root').click()
     wait_until(lambda: button.clicks == 1, page)
 
 def test_card_square(page):
@@ -166,7 +166,7 @@ def test_card_multiple_objects(page):
     expect(content).to_contain_text("Content 2")
 
 def test_card_collapse_unmount(page):
-    button = Button(name="Click Me")
+    button = Button(label="Click Me")
     widget = Card(
         title="Test Card",
         objects=[button],

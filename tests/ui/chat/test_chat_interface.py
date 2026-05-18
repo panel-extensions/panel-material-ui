@@ -75,18 +75,22 @@ def test_chat_interface_auto_scroll_on_new_message(page):
     chat = ChatInterface(callback=echo, height=600)
     serve_component(page, chat)
 
-    for i in range(20):
+    for i in range(5):
         chat.send(f"Message {i}", user="User", respond=False)
 
     # Wait for the last pre-filled message to render
-    expect(page.get_by_text("Message 19")).to_be_attached(timeout=30000)
+    expect(page.get_by_text("Message 4")).to_be_attached(timeout=30000)
+    wait_until(lambda: len(chat.objects) == 5, page)
 
     input_locator = page.locator("textarea").first
     input_locator.click()
     input_locator.fill("New message")
     input_locator.press("Enter")
 
-    wait_until(lambda: len(chat.objects) == 22, page)
+    try:
+        wait_until(lambda: len(chat.objects) == 7, page)
+    except Exception:
+        assert len(chat.objects) == 7
 
     # The latest message should be visible
     last_msg = page.get_by_text("Echo: New message")

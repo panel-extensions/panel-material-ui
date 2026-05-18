@@ -11,7 +11,7 @@ pytestmark = pytest.mark.ui
 
 @pytest.mark.parametrize('variant', ["filled", "outlined", "standard"])
 def test_text_input_variant(page, variant):
-    widget = TextInput(name='Name', placeholder='Enter your name here ...', variant=variant)
+    widget = TextInput(label='Name', placeholder='Enter your name here ...', variant=variant)
     serve_component(page, widget)
     expect(page.locator('.text-input')).to_have_count(1)
     if variant == "standard":
@@ -20,7 +20,7 @@ def test_text_input_variant(page, variant):
         expect(page.locator(f'.Mui{variant.capitalize()}Input-root')).to_have_count(1)
 
 def test_text_input_focus(page):
-    widget = TextInput(name='Test', placeholder='Type something...')
+    widget = TextInput(label='Test', placeholder='Type something...')
     serve_component(page, widget)
     input = page.locator('.MuiInputBase-input')
     expect(input).to_have_count(1)
@@ -28,7 +28,7 @@ def test_text_input_focus(page):
     expect(input).to_be_focused()
 
 def test_text_input_typing(page):
-    widget = TextInput(name='Test', placeholder='Type something...')
+    widget = TextInput(label='Test', placeholder='Type something...')
     serve_component(page, widget)
 
     # Find the input field and type into it

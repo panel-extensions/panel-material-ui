@@ -44,7 +44,7 @@ def test_drawer_anchor(page, anchor):
     widget = Drawer(objects=[content], open=True, anchor=anchor)
     serve_component(page, widget)
 
-    expect(page.locator(f'.MuiDrawer-paperAnchor{anchor.capitalize()}')).to_have_count(1)
+    expect(page.locator(f'.MuiDrawer-anchor{anchor.capitalize()}')).to_have_count(1)
 
 def test_drawer_size(page):
     content = Column("Drawer Content")
@@ -65,7 +65,7 @@ def test_drawer_vertical_size(page):
     expect(drawer_paper).to_have_css('height', '300px')
 
 def test_drawer_with_button_interaction(page):
-    button = Button(name="Click Me")
+    button = Button(label="Click Me")
     widget = Drawer(objects=[button], open=True)
     serve_component(page, widget)
 

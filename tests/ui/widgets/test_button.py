@@ -11,17 +11,17 @@ pytestmark = pytest.mark.ui
 
 @pytest.mark.parametrize('button_style', ['contained', 'outlined', 'text'])
 def test_button_style(page, button_style):
-    widget = Button(label='Click', button_style=button_style, button_type='primary')
+    widget = Button(label='Click', variant=button_style, color='primary')
     serve_component(page, widget)
-    button_format = page.locator(f'.MuiButton-{button_style}Primary')
+    button_format = page.locator(f'.MuiButton-{button_style}')
     expect(button_format).to_have_count(1)
 
 
 @pytest.mark.parametrize('button_type', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
 def test_button_type(page, button_type):
-    widget = Button(label='Click', button_style='contained', button_type=button_type)
+    widget = Button(label='Click', variant='contained', color=button_type)
     serve_component(page, widget)
-    button_format = page.locator(f'.MuiButton-contained{button_type.capitalize()}')
+    button_format = page.locator(f'.MuiButton-color{button_type.capitalize()}')
     expect(button_format).to_have_count(1)
 
 def test_button_focus(page):
@@ -73,7 +73,7 @@ def test_icon_button_format(page, button_type):
     widget = IconButton(
         icon='favorite',
         active_icon='check',
-        button_type=button_type,
+        color=button_type,
         toggle_duration=3000,
     )
     serve_component(page, widget)
@@ -96,7 +96,7 @@ def test_toggle(page):
 
 @pytest.mark.parametrize('button_type', ['primary', 'secondary', 'error', 'info', 'success', 'warning'])
 def test_toggle_format(page, button_type):
-    widget = Toggle(button_type=button_type)
+    widget = Toggle(color=button_type)
     serve_component(page, widget)
     if button_type == 'error':
         button_color = page.locator(f'.Mui-{button_type}')

@@ -304,11 +304,11 @@ class MaterialComponent(ReactComponent):
     _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
         "imports": {
-            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@7.3.5/",
-            "@mui/material/": "https://esm.sh/@mui/material@7.3.5/",
-            "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@7.28.0",
-            "@mui/x-tree-view": "https://esm.sh/@mui/x-tree-view@8.18.0",
-            "mui-color-input": "https://esm.sh/mui-color-input@7.0.0",
+            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@9.0.1/",
+            "@mui/material/": "https://esm.sh/@mui/material@9.0.1/",
+            "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@9.2.0",
+            "@mui/x-tree-view": "https://esm.sh/@mui/x-tree-view@9.1.0",
+            "mui-color-input": "https://esm.sh/mui-color-input@9.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
             "notistack": "https://esm.sh/notistack@3.0.2",
             "material-icons/": "https://esm.sh/material-icons@1.13.14/",

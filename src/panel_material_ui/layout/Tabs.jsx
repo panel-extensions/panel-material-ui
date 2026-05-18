@@ -100,12 +100,14 @@ export function render({model, view}) {
       onChange={handleChange}
       orientation={orientation}
       scrollButtons="auto"
-      TabIndicatorProps={{
-        sx: {
-          backgroundColor: paletteEntry.main,
-          ...(location === "right" && {left: 0, right: "auto", width: 3}),
-          ...(location === "bottom" && {top: 0, bottom: "auto", height: 3}),
-        },
+      slotProps={{
+        indicator: {
+          sx: {
+            backgroundColor: paletteEntry.main,
+            ...(location === "right" && {left: 0, right: "auto", width: 3}),
+            ...(location === "bottom" && {top: 0, bottom: "auto", height: 3}),
+          },
+        }
       }}
       sx={tabsSx}
       variant="scrollable"

@@ -3,8 +3,8 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.layout import Column
-from panel.widgets import Button
 from panel.tests.util import serve_component, wait_until
+from panel_material_ui.widgets import Button
 from panel_material_ui.layout import Tabs
 from panel_material_ui.pane import Typography
 from playwright.sync_api import expect
@@ -87,14 +87,14 @@ def test_tabs_disabled(page):
     wait_until(lambda: widget.active == 0, page)
 
 def test_tabs_nested_components(page):
-    button = Button(name="Click Me")
+    button = Button(label="Click Me")
     widget = Tabs(
         ("Tab 1", button)
     )
     serve_component(page, widget)
 
     # Check if button is interactive
-    page.locator('.bk-btn').click()
+    page.locator('.MuiButton-root').click()
     wait_until(lambda: button.clicks == 1, page)
 
 def test_tabs_dynamic_update(page):

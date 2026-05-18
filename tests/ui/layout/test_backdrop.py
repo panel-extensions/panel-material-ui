@@ -43,7 +43,7 @@ def test_backdrop_visibility(page):
     expect(backdrop).not_to_be_visible()
 
 def test_backdrop_nested_components(page):
-    button = Button(name="Click Me")
+    button = Button(label="Click Me")
     widget = Backdrop(
         objects=[button],
         open=True
@@ -107,7 +107,7 @@ def test_backdrop_loading_indicator(page):
 
 def test_backdrop_click_through(page):
     # Test that elements behind backdrop are not clickable
-    background_button = Button(name="Background Button")
+    background_button = Button(label="Background Button")
     backdrop_content = LoadingSpinner()
 
     column = Column(

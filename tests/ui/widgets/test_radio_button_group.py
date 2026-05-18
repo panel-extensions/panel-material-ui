@@ -12,7 +12,7 @@ pytestmark = pytest.mark.ui
 @pytest.mark.parametrize('button_type', ["primary", "secondary", "error", "info", "success", "warning"])
 def test_radio_button_group_color(page, button_type):
     widget = RadioButtonGroup(
-        name='RadioButtonGroup test',
+        label='RadioButtonGroup test',
         options=["Option 1", "Option 2", "Option 3"],
         button_type=button_type
     )
@@ -28,7 +28,7 @@ def test_radio_button_group_color(page, button_type):
 @pytest.mark.parametrize('orientation', ["horizontal", "vertical"])
 def test_radio_button_group_orientation(page, orientation):
     widget = RadioButtonGroup(
-        name='RadioButtonGroup test',
+        label='RadioButtonGroup test',
         options=["Option 1", "Option 2", "Option 3"],
         orientation=orientation
     )
@@ -40,7 +40,7 @@ def test_radio_button_group_orientation(page, orientation):
 @pytest.mark.parametrize('size', ["small", "medium", "large"])
 def test_radio_button_group_size(page, size):
     widget = RadioButtonGroup(
-        name='RadioButtonGroup test',
+        label='RadioButtonGroup test',
         options=["Option 1", "Option 2", "Option 3"],
         size=size
     )

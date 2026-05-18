@@ -12,7 +12,7 @@ pytestmark = pytest.mark.ui
 
 
 def test_speed_dial(page):
-    widget = SpeedDial(name='SpeedDial test', items=[
+    widget = SpeedDial(label='SpeedDial test', items=[
         {'label': 'Item 1', 'icon': 'home'},
         {'label': 'Item 2', 'icon': 'dashboard'},
         {'label': 'Item 3', 'icon': 'profile'}

@@ -30,7 +30,7 @@ export function render({model, el, view}) {
           checked={checked}
           disabled={disabled}
           indeterminate={indeterminate}
-          inputRef={ref}
+          slotProps={{input: {ref}}}
           size={size}
           onChange={(event) => setChecked(event.target.checked)}
           sx={checkboxSx}

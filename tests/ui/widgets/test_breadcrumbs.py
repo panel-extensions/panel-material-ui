@@ -10,7 +10,7 @@ pytestmark = pytest.mark.ui
 
 
 def test_breadcrumbs(page):
-    widget = Breadcrumbs(name='Breadcrumbs test', items=['Home', 'Dashboard', 'Profile'])
+    widget = Breadcrumbs(label='Breadcrumbs test', items=['Home', 'Dashboard', 'Profile'])
     serve_component(page, widget)
 
     expect(page.locator(".breadcrumbs")).to_have_count(1)

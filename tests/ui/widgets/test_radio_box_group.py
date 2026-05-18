@@ -11,7 +11,7 @@ pytestmark = pytest.mark.ui
 
 @pytest.mark.parametrize('color', ["primary", "secondary", "error", "info", "success", "warning"])
 def test_radio_box_group_color(page, color):
-    widget = RadioBoxGroup(name='RadioBoxGroup test', options=["Option 1", "Option 2", "Option 3"], color=color)
+    widget = RadioBoxGroup(label='RadioBoxGroup test', options=["Option 1", "Option 2", "Option 3"], color=color)
     serve_component(page, widget)
 
     expect(page.locator(".radio-box-group")).to_have_count(1)
@@ -19,7 +19,7 @@ def test_radio_box_group_color(page, color):
 
 @pytest.mark.parametrize('inline', [True, False])
 def test_radio_box_group_orientation(page, inline):
-    widget = RadioBoxGroup(name='RadioBoxGroup test', options=["Option 1", "Option 2", "Option 3"], inline=inline)
+    widget = RadioBoxGroup(label='RadioBoxGroup test', options=["Option 1", "Option 2", "Option 3"], inline=inline)
     serve_component(page, widget)
 
     expect(page.locator(".radio-box-group")).to_have_count(1)

@@ -139,8 +139,10 @@ export function render({model, el, view}) {
               numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0
             }
             disabled={items.length === 0}
-            inputProps={{
-              "aria-label": "all items selected",
+            slotProps={{
+              input: {
+                "aria-label": "all items selected",
+              }
             }}
           />
         }
@@ -157,25 +159,27 @@ export function render({model, el, view}) {
           sx={{p: "0 0.8em 0.5em"}}
           value={filterStr}
           onChange={(e) => setFilterStr(e.target.value)}
-          InputProps={{
-            sx: {pl: "4px", pr: "4px"},
-            startAdornment: (
-              <InputAdornment position="start">
-                <FilterListIcon />
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <InputAdornment position="end" sx={{ml: 0}}>
-                <IconButton
-                  disableRipple
-                  size="small"
-                  onClick={() => setFilterStr("")}
-                  sx={{isibility: filterStr ? "visible" : "hidden"}}
-                >
-                  <ClearIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              sx: {pl: "4px", pr: "4px"},
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FilterListIcon />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end" sx={{ml: 0}}>
+                  <IconButton
+                    disableRipple
+                    size="small"
+                    onClick={() => setFilterStr("")}
+                    sx={{isibility: filterStr ? "visible" : "hidden"}}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }
           }}
         />
       )}
@@ -208,9 +212,7 @@ export function render({model, el, view}) {
                   tabIndex={-1}
                   disableRipple
                   size="small"
-                  inputProps={{
-                    "aria-labelledby": labelId,
-                  }}
+                  slotProps={{input: {"aria-labelledby": labelId}}}
                 />
               </ListItemIcon>
               <ListItemText id={labelId} primary={render_icon_text(item.label)} />
