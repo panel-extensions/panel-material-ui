@@ -516,6 +516,7 @@ export function render({model, view}) {
                   send()
                 }
               },
+              value: value_input,
             },
             input: {
               filePreview: (enable_upload && file_data.length > 0) ? <FilePreview /> : null,
@@ -523,7 +524,6 @@ export function render({model, view}) {
                 apply_flex(view.get_child_view(model.footer_objects[index]), "row")
                 return object
               }),
-              value: value_input,
               maxRows: max_rows,
               placeholder,
               ...props,
