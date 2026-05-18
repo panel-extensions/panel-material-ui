@@ -29,7 +29,7 @@ export function render({model, el, view}) {
       error={error_state}
       inputRef={ref}
       fullWidth
-      inputProps={{maxLength: max_length}}
+      slotProps={{htmlInput: {maxLength: max_length}}}
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
       multiline={model.esm_constants.multiline}
       placeholder={placeholder}

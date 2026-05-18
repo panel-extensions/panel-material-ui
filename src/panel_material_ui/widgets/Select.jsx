@@ -155,8 +155,10 @@ export function render({model, el, view}) {
     container: el,
     disablePortal: true,
     sx: {height: dropdown_height},
-    MenuListProps: {
-      ref: menuRef,
+    slotProps: {
+      list: {
+        ref: menuRef,
+      }
     }
   }
 
@@ -512,7 +514,7 @@ export function render({model, el, view}) {
         sx={selectSx}
         value={value}
         variant={variant}
-        MenuProps={MenuProps}
+
       >
         {!nb && renderMenuItems()}
       </Select>

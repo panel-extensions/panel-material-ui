@@ -10,7 +10,7 @@ pytestmark = pytest.mark.ui
 
 
 def test_tab_menu(page):
-    widget = TabMenu(name='TabMenu test', items=['Home', 'Dashboard', 'Profile'])
+    widget = TabMenu(label='TabMenu test', items=['Home', 'Dashboard', 'Profile'])
     serve_component(page, widget)
 
     expect(page.locator(".MuiTabs-root")).to_have_count(1)

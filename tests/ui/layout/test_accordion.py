@@ -3,7 +3,6 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.layout import Column
-from panel.widgets import Button
 from panel.tests.util import serve_component, wait_until
 from panel_material_ui.layout import Accordion
 from panel_material_ui.pane import Typography

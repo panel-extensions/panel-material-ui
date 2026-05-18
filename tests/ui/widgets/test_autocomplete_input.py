@@ -10,7 +10,7 @@ pytestmark = pytest.mark.ui
 
 
 def test_autocomplete_input_focus(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
     serve_component(page, widget)
     input = page.locator('.MuiInputBase-input')
     expect(input).to_have_count(1)
@@ -18,7 +18,7 @@ def test_autocomplete_input_focus(page):
     expect(input).to_be_focused()
 
 def test_autocomplete_input_value_updates(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -29,7 +29,7 @@ def test_autocomplete_input_value_updates(page):
     wait_until(lambda: widget.value == 'Option 2', page)
 
 def test_autocomplete_dict_options(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options={"Option 1": 1, "Option 2": 2, "123": 123})
+    widget = AutocompleteInput(label='Autocomplete Input test', options={"Option 1": 1, "Option 2": 2, "123": 123})
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -40,7 +40,7 @@ def test_autocomplete_dict_options(page):
     wait_until(lambda: widget.value == 2, page)
 
 def test_autocomplete_input_value_updates_unrestricted(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"], restrict=False)
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"], restrict=False)
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -52,14 +52,14 @@ def test_autocomplete_input_value_updates_unrestricted(page):
 
 @pytest.mark.parametrize('variant', ["filled", "outlined", "standard"])
 def test_autocomplete_input_variant(page, variant):
-    widget = AutocompleteInput(name='Autocomplete Input test', variant=variant, options=["Option 1", "Option 2", "123"])
+    widget = AutocompleteInput(label='Autocomplete Input test', variant=variant, options=["Option 1", "Option 2", "123"])
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
     expect(page.locator(f"div[variant='{variant}']")).to_have_count(1)
 
 def test_autocomplete_input_search_strategy(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -75,7 +75,7 @@ def test_autocomplete_input_search_strategy(page):
     expect(page.locator(".MuiAutocomplete-option")).to_have_count(2)
 
 def test_autocomplete_input_case_sensitive(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -89,7 +89,7 @@ def test_autocomplete_input_case_sensitive(page):
     expect(page.locator(".MuiAutocomplete-option")).to_have_count(2)
 
 def test_autocomplete_min_characters(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -104,7 +104,7 @@ def test_autocomplete_min_characters(page):
     expect(page.locator(".MuiAutocomplete-option")).to_have_count(2)
 
 def test_autocomplete_input_enter_completion(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -125,7 +125,7 @@ def test_autocomplete_input_enter_completion(page):
     wait_until(lambda: widget.value == 'Option 2', page)  # Value should not change
 
 def test_autocomplete_input_unrestricted_enter(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"], restrict=False)
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"], restrict=False)
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -141,7 +141,7 @@ def test_autocomplete_input_unrestricted_enter(page):
     wait_until(lambda: widget.value == '', page)
 
 def test_autocomplete_input_min_characters_behavior(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"], min_characters=3)
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"], min_characters=3)
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -160,7 +160,7 @@ def test_autocomplete_input_min_characters_behavior(page):
 
 def test_autocomplete_input_search_strategy_behavior(page):
     widget = AutocompleteInput(
-        name='Autocomplete Input test',
+        label='Autocomplete Input test',
         options=["Option 1", "Option 2", "123"],
         search_strategy="includes"
     )
@@ -184,7 +184,7 @@ def test_autocomplete_input_search_strategy_behavior(page):
 
 def test_autocomplete_input_case_sensitivity_behavior(page):
     widget = AutocompleteInput(
-        name='Autocomplete Input test',
+        label='Autocomplete Input test',
         options=["Option 1", "Option 2", "123"],
         case_sensitive=True
     )
@@ -203,7 +203,7 @@ def test_autocomplete_input_case_sensitivity_behavior(page):
     expect(page.locator(".MuiAutocomplete-option")).to_have_count(2)
 
 def test_autocomplete_input_value_tracking(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -218,7 +218,7 @@ def test_autocomplete_input_value_tracking(page):
     wait_until(lambda: widget.value == 'Option 1' and widget.value_input == 'Option 1', page)
 
 def test_autocomplete_input_clear_behavior(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"])
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)
@@ -234,7 +234,7 @@ def test_autocomplete_input_clear_behavior(page):
     wait_until(lambda: widget.value is None and widget.value_input == '', page)
 
 def test_autocomplete_input_disabled_state(page):
-    widget = AutocompleteInput(name='Autocomplete Input test', options=["Option 1", "Option 2", "123"], disabled=True)
+    widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"], disabled=True)
     serve_component(page, widget)
 
     expect(page.locator(".autocomplete-input")).to_have_count(1)

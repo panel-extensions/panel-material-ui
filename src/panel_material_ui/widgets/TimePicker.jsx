@@ -66,7 +66,11 @@ export function render({model, el, view}) {
         disabled={disabled}
         format={format}
         inputRef={ref}
-        label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
+        label={
+          model.description ? (
+            <>{render_icon_text(label)}{render_description({model, el, view})}</>
+          ) : render_icon_text(label)
+        }
         onChange={handleChange}
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}

@@ -3,9 +3,9 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.layout import Column
-from panel.widgets import Button
 from panel.tests.util import serve_component, wait_until
 from panel_material_ui.layout import Popup
+from panel_material_ui.widgets import Button
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -43,7 +43,7 @@ def test_popup_visibility(page):
     expect(popup).to_have_count(1)
 
 def test_popup_nested_components(page):
-    button = Button(name="Click Me")
+    button = Button(label="Click Me")
     widget = Popup(
         objects=[button],
         open=True
@@ -51,7 +51,7 @@ def test_popup_nested_components(page):
     serve_component(page, widget)
 
     # Check if button is interactive
-    page.locator('button').click()
+    page.click('button')
     wait_until(lambda: button.clicks == 1, page)
 
 def test_popup_multiple_objects(page):

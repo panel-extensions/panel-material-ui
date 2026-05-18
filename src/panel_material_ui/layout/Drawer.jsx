@@ -18,7 +18,7 @@ export function render({model, view}) {
   } else {
     dims = {height: `${size}px`}
     if (variant !== "temporary") {
-      view.el.style.width = `${open ? size : 0}px`
+      view.el.style.height = `${open ? size : 0}px`
     }
   }
 
@@ -33,7 +33,7 @@ export function render({model, view}) {
   }, [])
 
   return (
-    <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} PaperProps={{sx: [dims, sx || {}]}} variant={variant}>
+    <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} slotProps={{paper: {sx: [dims, sx || {}]}}} variant={variant}>
       {objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), "column")
         return object
