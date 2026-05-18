@@ -204,7 +204,7 @@ spec = {
                 {"label": "Checkout", "icon": "shopping_cart"},
                 {"label": "Accessories", "avatar": "A", "secondary": "Subtext here"},
             ])),
-            (SplitButton, (['color'],), dict(items=[
+            (SplitButton, (['color'],), dict(label="Split", items=[
                 {"label": "Home"},
                 {"label": "Catalog", "icon": "category"},
                 {"label": "Checkout",},

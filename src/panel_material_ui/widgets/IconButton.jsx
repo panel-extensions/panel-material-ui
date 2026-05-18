@@ -43,6 +43,10 @@ export function render(props, ref) {
   }, [model, ref])
 
   React.useEffect(() => {
+    if (active_icon && active_icon !== icon) {
+      const paletteEntry = theme.palette[color] || theme.palette.primary
+      setColorVariant(paletteEntry.dark)
+    }
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
@@ -55,7 +59,7 @@ export function render(props, ref) {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }
-    if (active_icon || active_icon === icon) {
+    if (active_icon && active_icon !== icon) {
       setIcon(active_icon)
       timeoutRef.current = setTimeout(() => setIcon(icon), toggle_duration)
     } else {

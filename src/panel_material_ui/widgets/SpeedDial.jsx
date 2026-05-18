@@ -54,7 +54,7 @@ export function render({model, view}) {
     <SpeedDial
       ariaLabel={label}
       direction={direction}
-      slotProps={{fab: {color, disabled, size}}}
+      FabProps={{color, disabled, size}}
       icon={icon ? render_icon(icon, null, size) : <SpeedDialIcon openIcon={open_icon ? open_icon : undefined} />}
       ref={ref}
       sx={speedDialSx}
