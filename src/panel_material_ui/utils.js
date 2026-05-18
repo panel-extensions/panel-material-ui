@@ -708,6 +708,8 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     model_props.axis_label_text_font_size = "1em"
     model_props.axis_label_text_font_style = "normal"
     model_props.axis_label_standoff = 12
+  } else if (model_type == "Rect") {
+    model_props.dilate = dark || model.dilate
   } else if (model_type.endsWith("Legend") && !has_custom_theme(custom_theme, "Legend")) {
     model_props.border_line_alpha = 0
     model_props.background_fill_alpha = 0
