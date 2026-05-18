@@ -77,6 +77,7 @@ def test_chat_interface_auto_scroll_on_new_message(page):
 
     for i in range(20):
         chat.send(f"Message {i}", user="User", respond=False)
+        print(len(chat))  # noqa
 
     # Wait for the last pre-filled message to render
     expect(page.get_by_text("Message 19")).to_be_attached(timeout=30000)
