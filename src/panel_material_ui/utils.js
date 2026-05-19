@@ -794,7 +794,7 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
         --mdc-theme-surface: ${elevation_color(elevation+1, theme, dark, true)};
       }
     `]
-  } else if (model_type.endsWith("VizzuChart") && (model.style == null || Object.keys(model.style).length === 0)) {
+  } else if (model_type.endsWith("VizzuChart")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = view ? find_on_parent(view, "elevation") : 0
     const background = elevation_color(elevation, theme, dark, true)
@@ -806,15 +806,15 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
         xAxis: {
           color: muted,
           label: {color: muted},
-          interlacing: {color: background},
+          interlacing: {color: surface}
         },
         yAxis: {
           color: muted,
           label: {color: muted},
-          interlacing: {color: background},
+          interlacing: {color: background}
         },
         marker: {
-          label: {color: text},
+          label: {color: text}
         },
       },
       title: {color: text},
