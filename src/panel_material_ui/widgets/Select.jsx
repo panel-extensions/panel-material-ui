@@ -107,18 +107,18 @@ export function render({model, el, view}) {
   // Checkbox logic for multi-select
   const isChecked = () => filteredOptions.length > 0 &&
     (filterStr ? (
-      matchedOptions.every(item => value.includes(item.value))
+      matchedOptions.every(item => value && value.includes(item.value))
     ) : (
-      filteredOptions.every(item => value.includes(item.value))
+      filteredOptions.every(item => value && value.includes(item.value))
     ))
 
   const isIndeterminate = () => filteredOptions.length > 0 &&
     (filterStr ? (
-      matchedOptions.some(item => value.includes(item.value)) &&
-      !matchedOptions.every(item => value.includes(item.value))
+      matchedOptions.some(item => value && value.includes(item.value)) &&
+      !matchedOptions.every(item => value && value.includes(item.value))
     ) : (
-      filteredOptions.some(item => value.includes(item.value)) &&
-      !filteredOptions.every(item => value.includes(item.value))
+      filteredOptions.some(item => value && value.includes(item.value)) &&
+      !filteredOptions.every(item => value && value.includes(item.value))
     ))
 
   const [checked, setChecked] = React.useState(isChecked)
