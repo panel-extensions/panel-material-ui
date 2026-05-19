@@ -39,15 +39,16 @@ export function render({model, view}) {
   }
 
   const orientation = (location === "above" || location === "below") ? "horizontal" : "vertical"
-  const tabsSx = React.useMemo(() => (sx ? [TABS_BASE_SX, sx] : TABS_BASE_SX), [sx])
   const paletteEntry = theme.palette[color] || theme.palette.primary
   const disabledList = Array.isArray(disabled) ? disabled : []
   const activeIndex = Number.isInteger(active) && active >= 0 && active < objects.length ? active : 0
-  const panelSx = React.useMemo(() => [
-    TABS_PANEL_BASE_SX,
-    {display: objects.length === 0 ? "none" : "flex"},
-    {flexDirection: (location === "left" || location === "right") ? "row" : "column"},
-  ], [objects.length, location])
+  const panelSx = React.useMemo(() => {
+    return ({
+      ...TABS_PANEL_BASE_SX,
+      ...{display: objects.length === 0 ? "none" : "flex"},
+      ...{flexDirection: (location === "left" || location === "right") ? "row" : "column"},
+    })
+  }, [objects.length, location])
   const contentSx = React.useMemo(() => [
     TABS_CONTENT_BASE_SX,
     {minHeight: 0},
@@ -109,7 +110,7 @@ export function render({model, view}) {
           },
         }
       }}
-      sx={tabsSx}
+      sx={TABS_BASE_SX}
       variant="scrollable"
     >
       {tabLabels}
@@ -122,7 +123,7 @@ export function render({model, view}) {
   return (
     <Box
       className="MuiTabsPanel"
-      sx={panelSx}
+      sx={{...panelSx, ...sx}}
     >
       { (location === "left" || location === "above") && tabs }
       <Box
