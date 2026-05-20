@@ -952,6 +952,99 @@ class Tabs(MaterialNamedListLike):
         super()._server_change(doc, ref, subpath, attr, old, new)
 
 
+class Stepper(MaterialNamedListLike):
+    """
+    The `Stepper` layout displays progress through a sequence of logical
+    and numbered steps. It supports horizontal and vertical orientations
+    and can be used for wizard-like workflows.
+
+    Step labels may be defined explicitly as part of a tuple or will be
+    inferred from the `name` parameter of the step's contents.
+
+    Like `Tabs`, `Stepper` has a list-like API with methods to
+    `append`, `extend`, `clear`, `insert`, `pop`, `remove` and `__setitem__`,
+    which make it possible to interactively update and modify the steps.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Stepper.html
+    - https://mui.com/material-ui/react-stepper/
+
+    :Example:
+
+    >>> Stepper(
+    ...     ("Select settings", settings_panel),
+    ...     ("Create ad group", ad_panel),
+    ...     ("Review", review_panel),
+    ... )
+    """
+
+    active = param.Integer(default=0, bounds=(0, None), doc="""
+        Index of the currently active step.""")
+
+    alternative_label = param.Boolean(default=False, doc="""
+        Whether to place labels below the step icons instead of beside them.
+        Only applies to horizontal orientation.""")
+
+    color = param.Selector(default="primary", objects=COLORS, doc="""
+        Color of the active and completed step icons.""")
+
+    completed = param.List(default=[], item_type=int, doc="""
+        List of step indices that are marked as completed. When empty,
+        MUI automatically marks steps before the active step as
+        complete. When non-empty, only the listed indices show as
+        completed.""")
+
+    connector = param.Boolean(default=True, doc="""
+        Whether to display connectors between steps.""")
+
+    disabled = param.List(default=[], item_type=int, doc="""
+        List of step indices that are disabled.""")
+
+    dynamic = param.Boolean(default=False, doc="""
+        Whether the step contents should be rendered dynamically,
+        i.e. only when the step is active.""")
+
+    error = param.List(default=[], item_type=int, doc="""
+        List of step indices that are shown in an error state.""")
+
+    non_linear = param.Boolean(default=False, doc="""
+        Whether users can click on any step to navigate to it directly.
+        When False, steps must be completed in sequence.""")
+
+    optional = param.List(default=[], item_type=int, doc="""
+        List of step indices that are marked as optional.""")
+
+    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
+        The orientation of the stepper. Use 'vertical' for narrow
+        layouts or mobile-friendly designs.""")
+
+    _esm_base = "Stepper.jsx"
+
+    def __init__(self, *objects, **params):
+        if "objects" not in params:
+            params["objects"] = objects
+        super().__init__(**params)
+
+    @param.depends("active", watch=True)
+    def _trigger_children(self):
+        self.param.trigger("objects")
+
+    def _get_child_model(self, child, doc, root, parent, comm):
+        ref = root.ref["id"]
+        models, old_models = [], []
+        for i, sv in enumerate(child):
+            if self.dynamic and i != self.active:
+                model = BkSpacer()
+            elif ref in sv._models:
+                model = sv._models[ref][0]
+                old_models.append(model)
+            else:
+                model = sv._get_model(doc, root, parent, comm)
+            models.append(model)
+        return models, old_models
+
+
 class Divider(MaterialListLike):
     """
     A `Divider` draws a horizontal rule (a `<hr>` tag in HTML) to separate
@@ -1194,5 +1287,6 @@ __all__ = [
     "Paper",
     "Popup",
     "Row",
+    "Stepper",
     "Tabs",
 ]
