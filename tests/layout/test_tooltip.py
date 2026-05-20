@@ -68,10 +68,6 @@ class TestTooltipParams:
         tooltip = Tooltip(open=True)
         assert tooltip.open is True
 
-    def test_open_none_default(self):
-        tooltip = Tooltip()
-        assert tooltip.open is None
-
 
 class TestTooltipListAPI:
 

@@ -2,8 +2,7 @@ import pytest
 
 pytest.importorskip('playwright')
 
-from panel.layout import Column
-from panel.tests.util import serve_component, wait_until
+from panel.tests.util import serve_component
 from panel_material_ui.layout import Tooltip
 from panel_material_ui.widgets import Button
 from playwright.sync_api import expect
