@@ -3,6 +3,7 @@ import Step from "@mui/material/Step"
 import StepLabel from "@mui/material/StepLabel"
 import StepContent from "@mui/material/StepContent"
 import StepButton from "@mui/material/StepButton"
+import Button from "@mui/material/Button"
 import Box from "@mui/material/Box"
 import Typography from "@mui/material/Typography"
 import {apply_flex, render_icon} from "./utils"
@@ -20,6 +21,7 @@ const CONTENT_BASE_SX = {
 export function render({model, view}) {
   const [active, setActive] = model.useState("active")
   const [alternativeLabel] = model.useState("alternative_label")
+  const [backText] = model.useState("back_text")
   const [color] = model.useState("color")
   const [completed] = model.useState("completed")
   const [connector] = model.useState("connector")
@@ -27,18 +29,29 @@ export function render({model, view}) {
   const [error] = model.useState("error")
   const [icons] = model.useState("icons")
   const [names] = model.useState("_names")
+  const [nextText] = model.useState("next_text")
   const [nonLinear] = model.useState("non_linear")
   const [optional] = model.useState("optional")
   const [orientation] = model.useState("orientation")
+  const [showButtons] = model.useState("show_buttons")
   const [sx] = model.useState("sx")
   const headers = model.get_child("_headers")
   const objects = model.get_child("objects")
 
-  const activeIndex = Number.isInteger(active) && active >= 0 && active < objects.length ? active : 0
+  const steps = objects.length
+  const activeIndex = Number.isInteger(active) && active >= 0 && active < steps ? active : 0
 
   const handleStep = React.useCallback((index) => () => {
     setActive(index)
   }, [setActive])
+
+  const handleNext = React.useCallback(() => {
+    setActive(Math.min(active + 1, steps - 1))
+  }, [active, steps, setActive])
+
+  const handleBack = React.useCallback(() => {
+    setActive(Math.max(active - 1, 0))
+  }, [active, setActive])
 
   const stepperSx = React.useMemo(() => ({
     "& .MuiStepIcon-root.Mui-active": {color: (theme) => theme.palette[color]?.main},
@@ -46,9 +59,26 @@ export function render({model, view}) {
     ...sx,
   }), [color, sx])
 
-  const content = orientation === "horizontal" && objects.length > 0
+  const content = orientation === "horizontal" && steps > 0
     ? (apply_flex(view.get_child_view(model.objects[activeIndex]), "column") || objects[activeIndex])
     : null
+
+  const buttonRow = showButtons && steps > 0 ? (
+    <Box sx={{display: "flex", flexDirection: "row", pt: 2}}>
+      <Button
+        color="inherit"
+        disabled={active <= 0}
+        onClick={handleBack}
+        sx={{mr: 1}}
+      >
+        {backText}
+      </Button>
+      <Box sx={{flex: "1 1 auto"}} />
+      <Button onClick={handleNext} disabled={active >= steps - 1}>
+        {nextText}
+      </Button>
+    </Box>
+  ) : null
 
   return (
     <Box sx={{display: "flex", flexDirection: "column", width: "100%", height: "100%"}}>
@@ -117,6 +147,7 @@ export function render({model, view}) {
           {content}
         </Box>
       )}
+      {buttonRow}
     </Box>
   )
 }

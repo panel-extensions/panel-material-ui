@@ -218,6 +218,41 @@ def test_stepper_icons(page):
     expect(icons).to_have_count(3)
 
 
+def test_stepper_show_buttons(page):
+    widget = Stepper(
+        ("Step 1", Column("Content 1")),
+        ("Step 2", Column("Content 2")),
+        show_buttons=True,
+    )
+    serve_component(page, widget)
+
+    expect(page.locator('body')).to_contain_text('Content 1')
+
+    next_btn = page.locator('button', has_text='Next')
+    back_btn = page.locator('button', has_text='Back')
+    expect(next_btn).to_have_count(1)
+    expect(back_btn).to_be_disabled()
+
+    next_btn.click()
+    wait_until(lambda: widget.active == 1, page)
+    expect(page.locator('body')).to_contain_text('Content 2')
+    expect(next_btn).to_be_disabled()
+
+
+def test_stepper_show_buttons_custom_text(page):
+    widget = Stepper(
+        ("Step 1", Column("Content 1")),
+        ("Step 2", Column("Content 2")),
+        show_buttons=True,
+        back_text="Prev",
+        next_text="Forward",
+    )
+    serve_component(page, widget)
+
+    expect(page.locator('button', has_text='Prev')).to_have_count(1)
+    expect(page.locator('button', has_text='Forward')).to_have_count(1)
+
+
 def test_stepper_empty(page):
     widget = Stepper()
     serve_component(page, widget)

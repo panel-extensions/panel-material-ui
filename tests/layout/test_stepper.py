@@ -56,6 +56,7 @@ class TestStepperDefaults:
         stepper = Stepper()
         assert stepper.active == 0
         assert stepper.alternative_label is False
+        assert stepper.back_text == "Back"
         assert stepper.color == "primary"
         assert stepper.completed == []
         assert stepper.connector is True
@@ -63,9 +64,11 @@ class TestStepperDefaults:
         assert stepper.dynamic is False
         assert stepper.error == []
         assert stepper.icons == []
+        assert stepper.next_text == "Next"
         assert stepper.non_linear is False
         assert stepper.optional == []
         assert stepper.orientation == "horizontal"
+        assert stepper.show_buttons is False
 
 
 class TestStepperParams:
@@ -147,3 +150,54 @@ class TestStepperListAPI:
         stepper.clear()
         assert len(stepper.objects) == 0
         assert stepper._names == []
+
+
+class TestStepperNavigation:
+
+    def test_next(self):
+        stepper = Stepper(("S1", "C1"), ("S2", "C2"), ("S3", "C3"))
+        stepper.next()
+        assert stepper.active == 1
+        stepper.next()
+        assert stepper.active == 2
+
+    def test_next_clamps_to_last(self):
+        stepper = Stepper(("S1", "C1"), ("S2", "C2"), active=1)
+        stepper.next()
+        assert stepper.active == 1
+
+    def test_back(self):
+        stepper = Stepper(("S1", "C1"), ("S2", "C2"), active=1)
+        stepper.back()
+        assert stepper.active == 0
+
+    def test_back_clamps_to_zero(self):
+        stepper = Stepper(("S1", "C1"), ("S2", "C2"))
+        stepper.back()
+        assert stepper.active == 0
+
+    def test_reset(self):
+        stepper = Stepper(("S1", "C1"), ("S2", "C2"), active=1)
+        stepper.reset()
+        assert stepper.active == 0
+
+    def test_next_on_empty(self):
+        stepper = Stepper()
+        stepper.next()
+        assert stepper.active == 0
+
+    def test_on_step_change(self):
+        stepper = Stepper(("S1", "C1"), ("S2", "C2"))
+        events = []
+        stepper.on_step_change(lambda e: events.append(e.new))
+        stepper.next()
+        assert events == [1]
+
+    def test_on_step_change_in_constructor(self):
+        events = []
+        stepper = Stepper(
+            ("S1", "C1"), ("S2", "C2"),
+            on_step_change=lambda e: events.append(e.new),
+        )
+        stepper.active = 1
+        assert events == [1]
