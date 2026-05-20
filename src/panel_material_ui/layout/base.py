@@ -952,6 +952,63 @@ class Tabs(MaterialNamedListLike):
         super()._server_change(doc, ref, subpath, attr, old, new)
 
 
+class Tooltip(MaterialListLike):
+    """
+    The `Tooltip` displays informative text when users hover over, focus
+    on, or tap a child element. It wraps one or more child components
+    and shows a configurable tooltip label.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/layouts/Tooltip.html
+    - https://mui.com/material-ui/react-tooltip/
+
+    :Example:
+
+    >>> Tooltip(Button(label="Delete"), title="Remove this item")
+    """
+
+    arrow = param.Boolean(default=False, doc="""
+        Whether the tooltip has an arrow indicating the element it
+        refers to.""")
+
+    describe_child = param.Boolean(default=False, doc="""
+        Whether the tooltip acts as an accessible description rather
+        than a label. Use when the child already has a visible label
+        and the tooltip provides supplementary information.""")
+
+    enter_delay = param.Integer(default=100, bounds=(0, None), doc="""
+        The number of milliseconds to wait before showing the tooltip.
+        This can help avoid tooltips appearing on quick mouse passes.""")
+
+    follow_cursor = param.Boolean(default=False, doc="""
+        Whether the tooltip follows the cursor position.""")
+
+    leave_delay = param.Integer(default=0, bounds=(0, None), doc="""
+        The number of milliseconds to wait before hiding the tooltip.""")
+
+    open = param.Boolean(default=None, allow_None=True, doc="""
+        Explicitly control whether the tooltip is open. When None,
+        the tooltip is managed automatically on hover/focus. Set to
+        True or False for programmatic control.""")
+
+    placement = param.Selector(
+        default="bottom",
+        objects=[
+            "bottom-end", "bottom-start", "bottom",
+            "left-end", "left-start", "left",
+            "right-end", "right-start", "right",
+            "top-end", "top-start", "top",
+        ],
+        doc="""
+        The placement of the tooltip relative to the child element.""")
+
+    title = param.String(default="", doc="""
+        The text to display inside the tooltip.""")
+
+    _esm_base = "Tooltip.jsx"
+
+
 class Divider(MaterialListLike):
     """
     A `Divider` draws a horizontal rule (a `<hr>` tag in HTML) to separate
@@ -1195,4 +1252,5 @@ __all__ = [
     "Popup",
     "Row",
     "Tabs",
+    "Tooltip",
 ]
