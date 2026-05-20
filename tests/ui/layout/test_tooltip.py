@@ -84,5 +84,5 @@ def test_tooltip_empty(page):
     widget = Tooltip(title="Empty tooltip")
     serve_component(page, widget)
 
-    # Should render without errors even with no children
+    # Should render without errors even with no child
     expect(page.locator('.MuiTooltip-tooltip')).not_to_be_visible()

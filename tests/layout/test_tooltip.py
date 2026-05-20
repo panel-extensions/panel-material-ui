@@ -12,6 +12,7 @@ class TestTooltipDefaults:
         assert tooltip.enter_delay == 100
         assert tooltip.follow_cursor is False
         assert tooltip.leave_delay == 0
+        assert tooltip.object is None
         assert tooltip.open is None
         assert tooltip.placement == "bottom"
         assert tooltip.title == ""
@@ -68,24 +69,10 @@ class TestTooltipParams:
         tooltip = Tooltip(open=True)
         assert tooltip.open is True
 
+    def test_object_positional(self):
+        tooltip = Tooltip("Child", title="Tip")
+        assert tooltip.object is not None
 
-class TestTooltipListAPI:
-
-    def test_append(self):
-        tooltip = Tooltip("Child 1", title="Tip")
-        tooltip.append("Child 2")
-        assert len(tooltip.objects) == 2
-
-    def test_pop(self):
-        tooltip = Tooltip("Child 1", "Child 2", title="Tip")
-        tooltip.pop(0)
-        assert len(tooltip.objects) == 1
-
-    def test_clear(self):
-        tooltip = Tooltip("Child 1", "Child 2", title="Tip")
-        tooltip.clear()
-        assert len(tooltip.objects) == 0
-
-    def test_empty(self):
-        tooltip = Tooltip()
-        assert len(tooltip.objects) == 0
+    def test_object_keyword(self):
+        tooltip = Tooltip(object="Child", title="Tip")
+        assert tooltip.object is not None

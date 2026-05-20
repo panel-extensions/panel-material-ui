@@ -952,11 +952,11 @@ class Tabs(MaterialNamedListLike):
         super()._server_change(doc, ref, subpath, attr, old, new)
 
 
-class Tooltip(MaterialListLike):
+class Tooltip(MaterialComponent, SizingModeMixin):
     """
     The `Tooltip` displays informative text when users hover over, focus
-    on, or tap a child element. It wraps one or more child components
-    and shows a configurable tooltip label.
+    on, or tap a child element. It wraps a single child component and
+    shows a configurable tooltip label.
 
     :References:
 
@@ -987,6 +987,12 @@ class Tooltip(MaterialListLike):
     leave_delay = param.Integer(default=0, bounds=(0, None), doc="""
         The number of milliseconds to wait before hiding the tooltip.""")
 
+    margin = Margin(default=0, doc="""
+        The margin around the tooltip wrapper.""")
+
+    object = Child(doc="""
+        The child component to wrap with the tooltip.""")
+
     open = param.Boolean(default=None, allow_None=True, doc="""
         Explicitly control whether the tooltip is open. When None,
         the tooltip is managed automatically on hover/focus. Set to
@@ -1007,6 +1013,11 @@ class Tooltip(MaterialListLike):
         The text to display inside the tooltip.""")
 
     _esm_base = "Tooltip.jsx"
+
+    def __init__(self, object=None, **params):
+        if object is not None:
+            params["object"] = object
+        super().__init__(**params)
 
 
 class Divider(MaterialListLike):

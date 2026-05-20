@@ -11,7 +11,7 @@ export function render({model}) {
   const [placement] = model.useState("placement")
   const [sx] = model.useState("sx")
   const [title] = model.useState("title")
-  const objects = model.get_child("objects")
+  const object = model.get_child("object")
 
   const openProps = open === null ? {} : {open}
 
@@ -28,7 +28,7 @@ export function render({model}) {
       {...openProps}
     >
       <Box sx={{display: "inline-flex"}}>
-        {objects}
+        {object}
       </Box>
     </Tooltip>
   )
