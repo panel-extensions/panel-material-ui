@@ -33,6 +33,23 @@ class TestStepperConstruction:
         assert stepper._names == ["Only Step"]
 
 
+class TestStepperDynamic:
+
+    def test_active_triggers_objects_when_dynamic(self):
+        stepper = Stepper(("Step 1", "C1"), ("Step 2", "C2"), dynamic=True)
+        events = []
+        stepper.param.watch(lambda e: events.append(e), "objects")
+        stepper.active = 1
+        assert len(events) == 1
+
+    def test_active_does_not_trigger_objects_when_not_dynamic(self):
+        stepper = Stepper(("Step 1", "C1"), ("Step 2", "C2"))
+        events = []
+        stepper.param.watch(lambda e: events.append(e), "objects")
+        stepper.active = 1
+        assert len(events) == 0
+
+
 class TestStepperDefaults:
 
     def test_default_params(self):
@@ -45,6 +62,7 @@ class TestStepperDefaults:
         assert stepper.disabled == []
         assert stepper.dynamic is False
         assert stepper.error == []
+        assert stepper.icons == []
         assert stepper.non_linear is False
         assert stepper.optional == []
         assert stepper.orientation == "horizontal"
@@ -91,6 +109,13 @@ class TestStepperParams:
         assert stepper.error == [2]
         assert stepper.optional == [1, 2]
 
+    def test_icons(self):
+        stepper = Stepper(
+            ("S1", "C1"), ("S2", "C2"), ("S3", "C3"),
+            icons=["settings", "group_add", "videocam"],
+        )
+        assert stepper.icons == ["settings", "group_add", "videocam"]
+
 
 class TestStepperListAPI:
 
@@ -122,13 +147,3 @@ class TestStepperListAPI:
         stepper.clear()
         assert len(stepper.objects) == 0
         assert stepper._names == []
-
-
-class TestStepperActiveTriggering:
-
-    def test_active_triggers_objects(self):
-        stepper = Stepper(("Step 1", "C1"), ("Step 2", "C2"))
-        events = []
-        stepper.param.watch(lambda e: events.append(e), "objects")
-        stepper.active = 1
-        assert len(events) == 1

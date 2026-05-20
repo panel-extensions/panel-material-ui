@@ -1002,11 +1002,17 @@ class Stepper(MaterialNamedListLike):
         List of step indices that are disabled.""")
 
     dynamic = param.Boolean(default=False, doc="""
-        Whether the step contents should be rendered dynamically,
-        i.e. only when the step is active.""")
+        Whether to render step contents only when the step is active.
+        Can improve performance when steps contain expensive components.""")
 
     error = param.List(default=[], item_type=int, doc="""
         List of step indices that are shown in an error state.""")
+
+    icons = param.List(default=[], item_type=str, doc="""
+        List of icon names corresponding to each step. Accepts
+        Material Icon names (e.g. 'settings', 'group_add') or
+        inline SVG strings. When empty, the default numbered
+        circles are shown.""")
 
     non_linear = param.Boolean(default=False, doc="""
         Whether users can click on any step to navigate to it directly.
@@ -1028,13 +1034,16 @@ class Stepper(MaterialNamedListLike):
 
     @param.depends("active", watch=True)
     def _trigger_children(self):
-        self.param.trigger("objects")
+        if self.dynamic:
+            self.param.trigger("objects")
 
     def _get_child_model(self, child, doc, root, parent, comm):
+        if not self.dynamic:
+            return super()._get_child_model(child, doc, root, parent, comm)
         ref = root.ref["id"]
         models, old_models = [], []
         for i, sv in enumerate(child):
-            if self.dynamic and i != self.active:
+            if i != self.active:
                 model = BkSpacer()
             elif ref in sv._models:
                 model = sv._models[ref][0]

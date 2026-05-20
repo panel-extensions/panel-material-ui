@@ -204,6 +204,20 @@ def test_stepper_nested_component(page):
     wait_until(lambda: button.clicks == 1, page)
 
 
+def test_stepper_icons(page):
+    widget = Stepper(
+        ("Settings", Column("Content 1")),
+        ("Group", Column("Content 2")),
+        ("Video", Column("Content 3")),
+        icons=["settings", "group_add", "videocam"],
+    )
+    serve_component(page, widget)
+
+    # Icons replace the default numbered circles
+    icons = page.locator('.material-icons')
+    expect(icons).to_have_count(3)
+
+
 def test_stepper_empty(page):
     widget = Stepper()
     serve_component(page, widget)

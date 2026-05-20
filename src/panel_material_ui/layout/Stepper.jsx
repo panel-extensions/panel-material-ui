@@ -5,7 +5,7 @@ import StepContent from "@mui/material/StepContent"
 import StepButton from "@mui/material/StepButton"
 import Box from "@mui/material/Box"
 import Typography from "@mui/material/Typography"
-import {apply_flex} from "./utils"
+import {apply_flex, render_icon} from "./utils"
 
 const CONTENT_BASE_SX = {
   flex: 1,
@@ -25,6 +25,7 @@ export function render({model, view}) {
   const [connector] = model.useState("connector")
   const [disabled] = model.useState("disabled")
   const [error] = model.useState("error")
+  const [icons] = model.useState("icons")
   const [names] = model.useState("_names")
   const [nonLinear] = model.useState("non_linear")
   const [optional] = model.useState("optional")
@@ -79,8 +80,11 @@ export function render({model, view}) {
             ...(disabled.length > 0 && {disabled: disabled.includes(index)}),
           }
 
+          const iconNode = icons[index] ? render_icon(icons[index]) : undefined
+
           const stepLabel = nonLinear ? (
             <StepButton
+              icon={iconNode}
               onClick={handleStep(index)}
               optional={optionalNode}
             >
@@ -89,6 +93,7 @@ export function render({model, view}) {
           ) : (
             <StepLabel
               error={isError}
+              icon={iconNode}
               optional={optionalNode}
             >
               {labelContent}
