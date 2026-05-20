@@ -13,7 +13,7 @@ def test_button(document, comm):
 
 
 def test_button_event():
-    button = Button(name='Button')
+    button = Button(label='Button')
 
     events = []
     def callback(event):
@@ -29,7 +29,7 @@ def test_button_event():
 
 
 def test_button_jscallback_clicks(document, comm):
-    button = Button(name='Button')
+    button = Button(label='Button')
     code = 'console.log("Clicked!")'
     button.jscallback(clicks=code)
 
@@ -42,7 +42,7 @@ def test_button_jscallback_clicks(document, comm):
 
 def test_button_js_on_click(document, comm):
     code = 'console.log("Clicked!")'
-    button = Button(name='Button', js_on_click=code)
+    button = Button(label='Button', js_on_click=code)
 
     widget = button.get_root(document, comm=comm)
     assert len(widget.js_event_callbacks) == 1
