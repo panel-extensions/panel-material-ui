@@ -293,7 +293,8 @@ class _FileUploadArea(param.Parameterized):
             if "view_kwargs" in config:
                 kwargs.update(config['view_kwargs'])
 
-        if inspect.isclass(view) and issubclass(view, pn.widgets.Widget):
+        if inspect.isclass(view) and issubclass(view, pn.widgets.WidgetBase):
+            kwargs["label"] = kwargs.pop("name")
             return view(value=object, **kwargs)
         return view(object, **kwargs)
 
