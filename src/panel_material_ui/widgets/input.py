@@ -277,7 +277,6 @@ class _FileUploadArea(param.Parameterized):
             A Tabulator widget for CSV files, or a Markdown pane with an error message
             for unsupported file types.
         """
-        kwargs["name"] = filename
         view = pn.panel
 
         if isinstance(object, Exception):

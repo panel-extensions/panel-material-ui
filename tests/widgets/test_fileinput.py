@@ -38,7 +38,6 @@ def test_file_input_view():
     view = file_input.view()
     assert not view().visible
 
-
     # When custom layout is provided, it should be used
     view_with_layout = file_input.view(layout=Column)
     assert isinstance(view_with_layout(), Column)
