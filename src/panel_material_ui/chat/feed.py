@@ -37,10 +37,10 @@ class ChatFeed(_PnChatFeed):
     >>> chat_feed = ChatFeed(callback=say_welcome, header="Welcome Feed")
     >>> chat_feed.send("Hello World!", user="New User", avatar="😊")
     """
+
     dark_theme = param.Boolean(doc="""
         Whether to use dark theme. If not specified, will default to Panel's
         global theme setting.""")
-
 
     theme_config = param.Dict(default=None, nested_refs=True, doc="""
         Options to configure the ThemeProvider.
