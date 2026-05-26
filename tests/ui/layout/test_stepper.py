@@ -125,7 +125,7 @@ def test_stepper_disabled(page):
     )
     serve_component(page, widget)
 
-    disabled_step = page.locator('.MuiStep-root .Mui-disabled')
+    disabled_step = page.locator('.MuiStep-root .MuiStepButton-root.Mui-disabled')
     expect(disabled_step).to_have_count(1)
 
     # Click disabled step button (should not change active)

@@ -11,10 +11,10 @@ import {apply_flex, render_icon} from "./utils"
 const CONTENT_BASE_SX = {
   flex: 1,
   minWidth: 0,
+  minHeight: 0,
   display: "flex",
   flexDirection: "column",
   overflow: "auto",
-  position: "relative",
   width: "100%",
 }
 
