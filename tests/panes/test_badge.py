@@ -1,6 +1,6 @@
 import pytest
 
-from panel_material_ui.layout import Badge
+from panel_material_ui.pane import Badge
 
 
 class TestBadgeDefaults:
@@ -10,7 +10,6 @@ class TestBadgeDefaults:
         assert badge.anchor_origin is None
         assert badge.badge_content == 0
         assert badge.color == "primary"
-        assert badge.invisible is False
         assert badge.max == 99
         assert badge.object is None
         assert badge.overlap == "rectangular"
@@ -49,10 +48,6 @@ class TestBadgeParams:
     def test_max(self):
         badge = Badge(max=999)
         assert badge.max == 999
-
-    def test_invisible(self):
-        badge = Badge(invisible=True)
-        assert badge.invisible is True
 
     def test_show_zero(self):
         badge = Badge(show_zero=True)

@@ -11,7 +11,6 @@ export function render({model, view}) {
   const [anchorOrigin] = model.useState("anchor_origin")
   const [badgeContent] = model.useState("badge_content")
   const [color] = model.useState("color")
-  const [invisible] = model.useState("invisible")
   const [max] = model.useState("max")
   const [overlap] = model.useState("overlap")
   const [showZero] = model.useState("show_zero")
@@ -36,7 +35,6 @@ export function render({model, view}) {
       anchorOrigin={anchorOrigin ?? undefined}
       badgeContent={badgeContent}
       color={color}
-      invisible={invisible}
       max={max}
       overlap={overlap}
       showZero={showZero}

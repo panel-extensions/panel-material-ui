@@ -952,66 +952,6 @@ class Tabs(MaterialNamedListLike):
         super()._server_change(doc, ref, subpath, attr, old, new)
 
 
-class Badge(MaterialComponent, SizingModeMixin):
-    """
-    The `Badge` generates a small badge to the top-right (by default)
-    of its child element. Badges are commonly used to display
-    notification counts, status indicators, or short labels overlaid
-    on icons, avatars, or buttons.
-
-    :References:
-
-    - https://panel-material-ui.holoviz.org/reference/layouts/Badge.html
-    - https://mui.com/material-ui/react-badge/
-
-    :Example:
-
-    >>> Badge(IconButton(icon="mail"), badge_content=4, color="primary")
-    """
-
-    anchor_origin = param.Dict(default=None, doc="""
-        The anchor position of the badge. Accepts a dictionary with
-        keys 'vertical' ('top' or 'bottom') and 'horizontal'
-        ('left' or 'right').""")
-
-    badge_content = param.Parameter(default=0, doc="""
-        The content rendered within the badge. Typically an integer
-        count but can be a short string.""")
-
-    color = param.Selector(default="primary", objects=COLORS, doc="""
-        The color of the badge.""")
-
-    invisible = param.Boolean(default=False, doc="""
-        Whether the badge is invisible.""")
-
-    margin = Margin(default=0, doc="""
-        The margin around the badge wrapper.""")
-
-    max = param.Integer(default=99, bounds=(0, None), doc="""
-        Maximum count to display. Values above this show as
-        'max+' (e.g. '99+').""")
-
-    object = Child(doc="""
-        The child component to wrap with the badge.""")
-
-    overlap = param.Selector(default="rectangular", objects=["rectangular", "circular"], doc="""
-        Wrapped shape the badge should overlap.""")
-
-    show_zero = param.Boolean(default=False, doc="""
-        Whether to display the badge when badge_content is zero.""")
-
-    variant = param.Selector(default="standard", objects=["dot", "standard"], doc="""
-        The variant of the badge. Use 'dot' for a small dot
-        indicator without content.""")
-
-    _esm_base = "Badge.jsx"
-
-    def __init__(self, object=None, **params):
-        if object is not None:
-            params["object"] = object
-        super().__init__(**params)
-
-
 class Divider(MaterialListLike):
     """
     A `Divider` draws a horizontal rule (a `<hr>` tag in HTML) to separate
@@ -1241,7 +1181,6 @@ __all__ = [
     "Accordion",
     "Alert",
     "Backdrop",
-    "Badge",
     "Card",
     "Column",
     "Container",

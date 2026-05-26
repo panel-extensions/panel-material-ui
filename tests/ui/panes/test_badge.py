@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component
-from panel_material_ui.layout import Badge
+from panel_material_ui.pane import Badge
 from panel_material_ui.widgets import IconButton
 from playwright.sync_api import expect
 
@@ -38,14 +38,6 @@ def test_badge_max(page):
     serve_component(page, widget)
 
     expect(page.locator('.MuiBadge-badge')).to_contain_text('99+')
-
-
-def test_badge_invisible(page):
-    widget = Badge(IconButton(icon="mail"), badge_content=4, invisible=True)
-    serve_component(page, widget)
-
-    badge = page.locator('.MuiBadge-invisible')
-    expect(badge).to_have_count(1)
 
 
 def test_badge_show_zero(page):
