@@ -1,6 +1,6 @@
 import pytest
 
-from panel_material_ui.layout import Tooltip
+from panel_material_ui.pane import Tooltip
 
 
 class TestTooltipDefaults:

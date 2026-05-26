@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component
-from panel_material_ui.layout import Tooltip
+from panel_material_ui.pane import Tooltip
 from panel_material_ui.widgets import Button
 from playwright.sync_api import expect
 
@@ -73,7 +73,6 @@ def test_tooltip_title_update(page):
     page.locator('.MuiButton-root').hover()
     expect(page.locator('.MuiTooltip-tooltip')).to_contain_text('Original')
 
-    # Move mouse away, update title, hover again
     page.mouse.move(0, 0)
     widget.title = "Updated"
     page.locator('.MuiButton-root').hover()
@@ -84,5 +83,4 @@ def test_tooltip_empty(page):
     widget = Tooltip(title="Empty tooltip")
     serve_component(page, widget)
 
-    # Should render without errors even with no child
     expect(page.locator('.MuiTooltip-tooltip')).not_to_be_visible()
