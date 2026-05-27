@@ -1,12 +1,8 @@
 # Release Notes
 
-## Version 0.11.1
+## Version 0.11.2
 
-The `panel-material-ui` 0.11.1 release primarily fixes a few bugs and regressions related to the MUI v9 and panel 1.9.0 updates. Many thanks to @philippjfr for his contributions to this release.
-
-### ✨ Enhancements
-
-* Expose `dark_theme`, `sx` and `theme_config` on `ChatFeed` and `ChatInterface` ([#635](https://github.com/panel-extensions/panel-material-ui/pull/635))
+The `panel-material-ui` 0.11.2 release primarily fixes a few bugs and regressions related to the MUI v9 and panel 1.9.0 updates. Many thanks to @philippjfr for his contributions to this release.
 
 ### 🐛 Bug Fixes
 
@@ -14,6 +10,15 @@ The `panel-material-ui` 0.11.1 release primarily fixes a few bugs and regression
 * Align and fix handling of custom menus in notebook and other non-standard environments ([#636](https://github.com/panel-extensions/panel-material-ui/pull/636))
 * Ensure ChatAreaInput clears on submit ([#638](https://github.com/panel-extensions/panel-material-ui/pull/638))
 * Improve handling of loading spinner in default template ([#639](https://github.com/panel-extensions/panel-material-ui/pull/639))
+
+
+## Version 0.11.1
+
+The `panel-material-ui` 0.11.1 aligns `ChatFeed` and `ChatInterface` with the API of other `MaterialComponent` classes in the library. Many thanks to @philippjfr for his contributions to this release.
+
+### ✨ Enhancements
+
+* Expose `dark_theme`, `sx` and `theme_config` on `ChatFeed` and `ChatInterface` ([#635](https://github.com/panel-extensions/panel-material-ui/pull/635))
 
 
 ## Version 0.11.0
