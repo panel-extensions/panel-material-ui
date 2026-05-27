@@ -1,5 +1,37 @@
 # Release Notes
 
+## Version 0.11.1
+
+The `panel-material-ui` 0.11.1 release primarily fixes a few bugs and regressions related to the MUI v9 and panel 1.9.0 updates. Many thanks to @philippjfr for his contributions to this release.
+
+### ✨ Enhancements
+
+* Expose `dark_theme`, `sx` and `theme_config` on `ChatFeed` and `ChatInterface` ([#635](https://github.com/panel-extensions/panel-material-ui/pull/635))
+
+### 🐛 Bug Fixes
+
+* Fix regression in `FileInput.view` related to name/label rename in panel
+* Align and fix handling of custom menus in notebook and other non-standard environments ([#636](https://github.com/panel-extensions/panel-material-ui/pull/636))
+* Ensure ChatAreaInput clears on submit ([#638](https://github.com/panel-extensions/panel-material-ui/pull/638))
+* Improve handling of loading spinner in default template ([#639](https://github.com/panel-extensions/panel-material-ui/pull/639))
+
+
+## Version 0.11.0
+
+Panel Material UI 0.11.0 is headlined by an upgrade to MUI v9, bringing the library up to date with the latest Material UI ecosystem.  The release also delivers improved Vizzu theming and a new minimal Bokeh theme that integrates more cleanly with Material UI layouts.
+
+Many thanks to the contributors to this release including: @philippjfr and @hoxbro.
+
+### ✨ Enhancements
+* Bump MUI to v9 ([#629](https://github.com/panel-extensions/panel-material-ui/pull/629))
+* Allow providing `sx` to control `Tabs` content area styling
+
+### 🎨 UI Improvements
+* Improve Bokeh and Vizzu theming ([#626](https://github.com/panel-extensions/panel-material-ui/pull/626))
+
+### 📚 Documentation
+* Align `DatePicker` documentation with actual behavior ([#628](https://github.com/panel-extensions/panel-material-ui/pull/628))
+
 ## Version 0.10.0
 
 Panel Material UI 0.10.0 introduces new layout and chat capabilities, including a `Feed` layout component, "mention" support in `ChatInterface`, and scroll behaviors for `Column`. The release also brings several menu and navigation improvements, compatibility with the upcoming Panel 1.9.0 release, and a range of bug fixes and UI polish.
