@@ -310,6 +310,7 @@ class MaterialComponent(ReactComponent):
             "@mui/x-tree-view": "https://esm.sh/@mui/x-tree-view@9.1.0",
             "mui-color-input": "https://esm.sh/mui-color-input@9.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
+            "react-day-picker": "https://esm.sh/react-day-picker@9.7.0",
             "notistack": "https://esm.sh/notistack@3.0.2",
             "material-icons/": "https://esm.sh/material-icons@1.13.14/",
             "@fontsource/roboto/": "https://esm.sh/@fontsource/roboto@5.2.5/"
