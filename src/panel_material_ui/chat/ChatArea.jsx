@@ -506,6 +506,7 @@ export function render({model, view}) {
           color={color}
           disabled={disabled}
           inputComponent={CustomInput}
+          value={value_input}
           slotProps={{
             root: {
               ref: inputRef,
