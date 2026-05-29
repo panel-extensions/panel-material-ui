@@ -17,6 +17,12 @@ export function render({model, view}) {
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
   const object = model.get_child("object")
+  const [visible, setVisible] = React.useState(view.model.visible)
+  React.useEffect(() => {
+    const cb = () => setVisible(view.model.visible)
+    view.model.properties.visible.change.connect(cb)
+    return () => view.model.properties.visible.change.disconnect(cb)
+  }, [])
 
   // Zero out child margin so the badge sits tightly on the child's visual edge
   React.useEffect(() => {
@@ -34,7 +40,6 @@ export function render({model, view}) {
     <Badge
       anchorOrigin={anchorOrigin ?? undefined}
       badgeContent={badgeContent}
-      color={color}
       color={color}
       invisible={!visible}
       max={max}
