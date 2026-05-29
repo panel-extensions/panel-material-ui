@@ -3,6 +3,7 @@ import Step from "@mui/material/Step"
 import StepLabel from "@mui/material/StepLabel"
 import StepContent from "@mui/material/StepContent"
 import StepButton from "@mui/material/StepButton"
+import MobileStepper from "@mui/material/MobileStepper"
 import Button from "@mui/material/Button"
 import Box from "@mui/material/Box"
 import Typography from "@mui/material/Typography"
@@ -28,16 +29,20 @@ export function render({model, view}) {
   const [disabled] = model.useState("disabled")
   const [error] = model.useState("error")
   const [icons] = model.useState("icons")
+  const [indicator] = model.useState("indicator")
   const [names] = model.useState("_names")
   const [nextText] = model.useState("next_text")
   const [nonLinear] = model.useState("non_linear")
   const [optional] = model.useState("optional")
   const [orientation] = model.useState("orientation")
+  const [position] = model.useState("position")
   const [showButtons] = model.useState("show_buttons")
   const [sx] = model.useState("sx")
+  const [variant] = model.useState("variant")
   const headers = model.get_child("_headers")
   const objects = model.get_child("objects")
 
+  const compact = variant === "compact"
   const steps = objects.length
   const activeIndex = Number.isInteger(active) && active >= 0 && active < steps ? active : 0
 
@@ -59,9 +64,49 @@ export function render({model, view}) {
     ...sx,
   }), [color, sx])
 
-  const content = orientation === "horizontal" && steps > 0
+  const mobileSx = React.useMemo(() => ({
+    "& .MuiLinearProgress-bar": {backgroundColor: (theme) => theme.palette[color]?.main},
+    "& .MuiMobileStepper-dotActive": {backgroundColor: (theme) => theme.palette[color]?.main},
+    ...sx,
+  }), [color, sx])
+
+  // Resolve (and flex) the active step's content. For the 'standard'
+  // variant this is only needed in horizontal orientation (vertical
+  // renders content inline via StepContent); 'compact' always shows it.
+  const content = (compact || orientation === "horizontal") && steps > 0
     ? (apply_flex(view.get_child_view(model.objects[activeIndex]), "column") || objects[activeIndex])
     : null
+
+  if (compact) {
+    // MUI requires steps >= 1; default to 1 when empty
+    const mobileSteps = steps || 1
+    return (
+      <Box sx={{display: "flex", flexDirection: "column", width: "100%", height: "100%"}}>
+        <Box sx={{...CONTENT_BASE_SX, position: "relative"}}>
+          {content}
+        </Box>
+        <MobileStepper
+          activeStep={activeIndex}
+          position={position}
+          steps={mobileSteps}
+          variant={indicator}
+          sx={mobileSx}
+          nextButton={
+            <Button size="small" onClick={handleNext} disabled={active >= mobileSteps - 1}>
+              {nextText}
+              {render_icon("keyboard_arrow_right")}
+            </Button>
+          }
+          backButton={
+            <Button size="small" onClick={handleBack} disabled={active <= 0}>
+              {render_icon("keyboard_arrow_left")}
+              {backText}
+            </Button>
+          }
+        />
+      </Box>
+    )
+  }
 
   const buttonRow = showButtons && steps > 0 ? (
     <Box sx={{display: "flex", flexDirection: "row", pt: 2}}>

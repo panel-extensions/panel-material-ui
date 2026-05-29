@@ -989,6 +989,12 @@ class Stepper(_StepperNavigation, MaterialNamedListLike):
     and numbered steps. It supports horizontal and vertical orientations
     and can be used for wizard-like workflows.
 
+    Two variants are available via the `variant` parameter: the default
+    `"standard"` variant renders labelled steps with optional icons and
+    connectors, while the `"compact"` variant renders a minimal
+    mobile-style bar with a dots, progress or text indicator and
+    back/next navigation (step labels are not displayed).
+
     Step labels may be defined explicitly as part of a tuple or will be
     inferred from the `name` parameter of the step's contents.
 
@@ -1047,7 +1053,13 @@ class Stepper(_StepperNavigation, MaterialNamedListLike):
         List of icon names corresponding to each step. Accepts
         Material Icon names (e.g. 'settings', 'group_add') or
         inline SVG strings. When empty, the default numbered
-        circles are shown.""")
+        circles are shown.
+
+        Only applies to the 'standard' variant.""")
+
+    indicator = param.Selector(default="dots", objects=["dots", "progress", "text"], doc="""
+        The type of progress indicator to display. Only applies to
+        the 'compact' variant.""")
 
     next_text = param.String(default="Next", doc="""
         Label for the next navigation button. Only visible when
@@ -1062,11 +1074,21 @@ class Stepper(_StepperNavigation, MaterialNamedListLike):
 
     orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
         The orientation of the stepper. Use 'vertical' for narrow
-        layouts or mobile-friendly designs.""")
+        layouts or mobile-friendly designs. Only applies to the
+        'standard' variant.""")
+
+    position = param.Selector(default="static", objects=["bottom", "static", "top"], doc="""
+        The positioning of the stepper bar. Only applies to the
+        'compact' variant.""")
 
     show_buttons = param.Boolean(default=False, doc="""
         Whether to display back/next navigation buttons below
-        the step content.""")
+        the step content. Only applies to the 'standard' variant.""")
+
+    variant = param.Selector(default="standard", objects=["standard", "compact"], doc="""
+        The stepper variant. 'standard' renders labelled steps with
+        optional icons and connectors; 'compact' renders a minimal
+        mobile-style bar with an indicator and navigation buttons.""")
 
     _esm_base = "Stepper.jsx"
 
@@ -1098,56 +1120,6 @@ class Stepper(_StepperNavigation, MaterialNamedListLike):
                 model = sv._get_model(doc, root, parent, comm)
             models.append(model)
         return models, old_models
-
-
-class MobileStepper(_StepperNavigation, MaterialListLike):
-    """
-    The `MobileStepper` displays compact step progress with back/next
-    navigation buttons and a progress indicator. It supports three
-    indicator variants: dots, a progress bar, or text.
-
-    Unlike `Stepper`, the `MobileStepper` does not display step labels.
-    The number of steps is derived from the number of child objects.
-
-    It has a list-like API with methods to `append`, `extend`, `clear`,
-    `insert`, `pop`, `remove` and `__setitem__`, which make it possible
-    to interactively update and modify the steps.
-
-    :References:
-
-    - https://panel-material-ui.holoviz.org/reference/layouts/MobileStepper.html
-    - https://mui.com/material-ui/react-stepper/#mobile-stepper
-
-    :Example:
-
-    >>> MobileStepper(panel1, panel2, panel3, variant='dots')
-    """
-
-    active = param.Integer(default=0, bounds=(0, None), doc="""
-        Index of the currently active step.""")
-
-    back_text = param.String(default="Back", doc="""
-        Label for the back navigation button.""")
-
-    color = param.Selector(objects=COLORS, default="primary", doc="""
-        Color of the progress indicator and active dots.""")
-
-    next_text = param.String(default="Next", doc="""
-        Label for the next navigation button.""")
-
-    position = param.Selector(default="static", objects=["bottom", "static", "top"], doc="""
-        The positioning of the stepper bar.""")
-
-    variant = param.Selector(default="dots", objects=["dots", "progress", "text"], doc="""
-        The type of progress indicator to display.""")
-
-    _esm_base = "MobileStepper.jsx"
-
-    def __init__(self, *objects, **params):
-        step_change_handler = params.pop("on_step_change", None)
-        super().__init__(*objects, **params)
-        if step_change_handler:
-            self.on_step_change(step_change_handler)
 
 
 class Divider(MaterialListLike):
@@ -1389,7 +1361,6 @@ __all__ = [
     "Feed",
     "FlexBox",
     "Grid",
-    "MobileStepper",
     "Paper",
     "Popup",
     "Row",

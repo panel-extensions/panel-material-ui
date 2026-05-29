@@ -69,6 +69,9 @@ class TestStepperDefaults:
         assert stepper.optional == []
         assert stepper.orientation == "horizontal"
         assert stepper.show_buttons is False
+        assert stepper.variant == "standard"
+        assert stepper.indicator == "dots"
+        assert stepper.position == "static"
 
 
 class TestStepperParams:
@@ -118,6 +121,41 @@ class TestStepperParams:
             icons=["settings", "group_add", "videocam"],
         )
         assert stepper.icons == ["settings", "group_add", "videocam"]
+
+
+class TestStepperCompactVariant:
+
+    @pytest.mark.parametrize("variant", ["standard", "compact"])
+    def test_variant(self, variant):
+        stepper = Stepper(variant=variant)
+        assert stepper.variant == variant
+
+    @pytest.mark.parametrize("indicator", ["dots", "progress", "text"])
+    def test_indicator(self, indicator):
+        stepper = Stepper(variant="compact", indicator=indicator)
+        assert stepper.indicator == indicator
+
+    @pytest.mark.parametrize("position", ["bottom", "static", "top"])
+    def test_position(self, position):
+        stepper = Stepper(variant="compact", position=position)
+        assert stepper.position == position
+
+    def test_compact_button_text(self):
+        stepper = Stepper(variant="compact", back_text="Prev", next_text="Forward")
+        assert stepper.back_text == "Prev"
+        assert stepper.next_text == "Forward"
+
+    def test_compact_positional_objects(self):
+        stepper = Stepper("C1", "C2", "C3", variant="compact", active=2)
+        assert len(stepper.objects) == 3
+        assert stepper.active == 2
+
+    def test_compact_navigation(self):
+        stepper = Stepper("C1", "C2", "C3", variant="compact")
+        stepper.next()
+        assert stepper.active == 1
+        stepper.back()
+        assert stepper.active == 0
 
 
 class TestStepperListAPI:

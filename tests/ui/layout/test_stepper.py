@@ -259,3 +259,73 @@ def test_stepper_empty(page):
 
     steps = page.locator('.MuiStep-root')
     expect(steps).to_have_count(0)
+
+
+def test_stepper_compact_basic(page):
+    widget = Stepper(
+        Column("Content 1"),
+        Column("Content 2"),
+        Column("Content 3"),
+        variant="compact",
+    )
+    serve_component(page, widget)
+
+    # Compact variant renders a MobileStepper bar, not labelled steps
+    expect(page.locator('.MuiMobileStepper-root')).to_have_count(1)
+    expect(page.locator('.MuiStep-root')).to_have_count(0)
+    # Active step's content is visible
+    expect(page.locator('body')).to_contain_text('Content 1')
+
+
+def test_stepper_compact_navigation(page):
+    widget = Stepper(
+        Column("Content 1"),
+        Column("Content 2"),
+        variant="compact",
+    )
+    serve_component(page, widget)
+
+    next_btn = page.locator('button', has_text='Next')
+    back_btn = page.locator('button', has_text='Back')
+    expect(next_btn).to_have_count(1)
+    expect(back_btn).to_be_disabled()
+
+    next_btn.click()
+    wait_until(lambda: widget.active == 1, page)
+    expect(page.locator('body')).to_contain_text('Content 2')
+    expect(next_btn).to_be_disabled()
+
+
+def test_stepper_compact_progress_indicator(page):
+    widget = Stepper(
+        Column("Content 1"),
+        Column("Content 2"),
+        variant="compact",
+        indicator="progress",
+    )
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiMobileStepper-progress')).to_have_count(1)
+
+
+def test_stepper_compact_custom_button_text(page):
+    widget = Stepper(
+        Column("Content 1"),
+        Column("Content 2"),
+        variant="compact",
+        back_text="Prev",
+        next_text="Forward",
+    )
+    serve_component(page, widget)
+
+    expect(page.locator('button', has_text='Prev')).to_have_count(1)
+    expect(page.locator('button', has_text='Forward')).to_have_count(1)
+
+
+def test_stepper_compact_nested_component(page):
+    button = Button(label="Click Me")
+    widget = Stepper(button, Column("Content 2"), variant="compact")
+    serve_component(page, widget)
+
+    page.locator('.MuiButton-root', has_text="Click Me").click()
+    wait_until(lambda: button.clicks == 1, page)
