@@ -9,7 +9,7 @@ from panel_material_ui.chat import ChatAreaInput
 @pytest.mark.from_panel
 @pytest.mark.xfail(reason='')
 def test_int_input(document, comm):
-    int_input = IntInput(name='Int input')
+    int_input = IntInput(label='Int input')
     widget = int_input.get_root(document, comm=comm)
 
     assert widget.name == 'Int input'
@@ -38,7 +38,7 @@ def test_int_input(document, comm):
 @pytest.mark.from_panel
 @pytest.mark.xfail(reason='')
 def test_float_input(document, comm):
-    float_input = FloatInput(value=0.4, name="Float input")
+    float_input = FloatInput(value=0.4, label="Float input")
     widget = float_input.get_root(document, comm=comm)
 
     assert widget.name == 'Float input'

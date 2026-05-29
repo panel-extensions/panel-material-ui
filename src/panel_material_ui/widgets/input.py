@@ -292,13 +292,10 @@ class _FileUploadArea(param.Parameterized):
             if "view_kwargs" in config:
                 kwargs.update(config['view_kwargs'])
 
-        if inspect.isclass(view) and issubclass(view, pn.widgets.Widget):
+        if inspect.isclass(view) and issubclass(view, pn.widgets.WidgetBase):
             # Widget.name is deprecated in panel 2.0 in favor of label, but not
             # all widgets have a label param (e.g. Tabulator), so check first.
-            if 'label' in view.param:
-                kwargs["label"] = filename
-            else:
-                kwargs["name"] = filename
+            kwargs["label"] = kwargs.pop("name")
             return view(value=object, **kwargs)
         # Panes (e.g. Markdown) are not widgets and only accept name, not label.
         kwargs["name"] = filename
