@@ -18,7 +18,7 @@ import Input from "@mui/material/Input"
 import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
 import {render_description} from "./description"
-import {CustomMenu} from "./menu"
+import {CustomMenu, detect_nb} from "./menu"
 import {render_icon_text} from "./utils"
 
 const SELECT_BASE_SX = {padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}}
@@ -138,18 +138,7 @@ export function render({model, el, view}) {
     }
   }, [filterStr])
 
-  let nb = document.querySelector(".jp-NotebookPanel");
-  let node = view.el
-  while (node != null) {
-    if (node.host != null) {
-      node = node.host
-    } else {
-      node = node.parentNode
-    }
-    if (node?.className?.includes("react-flow")) {
-      nb = true
-    }
-  }
+  const nb = detect_nb(view)
 
   const MenuProps = nb ? {} : {
     container: el,

@@ -33,9 +33,9 @@ class FileDownload(_ButtonBase, _FileDownload):
 
     _esm_base = "FileDownload.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
-    _rename = {
+    _rename = _rename_fix = {
         "_clicks": None, "icon": "icon", "icon_size": "icon_size", "description": "description",
-        "color": "color", "variant": "variant"
+        "color": "color", "variant": "variant", "_icon": None
     }
     _source_transforms = {
         "button_type": None, "button_style": None, "callback": None,
@@ -46,6 +46,8 @@ class FileDownload(_ButtonBase, _FileDownload):
         self._default_label = 'label' not in params
         self._synced = False
         super().__init__(file=file, **params)
+        # Overrides a dangerous fix on panel.widgets.button.IconMixin
+        self._rename = self._rename_fix
 
     def transfer(self, download: bool = False):
         """
