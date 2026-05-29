@@ -512,14 +512,14 @@ class MaterialComponent(ReactComponent):
             for p in params:
                 widget = controls._widgets[p]
                 if (self._source_transforms.get(p, False) is not None and
-                        self._rename.get(p, False) is not None):
+                    self._property_mapping.get(p, False) is not None):
                     widget.jslink(self, value=p, bidirectional=True)
                 if isinstance(widget, LiteralInput):
                     widget.serializer = 'json'
             for p in layout_params:
                 widget = style._widgets[p]
                 if (self._source_transforms.get(p, False) is not None and
-                        self._rename.get(p, False) is not None):
+                    self._property_mapping.get(p, False) is not None):
                     widget.jslink(self, value=p, bidirectional=p != 'loading')
                 if isinstance(widget, LiteralInput):
                     widget.serializer = 'json'
