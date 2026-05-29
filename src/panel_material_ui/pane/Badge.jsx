@@ -35,6 +35,7 @@ export function render({model, view}) {
       anchorOrigin={anchorOrigin ?? undefined}
       badgeContent={badgeContent}
       color={color}
+      invisible={invisible}
       max={max}
       overlap={overlap}
       showZero={showZero}
