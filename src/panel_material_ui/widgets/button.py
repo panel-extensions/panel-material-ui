@@ -94,7 +94,7 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
     width = param.Integer(default=None, doc="Width of the button in pixels.")
 
     _rename: ClassVar[Mapping[str, str | None]] = {
-        "label": "label", "variant": "variant"
+        "color": "color", "label": "label", "variant": "variant"
     }
 
     __abstract = True
@@ -103,6 +103,13 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
     def _update_variant(self):
         if self.button_style:
             self.variant = self.button_style
+
+    def _process_param_change(self, params):
+        variant = params.pop("variant", None)
+        props = super()._process_param_change(params)
+        if variant is not None:
+            props['variant'] = variant
+        return props
 
 
 class Button(_ButtonBase, _ClickButton):
