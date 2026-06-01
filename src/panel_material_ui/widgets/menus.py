@@ -323,6 +323,106 @@ class TabMenu(MenuBase):
     _item_keys = ['label', 'icon', 'avatar', 'href', 'target', 'tooltip']
 
 
+class StepperMenu(MenuBase):
+    """
+    The `StepperMenu` displays progress through a sequence of numbered steps
+    and emits the active step as users navigate. It is a menu-style indicator:
+    it is driven by a declarative list of `items` and reports the selection via
+    the `active` and `value` parameters.
+
+    Two variants are available via `variant`: the default `standard` variant
+    renders a labelled horizontal strip of steps, while the `compact` variant
+    renders a minimal mobile-style bar with a dots, progress, or text indicator
+    and back/next navigation.
+
+    Step items can be strings or dictionaries with the following properties:
+
+    - `label`: The label of the step (required)
+    - `icon`: Icon name or inline SVG shown for pending steps (optional)
+    - `active_icon`: Icon shown when the step is active or completed; falls back
+      to the filled version of `icon` when not provided (optional)
+    - `completed`: Whether the step is marked complete (optional)
+    - `error`: Whether the step is in an error state (optional)
+    - `optional`: Whether to show an "Optional" caption under the label (optional)
+    - `disabled`: Whether the step is disabled (optional)
+    - `tooltip`: The tooltip text shown on hover (optional)
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/StepperMenu.html
+    - https://mui.com/material-ui/react-stepper/
+
+    :Example:
+
+    >>> pmui.StepperMenu(items=[
+    ...     {'label': 'Account', 'icon': 'person', 'completed': True},
+    ...     {'label': 'Shipping', 'icon': 'local_shipping'},
+    ...     {'label': 'Review', 'icon': 'check', 'optional': True},
+    ... ], active=1)
+    """
+
+    active = param.Integer(default=0, bounds=(0, None), doc="""
+        The index of the currently active step.""")
+
+    alternative_label = param.Boolean(default=False, doc="""
+        Whether to place the step label below the step icon. Only applies to
+        the 'standard' variant.""")
+
+    back_text = param.String(default="Back", doc="""
+        Label for the back navigation button. Only applies to the 'compact'
+        variant.""")
+
+    color = param.Selector(objects=COLORS, default="primary", doc="""
+        The color of the active and completed steps.""")
+
+    connector = param.Boolean(default=True, doc="""
+        Whether to display the connector line between steps. Only applies to
+        the 'standard' variant.""")
+
+    indicator = param.Selector(default="dots", objects=["dots", "progress", "text"], doc="""
+        The type of progress indicator to display. Only applies to the
+        'compact' variant.""")
+
+    next_text = param.String(default="Next", doc="""
+        Label for the next navigation button. Only applies to the 'compact'
+        variant.""")
+
+    non_linear = param.Boolean(default=False, doc="""
+        Whether steps can be clicked to navigate non-linearly. Only applies to
+        the 'standard' variant.""")
+
+    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
+        The orientation of the stepper. Use 'vertical' to stack the steps from
+        top to bottom (e.g. in a narrow sidebar). Only applies to the
+        'standard' variant.""")
+
+    position = param.Selector(default="static", objects=["bottom", "static", "top"], doc="""
+        The positioning of the bar. Only applies to the 'compact' variant.""")
+
+    variant = param.Selector(default="standard", objects=["standard", "compact"], doc="""
+        The stepper variant. 'standard' renders a labelled horizontal strip;
+        'compact' renders a minimal mobile-style bar with an indicator and
+        navigation buttons.""")
+
+    _esm_base = "StepperMenu.jsx"
+    _item_keys = ['label', 'icon', 'active_icon', 'completed', 'error', 'optional', 'disabled', 'tooltip']
+
+    def _num_steps(self):
+        return len(self.items)
+
+    def next(self):
+        """Advance to the next step."""
+        self.active = min(self.active + 1, max(self._num_steps() - 1, 0))
+
+    def back(self):
+        """Return to the previous step."""
+        self.active = max(self.active - 1, 0)
+
+    def reset(self):
+        """Reset to the first step."""
+        self.active = 0
+
+
 class NestedMenuBase(MenuBase):
 
     active = param.ClassSelector(default=None, class_=(int, tuple), doc="""
@@ -1072,6 +1172,7 @@ __all__ = [
     "Pagination",
     "SpeedDial",
     "SplitButton",
+    "StepperMenu",
     "TabMenu",
     "Tree"
 ]
