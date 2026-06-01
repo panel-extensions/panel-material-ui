@@ -160,7 +160,9 @@ spec = {
         'Input': [
             (Checkbox, (['size', 'value'],), dict(label='I agree to the terms and conditions')),
             (DatePicker, (['color', 'variant'], ['disabled']), dict(label='DatePicker', value=dt.date(2024, 1, 1))),
+            (DateRangePicker, (['color', 'variant'], ['disabled']), dict(label='DateRangePicker', value=(dt.date(2024, 1, 1), dt.date(2024, 1, 15)))),
             (DatetimePicker, (['color', 'variant'], ['disabled']), dict(label='DateTimePicker', value=dt.datetime(2024, 1, 1, 1, 0))),
+            (DatetimeRangePicker, (['color', 'variant'], ['disabled']), dict(label='DatetimeRangePicker', value=(dt.datetime(2024, 1, 1, 9, 0), dt.datetime(2024, 1, 15, 17, 0)))),
             (FileInput, (['button_type', 'button_style'],), {}),
             (Switch, (['color', 'disabled'],), dict(label='Switch me!', value=True)),
             (TextAreaInput, (['color', 'variant'], ['disabled']), dict(label='TextAreaInput')),
