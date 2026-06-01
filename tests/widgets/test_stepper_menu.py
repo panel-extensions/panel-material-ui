@@ -18,6 +18,7 @@ class TestStepperMenuDefaults:
         assert menu.alternative_label is False
         assert menu.connector is True
         assert menu.non_linear is False
+        assert menu.orientation == "horizontal"
 
 
 class TestStepperMenuParams:
@@ -29,6 +30,10 @@ class TestStepperMenuParams:
     @pytest.mark.parametrize("indicator", ["dots", "progress", "text"])
     def test_indicator(self, indicator):
         assert StepperMenu(indicator=indicator).indicator == indicator
+
+    @pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
+    def test_orientation(self, orientation):
+        assert StepperMenu(orientation=orientation).orientation == orientation
 
     @pytest.mark.parametrize("position", ["bottom", "static", "top"])
     def test_position(self, position):

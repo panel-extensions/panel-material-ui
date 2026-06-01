@@ -391,6 +391,11 @@ class StepperMenu(MenuBase):
         Whether steps can be clicked to navigate non-linearly. Only applies to
         the 'standard' variant.""")
 
+    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
+        The orientation of the stepper. Use 'vertical' to stack the steps from
+        top to bottom (e.g. in a narrow sidebar). Only applies to the
+        'standard' variant.""")
+
     position = param.Selector(default="static", objects=["bottom", "static", "top"], doc="""
         The positioning of the bar. Only applies to the 'compact' variant.""")
 

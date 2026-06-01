@@ -17,6 +17,7 @@ export function render({model}) {
   const [items] = model.useState("items")
   const [nextText] = model.useState("next_text")
   const [nonLinear] = model.useState("non_linear")
+  const [orientation] = model.useState("orientation")
   const [position] = model.useState("position")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
@@ -84,6 +85,7 @@ export function render({model}) {
       alternativeLabel={alternativeLabel}
       connector={connector ? undefined : null}
       nonLinear={nonLinear}
+      orientation={orientation}
       sx={stepperSx}
     >
       {safeItems.map((item, index) => {
