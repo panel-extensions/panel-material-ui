@@ -42,6 +42,8 @@ export function render({model}) {
   if (compact) {
     const mobileSteps = steps || 1
     const mobileSx = {
+      width: "100%",
+      "& .MuiMobileStepper-progress": {minWidth: 120},
       "& .MuiLinearProgress-bar": {backgroundColor: (theme) => theme.palette[color]?.main},
       "& .MuiMobileStepper-dotActive": {backgroundColor: (theme) => theme.palette[color]?.main},
       ...sx,
