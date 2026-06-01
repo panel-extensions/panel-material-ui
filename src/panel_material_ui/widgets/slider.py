@@ -494,7 +494,7 @@ class Rating(MaterialWidget):
 
     end = param.Integer(default=5, bounds=(1, None), doc="The maximum value for the rating.")
 
-    empty_icon = param.String(default="star_outlined", doc="""
+    empty_icon = param.String(default=None, doc="""
         The icon to render for a non-selected rating.""",
     )
 
