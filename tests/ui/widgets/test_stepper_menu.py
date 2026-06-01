@@ -70,7 +70,7 @@ def test_stepper_menu_icons(page):
     ])
     serve_component(page, widget)
 
-    icons = page.locator('.material-icons')
+    icons = page.locator('[class*="material-icons"]')
     expect(icons).to_have_count(2)
 
 
