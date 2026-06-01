@@ -119,19 +119,3 @@ class TestStepperMenuNavigation:
         menu = StepperMenu()
         menu.next()
         assert menu.active == 0
-
-    def test_on_step_change(self):
-        menu = StepperMenu(items=["A", "B"])
-        events = []
-        menu.on_step_change(lambda e: events.append(e.new))
-        menu.next()
-        assert events == [1]
-
-    def test_on_step_change_in_constructor(self):
-        events = []
-        menu = StepperMenu(
-            items=["A", "B"],
-            on_step_change=lambda e: events.append(e.new),
-        )
-        menu.active = 1
-        assert events == [1]

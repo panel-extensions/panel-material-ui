@@ -407,12 +407,6 @@ class StepperMenu(MenuBase):
     _esm_base = "StepperMenu.jsx"
     _item_keys = ['label', 'icon', 'active_icon', 'completed', 'error', 'optional', 'disabled', 'tooltip']
 
-    def __init__(self, **params):
-        step_change_handler = params.pop("on_step_change", None)
-        super().__init__(**params)
-        if step_change_handler:
-            self.on_step_change(step_change_handler)
-
     def _num_steps(self):
         return len(self.items)
 
@@ -427,17 +421,6 @@ class StepperMenu(MenuBase):
     def reset(self):
         """Reset to the first step."""
         self.active = 0
-
-    def on_step_change(self, callback: Callable[[param.parameterized.Event], None]):
-        """
-        Register a callback to be executed when the active step changes.
-
-        Parameters
-        ----------
-        callback: (callable)
-            The callback to run when the `active` step changes.
-        """
-        self.param.watch(callback, "active")
 
 
 class NestedMenuBase(MenuBase):
