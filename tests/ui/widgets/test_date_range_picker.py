@@ -105,11 +105,10 @@ def test_datetime_range_picker_select_range_with_time(page):
     serve_component(page, widget)
 
     page.locator("input").first.click()
-    page.locator("button:has-text('10')").first.click()
-    page.locator("button:has-text('20')").first.click()
+    page.locator("button.rdp-day_button:has-text('10')").first.click()
+    page.locator("button.rdp-day_button:has-text('20')").first.click()
 
-    # Confirm with check button
-    page.locator("button:has(span.material-icons:text('check'))").click()
+    page.locator("button:has-text('Ok')").click()
 
     wait_until(lambda: widget.value[0].date() == dt.date(2024, 4, 10), page)
     wait_until(lambda: widget.value[1].date() == dt.date(2024, 4, 20), page)

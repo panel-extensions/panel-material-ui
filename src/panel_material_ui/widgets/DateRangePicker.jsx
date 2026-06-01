@@ -7,9 +7,11 @@ import ClickAwayListener from "@mui/material/ClickAwayListener"
 import InputAdornment from "@mui/material/InputAdornment"
 import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
+import Button from "@mui/material/Button"
 import Box from "@mui/material/Box"
 import Typography from "@mui/material/Typography"
 import {useTheme} from "@mui/material/styles"
+import useMediaQuery from "@mui/material/useMediaQuery"
 import dayjs from "dayjs"
 
 function formatDate(date, format) {
@@ -72,6 +74,9 @@ export function render({model, el, view}) {
     enableSeconds = _enableSeconds
     militaryTime = _militaryTime
   }
+
+  const isMobileQuery = useMediaQuery(theme.breakpoints.down("sm"))
+  const mobile = isMobileQuery
 
   const parseDate = time ? parseDatetime : parseDateOnly
 
@@ -169,16 +174,25 @@ export function render({model, el, view}) {
   }
 
   const [pendingRange, setPendingRange] = React.useState(null)
+  const rangeStepRef = React.useRef("start")
+
+  const openPicker = () => {
+    if (disabled) { return }
+    setPendingRange(null)
+    rangeStepRef.current = "start"
+    setOpen(true)
+  }
 
   const handleDayClick = (day) => {
-    if (!pendingRange || pendingRange.to || !pendingRange.from) {
+    if (rangeStepRef.current === "start") {
       setPendingRange({from: day, to: undefined})
+      rangeStepRef.current = "end"
     } else {
-      const from = pendingRange.from
+      const from = pendingRange?.from || day
       const range = day < from ? {from: day, to: from} : {from, to: day}
-      if (time) {
-        setPendingRange(range)
-      } else {
+      setPendingRange(range)
+      rangeStepRef.current = "start"
+      if (!mobile && !time) {
         commitRange(range, fromTime, toTime)
         setPendingRange(null)
         setOpen(false)
@@ -186,15 +200,20 @@ export function render({model, el, view}) {
     }
   }
 
-  const handleConfirm = () => {
-    if (pendingRange?.from && pendingRange?.to) {
-      commitRange(pendingRange, fromTime, toTime)
-      setPendingRange(null)
-      setOpen(false)
-    } else if (selected?.from && selected?.to) {
-      commitRange(selected, fromTime, toTime)
-      setOpen(false)
+  const handleCancel = () => {
+    setPendingRange(null)
+    rangeStepRef.current = "start"
+    setOpen(false)
+  }
+
+  const handleOk = () => {
+    const range = pendingRange || selected
+    if (range?.from && range?.to) {
+      commitRange(range, fromTime, toTime)
     }
+    setPendingRange(null)
+    rangeStepRef.current = "start"
+    setOpen(false)
   }
 
   const effectiveSelected = React.useMemo(() => {
@@ -206,9 +225,9 @@ export function render({model, el, view}) {
 
   const dayPickerStyles = {
     "--rdp-accent-color": muiColor.main,
-    "--rdp-accent-background-color": `${muiColor.main  }1a`,
+    "--rdp-accent-background-color": `${muiColor.main}1a`,
     "--rdp-range_middle-color": theme.palette.text.primary,
-    "--rdp-range_middle-background-color": `${muiColor.main  }1a`,
+    "--rdp-range_middle-background-color": `${muiColor.main}1a`,
     "--rdp-font-family": theme.typography.fontFamily,
     "--rdp-day-font": `${theme.typography.body2.fontSize} ${theme.typography.fontFamily}`,
     "--rdp-day-height": "36px",
@@ -217,20 +236,6 @@ export function render({model, el, view}) {
   }
 
   function TimeInput({label, value, onChange}) {
-    const formatTimeStr = () => {
-      if (militaryTime) {
-        return enableSeconds
-          ? `${pad(value.h)}:${pad(value.m)}:${pad(value.s)}`
-          : `${pad(value.h)}:${pad(value.m)}`
-      } else {
-        const h12 = value.h % 12 || 12
-        const ampm = value.h < 12 ? "AM" : "PM"
-        return enableSeconds
-          ? `${pad(h12)}:${pad(value.m)}:${pad(value.s)} ${ampm}`
-          : `${pad(h12)}:${pad(value.m)} ${ampm}`
-      }
-    }
-
     const handleTimeChange = (e) => {
       const raw = e.target.value
       if (!raw) { return }
@@ -258,13 +263,15 @@ export function render({model, el, view}) {
     )
   }
 
+  const showActionButtons = mobile || time
+
   return (
     <div style={{width: "100%", ...(sx || {})}}>
       <TextField
         ref={anchorRef}
         label={label}
         value={displayValue}
-        onClick={() => !disabled && setOpen(true)}
+        onClick={openPicker}
         variant={variant}
         color={color}
         disabled={disabled}
@@ -279,7 +286,7 @@ export function render({model, el, view}) {
                   disabled={disabled}
                   onClick={(e) => {
                     e.stopPropagation()
-                    setOpen(!open)
+                    if (open) { handleCancel() } else { openPicker() }
                   }}
                   size="small"
                 >
@@ -297,14 +304,7 @@ export function render({model, el, view}) {
         container={view.container}
         style={{zIndex: theme.zIndex.modal}}
       >
-        <ClickAwayListener onClickAway={() => {
-          if (time && pendingRange?.from && pendingRange?.to) {
-            commitRange(pendingRange, fromTime, toTime)
-            setPendingRange(null)
-          }
-          setOpen(false)
-        }}
-        >
+        <ClickAwayListener onClickAway={handleCancel}>
           <Paper elevation={8} sx={{p: 2, mt: 0.5}}>
             <DayPicker
               mode="range"
@@ -317,7 +317,7 @@ export function render({model, el, view}) {
                 if (maxDate && date > maxDate) { return true }
                 return shouldDisableDate(date)
               }}
-              numberOfMonths={2}
+              numberOfMonths={mobile ? 1 : 2}
               style={dayPickerStyles}
             />
             {time && (
@@ -335,14 +335,29 @@ export function render({model, el, view}) {
                 <TimeInput label="Start time" value={fromTime} onChange={setFromTime} />
                 <Typography variant="body2" color="text.secondary">–</Typography>
                 <TimeInput label="End time" value={toTime} onChange={setToTime} />
-                <IconButton
-                  color={color}
-                  onClick={handleConfirm}
+              </Box>
+            )}
+            {showActionButtons && (
+              <Box sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 1,
+                pt: 1,
+                borderTop: time ? 0 : 1,
+                borderColor: "divider",
+                mt: 1
+              }}
+              >
+                <Button size="small" onClick={handleCancel}>Cancel</Button>
+                <Button
                   size="small"
+                  variant="text"
+                  color={color}
+                  onClick={handleOk}
                   disabled={!effectiveSelected?.from || !effectiveSelected?.to}
                 >
-                  <Icon>check</Icon>
-                </IconButton>
+                  Ok
+                </Button>
               </Box>
             )}
           </Paper>
