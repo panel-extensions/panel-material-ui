@@ -170,17 +170,19 @@ export function render({model, el, view}) {
 
   const [pendingRange, setPendingRange] = React.useState(null)
 
-  const handleSelect = (range) => {
-    if (!range) { return }
-    if (range.from && range.to) {
+  const handleDayClick = (day) => {
+    if (!pendingRange || pendingRange.to || !pendingRange.from) {
+      setPendingRange({from: day, to: undefined})
+    } else {
+      const from = pendingRange.from
+      const range = day < from ? {from: day, to: from} : {from, to: day}
       if (time) {
         setPendingRange(range)
       } else {
         commitRange(range, fromTime, toTime)
+        setPendingRange(null)
         setOpen(false)
       }
-    } else if (range.from) {
-      setPendingRange(range)
     }
   }
 
@@ -307,7 +309,7 @@ export function render({model, el, view}) {
             <DayPicker
               mode="range"
               selected={effectiveSelected}
-              onSelect={handleSelect}
+              onDayClick={handleDayClick}
               month={month}
               onMonthChange={setMonth}
               disabled={(date) => {

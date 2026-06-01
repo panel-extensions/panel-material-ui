@@ -33,9 +33,9 @@ def test_date_range_picker_select_range(page):
     )
     serve_component(page, widget)
 
-    page.locator("input").click()
-    page.locator("button:has-text('10')").first.click()
-    page.locator("button:has-text('20')").first.click()
+    page.locator(".MuiIconButton-root").click()
+    page.locator("button.rdp-day_button:has-text('10')").first.click()
+    page.locator("button.rdp-day_button:has-text('20')").first.click()
 
     wait_until(lambda: widget.value == (dt.date(2024, 4, 10), dt.date(2024, 4, 20)), page)
 
