@@ -338,7 +338,9 @@ class StepperMenu(MenuBase):
     Step items can be strings or dictionaries with the following properties:
 
     - `label`: The label of the step (required)
-    - `icon`: Icon name or inline SVG shown instead of the step number (optional)
+    - `icon`: Icon name or inline SVG shown for pending steps (optional)
+    - `active_icon`: Icon shown when the step is active or completed; falls back
+      to the filled version of `icon` when not provided (optional)
     - `completed`: Whether the step is marked complete (optional)
     - `error`: Whether the step is in an error state (optional)
     - `optional`: Whether to show an "Optional" caption under the label (optional)
@@ -398,7 +400,7 @@ class StepperMenu(MenuBase):
         navigation buttons.""")
 
     _esm_base = "StepperMenu.jsx"
-    _item_keys = ['label', 'icon', 'completed', 'error', 'optional', 'disabled', 'tooltip']
+    _item_keys = ['label', 'icon', 'active_icon', 'completed', 'error', 'optional', 'disabled', 'tooltip']
 
     def __init__(self, **params):
         step_change_handler = params.pop("on_step_change", None)

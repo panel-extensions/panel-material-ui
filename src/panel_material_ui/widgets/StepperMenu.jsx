@@ -70,6 +70,7 @@ export function render({model}) {
   }
 
   const stepperSx = {
+    width: "100%",
     "& .MuiStepIcon-root.Mui-active": {color: (theme) => theme.palette[color]?.main},
     "& .MuiStepIcon-root.Mui-completed": {color: (theme) => theme.palette[color]?.main},
     ...sx,
@@ -86,11 +87,17 @@ export function render({model}) {
       {safeItems.map((item, index) => {
         const isObject = item != null && typeof item === "object"
         const label = typeof item === "string" ? item : (item?.label || "")
-        const icon = isObject && item.icon ? item.icon : null
+        const baseIcon = isObject && item.icon ? item.icon : null
+        const activeIcon = isObject && item.active_icon ? item.active_icon : null
         const isError = isObject && Boolean(item.error)
         const isOptional = isObject && Boolean(item.optional)
-        const isCompleted = isObject && Boolean(item.completed)
+        const explicitCompleted = isObject && Boolean(item.completed)
         const isDisabled = isObject && Boolean(item.disabled)
+
+        const isActive = index === activeIndex
+        // Mirror MUI's default: steps before the active one count as completed
+        const isCompleted = explicitCompleted || (!isActive && index < activeIndex)
+        const highlighted = isActive || isCompleted || isError
 
         const optionalNode = isOptional ? (
           <Typography variant="caption" color={isError ? "error" : "inherit"}>
@@ -98,13 +105,23 @@ export function render({model}) {
           </Typography>
         ) : null
 
-        const iconNode = icon ? render_icon(icon) : undefined
+        // When an item supplies an icon, render it with state-aware styling:
+        // active/completed steps use the filled `active_icon` (falling back to
+        // `icon`) in the active color, while pending steps use the outlined
+        // icon greyed out. Without an icon we fall back to MUI's numbered circle.
+        let iconNode
+        if (baseIcon) {
+          const iconName = highlighted ? (activeIcon || baseIcon) : baseIcon
+          const iconColor = isError ? "error" : (highlighted ? color : "disabled")
+          const iconVariant = highlighted ? "" : "-outlined"
+          iconNode = render_icon(iconName, iconColor, undefined, "1.5rem", iconVariant)
+        }
         const labelContent = render_icon_text(label)
 
         // Only set completed/disabled when explicitly truthy so MUI's
         // automatic behavior (steps before active appear completed) is kept
         const stepProps = {}
-        if (isCompleted) { stepProps.completed = true }
+        if (explicitCompleted) { stepProps.completed = true }
         if (isDisabled) { stepProps.disabled = true }
 
         const stepLabel = nonLinear ? (
