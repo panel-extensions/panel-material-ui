@@ -48,7 +48,7 @@ export function render({model, view}) {
       sx={mergedSx}
       variant={variant}
     >
-      {object || <Box />}
+      {object || null }
     </Badge>
   )
 }
