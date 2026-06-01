@@ -53,6 +53,8 @@ def test_chat_interface_input_visible_with_many_messages(page):
     chat = ChatInterface(height=600)
     serve_component(page, chat)
 
+    expect(page.locator(".chat-interface-input-container")).to_have_count(1)
+
     for i in range(25):
         chat.send(f"Message {i}", user="User", respond=False)
 
