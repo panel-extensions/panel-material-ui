@@ -498,7 +498,7 @@ class Rating(MaterialWidget):
         The icon to render for a non-selected rating.""",
     )
 
-    icon = param.String(default=None, doc="""
+    icon = param.String(default="star", doc="""
         The icon to render for a selected rating.""",
     )
 
