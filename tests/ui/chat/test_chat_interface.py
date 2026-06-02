@@ -56,10 +56,9 @@ def test_chat_interface_input_visible_with_many_messages(page):
     expect(page.locator(".chat-interface-input-container")).to_have_count(1)
 
     for i in range(25):
-        chat.send(f"Message {i}", user="User", respond=False)
-
-    # Wait for the last message to appear in the DOM
-    expect(page.get_by_text("Message 24")).to_be_attached(timeout=30000)
+        msg = f"Message {i}"
+        chat.send(msg, user="User", respond=False)
+        expect(page.get_by_text(msg)).to_be_attached(timeout=1000)
 
     input_box = page.locator("textarea").first.bounding_box()
     viewport = page.viewport_size
