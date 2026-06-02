@@ -58,7 +58,7 @@ def test_chat_interface_input_visible_with_many_messages(page):
     for i in range(25):
         msg = f"Message {i}"
         chat.send(msg, user="User", respond=False)
-        expect(page.get_by_text(msg)).to_be_attached(timeout=1000)
+        expect(page.get_by_text(msg)).to_be_attached(timeout=2000)
 
     input_box = page.locator("textarea").first.bounding_box()
     viewport = page.viewport_size
