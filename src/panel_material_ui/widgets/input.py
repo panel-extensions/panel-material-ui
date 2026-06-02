@@ -277,6 +277,7 @@ class _FileUploadArea(param.Parameterized):
             A Tabulator widget for CSV files, or a Markdown pane with an error message
             for unsupported file types.
         """
+        # Panes (e.g. Markdown) are not widgets and only accept name, not label.
         kwargs["name"] = filename
         view = pn.panel
 
@@ -294,6 +295,8 @@ class _FileUploadArea(param.Parameterized):
                 kwargs.update(config['view_kwargs'])
 
         if inspect.isclass(view) and issubclass(view, pn.widgets.WidgetBase):
+            # Widget.name is deprecated in panel 2.0 in favor of label, but not
+            # all widgets have a label param (e.g. Tabulator), so check first.
             kwargs["label"] = kwargs.pop("name")
             return view(value=object, **kwargs)
         return view(object, **kwargs)
