@@ -1,17 +1,11 @@
 import Badge from "@mui/material/Badge"
-import Box from "@mui/material/Box"
-
-const BADGE_SX = {
-  "& .MuiBadge-badge": {
-    transform: "scale(1) translate(0px, -4px)",
-  },
-}
 
 export function render({model, view}) {
   const [anchorOrigin] = model.useState("anchor_origin")
   const [badgeContent] = model.useState("badge_content")
   const [color] = model.useState("color")
   const [max] = model.useState("max")
+  const [offset] = model.useState("offset")
   const [overlap] = model.useState("overlap")
   const [showZero] = model.useState("show_zero")
   const [sx] = model.useState("sx")
@@ -28,7 +22,16 @@ export function render({model, view}) {
     }
   }, [object])
 
-  const mergedSx = React.useMemo(() => ({...BADGE_SX, ...sx}), [sx])
+  // Position the badge as an (x, y) pixel offset from its anchor point
+  // on the object. Raw translate: +x shifts right, +y shifts down,
+  // regardless of anchor_origin.
+  const mergedSx = React.useMemo(() => {
+    const [ox, oy] = offset ?? [0, -4]
+    return {
+      "& .MuiBadge-badge": {transform: `scale(1) translate(${ox}px, ${oy}px)`},
+      ...sx,
+    }
+  }, [offset, sx])
 
   return (
     <Badge

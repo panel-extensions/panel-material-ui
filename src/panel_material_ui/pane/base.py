@@ -162,6 +162,10 @@ class Badge(MaterialComponent):
     object = Child(doc="""
         The child component to wrap with the badge.""")
 
+    offset = param.NumericTuple(default=(0, -4), length=2, doc="""
+        The (x, y) pixel offset of the badge from its anchor point on
+        the object. Positive x shifts the badge right, positive y down.""")
+
     overlap = param.Selector(default="rectangular", objects=["rectangular", "circular"], doc="""
         Wrapped shape the badge should overlap.""")
 
@@ -177,7 +181,32 @@ class Badge(MaterialComponent):
     def __init__(self, object=None, **params):
         if object is not None:
             params["object"] = object
+        # When the user doesn't set the Badge's own margin it inherits the
+        # child's margin, so wrapping in a Badge is transparent to layout (the
+        # child's margin is zeroed in the frontend so the badge still hugs the
+        # child's edge). An explicit Badge margin always wins.
+        margin_explicit = "margin" in params
         super().__init__(**params)
+        self._margin_explicit = margin_explicit
+        self._child_margin_watcher = None
+        self._sync_child_margin()
+        self.param.watch(self._sync_child_margin, "object")
+
+    def _sync_child_margin(self, *_):
+        if self._child_margin_watcher is not None:
+            # On an object swap self.object already points at the new child, so
+            # unwatch via the stored reference rather than self.object.
+            watcher, previous = self._child_margin_watcher
+            previous.param.unwatch(watcher)
+            self._child_margin_watcher = None
+        if self._margin_explicit:
+            return
+        obj = self.object
+        if not isinstance(obj, param.Parameterized) or "margin" not in obj.param:
+            return
+        self.margin = obj.margin
+        watcher = obj.param.watch(lambda *_: setattr(self, "margin", obj.margin), "margin")
+        self._child_margin_watcher = (watcher, obj)
 
 
 class Avatar(ClickablePaneBase):
