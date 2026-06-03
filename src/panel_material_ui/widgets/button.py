@@ -256,6 +256,8 @@ class Chip(_ButtonLike, _ClickButton):
         doc="Disables the Chip component, making it opaque and disabling click events."
     )
 
+    width = param.Integer(default=None, bounds=(0, None), allow_None=True, doc="Width of the widget.")
+
     icon = param.String(
         default=None,
         doc="""
