@@ -380,6 +380,7 @@ The example includes:
 
 ## Related Resources
 
-- [Panel Material-UI Theme Configuration](../explanation/theming.md)
-- [Component Styling Guide](../how_to/styling.md)
-- [Layout Patterns](../how_to/layouts.md)
+- [Customize Themes & Styles](customize_themes_and_styles)
+- [Customize Color Palettes](customize_palette)
+- [Customize Typography](customize_typography)
+- [Theme Components](theme_components)
