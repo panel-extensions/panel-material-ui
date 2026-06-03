@@ -913,7 +913,8 @@ class Tabs(MaterialNamedListLike):
 
     @param.depends("active", watch=True)
     def _trigger_children(self):
-        self.param.trigger("objects")
+        if self.dynamic:
+            self.param.trigger("objects")
 
     def _get_child_model(self, child, doc, root, parent, comm):
         ref = root.ref["id"]
@@ -929,39 +930,16 @@ class Tabs(MaterialNamedListLike):
             models.append(model)
         return models, old_models
 
-    def _process_close(self, ref, attr, old, new):
-        """
-        Handle closed tabs.
-        """
-        model, _ = self._models.get(ref, (None, None))
-        if model:
-            try:
-                inds = [old.index(tab) for tab in new]
-            except Exception:
-                return old, None
-            old = self.objects
-            new = [old[i] for i in inds]
-        return old, new
-
-    def _comm_change(self, doc, ref, comm, subpath, attr, old, new):
-        if attr in self._changing.get(ref, []):
-            self._changing[ref].remove(attr)
-            return
-        if attr == 'objects':
-            old, new = self._process_close(ref, attr, old, new)
-            if new is None:
-                return
-        super()._comm_change(doc, ref, comm, subpath, attr, old, new)
-
-    def _server_change(self, doc, ref, subpath, attr, old, new):
-        if attr in self._changing.get(ref, []):
-            self._changing[ref].remove(attr)
-            return
-        if attr == 'objects':
-            old, new = self._process_close(ref, attr, old, new)
-            if new is None:
-                return
-        super()._server_change(doc, ref, subpath, attr, old, new)
+    def _handle_msg(self, msg):
+        if msg.get('type') == 'close':
+            obj_id = msg['id']
+            for model, _ in self._models.values():
+                if model is None:
+                    continue
+                for i, obj_model in enumerate(model.data.objects):
+                    if obj_model.id == obj_id:
+                        self.pop(i)
+                        return
 
 
 class Divider(MaterialListLike):
