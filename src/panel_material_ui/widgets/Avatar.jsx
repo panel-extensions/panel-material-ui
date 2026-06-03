@@ -9,17 +9,17 @@ const sizeSettings = {
 export function render({model}) {
   const [alt_text] = model.useState("alt_text")
   const [color] = model.useState("color")
-  const [object] = model.useState("object")
+  const [content] = model.useState("content")
   const [size] = model.useState("size")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
-  // Determine if object is an image URL or text content
-  const isImageUrl = object && (
-    object.startsWith("http") ||
-    object.startsWith("data:") ||
+  // Determine if content is an image URL or text content
+  const isImageUrl = content && (
+    content.startsWith("http") ||
+    content.startsWith("data:") ||
     // More specific check for common image file extensions
-    /\.(jpg|jpeg|png|gif|svg|webp|bmp|ico)(\?.*)?$/i.test(object)
+    /\.(jpg|jpeg|png|gif|svg|webp|bmp|ico)(\?.*)?$/i.test(content)
   )
 
   const avatarSx = {
@@ -35,11 +35,11 @@ export function render({model}) {
       alt={alt_text}
       sx={avatarSx}
       size={size}
-      src={isImageUrl ? object : undefined}
+      src={isImageUrl ? content : undefined}
       variant={variant}
       onClick={(e) => model.send_event("click", e)}
     >
-      {!isImageUrl && object ? object : undefined}
+      {!isImageUrl && content ? content : undefined}
     </Avatar>
   )
 }

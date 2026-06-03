@@ -12,7 +12,7 @@ export function render(props, ref) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
-  const [label] = model.useState("object")
+  const [label] = model.useState("label")
   const [size] = model.useState("size")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
