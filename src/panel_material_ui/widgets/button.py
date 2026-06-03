@@ -282,6 +282,7 @@ class Chip(_ButtonLike, _ClickButton):
     )
 
     _esm_base = "Chip.jsx"
+    _event = "dom_event"
     _rename: ClassVar[Mapping[str, str | None]] = {
         "color": "color", "label": "label", "variant": "variant"
     }
@@ -304,6 +305,25 @@ class Chip(_ButtonLike, _ClickButton):
             self.on_click(click_handler)
         if js_click_code:
             self.js_on_click(code=js_click_code)
+
+    def on_click(self, callback: Callable[[param.parameterized.Event], None | Awaitable[None]]) -> param.parameterized.Watcher:
+        """
+        Register a callback to be executed when the Chip is clicked.
+
+        Arguments
+        ---------
+        callback:
+            The function to run on click events. Must accept a positional `Event` argument.
+
+        Returns
+        -------
+        watcher: param.Parameterized.Watcher
+          A `Watcher` that executes the callback when the Chip is clicked.
+        """
+        return self.param.watch(callback, "clicks", onlychanged=False)
+
+    def _handle_click(self, event):
+        self.param.update(clicks=self.clicks + 1)
 
 
 __all__ = [
