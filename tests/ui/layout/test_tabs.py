@@ -158,3 +158,68 @@ def test_tabs_vertical(page):
     # Check vertical orientation
     tabs_list = page.locator('.MuiTabs-root.MuiTabs-vertical')
     expect(tabs_list).to_have_count(1)
+
+
+def test_tabs_closable_active_last(page):
+    widget = Tabs(
+        ("Tab 1", "Content 1"),
+        ("Tab 2", "Content 2"),
+        ("Tab 3", "Content 3"),
+        closable=True,
+        active=2
+    )
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiTab-root')).to_have_count(3)
+
+    # Close the active (last) tab
+    close_buttons = page.locator('.MuiTab-root >> nth=2 >> span:has-text("✕")')
+    close_buttons.click()
+
+    # Tab should be removed and previous tab becomes active
+    expect(page.locator('.MuiTab-root')).to_have_count(2)
+    wait_until(lambda: len(widget.objects) == 2, page)
+    wait_until(lambda: widget.active == 1, page)
+    expect(page.locator('.MuiTabsPanel')).to_contain_text('Content 2')
+
+
+def test_tabs_closable_middle(page):
+    widget = Tabs(
+        ("Tab 1", "Content 1"),
+        ("Tab 2", "Content 2"),
+        ("Tab 3", "Content 3"),
+        closable=True,
+        active=2
+    )
+    serve_component(page, widget)
+
+    # Close a tab before the active one
+    close_buttons = page.locator('.MuiTab-root >> nth=0 >> span:has-text("✕")')
+    close_buttons.click()
+
+    # Active index should shift down to keep the same content visible
+    expect(page.locator('.MuiTab-root')).to_have_count(2)
+    wait_until(lambda: len(widget.objects) == 2, page)
+    wait_until(lambda: widget.active == 1, page)
+    expect(page.locator('.MuiTabsPanel')).to_contain_text('Content 3')
+
+
+def test_tabs_closable_inactive(page):
+    widget = Tabs(
+        ("Tab 1", "Content 1"),
+        ("Tab 2", "Content 2"),
+        ("Tab 3", "Content 3"),
+        closable=True,
+        active=0
+    )
+    serve_component(page, widget)
+
+    # Close a tab after the active one
+    close_buttons = page.locator('.MuiTab-root >> nth=2 >> span:has-text("✕")')
+    close_buttons.click()
+
+    # Active index should remain unchanged
+    expect(page.locator('.MuiTab-root')).to_have_count(2)
+    wait_until(lambda: len(widget.objects) == 2, page)
+    wait_until(lambda: widget.active == 0, page)
+    expect(page.locator('.MuiTabsPanel')).to_contain_text('Content 1')

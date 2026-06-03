@@ -60,13 +60,18 @@ export function render({model, view}) {
 
   const handleClose = React.useCallback((event, index) => {
     event.stopPropagation()
-    if (index === active && index > objects.length - 2) {
-      setActive(Math.max(0, objects.length - 2))
+    const objId = view.model.data.objects[index].id
+    let newActive = active
+    if (index < active) {
+      newActive = active - 1
+    } else if (index === active && active >= objects.length - 1) {
+      newActive = Math.max(0, objects.length - 2)
     }
-    const newObjects = [...view.model.data.objects]
-    newObjects.splice(index, 1)
-    view.model.data.setv({objects: newObjects})
-  }, [active, objects.length, setActive, view.model.data])
+    if (newActive !== active) {
+      setActive(newActive)
+    }
+    model.send_msg({type: "close", id: objId})
+  }, [active, objects.length, setActive, model, view.model.data])
 
   const tabLabels = React.useMemo(() => (
     names.map((label, index) => (
