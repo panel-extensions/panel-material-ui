@@ -87,9 +87,10 @@ class Page(MaterialComponent, ResourceComponent):
 
     contextbar_resizable = param.Boolean(default=False, doc="Whether the contextbar can be resized by dragging.")
 
-    contextbar_variant = param.Selector(default="temporary", objects=SIDEBAR_VARIANTS, doc="""
+    contextbar_variant: t.Literal["persistent", "temporary", "permanent", "auto"] = param.Selector(
+        default="temporary", objects=SIDEBAR_VARIANTS, doc="""
         Whether the contextbar is persistent, a temporary drawer, a permanent drawer, or automatically
-        switches between the two based on screen size.""")
+        switches between the two based on screen size.""")  # type: ignore[assignment]
 
     contextbar_width = param.Integer(default=250, doc="Width of the contextbar")
 
@@ -112,7 +113,8 @@ class Page(MaterialComponent, ResourceComponent):
 
     sidebar_resizable = param.Boolean(default=True, doc="Whether the sidebar can be resized by dragging.")
 
-    sidebar_variant: t.Literal["persistent", "temporary", "permanent", "auto"] = param.Selector(default="auto", objects=SIDEBAR_VARIANTS, doc="""
+    sidebar_variant: t.Literal["persistent", "temporary", "permanent", "auto"] = param.Selector(
+        default="auto", objects=SIDEBAR_VARIANTS, doc="""
         Whether the sidebar is persistent, a temporary drawer, a permanent drawer, or automatically
         switches between the two based on screen size.""")  # type: ignore[assignment]
 
