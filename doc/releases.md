@@ -2,11 +2,11 @@
 
 ## Version 0.12.0
 
-Panel Material UI 0.12.0 introduces a new class of Wrapper components that wrap child components to add visual effects or overlays. The release also adds the `StepperMenu` widget, a `DateRangePicker` and `DatetimeRangePicker`, converts `Avatar` and `Chip` to proper widgets, and adds static type checking with a `py.typed` marker.
+Panel Material UI 0.12.0 introduces a new class of Wrapper components that wrap child components to add visual effects or overlays, including `Transition` for animated reveals, `Badge` for notification indicators, and `Tooltip` for contextual hints on hover. The release also adds the `StepperMenu` widget, a `DateRangePicker` and `DatetimeRangePicker`, converts `Avatar` and `Chip` to proper widgets, and adds static type checking with a `py.typed` marker.
 
 Many thanks to @ahuang11, @senlinyang98-crypto and @philippjfr for their contributions to this release.
 
-### ✨ New Wrapper Components
+### 🧩 New Wrapper Components
 
 This release introduces wrapper components, a new category of components that wrap a child component to add visual effects, overlays, or interactive behaviors.
 
@@ -15,14 +15,15 @@ This release introduces wrapper components, a new category of components that wr
 * Add `Tooltip` wrapper to show tooltips on hover ([#633](https://github.com/panel-extensions/panel-material-ui/pull/633))
 * Reimplement `Skeleton` as a Wrapper component ([#654](https://github.com/panel-extensions/panel-material-ui/pull/654))
 
-### ✨ New Widgets
+### 🆕 New Widgets
 
 * Add `StepperMenu` widget ([#631](https://github.com/panel-extensions/panel-material-ui/pull/631))
 * Implement `DateRangePicker` and `DatetimeRangePicker` ([#641](https://github.com/panel-extensions/panel-material-ui/pull/641))
 
-### ✨ Enhancements
+### 🔧 Enhancements
 
 * Convert `Avatar` and `Chip` from a Pane to a Widget ([#653](https://github.com/panel-extensions/panel-material-ui/pull/653))
+* Add `contextbar_resizable` and `contextbar_variant` parameters to `Page`
 * Enable type checking with mypy and add `py.typed` marker
 
 ### 🐛 Bug Fixes
