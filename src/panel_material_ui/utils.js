@@ -682,7 +682,7 @@ function alpha(theme, channel, value) {
 function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   const model_props = {}
   const model_type = model.type.endsWith("ReactiveESM") ? model.class_name : model.type
-  const minimal = theme.chart_style !== "default"
+  const minimal = theme.chart_style !== "classic"
 
   const text = theme.palette.text.primary
   const muted = theme.palette.text.secondary
