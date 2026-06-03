@@ -262,55 +262,6 @@ class Chip(ClickablePaneBase, TooltipTransform):
     _esm_transforms = [TooltipTransform, ThemedTransform]
 
 
-
-class Skeleton(MaterialPaneBase):
-    """
-    The `Skeleton` component is used as a placeholder while content is loading.
-    It provides a visual indication that data is being fetched, improving perceived performance
-    and user experience.
-
-    :References:
-
-    - https://mui.com/material-ui/react-skeleton/
-    """
-
-    animation = param.Selector(
-        default="pulse",
-        objects=["pulse", "wave", None],
-        doc="The animation. If None the animation effect is disabled."
-    )
-
-    color = param.String(doc="Color defined as a Mui color or valid CSS color.")
-
-    variant = param.Selector(
-        objects=["text", "circular", "rectangular", "rounded"],
-        default="text",
-        doc="""
-        Shape variant of the skeleton placeholder. Options:
-        - 'circular': Circular shape, ideal for avatar placeholders
-        - 'rectangular': Sharp rectangular corners
-        - 'rounded': Rectangular with rounded corners (default)"""
-    )
-
-    height = param.Integer(
-        default=0,
-        bounds=(0, None),
-        doc="""
-        Height of the skeleton component in pixels. If 0 or not specified,
-        the skeleton will adapt to its content or container."""
-    )
-
-    width = param.Integer(
-        default=0,
-        bounds=(0, None),
-        doc="""
-        Width of the skeleton component in pixels. If 0 or not specified,
-        the skeleton will adapt to its content or container."""
-    )
-
-    _esm_base = "Skeleton.jsx"
-
-
 class Typography(MaterialPaneBase, Markdown):
     """
     The `Typography` component is used to display text with different styles and weights.
