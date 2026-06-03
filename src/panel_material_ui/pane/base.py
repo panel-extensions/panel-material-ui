@@ -162,7 +162,7 @@ class Badge(MaterialComponent):
     object = Child(doc="""
         The child component to wrap with the badge.""")
 
-    offset = param.NumericTuple(default=(0, -4), length=2, doc="""
+    offset = param.XYCoordinate(default=None, doc="""
         The (x, y) pixel offset of the badge from its anchor point on
         the object. Positive x shifts the badge right, positive y down.""")
 
