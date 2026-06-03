@@ -98,6 +98,40 @@ class Badge(Wrapper):
         self._child_margin_watcher = (watcher, obj)
 
 
+class Skeleton(Wrapper):
+    """
+    The `Skeleton` wraps a child component and displays an animated
+    placeholder in its place while loading. When `active` is True the
+    skeleton is shown; when False the child is rendered normally.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/wrappers/Skeleton.html
+    - https://mui.com/material-ui/react-skeleton/
+
+    :Example:
+
+    >>> Skeleton(Card(...), active=True, variant="rounded")
+    """
+
+    active = param.Boolean(default=False, doc="""
+        Whether to show the child content. When False the skeleton
+        placeholder is rendered; when True the child is displayed
+        normally.""")
+
+    animation = param.Selector(
+        default="pulse", objects=["pulse", "wave", None], doc="""
+        The animation effect for the skeleton. Use None to disable.""")
+
+    variant = param.Selector(
+        default="rounded",
+        objects=["text", "circular", "rectangular", "rounded"],
+        doc="""
+        Shape variant of the skeleton placeholder.""")
+
+    _esm_base = "Skeleton.jsx"
+
+
 class Tooltip(Wrapper):
     """
     The `Tooltip` displays informative text when users hover over, focus
