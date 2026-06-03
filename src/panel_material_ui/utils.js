@@ -682,6 +682,7 @@ function alpha(theme, channel, value) {
 function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   const model_props = {}
   const model_type = model.type.endsWith("ReactiveESM") ? model.class_name : model.type
+  const minimal = theme.chart_style !== "default"
 
   const text = theme.palette.text.primary
   const muted = theme.palette.text.secondary
@@ -690,13 +691,19 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   const surface = theme.palette.background.paper
 
   if (model_type.endsWith("Axis") && !has_custom_theme(custom_theme, "Axis")) {
-    model_props.axis_line_alpha = 0
     model_props.axis_line_color = axis
-
-    model_props.major_tick_line_alpha = 0
     model_props.major_tick_line_color = axis
-    model_props.minor_tick_line_alpha = 0
     model_props.minor_tick_line_color = axis
+
+    if (minimal) {
+      model_props.axis_line_alpha = 0
+      model_props.major_tick_line_alpha = 0
+      model_props.minor_tick_line_alpha = 0
+    } else {
+      model_props.axis_line_alpha = 1
+      model_props.major_tick_line_alpha = 1
+      model_props.minor_tick_line_alpha = 1
+    }
 
     model_props.major_label_text_color = muted
     model_props.major_label_text_font = font_family
@@ -711,9 +718,15 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   } else if (model_type == "Rect") {
     model_props.dilate = dark || model.dilate
   } else if (model_type.endsWith("Legend") && !has_custom_theme(custom_theme, "Legend")) {
-    model_props.border_line_alpha = 0
-    model_props.background_fill_alpha = 0
     model_props.background_fill_color = surface
+
+    if (minimal) {
+      model_props.border_line_alpha = 0
+      model_props.background_fill_alpha = 0
+    } else {
+      model_props.border_line_alpha = 1
+      model_props.background_fill_alpha = 1
+    }
 
     model_props.label_text_color = text
     model_props.label_text_font = font_family
@@ -730,8 +743,19 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     model_props.glyph_width = 14
     model_props.glyph_height = 14
   } else if (model_type.endsWith("ColorBar") && !has_custom_theme(custom_theme, "BaseColorBar", "ColorBar")) {
-    model_props.background_fill_alpha = 0
     model_props.background_fill_color = surface
+
+    if (minimal) {
+      model_props.background_fill_alpha = 0
+      model_props.major_tick_line_alpha = 0
+      model_props.minor_tick_line_alpha = 0
+      model_props.bar_line_alpha = 0
+    } else {
+      model_props.background_fill_alpha = 1
+      model_props.major_tick_line_alpha = 1
+      model_props.minor_tick_line_alpha = 1
+      model_props.bar_line_alpha = 1
+    }
 
     model_props.title_text_color = text
     model_props.title_text_font = font_family
@@ -742,10 +766,6 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     model_props.major_label_text_font = font_family
     model_props.major_label_text_font_size = "0.9em"
     model_props.major_label_text_font_style = "normal"
-
-    model_props.major_tick_line_alpha = 0
-    model_props.minor_tick_line_alpha = 0
-    model_props.bar_line_alpha = 0
   } else if (model_type.endsWith("Title") && !has_custom_theme(custom_theme, "Title")) {
     model_props.text_color = text
     model_props.text_font = font_family
@@ -762,7 +782,7 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     model_props.background_fill_color = theme.palette.background.paper
     model_props.border_fill_color = elevation_color(elevation, theme, dark)
     model_props.outline_line_color = text
-    model_props.outline_line_alpha = dark ? 0.25 : 0
+    model_props.outline_line_alpha = minimal ? (dark ? 0.25 : 0) : 1
     if (view) {
       apply_bokeh_theme(view.canvas_view.model, theme, dark, font_family, custom_theme)
     }
