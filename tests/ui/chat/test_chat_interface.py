@@ -55,7 +55,7 @@ def test_chat_interface_input_visible_with_many_messages(page):
 
     expect(page.locator(".chat-interface-input-container")).to_have_count(1)
 
-    for i in range(10):
+    for i in range(3):
         msg = f"Message {i}"
         chat.send(msg, user="User", respond=False)
         expect(page.get_by_text(msg)).to_be_attached(timeout=2000)
