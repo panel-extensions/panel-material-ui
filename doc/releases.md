@@ -1,5 +1,37 @@
 # Release Notes
 
+## Version 0.12.0
+
+Panel Material UI 0.12.0 introduces a new class of Wrapper components that wrap child components to add visual effects or overlays. The release also adds the `StepperMenu` widget, a `DateRangePicker` and `DatetimeRangePicker`, converts `Avatar` and `Chip` to proper widgets, and adds static type checking with a `py.typed` marker.
+
+Many thanks to @philippjfr for his contributions to this release.
+
+### ✨ New Wrapper Components
+
+This release introduces wrapper components, a new category of components that wrap a child component to add visual effects, overlays, or interactive behaviors.
+
+* Add `Transition` wrapper for animated transitions (collapse, fade, grow, slide, zoom) ([#652](https://github.com/panel-extensions/panel-material-ui/pull/652))
+* Add `Badge` wrapper to display notification badges on child components ([#634](https://github.com/panel-extensions/panel-material-ui/pull/634))
+* Add `Tooltip` wrapper to show tooltips on hover ([#633](https://github.com/panel-extensions/panel-material-ui/pull/633))
+* Reimplement `Skeleton` as a Wrapper component ([#654](https://github.com/panel-extensions/panel-material-ui/pull/654))
+
+### ✨ New Widgets
+
+* Add `StepperMenu` widget ([#631](https://github.com/panel-extensions/panel-material-ui/pull/631))
+* Implement `DateRangePicker` and `DatetimeRangePicker` ([#641](https://github.com/panel-extensions/panel-material-ui/pull/641))
+
+### ✨ Enhancements
+
+* Convert `Avatar` and `Chip` from a Pane to a Widget ([#653](https://github.com/panel-extensions/panel-material-ui/pull/653))
+* Enable type checking with mypy and add `py.typed` marker
+
+### 🐛 Bug Fixes
+
+* Ensure `Button`-like components respect `variant` ([#642](https://github.com/panel-extensions/panel-material-ui/pull/642))
+* Set a default icon for `Rating` so it is visible ([#643](https://github.com/panel-extensions/panel-material-ui/pull/643))
+* Use `label` instead of `name` to fix deprecation warning ([#632](https://github.com/panel-extensions/panel-material-ui/pull/632))
+
+
 ## Version 0.11.2
 
 The `panel-material-ui` 0.11.2 release primarily fixes a few bugs and regressions related to the MUI v9 and panel 1.9.0 updates. Many thanks to @philippjfr for his contributions to this release.
