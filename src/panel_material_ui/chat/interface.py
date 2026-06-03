@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import typing as t
 from functools import partial
-from typing import TYPE_CHECKING
 
 import param
 from panel.chat.interface import CallbackState
@@ -12,7 +12,7 @@ from panel.pane.markup import Markdown
 from .feed import ChatFeed
 from .input import ChatAreaInput
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     pass
 
 ICON_MAP = {
@@ -108,7 +108,7 @@ class ChatInterface(ChatFeed, PnChatInterface):
         callback = partial(self._button_data["send"].callback, instance=self)
         self._send_watcher = self._widget.param.watch(callback, "value")
 
-    def _click_send(
+    def _click_send(  # type: ignore[override]
         self,
         event: param.parameterized.Event | None = None,
         instance: ChatInterface | None = None
@@ -121,7 +121,7 @@ class ChatInterface(ChatFeed, PnChatInterface):
             return
 
         objects = self._widget.views
-        if event.new:
+        if event and event.new:
             objects.append(Markdown(event.new))
         if not objects:
             return

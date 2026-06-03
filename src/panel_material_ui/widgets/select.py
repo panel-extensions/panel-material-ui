@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import typing as t
+
 import param
 from panel.util import edit_readonly, indexOf, isIn
 from panel.util.parameters import get_params_to_inherit
@@ -10,7 +12,7 @@ from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
 from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
 from typing_extensions import Self
 
-from ..base import COLORS, LoadingTransform, ThemedTransform
+from ..base import COLORS, ColorType, LoadingTransform, ThemedTransform
 from .base import MaterialWidget
 from .button import _ButtonLike
 
@@ -45,7 +47,7 @@ class MaterialMultiSelectBase(MaterialWidget, _PnMultiSelectBase):
     This is an abstract base class and should not be used directly.
     """
 
-    value = param.List(default=[], allow_None=True, doc="The selected values.")
+    value = param.List(default=[], allow_None=True, doc="The selected values.")  # type: ignore[assignment]
 
     _constants = {"loading_inset": -6}
 
@@ -86,7 +88,9 @@ class AutocompleteInput(MaterialSingleSelectBase):
     case_sensitive = param.Boolean(default=True, doc="""
         Enable or disable case sensitivity.""")
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the autocomplete input.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the autocomplete input."
+    )  # type: ignore[assignment]
 
     lazy_search = param.Boolean(default=False, doc="""
         If True, search queries are sent to the backend for processing.
@@ -103,23 +107,25 @@ class AutocompleteInput(MaterialSingleSelectBase):
         Set to False in order to allow users to enter text that is not
         present in the list of completion strings.""")
 
-    search_strategy = param.Selector(default='starts_with',
+    search_strategy: t.Literal['starts_with', 'includes'] = param.Selector(default='starts_with',
         objects=['starts_with', 'includes'], doc="""
         Define how to search the list of completion strings. The default option
         `"starts_with"` means that the user's text must match the start of a
         completion string. Using `"includes"` means that the user's text can
-        match any substring of a completion string.""")
+        match any substring of a completion string.""")  # type: ignore[assignment]
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
         Size of the input field. Options:
         - 'small': Compact size for dense layouts
         - 'medium': Standard size (default  for most use cases)
-        - 'large': Larger size for more visibility""")
+        - 'large': Larger size for more visibility""")  # type: ignore[assignment]
 
     value_input = param.Parameter(default="", readonly=True, doc="""
         Initial or entered text value updated on every key press.""")
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="Variant style of the autocomplete input.")
+    variant: t.Literal['filled', 'outlined', 'standard'] = param.Selector(
+        objects=["filled", "outlined", "standard"], default="outlined", doc="Variant style of the autocomplete input."
+    )  # type: ignore[assignment]
 
     _allows_none = True
 
@@ -184,7 +190,7 @@ class AutocompleteInput(MaterialSingleSelectBase):
             'options': filtered
         })
 
-    def _filter_options(self, query: str, case_sensitive: bool = None, search_strategy: str = None) -> list:
+    def _filter_options(self, query: str, case_sensitive: bool | None = None, search_strategy: str | None = None) -> list:
         """
         Filter options based on query string.
 
@@ -296,7 +302,9 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     >>> Select(label='Study', options=['Biology', 'Chemistry', 'Physics'])
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the select widget.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the select widget."
+    )  # type: ignore[assignment]
 
     groups = param.Dict(default=None, nested_refs=True, doc="""
         Dictionary whose keys are used to visually group the options
@@ -304,9 +312,11 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
         to select from. Mutually exclusive with ``options``  and valid only
         if ``size`` is 1.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium")
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(objects=["small", "medium", "large"], default="medium")  # type: ignore[assignment]
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the select widget.")
+    variant: t.Literal['filled', 'outlined', 'standard'] = param.Selector(
+        objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the select widget."
+    )  # type: ignore[assignment]
 
     _constants = {"multi": False, "loading_inset": -6}
     _esm_base = "Select.jsx"
@@ -328,11 +338,11 @@ class _RadioGroup(MaterialWidget):
     a list of options, such as radio buttons and checkboxes.
     """
 
-    color = param.Selector(default="primary", objects=COLORS, doc="""
-        The color of the widget.""")
+    color: ColorType = param.Selector(default="primary", objects=COLORS, doc="""
+        The color of the widget.""")  # type: ignore[assignment]
 
-    label_placement = param.Selector(default="end", objects=["bottom", "start", "top", "end"], doc="""
-        Placement of the option labels.""")
+    label_placement: t.Literal['bottom', 'start', 'top', 'end'] = param.Selector(default="end", objects=["bottom", "start", "top", "end"], doc="""
+        Placement of the option labels.""")  # type: ignore[assignment]
 
     inline = param.Boolean(default=False, doc="""
         Whether the items be arrange vertically (``False``) or
@@ -410,10 +420,12 @@ class _ButtonGroup(_ButtonLike):
     This is an abstract base class and should not be used directly.
     """
 
-    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
-        Button group orientation, either 'horizontal' (default) or 'vertical'.""")
+    orientation: t.Literal['horizontal', 'vertical'] = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
+        Button group orientation, either 'horizontal' (default) or 'vertical'.""")  # type: ignore[assignment]
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="The size of the button group.")
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(
+        objects=["small", "medium", "large"], default="medium", doc="The size of the button group."
+    )  # type: ignore[assignment]
 
     width = param.Integer(default=None)
 
@@ -498,7 +510,9 @@ class MultiSelect(MaterialMultiSelectBase):
     ...     options=['Apple', 'Banana', 'Pear', 'Strawberry'], size=8)
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="Color of the multi-select component.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="Color of the multi-select component."
+    )  # type: ignore[assignment]
 
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         Maximum number of options that can be selected.""")
@@ -508,7 +522,9 @@ class MultiSelect(MaterialMultiSelectBase):
 
     value = param.List(default=[], allow_None=True)
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="Variant style of the multi-select component.")
+    variant: t.Literal['filled', 'outlined', 'standard'] = param.Selector(
+        objects=["filled", "outlined", "standard"], default="outlined", doc="Variant style of the multi-select component."
+    )  # type: ignore[assignment]
 
     _esm_base = "MultiSelect.jsx"
 
@@ -582,17 +598,21 @@ class Pill(MaterialSingleSelectBase):
     >>> Pill(label="Study", options=["Biology", "Chemistry", "Physics"])
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the selected pill.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the selected pill."
+    )  # type: ignore[assignment]
 
     disabled_options = param.List(default=[], nested_refs=True, doc="""
         Optional list of ``options`` that are disabled, i.e. unusable and
         un-clickable. If ``options`` is a dictionary the list items have to
         correspond to the values in the options dictionary.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="Size of the pills.")
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(
+        objects=["small", "medium", "large"], default="medium", doc="Size of the pills."
+    )  # type: ignore[assignment]
 
-    variant = param.Selector(objects=["filled", "outlined"], default="outlined", doc="""
-        Variant style of the pills.""")
+    variant: t.Literal['filled', 'outlined'] = param.Selector(objects=["filled", "outlined"], default="outlined", doc="""
+        Variant style of the pills.""")  # type: ignore[assignment]
 
     _constants = {"multi": False, "loading_inset": -6}
     _rename = {"name": "label"}
@@ -620,7 +640,9 @@ class MultiPill(MaterialMultiSelectBase):
     ...     options=["Panel", "hvPlot", "HoloViews", "GeoViews"])
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of selected pills.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of selected pills."
+    )  # type: ignore[assignment]
 
     disabled_options = param.List(default=[], nested_refs=True, doc="""
         Optional list of ``options`` that are disabled, i.e. unusable and
@@ -630,10 +652,12 @@ class MultiPill(MaterialMultiSelectBase):
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         Maximum number of options that can be selected.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="Size of the pills.")
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(
+        objects=["small", "medium", "large"], default="medium", doc="Size of the pills."
+    )  # type: ignore[assignment]
 
-    variant = param.Selector(objects=["filled", "outlined"], default="outlined", doc="""
-        Variant style of the pills.""")
+    variant: t.Literal['filled', 'outlined'] = param.Selector(objects=["filled", "outlined"], default="outlined", doc="""
+        Variant style of the pills.""")  # type: ignore[assignment]
 
     _constants = {"multi": True, "loading_inset": -6}
     _esm_base = "Pill.jsx"
@@ -663,7 +687,9 @@ class CrossSelector(MaterialMultiSelectBase):
     ... )
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="""The color of the cross selector widget.""")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the cross selector widget."
+    )  # type: ignore[assignment]
 
     searchable = param.Boolean(default=True, doc="Whether the dropdown is searchable")
 

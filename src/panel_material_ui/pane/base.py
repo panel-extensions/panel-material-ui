@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+import typing as t
 
 import param
 from panel.pane import HoloViews, Markdown
@@ -8,7 +8,7 @@ from panel.pane import HoloViews, Markdown
 from ..base import MaterialComponent
 from ..widgets import DatetimeInput, DiscreteSlider, EditableFloatSlider, EditableIntSlider, FloatSlider, IntSlider, Select
 
-HoloViews.default_widgets = dict(
+HoloViews.default_widgets = dict(  # type: ignore[assignment]
     HoloViews.default_widgets,
     date=DatetimeInput,
     discrete=Select,
@@ -21,7 +21,7 @@ class MaterialPaneBase(MaterialComponent):
 
     object = param.Parameter(doc="The object to be rendered by the pane.")
 
-    _rerender_params = []
+    _rerender_params: list[str] = []
 
     __abstract = True
 
@@ -58,7 +58,7 @@ class Typography(MaterialPaneBase, Markdown):
     _rename = {"object": "object"}
 
     @classmethod
-    def applies(cls, obj: Any) -> float | bool | None:
+    def applies(cls, obj: t.Any) -> float | bool | None:
         if hasattr(obj, '_repr_markdown_'):
             return 0.29
         elif isinstance(obj, str):

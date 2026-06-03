@@ -120,7 +120,7 @@ def _no_conversion(value: bytes) -> bytes:
     """
     return value
 
-def _save_to_tempfile(data: bytes, suffix: str) -> str:
+def _save_to_tempfile(data: bytes, suffix: str) -> pathlib.Path:
     """
     Save bytes data to a temporary file and return the file path.
 

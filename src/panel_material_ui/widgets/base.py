@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar
+import typing as t
 
 import param
 from panel._param import Margin
@@ -9,8 +9,8 @@ from panel.widgets.base import WidgetBase
 
 from ..base import MaterialComponent
 
-if TYPE_CHECKING:
-    T = TypeVar('T')
+if t.TYPE_CHECKING:
+    T = t.TypeVar('T')
 
 
 class MaterialWidget(MaterialComponent, WidgetBase):

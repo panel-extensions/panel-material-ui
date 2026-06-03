@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import typing as t
 from contextlib import ExitStack
 from io import BytesIO
 from pathlib import PurePath
@@ -41,7 +42,7 @@ class MessageState(param.Parameterized):
     timestamp = param.String(allow_refs=True)
 
 
-class ChatMessage(MaterialComponent, ChatMessage):
+class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
     """
     Renders another component as a chat message with an associated user
     and avatar with support for various content types.
@@ -77,11 +78,13 @@ class ChatMessage(MaterialComponent, ChatMessage):
         to use when the user is specified but the avatar is. You can
         modify, but not replace the dictionary.""")
 
-    default_layout = param.ClassSelector(class_=(Panel), precedence=-1)
+    default_layout = param.ClassSelector(class_=(Panel), precedence=-1)  # type: ignore[assignment]
 
     elevation = param.Integer(default=2, doc="The elevation of the message.")
 
-    placement = param.Selector(default="left", objects=["left", "right"], doc="The placement of the message.")
+    placement: t.Literal['left', 'right'] = param.Selector(
+        default="left", objects=["left", "right"],
+        doc="The placement of the message.")  # type: ignore[assignment]
 
     _internal_state = param.ClassSelector(class_=MessageState, default=MessageState())
     _object_panel = Child()

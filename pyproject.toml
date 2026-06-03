@@ -132,15 +132,20 @@ lines_between_types = 1
 include_trailing_comma = true
 
 [tool.mypy]
-python_version = '3.10'
-no_implicit_optional = true
-check_untyped_defs = true
+namespace_packages = true
+explicit_package_bases = true
+disable_error_code = ["attr-defined", "misc"]
+mypy_path = "src"
+exclude = []
 
 [[tool.mypy.overrides]]
 module = [
-    "bokeh.models.*",
+    "bokeh.*",
+    "pandas.*",
     "param.*",
     "panel.*",
     "playwright.*",
+    "pyviz_comms.*",
+    "setuptools_scm.*",
 ]
 ignore_missing_imports = true

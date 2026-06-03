@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import typing as t
 from collections.abc import Callable
-from typing import Any
 
 import param
 from panel.links import Callback
 
-from ..base import COLORS, LoadingTransform, ThemedTransform, TooltipTransform
+from ..base import COLORS, ColorType, LoadingTransform, ThemedTransform, TooltipTransform
 from .base import MaterialWidget
 from .button import _ButtonBase
 
@@ -62,7 +62,9 @@ class ToggleIcon(_ClickableIcon):
     ... )
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the icon.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the icon."
+    )  # type: ignore[assignment]
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
@@ -110,14 +112,14 @@ class IconButton(_ClickableIcon, _ButtonBase):
     clicks = param.Integer(default=0, doc="""
         The number of times the button has been clicked.""")
 
-    edge = param.Selector(objects=["start", "end", False], default=False, doc="""
-        Whether the icon should be on the start or end of the button.""")
+    edge: t.Literal["start", "end"] | bool = param.Selector(objects=["start", "end", False], default=False, doc="""
+        Whether the icon should be on the start or end of the button.""")  # type: ignore[assignment]
 
     href = param.String(default=None, doc="""
         The URL to navigate to when the button is clicked.""")
 
-    target = param.Selector(default="_self", objects=["_blank", "_parent", "_self", "_top"],
-                            doc="Where to open the linked document.")
+    target: t.Literal["_blank", "_parent", "_self", "_top"] = param.Selector(default="_self", objects=["_blank", "_parent", "_self", "_top"],
+                            doc="Where to open the linked document.")  # type: ignore[assignment]
 
     toggle_duration = param.Integer(default=75, doc="""
         The number of milliseconds the active_icon should be shown for
@@ -158,7 +160,7 @@ class IconButton(_ClickableIcon, _ButtonBase):
         """
         return self.param.watch(callback, 'clicks', onlychanged=False)
 
-    def js_on_click(self, args: dict[str, Any] | None = None, code: str = "") -> Callback:
+    def js_on_click(self, args: dict[str, t.Any] | None = None, code: str = "") -> Callback:
         """
         Allows defining a JS callback to be triggered when the button
         is clicked.
@@ -179,7 +181,7 @@ class IconButton(_ClickableIcon, _ButtonBase):
             args = {}
         return Callback(self, code={'event:'+self._event: code}, args=args)
 
-    def jscallback(self, args: dict[str, Any] | None = None, **callbacks: str) -> Callback:
+    def jscallback(self, args: dict[str, t.Any] | None = None, **callbacks: str) -> Callback:
         """
         Allows defining a Javascript (JS) callback to be triggered when a property
         changes on the source object. The keyword arguments define the
@@ -252,7 +254,7 @@ class Avatar(MaterialWidget):
         avatars."""
     )
 
-    size = param.Selector(
+    size: t.Literal["small", "medium", "large"] = param.Selector(
         objects=["small", "medium", "large"],
         default="medium",
         doc="""
@@ -260,16 +262,16 @@ class Avatar(MaterialWidget):
         - 'small': 24x24 pixels
         - 'medium': 40x40 pixels
         - 'large': 56x56 pixels"""
-    )
+    )  # type: ignore[assignment]
 
-    variant = param.Selector(
+    variant: t.Literal["rounded", "square"] = param.Selector(
         objects=["rounded", "square"],
         default="rounded",
         doc="""
         Shape variant of the avatar. Options:
         - 'rounded': Circular shape with rounded corners (default)
         - 'square': Square shape with sharp corners"""
-    )
+    )  # type: ignore[assignment]
 
     width = param.Integer(default=None, bounds=(0, None), allow_None=True, doc="Width of the widget.")
 
@@ -311,7 +313,7 @@ class Avatar(MaterialWidget):
         """
         return self.param.watch(callback, "clicks", onlychanged=False)
 
-    def js_on_click(self, args: dict[str, Any] | None = None, code: str = "") -> Callback:
+    def js_on_click(self, args: dict[str, t.Any] | None = None, code: str = "") -> Callback:
         """
         Allows defining a JS callback to be triggered when the Avatar
         is clicked.

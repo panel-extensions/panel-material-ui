@@ -29,7 +29,7 @@ class ChatStep(Card, _PnChatStep):
 
     margin = Margin(default=(5, 0, 0, 0))
 
-    sizing_mode = param.Selector(default="stretch_width")
+    sizing_mode: str | None = param.Selector(default="stretch_width")  # type: ignore[assignment]
 
     _esm_base = "ChatStep.jsx"
     _rename = {

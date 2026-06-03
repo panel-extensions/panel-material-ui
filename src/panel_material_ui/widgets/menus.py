@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import typing as t
 from collections import defaultdict
+from collections.abc import Callable
 from functools import partial
-from typing import Callable
 
 import param
 from panel._param import Margin
@@ -12,7 +13,7 @@ from panel.layout.base import ListLike
 from panel.models.reactive_html import DOMEvent
 from param.parameterized import _syncing
 
-from ..base import COLORS, ThemedTransform, TooltipTransform
+from ..base import COLORS, ColorType, ThemedTransform, TooltipTransform
 from .base import MaterialWidget
 from .button import _ButtonBase
 
@@ -230,7 +231,9 @@ class MenuBase(MaterialWidget):
 
 class BreadcrumbsBase(MenuBase):
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the breadcrumbs.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the breadcrumbs."
+    )  # type: ignore[assignment]
 
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         The maximum number of breadcrumb items to display.""")
@@ -305,19 +308,21 @@ class TabMenu(MenuBase):
     centered = param.Boolean(default=False, doc="""
         Whether the tabs should be centered.""")
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the tabs.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the tabs."
+    )  # type: ignore[assignment]
 
-    icon_position = param.Selector(objects=["start", "top", "end", "bottom"], doc="""
-        The position of the icon relative to the tab label.""")
+    icon_position: t.Literal["start", "top", "end", "bottom"] = param.Selector(objects=["start", "top", "end", "bottom"], doc="""
+        The position of the icon relative to the tab label.""")  # type: ignore[assignment]
 
-    scroll_buttons = param.Selector(default="auto", objects=["auto", "true", "false"], doc="""
+    scroll_buttons: t.Literal["auto", "true", "false"] = param.Selector(default="auto", objects=["auto", "true", "false"], doc="""
         Determine behavior of scroll buttons when tabs are set to scroll.
         - "auto" will only present them when not all the items are visible.
         - "true" will always present them.
-        - "false" will never present them.""")
+        - "false" will never present them.""")  # type: ignore[assignment]
 
-    variant = param.Selector(default="standard", objects=["standard", "scrollable", "fullWidth"], doc="""
-        The variant to use for the tabs.""")
+    variant: t.Literal["standard", "scrollable", "fullWidth"] = param.Selector(default="standard", objects=["standard", "scrollable", "fullWidth"], doc="""
+        The variant to use for the tabs.""")  # type: ignore[assignment]
 
     _esm_base = "TabMenu.jsx"
     _item_keys = ['label', 'icon', 'avatar', 'href', 'target', 'tooltip']
@@ -372,16 +377,17 @@ class StepperMenu(MenuBase):
         Label for the back navigation button. Only applies to the 'compact'
         variant.""")
 
-    color = param.Selector(objects=COLORS, default="primary", doc="""
-        The color of the active and completed steps.""")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the active and completed steps."
+    )  # type: ignore[assignment]
 
     connector = param.Boolean(default=True, doc="""
         Whether to display the connector line between steps. Only applies to
         the 'standard' variant.""")
 
-    indicator = param.Selector(default="dots", objects=["dots", "progress", "text"], doc="""
+    indicator: t.Literal["dots", "progress", "text"] = param.Selector(default="dots", objects=["dots", "progress", "text"], doc="""
         The type of progress indicator to display. Only applies to the
-        'compact' variant.""")
+        'compact' variant.""")  # type: ignore[assignment]
 
     next_text = param.String(default="Next", doc="""
         Label for the next navigation button. Only applies to the 'compact'
@@ -391,18 +397,18 @@ class StepperMenu(MenuBase):
         Whether steps can be clicked to navigate non-linearly. Only applies to
         the 'standard' variant.""")
 
-    orientation = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
+    orientation: t.Literal["horizontal", "vertical"] = param.Selector(default="horizontal", objects=["horizontal", "vertical"], doc="""
         The orientation of the stepper. Use 'vertical' to stack the steps from
         top to bottom (e.g. in a narrow sidebar). Only applies to the
-        'standard' variant.""")
+        'standard' variant.""")  # type: ignore[assignment]
 
-    position = param.Selector(default="static", objects=["bottom", "static", "top"], doc="""
-        The positioning of the bar. Only applies to the 'compact' variant.""")
+    position: t.Literal["bottom", "static", "top"] = param.Selector(default="static", objects=["bottom", "static", "top"], doc="""
+        The positioning of the bar. Only applies to the 'compact' variant.""")  # type: ignore[assignment]
 
-    variant = param.Selector(default="standard", objects=["standard", "compact"], doc="""
+    variant: t.Literal["standard", "compact"] = param.Selector(default="standard", objects=["standard", "compact"], doc="""
         The stepper variant. 'standard' renders a labelled horizontal strip;
         'compact' renders a minimal mobile-style bar with an indicator and
-        navigation buttons.""")
+        navigation buttons.""")  # type: ignore[assignment]
 
     _esm_base = "StepperMenu.jsx"
     _item_keys = ['label', 'icon', 'active_icon', 'completed', 'error', 'optional', 'disabled', 'tooltip']
@@ -684,7 +690,9 @@ class MenuList(TreeLikeBase):
     ... ], active=3)
     """
 
-    color = param.Selector(default="primary", objects=COLORS, doc="The color of the selected list item.")
+    color: ColorType = param.Selector(
+        default="primary", objects=COLORS, doc="The color of the selected list item."
+    )  # type: ignore[assignment]
 
     collapsed = param.Boolean(default=False, doc="Whether to collapse the tree to show only the icons and no child items.")
 
@@ -769,13 +777,14 @@ class Tree(TreeLikeBase):
     active = param.List(default=None, item_type=tuple, doc="""
         The index(es) of currently selected items. Provide a list of tuples of indices,
         e.g. ``[(0, 1)]`` to refer to the second child beneath the first root
-        node.""")
+        node.""")  # type: ignore[assignment]
 
     checkboxes = param.Boolean(default=False, doc="""
         Whether to show selection checkboxes next to each tree item.""")
 
-    color = param.Selector(default="primary", objects=COLORS, doc="""
-        Color palette key for the selected node styling.""")
+    color: ColorType = param.Selector(
+        default="primary", objects=COLORS, doc="Color palette key for the selected node styling."
+    )  # type: ignore[assignment]
 
     multi_select = param.Boolean(default=True, doc="""
         Whether multiple tree items can be selected at once.""")
@@ -863,7 +872,9 @@ class MenuButton(MenuBase, _ButtonBase):
 
     disable_elevation = param.Boolean(default=False, doc="Removes the menu's box-shadow for a flat appearance.")
 
-    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the menu button.")
+    size: t.Literal["small", "medium", "large"] = param.Selector(
+        default="medium", objects=["small", "medium", "large"], doc="The size of the menu button."
+    )  # type: ignore[assignment]
 
     _esm_base = "MenuButton.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
@@ -906,9 +917,9 @@ class SplitButton(MenuBase, _ButtonBase):
     ... ], label='Save')
     """
 
-    mode = param.Selector(default='split', objects=['split', 'select'], doc="""
+    mode: t.Literal['split', 'select'] = param.Selector(default='split', objects=['split', 'select'], doc="""
         Allows toggling button behavior between split mode (button click and menu click actions raise events) and
-        select mode (only button click raise events).""")
+        select mode (only button click raise events).""")  # type: ignore[assignment]
 
     margin = Margin(default=5)
 
@@ -999,7 +1010,9 @@ class MenuToggle(MenuBase, _ButtonBase):
     persistent = param.Boolean(default=True, doc="""
         Whether the menu stays open after toggling an item.""")
 
-    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the menu toggle.")
+    size: t.Literal["small", "medium", "large"] = param.Selector(
+        default="medium", objects=["small", "medium", "large"], doc="The size of the menu toggle."
+    )  # type: ignore[assignment]
 
     _esm_base = "MenuToggle.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
@@ -1056,13 +1069,19 @@ class Pagination(MaterialWidget):
 
     boundary_count = param.Integer(default=1, bounds=(0, None), doc="The number of boundary pages to show.")
 
-    color = param.Selector(default="primary", objects=COLORS, doc="The color of the pagination.")
+    color: ColorType = param.Selector(
+        default="primary", objects=COLORS, doc="The color of the pagination."
+    )  # type: ignore[assignment]
 
     count = param.Integer(default=1, bounds=(0, None), doc="The total number of pages.")
 
-    shape = param.Selector(default="circular", objects=["circular", "rounded"], doc="The shape of the pagination.")
+    shape: t.Literal["circular", "rounded"] = param.Selector(
+        default="circular", objects=["circular", "rounded"], doc="The shape of the pagination."
+    )  # type: ignore[assignment]
 
-    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the pagination.")
+    size: t.Literal["small", "medium", "large"] = param.Selector(
+        default="medium", objects=["small", "medium", "large"], doc="The size of the pagination."
+    )  # type: ignore[assignment]
 
     sibling_count = param.Integer(default=1, bounds=(0, None), doc="The number of sibling pages to show.")
 
@@ -1072,7 +1091,9 @@ class Pagination(MaterialWidget):
 
     value = param.Integer(default=None, doc="The current zero-indexed page number.")
 
-    variant = param.Selector(default="text", objects=["outlined", "text"], doc="The variant of the pagination.")
+    variant: t.Literal["outlined", "text"] = param.Selector(
+        default="text", objects=["outlined", "text"], doc="The variant of the pagination."
+    )  # type: ignore[assignment]
 
     width = param.Integer(default=None, doc="The width of the pagination.")
 
@@ -1140,11 +1161,12 @@ class SpeedDial(MenuBase):
     ... ], active=2, margin=(50, 20))
     """
 
-    color = param.Selector(default="primary", objects=COLORS, doc="""
-        The color of the menu.""")
+    color: ColorType = param.Selector(
+        default="primary", objects=COLORS, doc="The color of the menu."
+    )  # type: ignore[assignment]
 
-    direction = param.Selector(default="right", objects=["right", "left", "up", "down"], doc="""
-        The direction of the menu.""")
+    direction: t.Literal["right", "left", "up", "down"] = param.Selector(default="right", objects=["right", "left", "up", "down"], doc="""
+        The direction of the menu.""")  # type: ignore[assignment]
 
     icon = param.String(default=None, doc="""
         The icon to display when the menu is closed.""")
@@ -1155,7 +1177,9 @@ class SpeedDial(MenuBase):
     persistent_tooltips = param.Boolean(default=False, doc="""
         Whether to show persistent tooltips next to the menu items.""")
 
-    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the dial.")
+    size: t.Literal["small", "medium", "large"] = param.Selector(
+        default="medium", objects=["small", "medium", "large"], doc="The size of the dial."
+    )  # type: ignore[assignment]
 
     _esm_base = "SpeedDial.jsx"
 

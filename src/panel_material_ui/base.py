@@ -23,8 +23,8 @@ import os
 import pathlib
 import re
 import textwrap
+import typing as t
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import panel
 import panel.io.convert
@@ -49,7 +49,7 @@ from .__version import __version__  # noqa
 from ._utils import conffilter, json_dumps
 from .theme import MaterialDesign
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from bokeh.document import Document
     from bokeh.model import Model
     from pyviz_comms import Comm
@@ -57,6 +57,11 @@ if TYPE_CHECKING:
 _IGNORED_ESM_PROPERTIES = ('js_event_callbacks', 'esm_constants', 'js_property_callbacks', 'subscribed_events', 'syncable')
 
 COLORS = ["default", "primary", "secondary", "error", "info", "success", "warning", "light", "dark", "danger"]
+
+ColorType = t.Literal[
+    "default", "primary", "secondary", "error", "info",
+    "success", "warning", "light", "dark", "danger"
+]
 
 COLOR_ALIASES = {"danger": "error"}
 STYLE_ALIASES = {"outline": "outlined"}
@@ -156,7 +161,7 @@ class ESMTransform:
     def apply(cls, component: type[ReactComponent], esm: str, input_component: str) -> tuple[str, str]:
         name = cls.__name__.replace('Transform', '')
         output = f'{name}{component.__name__}'
-        return cls._transform.format(
+        return cls._transform.format(  # type: ignore[union-attr]
             esm=esm,
             input=input_component,
             output=output
@@ -295,7 +300,7 @@ class MaterialComponent(ReactComponent):
 
     _bundle = BASE_PATH / "dist" / "panel-material-ui.bundle.js"
     _constants = {"loading_inset": 0}
-    _esm_base = None
+    _esm_base: t.ClassVar[str | pathlib.Path | None] = None
     _esm_shared = {
         'utils': BASE_PATH / "utils.js",
         'menu': BASE_PATH / "menu.jsx",
@@ -320,7 +325,7 @@ class MaterialComponent(ReactComponent):
     _source_transforms = {'attached': None}
     _target_transforms = {'attached': None}
 
-    _busy__ignore: ClassVar[list[str]] = ["dark_theme"]
+    _busy__ignore: t.ClassVar[list[str]] = ["dark_theme"]
 
     __abstract = True
 
@@ -404,7 +409,7 @@ class MaterialComponent(ReactComponent):
         return textwrap.dedent(esm_base)
 
     @classmethod
-    def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
+    def _render_esm(cls, compiled: bool | t.Literal['compiling'] = True, server: bool = False):
         if cls._esm_base is None:
             return None
         elif compiled == 'compiling':
@@ -446,12 +451,12 @@ class MaterialComponent(ReactComponent):
             params['color'] = COLOR_ALIASES.get(color, color)
         return super()._process_param_change(params)
 
-    def _set_on_model(self, msg: Mapping[str, Any], root: Model, model: Model) -> list[str]:
+    def _set_on_model(self, msg: Mapping[str, t.Any], root: Model, model: Model) -> list[str]:
         if 'loading' in msg and isinstance(model, BkReactComponent):
             model.data.loading = msg.pop('loading')
         return super()._set_on_model(msg, root, model)
 
-    def _get_properties(self, doc: Document | None) -> dict[str, Any]:
+    def _get_properties(self, doc: Document | None) -> dict[str, t.Any]:
         props = super()._get_properties(doc)
         props.pop('loading', None)
         props['data'].loading = self.loading
@@ -465,7 +470,7 @@ class MaterialComponent(ReactComponent):
     def _update_loading(self, *_) -> None:
         pass
 
-    def controls(self, parameters: list[str] = None, jslink: bool = True, **kwargs) -> Viewable:
+    def controls(self, parameters: list[str] | None = None, jslink: bool = True, **kwargs) -> Viewable:  # type: ignore[override]
         """
         Creates a set of widgets which allow manipulating the parameters
         on this instance. By default all parameters which support
@@ -529,14 +534,15 @@ class MaterialComponent(ReactComponent):
             return Tabs(controls.layout[0], style.layout[0])
         elif params:
             return controls.layout[0]
+        return style.layout[0]
 
-    def save(
+    def save(  # type: ignore[override]
         self,
-        filename: str | os.PathLike | io.IO,
+        filename: str | os.PathLike | t.IO[t.Any],
         title: str | None = None,
         resources: Resources | None = None,
         template: str | Template | None = None,
-        template_variables: dict[str, Any] | None = None,
+        template_variables: dict[str, t.Any] | None = None,
         **kwargs
     ) -> None:
         from .template import ThemeToggle
@@ -560,14 +566,14 @@ class MaterialComponent(ReactComponent):
         location: bool | Location | None = True
     ) -> Document:
         from .template import ThemeToggle
-        doc = super().server_doc(doc, title, location)
+        doc = super().server_doc(doc, title, location)  # type: ignore[arg-type]
         doc.title = title or 'Panel Application'
         doc.template = BASE_TEMPLATE
         if any(isinstance(c, ThemeToggle) for c in self.select()):
             doc.template_variables['is_page'] = True
         return doc
 
-    def preview(self, width: int = 800, height: int = 600, border: str="1px solid #ccc", **kwargs):
+    def preview(self, width: int | None = 800, height: int | None = 600, border: str="1px solid #ccc", **kwargs):
         """
         Render the page as an iframe.
 
@@ -670,7 +676,7 @@ class MaterialUIComponent(MaterialComponent):
         return importmap
 
     @classmethod
-    def _render_esm(cls, compiled: bool | Literal['compiling'] = True, server: bool = False):
+    def _render_esm(cls, compiled: bool | t.Literal['compiling'] = True, server: bool = False):
         return cls._render_esm_base()
 
     def _get_model(
@@ -679,7 +685,7 @@ class MaterialUIComponent(MaterialComponent):
     ) -> Model:
         return ReactComponent._get_model(self, doc, root, parent, comm)
 
-    def _get_properties(self, doc: Document | None) -> dict[str, Any]:
+    def _get_properties(self, doc: Document | None) -> dict[str, t.Any]:
         props = super()._get_properties(doc)
         props['bundle'] = None
         return props

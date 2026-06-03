@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any
+import typing as t
 
 import numpy as np
 from param import CalendarDate as _CalendarDate
@@ -9,13 +9,13 @@ from param import Date as _Date
 from param import List
 
 
-def to_date(value: Any) -> datetime.date | None:
+def to_date(value: t.Any) -> datetime.date | None:
     """
     Convert a value to a datetime.date.
 
     Arguments
     ----------
-    value: Any
+    value: t.Any
         The value to convert to a datetime.date.
 
     Returns
@@ -47,7 +47,7 @@ def to_datetime(value) -> datetime.datetime | None:
 
     Arguments
     ----------
-    value: Any
+    value: t.Any
         The value to convert to a datetime.datetime.
 
     Returns
@@ -86,15 +86,15 @@ class Date(_CalendarDate):
     def __init__(
         self,
         default: datetime.datetime | datetime.date | str | None = None,
-        **params: Any
+        **params: t.Any
     ):
         default = self._parse_value(default)
         super().__init__(default=default, **params)
 
-    def _parse_value(self, value: Any) -> datetime.date | None:
+    def _parse_value(self, value: t.Any) -> datetime.date | None:
         return to_date(value)
 
-    def __set__(self, instance: Any, value: Any) -> None:
+    def __set__(self, instance: t.Any, value: t.Any) -> None:
         value = self._parse_value(value)
         super().__set__(instance, value)
 
@@ -107,15 +107,15 @@ class Datetime(_Date):
     def __init__(
         self,
         default: datetime.datetime | str | None = None,
-        **params: Any
+        **params: t.Any
     ):
         default = self._parse_value(default)
         super().__init__(default=default, **params)
 
-    def _parse_value(self, value: Any) -> datetime.datetime | None:
+    def _parse_value(self, value: t.Any) -> datetime.datetime | None:
         return to_datetime(value)
 
-    def __set__(self, instance: Any, value: Any) -> None:
+    def __set__(self, instance: t.Any, value: t.Any) -> None:
         value = self._parse_value(value)
         super().__set__(instance, value)
 
@@ -128,16 +128,16 @@ class DateList(List):
     def __init__(
         self,
         default: list[datetime.date] | list[datetime.datetime] | list[str] | None = None,
-        **params: Any
+        **params: t.Any
     ):
         if default is None:
             default = []
         default = self._parse_value(default)
         super().__init__(default=default, **params)
 
-    def _parse_value(self, value: Any) -> list[datetime.date] | None:
-        return [to_date(v) for v in value]
+    def _parse_value(self, value: t.Any) -> list[datetime.date] | None:
+        return None if value is None else [to_date(v) for v in value]  # type: ignore[misc]
 
-    def __set__(self, instance: Any, value: Any) -> None:
+    def __set__(self, instance: t.Any, value: t.Any) -> None:
         value = self._parse_value(value)
         super().__set__(instance, value)

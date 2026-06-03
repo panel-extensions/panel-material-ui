@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import param
 from panel.viewable import Children
@@ -184,22 +184,22 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
     ):
         if not isinstance(filename, list):
             filename = [filename]
-            mime_type = [mime_type]
-            value = [value]
+            mime_type = [mime_type]  # type: ignore[list-item]
+            value = [value]  # type: ignore[list-item]
 
         # Store raw file data
         self.value_uploaded = {
             fname: {
                 "mime_type": mtype,
                 "value": fdata,
-                "size": len(fdata) if fdata else 0
+                "size": len(fdata) if fdata else 0  # type: ignore[arg-type]
             }
             for fname, mtype, fdata in zip(filename, mime_type, value, strict=False)
         }
 
         # Create views
         self.views = [
-            self._single_view(self._single_object(fdata, fname, mtype), fname, mtype)
+            self._single_view(self._single_object(fdata, fname, mtype), fname, mtype)  # type: ignore[arg-type]
             for fname, mtype, fdata in zip(filename, mime_type, value, strict=False)
         ]
 
