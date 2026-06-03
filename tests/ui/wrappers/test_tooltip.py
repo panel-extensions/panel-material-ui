@@ -39,7 +39,7 @@ def test_tooltip_arrow(page):
 
 def test_tooltip_placement_top(page):
     button = Button(label="Hover me")
-    widget = Tooltip(button, title="Top tooltip", placement="top", enter_delay=0)
+    widget = Tooltip(button, title="Top tooltip", placement="top", enter_delay=0, margin=(200, 0, 0, 0))
     serve_component(page, widget)
 
     page.locator('.MuiButton-root').hover()
