@@ -85,6 +85,12 @@ class Page(MaterialComponent, ResourceComponent):
 
     contextbar_open = param.Boolean(default=False, doc="Whether the contextbar is open or closed.")
 
+    contextbar_resizable = param.Boolean(default=False, doc="Whether the contextbar can be resized by dragging.")
+
+    contextbar_variant = param.Selector(default="temporary", objects=SIDEBAR_VARIANTS, doc="""
+        Whether the contextbar is persistent, a temporary drawer, a permanent drawer, or automatically
+        switches between the two based on screen size.""")
+
     contextbar_width = param.Integer(default=250, doc="Width of the contextbar")
 
     favicon = param.ClassSelector(default=None, class_=(str, pathlib.Path), doc="The favicon of the page.")

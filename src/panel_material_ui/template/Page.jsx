@@ -87,7 +87,9 @@ export function render({model, view}) {
   const [busy] = model.useState("busy")
   const [busy_indicator] = model.useState("busy_indicator")
   const [contextbar_open, contextOpen] = model.useState("contextbar_open")
-  const [contextbar_width] = model.useState("contextbar_width")
+  const [contextbar_resizable] = model.useState("contextbar_resizable")
+  const [contextbar_variant] = model.useState("contextbar_variant")
+  const [contextbar_width, setContextbarWidth] = model.useState("contextbar_width")
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
   const [logo] = model.useState("logo")
   const [open, setOpen] = model.useState("sidebar_open")
@@ -95,10 +97,15 @@ export function render({model, view}) {
   const [sidebar_width, setSidebarWidth] = model.useState("sidebar_width")
   const [theme_toggle] = model.useState("theme_toggle")
 
-  // Draggable sidebar state and constants
+  // Draggable sidebar state
   const [isDragging, setIsDragging] = React.useState(false)
   const [dragStartX, setDragStartX] = React.useState(0)
   const [dragStartWidth, setDragStartWidth] = React.useState(0)
+
+  // Draggable contextbar state
+  const [isContextDragging, setIsContextDragging] = React.useState(false)
+  const [contextDragStartX, setContextDragStartX] = React.useState(0)
+  const [contextDragStartWidth, setContextDragStartWidth] = React.useState(0)
   const [site_url] = model.useState("site_url")
   const [title] = model.useState("title")
   const [variant] = model.useState("sidebar_variant")
@@ -126,9 +133,16 @@ export function render({model, view}) {
     display: "flex",
     flexDirection: "column",
     flexShrink: 0,
+    height: "100vh",
     width: contextbar_width,
     zIndex: (theme) => theme.zIndex.drawer + 2,
-    "& .MuiDrawer-paper": {width: contextbar_width, boxSizing: "border-box"},
+    "& .MuiDrawer-paper": {
+      width: contextbar_width,
+      height: "100vh",
+      boxSizing: "border-box",
+      position: "relative",
+      overflowX: "hidden"
+    },
   }), [contextbar_width])
 
   const isXl = useMediaQuery(theme.breakpoints.up("xl"))
@@ -244,6 +258,60 @@ export function render({model, view}) {
     e.preventDefault()
   }, [isDragging, dragStartX, dragStartWidth, setOpen, triggerHighlight, handleDragEnd])
 
+  // Contextbar drag handlers
+  const handleContextDragEnd = React.useCallback(() => {
+    setIsContextDragging(false)
+    setContextDragStartX(null)
+    setContextDragStartWidth(null)
+    document.body.style.cursor = ""
+  }, [])
+
+  const handleContextDragStart = React.useCallback((e) => {
+    const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX
+    setIsContextDragging(true)
+    setContextDragStartX(clientX)
+    setContextDragStartWidth(contextbar_width)
+    e.preventDefault()
+  }, [contextbar_width])
+
+  const handleContextDragMove = React.useCallback((e) => {
+    if (!isContextDragging) { return }
+
+    const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX
+    const deltaX = contextDragStartX - clientX
+    const newWidth = contextDragStartWidth + deltaX
+
+    if (newWidth < 50) {
+      contextOpen(false)
+      handleContextDragEnd()
+    } else {
+      setContextbarWidth(Math.round(newWidth))
+    }
+    e.preventDefault()
+  }, [isContextDragging, contextDragStartX, contextDragStartWidth, contextOpen, handleContextDragEnd])
+
+  // Add global mouse/touch event listeners when dragging contextbar
+  React.useEffect(() => {
+    if (isContextDragging) {
+      const handleMouseMove = (e) => handleContextDragMove(e)
+      const handleMouseUp = () => handleContextDragEnd()
+      const handleTouchMove = (e) => handleContextDragMove(e)
+      const handleTouchEnd = () => handleContextDragEnd()
+
+      document.addEventListener("mousemove", handleMouseMove)
+      document.addEventListener("mouseup", handleMouseUp)
+      document.addEventListener("touchmove", handleTouchMove, {passive: false})
+      document.addEventListener("touchend", handleTouchEnd)
+
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove)
+        document.removeEventListener("mouseup", handleMouseUp)
+        document.removeEventListener("touchmove", handleTouchMove)
+        document.removeEventListener("touchend", handleTouchEnd)
+      }
+    }
+  }, [isContextDragging, handleContextDragMove, handleContextDragEnd])
+
   // Add global mouse/touch event listeners when dragging
   React.useEffect(() => {
     if (isDragging) {
@@ -267,6 +335,7 @@ export function render({model, view}) {
   }, [isDragging, handleDragMove, handleDragEnd])
 
   const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
+  const context_drawer_variant = contextbar_variant === "auto" ? (isMobile ? "temporary" : "persistent") : contextbar_variant
 
   const drawer = sidebar.length > 0 ? (
     <Drawer
@@ -306,10 +375,26 @@ export function render({model, view}) {
       slotProps={{paper: {className: "contextbar"}}}
       anchor="right"
       open={contextbar_open}
-      onClose={() => contextOpen(false)}
+      onClose={context_drawer_variant === "temporary" ? (() => contextOpen(false)) : null}
       sx={contextDrawerSx}
-      variant="temporary"
+      variant={context_drawer_variant}
     >
+      {contextbar_resizable && (
+        <Box
+          onMouseDown={handleContextDragStart}
+          onTouchStart={handleContextDragStart}
+          sx={[PAGE_DRAWER_RESIZE_HANDLE_SX, {
+            right: "auto",
+            left: 0,
+            borderLeft: `1px solid ${theme.palette.divider}`,
+            borderRight: "none",
+            "&:hover": {borderLeftColor: theme.palette.divider, borderLeftWidth: "2px"},
+            "&:before": {right: "auto", left: "-3px"}
+          }]}
+          aria-label="Resize contextbar"
+          title="Drag to resize contextbar"
+        />
+      )}
       {contextbar.map((object, index) => {
         apply_flex(view.get_child_view(model.contextbar[index]), "column")
         return object
@@ -442,9 +527,19 @@ export function render({model, view}) {
           </Box>
         </Box>
       </Main>
-      <Box component="nav" sx={{flexShrink: 0}}>
+      {context_drawer &&
+      <Box
+        component="nav"
+        sx={
+          context_drawer_variant === "temporary" ? (
+            {width: 0, flexShrink: {xs: 0}}
+          ) : (
+            {width: {sm: contextbar_width}, flexShrink: {sm: 0}}
+          )
+        }
+      >
         {context_drawer}
-      </Box>
+      </Box>}
     </Box>
   );
 }
