@@ -224,7 +224,7 @@ class Tooltip(Wrapper):
         'bottom-end', 'bottom-start', 'bottom', 'left-end', 'left-start',
         'left', 'right-end', 'right-start', 'right', 'top-end', 'top-start', 'top'
     ] = param.Selector(
-        default="bottom",
+        default="right",
         objects=[
             "bottom-end", "bottom-start", "bottom",
             "left-end", "left-start", "left",
