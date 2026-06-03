@@ -1,6 +1,6 @@
 import pytest
 
-from panel_material_ui.pane import Badge
+from panel_material_ui.wrappers import Badge
 from panel_material_ui.widgets import IconButton
 
 
@@ -8,13 +8,13 @@ class TestBadgeDefaults:
 
     def test_default_params(self):
         badge = Badge()
-        assert badge.anchor_origin is None
-        assert badge.badge_content == 0
+        assert badge.content == 0
         assert badge.color == "primary"
         assert badge.max == 99
         assert badge.object is None
-        assert badge.offset == (0, -4)
+        assert badge.offset is None
         assert badge.overlap == "rectangular"
+        assert badge.placement == "top-right"
         assert badge.show_zero is False
         assert badge.variant == "standard"
 
@@ -39,13 +39,13 @@ class TestBadgeParams:
         badge = Badge(overlap=overlap)
         assert badge.overlap == overlap
 
-    def test_badge_content_int(self):
-        badge = Badge(badge_content=42)
-        assert badge.badge_content == 42
+    def test_content_int(self):
+        badge = Badge(content=42)
+        assert badge.content == 42
 
-    def test_badge_content_string(self):
-        badge = Badge(badge_content="new")
-        assert badge.badge_content == "new"
+    def test_content_string(self):
+        badge = Badge(content="new")
+        assert badge.content == "new"
 
     def test_max(self):
         badge = Badge(max=999)
@@ -55,24 +55,27 @@ class TestBadgeParams:
         badge = Badge(show_zero=True)
         assert badge.show_zero is True
 
-    def test_anchor_origin(self):
-        origin = {"vertical": "bottom", "horizontal": "left"}
-        badge = Badge(anchor_origin=origin)
-        assert badge.anchor_origin == origin
+    @pytest.mark.parametrize(
+        "placement",
+        ["top-right", "top-left", "bottom-right", "bottom-left"],
+    )
+    def test_placement(self, placement):
+        badge = Badge(placement=placement)
+        assert badge.placement == placement
 
     def test_object_positional(self):
-        badge = Badge("Child", badge_content=1)
+        badge = Badge("Child", content=1)
         assert badge.object is not None
 
     def test_object_keyword(self):
-        badge = Badge(object="Child", badge_content=1)
+        badge = Badge(object="Child", content=1)
         assert badge.object is not None
 
 
 class TestBadgeOffset:
 
     def test_default(self):
-        assert Badge().offset == (0, -4)
+        assert Badge().offset is None
 
     @pytest.mark.parametrize(
         "offset",
@@ -104,14 +107,14 @@ class TestBadgeMarginInheritance:
     )
     def test_inherits_child_margin(self, margin):
         child = IconButton(icon="mail", margin=margin)
-        badge = Badge(child, badge_content=4)
+        badge = Badge(child, content=4)
         assert badge.margin == margin
 
     def test_inherits_child_default_margin(self):
         # With no explicit margin anywhere the Badge mirrors whatever the
         # child's (default) margin is, so wrapping is transparent to layout.
         child = IconButton(icon="mail")
-        badge = Badge(child, badge_content=4)
+        badge = Badge(child, content=4)
         assert badge.margin == child.margin
 
     @pytest.mark.parametrize("margin", [10, 0, (5, 10)], ids=["scalar", "zero", "pair"])
@@ -119,7 +122,7 @@ class TestBadgeMarginInheritance:
         # An explicit Badge margin (including 0) must not be overwritten by
         # the child's margin.
         child = IconButton(icon="mail", margin=25)
-        badge = Badge(child, badge_content=4, margin=margin)
+        badge = Badge(child, content=4, margin=margin)
         assert badge.margin == margin
 
     @pytest.mark.parametrize(
@@ -129,25 +132,25 @@ class TestBadgeMarginInheritance:
     )
     def test_inherit_updates_when_child_margin_changes(self, new_margin):
         child = IconButton(icon="mail", margin=25)
-        badge = Badge(child, badge_content=4)
+        badge = Badge(child, content=4)
         child.margin = new_margin
         assert badge.margin == new_margin
 
     def test_explicit_badge_margin_ignores_child_changes(self):
         child = IconButton(icon="mail", margin=25)
-        badge = Badge(child, badge_content=4, margin=10)
+        badge = Badge(child, content=4, margin=10)
         child.margin = 40
         assert badge.margin == 10
 
     def test_inherit_follows_object_swap(self):
-        badge = Badge(IconButton(icon="mail", margin=25), badge_content=4)
+        badge = Badge(IconButton(icon="mail", margin=25), content=4)
         assert badge.margin == 25
         badge.object = IconButton(icon="mail", margin=7)
         assert badge.margin == 7
 
     def test_old_child_detached_after_swap(self):
         first = IconButton(icon="mail", margin=25)
-        badge = Badge(first, badge_content=4)
+        badge = Badge(first, content=4)
         badge.object = IconButton(icon="mail", margin=7)
         # Mutating the replaced child must no longer affect the Badge.
         first.margin = 99
@@ -156,5 +159,5 @@ class TestBadgeMarginInheritance:
     def test_non_viewable_child_does_not_error(self):
         # A plain string child has no margin param; inheritance is skipped
         # rather than raising.
-        badge = Badge("Child", badge_content=4)
+        badge = Badge("Child", content=4)
         assert badge.object is not None

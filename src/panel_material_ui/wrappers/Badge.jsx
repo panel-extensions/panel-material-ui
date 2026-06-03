@@ -1,8 +1,15 @@
 import Badge from "@mui/material/Badge"
 
+const PLACEMENT_TO_ANCHOR = {
+  "top-right": {vertical: "top", horizontal: "right"},
+  "top-left": {vertical: "top", horizontal: "left"},
+  "bottom-right": {vertical: "bottom", horizontal: "right"},
+  "bottom-left": {vertical: "bottom", horizontal: "left"},
+}
+
 export function render({model, view}) {
-  const [anchorOrigin] = model.useState("anchor_origin")
-  const [badgeContent] = model.useState("badge_content")
+  const [placement] = model.useState("placement")
+  const [badgeContent] = model.useState("content")
   const [color] = model.useState("color")
   const [max] = model.useState("max")
   const [offset] = model.useState("offset")
@@ -23,8 +30,7 @@ export function render({model, view}) {
   }, [object])
 
   // Position the badge as an (x, y) pixel offset from its anchor point
-  // on the object. Raw translate: +x shifts right, +y shifts down,
-  // regardless of anchor_origin.
+  // on the object. Raw translate: +x shifts right, +y shifts down.
   const mergedSx = React.useMemo(() => {
     const [ox, oy] = offset ?? [0, -4]
     return {
@@ -33,9 +39,11 @@ export function render({model, view}) {
     }
   }, [offset, sx])
 
+  const anchorOrigin = PLACEMENT_TO_ANCHOR[placement]
+
   return (
     <Badge
-      anchorOrigin={anchorOrigin ?? undefined}
+      anchorOrigin={anchorOrigin}
       badgeContent={badgeContent}
       color={color}
       max={max}
