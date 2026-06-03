@@ -2,7 +2,7 @@
 
 ## Version 0.12.0
 
-Panel Material UI 0.12.0 introduces a new class of Wrapper components that wrap child components to add visual effects or overlays, including `Transition` for animated reveals, `Badge` for notification indicators, and `Tooltip` for contextual hints on hover. The release also adds the `StepperMenu` widget, a `DateRangePicker` and `DatetimeRangePicker`, converts `Avatar` and `Chip` to proper widgets, and adds static type checking with a `py.typed` marker.
+Panel Material UI 0.12.0 introduces a new class of Wrapper components that wrap child components to add visual effects or overlays, including `Transition` for animated reveals, `Badge` for notification indicators, and `Tooltip` for contextual hints on hover. The release also adds the `StepperMenu` widget, `DateRangePicker` and `DatetimeRangePicker`, converts `Avatar` and `Chip` to proper widgets, makes the `Page` contextbar resizable and configurable, adds configurable chart styling for Bokeh/Vizzu plots, markdown rendering for the `Alert` layout, and static type checking with a `py.typed` marker.
 
 Many thanks to @ahuang11, @senlinyang98-crypto and @philippjfr for their contributions to this release.
 
@@ -23,14 +23,17 @@ This release introduces wrapper components, a new category of components that wr
 ### 🔧 Enhancements
 
 * Convert `Avatar` and `Chip` from a Pane to a Widget ([#653](https://github.com/panel-extensions/panel-material-ui/pull/653))
-* Add `contextbar_resizable` and `contextbar_variant` parameters to `Page`
-* Enable type checking with mypy and add `py.typed` marker
+* Add `contextbar_resizable` and `contextbar_variant` parameters to `Page` ([#657](https://github.com/panel-extensions/panel-material-ui/pull/657))
+* Make `chart_style` configurable for Bokeh and Vizzu theming ([#660](https://github.com/panel-extensions/panel-material-ui/pull/660))
+* Add markdown rendering support to `Alert` layout ([#661](https://github.com/panel-extensions/panel-material-ui/pull/661))
+* Enable type checking with mypy and add `py.typed` marker ([#655](https://github.com/panel-extensions/panel-material-ui/pull/655))
 
 ### 🐛 Bug Fixes
 
 * Ensure `Button`-like components respect `variant` ([#642](https://github.com/panel-extensions/panel-material-ui/pull/642))
 * Set a default icon for `Rating` so it is visible ([#643](https://github.com/panel-extensions/panel-material-ui/pull/643))
 * Use `label` instead of `name` to fix deprecation warning ([#632](https://github.com/panel-extensions/panel-material-ui/pull/632))
+* Fix closable handling for last tab in `Tabs` ([#662](https://github.com/panel-extensions/panel-material-ui/pull/662))
 
 
 ## Version 0.11.2
