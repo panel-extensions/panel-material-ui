@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import typing as t
 from collections.abc import Callable
-from typing import Any
 
 import param
 from panel.links import Callback
 
-from ..base import COLORS, LoadingTransform, ThemedTransform, TooltipTransform
+from ..base import COLORS, ColorType, LoadingTransform, ThemedTransform, TooltipTransform
 from .base import MaterialWidget
 from .button import _ButtonBase
 
@@ -62,7 +62,9 @@ class ToggleIcon(_ClickableIcon):
     ... )
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the icon.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the icon."
+    )  # type: ignore[assignment]
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
@@ -110,14 +112,14 @@ class IconButton(_ClickableIcon, _ButtonBase):
     clicks = param.Integer(default=0, doc="""
         The number of times the button has been clicked.""")
 
-    edge = param.Selector(objects=["start", "end", False], default=False, doc="""
-        Whether the icon should be on the start or end of the button.""")
+    edge: t.Literal["start", "end"] | bool = param.Selector(objects=["start", "end", False], default=False, doc="""
+        Whether the icon should be on the start or end of the button.""")  # type: ignore[assignment]
 
     href = param.String(default=None, doc="""
         The URL to navigate to when the button is clicked.""")
 
-    target = param.Selector(default="_self", objects=["_blank", "_parent", "_self", "_top"],
-                            doc="Where to open the linked document.")
+    target: t.Literal["_blank", "_parent", "_self", "_top"] = param.Selector(default="_self", objects=["_blank", "_parent", "_self", "_top"],
+                            doc="Where to open the linked document.")  # type: ignore[assignment]
 
     toggle_duration = param.Integer(default=75, doc="""
         The number of milliseconds the active_icon should be shown for
@@ -158,7 +160,7 @@ class IconButton(_ClickableIcon, _ButtonBase):
         """
         return self.param.watch(callback, 'clicks', onlychanged=False)
 
-    def js_on_click(self, args: dict[str, Any] | None = None, code: str = "") -> Callback:
+    def js_on_click(self, args: dict[str, t.Any] | None = None, code: str = "") -> Callback:
         """
         Allows defining a JS callback to be triggered when the button
         is clicked.
@@ -179,7 +181,7 @@ class IconButton(_ClickableIcon, _ButtonBase):
             args = {}
         return Callback(self, code={'event:'+self._event: code}, args=args)
 
-    def jscallback(self, args: dict[str, Any] | None = None, **callbacks: str) -> Callback:
+    def jscallback(self, args: dict[str, t.Any] | None = None, **callbacks: str) -> Callback:
         """
         Allows defining a Javascript (JS) callback to be triggered when a property
         changes on the source object. The keyword arguments define the
@@ -212,7 +214,132 @@ class IconButton(_ClickableIcon, _ButtonBase):
 
 ButtonIcon = IconButton
 
+class Avatar(MaterialWidget):
+    """
+    The `Avatar` component displays profile pictures, user initials, or icons
+    in a compact, circular or square format. Avatars are commonly used throughout
+    user interfaces to represent users, brands, or entities in a visually
+    consistent manner.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Avatar.html
+    - https://mui.com/material-ui/react-avatar/
+
+    :Example:
+
+    >>> Avatar(content="JD", color="#2196f3", variant="square")
+    """
+
+    alt_text = param.String(
+        default=None,
+        doc="""
+        Alternative text for the image. Shown when the image cannot be
+        loaded and used for accessibility.""",
+    )
+
+    clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
+
+    color = param.Color(
+        doc="""
+        Background color for text and icon avatars. Accepts any valid CSS
+        color value. Only applies to text/icon avatars, not image avatars."""
+    )
+
+    content = param.String(
+        default="",
+        doc="""
+        The content to display in the avatar. Can be an image URL/path
+        for image avatars, or text content (like initials) for text
+        avatars."""
+    )
+
+    size: t.Literal["small", "medium", "large"] = param.Selector(
+        objects=["small", "medium", "large"],
+        default="medium",
+        doc="""
+        Size of the avatar component. Options:
+        - 'small': 24x24 pixels
+        - 'medium': 40x40 pixels
+        - 'large': 56x56 pixels"""
+    )  # type: ignore[assignment]
+
+    variant: t.Literal["rounded", "square"] = param.Selector(
+        objects=["rounded", "square"],
+        default="rounded",
+        doc="""
+        Shape variant of the avatar. Options:
+        - 'rounded': Circular shape with rounded corners (default)
+        - 'square': Square shape with sharp corners"""
+    )  # type: ignore[assignment]
+
+    width = param.Integer(default=None, bounds=(0, None), allow_None=True, doc="Width of the widget.")
+
+    object = param.Parameter(precedence=-1)
+
+    _esm_base = "Avatar.jsx"
+    _event = "dom_event"
+    _rename: dict = {"content": "content", "label": None, "object": None}
+
+    def __init__(self, content=None, **params):
+        if 'object' in params:
+            import warnings
+            warnings.warn(
+                "Avatar's 'object' parameter is deprecated, use 'content' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            params['content'] = params.pop('object')
+        if content is not None:
+            params['object'] = params['content'] = content
+        click_handler = params.pop("on_click", None)
+        super().__init__(**params)
+        if click_handler:
+            self.on_click(click_handler)
+
+    def on_click(self, callback: Callable[[param.parameterized.Event], None]) -> param.parameterized.Watcher:
+        """
+        Register a callback to be executed when the Avatar is clicked.
+
+        Arguments
+        ---------
+        callback:
+            The function to run on click events.
+
+        Returns
+        -------
+        watcher: param.Parameterized.Watcher
+          A `Watcher` that executes the callback when the Avatar is clicked.
+        """
+        return self.param.watch(callback, "clicks", onlychanged=False)
+
+    def js_on_click(self, args: dict[str, t.Any] | None = None, code: str = "") -> Callback:
+        """
+        Allows defining a JS callback to be triggered when the Avatar
+        is clicked.
+
+        Arguments
+        ---------
+        args: dict
+          A mapping of objects to make available to the JS callback
+        code: str
+          The Javascript code to execute when the Avatar is clicked.
+
+        Returns
+        -------
+        callback: Callback
+          The Callback which can be used to disable the callback.
+        """
+        if args is None:
+            args = {}
+        return Callback(self, code={'event:' + self._event: code}, args=args)
+
+    def _handle_click(self, event):
+        self.param.update(clicks=self.clicks + 1)
+
+
 __all__ = [
+    "Avatar",
     "ButtonIcon",
     "IconButton",
     "ToggleIcon"

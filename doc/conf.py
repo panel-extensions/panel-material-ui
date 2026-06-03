@@ -131,6 +131,7 @@ nbsite_gallery_conf = {
                 'menus',
                 'layouts',
                 'panes',
+                'wrappers',
                 'page',
                 'chat',
                 'indicators',

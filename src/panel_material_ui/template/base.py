@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import functools
-import io
 import os
 import pathlib
-from typing import TYPE_CHECKING, Any, Literal
+import typing as t
 
 import param
 from jinja2 import Template
@@ -19,7 +18,7 @@ from .._utils import _read_icon
 from ..base import BASE_TEMPLATE, MaterialComponent, ThemedTransform, _env
 from ..widgets.base import MaterialWidget
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from bokeh.document import Document
     from bokeh.model import Model
     from panel.io.location import LocationAreaBase
@@ -74,8 +73,8 @@ class Page(MaterialComponent, ResourceComponent):
 
     busy = param.Boolean(default=False, readonly=True, doc="Whether the page is busy.")
 
-    busy_indicator = param.Selector(default="linear", objects=["circular", "linear", None], doc="""
-        The type of busy indicator to show.""")
+    busy_indicator: t.Literal["circular", "linear"] | None = param.Selector(default="linear", objects=["circular", "linear", None], doc="""
+        The type of busy indicator to show.""")  # type: ignore[assignment]
 
     config = param.ClassSelector(default=_base_config(), class_=_base_config,
                                  constant=True, doc="""
@@ -107,9 +106,9 @@ class Page(MaterialComponent, ResourceComponent):
 
     sidebar_resizable = param.Boolean(default=True, doc="Whether the sidebar can be resized by dragging.")
 
-    sidebar_variant = param.Selector(default="auto", objects=SIDEBAR_VARIANTS, doc="""
+    sidebar_variant: t.Literal["persistent", "temporary", "permanent", "auto"] = param.Selector(default="auto", objects=SIDEBAR_VARIANTS, doc="""
         Whether the sidebar is persistent, a temporary drawer, a permanent drawer, or automatically
-        switches between the two based on screen size.""")
+        switches between the two based on screen size.""")  # type: ignore[assignment]
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
 
@@ -215,11 +214,11 @@ class Page(MaterialComponent, ResourceComponent):
 
     def resolve_resources(
         self,
-        cdn: bool | Literal['auto'] = 'auto',
+        cdn: bool | t.Literal['auto'] = 'auto',
         extras: dict[str, dict[str, str]] | None = None
     ) -> ResourcesType:
         extras = extras or {}
-        raw_css = []
+        raw_css: list[str] = []
         config_resources = {
             rt: getattr(self.config, 'css_files' if rt == 'css' else rt)
             for rt in self._resources if rt == 'css' or rt in self.config.param
@@ -231,13 +230,13 @@ class Page(MaterialComponent, ResourceComponent):
         resources["raw_css"] += raw_css
         return resources
 
-    def save(
+    def save(  # type: ignore[override]
         self,
-        filename: str | os.PathLike | io.IO,
+        filename: str | os.PathLike | t.IO[t.Any],
         title: str | None = None,
         resources: Resources | None = None,
         template: str | Template | None = None,
-        template_variables: dict[str, Any] | None = None,
+        template_variables: dict[str, t.Any] | None = None,
         **kwargs
     ) -> None:
         if template_variables:
@@ -260,7 +259,7 @@ class Page(MaterialComponent, ResourceComponent):
         self, doc: Document | None = None, title: str | None = None,
         location: bool | LocationAreaBase | None = True
     ) -> Document:
-        title = title or self.title or self.meta.title or 'Panel Application'
+        title = title or self.title or (self.meta and self.meta.title) or 'Panel Application'
         doc = super().server_doc(doc, title, location)
         self._populate_template_variables(doc.template_variables)
         doc.template = self._template
@@ -272,13 +271,19 @@ class ThemeToggle(MaterialWidget):
     A toggle button to switch between light and dark themes.
     """
 
-    color = param.Selector(default='primary', objects=['primary', 'secondary'], doc="The color of the theme toggle.")
+    color: t.Literal['primary', 'secondary'] = param.Selector(
+        default='primary', objects=['primary', 'secondary'],
+        doc="The color of the theme toggle.")  # type: ignore[assignment]
 
-    theme = param.Selector(default=None, objects=['dark', 'default'], constant=True, doc="The current theme.")
+    theme: t.Literal['dark', 'default'] | None = param.Selector(
+        default=None, objects=['dark', 'default'], constant=True,
+        doc="The current theme.")  # type: ignore[assignment]
 
     value = param.Boolean(default=None, doc="Whether the theme toggle is on or off.")
 
-    variant = param.Selector(default='icon', objects=['icon', 'switch'], doc="Whether to render just an icon or a toggle")
+    variant: t.Literal['icon', 'switch'] = param.Selector(
+        default='icon', objects=['icon', 'switch'],
+        doc="Whether to render just an icon or a toggle")  # type: ignore[assignment]
 
     width = param.Integer(default=None, doc="The width of the theme toggle.")
 
@@ -323,8 +328,8 @@ class BreakpointSwitcher(MaterialComponent):
     current = param.Parameter(allow_refs=False, readonly=True, doc="""
         The current object.""")
 
-    breakpoint = param.Selector(default='md', objects=["xs", "sm", "md", "lg", "xl"], doc="""
-        Breakpoint at which switcher toggles between.""")
+    breakpoint: t.Literal["xs", "sm", "md", "lg", "xl"] = param.Selector(default='md', objects=["xs", "sm", "md", "lg", "xl"], doc="""
+        Breakpoint at which switcher toggles between.""")  # type: ignore[assignment]
 
     media_query = param.String(default=None, doc="""
         Media query to use for the breakpoint (takes precedence over breakpoint).""")

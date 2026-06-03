@@ -1,29 +1,29 @@
 from __future__ import annotations
 
 import inspect
+import typing as t
 from collections.abc import Iterable
 from datetime import date, datetime, timezone
 from datetime import time as dt_time
 from logging import getLogger
-from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import panel as pn
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.models.reactive_html import DOMEvent
-from panel.util import edit_readonly, try_datetime64_to_datetime
+from panel.util import edit_readonly, try_datetime64_to_datetime, value_as_date, value_as_datetime
 from panel.widgets.input import DatetimeInput as _PnDatetimeInput
 from panel.widgets.input import FileInput as _PnFileInput
 from panel.widgets.input import LiteralInput as _PnLiteralInput
 
 from .._param import Date, DateList, Datetime
-from ..base import COLORS, LoadingTransform, ThemedTransform, TooltipTransform
+from ..base import COLORS, ColorType, LoadingTransform, ThemedTransform, TooltipTransform
 from ._mime import MIME_TYPES, NoConverter
 from .base import MaterialWidget
 from .button import _ButtonBase
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from bokeh.document import Document
 
 logger = getLogger(__name__)
@@ -31,11 +31,12 @@ logger = getLogger(__name__)
 
 class MaterialInputWidget(MaterialWidget):
 
-    color = param.Selector(objects=COLORS, default="primary", doc="""
-        The color variant of the input.""")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color variant of the input."
+    )  # type: ignore[assignment]
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="""
-        The variant of the input.""")
+    variant: t.Literal['filled', 'outlined', 'standard'] = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="""
+        The variant of the input.""")  # type: ignore[assignment]
 
     _constants = {"loading_inset": -6}
     __abstract = True
@@ -61,7 +62,9 @@ class _TextInputBase(MaterialInputWidget):
         Placeholder for empty input field.""",
     )
 
-    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the input widget.")
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(
+        default="medium", objects=["small", "medium", "large"], doc="The size of the input widget."
+    )  # type: ignore[assignment]
 
     value = param.String(default="")
 
@@ -245,8 +248,8 @@ class _FileUploadArea(param.Parameterized):
         """
         if mime_type in cls._mime_types:
             config = cls._mime_types[mime_type]
-            if "converter" in config:
-                to_object_func = config['converter']
+            if "converter" in config:  # type: ignore[operator]
+                to_object_func = config['converter']  # type: ignore[index]
                 try:
                     return to_object_func(value)
                 except Exception as exc:
@@ -277,6 +280,7 @@ class _FileUploadArea(param.Parameterized):
             A Tabulator widget for CSV files, or a Markdown pane with an error message
             for unsupported file types.
         """
+        # Panes (e.g. Markdown) are not widgets and only accept name, not label.
         kwargs["name"] = filename
         view = pn.panel
 
@@ -294,11 +298,13 @@ class _FileUploadArea(param.Parameterized):
                 kwargs.update(config['view_kwargs'])
 
         if inspect.isclass(view) and issubclass(view, pn.widgets.WidgetBase):
+            # Widget.name is deprecated in panel 2.0 in favor of label, but not
+            # all widgets have a label param (e.g. Tabulator), so check first.
             kwargs["label"] = kwargs.pop("name")
             return view(value=object, **kwargs)
         return view(object, **kwargs)
 
-    def _handle_msg(self, msg: Any) -> None:
+    def _handle_msg(self, msg: t.Any) -> None:
         status = msg["status"]
         if status == "upload_event":
             self._process_chunk(msg)
@@ -550,7 +556,9 @@ class _NumericInputBase(MaterialInputWidget):
     placeholder = param.String(default='0', doc="""
         Placeholder for empty input field.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="The size of the numeric input widget.")
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(
+        objects=["small", "medium", "large"], default="medium", doc="The size of the numeric input widget."
+    )  # type: ignore[assignment]
 
     start = param.Parameter(default=None, allow_None=True, doc="""
         Optional minimum allowable value.""")
@@ -572,7 +580,7 @@ class _NumericInputBase(MaterialInputWidget):
             params['value_throttled'] = params['value']
         super().__init__(**params)
 
-    def _get_properties(self, doc: Document):
+    def _get_properties(self, doc: Document | None):  # type: ignore[override]
         props = super()._get_properties(doc)
         if props['data'].format is None:
             props['data'].format = NumeralTickFormatter(format='0,0' if self.mode == 'int' else '0,0.0[000]')
@@ -720,7 +728,9 @@ class _DatePickerBase(MaterialInputWidget):
 
     format = param.String(default='YYYY-MM-DD', doc="Format of the date when rendered in the input(s). Defaults to localized format based on the used views.")
 
-    open_to = param.Selector(objects=['year', 'month', 'day'], default='day', doc="The default view to open the calendar to.")
+    open_to: t.Literal['year', 'month', 'day'] = param.Selector(
+        objects=['year', 'month', 'day'], default='day', doc="The default view to open the calendar to."
+    )  # type: ignore[assignment]
 
     start = Date(default=None, doc="The minimum selectable date.")
 
@@ -807,6 +817,269 @@ class DatePicker(_DatePickerBase):
         return value
 
 
+class DateRangePicker(MaterialInputWidget):
+    """
+    The `DateRangePicker` allows selecting a date range using a
+    calendar-based picker with two months displayed side by side.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DateRangePicker.html
+    - https://daypicker.dev/
+
+    :Example:
+
+    >>> DateRangePicker(
+    ...     value=(date(2025,1,9), date(2025,1,16)),
+    ...     start=date(2025,1,1), end=date(2025,12,31),
+    ...     name='Date Range'
+    ... )
+    """
+
+    disabled_dates = DateList(default=None, doc="""
+        Dates to make unavailable for selection.""")
+
+    enabled_dates = DateList(default=None, doc="""
+        Dates to make available for selection.""")
+
+    end = Date(default=None, doc="The maximum selectable date.")
+
+    format = param.String(default='YYYY-MM-DD', doc="""
+        Format of the date when rendered in the input.""")
+
+    start = Date(default=None, doc="The minimum selectable date.")
+
+    value = param.DateRange(default=None, doc="""
+        The selected date range as a tuple of two dates.""")
+
+    value_start = param.Date(default=None, readonly=True, doc="""
+        The lower value of the selected range.""")
+
+    value_end = param.Date(default=None, readonly=True, doc="""
+        The upper value of the selected range.""")
+
+    width = param.Integer(default=300, allow_None=True, doc="""
+        Width of this component. If sizing_mode is set to stretch
+        or scale mode this will merely be used as a suggestion.""")
+
+    _esm_base = "DateRangePicker.jsx"
+
+    _constants = {'loading_inset': -6, 'time': False}
+
+    _rename = {'value_start': None, 'value_end': None}
+
+    _source_transforms = {
+        "value": None, "value_start": None, "value_end": None,
+        "start": None, "end": None, "attached": None
+    }
+
+    def __init__(self, **params):
+        if 'value' in params and params['value'] is not None:
+            v1, v2 = params['value']
+            v1 = try_datetime64_to_datetime(v1)
+            v2 = try_datetime64_to_datetime(v2)
+            if hasattr(v1, "date"):
+                v1 = v1.date()
+            if hasattr(v2, "date"):
+                v2 = v2.date()
+            params['value'] = (v1, v2)
+        super().__init__(**params)
+        self._update_value_params()
+
+    @param.depends('value', watch=True)
+    def _update_value_params(self):
+        if self.value is not None:
+            v1, v2 = self.value
+            with edit_readonly(self):
+                self.value_start = v1
+                self.value_end = v2
+        else:
+            with edit_readonly(self):
+                self.value_start = None
+                self.value_end = None
+
+    def _process_param_change(self, msg):
+        msg = super()._process_param_change(msg)
+        for p in ('start', 'end'):
+            if p in msg and msg[p] is not None:
+                v = msg[p]
+                if isinstance(v, date):
+                    msg[p] = v.strftime('%Y-%m-%d')
+        if 'value' in msg:
+            if msg['value'] is not None:
+                v1, v2 = msg['value']
+                if isinstance(v1, date):
+                    v1 = v1.strftime('%Y-%m-%d')
+                if isinstance(v2, date):
+                    v2 = v2.strftime('%Y-%m-%d')
+                msg['value'] = [v1, v2]
+            else:
+                msg['value'] = None
+        return msg
+
+    @staticmethod
+    def _convert_to_date(v):
+        if isinstance(v, str):
+            return datetime.strptime(v, '%Y-%m-%d').date()
+        if isinstance(v, (int, float)):
+            return value_as_date(v)
+        if isinstance(v, datetime):
+            return v.date()
+        if isinstance(v, date):
+            return v
+        return v
+
+    def _process_property_change(self, msg):
+        msg = super()._process_property_change(msg)
+        for p in ('start', 'end'):
+            if p in msg and msg[p] is not None:
+                msg[p] = self._convert_to_date(msg[p])
+        if 'value' in msg and msg['value'] is not None:
+            v1, v2 = msg['value']
+            msg['value'] = (self._convert_to_date(v1), self._convert_to_date(v2))
+        return msg
+
+
+class DatetimeRangePicker(DateRangePicker):
+    """
+    The `DatetimeRangePicker` allows selecting a datetime range using a
+    calendar-based picker with two months displayed side by side and
+    time inputs for start and end times.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DatetimeRangePicker.html
+    - https://daypicker.dev/
+
+    :Example:
+
+    >>> DatetimeRangePicker(
+    ...     value=(datetime(2025,1,9,8,0), datetime(2025,1,16,17,0)),
+    ...     start=datetime(2025,1,1), end=datetime(2025,12,31),
+    ...     name='Datetime Range'
+    ... )
+    """
+
+    enable_seconds = param.Boolean(default=True, doc="""
+        Enable editing of seconds in the time inputs.""")
+
+    end = Datetime(default=None, doc="The maximum selectable datetime.")
+
+    format = param.String(default=None, doc="""
+        Format of the datetime when rendered in the input. If None,
+        will be set automatically based on military_time setting.""")  # type: ignore[assignment]
+
+    military_time = param.Boolean(default=True, doc="""
+        Whether to display time in 24 hour format.""")
+
+    start = Datetime(default=None, doc="The minimum selectable datetime.")
+
+    value = param.DateRange(default=None, doc="""
+        The selected datetime range as a tuple of two datetimes.""")
+
+    value_start = param.Date(default=None, readonly=True, doc="""
+        The lower value of the selected range.""")
+
+    value_end = param.Date(default=None, readonly=True, doc="""
+        The upper value of the selected range.""")
+
+    _constants = {'loading_inset': -6, 'time': True}
+
+    _rename = {'value_start': None, 'value_end': None}
+
+    _source_transforms = {
+        "value": None, "value_start": None, "value_end": None,
+        "start": None, "end": None, "attached": None
+    }
+
+    def __init__(self, **params):
+        if 'value' in params and params['value'] is not None:
+            v1, v2 = params['value']
+            v1 = try_datetime64_to_datetime(v1)
+            v2 = try_datetime64_to_datetime(v2)
+            if isinstance(v1, date) and not isinstance(v1, datetime):
+                v1 = datetime(v1.year, v1.month, v1.day)
+            if isinstance(v2, date) and not isinstance(v2, datetime):
+                v2 = datetime(v2.year, v2.month, v2.day)
+            params['value'] = (v1, v2)
+        super(DateRangePicker, self).__init__(**params)
+        self._update_value_params()
+        if self.format is None:
+            self._update_format_from_settings()
+
+    @param.depends('military_time', 'enable_seconds', watch=True)
+    def _update_format_from_settings(self):
+        if self.military_time:
+            self.format = 'YYYY-MM-DD HH:mm' + (':ss' if self.enable_seconds else '')
+        else:
+            self.format = 'YYYY-MM-DD hh:mm' + (':ss' if self.enable_seconds else '') + ' a'
+
+    def _process_param_change(self, msg):
+        msg = MaterialInputWidget._process_param_change(self, msg)
+        for p in ('start', 'end'):
+            if p in msg and msg[p] is not None:
+                v = msg[p]
+                if isinstance(v, datetime):
+                    msg[p] = v.strftime('%Y-%m-%d %H:%M:%S')
+                elif isinstance(v, date):
+                    msg[p] = v.strftime('%Y-%m-%d')
+        if 'value' in msg:
+            if msg['value'] is not None:
+                v1, v2 = msg['value']
+                if isinstance(v1, datetime):
+                    v1 = v1.strftime('%Y-%m-%d %H:%M:%S')
+                elif isinstance(v1, date):
+                    v1 = v1.strftime('%Y-%m-%d')
+                if isinstance(v2, datetime):
+                    v2 = v2.strftime('%Y-%m-%d %H:%M:%S')
+                elif isinstance(v2, date):
+                    v2 = v2.strftime('%Y-%m-%d')
+                msg['value'] = [v1, v2]
+            else:
+                msg['value'] = None
+        return msg
+
+    @staticmethod
+    def _convert_to_datetime(v):
+        if isinstance(v, str):
+            return DatetimeRangePicker._parse_datetime(v)
+        if isinstance(v, (int, float)):
+            return value_as_datetime(v)
+        if isinstance(v, datetime):
+            return v
+        if isinstance(v, date):
+            return datetime(v.year, v.month, v.day)
+        return v
+
+    def _process_property_change(self, msg):
+        msg = MaterialInputWidget._process_property_change(self, msg)
+        for p in ('start', 'end'):
+            if p in msg and msg[p] is not None:
+                msg[p] = self._convert_to_datetime(msg[p])
+        if 'value' in msg and msg['value'] is not None:
+            v1, v2 = msg['value']
+            msg['value'] = (self._convert_to_datetime(v1), self._convert_to_datetime(v2))
+        return msg
+
+    @staticmethod
+    def _parse_datetime(value_str):
+        if not value_str:
+            return None
+        formats = [
+            '%Y-%m-%d %H:%M:%S',
+            '%Y-%m-%d %H:%M',
+            '%Y-%m-%dT%H:%M:%S',
+            '%Y-%m-%dT%H:%M',
+            '%Y-%m-%d',
+        ]
+        for fmt in formats:
+            try:
+                return datetime.strptime(value_str, fmt)
+            except ValueError:
+                continue
+        return None
+
+
 class _DatetimePickerBase(_DatePickerBase):
     """Base class for DatetimePicker components."""
 
@@ -821,13 +1094,15 @@ class _DatetimePickerBase(_DatePickerBase):
         If None, will be set automatically based on military_time setting.
         For 12-hour: 'YYYY-MM-DD hh:mm a'
         For 24-hour: 'YYYY-MM-DD HH:mm'
-        Add ':ss' to include seconds.""")
+        Add ':ss' to include seconds.""")  # type: ignore[assignment]
 
     military_time = param.Boolean(default=True, doc="""
       Whether to display time in 24 hour format.""")
 
-    open_to = param.Selector(objects=['year', 'month', 'day', 'hours', 'minutes'], default=None, doc="""
-      The default view to open the calendar to.""")
+    open_to: t.Literal['year', 'month', 'day', 'hours', 'minutes'] | None = param.Selector(
+        objects=['year', 'month', 'day', 'hours', 'minutes'], default=None,
+        doc="The default view to open the calendar to."
+    )  # type: ignore[assignment]
 
     views = param.List(default=['year', 'month', 'day', 'hours', 'minutes'], doc="""
       The views that are available for the date picker.""")
@@ -1023,8 +1298,8 @@ class DatetimePicker(_DatetimePickerBase):
 
 class _TimeCommon(MaterialWidget):
 
-    clock = param.Selector(default='12h', objects=['12h', '24h'], doc="""
-        Whether to use 12 hour or 24 hour clock.""")
+    clock: t.Literal['12h', '24h'] = param.Selector(default='12h', objects=['12h', '24h'], doc="""
+        Whether to use 12 hour or 24 hour clock.""")  # type: ignore[assignment]
 
     hour_increment = param.Integer(default=1, bounds=(1, None), doc="""
         Defines the granularity of hour value increments in the UI.""")
@@ -1060,7 +1335,9 @@ class TimePicker(_TimeCommon):
     ... )
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the time picker.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the time picker."
+    )  # type: ignore[assignment]
 
     value = param.ClassSelector(default=None, class_=(dt_time, str), doc="""
         The current value""")
@@ -1091,11 +1368,13 @@ class TimePicker(_TimeCommon):
 
     """)
 
-    mode = param.Selector(objects=["digital", "analog", "auto"], default="auto", doc="""
+    mode: t.Literal['digital', 'analog', 'auto'] = param.Selector(objects=["digital", "analog", "auto"], default="auto", doc="""
         Whether to render a digital or analog clock. By default automatically
-        switches between digital clock on desktop to analog clock on mobile.""")
+        switches between digital clock on desktop to analog clock on mobile.""")  # type: ignore[assignment]
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the time picker.")
+    variant: t.Literal['filled', 'outlined', 'standard'] = param.Selector(
+        objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the time picker."
+    )  # type: ignore[assignment]
 
     _esm_base = "TimePicker.jsx"
 
@@ -1164,8 +1443,9 @@ class Checkbox(MaterialWidget):
     >>> Checkbox(label='Works with the tools you know and love', value=True)
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="""
-        The color of the checkbox.""")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the checkbox."
+    )  # type: ignore[assignment]
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
@@ -1175,8 +1455,8 @@ class Checkbox(MaterialWidget):
         Whether the checkbox can be in an indeterminate state. The indeterminate state
         may only be set in Python.""")
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
-        The size of the checkbox.""")
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(objects=["small", "medium", "large"], default="medium", doc="""
+        The size of the checkbox.""")  # type: ignore[assignment]
 
     value = param.Boolean(default=False)
 
@@ -1226,15 +1506,21 @@ class Switch(MaterialWidget):
     >>> Switch(label='Works with the tools you know and love', value=True)
     """
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the switch.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The color of the switch."
+    )  # type: ignore[assignment]
 
     description_delay = param.Integer(default=1000, doc="""
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 1000ms.""")
 
-    edge = param.Selector(objects=["start", "end", False], default=False, doc="The edge position for the switch.")
+    edge: t.Literal['start', 'end', False] = param.Selector(
+        objects=["start", "end", False], default=False, doc="The edge position for the switch."
+    )  # type: ignore[assignment]
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium",  doc="The size of the switch.")
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(
+        objects=["small", "medium", "large"], default="medium", doc="The size of the switch."
+    )  # type: ignore[assignment]
 
     value = param.Boolean(default=False)
 
@@ -1261,19 +1547,25 @@ class ColorPicker(MaterialWidget):
 
     alpha = param.Boolean(default=False, doc="Whether to display input controls for a color's alpha (transparency) channel.")
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The accent color of the color picker when active or focused.")
+    color: ColorType = param.Selector(
+        objects=COLORS, default="primary", doc="The accent color of the color picker when active or focused."
+    )  # type: ignore[assignment]
 
-    format = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex", doc="""
+    format: t.Literal['hex', 'rgb', 'rgba', 'hsl', 'hsv'] = param.Selector(objects=["hex", "rgb", "rgba", "hsl", "hsv"], default="hex", doc="""
         The format of the color value.
         - `hex`: The hex color value.
         - `rgb`: The rgb color value.
         - `rgba`: The rgba color value.
         - `hsl`: The hsl color value.
-        - `hsv`: The hsv color value.""")
+        - `hsv`: The hsv color value.""")  # type: ignore[assignment]
 
-    size = param.Selector(objects=["small", "medium", "large"], default="medium", doc="The visual size of the input field")
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(
+        objects=["small", "medium", "large"], default="medium", doc="The visual size of the input field"
+    )  # type: ignore[assignment]
 
-    variant = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="The visual style variant of the input field")
+    variant: t.Literal['filled', 'outlined', 'standard'] = param.Selector(
+        objects=["filled", "outlined", "standard"], default="outlined", doc="The visual style variant of the input field"
+    )  # type: ignore[assignment]
 
     value = param.String(default=None, doc="The current color value.")
 
@@ -1387,6 +1679,8 @@ __all__ = [
     "FloatInput",
     "NumberInput",
     "DatePicker",
+    "DateRangePicker",
+    "DatetimeRangePicker",
     "DatetimePicker",
     "TimePicker",
     "Checkbox",
