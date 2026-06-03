@@ -12,7 +12,7 @@ import panel as pn
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.models.reactive_html import DOMEvent
-from panel.util import edit_readonly, try_datetime64_to_datetime
+from panel.util import edit_readonly, try_datetime64_to_datetime, value_as_date, value_as_datetime
 from panel.widgets.input import DatetimeInput as _PnDatetimeInput
 from panel.widgets.input import FileInput as _PnFileInput
 from panel.widgets.input import LiteralInput as _PnLiteralInput
@@ -277,6 +277,7 @@ class _FileUploadArea(param.Parameterized):
             A Tabulator widget for CSV files, or a Markdown pane with an error message
             for unsupported file types.
         """
+        # Panes (e.g. Markdown) are not widgets and only accept name, not label.
         kwargs["name"] = filename
         view = pn.panel
 
@@ -294,6 +295,8 @@ class _FileUploadArea(param.Parameterized):
                 kwargs.update(config['view_kwargs'])
 
         if inspect.isclass(view) and issubclass(view, pn.widgets.WidgetBase):
+            # Widget.name is deprecated in panel 2.0 in favor of label, but not
+            # all widgets have a label param (e.g. Tabulator), so check first.
             kwargs["label"] = kwargs.pop("name")
             return view(value=object, **kwargs)
         return view(object, **kwargs)
@@ -805,6 +808,269 @@ class DatePicker(_DatePickerBase):
             except ValueError:
                 return None
         return value
+
+
+class DateRangePicker(MaterialInputWidget):
+    """
+    The `DateRangePicker` allows selecting a date range using a
+    calendar-based picker with two months displayed side by side.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DateRangePicker.html
+    - https://daypicker.dev/
+
+    :Example:
+
+    >>> DateRangePicker(
+    ...     value=(date(2025,1,9), date(2025,1,16)),
+    ...     start=date(2025,1,1), end=date(2025,12,31),
+    ...     name='Date Range'
+    ... )
+    """
+
+    disabled_dates = DateList(default=None, doc="""
+        Dates to make unavailable for selection.""")
+
+    enabled_dates = DateList(default=None, doc="""
+        Dates to make available for selection.""")
+
+    end = Date(default=None, doc="The maximum selectable date.")
+
+    format = param.String(default='YYYY-MM-DD', doc="""
+        Format of the date when rendered in the input.""")
+
+    start = Date(default=None, doc="The minimum selectable date.")
+
+    value = param.DateRange(default=None, doc="""
+        The selected date range as a tuple of two dates.""")
+
+    value_start = param.Date(default=None, readonly=True, doc="""
+        The lower value of the selected range.""")
+
+    value_end = param.Date(default=None, readonly=True, doc="""
+        The upper value of the selected range.""")
+
+    width = param.Integer(default=300, allow_None=True, doc="""
+        Width of this component. If sizing_mode is set to stretch
+        or scale mode this will merely be used as a suggestion.""")
+
+    _esm_base = "DateRangePicker.jsx"
+
+    _constants = {'loading_inset': -6, 'time': False}
+
+    _rename = {'value_start': None, 'value_end': None}
+
+    _source_transforms = {
+        "value": None, "value_start": None, "value_end": None,
+        "start": None, "end": None, "attached": None
+    }
+
+    def __init__(self, **params):
+        if 'value' in params and params['value'] is not None:
+            v1, v2 = params['value']
+            v1 = try_datetime64_to_datetime(v1)
+            v2 = try_datetime64_to_datetime(v2)
+            if hasattr(v1, "date"):
+                v1 = v1.date()
+            if hasattr(v2, "date"):
+                v2 = v2.date()
+            params['value'] = (v1, v2)
+        super().__init__(**params)
+        self._update_value_params()
+
+    @param.depends('value', watch=True)
+    def _update_value_params(self):
+        if self.value is not None:
+            v1, v2 = self.value
+            with edit_readonly(self):
+                self.value_start = v1
+                self.value_end = v2
+        else:
+            with edit_readonly(self):
+                self.value_start = None
+                self.value_end = None
+
+    def _process_param_change(self, msg):
+        msg = super()._process_param_change(msg)
+        for p in ('start', 'end'):
+            if p in msg and msg[p] is not None:
+                v = msg[p]
+                if isinstance(v, date):
+                    msg[p] = v.strftime('%Y-%m-%d')
+        if 'value' in msg:
+            if msg['value'] is not None:
+                v1, v2 = msg['value']
+                if isinstance(v1, date):
+                    v1 = v1.strftime('%Y-%m-%d')
+                if isinstance(v2, date):
+                    v2 = v2.strftime('%Y-%m-%d')
+                msg['value'] = [v1, v2]
+            else:
+                msg['value'] = None
+        return msg
+
+    @staticmethod
+    def _convert_to_date(v):
+        if isinstance(v, str):
+            return datetime.strptime(v, '%Y-%m-%d').date()
+        if isinstance(v, (int, float)):
+            return value_as_date(v)
+        if isinstance(v, datetime):
+            return v.date()
+        if isinstance(v, date):
+            return v
+        return v
+
+    def _process_property_change(self, msg):
+        msg = super()._process_property_change(msg)
+        for p in ('start', 'end'):
+            if p in msg and msg[p] is not None:
+                msg[p] = self._convert_to_date(msg[p])
+        if 'value' in msg and msg['value'] is not None:
+            v1, v2 = msg['value']
+            msg['value'] = (self._convert_to_date(v1), self._convert_to_date(v2))
+        return msg
+
+
+class DatetimeRangePicker(DateRangePicker):
+    """
+    The `DatetimeRangePicker` allows selecting a datetime range using a
+    calendar-based picker with two months displayed side by side and
+    time inputs for start and end times.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/DatetimeRangePicker.html
+    - https://daypicker.dev/
+
+    :Example:
+
+    >>> DatetimeRangePicker(
+    ...     value=(datetime(2025,1,9,8,0), datetime(2025,1,16,17,0)),
+    ...     start=datetime(2025,1,1), end=datetime(2025,12,31),
+    ...     name='Datetime Range'
+    ... )
+    """
+
+    enable_seconds = param.Boolean(default=True, doc="""
+        Enable editing of seconds in the time inputs.""")
+
+    end = Datetime(default=None, doc="The maximum selectable datetime.")
+
+    format = param.String(default=None, doc="""
+        Format of the datetime when rendered in the input. If None,
+        will be set automatically based on military_time setting.""")
+
+    military_time = param.Boolean(default=True, doc="""
+        Whether to display time in 24 hour format.""")
+
+    start = Datetime(default=None, doc="The minimum selectable datetime.")
+
+    value = param.DateRange(default=None, doc="""
+        The selected datetime range as a tuple of two datetimes.""")
+
+    value_start = param.Date(default=None, readonly=True, doc="""
+        The lower value of the selected range.""")
+
+    value_end = param.Date(default=None, readonly=True, doc="""
+        The upper value of the selected range.""")
+
+    _constants = {'loading_inset': -6, 'time': True}
+
+    _rename = {'value_start': None, 'value_end': None}
+
+    _source_transforms = {
+        "value": None, "value_start": None, "value_end": None,
+        "start": None, "end": None, "attached": None
+    }
+
+    def __init__(self, **params):
+        if 'value' in params and params['value'] is not None:
+            v1, v2 = params['value']
+            v1 = try_datetime64_to_datetime(v1)
+            v2 = try_datetime64_to_datetime(v2)
+            if isinstance(v1, date) and not isinstance(v1, datetime):
+                v1 = datetime(v1.year, v1.month, v1.day)
+            if isinstance(v2, date) and not isinstance(v2, datetime):
+                v2 = datetime(v2.year, v2.month, v2.day)
+            params['value'] = (v1, v2)
+        super(DateRangePicker, self).__init__(**params)
+        self._update_value_params()
+        if self.format is None:
+            self._update_format_from_settings()
+
+    @param.depends('military_time', 'enable_seconds', watch=True)
+    def _update_format_from_settings(self):
+        if self.military_time:
+            self.format = 'YYYY-MM-DD HH:mm' + (':ss' if self.enable_seconds else '')
+        else:
+            self.format = 'YYYY-MM-DD hh:mm' + (':ss' if self.enable_seconds else '') + ' a'
+
+    def _process_param_change(self, msg):
+        msg = MaterialInputWidget._process_param_change(self, msg)
+        for p in ('start', 'end'):
+            if p in msg and msg[p] is not None:
+                v = msg[p]
+                if isinstance(v, datetime):
+                    msg[p] = v.strftime('%Y-%m-%d %H:%M:%S')
+                elif isinstance(v, date):
+                    msg[p] = v.strftime('%Y-%m-%d')
+        if 'value' in msg:
+            if msg['value'] is not None:
+                v1, v2 = msg['value']
+                if isinstance(v1, datetime):
+                    v1 = v1.strftime('%Y-%m-%d %H:%M:%S')
+                elif isinstance(v1, date):
+                    v1 = v1.strftime('%Y-%m-%d')
+                if isinstance(v2, datetime):
+                    v2 = v2.strftime('%Y-%m-%d %H:%M:%S')
+                elif isinstance(v2, date):
+                    v2 = v2.strftime('%Y-%m-%d')
+                msg['value'] = [v1, v2]
+            else:
+                msg['value'] = None
+        return msg
+
+    @staticmethod
+    def _convert_to_datetime(v):
+        if isinstance(v, str):
+            return DatetimeRangePicker._parse_datetime(v)
+        if isinstance(v, (int, float)):
+            return value_as_datetime(v)
+        if isinstance(v, datetime):
+            return v
+        if isinstance(v, date):
+            return datetime(v.year, v.month, v.day)
+        return v
+
+    def _process_property_change(self, msg):
+        msg = MaterialInputWidget._process_property_change(self, msg)
+        for p in ('start', 'end'):
+            if p in msg and msg[p] is not None:
+                msg[p] = self._convert_to_datetime(msg[p])
+        if 'value' in msg and msg['value'] is not None:
+            v1, v2 = msg['value']
+            msg['value'] = (self._convert_to_datetime(v1), self._convert_to_datetime(v2))
+        return msg
+
+    @staticmethod
+    def _parse_datetime(value_str):
+        if not value_str:
+            return None
+        formats = [
+            '%Y-%m-%d %H:%M:%S',
+            '%Y-%m-%d %H:%M',
+            '%Y-%m-%dT%H:%M:%S',
+            '%Y-%m-%dT%H:%M',
+            '%Y-%m-%d',
+        ]
+        for fmt in formats:
+            try:
+                return datetime.strptime(value_str, fmt)
+            except ValueError:
+                continue
+        return None
 
 
 class _DatetimePickerBase(_DatePickerBase):
@@ -1387,6 +1653,8 @@ __all__ = [
     "FloatInput",
     "NumberInput",
     "DatePicker",
+    "DateRangePicker",
+    "DatetimeRangePicker",
     "DatetimePicker",
     "TimePicker",
     "Checkbox",

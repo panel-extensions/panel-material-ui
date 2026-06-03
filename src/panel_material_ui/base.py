@@ -310,6 +310,7 @@ class MaterialComponent(ReactComponent):
             "@mui/x-tree-view": "https://esm.sh/@mui/x-tree-view@9.1.0",
             "mui-color-input": "https://esm.sh/mui-color-input@9.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
+            "react-day-picker": "https://esm.sh/react-day-picker@9.7.0",
             "notistack": "https://esm.sh/notistack@3.0.2",
             "material-icons/": "https://esm.sh/material-icons@1.13.14/",
             "@fontsource/roboto/": "https://esm.sh/@fontsource/roboto@5.2.5/"
@@ -511,12 +512,16 @@ class MaterialComponent(ReactComponent):
         if jslink:
             for p in params:
                 widget = controls._widgets[p]
-                widget.jslink(self, value=p, bidirectional=True)
+                if (self._source_transforms.get(p, False) is not None and
+                    self._property_mapping.get(p, False) is not None):
+                    widget.jslink(self, value=p, bidirectional=True)
                 if isinstance(widget, LiteralInput):
                     widget.serializer = 'json'
             for p in layout_params:
                 widget = style._widgets[p]
-                widget.jslink(self, value=p, bidirectional=p != 'loading')
+                if (self._source_transforms.get(p, False) is not None and
+                    self._property_mapping.get(p, False) is not None):
+                    widget.jslink(self, value=p, bidirectional=p != 'loading')
                 if isinstance(widget, LiteralInput):
                     widget.serializer = 'json'
 
