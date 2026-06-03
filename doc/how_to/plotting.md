@@ -24,12 +24,12 @@ pmu.Container(
         x="bill_length_mm", y="bill_depth_mm", by="species",
         height=400, responsive=True
     ),
-    theme_config={"chart_style": "default"},
+    theme_config={"chart_style": "classic"},
     width_option="md"
 ).preview()
 ```
 
-The `"default"` chart style restores visible axis lines, tick marks, legend borders, colorbar outlines, and plot frame outlines. When `chart_style` is omitted or set to `"minimal"`, the cleaner look is used.
+The `"classic"` chart style restores visible axis lines, tick marks, legend borders, colorbar outlines, and plot frame outlines. When `chart_style` is omitted or set to `"minimal"`, the cleaner look is used.
 
 ## Theme Bokeh, hvPlot, and HoloViews
 
