@@ -913,7 +913,8 @@ class Tabs(MaterialNamedListLike):
 
     @param.depends("active", watch=True)
     def _trigger_children(self):
-        self.param.trigger("objects")
+        if self.dynamic:
+            self.param.trigger("objects")
 
     def _get_child_model(self, child, doc, root, parent, comm):
         ref = root.ref["id"]
