@@ -235,8 +235,102 @@ class Toggle(_ButtonBase):
     _esm_transforms = [LoadingTransform, TooltipTransform, ThemedTransform]
 
 
+class Chip(_ButtonLike, _ClickButton):
+    """
+    A `Chip` can be used to display information, labels, tags, or actions.
+    It can include text, an icon, or a delete button.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/Chip.html
+    - https://mui.com/material-ui/react-chip/
+
+    :Example:
+    >>> Chip(label="Log Time", icon="clock")
+    """
+
+    clicks = param.Integer(default=0, bounds=(0, None), doc="Number of clicks.")
+
+    disabled = param.Boolean(
+        default=False,
+        doc="Disables the Chip component, making it opaque and disabling click events."
+    )
+
+    width = param.Integer(default=None, bounds=(0, None), allow_None=True, doc="Width of the widget.")
+
+    icon = param.String(
+        default=None,
+        doc="""
+        Name of the icon to display in the chip. Should be a valid Material UI icon name
+        (e.g., 'favorite', 'delete', 'add'). The icon appears before the chip label.""",
+    )
+
+    size = param.Selector(
+        objects=["small", "medium"],
+        default="medium",
+        doc="""
+        Size of the chip component. Options:
+        - 'small': Compact size for dense layouts
+        - 'medium': Standard size (default)"""
+    )
+
+    variant = param.Selector(
+        objects=["filled", "outlined"],
+        default="filled",
+        doc="""
+        Visual style variant of the chip. Options:
+        - 'filled': Solid background color (default)
+        - 'outlined': Transparent background with colored border"""
+    )
+
+    _esm_base = "Chip.jsx"
+    _event = "dom_event"
+    _rename: ClassVar[Mapping[str, str | None]] = {
+        "color": "color", "label": "label", "variant": "variant"
+    }
+
+    def __init__(self, label=None, **params):
+        if 'object' in params:
+            import warnings
+            warnings.warn(
+                "Chip's 'object' parameter is deprecated, use 'label' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            params['label'] = params.pop('object')
+        if label is not None:
+            params['label'] = label
+        click_handler = params.pop("on_click", None)
+        js_click_code = params.pop("js_on_click", None)
+        super().__init__(**params)
+        if click_handler:
+            self.on_click(click_handler)
+        if js_click_code:
+            self.js_on_click(code=js_click_code)
+
+    def on_click(self, callback: Callable[[param.parameterized.Event], None | Awaitable[None]]) -> param.parameterized.Watcher:
+        """
+        Register a callback to be executed when the Chip is clicked.
+
+        Arguments
+        ---------
+        callback:
+            The function to run on click events. Must accept a positional `Event` argument.
+
+        Returns
+        -------
+        watcher: param.Parameterized.Watcher
+          A `Watcher` that executes the callback when the Chip is clicked.
+        """
+        return self.param.watch(callback, "clicks", onlychanged=False)
+
+    def _handle_click(self, event):
+        self.param.update(clicks=self.clicks + 1)
+
+
 __all__ = [
     "Button",
+    "Chip",
     "Fab",
     "Toggle"
 ]
