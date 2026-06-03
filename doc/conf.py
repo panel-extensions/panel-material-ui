@@ -106,6 +106,21 @@ numpydoc_show_inherited_class_members = False
 numpydoc_class_members_toctree = False
 napoleon_numpy_docstring = True
 
+# Redirects for renamed pages (sphinxext-rediraffe). Maps old source paths to
+# their new locations so existing links and bookmarks keep working.
+rediraffe_redirects = {
+    "how_to/customize.md": "how_to/customize_themes_and_styles.md",
+    "how_to/palette.md": "how_to/customize_palette.md",
+    "how_to/typography.md": "how_to/customize_typography.md",
+    "how_to/components.md": "how_to/theme_components.md",
+    "how_to/dark_mode.md": "how_to/control_dark_mode.md",
+    "how_to/color.md": "how_to/pick_colors.md",
+    "how_to/icons.md": "how_to/using_mui_icons.md",
+    "how_to/custom.md": "how_to/build_custom_components.md",
+    "how_to/branding.md": "how_to/apply_branding.md",
+    "how_to/plotting.md": "how_to/theme_plotting_libraries.md",
+}
+
 autodoc_mock_imports = ["panel.pane.vtk"]
 
 myst_enable_extensions = ["colon_fence", "deflist"]
