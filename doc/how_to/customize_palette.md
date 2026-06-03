@@ -140,7 +140,7 @@ However, you should still verify that the chosen foreground and background color
 
 ## Dark mode
 
-For more guidance on setting up dark mode, including toggling, see our [Dark mode guide](./dark_mode). Typically, in `panel_material_ui`, you either set `dark_mode=True` on individual components or at the `Page` level.
+For more guidance on setting up dark mode, including toggling, see our [Dark mode guide](./control_dark_mode). Typically, in `panel_material_ui`, you either set `dark_mode=True` on individual components or at the `Page` level.
 
 ## Summary
 
