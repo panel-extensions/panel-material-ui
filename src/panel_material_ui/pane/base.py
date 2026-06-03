@@ -7,7 +7,7 @@ import param
 from panel.links import Callback
 from panel.pane import HoloViews, Markdown
 
-from ..base import COLORS, MaterialComponent, ThemedTransform, TooltipTransform
+from ..base import MaterialComponent
 from ..widgets import DatetimeInput, DiscreteSlider, EditableFloatSlider, EditableIntSlider, FloatSlider, IntSlider, Select
 
 HoloViews.default_widgets = dict(
@@ -193,74 +193,6 @@ class Avatar(ClickablePaneBase):
     )
 
     _esm_base = "Avatar.jsx"
-
-
-class Chip(ClickablePaneBase, TooltipTransform):
-    """
-    A `Chip` can be used to display information, labels, tags, or actions. It can include text,
-    an avatar, an icon, or a delete button.
-
-    :References:
-
-    - https://mui.com/material-ui/react-chip/
-
-    :Example:
-    >>> Chip("Log Time", icon="clock")
-    """
-
-    color = param.Selector(
-        objects=COLORS,
-        default="primary",
-        doc="""
-        Color theme of the chip. Available options include standard Material UI colors
-        like 'primary', 'secondary', 'default', 'error', 'info', 'success', 'warning'."""
-    )
-
-    description = param.String(default="", doc="Tooltip text to display when hovering over the widget.")
-
-    description_delay = param.Integer(default=500, doc="""
-        Delay (in milliseconds) to display the tooltip after the cursor has
-        hovered over the Button, default is 500ms.""")
-
-    disabled = param.Boolean(
-        default=False,
-        doc="Disables the Chip component, making it opaque and disabling click events."
-    )
-
-    icon = param.String(
-        default=None,
-        doc="""
-        Name of the icon to display in the chip. Should be a valid Material UI icon name
-        (e.g., 'favorite', 'delete', 'add'). The icon appears before the chip label.""",
-    )
-
-    object = param.String(
-        default="",
-        doc="""
-        The text content/label to display in the chip."""
-    )
-
-    size = param.Selector(
-        objects=["small", "medium"],
-        default="medium",
-        doc="""
-        Size of the chip component. Options:
-        - 'small': Compact size for dense layouts
-        - 'medium': Standard size (default)"""
-    )
-
-    variant = param.Selector(
-        objects=["filled", "outlined"],
-        default="filled",
-        doc="""
-        Visual style variant of the chip. Options:
-        - 'filled': Solid background color (default)
-        - 'outlined': Transparent background with colored border"""
-    )
-
-    _esm_base = "Chip.jsx"
-    _esm_transforms = [TooltipTransform, ThemedTransform]
-
 
 
 class Skeleton(MaterialPaneBase):
