@@ -283,10 +283,12 @@ class Chip(_ButtonLike, _ClickButton):
         - 'outlined': Transparent background with colored border"""
     )
 
+    object = param.Parameter(precedence=-1)
+
     _esm_base = "Chip.jsx"
     _event = "dom_event"
     _rename: ClassVar[Mapping[str, str | None]] = {
-        "color": "color", "label": "label", "variant": "variant"
+        "color": "color", "label": "label", "variant": "variant", "object": None
     }
 
     def __init__(self, label=None, **params):
@@ -299,7 +301,7 @@ class Chip(_ButtonLike, _ClickButton):
             )
             params['label'] = params.pop('object')
         if label is not None:
-            params['label'] = label
+            params['object'] = params['label'] = label
         click_handler = params.pop("on_click", None)
         js_click_code = params.pop("js_on_click", None)
         super().__init__(**params)

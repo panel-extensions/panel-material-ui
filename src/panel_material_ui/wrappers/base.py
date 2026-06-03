@@ -23,6 +23,52 @@ class Wrapper(MaterialComponent):
         super().__init__(**params)
 
 
+class Transition(Wrapper):
+    """
+    The `Transition` wraps a child component with a transition effect
+    that plays when the child enters or exits. Supports multiple
+    animation variants including fade, grow, slide, zoom, and collapse.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/wrappers/Transition.html
+    - https://mui.com/material-ui/transitions/
+
+    :Example:
+
+    >>> Transition(Button(label="Hello"), variant="fade", active=True)
+    """
+
+    active = param.Boolean(default=True, doc="""
+        Whether the child is shown (with transition). Set to False
+        to animate the child out, True to animate it in.""")
+
+    duration = param.Integer(default=None, bounds=(0, None), doc="""
+        The duration of the transition in milliseconds. When None,
+        the duration is automatically calculated based on the
+        element's size.""")
+
+    orientation = param.Selector(
+        default="vertical", objects=["vertical", "horizontal"], doc="""
+        The orientation of the collapse transition. Only applies
+        when variant is 'collapse'.""")
+
+    placement = param.Selector(
+        default="left",
+        objects=["down", "left", "right", "up"],
+        doc="""
+        The direction the child slides in from. Only applies
+        when variant is 'slide'.""")
+
+    variant = param.Selector(
+        default="fade",
+        objects=["collapse", "fade", "grow", "slide", "zoom"],
+        doc="""
+        The type of transition animation to apply.""")
+
+    _esm_base = "Transition.jsx"
+
+
 class Badge(Wrapper):
     """
     The `Badge` generates a small badge to the top-right (by default)

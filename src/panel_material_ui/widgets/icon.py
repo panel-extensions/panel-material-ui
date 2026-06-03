@@ -273,9 +273,11 @@ class Avatar(MaterialWidget):
 
     width = param.Integer(default=None, bounds=(0, None), allow_None=True, doc="Width of the widget.")
 
+    object = param.Parameter(precedence=-1)
+
     _esm_base = "Avatar.jsx"
     _event = "dom_event"
-    _rename: dict = {"content": "content", "label": None}
+    _rename: dict = {"content": "content", "label": None, "object": None}
 
     def __init__(self, content=None, **params):
         if 'object' in params:
@@ -287,7 +289,7 @@ class Avatar(MaterialWidget):
             )
             params['content'] = params.pop('object')
         if content is not None:
-            params['content'] = content
+            params['object'] = params['content'] = content
         click_handler = params.pop("on_click", None)
         super().__init__(**params)
         if click_handler:
