@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
 
 import param
-from panel.links import Callback
 from panel.pane import HoloViews, Markdown
 
 from ..base import MaterialComponent
