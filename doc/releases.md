@@ -4,7 +4,7 @@
 
 Panel Material UI 0.12.0 introduces a new class of Wrapper components that wrap child components to add visual effects or overlays. The release also adds the `StepperMenu` widget, a `DateRangePicker` and `DatetimeRangePicker`, converts `Avatar` and `Chip` to proper widgets, and adds static type checking with a `py.typed` marker.
 
-Many thanks to @philippjfr for his contributions to this release.
+Many thanks to @ahuang11, @senlinyang98-crypto and @philippjfr for their contributions to this release.
 
 ### ✨ New Wrapper Components
 
