@@ -14,8 +14,8 @@ from panel.layout.base import (
     NamedListLike,
     SizingModeMixin,
 )
-from panel.pane import panel
-from panel.util import edit_readonly, isIn, param_name
+from panel.pane import Markdown, panel
+from panel.util import edit_readonly, escape, isIn, param_name
 from panel.viewable import Child, Children, Viewable
 
 from ..base import COLORS, ColorType, MaterialComponent
@@ -1028,6 +1028,16 @@ class Alert(MaterialListLike):
         The variant of the alert.""")  # type: ignore[assignment]
 
     _esm_base = "Alert.jsx"
+
+    def _process_param_change(self, params):
+        if 'object' in params:
+            obj = params['object']
+            if obj is None:
+                obj = ''
+            parser = Markdown._get_parser('markdown-it', ())
+            html = parser.render(obj)
+            params['object'] = escape(html)
+        return super()._process_param_change(params)
 
 
 class Backdrop(MaterialListLike):
