@@ -277,7 +277,7 @@ class Avatar(MaterialWidget):
 
     _esm_base = "Avatar.jsx"
     _event = "dom_event"
-    _rename: dict = {"content": "content", "label": None}
+    _rename: dict = {"content": "content", "label": None, "object": None}
 
     def __init__(self, content=None, **params):
         if 'object' in params:
