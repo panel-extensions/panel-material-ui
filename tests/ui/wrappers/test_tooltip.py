@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component
-from panel_material_ui.pane import Tooltip
+from panel_material_ui.wrappers import Tooltip
 from panel_material_ui.widgets import Button
 from playwright.sync_api import expect
 
@@ -39,7 +39,7 @@ def test_tooltip_arrow(page):
 
 def test_tooltip_placement_top(page):
     button = Button(label="Hover me")
-    widget = Tooltip(button, title="Top tooltip", placement="top", enter_delay=0)
+    widget = Tooltip(button, title="Top tooltip", placement="top", enter_delay=0, margin=(200, 0, 0, 0))
     serve_component(page, widget)
 
     page.locator('.MuiButton-root').hover()
