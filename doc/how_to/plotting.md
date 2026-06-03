@@ -2,6 +2,35 @@
 
 Panel Material UI provides integrated theming support for popular plotting libraries including Bokeh, hvPlot, HoloViews, and Plotly. Your plots will automatically adapt to the active theme, including respecting the primary color, the font family, and toggling between dark and light mode.
 
+## Chart Style
+
+By default, Panel Material UI applies a minimal chart style that hides axis lines, tick marks, and plot outlines for a cleaner look. You can switch to a more standard styling by setting `chart_style` in `theme_config`:
+
+```{pyodide}
+import panel as pn
+import panel_material_ui as pmu
+import pandas as pd
+import hvplot.pandas
+
+pn.extension()
+
+df = pd.read_csv("https://datasets.holoviz.org/penguins/v1/penguins.csv")
+
+toggle = pmu.ThemeToggle(styles={"margin-left": "auto"})
+
+pmu.Container(
+    toggle,
+    df.hvplot.scatter(
+        x="bill_length_mm", y="bill_depth_mm", by="species",
+        height=400, responsive=True
+    ),
+    theme_config={"chart_style": "classic"},
+    width_option="md"
+).preview()
+```
+
+The `"classic"` chart style restores visible axis lines, tick marks, legend borders, colorbar outlines, and plot frame outlines. When `chart_style` is omitted or set to `"minimal"`, the cleaner look is used.
+
 ## Theme Bokeh, hvPlot, and HoloViews
 
 Panel Material UI has integrated theming support for Bokeh, hvPlot, and HoloViews. This means that the plots will automatically adapt to the active theme, including respecting the primary color, the font family, and toggling between dark and light mode.
