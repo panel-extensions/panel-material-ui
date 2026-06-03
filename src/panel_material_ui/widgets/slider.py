@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import typing as t
 
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
@@ -9,19 +10,19 @@ from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
 from panel.widgets.slider import _SliderBase
 from param.parameterized import resolve_value
 
-from ..base import COLORS
+from ..base import COLORS, ColorType
 from .base import MaterialWidget
 
 
 class _ContinuousSlider(MaterialWidget, _SliderBase):
 
-    bar_color = param.Color(default=None, allow_None=True, doc="Color of the bar")
+    bar_color = param.Color(default=None, allow_None=True, doc="Color of the bar")  # type: ignore[assignment]
 
-    color = param.Selector(objects=COLORS, default="primary", doc="The color of the slider.")
+    color: ColorType = param.Selector(objects=COLORS, default="primary", doc="The color of the slider.")  # type: ignore[assignment]
 
-    direction = param.Selector(default='ltr', objects=['ltr', 'rtl'], doc="""
+    direction: t.Literal["ltr", "rtl"] = param.Selector(default='ltr', objects=['ltr', 'rtl'], doc="""
         Whether the slider should go from left-to-right ('ltr') or
-        right-to-left ('rtl').""")
+        right-to-left ('rtl').""")  # type: ignore[assignment]
 
     start = param.Number(default=0, doc="The starting value of the slider.")
 
@@ -35,14 +36,20 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
         If True the `options` are shown as marks. If a list, it should contain dicts with 'value'
         and an optional 'label' keys.""")
 
-    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="The size of the slider.")
+    size: t.Literal["small", "medium", "large"] = param.Selector(
+        default="medium", objects=["small", "medium", "large"],
+        doc="The size of the slider."
+    )  # type: ignore[assignment]
 
     step = param.Number(default=1, doc="The step size for the slider.")
 
-    tooltips = param.Selector(objects=[True, False, "auto"], default="auto", doc="""
-        Whether the slider handle should display tooltips (if auto will render on hover).""")
+    tooltips: bool | t.Literal["auto"] = param.Selector(objects=[True, False, "auto"], default="auto", doc="""
+        Whether the slider handle should display tooltips (if auto will render on hover).""")  # type: ignore[assignment]
 
-    track = param.Selector(objects=["normal", "inverted", False], default="normal", doc="The track style of the slider.")
+    track: t.Literal["normal", "inverted"] | bool = param.Selector(
+        objects=["normal", "inverted", False], default="normal",
+        doc="The track style of the slider."
+    )  # type: ignore[assignment]
 
     value = param.Number(default=0)
 
@@ -140,13 +147,13 @@ class DateSlider(_ContinuousSlider):
         Whether to store the date as a datetime.""")
 
     end = param.Date(default=None, doc="""
-        The upper bound.""")
+        The upper bound.""")  # type: ignore[assignment]
 
     format = param.String(default=None, doc="""
         Datetime format used for parsing and formatting the date.""")
 
     start = param.Date(default=None, doc="""
-        The lower bound.""")
+        The lower bound.""")  # type: ignore[assignment]
 
     step = param.Integer(default=1, bounds=(1, None), doc="""
         The step parameter in days.""")
@@ -154,10 +161,10 @@ class DateSlider(_ContinuousSlider):
     value = param.Date(default=None, doc="""
         The selected date value of the slider. Updated when the slider
         handle is dragged. Supports datetime.datetime, datetime.date
-        or np.datetime64 types.""")
+        or np.datetime64 types.""")  # type: ignore[assignment]
 
     value_throttled = param.Date(default=None, constant=True, doc="""
-        The value of the slider. Updated when the slider handle is released.""")
+        The value of the slider. Updated when the slider handle is released.""")  # type: ignore[assignment]
 
     _constants = {"date": True, "loading_inset": -6}
     _rename = {"as_datetime": None}
@@ -212,7 +219,7 @@ class DatetimeSlider(DateSlider):
         Whether to store the date as a datetime.""")
 
     step = param.Number(default=60, bounds=(1, None), doc="""
-        The step size in seconds. Default is 1 minute, i.e 60 seconds.""")
+        The step size in seconds. Default is 1 minute, i.e 60 seconds.""")  # type: ignore[assignment]
 
     _property_conversion = staticmethod(value_as_datetime)
 
@@ -221,9 +228,9 @@ class DatetimeSlider(DateSlider):
 
 class _RangeSliderBase(_ContinuousSlider):
 
-    value = param.Range(default=(0, 100))
+    value = param.Range(default=(0, 100))  # type: ignore[assignment]
 
-    value_throttled = param.Range(default=(0, 100), readonly=True)
+    value_throttled = param.Range(default=(0, 100), readonly=True)  # type: ignore[assignment]
 
     value_start = param.Parameter(readonly=True, doc="""The lower value of the selected range.""")
 
@@ -336,7 +343,7 @@ class DateRangeSlider(_RangeSliderBase):
 
     value = param.DateRange(default=None, allow_None=False, doc="""
         The selected range as a tuple of values. Updated when one of the handles is
-        dragged. Supports datetime.datetime, datetime.date, and np.datetime64 ranges.""")
+        dragged. Supports datetime.datetime, datetime.date, and np.datetime64 ranges.""")  # type: ignore[assignment, call-overload]
 
     value_start = param.Date(default=None, readonly=True, doc="""
         The lower value of the selected range.""")
@@ -346,13 +353,13 @@ class DateRangeSlider(_RangeSliderBase):
 
     value_throttled = param.DateRange(default=None, constant=True, nested_refs=True, doc="""
         The selected range as a tuple of values. Updated one of the handles is released. Supports
-        datetime.datetime, datetime.date and np.datetime64 ranges""")
+        datetime.datetime, datetime.date and np.datetime64 ranges""")  # type: ignore[assignment]
 
     start = param.Date(default=None, doc="""
-        The lower bound.""")
+        The lower bound.""")  # type: ignore[assignment]
 
     end = param.Date(default=None, doc="""
-        The upper bound.""")
+        The upper bound.""")  # type: ignore[assignment]
 
     step = param.Number(default=1, doc="""
         The step size in days. Default is 1 day.""")
@@ -490,7 +497,7 @@ class Rating(MaterialWidget):
     >>> Rating(value=3, size="large", name="Rate the product")
     """
 
-    color = param.Selector(objects=COLORS, default=None, doc="The color of the ratings.")
+    color: ColorType = param.Selector(objects=COLORS, default=None, doc="The color of the ratings.")  # type: ignore[assignment]
 
     end = param.Integer(default=5, bounds=(1, None), doc="The maximum value for the rating.")
 
@@ -511,7 +518,10 @@ class Rating(MaterialWidget):
     readonly = param.Boolean(default=False, doc="""
         Whether the rating is read-only. If True, the user cannot change the rating.""")
 
-    size = param.Selector(default="medium", objects=["small", "medium", "large"], doc="Size of the rating icons.")
+    size: t.Literal["small", "medium", "large"] = param.Selector(
+        default="medium", objects=["small", "medium", "large"],
+        doc="Size of the rating icons."
+    )  # type: ignore[assignment]
 
     value = param.Number(default=0, allow_None=True, bounds=(0, 5))
 

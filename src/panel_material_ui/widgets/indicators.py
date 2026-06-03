@@ -1,6 +1,8 @@
+import typing as t
+
 import param
 
-from ..base import COLORS, ThemedTransform
+from ..base import COLORS, ColorType, ThemedTransform
 from .base import MaterialWidget
 
 
@@ -19,11 +21,11 @@ class CircularProgress(MaterialWidget):
     >>> CircularProgress(color='success')
     """
 
-    bgcolor = param.Selector(default=None, objects=[None, "light", "dark"], doc="""
-        The background color of the loading spinner.""")
+    bgcolor: t.Literal["light", "dark"] | None = param.Selector(default=None, objects=[None, "light", "dark"], doc="""
+        The background color of the loading spinner.""")  # type: ignore[assignment]
 
-    color = param.Selector(objects=COLORS, default="primary", doc="""
-        The color of the loading indicator.""")
+    color: ColorType = param.Selector(objects=COLORS, default="primary", doc="""
+        The color of the loading indicator.""")  # type: ignore[assignment]
 
     size = param.Integer(default=40, doc="""
         The size of the loading spinner.""")
@@ -34,8 +36,8 @@ class CircularProgress(MaterialWidget):
     value = param.Number(default=0, bounds=(0, 100), doc="""
         The value of the loading indicator.""")
 
-    variant = param.Selector(default="indeterminate", objects=["determinate", "indeterminate"], doc="""
-        The variant of the loading indicator.""")
+    variant: t.Literal["determinate", "indeterminate"] = param.Selector(default="indeterminate", objects=["determinate", "indeterminate"], doc="""
+        The variant of the loading indicator.""")  # type: ignore[assignment]
 
     width = param.Integer(default=None)
 
@@ -65,8 +67,8 @@ class LinearProgress(MaterialWidget):
     active = param.Boolean(default=True, doc="""
         Whether to animate the bar when in indeterminate mode.""")
 
-    color = param.Selector(objects=COLORS, default="primary", doc="""
-        The color of the progress bar.""")
+    color: ColorType = param.Selector(objects=COLORS, default="primary", doc="""
+        The color of the progress bar.""")  # type: ignore[assignment]
 
     value = param.Number(default=-1, bounds=(-1, 100), doc="""
         The value of the progress bar.""")
@@ -74,8 +76,9 @@ class LinearProgress(MaterialWidget):
     value_buffer = param.Number(default=-1, bounds=(-1, 100), doc="""
         The buffer of the progress bar (if variant="buffer").""")
 
-    variant = param.Selector(default="determinate", objects=["determinate", "indeterminate", "buffer", "query"], doc="""
-        The variant of the progress bar.""")
+    variant: t.Literal["determinate", "indeterminate", "buffer", "query"] = param.Selector(
+        default="determinate", objects=["determinate", "indeterminate", "buffer", "query"], doc="""
+        The variant of the progress bar.""")  # type: ignore[assignment]
 
     _esm_base = "LinearProgress.jsx"
     _esm_transforms = [ThemedTransform]

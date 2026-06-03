@@ -78,7 +78,7 @@ def hex2rgb(hex: str) -> tuple[int, int, int]:
     tuple[int, int, int]
         The RGB tuple.
     """
-    return [int(hex[i : i + 2], 16) for i in range(1, 6, 2)]
+    return tuple(int(hex[i : i + 2], 16) for i in range(1, 6, 2))  # type: ignore[return-value]
 
 def linear_gradient(start_hex: str, finish_hex: str, n: int = 10) -> list[str]:
     """
@@ -102,9 +102,9 @@ def linear_gradient(start_hex: str, finish_hex: str, n: int = 10) -> list[str]:
     f = hex2rgb(finish_hex)
     gradient = [s]
     for t in range(1, n):
-        curr_vector = [int(s[j] + (float(t)/(n-1))*(f[j]-s[j])) for j in range(3)]
-        gradient.append(curr_vector)
-    return [rgb2hex([c/255. for c in rgb]) for rgb in gradient]
+        curr_vector = tuple(int(s[j] + (float(t)/(n-1))*(f[j]-s[j])) for j in range(3))
+        gradient.append(curr_vector)  # type: ignore[arg-type]
+    return [rgb2hex([c/255. for c in rgb]) for rgb in gradient]  # type: ignore[arg-type]
 
 def generate_palette(color: str, n_colors: int = 3) -> list[str]:
     """

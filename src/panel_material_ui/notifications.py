@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import typing as t
 import uuid
-from typing import TYPE_CHECKING, Any
 
 import param
 from bokeh.model import Model
@@ -16,7 +16,7 @@ from ._utils import BOKEH_GE_3_8
 from .base import MaterialComponent
 from .widgets import Button, ColorPicker, NumberInput, Select, TextInput
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from bokeh.document import Document
     from bokeh.models import Model
     from pyviz_comms import Comm
@@ -37,7 +37,7 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
     notifications = param.List(item_type=(MuiNotification, dict), doc="""
         List of notifications currently displayed in the notification area.
         Each item is a MuiNotification or a dictionary representing a notification.
-    """)
+    """)  # type: ignore[assignment]
 
     types = param.List(default=[], doc="""
         Custom notification types.
@@ -83,7 +83,7 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
             """, args={'notifications': model}))
         return model
 
-    def _process_events(self, events: dict[str, Any]) -> None:
+    def _process_events(self, events: dict[str, t.Any]) -> None:
         if 'notifications' in events:
             old = {n._uuid: n for n in self.notifications}
             notifications = []

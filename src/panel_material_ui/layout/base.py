@@ -1,15 +1,8 @@
 from __future__ import annotations
 
+import typing as t
 from collections import defaultdict
-from collections.abc import Mapping
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Awaitable,
-    Callable,
-    ClassVar,
-    Iterable,
-)
+from collections.abc import Callable, Iterable
 
 import param
 from bokeh.models import Spacer as BkSpacer
@@ -25,10 +18,10 @@ from panel.pane import panel
 from panel.util import edit_readonly, isIn, param_name
 from panel.viewable import Child, Children, Viewable
 
-from ..base import COLORS, MaterialComponent
+from ..base import COLORS, ColorType, MaterialComponent
 from ..widgets import ToggleIcon
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from bokeh.document import Document
     from bokeh.model import Model
     from bokeh.models.ui.ui_element import UIElement
@@ -62,7 +55,7 @@ class MaterialLayout(MaterialComponent, SizingModeMixin):
 
 class MaterialListLike(MaterialLayout, ListLike):
 
-    scroll = param.Selector(
+    scroll: t.Literal["both-auto", "y-auto", "x-auto", "both", "x", "y"] | bool = param.Selector(
         default=False,
         objects=[False, True, "both-auto", "y-auto", "x-auto", "both", "x", "y"],
         doc="""Whether to add scrollbars if the content overflows the size
@@ -73,13 +66,13 @@ class MaterialListLike(MaterialLayout, ListLike):
         If "x" or "y", will always add scrollbars in the respective
         direction. If False, overflowing content will be clipped.
         If True, will only add scrollbars in the direction of the container,
-        (e.g. Column: vertical, Row: horizontal).""")
+        (e.g. Column: vertical, Row: horizontal).""")  # type: ignore[assignment]
 
-    _stylesheets: ClassVar[list[str]] = [f'{CDN_DIST}css/listpanel.css']
+    _stylesheets: t.ClassVar[list[str]] = [f'{CDN_DIST}css/listpanel.css']
 
     __abstract = True
 
-    def _process_param_change(self, params: dict[str, Any]) -> dict[str, Any]:
+    def _process_param_change(self, params: dict[str, t.Any]) -> dict[str, t.Any]:
         if (scroll := params.get('scroll')):
             css_classes = params.get('css_classes', self.css_classes)
             if scroll in _SCROLL_MAPPING:
@@ -100,7 +93,7 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
 
     __abstract = True
 
-    def __init__(self, *items: list[Any | tuple[str, Any]], **params: Any):
+    def __init__(self, *items: list[t.Any | tuple[str, t.Any]], **params: t.Any):
         if 'objects' in params:
             if items:
                 raise ValueError(
@@ -154,7 +147,7 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
             new_objects[index], self._headers[index], self._names[index] = self._to_object_and_name(panes)
         self.objects = new_objects
 
-    def append(self, pane: Any) -> None:
+    def append(self, pane: t.Any) -> None:
         """
         Appends an object to the tabs.
 
@@ -177,7 +170,7 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         self._headers = []
         self.objects = []
 
-    def extend(self, panes: Iterable[Any]) -> None:
+    def extend(self, panes: Iterable[t.Any]) -> None:
         """
         Extends the the tabs with a list.
 
@@ -192,7 +185,7 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         self._headers.extend(new_headers)
         self.objects = objects
 
-    def insert(self, index: int, pane: Any) -> None:
+    def insert(self, index: int, pane: t.Any) -> None:
         """
         Inserts an object in the tabs at the specified index.
 
@@ -298,7 +291,7 @@ class Column(MaterialListLike):
     def _handle_click(self, event=None):
         self.param.trigger("scroll_button_click")
 
-    def on_click(self, callback: Callable[[param.parameterized.Event], None | Awaitable[None]]) -> param.parameterized.Watcher:
+    def on_click(self, callback: Callable[[param.parameterized.Event], None | t.Awaitable[None]]) -> param.parameterized.Watcher:
         """
         Register a callback invoked when the scroll-to-latest button is clicked.
         """
@@ -326,7 +319,7 @@ class Feed(Column):
         When scrolled halfway into the buffer, the feed will automatically
         load additional objects while unloading objects on the opposite side.""")
 
-    scroll = param.Selector(
+    scroll: t.Literal["both-auto", "y-auto", "x-auto", "both", "x", "y"] | bool = param.Selector(
         default="y",
         objects=[False, True, "both-auto", "y-auto", "x-auto", "both", "x", "y"],
         doc="""Whether to add scrollbars if the content overflows the size
@@ -337,7 +330,7 @@ class Feed(Column):
         If "x" or "y", will always add scrollbars in the respective
         direction. If False, overflowing content will be clipped.
         If True, will only add scrollbars in the direction of the container,
-        (e.g. Column: vertical, Row: horizontal).""")
+        (e.g. Column: vertical, Row: horizontal).""")  # type: ignore[assignment]
 
     visible_children = param.List(default=[], item_type=str, doc="""
         Internal list of currently visible frontend child model ids.""")
@@ -347,7 +340,7 @@ class Feed(Column):
         This range is automatically updated based on scrolling.""")
 
     _esm_base = "Feed.jsx"
-    _rename: ClassVar[Mapping[str, str | None]] = {
+    _rename: t.ClassVar[dict[str, str | None]] = {
         **Column._rename, "load_buffer": None, "visible_range": None,
     }
 
@@ -395,7 +388,7 @@ class Feed(Column):
     def _synced_range(self) -> tuple[int, int]:
         n = len(self.objects)
         if self.visible_range:
-            return (
+            return (  # type: ignore[return-value]
                 max(self.visible_range[0] - self.load_buffer, 0),
                 min(self.visible_range[-1] + self.load_buffer, n),
             )
@@ -430,7 +423,7 @@ class Feed(Column):
         msg.pop("visible_range", None)
         return super()._process_param_change(msg)
 
-    def _get_child_model(
+    def _get_child_model(  # type: ignore[return-value]
         self, child: Viewable, doc: Document, root: Model, parent: Model,
         comm: Comm | None
     ) -> tuple[list[UIElement] | UIElement | None, list[UIElement]]:
@@ -451,7 +444,7 @@ class Feed(Column):
         new_models, old_models = [], []
         self._last_synced = self._synced_range
 
-        current_objects = list(self.objects)
+        current_objects = list(self.objects)  # type: ignore[call-overload]
         ref = root.ref["id"]
         for i in range(*self._last_synced):
             pane = current_objects[i]
@@ -467,7 +460,7 @@ class Feed(Column):
                     e.layout = None
                     return self._get_child_model(current_objects[:i], doc, root, parent, comm)
             new_models.append(child)
-        return new_models, old_models
+        return new_models, old_models  # type: ignore[return-value]
 
     def _process_event(self, event=None) -> None:
         """
@@ -495,7 +488,7 @@ class Feed(Column):
         self.scroll_to_latest()
         super()._handle_click(event)
 
-    def _handle_msg(self, msg: dict[str, Any]) -> None:
+    def _handle_msg(self, msg: dict[str, t.Any]) -> None:
         if msg.get("type") == "request_latest":
             self.scroll_to_latest(scroll_limit=msg.get("scroll_limit"))
 
@@ -530,36 +523,47 @@ class FlexBox(MaterialListLike):
     The `FlexBox` layout arranges its contents in a flex container.
     """
 
-    align_content = param.Selector(default='flex-start', objects=[
+    align_content: t.Literal[
+        'normal', 'flex-start', 'flex-end', 'center', 'space-between',
+        'space-around', 'space-evenly', 'stretch', 'start', 'end',
+        'baseline', 'first baseline', 'last baseline'
+    ] = param.Selector(default='flex-start', objects=[
         'normal', 'flex-start', 'flex-end', 'center', 'space-between',
         'space-around', 'space-evenly', 'stretch', 'start', 'end',
         'baseline', 'first baseline', 'last baseline'], doc="""
         Defines how a flex container's lines align when there is extra
-        space in the cross-axis.""")
+        space in the cross-axis.""")  # type: ignore[assignment]
 
-    align_items = param.Selector(default='flex-start', objects=[
+    align_items: t.Literal[
+        'stretch', 'flex-start', 'flex-end', 'center', 'baseline',
+        'first baseline', 'last baseline', 'start', 'end',
+        'self-start', 'self-end'
+    ] = param.Selector(default='flex-start', objects=[
         'stretch', 'flex-start', 'flex-end', 'center', 'baseline',
         'first baseline', 'last baseline', 'start', 'end',
         'self-start', 'self-end'], doc="""
         Defines the default behavior for how flex items are laid
-        out along the cross axis on the current line.""")
+        out along the cross axis on the current line.""")  # type: ignore[assignment]
 
-    flex_direction = param.Selector(default='row', objects=[
+    flex_direction: t.Literal['row', 'row-reverse', 'column', 'column-reverse'] = param.Selector(default='row', objects=[
         'row', 'row-reverse', 'column', 'column-reverse'], doc="""
         This establishes the main-axis, thus defining the direction
-        flex items are placed in the flex container.""")
+        flex items are placed in the flex container.""")  # type: ignore[assignment]
 
-    flex_wrap = param.Selector(default='wrap', objects=[
+    flex_wrap: t.Literal['nowrap', 'wrap', 'wrap-reverse'] = param.Selector(default='wrap', objects=[
         'nowrap', 'wrap', 'wrap-reverse'], doc="""
-        Whether and how to wrap items in the flex container.""")
+        Whether and how to wrap items in the flex container.""")  # type: ignore[assignment]
 
     gap = param.String(default='', doc="""
         Defines the spacing between flex items, supporting various units (px, em, rem, %, vw/vh).""")
 
-    justify_content = param.Selector(default='flex-start', objects=[
+    justify_content: t.Literal[
+        'flex-start', 'flex-end', 'center', 'space-between', 'space-around',
+        'space-evenly', 'start', 'end', 'left', 'right'
+    ] = param.Selector(default='flex-start', objects=[
         'flex-start', 'flex-end', 'center', 'space-between', 'space-around',
         'space-evenly', 'start', 'end', 'left', 'right'], doc="""
-        Defines the alignment along the main axis.""")
+        Defines the alignment along the main axis.""")  # type: ignore[assignment]
 
     _esm_base = "Box.jsx"
     _constants = {"direction": "flex"}
@@ -576,7 +580,9 @@ class PaperMixin(param.Parameterized):
 
     square = param.Boolean(default=False, doc="Whether to disable rounded corners.")
 
-    variant = param.Selector(objects=["elevation", "outlined"], default="elevation", doc="Variant style of the paper surface.")
+    variant: t.Literal["elevation", "outlined"] = param.Selector(
+        objects=["elevation", "outlined"], default="elevation",
+        doc="Variant style of the paper surface.")  # type: ignore[assignment]
 
     _abstract = True
 
@@ -594,7 +600,9 @@ class Paper(MaterialListLike, PaperMixin):
     >>> Paper(name="Paper", objects=[1, 2, 3], elevation=10, width=200, height=200)
     """
 
-    direction = param.Selector(objects=["row", "column", "column-reverse", "row-reverse"], default="column", doc="Direction of content arrangement in the paper.")
+    direction: t.Literal["row", "column", "column-reverse", "row-reverse"] = param.Selector(
+        objects=["row", "column", "column-reverse", "row-reverse"], default="column",
+        doc="Direction of content arrangement in the paper.")  # type: ignore[assignment]
 
     _esm_base = "Paper.jsx"
 
@@ -621,9 +629,11 @@ class Container(MaterialListLike):
         This is useful if you'd prefer to design for a fixed set of sizes
         instead of trying to accommodate a fully fluid viewport.""")
 
-    sizing_mode = param.Selector(default='stretch_width')
+    sizing_mode: str | None = param.Selector(default='stretch_width')  # type: ignore[assignment]
 
-    width_option = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="lg", doc="Width option for the container.")
+    width_option: t.Literal["xs", "sm", "md", "lg", "xl"] | bool = param.Selector(
+        objects=["xs", "sm", "md", "lg", "xl", False], default="lg",
+        doc="Width option for the container.")  # type: ignore[assignment]
 
     _esm_base = "Container.jsx"
 
@@ -651,7 +661,9 @@ class Grid(MaterialListLike):
     column_spacing = param.Number(default=None, doc="""
         The spacing between the columns in the grid. Overrides the `spacing` parameter.""")
 
-    direction = param.Selector(objects=["row", "column", "column-reverse", "row-reverse"], default="row", doc="Direction of grid arrangement.")
+    direction: t.Literal["row", "column", "column-reverse", "row-reverse"] = param.Selector(
+        objects=["row", "column", "column-reverse", "row-reverse"], default="row",
+        doc="Direction of grid arrangement.")  # type: ignore[assignment]
 
     row_spacing = param.Number(default=None, doc="""
         The spacing between the rows in the grid. Overrides the `spacing` parameter.""")
@@ -872,7 +884,7 @@ class Tabs(MaterialNamedListLike):
     centered = param.Boolean(default=False, doc="""
         Whether the tabs should be centered.""")
 
-    color = param.Selector(default="primary", objects=COLORS, doc="Color of the tabs component.")
+    color: ColorType = param.Selector(default="primary", objects=COLORS, doc="Color of the tabs component.")  # type: ignore[assignment]
 
     disabled = param.List(default=[], item_type=int, doc="""
         List of indexes of disabled tabs.""")
@@ -881,12 +893,12 @@ class Tabs(MaterialNamedListLike):
         Whether the tab contents should be rendered dynamically,
         i.e. only when the tab is active.""")
 
-    tabs_location = param.ObjectSelector(
+    tabs_location: t.Literal["above", "below", "left", "right"] = param.ObjectSelector(
         default="above",
         objects=["above", "below", "left", "right"],
         doc="""
         The location of the tabs relative to the tab contents.""",
-    )
+    )  # type: ignore[assignment]
 
     wrapped = param.Boolean(default=False, doc="""
         Whether the tab labels should be wrapped.""")
@@ -967,9 +979,13 @@ class Divider(MaterialListLike):
     >>> Divider(sizing_mode="stretch_width")
     """
 
-    orientation = param.Selector(objects=["horizontal", "vertical"], default="horizontal", doc="Orientation of the divider.")
+    orientation: t.Literal["horizontal", "vertical"] = param.Selector(
+        objects=["horizontal", "vertical"], default="horizontal",
+        doc="Orientation of the divider.")  # type: ignore[assignment]
 
-    variant = param.Selector(objects=["fullWidth", "inset", "middle"], default="fullWidth", doc="Variant style of the divider.")
+    variant: t.Literal["fullWidth", "inset", "middle"] = param.Selector(
+        objects=["fullWidth", "inset", "middle"], default="fullWidth",
+        doc="Variant style of the divider.")  # type: ignore[assignment]
 
     _esm_base = "Divider.jsx"
 
@@ -990,8 +1006,8 @@ class Alert(MaterialListLike):
     >>> Alert(title="This is an alert")
     """
 
-    alert_type = param.Selector(objects=COLORS, default="primary", doc="""
-        The type of the alert.""")
+    alert_type: ColorType = param.Selector(objects=COLORS, default="primary", doc="""
+        The type of the alert.""")  # type: ignore[assignment]
 
     closed = param.Boolean(default=False, doc="""
         Whether the alert is closed.""")
@@ -999,8 +1015,8 @@ class Alert(MaterialListLike):
     closeable = param.Boolean(default=False, doc="""
         Whether the alert is closeable.""")
 
-    severity = param.Selector(objects=["error", "warning", "info", "success"], default="success", doc="""
-        The severity of the alert.""")
+    severity: t.Literal["error", "warning", "info", "success"] = param.Selector(objects=["error", "warning", "info", "success"], default="success", doc="""
+        The severity of the alert.""")  # type: ignore[assignment]
 
     object = param.String(default="", doc="""
         The object to display in the alert.""")
@@ -1008,8 +1024,8 @@ class Alert(MaterialListLike):
     title = param.String(default=None, doc="""
         The title of the alert.""")
 
-    variant = param.Selector(default="outlined", objects=["filled", "outlined"], doc="""
-        The variant of the alert.""")
+    variant: t.Literal["filled", "outlined"] = param.Selector(default="outlined", objects=["filled", "outlined"], doc="""
+        The variant of the alert.""")  # type: ignore[assignment]
 
     _esm_base = "Alert.jsx"
 
@@ -1071,14 +1087,14 @@ class Dialog(MaterialListLike):
     title_variant = param.String(default="h3", doc="""
         The text variant of the Dialog title.""")
 
-    scroll = param.Selector(objects=["body", "paper"], default="paper", doc="""
-        Whether the dialog should scroll the content or the paper.""")
+    scroll: t.Literal["body", "paper"] = param.Selector(objects=["body", "paper"], default="paper", doc="""
+        Whether the dialog should scroll the content or the paper.""")  # type: ignore[assignment]
 
     show_close_button = param.Boolean(default=False, doc="""
         Whether to show the close button.""")
 
-    width_option = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="sm", doc="""
-        The width of the dialog.""")
+    width_option: t.Literal["xs", "sm", "md", "lg", "xl"] | bool = param.Selector(objects=["xs", "sm", "md", "lg", "xl", False], default="sm", doc="""
+        The width of the dialog.""")  # type: ignore[assignment]
 
     _esm_base = "Dialog.jsx"
 
@@ -1100,7 +1116,9 @@ class Drawer(MaterialListLike):
     >>> pn.Column(button, drawer).servable()
     """
 
-    anchor = param.Selector(default="left", objects=["left", "right", "top", "bottom"], doc="Anchor position for the drawer.")
+    anchor: t.Literal["left", "right", "top", "bottom"] = param.Selector(
+        default="left", objects=["left", "right", "top", "bottom"],
+        doc="Anchor position for the drawer.")  # type: ignore[assignment]
 
     size = param.Integer(default=250, doc="""
         The width (for left/right anchors) or height (for top/bottom anchors) of the drawer.""")
@@ -1108,7 +1126,9 @@ class Drawer(MaterialListLike):
     open = param.Boolean(default=False, doc="""
         Whether the drawer is open.""")
 
-    variant = param.Selector(default="temporary", objects=["permanent", "persistent", "temporary"], doc="Variant style of the drawer.")
+    variant: t.Literal["permanent", "persistent", "temporary"] = param.Selector(
+        default="temporary", objects=["permanent", "persistent", "temporary"],
+        doc="Variant style of the drawer.")  # type: ignore[assignment]
 
     _esm_base = "Drawer.jsx"
 

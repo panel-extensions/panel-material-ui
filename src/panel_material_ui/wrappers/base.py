@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import typing as t
+
 import param
 from panel.viewable import Child
 
-from ..base import COLORS, MaterialComponent
+from ..base import COLORS, ColorType, MaterialComponent
 
 
 class Wrapper(MaterialComponent):
@@ -48,23 +50,23 @@ class Transition(Wrapper):
         the duration is automatically calculated based on the
         element's size.""")
 
-    orientation = param.Selector(
+    orientation: t.Literal['vertical', 'horizontal'] = param.Selector(
         default="vertical", objects=["vertical", "horizontal"], doc="""
         The orientation of the collapse transition. Only applies
-        when variant is 'collapse'.""")
+        when variant is 'collapse'.""")  # type: ignore[assignment]
 
-    placement = param.Selector(
+    placement: t.Literal['down', 'left', 'right', 'up'] = param.Selector(
         default="left",
         objects=["down", "left", "right", "up"],
         doc="""
         The direction the child slides in from. Only applies
-        when variant is 'slide'.""")
+        when variant is 'slide'.""")  # type: ignore[assignment]
 
-    variant = param.Selector(
+    variant: t.Literal['collapse', 'fade', 'grow', 'slide', 'zoom'] = param.Selector(
         default="fade",
         objects=["collapse", "fade", "grow", "slide", "zoom"],
         doc="""
-        The type of transition animation to apply.""")
+        The type of transition animation to apply.""")  # type: ignore[assignment]
 
     _esm_base = "Transition.jsx"
 
@@ -90,8 +92,8 @@ class Badge(Wrapper):
         The content rendered within the badge. Typically an integer
         count but can be a short string.""")
 
-    color = param.Selector(default="primary", objects=COLORS, doc="""
-        The color of the badge.""")
+    color: ColorType = param.Selector(default="primary", objects=COLORS, doc="""
+        The color of the badge.""")  # type: ignore[assignment]
 
     max = param.Integer(default=99, bounds=(0, None), doc="""
         Maximum count to display. Values above this show as
@@ -101,21 +103,21 @@ class Badge(Wrapper):
         The (x, y) pixel offset of the badge from its anchor point on
         the object. Positive x shifts the badge right, positive y down.""")
 
-    overlap = param.Selector(default="rectangular", objects=["rectangular", "circular"], doc="""
-        Wrapped shape the badge should overlap.""")
+    overlap: t.Literal['rectangular', 'circular'] = param.Selector(default="rectangular", objects=["rectangular", "circular"], doc="""
+        Wrapped shape the badge should overlap.""")  # type: ignore[assignment]
 
-    placement = param.Selector(
+    placement: t.Literal['top-right', 'top-left', 'bottom-right', 'bottom-left'] = param.Selector(
         default="top-right",
         objects=["top-right", "top-left", "bottom-right", "bottom-left"],
         doc="""
-        The placement of the badge relative to the child element.""")
+        The placement of the badge relative to the child element.""")  # type: ignore[assignment]
 
     show_zero = param.Boolean(default=False, doc="""
         Whether to display the badge when content is zero.""")
 
-    variant = param.Selector(default="standard", objects=["dot", "standard"], doc="""
+    variant: t.Literal['dot', 'standard'] = param.Selector(default="standard", objects=["dot", "standard"], doc="""
         The variant of the badge. Use 'dot' for a small dot
-        indicator without content.""")
+        indicator without content.""")  # type: ignore[assignment]
 
     _esm_base = "Badge.jsx"
 
@@ -165,15 +167,15 @@ class Skeleton(Wrapper):
         placeholder is rendered; when True the child is displayed
         normally.""")
 
-    animation = param.Selector(
+    animation: t.Literal['pulse', 'wave'] | None = param.Selector(
         default="pulse", objects=["pulse", "wave", None], doc="""
-        The animation effect for the skeleton. Use None to disable.""")
+        The animation effect for the skeleton. Use None to disable.""")  # type: ignore[assignment]
 
-    variant = param.Selector(
+    variant: t.Literal['text', 'circular', 'rectangular', 'rounded'] = param.Selector(
         default="rounded",
         objects=["text", "circular", "rectangular", "rounded"],
         doc="""
-        Shape variant of the skeleton placeholder.""")
+        Shape variant of the skeleton placeholder.""")  # type: ignore[assignment]
 
     _esm_base = "Skeleton.jsx"
 
@@ -218,7 +220,10 @@ class Tooltip(Wrapper):
         the tooltip is managed automatically on hover/focus. Set to
         True or False for programmatic control.""")
 
-    placement = param.Selector(
+    placement: t.Literal[
+        'bottom-end', 'bottom-start', 'bottom', 'left-end', 'left-start',
+        'left', 'right-end', 'right-start', 'right', 'top-end', 'top-start', 'top'
+    ] = param.Selector(
         default="bottom",
         objects=[
             "bottom-end", "bottom-start", "bottom",
@@ -227,7 +232,7 @@ class Tooltip(Wrapper):
             "top-end", "top-start", "top",
         ],
         doc="""
-        The placement of the tooltip relative to the child element.""")
+        The placement of the tooltip relative to the child element.""")  # type: ignore[assignment]
 
     title = param.String(default="", doc="""
         The text to display inside the tooltip.""")
