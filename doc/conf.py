@@ -109,6 +109,7 @@ napoleon_numpy_docstring = True
 # Redirects for renamed pages (sphinxext-rediraffe). Maps old source paths to
 # their new locations so existing links and bookmarks keep working.
 rediraffe_redirects = {
+    "customization/index.md": "how_to/index.md",
     "how_to/customize.md": "how_to/customize_themes_and_styles.md",
     "how_to/palette.md": "how_to/customize_palette.md",
     "how_to/typography.md": "how_to/customize_typography.md",
