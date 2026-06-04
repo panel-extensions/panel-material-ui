@@ -1,0 +1,53 @@
+# Use Icons
+
+**panel-material-ui** ships with the Material UI icon library. This means that you can use any of the icons defined in the [Material UI icon library](https://mui.com/material-ui/material-icons/) by default and also include them in `Markdown` and `HTML` components.
+
+## `icon` parameter
+
+Many components in **panel-material-ui** accept the `icon` parameter. This can be a string referring to the *snake_case* name of the icon, which you can find in the [Material icon library](https://fonts.google.com/icons?icon.set=Material+Icons).
+
+You can choose between filled and outlined icon variants by appending `_outlined` to the icon name:
+
+```{pyodide}
+import panel_material_ui as pmui
+
+pmui.Row(
+  pmui.ButtonIcon(icon="lightbulb"),
+  pmui.ButtonIcon(icon="lightbulb_outlined"),
+)
+```
+
+## Icons in `Markdown` and `HTML`
+
+You can also include icons in `Markdown` and `HTML` components by wrapping the icon name in `material-icons` or `material-icons-outlined` classes:
+
+```{pyodide}
+pmui.Column(
+  'Here is a lightbulb: <span class="material-icons" style="font-size: 2em;">lightbulb</span>',
+  'Here is an outlined lightbulb: <span class="material-icons-outlined" style="font-size: 2em;">lightbulb</span>'
+)
+```
+
+## Icons in widget labels and options
+
+You can embed icons directly in widget labels and options using the `:material/...:` token syntax:
+
+```{pyodide}
+pmui.Select(
+  name="Mode",
+  options=[
+    "Zoom :material/zoom:",
+    "Explore :material/explore:",
+  ],
+)
+```
+
+You can also pass per-icon options after the icon name using `@key=value` pairs:
+
+```{pyodide}
+pmui.Button(
+  name="Warn :material/zoom@size=large,color=warning:",
+)
+```
+
+Supported per-icon options include `color`, `size`, `icon_size`, and `variant`. These overrides apply only to the icon token where they appear.
