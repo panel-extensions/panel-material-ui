@@ -518,7 +518,8 @@ class MultiSelect(MaterialMultiSelectBase):
         Maximum number of options that can be selected.""")
 
     size = param.Integer(default=None, doc="""
-        The number of options to display at once (not currently supported).""")
+        The number of options to display at once. Controls the visible
+        height of the list area.""")
 
     value = param.List(default=[], allow_None=True)
 
