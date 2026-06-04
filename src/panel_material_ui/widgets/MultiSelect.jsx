@@ -13,6 +13,7 @@ export function render({model, view, el}) {
   const [label] = model.useState("label")
   const [max_items] = model.useState("max_items")
   const [options] = model.useState("options")
+  const [size] = model.useState("size")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
@@ -77,6 +78,7 @@ export function render({model, view, el}) {
               <FilledInput {...inputProps}/> :
               <Input {...inputProps}/>
         }
+        inputProps={{size: size || undefined}}
         labelId={`select-multiple-label-${model.id}`}
         multiple
         native
