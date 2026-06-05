@@ -23,6 +23,8 @@ export function render({model, view}) {
 
   const openProps = open === null ? {} : {open}
 
+  // Fill the host (sized by the wrapper's own sizing_mode); a content-sized
+  // host hugs the child, a stretched host stretches it.
   return (
     <Tooltip
       arrow={arrow}
@@ -35,7 +37,7 @@ export function render({model, view}) {
       title={title}
       {...openProps}
     >
-      <Box sx={{display: "inline-flex", ...fill}}>
+      <Box sx={{display: "inline-flex", width: "100%", height: "100%"}}>
         {object}
       </Box>
     </Tooltip>

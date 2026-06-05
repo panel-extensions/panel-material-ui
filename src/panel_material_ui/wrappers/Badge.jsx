@@ -36,6 +36,8 @@ export function render({model, view}) {
 
   // Position the badge as an (x, y) pixel offset from its anchor point
   // on the object. Raw translate: +x shifts right, +y shifts down.
+  // Fill the host (sized by the wrapper's own sizing_mode); a content-sized
+  // host hugs the child, a stretched host stretches it.
   const mergedSx = React.useMemo(() => {
     const [ox, oy] = offset ?? [0, -4]
     const fill = {
@@ -44,7 +46,8 @@ export function render({model, view}) {
     }
     return {
       "& .MuiBadge-badge": {transform: `scale(1) translate(${ox}px, ${oy}px)`},
-      ...fill,
+      width: "100%",
+      height: "100%",
       ...sx,
     }
   }, [offset, sx, sizing])
