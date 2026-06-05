@@ -7,6 +7,7 @@ export function render({model, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
+  const [helper_text] = model.useState("helper_text")
   const [max_length] = model.useState("max_length")
   const [max_rows] = model.useState("max_rows")
   const [label] = model.useState("label")
@@ -60,6 +61,7 @@ export function render({model, el}) {
       disabled={disabled}
       error={error_state}
       fullWidth
+      helperText={helper_text || undefined}
       slotProps={{htmlInput: {maxLength: max_length}}}
       inputRef={ref}
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el})}</> : render_icon_text(label)}

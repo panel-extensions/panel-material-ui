@@ -7,6 +7,8 @@ import {render_icon_text} from "./utils"
 export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
+  const [error_state] = model.useState("error_state")
+  const [helper_text] = model.useState("helper_text")
   const [label] = model.useState("label")
   const [value, setValue] = model.useState("value")
   const [value_input, setValueInput] = model.useState("value_input")
@@ -156,6 +158,8 @@ export function render({model, el, view}) {
         <TextField
           {...params}
           color={color}
+          error={error_state}
+          helperText={helper_text || undefined}
           label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
           inputRef={ref}
           placeholder={placeholder}
