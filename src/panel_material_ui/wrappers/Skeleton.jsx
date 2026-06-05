@@ -8,23 +8,27 @@ export function render({model, view}) {
   const [variant] = model.useState("variant")
   const object = model.get_child("object")
 
-  // When the wrapped child is responsively sized, fill the available space so
-  // the child (and the placeholder) can stretch; otherwise hug the child's
-  // intrinsic size. Mirrors the sizing_mode check used by other components.
-  const obj_model = view.model.data.object
-  const isResponsive = obj_model && obj_model.sizing_mode && (
-    obj_model.sizing_mode.includes("width") || obj_model.sizing_mode.includes("both")
-  )
-  const fill = isResponsive ? {width: "100%", height: "100%"} : {}
+  // Fill the available space along whichever axes the wrapped child is
+  // responsively sized, otherwise hug its intrinsic size. Mirrors the
+  // child sizing_mode check used in ChatMessage/Details/Page.
+  const sizing = (view.model.data.object || {}).sizing_mode || ""
+  const fill = {
+    ...(sizing.includes("width") || sizing.includes("both") ? {width: "100%"} : {}),
+    ...(sizing.includes("height") || sizing.includes("both") ? {height: "100%"} : {}),
+  }
 
   if (active) {
     return <Box sx={{display: "inline-flex", ...fill, ...sx}}>{object}</Box>
   }
 
+  // Pass width/height as props (not just sx): MUI forces maxWidth:fit-content
+  // when a Skeleton has children and no explicit width prop, which would
+  // otherwise collapse the placeholder to the child's content width.
   return (
     <Skeleton
       animation={animation ?? false}
       variant={variant}
+      {...fill}
       sx={{width: "100%", height: "100%", ...sx}}
     >
       <Box sx={{display: "inline-flex", ...fill, visibility: "hidden"}}>

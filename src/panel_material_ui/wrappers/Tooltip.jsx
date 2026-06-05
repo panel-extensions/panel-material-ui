@@ -1,7 +1,7 @@
 import Tooltip from "@mui/material/Tooltip"
 import Box from "@mui/material/Box"
 
-export function render({model}) {
+export function render({model, view}) {
   const [arrow] = model.useState("arrow")
   const [describeChild] = model.useState("describe_child")
   const [enterDelay] = model.useState("enter_delay")
@@ -12,6 +12,14 @@ export function render({model}) {
   const [sx] = model.useState("sx")
   const [title] = model.useState("title")
   const object = model.get_child("object")
+
+  // Fill the available space along whichever axes the wrapped child is
+  // responsively sized, otherwise hug its intrinsic size.
+  const sizing = (view.model.data.object || {}).sizing_mode || ""
+  const fill = {
+    ...(sizing.includes("width") || sizing.includes("both") ? {width: "100%"} : {}),
+    ...(sizing.includes("height") || sizing.includes("both") ? {height: "100%"} : {}),
+  }
 
   const openProps = open === null ? {} : {open}
 
@@ -27,7 +35,7 @@ export function render({model}) {
       title={title}
       {...openProps}
     >
-      <Box sx={{display: "inline-flex"}}>
+      <Box sx={{display: "inline-flex", ...fill}}>
         {object}
       </Box>
     </Tooltip>

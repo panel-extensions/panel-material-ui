@@ -29,15 +29,25 @@ export function render({model, view}) {
     }
   }, [object])
 
+  // Fill the available space along whichever axes the wrapped child is
+  // responsively sized, otherwise hug its intrinsic size (the default for a
+  // badge anchored to an icon/avatar/button).
+  const sizing = (view.model.data.object || {}).sizing_mode || ""
+
   // Position the badge as an (x, y) pixel offset from its anchor point
   // on the object. Raw translate: +x shifts right, +y shifts down.
   const mergedSx = React.useMemo(() => {
     const [ox, oy] = offset ?? [0, -4]
+    const fill = {
+      ...(sizing.includes("width") || sizing.includes("both") ? {width: "100%"} : {}),
+      ...(sizing.includes("height") || sizing.includes("both") ? {height: "100%"} : {}),
+    }
     return {
       "& .MuiBadge-badge": {transform: `scale(1) translate(${ox}px, ${oy}px)`},
+      ...fill,
       ...sx,
     }
-  }, [offset, sx])
+  }, [offset, sx, sizing])
 
   const anchorOrigin = PLACEMENT_TO_ANCHOR[placement]
 
