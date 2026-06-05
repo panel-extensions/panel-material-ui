@@ -7,6 +7,7 @@ export function render({model}) {
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
   const object = model.get_child("object")
+
   if (active) {
     return <Box sx={{display: "inline-flex", width: "100%", height: "100%", ...sx}}>{object}</Box>
   }
