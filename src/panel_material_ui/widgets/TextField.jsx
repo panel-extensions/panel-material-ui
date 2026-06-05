@@ -6,6 +6,7 @@ export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
+  const [helper_text] = model.useState("helper_text")
   const [label] = model.useState("label")
   const [max_length] = model.useState("max_length")
   const [placeholder] = model.useState("placeholder")
@@ -27,6 +28,7 @@ export function render({model, el, view}) {
       color={color}
       disabled={disabled}
       error={error_state}
+      helperText={helper_text || undefined}
       inputRef={ref}
       fullWidth
       slotProps={{htmlInput: {maxLength: max_length}}}

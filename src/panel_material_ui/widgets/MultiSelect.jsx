@@ -1,5 +1,6 @@
 import InputLabel from "@mui/material/InputLabel"
 import FormControl from "@mui/material/FormControl"
+import FormHelperText from "@mui/material/FormHelperText"
 import Select from "@mui/material/Select"
 import OutlinedInput from "@mui/material/OutlinedInput"
 import FilledInput from "@mui/material/FilledInput"
@@ -10,6 +11,8 @@ import {render_icon_text} from "./utils"
 export function render({model, view, el}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
+  const [error_state] = model.useState("error_state")
+  const [helper_text] = model.useState("helper_text")
   const [label] = model.useState("label")
   const [max_items] = model.useState("max_items")
   const [options] = model.useState("options")
@@ -62,7 +65,7 @@ export function render({model, view, el}) {
   };
 
   return (
-    <FormControl disabled={disabled} fullWidth variant={variant}>
+    <FormControl disabled={disabled} error={error_state} fullWidth variant={variant}>
       {label &&
         <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
           {render_icon_text(label)}
@@ -95,6 +98,7 @@ export function render({model, view, el}) {
           </option>
         ))}
       </Select>
+      {helper_text && <FormHelperText>{helper_text}</FormHelperText>}
     </FormControl>
   );
 }

@@ -115,7 +115,10 @@ export function render({model, view}) {
   const header = model.get_child("header")
   const main = model.get_child("main")
   const toolbarSx = busy_indicator === "linear" ? PAGE_BUSY_TOOLBAR_SX : undefined
-  const pageRootSx = React.useMemo(() => (sx ? [PAGE_ROOT_SX, sx] : PAGE_ROOT_SX), [sx])
+  const pageRootSx = React.useMemo(() => {
+    const base = PAGE_ROOT_SX
+    return sx ? [base, sx] : base
+  }, [sx])
   const drawerSx = React.useMemo(() => ({
     display: "flex",
     flexDirection: "column",

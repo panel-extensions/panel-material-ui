@@ -35,6 +35,15 @@ class MaterialInputWidget(MaterialWidget):
         objects=COLORS, default="primary", doc="The color variant of the input."
     )  # type: ignore[assignment]
 
+    error_state = param.Boolean(
+        default=False,
+        doc="""
+        Whether to display in error state.""",
+    )
+
+    helper_text = param.String(default="", doc="""
+        Helper text displayed below the input field.""")
+
     variant: t.Literal['filled', 'outlined', 'standard'] = param.Selector(objects=["filled", "outlined", "standard"], default="outlined", doc="""
         The variant of the input.""")  # type: ignore[assignment]
 
@@ -43,12 +52,6 @@ class MaterialInputWidget(MaterialWidget):
 
 
 class _TextInputBase(MaterialInputWidget):
-
-    error_state = param.Boolean(
-        default=False,
-        doc="""
-        Whether to display in error state.""",
-    )
 
     max_length = param.Integer(
         default=5000,
@@ -1339,6 +1342,15 @@ class TimePicker(_TimeCommon):
         objects=COLORS, default="primary", doc="The color of the time picker."
     )  # type: ignore[assignment]
 
+    error_state = param.Boolean(
+        default=False,
+        doc="""
+        Whether to display in error state.""",
+    )
+
+    helper_text = param.String(default="", doc="""
+        Helper text displayed below the input field.""")
+
     value = param.ClassSelector(default=None, class_=(dt_time, str), doc="""
         The current value""")
 
@@ -1546,6 +1558,15 @@ class ColorPicker(MaterialWidget):
     """
 
     alpha = param.Boolean(default=False, doc="Whether to display input controls for a color's alpha (transparency) channel.")
+
+    error_state = param.Boolean(
+        default=False,
+        doc="""
+        Whether to display in error state.""",
+    )
+
+    helper_text = param.String(default="", doc="""
+        Helper text displayed below the color picker field.""")
 
     color: ColorType = param.Selector(
         objects=COLORS, default="primary", doc="The accent color of the color picker when active or focused."

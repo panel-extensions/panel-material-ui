@@ -16,7 +16,9 @@ export function render({model, view, el}) {
   const [disable_future] = model.useState("disable_future")
   const [disable_past] = model.useState("disable_past")
   const [enabled_dates] = model.useState("enabled_dates")
+  const [error_state] = model.useState("error_state")
   const [format] = model.useState("format")
+  const [helper_text] = model.useState("helper_text")
   const [label] = model.useState("label")
   const [max_date] = model.useState("end")
   const [min_date] = model.useState("start")
@@ -256,6 +258,8 @@ export function render({model, view, el}) {
           textField: {
             variant,
             color,
+            error: error_state,
+            helperText: helper_text || undefined,
             onBlur: handleBlur,
             onKeyDown: handleKeyDown,
             slotProps: {

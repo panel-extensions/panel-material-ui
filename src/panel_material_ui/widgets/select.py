@@ -88,6 +88,15 @@ class AutocompleteInput(MaterialSingleSelectBase):
     case_sensitive = param.Boolean(default=True, doc="""
         Enable or disable case sensitivity.""")
 
+    error_state = param.Boolean(
+        default=False,
+        doc="""
+        Whether to display in error state.""",
+    )
+
+    helper_text = param.String(default="", doc="""
+        Helper text displayed below the input field.""")
+
     color: ColorType = param.Selector(
         objects=COLORS, default="primary", doc="The color of the autocomplete input."
     )  # type: ignore[assignment]
@@ -306,6 +315,15 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
         objects=COLORS, default="primary", doc="The color of the select widget."
     )  # type: ignore[assignment]
 
+    error_state = param.Boolean(
+        default=False,
+        doc="""
+        Whether to display in error state.""",
+    )
+
+    helper_text = param.String(default="", doc="""
+        Helper text displayed below the select field.""")
+
     groups = param.Dict(default=None, nested_refs=True, doc="""
         Dictionary whose keys are used to visually group the options
         and whose values are either a list or a dictionary of options
@@ -513,6 +531,15 @@ class MultiSelect(MaterialMultiSelectBase):
     color: ColorType = param.Selector(
         objects=COLORS, default="primary", doc="Color of the multi-select component."
     )  # type: ignore[assignment]
+
+    error_state = param.Boolean(
+        default=False,
+        doc="""
+        Whether to display in error state.""",
+    )
+
+    helper_text = param.String(default="", doc="""
+        Helper text displayed below the select field.""")
 
     max_items = param.Integer(default=None, bounds=(1, None), doc="""
         Maximum number of options that can be selected.""")
