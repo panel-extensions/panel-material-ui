@@ -25,7 +25,10 @@ def test_skeleton_renders_placeholder_when_inactive(page):
     serve_component(page, widget)
 
     expect(page.locator('.MuiSkeleton-root')).to_have_count(1)
-    expect(page.locator('.MuiButton-root')).to_have_count(0)
+    # The child is rendered (hidden) inside the Skeleton so the placeholder
+    # can inherit the child's dimensions, but it must not be visible.
+    expect(page.locator('.MuiButton-root')).to_have_count(1)
+    expect(page.locator('.MuiButton-root')).not_to_be_visible()
 
 
 def test_skeleton_reveals_child_when_active(page):
