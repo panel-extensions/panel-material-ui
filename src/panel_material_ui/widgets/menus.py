@@ -1135,6 +1135,207 @@ class Pagination(MaterialWidget):
         )
 
 
+class MenuBar(NestedMenuBase):
+    """
+    The `MenuBar` component provides a horizontal application menu bar, similar
+    to those found in desktop applications (File, Edit, View, Help, etc.). It
+    supports nested submenus, keyboard shortcut hints, icons, checkboxes, radio
+    groups, item groups, and dividers.
+
+    The top-level `items` list defines the menu triggers (buttons) in the bar.
+    Each top-level item should have:
+
+    - `label` (str, required): The button text.
+    - `icon` (str, optional): Icon displayed before the label.
+    - `disabled` (bool, optional): Whether the menu is disabled.
+    - `items` (list[dict], required): The dropdown items for this menu.
+
+    Each dropdown item can be:
+
+    - A regular item: `{'label': 'Save', 'icon': 'save', 'hint': 'Ctrl+S'}`
+    - A divider: `None` or `{'label': '---'}`
+    - A submenu: `{'label': 'Share', 'icon': 'share', 'items': [...]}`
+    - A group header: `{'label': 'Alignment', 'group': True, 'items': [...]}`
+    - A checkbox item: `{'label': 'Show Toolbar', 'checkbox': True}`
+    - A radio item: `{'label': 'Light', 'radio': 'light'}`
+
+    Radio items within a group share state: selecting one deselects the others.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/menus/MenuBar.html
+    - https://mui.com/material-ui/react-menubar/
+
+    :Example:
+
+    >>> pmui.MenuBar(items=[
+    ...     {'label': 'File', 'items': [
+    ...         {'label': 'New', 'icon': 'note_add', 'hint': 'Ctrl+N'},
+    ...         {'label': 'Open', 'icon': 'folder_open', 'hint': 'Ctrl+O'},
+    ...         {'label': 'Save', 'icon': 'save', 'hint': 'Ctrl+S'},
+    ...         None,
+    ...         {'label': 'Exit', 'icon': 'close'},
+    ...     ]},
+    ...     {'label': 'Edit', 'items': [
+    ...         {'label': 'Undo', 'icon': 'undo', 'hint': 'Ctrl+Z'},
+    ...         {'label': 'Redo', 'icon': 'redo', 'hint': 'Ctrl+Y'},
+    ...     ]},
+    ... ])
+    """
+
+    color: ColorType = param.Selector(
+        objects=COLORS, default="default", doc="The color of the menu bar buttons."
+    )  # type: ignore[assignment]
+
+    size: t.Literal["small", "medium", "large"] = param.Selector(
+        default="small", objects=["small", "medium", "large"], doc="The size of the menu bar buttons."
+    )  # type: ignore[assignment]
+
+    variant: t.Literal["elevation", "outlined"] = param.Selector(
+        default="elevation", objects=["elevation", "outlined"],
+        doc="The visual variant of the menu bar container."
+    )  # type: ignore[assignment]
+
+    width = param.Integer(default=None, doc="The width of the menu bar.")
+
+    _esm_base = "MenuBar.jsx"
+    _item_keys = ['label', 'icon', 'hint', 'items', 'disabled', 'checkbox', 'radio', '_radio_selected', 'group']
+    _rename = {'value': None}
+
+    def _process_param_change(self, params):
+        params = super()._process_param_change(params)
+        if 'items' in params:
+            params['items'] = self._prepare_items(params['items'])
+        return params
+
+    def _prepare_items(self, items):
+        prepared = []
+        for item in items:
+            if item is None or (isinstance(item, dict) and item.get('label') == '---'):
+                prepared.append(None)
+                continue
+            if not isinstance(item, dict):
+                prepared.append(item)
+                continue
+            processed = {k: v for k, v in item.items() if k in self._item_keys}
+            if 'items' in processed:
+                processed['items'] = self._prepare_subitems(processed['items'])
+            prepared.append(processed)
+        return prepared
+
+    def _prepare_subitems(self, items):
+        prepared = []
+        for item in items:
+            if item is None or (isinstance(item, dict) and item.get('label') == '---'):
+                prepared.append(None)
+                continue
+            if not isinstance(item, dict):
+                prepared.append(item)
+                continue
+            processed = {k: v for k, v in item.items() if k in self._item_keys}
+            if processed.get('group') and 'items' in processed:
+                processed['items'] = self._prepare_subitems(processed['items'])
+            elif 'items' in processed:
+                processed['items'] = self._prepare_subitems(processed['items'])
+            prepared.append(processed)
+        # Resolve radio selections within groups
+        self._resolve_radio_selections(prepared)
+        return prepared
+
+    def _resolve_radio_selections(self, items):
+        radio_groups = {}
+        for item in items:
+            if item is None:
+                continue
+            if isinstance(item, dict) and item.get('group') and 'items' in item:
+                self._resolve_radio_selections(item['items'])
+            elif isinstance(item, dict) and 'radio' in item:
+                group_key = 'default'
+                if group_key not in radio_groups:
+                    radio_groups[group_key] = []
+                radio_groups[group_key].append(item)
+        for group_items in radio_groups.values():
+            selected = [i for i in group_items if i.get('_radio_selected')]
+            if not selected and group_items:
+                group_items[0]['_radio_selected'] = True
+
+    def _find_item_at_path(self, path):
+        items = self.items
+        item = None
+        for i, idx in enumerate(path):
+            if idx >= len(items):
+                return None
+            item = items[idx]
+            if i < len(path) - 1 and isinstance(item, dict) and 'items' in item:
+                items = item['items']
+        return item
+
+    def _handle_msg(self, msg):
+        msg_type = msg.get('type')
+        path = msg.get('path')
+
+        if msg_type == 'click':
+            item = self._find_item_at_path(path)
+            if item is not None:
+                index = tuple(path)
+                self._process_click(msg, index, item)
+
+        elif msg_type == 'checkbox':
+            new_value = msg.get('value')
+            self._update_item_at_path(path, 'checkbox', new_value)
+            item = self._find_item_at_path(path)
+            if item is not None:
+                for fn in self._on_click_callbacks:
+                    state.execute(partial(fn, item))
+
+        elif msg_type == 'radio':
+            radio_value = msg.get('value')
+            self._select_radio(path, radio_value)
+            item = self._find_item_at_path(path)
+            if item is not None:
+                for fn in self._on_click_callbacks:
+                    state.execute(partial(fn, item))
+
+    def _update_item_at_path(self, path, key, value):
+        root_items = items = [
+            dict(item) if isinstance(item, dict) else item
+            for item in self.items
+        ]
+        for idx in path[:-1]:
+            item = dict(items[idx])
+            items[idx] = item
+            if 'items' in item:
+                item['items'] = items = [
+                    dict(sub) if isinstance(sub, dict) else sub
+                    for sub in item['items']
+                ]
+        final_idx = path[-1]
+        if isinstance(items[final_idx], dict):
+            items[final_idx] = dict(items[final_idx])
+            items[final_idx][key] = value
+        self.items = root_items
+
+    def _select_radio(self, path, radio_value):
+        root_items = items = [
+            dict(item) if isinstance(item, dict) else item
+            for item in self.items
+        ]
+        for idx in path[:-1]:
+            item = dict(items[idx])
+            items[idx] = item
+            if 'items' in item:
+                item['items'] = items = [
+                    dict(sub) if isinstance(sub, dict) else sub
+                    for sub in item['items']
+                ]
+        # Deselect all radios at this level, select the clicked one
+        for i, item in enumerate(items):
+            if isinstance(item, dict) and 'radio' in item:
+                items[i] = dict(item)
+                items[i]['_radio_selected'] = (item['radio'] == radio_value)
+        self.items = root_items
+
+
 class SpeedDial(MenuBase):
     """
     The `SpeedDial` component is a menu component that allows selecting from a
@@ -1189,6 +1390,7 @@ class SpeedDial(MenuBase):
 
 __all__ = [
     "Breadcrumbs",
+    "MenuBar",
     "MenuButton",
     "MenuList",
     "MenuToggle",

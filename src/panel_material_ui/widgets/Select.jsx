@@ -10,6 +10,7 @@ import TextField from "@mui/material/TextField"
 import MenuItem from "@mui/material/MenuItem"
 import ListItemText from "@mui/material/ListItemText"
 import FormControl from "@mui/material/FormControl"
+import FormHelperText from "@mui/material/FormHelperText"
 import InputLabel from "@mui/material/InputLabel"
 import Select from "@mui/material/Select"
 import OutlinedInput from "@mui/material/OutlinedInput"
@@ -26,6 +27,8 @@ const SELECT_BASE_SX = {padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}}
 export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
+  const [error_state] = model.useState("error_state")
+  const [helper_text] = model.useState("helper_text")
   const [label] = model.useState("label")
   const [options] = model.useState("options")
   const [sx] = model.useState("sx")
@@ -473,7 +476,7 @@ export function render({model, el, view}) {
   const anchorEl = React.useRef(null)
 
   return (
-    <FormControl disabled={disabled} fullWidth variant={variant}>
+    <FormControl disabled={disabled} error={error_state} fullWidth variant={variant}>
       {label &&
        <InputLabel color={color} id={`select-label-${model.id}`} shrink={hasValue || open}>
          {render_icon_text(label)}
@@ -519,6 +522,7 @@ export function render({model, el, view}) {
           {renderMenuItems()}
         </CustomMenu>
       )}
+      {helper_text && <FormHelperText>{helper_text}</FormHelperText>}
     </FormControl>
   )
 }

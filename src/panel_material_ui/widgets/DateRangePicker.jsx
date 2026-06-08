@@ -56,7 +56,9 @@ export function render({model, el, view}) {
   const [start] = model.useState("start")
   const [end] = model.useState("end")
   const [disabled] = model.useState("disabled")
+  const [error_state] = model.useState("error_state")
   const [format] = model.useState("format")
+  const [helper_text] = model.useState("helper_text")
   const [label] = model.useState("label")
   const [color] = model.useState("color")
   const [variant] = model.useState("variant")
@@ -275,7 +277,9 @@ export function render({model, el, view}) {
         variant={variant}
         color={color}
         disabled={disabled}
+        error={error_state}
         fullWidth
+        helperText={helper_text || undefined}
         slotProps={{
           input: {
             readOnly: true,

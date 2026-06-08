@@ -23,7 +23,7 @@ export function detect_nb(view) {
   return nb
 }
 
-export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMounted}) {
+export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMounted, anchorOrigin, transformOrigin, placement}) {
   const nb = detect_nb(view)
   if (nb == null) {
     return (
@@ -31,11 +31,11 @@ export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMou
         anchorEl={anchorEl}
         open={open}
         onClose={onClose}
-        anchorOrigin={{
+        anchorOrigin={anchorOrigin || {
           vertical: "bottom",
           horizontal: "right",
         }}
-        transformOrigin={{
+        transformOrigin={transformOrigin || {
           vertical: "top",
           horizontal: "right",
         }}
@@ -47,12 +47,17 @@ export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMou
     )
   }
 
+  const resolvedPlacement = placement || "bottom-end"
+  const popperWidth = resolvedPlacement.startsWith("right") || resolvedPlacement.startsWith("left")
+    ? undefined
+    : (anchorEl ? anchorEl.current : anchorEl)?.offsetWidth
+
   return (
     <Popper
       open={open}
       anchorEl={anchorEl}
-      placement="bottom-end"
-      style={{zIndex: 1500, width: (anchorEl ? anchorEl.current : anchorEl)?.offsetWidth}}
+      placement={resolvedPlacement}
+      style={{zIndex: 1500, width: popperWidth}}
     >
       {({TransitionProps, placement}) => (
         <Grow

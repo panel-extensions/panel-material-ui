@@ -11,7 +11,9 @@ export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [clock] = model.useState("clock")
+  const [error_state] = model.useState("error_state")
   const [format] = model.useState("format")
+  const [helper_text] = model.useState("helper_text")
   const [label] = model.useState("label")
   const [max_time] = model.useState("end")
   const [min_time] = model.useState("start")
@@ -74,7 +76,7 @@ export function render({model, el, view}) {
         onChange={handleChange}
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}
-        slotProps={{textField: {variant, color}, popper: {container: view.container}}}
+        slotProps={{textField: {variant, color, error: error_state, helperText: helper_text || undefined}, popper: {container: view.container}}}
         sx={pickerSx}
         value={value}
         views={views}
