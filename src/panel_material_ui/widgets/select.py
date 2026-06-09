@@ -764,7 +764,13 @@ class NestedSelect(_PnNestedSelect):
         elif isinstance(level, str):
             return Select, {"label": level, **widget_kwargs}
         widget_type = level.get("type", Select)
-        widget_kwargs.update({k: v for k, v in level.items() if k != "type"})
+        overrides = {k: v for k, v in level.items() if k != "type"}
+        # Per-level sizing takes precedence over inherited layout kwargs to avoid
+        # conflicts (e.g. a fixed width alongside an inherited responsive sizing_mode).
+        if {"width", "height", "sizing_mode"} & overrides.keys():
+            for k in ("sizing_mode", "width", "height"):
+                widget_kwargs.pop(k, None)
+        widget_kwargs.update(overrides)
         return widget_type, widget_kwargs
 
 

@@ -189,6 +189,17 @@ def test_nestedselect_stretch_width(page):
     assert select.bounding_box()["width"] > 500
 
 
+def test_nestedselect_level_width_overrides_stretch(page):
+    widget = NestedSelect(
+        options={"a": [1, 2]},
+        levels=[{"width": 150}, {}],
+        sizing_mode="stretch_width",
+    )
+    serve_component(page, Column(widget, width=600))
+
+    assert page.locator(".select").first.bounding_box()["width"] < 200
+
+
 def test_multiselect_focus(page):
     widget = MultiSelect(options=["Option 1", "Option 2", "Option 3"], value=["Option 1"])
     serve_component(page, widget)
