@@ -757,12 +757,14 @@ class NestedSelect(_PnNestedSelect):
         Extract the widget type and keyword arguments from the level metadata.
         """
         level = self._levels[i]
+        widget_kwargs = self._collect_layoutable_kwargs()
+        widget_kwargs.pop("visible", None)  # this will be set dynamically
         if isinstance(level, int):
-            return Select, {}
+            return Select, widget_kwargs
         elif isinstance(level, str):
-            return Select, {"name": level}
+            return Select, {"label": level, **widget_kwargs}
         widget_type = level.get("type", Select)
-        widget_kwargs = {k: v for k, v in level.items() if k != "type"}
+        widget_kwargs.update({k: v for k, v in level.items() if k != "type"})
         return widget_type, widget_kwargs
 
 
