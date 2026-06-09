@@ -125,6 +125,15 @@ export function render({model, view}) {
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
   const main = model.get_child("main")
+  const isXl = useMediaQuery(theme.breakpoints.up("xl"))
+  const isLg = useMediaQuery(theme.breakpoints.up("lg"))
+  const isMd = useMediaQuery(theme.breakpoints.up("md"))
+  const isSm = useMediaQuery(theme.breakpoints.up("sm"))
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+
+  const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
+  const context_drawer_variant = contextbar_variant === "auto" ? (isMobile ? "temporary" : "persistent") : contextbar_variant
+
   const toolbarSx = busy_indicator === "linear" ? PAGE_BUSY_TOOLBAR_SX : undefined
   const pageRootSx = React.useMemo(() => (sx ? [PAGE_ROOT_SX, sx] : PAGE_ROOT_SX), [sx])
   const drawerSx = React.useMemo(() => ({
@@ -145,22 +154,16 @@ export function render({model, view}) {
     flexDirection: "column",
     flexShrink: 0,
     height: "100vh",
-    width: contextbar_width,
+    ...(context_drawer_variant !== "temporary" && {width: contextbar_width}),
     zIndex: (theme) => theme.zIndex.drawer + 2,
     "& .MuiDrawer-paper": {
       width: contextbar_width,
       height: "100vh",
       boxSizing: "border-box",
-      position: "relative",
+      ...(context_drawer_variant !== "temporary" && {position: "relative"}),
       overflowX: "hidden"
     },
-  }), [contextbar_width])
-
-  const isXl = useMediaQuery(theme.breakpoints.up("xl"))
-  const isLg = useMediaQuery(theme.breakpoints.up("lg"))
-  const isMd = useMediaQuery(theme.breakpoints.up("md"))
-  const isSm = useMediaQuery(theme.breakpoints.up("sm"))
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  }), [contextbar_width, context_drawer_variant])
 
   const logoContent = React.useMemo(() => {
     if (!logo) { return null }
@@ -345,9 +348,6 @@ export function render({model, view}) {
     }
   }, [isDragging, handleDragMove, handleDragEnd])
 
-  const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
-  const context_drawer_variant = contextbar_variant === "auto" ? (isMobile ? "temporary" : "persistent") : contextbar_variant
-
   const drawer = sidebar.length > 0 ? (
     <Drawer
       slotProps={{paper: {className: "sidebar"}}}
@@ -485,8 +485,7 @@ export function render({model, view}) {
                 color="inherit"
                 aria-label={contextbar_open ? "Close contextbar" : "Open contextbar"}
                 onClick={() => contextOpen(!contextbar_open)}
-                edge="start"
-                sx={{mr: 1}}
+                edge="end"
               >
                 <TocIcon />
               </IconButton>
