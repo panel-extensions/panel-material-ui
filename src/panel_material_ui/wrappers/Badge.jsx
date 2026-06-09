@@ -29,12 +29,16 @@ export function render({model, view}) {
     }
   }, [object])
 
-  // Position the badge as an (x, y) pixel offset from its anchor point
-  // on the object. Raw translate: +x shifts right, +y shifts down.
+  // Position the badge as an (x, y) pixel offset from its anchor point on the
+  // object (raw translate: +x shifts right, +y shifts down), and fill the host
+  // (sized by the wrapper's own sizing_mode) so a stretched child stretches
+  // while a fixed one hugs.
   const mergedSx = React.useMemo(() => {
     const [ox, oy] = offset ?? [0, -4]
     return {
       "& .MuiBadge-badge": {transform: `scale(1) translate(${ox}px, ${oy}px)`},
+      width: "100%",
+      height: "100%",
       ...sx,
     }
   }, [offset, sx])

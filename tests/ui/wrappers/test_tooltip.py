@@ -2,12 +2,22 @@ import pytest
 
 pytest.importorskip('playwright')
 
-from panel.tests.util import serve_component
+from panel.tests.util import serve_component, wait_until
+from panel_material_ui.layout import Paper
 from panel_material_ui.wrappers import Tooltip
 from panel_material_ui.widgets import Button
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
+
+
+def _page_width(page):
+    return page.evaluate("() => document.body.clientWidth")
+
+
+def _width(locator):
+    box = locator.bounding_box()
+    return box["width"] if box else 0
 
 
 def test_tooltip_basic(page):
@@ -84,3 +94,24 @@ def test_tooltip_empty(page):
     serve_component(page, widget)
 
     expect(page.locator('.MuiTooltip-tooltip')).not_to_be_visible()
+
+
+def test_tooltip_fills_responsive_child(page):
+    widget = Tooltip(
+        Paper(sizing_mode="stretch_width", height=60),
+        title="Help", sizing_mode="stretch_width",
+    )
+    serve_component(page, widget)
+
+    paper = page.locator('.MuiPaper-root')
+    expect(paper).to_have_count(1)
+    wait_until(lambda: _width(paper) > _page_width(page) * 0.8, page)
+
+
+def test_tooltip_hugs_fixed_child(page):
+    widget = Tooltip(Button(label="Hi"), title="Help")
+    serve_component(page, widget)
+
+    button = page.locator('.MuiButton-root')
+    expect(button).to_have_count(1)
+    wait_until(lambda: 0 < _width(button) < _page_width(page) * 0.5, page)
