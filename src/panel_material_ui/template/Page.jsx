@@ -101,6 +101,8 @@ export function render({model, view}) {
   const [contextbar_resizable] = model.useState("contextbar_resizable")
   const [contextbar_variant] = model.useState("contextbar_variant")
   const [contextbar_width, setContextbarWidth] = model.useState("contextbar_width")
+  const [main_width] = model.useState("main_width")
+  const [app_bar_width] = model.useState("app_bar_width")
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
   const [logo] = model.useState("logo")
   const [open, setOpen] = model.useState("sidebar_open")
@@ -426,11 +428,25 @@ export function render({model, view}) {
     [primary_color]
   )
   const appBarSx = React.useMemo(() => [PAGE_APPBAR_SX, header_sx], [header_sx])
+  const appBarToolbarSx = React.useMemo(
+    () => (app_bar_width ? {maxWidth: `${app_bar_width}px`, width: "100%", alignSelf: "center"} : undefined),
+    [app_bar_width]
+  )
+  const mainContentSx = React.useMemo(() => ({
+    flexGrow: 1,
+    display: "flex",
+    minHeight: 0,
+    flexDirection: "column",
+    overflowY: main_stretch ? "hidden" : "auto",
+    // alignSelf centers the clamped content within the (column) flex parent;
+    // margin:auto would compute to resolved pixels and is harder to assert on.
+    ...(main_width ? {maxWidth: `${main_width}px`, width: "100%", alignSelf: "center"} : {}),
+  }), [main_stretch, main_width])
 
   return (
     <Box className={`mui-${color_scheme}`} sx={pageRootSx}>
       <AppBar position="fixed" color="primary" className="header" sx={appBarSx}>
-        <Toolbar>
+        <Toolbar sx={appBarToolbarSx}>
           {(model.sidebar.length > 0 && drawer_variant !== "permanent") &&
             <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>
               <IconButton
@@ -534,7 +550,7 @@ export function render({model, view}) {
           <Toolbar sx={toolbarSx}>
             <Typography variant="h5">&nbsp;</Typography>
           </Toolbar>
-          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column", overflowY: main_stretch ? "hidden" : "auto"}}>
+          <Box className="main-content" sx={mainContentSx}>
             {main.map((object, index) => {
               apply_flex(view.get_child_view(model.main[index]), "column")
               return object
