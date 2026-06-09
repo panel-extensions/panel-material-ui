@@ -2,8 +2,9 @@ import pytest
 
 pytest.importorskip('playwright')
 
+from panel import Column
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import MultiSelect, Select
+from panel_material_ui.widgets import MultiSelect, NestedSelect, Select
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -179,6 +180,14 @@ def test_select_clear_selection(page):
     # Try to clear by selecting empty option (should not be possible)
     page.locator(".select").click()
     expect(page.locator(".MuiMenuItem-root")).to_have_count(2)  # No empty option
+
+def test_nestedselect_stretch_width(page):
+    widget = NestedSelect(options={"a": [1, 2]}, sizing_mode="stretch_width")
+    serve_component(page, Column(widget, width=600))
+
+    select = page.locator(".select").first
+    assert select.bounding_box()["width"] > 500
+
 
 def test_multiselect_focus(page):
     widget = MultiSelect(options=["Option 1", "Option 2", "Option 3"], value=["Option 1"])
