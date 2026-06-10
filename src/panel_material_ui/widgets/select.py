@@ -757,12 +757,20 @@ class NestedSelect(_PnNestedSelect):
         Extract the widget type and keyword arguments from the level metadata.
         """
         level = self._levels[i]
+        widget_kwargs = self._collect_layoutable_kwargs()
+        widget_kwargs.pop("visible", None)  # this will be set dynamically
         if isinstance(level, int):
-            return Select, {}
+            return Select, widget_kwargs
         elif isinstance(level, str):
-            return Select, {"name": level}
+            return Select, {"label": level, **widget_kwargs}
         widget_type = level.get("type", Select)
-        widget_kwargs = {k: v for k, v in level.items() if k != "type"}
+        overrides = {k: v for k, v in level.items() if k != "type"}
+        # Per-level sizing takes precedence over inherited layout kwargs to avoid
+        # conflicts (e.g. a fixed width alongside an inherited responsive sizing_mode).
+        if {"width", "height", "sizing_mode"} & overrides.keys():
+            for k in ("sizing_mode", "width", "height"):
+                widget_kwargs.pop(k, None)
+        widget_kwargs.update(overrides)
         return widget_type, widget_kwargs
 
 
