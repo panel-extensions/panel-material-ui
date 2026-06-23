@@ -51,6 +51,22 @@ const PAGE_DRAWER_RESIZE_HANDLE_SX = {
   }
 }
 
+// Normalize a width value into an MUI sx `maxWidth`.
+// Accepts a number (interpreted as pixels), a CSS length string
+// (e.g. "70ch", "60rem", "90%"), or a breakpoint dict
+// (e.g. {xs: "100%", md: 720, lg: 960}) which maps to a responsive sx object
+// where each value applies at that breakpoint and up. Returns undefined when unset.
+const to_css_width = (v) => (typeof v === "number" ? `${v}px` : v)
+const to_max_width = (v) => {
+  if (v == null) { return undefined }
+  if (typeof v === "object") {
+    return Object.fromEntries(
+      Object.entries(v).map(([bp, w]) => [bp, to_css_width(w)])
+    )
+  }
+  return to_css_width(v)
+}
+
 const Main = styled("main", {shouldForwardProp: (prop) => !["open", "variant", "sidebar_width", "contextbar_open", "context_variant", "contextbar_width"].includes(prop)})(
   ({sidebar_width, contextbar_width, theme, open, variant, contextbar_open, context_variant}) => {
     return ({
@@ -428,20 +444,25 @@ export function render({model, view}) {
     [primary_color]
   )
   const appBarSx = React.useMemo(() => [PAGE_APPBAR_SX, header_sx], [header_sx])
-  const appBarToolbarSx = React.useMemo(
-    () => (app_bar_width ? {maxWidth: `${app_bar_width}px`, width: "100%", alignSelf: "center"} : undefined),
-    [app_bar_width]
-  )
-  const mainContentSx = React.useMemo(() => ({
-    flexGrow: 1,
-    display: "flex",
-    minHeight: 0,
-    flexDirection: "column",
-    overflowY: main_stretch ? "hidden" : "auto",
-    // alignSelf centers the clamped content within the (column) flex parent;
-    // margin:auto would compute to resolved pixels and is harder to assert on.
-    ...(main_width ? {maxWidth: `${main_width}px`, width: "100%", alignSelf: "center"} : {}),
-  }), [main_stretch, main_width])
+  const appBarToolbarSx = React.useMemo(() => {
+    // app_bar_width follows main_width when unset, so the header stays aligned
+    // with the clamped main content; an explicit app_bar_width overrides it.
+    const maxWidth = to_max_width(app_bar_width ?? main_width)
+    return maxWidth == null ? undefined : {maxWidth, width: "100%", alignSelf: "center"}
+  }, [app_bar_width, main_width])
+  const mainContentSx = React.useMemo(() => {
+    const maxWidth = to_max_width(main_width)
+    return {
+      flexGrow: 1,
+      display: "flex",
+      minHeight: 0,
+      flexDirection: "column",
+      overflowY: main_stretch ? "hidden" : "auto",
+      // alignSelf centers the clamped content within the (column) flex parent;
+      // margin:auto would compute to resolved pixels and is harder to assert on.
+      ...(maxWidth == null ? {} : {maxWidth, width: "100%", alignSelf: "center"}),
+    }
+  }, [main_stretch, main_width])
 
   return (
     <Box className={`mui-${color_scheme}`} sx={pageRootSx}>
