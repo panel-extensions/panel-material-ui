@@ -67,6 +67,7 @@ class MaterialWidget(MaterialComponent, WidgetBase):
         axis_modes = zip(
             self._responsive_axes(params),
             (self._width_responsive_modes, self._height_responsive_modes),
+            strict=True,
         )
         for axis, responsive_modes in axis_modes:
             if (sizing_mode in responsive_modes and axis not in params
