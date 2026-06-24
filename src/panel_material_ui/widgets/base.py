@@ -33,12 +33,45 @@ class MaterialWidget(MaterialComponent, WidgetBase):
 
     _rename = {"label": "label"}
 
+    # ``sizing_mode`` values that make a widget fill its container along an axis.
+    _width_responsive_modes = ("stretch_width", "stretch_both", "scale_width", "scale_both")
+    _height_responsive_modes = ("stretch_height", "stretch_both", "scale_height", "scale_both")
+
     __abstract = True
 
     def __init__(self, **params):
         if 'label' not in params and 'name' in params:
             params['label'] = params['name']
+        self._drop_default_size_for_responsive(params)
         super().__init__(**params)
+
+    def _responsive_axes(self, params):
+        """
+        Return the ``(width, height)`` param names that physically control the
+        horizontal and vertical extent. Identity by default; overridden where a
+        widget swaps the axes (e.g. vertical sliders).
+        """
+        return 'width', 'height'
+
+    def _drop_default_size_for_responsive(self, params):
+        """
+        Drop the fixed default size when a stretch/scale ``sizing_mode`` is
+        requested without an explicit size, so the widget fills its container
+        like a core Panel widget instead of staying at its standalone default
+        (e.g. ``width=300``). An explicitly passed size is always respected.
+        """
+        sizing_mode = params.get('sizing_mode')
+        if sizing_mode is None:
+            return
+        cls = type(self)
+        axis_modes = zip(
+            self._responsive_axes(params),
+            (self._width_responsive_modes, self._height_responsive_modes),
+        )
+        for axis, responsive_modes in axis_modes:
+            if (sizing_mode in responsive_modes and axis not in params
+                    and getattr(cls.param, axis).default is not None):
+                params[axis] = None
 
     def _process_param_change(self, params):
         description = params.pop("description", None)

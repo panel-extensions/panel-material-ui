@@ -64,6 +64,15 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
 
     __abstract = True
 
+    def _responsive_axes(self, params):
+        # A vertical slider swaps width<->height at render (see
+        # _process_param_change), so the params controlling its visual width and
+        # height are inverted relative to a horizontal widget.
+        orientation = params.get('orientation', type(self).param.orientation.default)
+        if orientation == 'vertical':
+            return 'height', 'width'
+        return 'width', 'height'
+
     def _process_param_change(self, params):
         if self.orientation == 'vertical' and ('width' in params or 'height' in params):
             params['width'] = self.height

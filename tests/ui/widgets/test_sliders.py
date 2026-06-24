@@ -3,6 +3,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from bokeh.models.formatters import PrintfTickFormatter
+from panel import Column
 from panel.tests.util import serve_component, wait_until
 from panel_material_ui.widgets import IntSlider, Rating
 from playwright.sync_api import expect
@@ -98,3 +99,24 @@ def test_rating(page, size):
 
     rating_size = page.locator(f'.MuiRating-size{size.capitalize()}')
     expect(rating_size).to_have_count(1)
+
+
+def test_slider_stretch_width_fills(page):
+    widget = IntSlider(value=5, start=0, end=10, sizing_mode='stretch_width')
+    serve_component(page, Column(widget, width=600))
+    assert page.locator('.int-slider').bounding_box()["width"] > 500
+
+
+def test_slider_default_width_not_stretched(page):
+    widget = IntSlider(value=5, start=0, end=10)
+    serve_component(page, Column(widget, width=600))
+    assert page.locator('.int-slider').bounding_box()["width"] < 400
+
+
+def test_slider_vertical_stretch_height_fills(page):
+    widget = IntSlider(
+        value=5, start=0, end=10, orientation='vertical', sizing_mode='stretch_height'
+    )
+    serve_component(page, Column(widget, height=400))
+    # Default vertical rail is 277px; stretching into a 400px column is taller.
+    assert page.locator('.MuiSlider-rail').evaluate("el => el.offsetHeight") > 300
