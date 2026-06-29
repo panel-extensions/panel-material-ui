@@ -52,7 +52,7 @@ export function render(props, ref) {
         checkedIcon={render_icon(active_icon || icon, color_state, size, icon_size)}
         color={color_state}
         disabled={disabled}
-        icon={render_icon(icon, color_state, size, icon_size, "-outlined")}
+        icon={render_icon(icon, color_state, size, icon_size, active_icon ? "" : "-outlined")}
         ref={ref}
         selected={value}
         size={size}
