@@ -88,6 +88,20 @@ def test_slider_format_model(page):
     expect(page.locator('.MuiFormLabel-root')).to_have_text('7 m')
 
 
+def test_slider_label_shows_value_with_colon(page):
+    widget = IntSlider(value=5, start=0, end=10, label='Count')
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiFormLabel-root')).to_have_text('Count: 5')
+
+
+def test_slider_label_no_trailing_colon_when_value_hidden(page):
+    widget = IntSlider(value=5, start=0, end=10, label='Count', show_value=False)
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiFormLabel-root')).to_have_text('Count')
+
+
 @pytest.mark.parametrize('size', ["small", "medium", "large"])
 def test_rating(page, size):
     widget = Rating(value=3, size=size)
