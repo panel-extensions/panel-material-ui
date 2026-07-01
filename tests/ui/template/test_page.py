@@ -188,6 +188,102 @@ def test_page_sidebar_width_persistence(page):
     expect(sidebar_paper).to_have_css("width", "450px")
 
 
+def test_page_main_width_default_unclamped(page):
+    """By default the main content area is not clamped (no max-width)."""
+    pg = Page(main=[pn.pane.Markdown("# Content")])
+
+    serve_component(page, pg)
+
+    main_content = page.locator(".main-content")
+    expect(main_content).to_be_attached()
+    expect(main_content).to_have_css("max-width", "none")
+
+
+def test_page_main_width_custom(page):
+    """main_width clamps and centers the main content area."""
+    pg = Page(main=[pn.pane.Markdown("# Content")], main_width=800)
+
+    serve_component(page, pg)
+
+    main_content = page.locator(".main-content")
+    expect(main_content).to_have_css("max-width", "800px")
+    # Centered via alignSelf in the column flex parent (margin:auto would
+    # compute to resolved pixels, so we assert on align-self instead).
+    expect(main_content).to_have_css("align-self", "center")
+
+
+def test_page_app_bar_width_default_unclamped(page):
+    """By default the app bar toolbar is not clamped (no max-width)."""
+    pg = Page(main=[pn.pane.Markdown("# Content")])
+
+    serve_component(page, pg)
+
+    toolbar = page.locator(".header .MuiToolbar-root")
+    expect(toolbar).to_have_css("max-width", "none")
+
+
+def test_page_app_bar_width_custom(page):
+    """app_bar_width clamps and centers the app bar toolbar content."""
+    pg = Page(main=[pn.pane.Markdown("# Content")], app_bar_width=900)
+
+    serve_component(page, pg)
+
+    toolbar = page.locator(".header .MuiToolbar-root")
+    expect(toolbar).to_have_css("max-width", "900px")
+    expect(toolbar).to_have_css("align-self", "center")
+
+
+def test_page_main_width_css_string(page):
+    """main_width accepts a CSS length string (resolved by the browser)."""
+    # 60rem resolves to 960px at the default 16px root font size.
+    pg = Page(main=[pn.pane.Markdown("# Content")], main_width="60rem")
+
+    serve_component(page, pg)
+
+    main_content = page.locator(".main-content")
+    expect(main_content).to_have_css("max-width", "960px")
+    expect(main_content).to_have_css("align-self", "center")
+
+
+def test_page_main_width_breakpoint_dict(page):
+    """main_width accepts a breakpoint dict, applying per-breakpoint clamps."""
+    pg = Page(main=[pn.pane.Markdown("# Content")], main_width={"xs": "100%", "md": 800})
+
+    serve_component(page, pg)
+
+    main_content = page.locator(".main-content")
+    # At/above the md breakpoint the 800px clamp applies.
+    page.set_viewport_size({"width": 1200, "height": 800})
+    expect(main_content).to_have_css("max-width", "800px")
+    # Below md the clamp falls back to the xs entry (100%), i.e. not 800px.
+    page.set_viewport_size({"width": 500, "height": 800})
+    expect(main_content).not_to_have_css("max-width", "800px")
+
+
+def test_page_app_bar_width_follows_main_width(page):
+    """When app_bar_width is unset, the toolbar follows main_width so the
+    header stays aligned with the clamped main content."""
+    pg = Page(main=[pn.pane.Markdown("# Content")], main_width=800)
+
+    serve_component(page, pg)
+
+    toolbar = page.locator(".header .MuiToolbar-root")
+    expect(toolbar).to_have_css("max-width", "800px")
+    expect(toolbar).to_have_css("align-self", "center")
+
+
+def test_page_app_bar_width_overrides_main_width(page):
+    """An explicit app_bar_width takes precedence over main_width for the toolbar."""
+    pg = Page(main=[pn.pane.Markdown("# Content")], main_width=800, app_bar_width=1200)
+
+    serve_component(page, pg)
+
+    toolbar = page.locator(".header .MuiToolbar-root")
+    expect(toolbar).to_have_css("max-width", "1200px")
+    main_content = page.locator(".main-content")
+    expect(main_content).to_have_css("max-width", "800px")
+
+
 def test_page_linear_progress_hidden_when_idle(page):
     """Test that linear progress bar is hidden (opacity: 0) when not busy."""
     pg = Page(

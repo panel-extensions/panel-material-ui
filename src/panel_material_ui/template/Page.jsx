@@ -51,6 +51,22 @@ const PAGE_DRAWER_RESIZE_HANDLE_SX = {
   }
 }
 
+// Normalize a width value into an MUI sx `maxWidth`.
+// Accepts a number (interpreted as pixels), a CSS length string
+// (e.g. "70ch", "60rem", "90%"), or a breakpoint dict
+// (e.g. {xs: "100%", md: 720, lg: 960}) which maps to a responsive sx object
+// where each value applies at that breakpoint and up. Returns undefined when unset.
+const to_css_width = (v) => (typeof v === "number" ? `${v}px` : v)
+const to_max_width = (v) => {
+  if (v == null) { return undefined }
+  if (typeof v === "object") {
+    return Object.fromEntries(
+      Object.entries(v).map(([bp, w]) => [bp, to_css_width(w)])
+    )
+  }
+  return to_css_width(v)
+}
+
 const Main = styled("main", {shouldForwardProp: (prop) => !["open", "variant", "sidebar_width", "contextbar_open", "context_variant", "contextbar_width"].includes(prop)})(
   ({sidebar_width, contextbar_width, theme, open, variant, contextbar_open, context_variant}) => {
     return ({
@@ -101,6 +117,8 @@ export function render({model, view}) {
   const [contextbar_resizable] = model.useState("contextbar_resizable")
   const [contextbar_variant] = model.useState("contextbar_variant")
   const [contextbar_width, setContextbarWidth] = model.useState("contextbar_width")
+  const [main_width] = model.useState("main_width")
+  const [app_bar_width] = model.useState("app_bar_width")
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
   const [logo] = model.useState("logo")
   const [open, setOpen] = model.useState("sidebar_open")
@@ -426,11 +444,30 @@ export function render({model, view}) {
     [primary_color]
   )
   const appBarSx = React.useMemo(() => [PAGE_APPBAR_SX, header_sx], [header_sx])
+  const appBarToolbarSx = React.useMemo(() => {
+    // app_bar_width follows main_width when unset, so the header stays aligned
+    // with the clamped main content; an explicit app_bar_width overrides it.
+    const maxWidth = to_max_width(app_bar_width ?? main_width)
+    return maxWidth == null ? undefined : {maxWidth, width: "100%", alignSelf: "center"}
+  }, [app_bar_width, main_width])
+  const mainContentSx = React.useMemo(() => {
+    const maxWidth = to_max_width(main_width)
+    return {
+      flexGrow: 1,
+      display: "flex",
+      minHeight: 0,
+      flexDirection: "column",
+      overflowY: main_stretch ? "hidden" : "auto",
+      // alignSelf centers the clamped content within the (column) flex parent;
+      // margin:auto would compute to resolved pixels and is harder to assert on.
+      ...(maxWidth == null ? {} : {maxWidth, width: "100%", alignSelf: "center"}),
+    }
+  }, [main_stretch, main_width])
 
   return (
     <Box className={`mui-${color_scheme}`} sx={pageRootSx}>
       <AppBar position="fixed" color="primary" className="header" sx={appBarSx}>
-        <Toolbar>
+        <Toolbar sx={appBarToolbarSx}>
           {(model.sidebar.length > 0 && drawer_variant !== "permanent") &&
             <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>
               <IconButton
@@ -534,7 +571,7 @@ export function render({model, view}) {
           <Toolbar sx={toolbarSx}>
             <Typography variant="h5">&nbsp;</Typography>
           </Toolbar>
-          <Box sx={{flexGrow: 1, display: "flex", minHeight: 0, flexDirection: "column", overflowY: main_stretch ? "hidden" : "auto"}}>
+          <Box className="main-content" sx={mainContentSx}>
             {main.map((object, index) => {
               apply_flex(view.get_child_view(model.main[index]), "column")
               return object

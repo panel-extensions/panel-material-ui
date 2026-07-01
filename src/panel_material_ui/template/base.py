@@ -71,6 +71,16 @@ class Page(MaterialComponent, ResourceComponent):
     >>> Page(main=['# Content'], title='My App')
     """
 
+    app_bar_width = param.ClassSelector(default=None, class_=(int, str, dict), doc="""
+        Maximum width of the app bar (header) content. When set, the toolbar
+        content is clamped to this width and centered, aligning it with a
+        clamped main area. Accepts a number (interpreted as pixels), a CSS
+        length string (e.g. '70ch', '60rem', '90%'), or a dict mapping Material
+        UI breakpoints to widths (e.g. {'xs': '100%', 'md': 720, 'lg': 960}),
+        where each value applies at that breakpoint and up. Defaults to None
+        (full width); when unset it follows ``main_width`` so the header stays
+        aligned with the main content.""")
+
     busy = param.Boolean(default=False, readonly=True, doc="Whether the page is busy.")
 
     busy_indicator: t.Literal["circular", "linear"] | None = param.Selector(default="linear", objects=["circular", "linear", None], doc="""
@@ -99,6 +109,14 @@ class Page(MaterialComponent, ResourceComponent):
     header = Children(doc="Items rendered in the header.")
 
     main = Children(doc="Items rendered in the main area.")
+
+    main_width = param.ClassSelector(default=None, class_=(int, str, dict), doc="""
+        Maximum width of the main content area. When set, the main content is
+        clamped to this width and centered to improve readability. Accepts a
+        number (interpreted as pixels), a CSS length string (e.g. '70ch',
+        '60rem', '90%'), or a dict mapping Material UI breakpoints to widths
+        (e.g. {'xs': '100%', 'md': 720, 'lg': 960}), where each value applies
+        at that breakpoint and up. Defaults to None (full width).""")
 
     meta = param.ClassSelector(default=None, class_=Meta, doc="Meta tags and other HTML head elements.")
 
