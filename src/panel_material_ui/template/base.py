@@ -337,6 +337,63 @@ class ThemeToggle(MaterialWidget):
             self.theme = config.theme = 'dark' if self.value else 'default'
 
 
+class AppBar(MaterialComponent):
+    """
+    The `AppBar` component renders a Material UI App Bar (top navigation bar).
+    It supports a title, icon, color theming, and can contain arbitrary child
+    components (buttons, menus, search fields, etc.) via the `objects` parameter.
+
+    The AppBar is typically placed at the top of an application as a header,
+    either standalone or inside a `Page` component's `header` slot.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/page/AppBar.html
+    - https://mui.com/material-ui/react-app-bar/
+
+    :Example:
+
+    >>> pmui.AppBar(title='My App', icon='menu', color='primary')
+    """
+
+    color: t.Literal["default", "inherit", "primary", "secondary", "transparent"] = param.Selector(
+        default="primary", objects=["default", "inherit", "primary", "secondary", "transparent"],
+        doc="The color of the app bar."
+    )  # type: ignore[assignment]
+
+    drawer_toggle = Child()
+
+    enable_color_on_dark = param.Boolean(default=False, doc="""
+        If True, the color prop is applied in dark mode too (by default,
+        Material Design suppresses app bar color in dark mode).""")
+
+    icon = param.String(default=None, doc="""
+        Icon displayed at the start of the app bar. Typically a menu or
+        navigation icon.""")
+
+    objects = Children(doc="Components rendered inside the app bar toolbar.")
+
+    position: t.Literal["fixed", "absolute", "sticky", "static", "relative"] = param.Selector(
+        default="static", objects=["fixed", "absolute", "sticky", "static", "relative"],
+        doc="The CSS position of the app bar."
+    )  # type: ignore[assignment]
+
+    title = param.String(default=None, doc="Title text displayed in the app bar.")
+
+    variant: t.Literal["dense", "regular"] = param.Selector(
+        default="dense", objects=["dense", "regular"],
+        doc="The toolbar variant. 'dense' produces a compact bar."
+    )  # type: ignore[assignment]
+
+    _esm_base = "AppBar.jsx"
+    _source_transforms = {"objects": None}
+
+    def __init__(self, *objects, **params):
+        if objects:
+            params['objects'] = list(objects)
+        super().__init__(**params)
+
+
 class BreakpointSwitcher(MaterialComponent):
     """
     The `BreakpointSwitcher` component allows switching between two component implementations
@@ -374,6 +431,7 @@ class BreakpointSwitcher(MaterialComponent):
 
 
 __all__ = [
+    "AppBar",
     "BreakpointSwitcher",
     "Page",
     "ThemeToggle"
