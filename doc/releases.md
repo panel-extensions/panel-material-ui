@@ -1,5 +1,40 @@
 # Release Notes
 
+## Version 0.13.0
+
+Panel Material UI 0.13.0 introduces the [`AppBar`](https://panel-material-ui.holoviz.org/reference/layouts/AppBar.html) and [`MenuBar`](https://panel-material-ui.holoviz.org/reference/menus/MenuBar.html) components, adds `error_state` and `helper_text` support across all input widgets, and brings several Page layout improvements including configurable `main_width` and `app_bar_width`. The release also includes fixes for contextbar variants, skeleton sizing, and various UI polish.
+
+Many thanks to @ahuang11, @ghostiee-11, and @philippjfr for their contributions to this release.
+
+### 🆕 New Components
+
+* Add [`AppBar`](https://panel-material-ui.holoviz.org/reference/layouts/AppBar.html) component ([#680](https://github.com/panel-extensions/panel-material-ui/pull/680))
+* Add [`MenuBar`](https://panel-material-ui.holoviz.org/reference/menus/MenuBar.html) component ([#671](https://github.com/panel-extensions/panel-material-ui/pull/671))
+
+### 🔧 Enhancements
+
+* Add `error_state` and `helper_text` for all input widgets ([#670](https://github.com/panel-extensions/panel-material-ui/pull/670))
+* Add `main_width` and `app_bar_width` to [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) ([#684](https://github.com/panel-extensions/panel-material-ui/pull/684))
+* Disable +/- buttons when [`FloatInput`](https://panel-material-ui.holoviz.org/reference/widgets/FloatInput.html)/[`IntInput`](https://panel-material-ui.holoviz.org/reference/widgets/IntInput.html) are disabled ([#691](https://github.com/panel-extensions/panel-material-ui/pull/691))
+
+### 🐛 Bug Fixes
+
+* Fix [`Chip`](https://panel-material-ui.holoviz.org/reference/widgets/Chip.html) rendering bug ([#693](https://github.com/panel-extensions/panel-material-ui/pull/693))
+* Fix [`NestedSelect`](https://panel-material-ui.holoviz.org/reference/widgets/NestedSelect.html) `stretch_width` ([#681](https://github.com/panel-extensions/panel-material-ui/pull/681))
+* Fix [`Skeleton`](https://panel-material-ui.holoviz.org/reference/wrappers/Skeleton.html) stretch sizing ([#668](https://github.com/panel-extensions/panel-material-ui/pull/668))
+* Various fixes for persistent contextbar variants ([#676](https://github.com/panel-extensions/panel-material-ui/pull/676))
+* Only show the slider label colon when the value is shown ([#690](https://github.com/panel-extensions/panel-material-ui/pull/690))
+
+### 🎨 UI Improvements
+
+* Do not use outlined [`ToggleIcon`](https://panel-material-ui.holoviz.org/reference/widgets/ToggleIcon.html) variant when `active_icon` is provided ([#682](https://github.com/panel-extensions/panel-material-ui/pull/682))
+* Add `row_spacing` to [`Grid`](https://panel-material-ui.holoviz.org/reference/layouts/Grid.html) documentation example ([#683](https://github.com/panel-extensions/panel-material-ui/pull/683))
+
+### 📚 Documentation
+
+* Add missing section to documentation ([#667](https://github.com/panel-extensions/panel-material-ui/pull/667))
+
+
 ## Version 0.12.0
 
 Panel Material UI 0.12.0 introduces a new class of Wrapper components that wrap child components to add visual effects or overlays, including [`Transition`](https://panel-material-ui.holoviz.org/reference/wrappers/Transition.html) for animated reveals, [`Badge`](https://panel-material-ui.holoviz.org/reference/wrappers/Badge.html) for notification indicators, and [`Tooltip`](https://panel-material-ui.holoviz.org/reference/wrappers/Tooltip.html) for contextual hints on hover. The release also adds the [`StepperMenu`](https://panel-material-ui.holoviz.org/reference/menus/StepperMenu.html) widget, [`DateRangePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DateRangePicker.html) and [`DatetimeRangePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatetimeRangePicker.html), converts [`Avatar`](https://panel-material-ui.holoviz.org/reference/widgets/Avatar.html) and [`Chip`](https://panel-material-ui.holoviz.org/reference/widgets/Chip.html) to proper widgets, makes the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) contextbar resizable and configurable, adds configurable chart styling for Bokeh/Vizzu plots, markdown rendering for the [`Alert`](https://panel-material-ui.holoviz.org/reference/layouts/Alert.html) layout, and static type checking with a `py.typed` marker.
