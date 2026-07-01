@@ -288,7 +288,7 @@ class Chip(_ButtonLike, _ClickButton):
     _esm_base = "Chip.jsx"
     _event = "dom_event"
     _rename: t.ClassVar[dict[str, str | None]] = {
-        "color": "color", "label": "label", "variant": "variant", "object": None
+        "color": "color", "label": "label", "variant": "variant", "object": None, "name": None
     }
 
     def __init__(self, label=None, **params):
