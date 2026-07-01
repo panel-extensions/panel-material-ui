@@ -346,7 +346,7 @@ export function render({model, el, view}) {
         </Box>
       ) : (
         <FormLabel>
-          {label && <>{render_icon_text(label)}: </>}
+          {label && <>{render_icon_text(label)}{show_value && ": "}</>}
           { show_value &&
           <strong>
             {render_icon_text(value_label)}
