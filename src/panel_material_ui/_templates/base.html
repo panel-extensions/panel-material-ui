@@ -58,6 +58,11 @@
         justify-content: center;
         align-items: center;
         z-index: 9999;
+        flex-direction: column;
+        gap: 16px;
+      }
+      #loader.error {
+        background: none;
       }
       .spinner {
         width: 50px;
@@ -66,6 +71,17 @@
         border-top: 5px solid #3498db;
         border-radius: 50%;
         animation: spin 1s linear infinite;
+      }
+      #loader-error {
+        display: none;
+        color: #d32f2f;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 14px;
+        text-align: center;
+        padding: 12px 20px;
+        background: rgba(211, 47, 47, 0.08);
+        border: 1px solid rgba(211, 47, 47, 0.3);
+        border-radius: 8px;
       }
       @keyframes spin {
         0% { transform: rotate(0deg); }
@@ -128,6 +144,7 @@
     {% block loader %}
     <div id="loader" style="display: none;">
       <div class="spinner"></div>
+      <div id="loader-error"></div>
     </div>
     {% endblock %}
   {%    block contents %}
@@ -140,18 +157,62 @@
   {%        endfor %}
   {%      endfor %}
   {%    endblock contents %}
+  <script>
+    const _origWebSocket = WebSocket;
+    let _wsError = false;
+    WebSocket = function(...args) {
+      const ws = new _origWebSocket(...args);
+      ws.addEventListener('error', function() {
+        _wsError = true;
+      });
+      ws.addEventListener('close', function(e) {
+        if (e.code !== 1000) {
+          _wsError = true;
+        }
+      });
+      return ws;
+    };
+    WebSocket.prototype = _origWebSocket.prototype;
+    Object.defineProperty(WebSocket, 'CONNECTING', {value: _origWebSocket.CONNECTING});
+    Object.defineProperty(WebSocket, 'OPEN', {value: _origWebSocket.OPEN});
+    Object.defineProperty(WebSocket, 'CLOSING', {value: _origWebSocket.CLOSING});
+    Object.defineProperty(WebSocket, 'CLOSED', {value: _origWebSocket.CLOSED});
+  </script>
   {{ plot_script | indent(4) }}
   {% block loader_script %}
   <script>
     let timeout = 0;
+
+    function showError(message) {
+      const loader = document.getElementById('loader');
+      const spinner = loader.querySelector('.spinner');
+      const errorEl = document.getElementById('loader-error');
+      loader.style.display = 'flex';
+      loader.classList.add('error');
+      spinner.style.display = 'none';
+      errorEl.style.display = 'block';
+      errorEl.textContent = message;
+    }
+
     function checkIdle() {
-      if (timeout > 30000 || (Bokeh.index && Bokeh.index.roots[0] && Bokeh.index.roots[0].is_idle)) {
+      if (typeof Bokeh === 'undefined') {
+        if (timeout > 10000) {
+          showError('Resources could not be loaded.');
+          return;
+        }
+      } else if (_wsError) {
+        showError('Connection with the server could not be established.');
+        return;
+      } else if (Bokeh.index && Bokeh.index.roots[0] && Bokeh.index.roots[0].is_idle) {
         document.getElementById('loader').style.display = 'none';
-      } else {
-        timeout += 100;
-        document.getElementById('loader').style.display = 'flex';
-        setTimeout(checkIdle, 100);
+        return;
+      } else if (timeout > 30000) {
+        document.getElementById('loader').style.display = 'none';
+        return;
       }
+      timeout += 100;
+      document.getElementById('loader').style.display = 'flex';
+      setTimeout(checkIdle, 100);
     }
     setTimeout(checkIdle, 100)
   </script>
