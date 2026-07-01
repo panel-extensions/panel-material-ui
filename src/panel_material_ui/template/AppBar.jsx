@@ -48,7 +48,7 @@ export function render({model, view}) {
           </IconButton>
         )}
         {title && (
-          <Typography variant="h3" component="div" noWrap>
+          <Typography variant="h3" component="div" noWrap sx={{flexGrow: 0}}>
             {render_icon_text(title)}
           </Typography>
         )}
