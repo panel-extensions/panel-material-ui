@@ -1108,21 +1108,25 @@ class Drawer(MaterialListLike):
         default="left", objects=["left", "right", "top", "bottom"],
         doc="Anchor position for the drawer.")  # type: ignore[assignment]
 
+    dock_position: t.Literal["start", "middle", "end"] = param.Selector(
+        default="middle", objects=["start", "middle", "end"],
+        doc="Position of the toggle tab along the drawer edge (only applies to 'docked' variant).")  # type: ignore[assignment]
+
     size = param.Integer(default=250, doc="""
         The width (for left/right anchors) or height (for top/bottom anchors) of the drawer.""")
 
     open = param.Boolean(default=False, doc="""
         Whether the drawer is open.""")
 
-    variant: t.Literal["permanent", "persistent", "temporary"] = param.Selector(
-        default="temporary", objects=["permanent", "persistent", "temporary"],
+    variant: t.Literal["docked", "permanent", "persistent", "temporary"] = param.Selector(
+        default="temporary", objects=["docked", "permanent", "persistent", "temporary"],
         doc="Variant style of the drawer.")  # type: ignore[assignment]
 
     _esm_base = "Drawer.jsx"
 
     @param.depends("variant", watch=True, on_init=True)
     def _force_zero_dimensions(self):
-        if self.variant == "temporary":
+        if self.variant in ("temporary", "docked"):
             self.param.update(width=0, height=0, sizing_mode="fixed")
 
     def create_toggle(
