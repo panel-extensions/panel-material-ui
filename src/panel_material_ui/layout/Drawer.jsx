@@ -30,9 +30,9 @@ function getPositionStyle(anchor, dockPosition) {
   }
 }
 
-function DockedTab({anchor, open, dockPosition, attached, onClick}) {
+function DockedTab({anchor, open, dockPosition, attached, onClick, icon: customIcon}) {
   const isHorizontal = anchor === "left" || anchor === "right"
-  const icon = anchorToChevron[anchor][open ? "open" : "closed"]
+  const icon = customIcon || anchorToChevron[anchor][open ? "open" : "closed"]
 
   const positionStyles = (() => {
     if (attached) {
@@ -86,6 +86,7 @@ function DockedTab({anchor, open, dockPosition, attached, onClick}) {
 
 export function render({model, view}) {
   const [anchor] = model.useState("anchor")
+  const [dockIcon] = model.useState("dock_icon")
   const [dockPosition] = model.useState("dock_position")
   const [open, setOpen] = model.useState("open")
   const [size] = model.useState("size")
@@ -151,10 +152,10 @@ export function render({model, view}) {
               apply_flex(view.get_child_view(model.objects[index]), "column")
               return object
             })}
-            <DockedTab anchor={anchor} open={open} dockPosition={dockPosition} attached onClick={() => setOpen(false)} />
+            <DockedTab anchor={anchor} open={open} dockPosition={dockPosition} attached onClick={() => setOpen(false)} icon={dockIcon} />
           </Drawer>
           {!open && (
-            <DockedTab anchor={anchor} open={false} dockPosition={dockPosition} attached={false} onClick={() => setOpen(true)} />
+            <DockedTab anchor={anchor} open={false} dockPosition={dockPosition} attached={false} onClick={() => setOpen(true)} icon={dockIcon} />
           )}
         </div>
       </div>
