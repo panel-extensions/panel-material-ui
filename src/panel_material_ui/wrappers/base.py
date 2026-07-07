@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import typing as t
+from collections.abc import Awaitable, Callable
 
 import param
 from panel.viewable import Child
+from panel.widgets.button import _ClickButton
 
 from ..base import COLORS, ColorType, MaterialComponent
 
@@ -23,6 +25,70 @@ class Wrapper(MaterialComponent):
         if object is not None:
             params["object"] = object
         super().__init__(**params)
+
+
+class Clickable(Wrapper, _ClickButton):
+    """
+    The `Clickable` wrapper adds click interaction to any child
+    component. It wraps a single child element with a clickable area,
+    providing a `clicks` counter and an `on_click` callback mechanism.
+
+    Optionally renders a Material UI ripple effect on click.
+
+    :References:
+
+    - https://mui.com/material-ui/api/button-base/
+
+    :Example:
+
+    >>> Clickable(Card(...), on_click=lambda e: print("Clicked!"))
+    """
+
+    clicks = param.Integer(default=0, doc="""
+        Number of clicks. Increment triggers registered callbacks.""")
+
+    disable_ripple = param.Boolean(default=False, doc="""
+        Whether to disable the ripple effect on click.""")
+
+    disabled = param.Boolean(default=False, doc="""
+        Whether the clickable area is disabled.""")
+
+    value = param.Event(doc="""
+        Toggles from False to True while the event is being processed.""")
+
+    _esm_base = "Clickable.jsx"
+    _event = "dom_event"
+    _rename = {"title": None, "name": None, "label": None}
+
+    def __init__(self, object=None, **params):
+        click_handler = params.pop("on_click", None)
+        if object is not None:
+            params["object"] = object
+        super().__init__(**params)
+        if click_handler:
+            self.on_click(click_handler)
+
+    def _handle_click(self, event):
+        self.param.update(clicks=self.clicks + 1, value=True)
+
+    def on_click(
+        self, callback: Callable[[param.parameterized.Event], None | Awaitable[None]]
+    ) -> param.parameterized.Watcher:
+        """
+        Register a callback to be executed when the component is clicked.
+
+        Arguments
+        ---------
+        callback:
+            The function to run on click events. Must accept a positional
+            `Event` argument. Can be a sync or async function.
+
+        Returns
+        -------
+        watcher: param.Parameterized.Watcher
+          A `Watcher` that executes the callback when clicked.
+        """
+        return self.param.watch(callback, "clicks", onlychanged=False)
 
 
 class Transition(Wrapper):
