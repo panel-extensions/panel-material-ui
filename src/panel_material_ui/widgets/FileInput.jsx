@@ -57,7 +57,7 @@ export function render(props, ref) {
 
   const N = uploadedFiles.length
 
-  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+  if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
     ref = undefined
   }
 

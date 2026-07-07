@@ -17,7 +17,7 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
-  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+  if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
     ref = React.useRef(null)
   }
 

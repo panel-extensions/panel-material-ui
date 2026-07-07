@@ -20,7 +20,7 @@ export function render(props, ref) {
   const [open, setOpen] = React.useState(false)
   const anchorEl = React.useRef(null)
 
-  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+  if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
     ref = undefined
   }
   React.useEffect(() => {

@@ -18,7 +18,7 @@ export function render(props, ref) {
 
   const padding = variant === "extended" ? "1.2em" : "0.2em"
 
-  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+  if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
     ref = React.useRef(null)
   }
   React.useEffect(() => {

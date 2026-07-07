@@ -137,9 +137,9 @@ function formatBytes(bytes) {
 const CustomInput = React.forwardRef(({filePreview, footerObjects, ...props}, ref) => {
   const inputRef = React.useRef(null);
   React.useImperativeHandle(ref, () => ({
-    focus: () => inputRef.current?.focus(),
-    blur: () => inputRef.current?.blur(),
-    value: inputRef.current?.value,
+    focus: () => inputRef?.current?.focus(),
+    blur: () => inputRef?.current?.blur(),
+    value: inputRef?.current?.value,
   }));
 
   return (
