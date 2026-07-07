@@ -30,7 +30,7 @@ export function render(props, ref) {
     [sx]
   )
 
-  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+  if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
     ref = React.useRef(null)
   }
 

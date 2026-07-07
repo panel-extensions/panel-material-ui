@@ -47,8 +47,8 @@ export function render(props, ref) {
     [sx]
   )
 
-  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
-    ref = undefined
+  if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
+    ref = React.useRef(null)
   }
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()

@@ -35,12 +35,12 @@ export function render(props, ref) {
   const text_size = standard_size ? SIZES[size] : font_size
   const checkboxSx = React.useMemo(() => (sx ? [{p: PADDING[size]}, sx] : {p: PADDING[size]}), [sx, size])
 
-  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+  if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
     ref = React.useRef(null)
   }
 
   React.useEffect(() => {
-    const focus_cb = () => ref.current?.focus()
+    const focus_cb = () => ref?.current?.focus()
     model.on("msg:custom", focus_cb)
     return () => model.off("msg:custom", focus_cb)
   }, [])

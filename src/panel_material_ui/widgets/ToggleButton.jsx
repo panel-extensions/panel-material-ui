@@ -14,7 +14,7 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const buttonSx = React.useMemo(() => sx || undefined, [sx])
 
-  if (Object.entries(ref).length === 0 && ref.constructor === Object) {
+  if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
     ref = React.useRef(null)
   }
   React.useEffect(() => {
