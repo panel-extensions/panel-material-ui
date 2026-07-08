@@ -1,7 +1,6 @@
 import Drawer from "@mui/material/Drawer"
-import Icon from "@mui/material/Icon"
 import Paper from "@mui/material/Paper"
-import {apply_flex} from "./utils"
+import {apply_flex, render_icon} from "./utils"
 
 const TAB_SIZE = 24
 const TAB_LENGTH = 48
@@ -30,11 +29,12 @@ function getPositionStyle(anchor, dockPosition) {
   }
 }
 
-function DockedTab({anchor, open, dockPosition, attached, onClick, icon: customIcon}) {
+function DockedTab({anchor, open, dockPosition, attached, inline, onClick, icon: customIcon}) {
   const isHorizontal = anchor === "left" || anchor === "right"
   const icon = customIcon || anchorToChevron[anchor][open ? "open" : "closed"]
 
   const positionStyles = (() => {
+    if (inline) { return {} }
     if (attached) {
       const offsetSide = anchor === "left" ? "right" : anchor === "right" ? "left" : anchor === "top" ? "bottom" : "top"
       return {
@@ -49,10 +49,12 @@ function DockedTab({anchor, open, dockPosition, attached, onClick, icon: customI
   })()
 
   const tabStyle = {
-    position: "absolute",
+    position: inline ? "relative" : "absolute",
     ...positionStyles,
     width: isHorizontal ? `${TAB_SIZE}px` : `${TAB_LENGTH}px`,
     height: isHorizontal ? `${TAB_LENGTH}px` : `${TAB_SIZE}px`,
+    ...(inline && isHorizontal ? {height: "100%"} : {}),
+    ...(inline && !isHorizontal ? {width: "100%"} : {}),
     minWidth: 0,
     minHeight: 0,
     padding: 0,
@@ -79,7 +81,7 @@ function DockedTab({anchor, open, dockPosition, attached, onClick, icon: customI
       role="button"
       aria-label={open ? "Close drawer" : "Open drawer"}
     >
-      <Icon sx={{fontSize: "1.2rem"}}>{icon}</Icon>
+      {render_icon(icon, null, null, "1.2rem")}
     </Paper>
   )
 }
@@ -88,6 +90,7 @@ export function render({model, view}) {
   const [anchor] = model.useState("anchor")
   const [dockIcon] = model.useState("dock_icon")
   const [dockPosition] = model.useState("dock_position")
+  const [inline] = model.useState("inline")
   const [open, setOpen] = model.useState("open")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
@@ -95,16 +98,17 @@ export function render({model, view}) {
   const objects = model.get_child("objects")
 
   const isDocked = variant === "docked"
+  const isHorizontal = anchor === "left" || anchor === "right"
 
   let dims
   if (!["top", "bottom"].includes(anchor)) {
     dims = {width: `${size}px`}
-    if (!["temporary", "docked"].includes(variant)) {
+    if (!inline && !["temporary", "docked"].includes(variant)) {
       view.el.style.width = `${open ? size : 0}px`
     }
   } else {
     dims = {height: `${size}px`}
-    if (!["temporary", "docked"].includes(variant)) {
+    if (!inline && !["temporary", "docked"].includes(variant)) {
       view.el.style.height = `${open ? size : 0}px`
     }
   }
@@ -119,8 +123,72 @@ export function render({model, view}) {
     return () => model.off("lifecycle:update_layout", handler)
   }, [])
 
+  // Update view.el dimensions so Panel's layout system tracks our size when inline.
+  React.useEffect(() => {
+    if (!inline) { return }
+    if (isDocked) {
+      if (isHorizontal) {
+        view.el.style.width = open ? `${size + TAB_SIZE}px` : `${TAB_SIZE}px`
+        view.el.style.height = "100%"
+      } else {
+        view.el.style.height = open ? `${size + TAB_SIZE}px` : `${TAB_SIZE}px`
+        view.el.style.width = "100%"
+      }
+    } else {
+      if (isHorizontal) {
+        view.el.style.width = `${open ? size : 0}px`
+        view.el.style.height = "100%"
+      } else {
+        view.el.style.height = `${open ? size : 0}px`
+        view.el.style.width = "100%"
+      }
+    }
+  }, [inline, isDocked, open, size, isHorizontal])
+
   if (isDocked) {
-    const isHorizontal = anchor === "left" || anchor === "right"
+    if (inline) {
+      // Inline docked: same structure as fixed docked but scoped to a relative container.
+      const containerStyle = {
+        position: "relative",
+        [isHorizontal ? "width" : "height"]: open ? `${size + TAB_SIZE}px` : `${TAB_SIZE}px`,
+        [isHorizontal ? "height" : "width"]: "100%",
+        transition: "width 225ms cubic-bezier(0, 0, 0.2, 1), height 225ms cubic-bezier(0, 0, 0.2, 1)",
+        pointerEvents: "none",
+      }
+
+      const innerStyle = {
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        pointerEvents: "auto",
+      }
+
+      return (
+        <div style={containerStyle}>
+          <div style={innerStyle}>
+            <Drawer
+              anchor={anchor}
+              open={open}
+              onClose={() => setOpen(false)}
+              slotProps={{paper: {sx: [dims, {overflow: "visible"}, sx || {}]}}}
+              variant="persistent"
+              sx={{"& .MuiDrawer-root": {position: "absolute"}, "& .MuiPaper-root": {position: "absolute"}}}
+            >
+              {objects.map((object, index) => {
+                apply_flex(view.get_child_view(model.objects[index]), "column")
+                return object
+              })}
+              <DockedTab anchor={anchor} open={open} dockPosition={dockPosition} attached onClick={() => setOpen(false)} />
+            </Drawer>
+            {!open && (
+              <DockedTab anchor={anchor} open={false} dockPosition={dockPosition} attached={false} onClick={() => setOpen(true)} />
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    // Fixed docked: tab strip fixed to the page edge.
     const containerStyle = {
       position: "fixed",
       top: 0,
@@ -162,8 +230,32 @@ export function render({model, view}) {
     )
   }
 
+  // For temporary / persistent / permanent: use MUI Drawer directly.
+  // When inline, render inside the parent's flow (position: relative container) so
+  // siblings are pushed rather than overlaid.
+  const slotProps = {paper: {sx: [dims, sx || {}]}}
+  if (inline) {
+    return (
+      <div style={{position: "relative", overflow: "hidden", [isHorizontal ? "height" : "width"]: "100%"}}>
+        <Drawer
+          anchor={anchor}
+          open={open}
+          onClose={() => setOpen(false)}
+          slotProps={slotProps}
+          variant={variant === "temporary" ? "persistent" : variant}
+          sx={{"& .MuiDrawer-root": {position: "absolute"}, "& .MuiPaper-root": {position: "absolute"}}}
+        >
+          {objects.map((object, index) => {
+            apply_flex(view.get_child_view(model.objects[index]), "column")
+            return object
+          })}
+        </Drawer>
+      </div>
+    )
+  }
+
   return (
-    <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} slotProps={{paper: {sx: [dims, sx || {}]}}} variant={variant}>
+    <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} slotProps={slotProps} variant={variant}>
       {objects.map((object, index) => {
         apply_flex(view.get_child_view(model.objects[index]), "column")
         return object
