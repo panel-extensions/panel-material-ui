@@ -3,8 +3,9 @@ import pytest
 pytest.importorskip('playwright')
 
 from bokeh.models.formatters import PrintfTickFormatter
+from panel import config
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import IntSlider, Rating
+from panel_material_ui.widgets import EditableFloatSlider, EditableIntSlider, IntSlider, Rating
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -112,3 +113,69 @@ def test_rating(page, size):
 
     rating_size = page.locator(f'.MuiRating-size{size.capitalize()}')
     expect(rating_size).to_have_count(1)
+
+
+# --- EditableIntSlider / EditableFloatSlider throttled tests ---
+
+@pytest.mark.parametrize('widget_cls,initial,new_val,expected', [
+    (EditableIntSlider, 10, '20', 20),
+    (EditableFloatSlider, 1.0, '2.5', 2.5),
+])
+def test_editable_slider_text_input_updates_value_throttled(page, widget_cls, initial, new_val, expected):
+    with config.set(throttled=True):
+        widget = widget_cls(value=initial, start=0, end=100)
+        serve_component(page, widget)
+
+        inp = page.locator("input[type='text']")
+        inp.fill(new_val)
+        inp.press("Enter")
+
+        wait_until(lambda: widget.value_throttled == expected, page)
+        assert widget.value == expected
+
+
+@pytest.mark.parametrize('widget_cls,initial,new_val,expected', [
+    (EditableIntSlider, 10, '20', 20),
+    (EditableFloatSlider, 1.0, '2.5', 2.5),
+])
+def test_editable_slider_blur_updates_value_throttled(page, widget_cls, initial, new_val, expected):
+    with config.set(throttled=True):
+        widget = widget_cls(value=initial, start=0, end=100)
+        serve_component(page, widget)
+
+        inp = page.locator("input[type='text']")
+        inp.fill(new_val)
+        inp.blur()
+
+        wait_until(lambda: widget.value_throttled == expected, page)
+        assert widget.value == expected
+
+
+@pytest.mark.parametrize('widget_cls,initial,expected', [
+    (EditableIntSlider, 10, 11),
+    (EditableFloatSlider, 1.0, 1.1),
+])
+def test_editable_slider_increment_button_updates_value_throttled(page, widget_cls, initial, expected):
+    with config.set(throttled=True):
+        widget = widget_cls(value=initial, start=0, end=100, step=1 if widget_cls is EditableIntSlider else 0.1)
+        serve_component(page, widget)
+
+        page.locator(".MuiIconButton-root").nth(0).click()
+
+        wait_until(lambda: widget.value_throttled == pytest.approx(expected, abs=1e-9), page)
+        assert widget.value == pytest.approx(expected, abs=1e-9)
+
+
+@pytest.mark.parametrize('widget_cls,initial,expected', [
+    (EditableIntSlider, 10, 9),
+    (EditableFloatSlider, 1.0, 0.9),
+])
+def test_editable_slider_decrement_button_updates_value_throttled(page, widget_cls, initial, expected):
+    with config.set(throttled=True):
+        widget = widget_cls(value=initial, start=0, end=100, step=1 if widget_cls is EditableIntSlider else 0.1)
+        serve_component(page, widget)
+
+        page.locator(".MuiIconButton-root").nth(1).click()
+
+        wait_until(lambda: widget.value_throttled == pytest.approx(expected, abs=1e-9), page)
+        assert widget.value == pytest.approx(expected, abs=1e-9)
