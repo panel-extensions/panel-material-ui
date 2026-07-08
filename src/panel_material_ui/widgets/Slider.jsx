@@ -181,12 +181,14 @@ export function render({model, el, view}) {
       }
       let new_value
       if (Array.isArray(value)) {
-        new_value = index === 0 ? [validate(edited_value, 0), value[1]] : [value[0], validate(edited_value, 1)]
-        setValue(new_value)
-        new_value = new_value[index]
+        const full_new_value = index === 0 ? [validate(edited_value, 0), value[1]] : [value[0], validate(edited_value, 1)]
+        setValue(full_new_value)
+        setValueThrottled(full_new_value)
+        new_value = full_new_value[index]
       } else {
         new_value = validate(edited_value, 0)
         setValue(new_value)
+        setValueThrottled(new_value)
       }
       if (new_value < start) {
         setStart(new_value)
@@ -204,16 +206,18 @@ export function render({model, el, view}) {
         } else {
           val = Math.round((val + (step * multiplier)) * 100000000000) / 100000000000
         }
-        if (index === 0) {
-          setValue([val, value[1]])
-        } else {
-          setValue([value[0], val])
-        }
+        const new_value = index === 0 ? [val, value[1]] : [value[0], val]
+        setValue(new_value)
+        setValueThrottled(new_value)
       } else if (value === null) {
-        setValue(fixed_start != null ? fixed_start : 0)
+        const new_value = fixed_start != null ? fixed_start : 0
+        setValue(new_value)
+        setValueThrottled(new_value)
       } else {
         const incremented = Math.round((value + (step * multiplier)) * 100000000000) / 100000000000
-        setValue(fixed_end != null ? Math.min(fixed_end, incremented) : incremented)
+        const new_value = fixed_end != null ? Math.min(fixed_end, incremented) : incremented
+        setValue(new_value)
+        setValueThrottled(new_value)
       }
     }
   }
