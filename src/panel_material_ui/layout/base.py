@@ -1116,6 +1116,11 @@ class Drawer(MaterialListLike):
         default="middle", objects=["start", "middle", "end"],
         doc="Position of the toggle tab along the drawer edge (only applies to 'docked' variant).")  # type: ignore[assignment]
 
+    inline = param.Boolean(default=False, doc="""
+        Whether the drawer is positioned inline within its parent container rather than
+        fixed/absolute to the page. When True, the drawer participates in normal flow
+        layout and pushes or shrinks sibling items.""")
+
     size = param.Integer(default=250, doc="""
         The width (for left/right anchors) or height (for top/bottom anchors) of the drawer.""")
 
@@ -1128,10 +1133,16 @@ class Drawer(MaterialListLike):
 
     _esm_base = "Drawer.jsx"
 
-    @param.depends("variant", watch=True, on_init=True)
+    @param.depends("variant", "inline", "anchor", watch=True, on_init=True)
     def _force_zero_dimensions(self):
-        if self.variant in ("temporary", "docked"):
-            self.param.update(width=0, height=0, sizing_mode="fixed")
+        if not self.inline:
+            if self.variant in ("temporary", "docked"):
+                self.param.update(width=0, height=0, sizing_mode="fixed")
+        else:
+            if self.anchor in ("left", "right"):
+                self.param.update(sizing_mode="stretch_height")
+            else:
+                self.param.update(sizing_mode="stretch_width")
 
     def create_toggle(
         self,
