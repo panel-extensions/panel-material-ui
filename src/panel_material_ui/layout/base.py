@@ -1108,6 +1108,10 @@ class Drawer(MaterialListLike):
         default="left", objects=["left", "right", "top", "bottom"],
         doc="Anchor position for the drawer.")  # type: ignore[assignment]
 
+    dock_icon = param.String(default=None, doc="""
+        Icon to display in the dock tab (only applies to 'docked' variant).
+        When unset, a directional chevron is used.""")
+
     dock_position: t.Literal["start", "middle", "end"] = param.Selector(
         default="middle", objects=["start", "middle", "end"],
         doc="Position of the toggle tab along the drawer edge (only applies to 'docked' variant).")  # type: ignore[assignment]
