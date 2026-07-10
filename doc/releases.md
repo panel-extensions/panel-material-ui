@@ -1,5 +1,30 @@
 # Release Notes
 
+## Version 0.14.0
+
+Panel Material UI 0.14.0 introduces a new [`Clickable`](https://panel-material-ui.holoviz.org/reference/wrappers/Clickable.html) wrapper component and a docked variant for [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html), along with several enhancements to the `Drawer` API including `inline` mode and a configurable dock icon. The release also brings a fix for failed connection error display and several smaller fixes and improvements.
+
+Many thanks to @philippjfr for their contributions to this release.
+
+### 🧩 New Components
+
+* Add [`Clickable`](https://panel-material-ui.holoviz.org/reference/wrappers/Clickable.html) wrapper component ([#698](https://github.com/panel-extensions/panel-material-ui/pull/698))
+
+### 🔧 Enhancements
+
+* Implement docked variant for [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html) ([#696](https://github.com/panel-extensions/panel-material-ui/pull/696))
+* Expose dock icon for docked [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html) ([#700](https://github.com/panel-extensions/panel-material-ui/pull/700))
+* Add `inline` parameter to [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html) ([#703](https://github.com/panel-extensions/panel-material-ui/pull/703))
+* Expose [`FileInput`](https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html).`uploaded_label` ([#708](https://github.com/panel-extensions/panel-material-ui/pull/708))
+* Ensure [`EditableSlider`](https://panel-material-ui.holoviz.org/reference/widgets/EditableSlider.html) updates in throttled mode ([#702](https://github.com/panel-extensions/panel-material-ui/pull/702))
+* Display errors on failed connection ([#694](https://github.com/panel-extensions/panel-material-ui/pull/694))
+
+### 🐛 Bug Fixes
+
+* Guard against undefined forward refs ([#699](https://github.com/panel-extensions/panel-material-ui/pull/699))
+* Ensure [`MultiChoice`](https://panel-material-ui.holoviz.org/reference/widgets/MultiChoice.html) does not overflow in height ([#707](https://github.com/panel-extensions/panel-material-ui/pull/707))
+
+
 ## Version 0.13.0
 
 Panel Material UI 0.13.0 introduces the [`AppBar`](https://panel-material-ui.holoviz.org/reference/layouts/AppBar.html) and [`MenuBar`](https://panel-material-ui.holoviz.org/reference/menus/MenuBar.html) components, adds `error_state` and `helper_text` support across all input widgets, and brings several Page layout improvements including configurable `main_width` and `app_bar_width`. The release also includes fixes for contextbar variants, skeleton sizing, and various UI polish.
