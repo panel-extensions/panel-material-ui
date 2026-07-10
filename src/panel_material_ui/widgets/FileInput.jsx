@@ -40,6 +40,7 @@ export function render(props, ref) {
   const [loading] = model.useState("loading")
   const [multiple] = model.useState("multiple")
   const [label] = model.useState("label")
+  const [uploaded_label] = model.useState("uploaded_label")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
 
@@ -198,15 +199,18 @@ export function render(props, ref) {
   let tooltipTitle = ""
 
   if (N > 0) {
-    // Show filename(s) when file is uploaded
     const verb = status === "uploading" ? "Uploading" : "Uploaded"
-    if (N === 1) {
+    if (uploaded_label != null) {
+      const firstName = uploadedFiles[0]
+      title = uploaded_label
+        .replace("{filename}", N === 1 ? firstName : uploadedFiles.join(", "))
+        .replace("{n}", N)
+    } else if (N === 1) {
       title = `${verb} ${uploadedFiles[0]}`
-      tooltipTitle = uploadedFiles[0]
     } else {
       title = `${verb} ${N} files`
-      tooltipTitle = uploadedFiles
     }
+    tooltipTitle = N === 1 ? uploadedFiles[0] : uploadedFiles
   } else if (label) {
     title = label
   } else {

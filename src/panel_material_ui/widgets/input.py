@@ -222,6 +222,11 @@ class _FileUploadArea(param.Parameterized):
         Maximum total size (in bytes) for all files combined. If specified,
         uploads will be rejected if the total size exceeds this limit.""")
 
+    uploaded_label = param.String(default=None, doc="""
+        Label to display on the button after a file has been uploaded. Supports
+        {filename} and {n} as placeholders, e.g. 'Done ({n} files)' or
+        '{filename}'. If None (default), displays 'Uploaded <filename>'.""")
+
     _mime_types = MIME_TYPES
 
     def __init__(self, **params):
