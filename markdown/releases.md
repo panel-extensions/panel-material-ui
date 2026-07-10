@@ -1,0 +1,764 @@
+# Release Notes
+
+## Version 0.14.0
+
+Panel Material UI 0.14.0 introduces a new [`Clickable`](https://panel-material-ui.holoviz.org/reference/wrappers/Clickable.html) wrapper component and a docked variant for [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html), along with several enhancements to the `Drawer` API including `inline` mode and a configurable dock icon. The release also brings a fix for failed connection error display and several smaller fixes and improvements.
+
+Many thanks to @philippjfr for their contributions to this release.
+
+### 🧩 New Components
+
+* Add [`Clickable`](https://panel-material-ui.holoviz.org/reference/wrappers/Clickable.html) wrapper component ([#698](https://github.com/panel-extensions/panel-material-ui/pull/698))
+
+### 🔧 Enhancements
+
+* Implement docked variant for [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html) ([#696](https://github.com/panel-extensions/panel-material-ui/pull/696))
+* Expose dock icon for docked [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html) ([#700](https://github.com/panel-extensions/panel-material-ui/pull/700))
+* Add `inline` parameter to [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html) ([#703](https://github.com/panel-extensions/panel-material-ui/pull/703))
+* Expose [`FileInput`](https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html).`uploaded_label` ([#708](https://github.com/panel-extensions/panel-material-ui/pull/708))
+* Ensure [`EditableSlider`](https://panel-material-ui.holoviz.org/reference/widgets/EditableSlider.html) updates in throttled mode ([#702](https://github.com/panel-extensions/panel-material-ui/pull/702))
+* Display errors on failed connection ([#694](https://github.com/panel-extensions/panel-material-ui/pull/694))
+
+### 🐛 Bug Fixes
+
+* Guard against undefined forward refs ([#699](https://github.com/panel-extensions/panel-material-ui/pull/699))
+* Ensure [`MultiChoice`](https://panel-material-ui.holoviz.org/reference/widgets/MultiChoice.html) does not overflow in height ([#707](https://github.com/panel-extensions/panel-material-ui/pull/707))
+
+
+## Version 0.13.0
+
+Panel Material UI 0.13.0 introduces the [`AppBar`](https://panel-material-ui.holoviz.org/reference/layouts/AppBar.html) and [`MenuBar`](https://panel-material-ui.holoviz.org/reference/menus/MenuBar.html) components, adds `error_state` and `helper_text` support across all input widgets, and brings several Page layout improvements including configurable `main_width` and `app_bar_width`. The release also includes fixes for contextbar variants, skeleton sizing, and various UI polish.
+
+Many thanks to @ahuang11, @ghostiee-11, and @philippjfr for their contributions to this release.
+
+### 🆕 New Components
+
+* Add [`AppBar`](https://panel-material-ui.holoviz.org/reference/layouts/AppBar.html) component ([#680](https://github.com/panel-extensions/panel-material-ui/pull/680))
+* Add [`MenuBar`](https://panel-material-ui.holoviz.org/reference/menus/MenuBar.html) component ([#671](https://github.com/panel-extensions/panel-material-ui/pull/671))
+
+### 🔧 Enhancements
+
+* Add `error_state` and `helper_text` for all input widgets ([#670](https://github.com/panel-extensions/panel-material-ui/pull/670))
+* Add `main_width` and `app_bar_width` to [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) ([#684](https://github.com/panel-extensions/panel-material-ui/pull/684))
+* Disable +/- buttons when [`FloatInput`](https://panel-material-ui.holoviz.org/reference/widgets/FloatInput.html)/[`IntInput`](https://panel-material-ui.holoviz.org/reference/widgets/IntInput.html) are disabled ([#691](https://github.com/panel-extensions/panel-material-ui/pull/691))
+
+### 🐛 Bug Fixes
+
+* Fix [`Chip`](https://panel-material-ui.holoviz.org/reference/widgets/Chip.html) rendering bug ([#693](https://github.com/panel-extensions/panel-material-ui/pull/693))
+* Fix [`NestedSelect`](https://panel-material-ui.holoviz.org/reference/widgets/NestedSelect.html) `stretch_width` ([#681](https://github.com/panel-extensions/panel-material-ui/pull/681))
+* Fix [`Skeleton`](https://panel-material-ui.holoviz.org/reference/wrappers/Skeleton.html) stretch sizing ([#668](https://github.com/panel-extensions/panel-material-ui/pull/668))
+* Various fixes for persistent contextbar variants ([#676](https://github.com/panel-extensions/panel-material-ui/pull/676))
+* Only show the slider label colon when the value is shown ([#690](https://github.com/panel-extensions/panel-material-ui/pull/690))
+
+### 🎨 UI Improvements
+
+* Do not use outlined [`ToggleIcon`](https://panel-material-ui.holoviz.org/reference/widgets/ToggleIcon.html) variant when `active_icon` is provided ([#682](https://github.com/panel-extensions/panel-material-ui/pull/682))
+* Add `row_spacing` to [`Grid`](https://panel-material-ui.holoviz.org/reference/layouts/Grid.html) documentation example ([#683](https://github.com/panel-extensions/panel-material-ui/pull/683))
+
+### 📚 Documentation
+
+* Add missing section to documentation ([#667](https://github.com/panel-extensions/panel-material-ui/pull/667))
+
+
+## Version 0.12.0
+
+Panel Material UI 0.12.0 introduces a new class of Wrapper components that wrap child components to add visual effects or overlays, including [`Transition`](https://panel-material-ui.holoviz.org/reference/wrappers/Transition.html) for animated reveals, [`Badge`](https://panel-material-ui.holoviz.org/reference/wrappers/Badge.html) for notification indicators, and [`Tooltip`](https://panel-material-ui.holoviz.org/reference/wrappers/Tooltip.html) for contextual hints on hover. The release also adds the [`StepperMenu`](https://panel-material-ui.holoviz.org/reference/menus/StepperMenu.html) widget, [`DateRangePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DateRangePicker.html) and [`DatetimeRangePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatetimeRangePicker.html), converts [`Avatar`](https://panel-material-ui.holoviz.org/reference/widgets/Avatar.html) and [`Chip`](https://panel-material-ui.holoviz.org/reference/widgets/Chip.html) to proper widgets, makes the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) contextbar resizable and configurable, adds configurable chart styling for Bokeh/Vizzu plots, markdown rendering for the [`Alert`](https://panel-material-ui.holoviz.org/reference/layouts/Alert.html) layout, and static type checking with a `py.typed` marker.
+
+Many thanks to @ahuang11, @senlinyang98-crypto and @philippjfr for their contributions to this release.
+
+### 🧩 New Wrapper Components
+
+This release introduces wrapper components, a new category of components that wrap a child component to add visual effects, overlays, or interactive behaviors.
+
+* Add [`Transition`](https://panel-material-ui.holoviz.org/reference/wrappers/Transition.html) wrapper for animated transitions (collapse, fade, grow, slide, zoom) ([#652](https://github.com/panel-extensions/panel-material-ui/pull/652))
+* Add [`Badge`](https://panel-material-ui.holoviz.org/reference/wrappers/Badge.html) wrapper to display notification badges on child components ([#634](https://github.com/panel-extensions/panel-material-ui/pull/634))
+* Add [`Tooltip`](https://panel-material-ui.holoviz.org/reference/wrappers/Tooltip.html) wrapper to show tooltips on hover ([#633](https://github.com/panel-extensions/panel-material-ui/pull/633))
+* Reimplement [`Skeleton`](https://panel-material-ui.holoviz.org/reference/wrappers/Skeleton.html) as a Wrapper component ([#654](https://github.com/panel-extensions/panel-material-ui/pull/654))
+
+### 🆕 New Widgets
+
+* Add [`StepperMenu`](https://panel-material-ui.holoviz.org/reference/menus/StepperMenu.html) widget ([#631](https://github.com/panel-extensions/panel-material-ui/pull/631))
+* Implement [`DateRangePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DateRangePicker.html) and [`DatetimeRangePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatetimeRangePicker.html) ([#641](https://github.com/panel-extensions/panel-material-ui/pull/641))
+
+### 🔧 Enhancements
+
+* Convert [`Avatar`](https://panel-material-ui.holoviz.org/reference/widgets/Avatar.html) and [`Chip`](https://panel-material-ui.holoviz.org/reference/widgets/Chip.html) from a Pane to a Widget ([#653](https://github.com/panel-extensions/panel-material-ui/pull/653))
+* Add `contextbar_resizable` and `contextbar_variant` parameters to [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) ([#657](https://github.com/panel-extensions/panel-material-ui/pull/657))
+* Make `chart_style` configurable for Bokeh and Vizzu theming ([#660](https://github.com/panel-extensions/panel-material-ui/pull/660))
+* Add markdown rendering support to [`Alert`](https://panel-material-ui.holoviz.org/reference/layouts/Alert.html) layout ([#661](https://github.com/panel-extensions/panel-material-ui/pull/661))
+* Enable type checking with mypy and add `py.typed` marker ([#655](https://github.com/panel-extensions/panel-material-ui/pull/655))
+
+### 🐛 Bug Fixes
+
+* Ensure [`Button`](https://panel-material-ui.holoviz.org/reference/widgets/Button.html)-like components respect `variant` ([#642](https://github.com/panel-extensions/panel-material-ui/pull/642))
+* Set a default icon for [`Rating`](https://panel-material-ui.holoviz.org/reference/widgets/Rating.html) so it is visible ([#643](https://github.com/panel-extensions/panel-material-ui/pull/643))
+* Use `label` instead of `name` to fix deprecation warning ([#632](https://github.com/panel-extensions/panel-material-ui/pull/632))
+* Fix closable handling for last tab in [`Tabs`](https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html) ([#662](https://github.com/panel-extensions/panel-material-ui/pull/662))
+* Support `size` on [`MultiSelect`](https://panel-material-ui.holoviz.org/reference/widgets/MultiSelect.html) to control visible rows ([#663](https://github.com/panel-extensions/panel-material-ui/pull/663))
+
+
+## Version 0.11.2
+
+The `panel-material-ui` 0.11.2 release primarily fixes a few bugs and regressions related to the MUI v9 and panel 1.9.0 updates. Many thanks to @philippjfr for his contributions to this release.
+
+### 🐛 Bug Fixes
+
+* Fix regression in [`FileInput`](https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html).view related to name/label rename in panel
+* Align and fix handling of custom menus in notebook and other non-standard environments ([#636](https://github.com/panel-extensions/panel-material-ui/pull/636))
+* Ensure [`ChatAreaInput`](https://panel-material-ui.holoviz.org/reference/chat/ChatAreaInput.html) clears on submit ([#638](https://github.com/panel-extensions/panel-material-ui/pull/638))
+* Improve handling of loading spinner in default template ([#639](https://github.com/panel-extensions/panel-material-ui/pull/639))
+
+
+## Version 0.11.1
+
+The `panel-material-ui` 0.11.1 aligns `ChatFeed` and `ChatInterface` with the API of other `MaterialComponent` classes in the library. Many thanks to @philippjfr for his contributions to this release.
+
+### ✨ Enhancements
+
+* Expose `dark_theme`, `sx` and `theme_config` on [`ChatFeed`](https://panel-material-ui.holoviz.org/reference/chat/ChatFeed.html) and [`ChatInterface`](https://panel-material-ui.holoviz.org/reference/chat/ChatInterface.html) ([#635](https://github.com/panel-extensions/panel-material-ui/pull/635))
+
+
+## Version 0.11.0
+
+Panel Material UI 0.11.0 is headlined by an upgrade to MUI v9, bringing the library up to date with the latest Material UI ecosystem.  The release also delivers improved Vizzu theming and a new minimal Bokeh theme that integrates more cleanly with Material UI layouts.
+
+Many thanks to the contributors to this release including: @philippjfr and @hoxbro.
+
+### ✨ Enhancements
+* Bump MUI to v9 ([#629](https://github.com/panel-extensions/panel-material-ui/pull/629))
+* Allow providing `sx` to control [`Tabs`](https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html) content area styling
+
+### 🎨 UI Improvements
+* Improve Bokeh and Vizzu theming ([#626](https://github.com/panel-extensions/panel-material-ui/pull/626))
+
+### 📚 Documentation
+* Align [`DatePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html) documentation with actual behavior ([#628](https://github.com/panel-extensions/panel-material-ui/pull/628))
+
+## Version 0.10.0
+
+Panel Material UI 0.10.0 introduces new layout and chat capabilities, including a `Feed` layout component, "mention" support in `ChatInterface`, and scroll behaviors for `Column`. The release also brings several menu and navigation improvements, compatibility with the upcoming Panel 1.9.0 release, and a range of bug fixes and UI polish.
+
+Many thanks to the contributors to this release including: @philippjfr, @hoxbro, @ghostiee-11, @ahuang11, and @AtharvaJaiswal005.
+
+### ✨ Enhancements
+
+* Implement [`Feed`](https://panel-material-ui.holoviz.org/reference/layouts/Feed.html) layout component ([#608](https://github.com/panel-extensions/panel-material-ui/pull/608))
+* Add mention support to [`ChatInterface`](https://panel-material-ui.holoviz.org/reference/chat/ChatInterface.html) ([#607](https://github.com/panel-extensions/panel-material-ui/pull/607))
+* Add `placeholder` parameter to [`ChatInterface`](https://panel-material-ui.holoviz.org/reference/chat/ChatInterface.html) ([#588](https://github.com/panel-extensions/panel-material-ui/pull/588))
+* Add tooltip support to [`Chip`](https://panel-material-ui.holoviz.org/reference/widgets/Chip.html) ([#622](https://github.com/panel-extensions/panel-material-ui/pull/622))
+* Add separator support to [`MenuButton`](https://panel-material-ui.holoviz.org/reference/menus/MenuButton.html) ([#620](https://github.com/panel-extensions/panel-material-ui/pull/620))
+* Implement scroll behaviors for `Column` ([#606](https://github.com/panel-extensions/panel-material-ui/pull/606))
+
+### 🐛 Bug Fixes
+* Fix [`DatePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html) not clearing correctly ([#618](https://github.com/panel-extensions/panel-material-ui/pull/618))
+* Fix menu divider handling ([#621](https://github.com/panel-extensions/panel-material-ui/pull/621))
+* Fix editing message background fill not stretching with additional lines ([#604](https://github.com/panel-extensions/panel-material-ui/pull/604))
+
+### 📦 Compatibility & Dependency Updates
+
+* Compatibility with Panel 1.9.0 ([#616](https://github.com/panel-extensions/panel-material-ui/pull/616))
+
+### 🎨 UI Improvements
+* Ensure `Tabulator` highlights odd rows correctly in light mode ([#619](https://github.com/panel-extensions/panel-material-ui/pull/619))
+* Ensure grid color is applied to Bokeh plots ([#614](https://github.com/panel-extensions/panel-material-ui/pull/614))
+* Optimize `sx`, RGB calculations, and dark theme toggling ([#609](https://github.com/panel-extensions/panel-material-ui/pull/609))
+
+## Version 0.9.1
+
+Panel Material UI 0.9.1 focuses on improving chat components, layout polish, and better integration with related Panel extensions such as `panel-reactflow`. The release also includes several UI fixes and documentation improvements.
+
+Many thanks to the contributors to this release including: @philippjfr, @ghostiee-11, @ahuang11, @MarcSkovMadsen, and @hoxbro.
+
+### ✨ Enhancements
+
+* Add [`Chip`](https://panel-material-ui.holoviz.org/reference/widgets/Chip.html).disabled parameter to allow disabling chips ([#599](https://github.com/panel-extensions/panel-material-ui/pull/599))
+* Add theme switching support for `panel-reactflow` integration ([#594](https://github.com/panel-extensions/panel-material-ui/pull/594))
+
+### 🐛 Bug Fixes
+
+* Fix [`ChatMessage`](https://panel-material-ui.holoviz.org/reference/chat/ChatMessage.html) edit functionality when rendered via React ESM components ([#600](https://github.com/panel-extensions/panel-material-ui/pull/600))
+* Fix [`ChatInterface`](https://panel-material-ui.holoviz.org/reference/chat/ChatInterface.html) scroll behavior, focus handling, and message overflow ([#585](https://github.com/panel-extensions/panel-material-ui/pull/585))
+* Fix [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) rendering issues ([#584](https://github.com/panel-extensions/panel-material-ui/pull/584))
+* Fix [`AutocompleteInput`](https://panel-material-ui.holoviz.org/reference/widgets/AutocompleteInput.html) not updating correctly when using dictionaries
+* Fix menu rendering when used inside `panel-reactflow` layouts ([#590](https://github.com/panel-extensions/panel-material-ui/pull/590))
+
+### 🎨 UI Improvements
+
+* Align [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) logo correctly with the title ([#593](https://github.com/panel-extensions/panel-material-ui/pull/593))
+* Hide [`LinearProgress`](https://panel-material-ui.holoviz.org/reference/indicators/LinearProgress.html) indicator when idle in the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) header ([#574](https://github.com/panel-extensions/panel-material-ui/pull/574))
+* Ensure bundled font files are loaded correctly ([#591](https://github.com/panel-extensions/panel-material-ui/pull/591))
+
+### 📚 Documentation
+
+* Combine training materials and improve documentation structure ([#598](https://github.com/panel-extensions/panel-material-ui/pull/598))
+* Merge Plotly and Bokeh/HoloViews documentation sections ([#597](https://github.com/panel-extensions/panel-material-ui/pull/597))
+
+
+## Version 0.9.0
+
+This release includes enhancements, bug fixes, and documentation updates.
+
+### ✨ Enhancements
+
+- Add support for providing tooltip for menu items ([#570](https://github.com/panel-extensions/panel-material-ui/pull/570))
+- Support icon shorthand for all widgets and menus ([#569](https://github.com/panel-extensions/panel-material-ui/pull/569))
+- Add [`Pill`](https://panel-material-ui.holoviz.org/reference/widgets/Pill.html) and [`MultiPill`](https://panel-material-ui.holoviz.org/reference/widgets/MultiPill.html) widgets ([#568](https://github.com/panel-extensions/panel-material-ui/pull/568))
+- Allow providing Theme overrides ([#565](https://github.com/panel-extensions/panel-material-ui/pull/565))
+- Add ability to disable link on click in [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) ([#560](https://github.com/panel-extensions/panel-material-ui/pull/560))
+
+### 🐛 Bug Fixes
+
+- Fix `MaterialUIComponent` ([#566](https://github.com/panel-extensions/panel-material-ui/pull/566))
+- Ensure `icon_size` overrides standard size ([#556](https://github.com/panel-extensions/panel-material-ui/pull/556))
+
+### 📚 Documentation
+
+- Document how to use custom icons in MaterialUIComponent ([#571](https://github.com/panel-extensions/panel-material-ui/pull/571))
+- Improve how-to indexing and titles ([#567](https://github.com/panel-extensions/panel-material-ui/pull/567))
+
+## Version 0.8.1
+
+This release includes enhancements, documentation updates, and developer/infrastructure improvements.
+
+### ✨ Enhancements
+
+- Unify Icon rendering ([#555](https://github.com/panel-extensions/panel-material-ui/pull/555))
+- Add sync method to [`ChatAreaInput`](https://panel-material-ui.holoviz.org/reference/chat/ChatAreaInput.html) ([#552](https://github.com/panel-extensions/panel-material-ui/pull/552))
+- Expose [`SpeedDial`](https://panel-material-ui.holoviz.org/reference/menus/SpeedDial.html).size ([#554](https://github.com/panel-extensions/panel-material-ui/pull/554))
+- Tweak styles ([#553](https://github.com/panel-extensions/panel-material-ui/pull/553))
+
+### 🧪 Infrastructure & Developer Experience
+
+- Bump the gh-actions group with 2 updates ([#549](https://github.com/panel-extensions/panel-material-ui/pull/549))
+
+## Version 0.8.0
+
+This release includes enhancements, bug fixes, developer/infrastructure improvements, and additional changes.
+
+### ✨ Enhancements
+
+- Padding and sizing adjustments for [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html), [`Accordion`](https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html) and [`CrossSelector`](https://panel-material-ui.holoviz.org/reference/widgets/CrossSelector.html) ([#544](https://github.com/panel-extensions/panel-material-ui/pull/544))
+- Implement new [`Details`](https://panel-material-ui.holoviz.org/reference/layouts/Details.html) layout ([#533](https://github.com/panel-extensions/panel-material-ui/pull/533))
+- Add support for [`TextAreaInput`](https://panel-material-ui.holoviz.org/reference/widgets/TextAreaInput.html).enter_pressed ([#537](https://github.com/panel-extensions/panel-material-ui/pull/537))
+- Reduce margin on [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) theme toggle ([#536](https://github.com/panel-extensions/panel-material-ui/pull/536))
+- Add Menu.update_item method ([#522](https://github.com/panel-extensions/panel-material-ui/pull/522))
+- Implement [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html).collapsed for condensed menu ([#519](https://github.com/panel-extensions/panel-material-ui/pull/519))
+- EditableSlider UI/UX improvements ([#501](https://github.com/panel-extensions/panel-material-ui/pull/501))
+- LoadingTransform UI/UX improvements ([#503](https://github.com/panel-extensions/panel-material-ui/pull/503))
+- Add [`FileDownload`](https://panel-material-ui.holoviz.org/reference/widgets/FileDownload.html).transfer method ([#515](https://github.com/panel-extensions/panel-material-ui/pull/515))
+
+### 🐛 Bug Fixes
+
+- Ensure mime types are set for woff font files ([#546](https://github.com/panel-extensions/panel-material-ui/pull/546))
+- Fix [`Button`](https://panel-material-ui.holoviz.org/reference/widgets/Button.html) variant documentation ([#538](https://github.com/panel-extensions/panel-material-ui/pull/538))
+- Fix [`CheckBoxGroup`](https://panel-material-ui.holoviz.org/reference/widgets/CheckBoxGroup.html)/[`RadioBoxGroup`](https://panel-material-ui.holoviz.org/reference/widgets/RadioBoxGroup.html) widgets error in components.py and update docs ([#527](https://github.com/panel-extensions/panel-material-ui/pull/527))
+- Ensure [`ChatMessage`](https://panel-material-ui.holoviz.org/reference/chat/ChatMessage.html) header and footer objects are rendered ([#530](https://github.com/panel-extensions/panel-material-ui/pull/530))
+- Fix missing loading_inset on Column/Row ([#524](https://github.com/panel-extensions/panel-material-ui/pull/524))
+- Correctly handle different Icon variants ([#521](https://github.com/panel-extensions/panel-material-ui/pull/521))
+- Ensure [`NestedBreadcrumbs`](https://panel-material-ui.holoviz.org/reference/menus/NestedBreadcrumbs.html) path does not override active ([#517](https://github.com/panel-extensions/panel-material-ui/pull/517))
+
+### 🧪 Infrastructure & Developer Experience
+
+- Bump the gh-actions group with 2 updates ([#516](https://github.com/panel-extensions/panel-material-ui/pull/516))
+
+### 🗂️ Other
+
+- Animate [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) sidebar collapse ([#545](https://github.com/panel-extensions/panel-material-ui/pull/545))
+- Reset [`Tabs`](https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html) min-height after transition ([#523](https://github.com/panel-extensions/panel-material-ui/pull/523))
+- Always apply [`ChatMessage`](https://panel-material-ui.holoviz.org/reference/chat/ChatMessage.html) style overrides ([#520](https://github.com/panel-extensions/panel-material-ui/pull/520))
+
+## Version 0.7.0
+
+This release includes enhancements, bug fixes, and developer/infrastructure improvements.
+
+### ✨ Enhancements
+
+- Improve [`Tabs`](https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html) height transitions ([#514](https://github.com/panel-extensions/panel-material-ui/pull/514))
+- Reduce padding ([#513](https://github.com/panel-extensions/panel-material-ui/pull/513))
+- Add [`TabMenu`](https://panel-material-ui.holoviz.org/reference/menus/TabMenu.html) component ([#511](https://github.com/panel-extensions/panel-material-ui/pull/511))
+- Add [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) and [`Tree`](https://panel-material-ui.holoviz.org/reference/menus/Tree.html) toggle_action ([#509](https://github.com/panel-extensions/panel-material-ui/pull/509))
+- Add lazy_search to [`AutocompleteInput`](https://panel-material-ui.holoviz.org/reference/widgets/AutocompleteInput.html) ([#507](https://github.com/panel-extensions/panel-material-ui/pull/507))
+- Add [`Tree`](https://panel-material-ui.holoviz.org/reference/menus/Tree.html) Menu component ([#506](https://github.com/panel-extensions/panel-material-ui/pull/506))
+- Adjust theming of some components ([#505](https://github.com/panel-extensions/panel-material-ui/pull/505))
+- Implement attached views anchored to the parent ([#174](https://github.com/panel-extensions/panel-material-ui/pull/174))
+- Add Widget.focus() method ([#504](https://github.com/panel-extensions/panel-material-ui/pull/504))
+
+### 🐛 Bug Fixes
+
+- Ensure focus callback is registered once and cleaned up ([#510](https://github.com/panel-extensions/panel-material-ui/pull/510))
+- Fix [`NestedBreadcrumbs`](https://panel-material-ui.holoviz.org/reference/menus/NestedBreadcrumbs.html) UI test on windows ([#508](https://github.com/panel-extensions/panel-material-ui/pull/508))
+
+### 🧪 Infrastructure & Developer Experience
+
+- Bump panel-material-ui version to 7.3.5 ([#512](https://github.com/panel-extensions/panel-material-ui/pull/512))
+
+## Version 0.6.0
+
+This release includes enhancements, bug fixes, developer/infrastructure improvements, and additional changes.
+
+### ✨ Enhancements
+
+- [`FileDownload`](https://panel-material-ui.holoviz.org/reference/widgets/FileDownload.html) UI/UX improvements ([#496](https://github.com/panel-extensions/panel-material-ui/pull/496))
+- Add [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html).show_children parameter ([#494](https://github.com/panel-extensions/panel-material-ui/pull/494))
+- Do not attempt to jslink parameters that do not support it ([#493](https://github.com/panel-extensions/panel-material-ui/pull/493))
+- Add draggable/resizable sidebar functionality to MUI Drawer-based sidebar ([#476](https://github.com/panel-extensions/panel-material-ui/pull/476))
+- Add [`NestedBreadcrumbs`](https://panel-material-ui.holoviz.org/reference/menus/NestedBreadcrumbs.html) menu component ([#488](https://github.com/panel-extensions/panel-material-ui/pull/488))
+- [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) UX/UI improvements ([#486](https://github.com/panel-extensions/panel-material-ui/pull/486))
+
+### 🐛 Bug Fixes
+
+- Fix initialization of [`ChatMessage`](https://panel-material-ui.holoviz.org/reference/chat/ChatMessage.html).avatar param ([#498](https://github.com/panel-extensions/panel-material-ui/pull/498))
+- Various fixes to avoid parameter de-referencing ([#495](https://github.com/panel-extensions/panel-material-ui/pull/495))
+- Ensure provided Menu value is not overridden by None active value ([#492](https://github.com/panel-extensions/panel-material-ui/pull/492))
+- Ensure adding [`ThemeToggle`](https://panel-material-ui.holoviz.org/reference/page/ThemeToggle.html) to an app enables managed theme support ([#491](https://github.com/panel-extensions/panel-material-ui/pull/491))
+- Fix [`ChatAreaInput`](https://panel-material-ui.holoviz.org/reference/chat/ChatAreaInput.html) status_ref handling ([#490](https://github.com/panel-extensions/panel-material-ui/pull/490))
+- Fix [`TextAreaInput`](https://panel-material-ui.holoviz.org/reference/widgets/TextAreaInput.html).auto_grow ([#489](https://github.com/panel-extensions/panel-material-ui/pull/489))
+
+### 🧪 Infrastructure & Developer Experience
+
+- chore: Update pre-commit and fixes ([#502](https://github.com/panel-extensions/panel-material-ui/pull/502))
+- Bump the gh-actions group with 4 updates ([#487](https://github.com/panel-extensions/panel-material-ui/pull/487))
+
+### 🗂️ Other
+
+- Remove button label as a link for [`FileDownload`](https://panel-material-ui.holoviz.org/reference/widgets/FileDownload.html) button when auto is False ([#500](https://github.com/panel-extensions/panel-material-ui/pull/500))
+- Clear [`ChatAreaInput`](https://panel-material-ui.holoviz.org/reference/chat/ChatAreaInput.html) status ref before removal ([#499](https://github.com/panel-extensions/panel-material-ui/pull/499))
+
+## Version 0.5.1
+
+This release includes enhancements, bug fixes, and developer/infrastructure improvements.
+
+### ✨ Enhancements
+
+- Align [`Button`](https://panel-material-ui.holoviz.org/reference/widgets/Button.html) icon_size ([#473](https://github.com/panel-extensions/panel-material-ui/pull/473))
+- Expose control over [`Accordion`](https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html), [`Card`](https://panel-material-ui.holoviz.org/reference/layouts/Card.html), [`Dialog`](https://panel-material-ui.holoviz.org/reference/layouts/Dialog.html) title_variant ([#472](https://github.com/panel-extensions/panel-material-ui/pull/472))
+- enh: Improve [`FileInput`](https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html) ([#471](https://github.com/panel-extensions/panel-material-ui/pull/471))
+
+### 🐛 Bug Fixes
+
+- Ensure [`TextAreaInput`](https://panel-material-ui.holoviz.org/reference/widgets/TextAreaInput.html) height is respected ([#474](https://github.com/panel-extensions/panel-material-ui/pull/474))
+
+### 🧪 Infrastructure & Developer Experience
+
+- Bump the gh-actions group across 1 directory with 5 updates ([#478](https://github.com/panel-extensions/panel-material-ui/pull/478))
+
+## Version 0.5.0
+
+This release includes enhancements, bug fixes, documentation updates, developer/infrastructure improvements, and additional changes.
+
+### ✨ Enhancements
+
+- Register HoloViews widgets and template ([#469](https://github.com/panel-extensions/panel-material-ui/pull/469))
+- Reduce [`Accordion`](https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html) padding ([#468](https://github.com/panel-extensions/panel-material-ui/pull/468))
+- Implement [`TextAreaInput`](https://panel-material-ui.holoviz.org/reference/widgets/TextAreaInput.html).resizable ([#436](https://github.com/panel-extensions/panel-material-ui/pull/436))
+- Update to Mui v7 ([#459](https://github.com/panel-extensions/panel-material-ui/pull/459))
+- enh: Add size to [`CrossSelector`](https://panel-material-ui.holoviz.org/reference/widgets/CrossSelector.html) ([#456](https://github.com/panel-extensions/panel-material-ui/pull/456))
+- Implement support for reconnect notifications ([#444](https://github.com/panel-extensions/panel-material-ui/pull/444))
+- Improve upload progress reporting ([#458](https://github.com/panel-extensions/panel-material-ui/pull/458))
+- Minor Chat tweaks ([#451](https://github.com/panel-extensions/panel-material-ui/pull/451))
+- Improve [`ChatAreaInput`](https://panel-material-ui.holoviz.org/reference/chat/ChatAreaInput.html)'s upload experience ([#440](https://github.com/panel-extensions/panel-material-ui/pull/440))
+- Add border to active [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) item ([#449](https://github.com/panel-extensions/panel-material-ui/pull/449))
+- Implement [`IconButton`](https://panel-material-ui.holoviz.org/reference/widgets/IconButton.html) href and target ([#435](https://github.com/panel-extensions/panel-material-ui/pull/435))
+- Align button menu components ([#425](https://github.com/panel-extensions/panel-material-ui/pull/425))
+
+### 🐛 Bug Fixes
+
+- Fix href support on [`MenuButton`](https://panel-material-ui.holoviz.org/reference/menus/MenuButton.html) items ([#467](https://github.com/panel-extensions/panel-material-ui/pull/467))
+- Ensure [`FileDownload`](https://panel-material-ui.holoviz.org/reference/widgets/FileDownload.html) fetches latest data ([#464](https://github.com/panel-extensions/panel-material-ui/pull/464))
+- Fix default item open state handling in List component #454 ([#455](https://github.com/panel-extensions/panel-material-ui/pull/455))
+- Ensure CSS icon_size is permitted on [`IconButton`](https://panel-material-ui.holoviz.org/reference/widgets/IconButton.html) and [`ToggleIcon`](https://panel-material-ui.holoviz.org/reference/widgets/ToggleIcon.html) ([#453](https://github.com/panel-extensions/panel-material-ui/pull/453))
+- Fix [`Dialog`](https://panel-material-ui.holoviz.org/reference/layouts/Dialog.html) padding and close button alignment ([#452](https://github.com/panel-extensions/panel-material-ui/pull/452))
+- Fix [`Accordion`](https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html) header color ([#447](https://github.com/panel-extensions/panel-material-ui/pull/447))
+- Revert "Ensure material-variables CSS does not override font and color" ([#419](https://github.com/panel-extensions/panel-material-ui/pull/419)) ([#445](https://github.com/panel-extensions/panel-material-ui/pull/445))
+- Ensure components in header adapt to header color ([#438](https://github.com/panel-extensions/panel-material-ui/pull/438))
+- Ensure [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) outlined variant is notched when updating value ([#434](https://github.com/panel-extensions/panel-material-ui/pull/434))
+
+### 📚 Documentation
+
+- Align documentation of color variants ([#450](https://github.com/panel-extensions/panel-material-ui/pull/450))
+
+### 🧪 Infrastructure & Developer Experience
+
+- Register CDN and dist directory with panel ([#463](https://github.com/panel-extensions/panel-material-ui/pull/463))
+
+### 🗂️ Other
+
+- Replace pyodide loader ([#466](https://github.com/panel-extensions/panel-material-ui/pull/466))
+- Update `mui.py` for page.meta changes ([#441](https://github.com/panel-extensions/panel-material-ui/pull/441))
+- Trigger send event if sending empty message with uploaded files ([#460](https://github.com/panel-extensions/panel-material-ui/pull/460))
+- Wait to send [`ChatAreaInput`](https://panel-material-ui.holoviz.org/reference/chat/ChatAreaInput.html) message until files are uploaded ([#457](https://github.com/panel-extensions/panel-material-ui/pull/457))
+- Portal tooltips into [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) root ([#439](https://github.com/panel-extensions/panel-material-ui/pull/439))
+- Hide selected options in [`MultiChoice`](https://panel-material-ui.holoviz.org/reference/widgets/MultiChoice.html) option list ([#432](https://github.com/panel-extensions/panel-material-ui/pull/432))
+
+## Version 0.4.0
+
+This release includes enhancements, bug fixes, documentation updates, and additional changes.
+
+### ✨ Enhancements
+
+- Add missing notebooks ([#368](https://github.com/panel-extensions/panel-material-ui/pull/368))
+- Add [`MenuToggle`](https://panel-material-ui.holoviz.org/reference/menus/MenuToggle.html) ([#406](https://github.com/panel-extensions/panel-material-ui/pull/406))
+- Align [`IconButton`](https://panel-material-ui.holoviz.org/reference/widgets/IconButton.html) and [`ToggleIcon`](https://panel-material-ui.holoviz.org/reference/widgets/ToggleIcon.html) sizing ([#411](https://github.com/panel-extensions/panel-material-ui/pull/411))
+- Allow rendering components into [`Accordion`](https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html) and [`Tabs`](https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html) headers ([#409](https://github.com/panel-extensions/panel-material-ui/pull/409))
+- Add input params ([#401](https://github.com/panel-extensions/panel-material-ui/pull/401))
+- Make adjustments to font-size after changing defaults ([#404](https://github.com/panel-extensions/panel-material-ui/pull/404))
+- Optimize font CSS lookups ([#399](https://github.com/panel-extensions/panel-material-ui/pull/399))
+- Add [`SplitButton`](https://panel-material-ui.holoviz.org/reference/menus/SplitButton.html) widget ([#284](https://github.com/panel-extensions/panel-material-ui/pull/284))
+- Reduce default Typography header size ([#394](https://github.com/panel-extensions/panel-material-ui/pull/394))
+- Allow setting open on [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) items ([#395](https://github.com/panel-extensions/panel-material-ui/pull/395))
+- Consistently support Widget.description tooltips ([#393](https://github.com/panel-extensions/panel-material-ui/pull/393))
+
+### 🐛 Bug Fixes
+
+- Ensure material-variables CSS does not override font and color ([#419](https://github.com/panel-extensions/panel-material-ui/pull/419))
+- fix link ([#415](https://github.com/panel-extensions/panel-material-ui/pull/415))
+- Handle sync of MuiNotification model ([#412](https://github.com/panel-extensions/panel-material-ui/pull/412))
+- Fix handling of decimal values in NumberInput validation ([#413](https://github.com/panel-extensions/panel-material-ui/pull/413))
+- Ensure classic panel components are styled correctly ([#408](https://github.com/panel-extensions/panel-material-ui/pull/408))
+- Fix regression adding items to [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) ([#396](https://github.com/panel-extensions/panel-material-ui/pull/396))
+
+### 📚 Documentation
+
+- Review [`SplitButton`](https://panel-material-ui.holoviz.org/reference/menus/SplitButton.html) Reference Guide ([#398](https://github.com/panel-extensions/panel-material-ui/pull/398))
+
+### 🗂️ Other
+
+- Change [`ChatMessage`](https://panel-material-ui.holoviz.org/reference/chat/ChatMessage.html) placeholder loading animation ([#417](https://github.com/panel-extensions/panel-material-ui/pull/417))
+- Switch to outlined info icon for description ([#414](https://github.com/panel-extensions/panel-material-ui/pull/414))
+- More alignment of component title sizes ([#410](https://github.com/panel-extensions/panel-material-ui/pull/410))
+- Only jslink on Widget instances, not WidgetBase ([#390](https://github.com/panel-extensions/panel-material-ui/pull/390))
+
+## Version 0.3.3
+
+This release includes enhancements and bug fixes.
+
+### ✨ Enhancements
+
+- Allow switching [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html).logo based on theme ([#388](https://github.com/panel-extensions/panel-material-ui/pull/388))
+
+### 🐛 Bug Fixes
+
+- Ensure [`FileDownload`](https://panel-material-ui.holoviz.org/reference/widgets/FileDownload.html) filename can be set inside callback ([#386](https://github.com/panel-extensions/panel-material-ui/pull/386))
+- Ensure [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) menu in notebook is scrollable ([#385](https://github.com/panel-extensions/panel-material-ui/pull/385))
+
+## Version 0.3.2
+
+This release includes bug fixes and documentation updates.
+
+### 🐛 Bug Fixes
+
+- Ensure icon_size is not dropped ([#384](https://github.com/panel-extensions/panel-material-ui/pull/384))
+- Ensure [`Card`](https://panel-material-ui.holoviz.org/reference/layouts/Card.html) and [`ChatStep`](https://panel-material-ui.holoviz.org/reference/chat/ChatStep.html) titles wrap ([#383](https://github.com/panel-extensions/panel-material-ui/pull/383))
+
+### 📚 Documentation
+
+- Update [`Backdrop`](https://panel-material-ui.holoviz.org/reference/layouts/Backdrop.html).ipynb text ([#381](https://github.com/panel-extensions/panel-material-ui/pull/381))
+
+## Version 0.3.1
+
+This release includes bug fixes, documentation updates, developer/infrastructure improvements, and additional changes.
+
+### 🐛 Bug Fixes
+
+- Fix bug when clearing [`Tabs`](https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html) ([#374](https://github.com/panel-extensions/panel-material-ui/pull/374))
+- Fix textual issue in icons.md ([#369](https://github.com/panel-extensions/panel-material-ui/pull/369))
+
+### 📚 Documentation
+
+- Add link in components.md doc ([#370](https://github.com/panel-extensions/panel-material-ui/pull/370))
+- Add missing doc attributes ([#365](https://github.com/panel-extensions/panel-material-ui/pull/365))
+
+### 🧪 Infrastructure & Developer Experience
+
+- Add support for toggle actions on [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) ([#376](https://github.com/panel-extensions/panel-material-ui/pull/376))
+
+### 🗂️ Other
+
+- Hide empty [`Tabs`](https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html) ([#377](https://github.com/panel-extensions/panel-material-ui/pull/377))
+- Wrap EditableSlider label ([#373](https://github.com/panel-extensions/panel-material-ui/pull/373))
+
+## Version 0.3.0
+
+This release includes enhancements, bug fixes, documentation updates, developer/infrastructure improvements, and additional changes.
+
+### ✨ Enhancements
+
+- Minor 0.3 improvements ([#364](https://github.com/panel-extensions/panel-material-ui/pull/364))
+- Implement file upload on [`ChatAreaInput`](https://panel-material-ui.holoviz.org/reference/chat/ChatAreaInput.html) ([#360](https://github.com/panel-extensions/panel-material-ui/pull/360))
+- Add [`CrossSelector`](https://panel-material-ui.holoviz.org/reference/widgets/CrossSelector.html) widget ([#355](https://github.com/panel-extensions/panel-material-ui/pull/355))
+- Improve rendering [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) and [`MenuButton`](https://panel-material-ui.holoviz.org/reference/menus/MenuButton.html) in notebooks ([#340](https://github.com/panel-extensions/panel-material-ui/pull/340))
+- Add pmui Plotly support ([#341](https://github.com/panel-extensions/panel-material-ui/pull/341))
+- add typography color ([#352](https://github.com/panel-extensions/panel-material-ui/pull/352))
+- Rename Progress and LoadingSpinner ([#338](https://github.com/panel-extensions/panel-material-ui/pull/338))
+- Rename List to [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) ([#336](https://github.com/panel-extensions/panel-material-ui/pull/336))
+- Improve handling of [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html).meta ([#332](https://github.com/panel-extensions/panel-material-ui/pull/332))
+- Align [`TextInput`](https://panel-material-ui.holoviz.org/reference/widgets/TextInput.html), [`PasswordInput`](https://panel-material-ui.holoviz.org/reference/widgets/PasswordInput.html) and [`AutocompleteInput`](https://panel-material-ui.holoviz.org/reference/widgets/AutocompleteInput.html) ([#322](https://github.com/panel-extensions/panel-material-ui/pull/322))
+- Align [`AutocompleteInput`](https://panel-material-ui.holoviz.org/reference/widgets/AutocompleteInput.html)-[`DatePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html) with guiding principles ([#309](https://github.com/panel-extensions/panel-material-ui/pull/309))
+
+### 🐛 Bug Fixes
+
+- Ensure [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html).active is stable ([#361](https://github.com/panel-extensions/panel-material-ui/pull/361))
+- fix [`Card`](https://panel-material-ui.holoviz.org/reference/layouts/Card.html) collapsed ([#359](https://github.com/panel-extensions/panel-material-ui/pull/359))
+- Fix updates to [`Typography`](https://panel-material-ui.holoviz.org/reference/panes/Typography.html) pane ([#353](https://github.com/panel-extensions/panel-material-ui/pull/353))
+- Fix [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) header_color ([#329](https://github.com/panel-extensions/panel-material-ui/pull/329))
+
+### 📚 Documentation
+
+- Add pane reference guides ([#358](https://github.com/panel-extensions/panel-material-ui/pull/358))
+- Documentation Review for 0.3.0 release ([#357](https://github.com/panel-extensions/panel-material-ui/pull/357))
+- Cleanup of Menu reference docs ([#356](https://github.com/panel-extensions/panel-material-ui/pull/356))
+- Add pane reference guides ([#354](https://github.com/panel-extensions/panel-material-ui/pull/354))
+- Review [`Container`](https://panel-material-ui.holoviz.org/reference/layouts/Container.html) reference ([#337](https://github.com/panel-extensions/panel-material-ui/pull/337))
+- Update [`NestedSelect`](https://panel-material-ui.holoviz.org/reference/widgets/NestedSelect.html) doc to indicate examples only work after Notebook execution ([#323](https://github.com/panel-extensions/panel-material-ui/pull/323))
+- Branding ([#328](https://github.com/panel-extensions/panel-material-ui/pull/328))
+- Review [`FileDownload`](https://panel-material-ui.holoviz.org/reference/widgets/FileDownload.html) and [`Fab`](https://panel-material-ui.holoviz.org/reference/widgets/Fab.html) widget ([#334](https://github.com/panel-extensions/panel-material-ui/pull/334))
+- Align slider reference docs ([#335](https://github.com/panel-extensions/panel-material-ui/pull/335))
+- Review [`TimePicker`](https://panel-material-ui.holoviz.org/reference/widgets/TimePicker.html) ([#333](https://github.com/panel-extensions/panel-material-ui/pull/333))
+- Implement [`Dialog`](https://panel-material-ui.holoviz.org/reference/layouts/Dialog.html).show_close_button and update docs ([#331](https://github.com/panel-extensions/panel-material-ui/pull/331))
+- Review [`Switch`](https://panel-material-ui.holoviz.org/reference/widgets/Switch.html), [`Toggle`](https://panel-material-ui.holoviz.org/reference/widgets/Toggle.html), [`ToggleIcon`](https://panel-material-ui.holoviz.org/reference/widgets/ToggleIcon.html) and [`Checkbox`](https://panel-material-ui.holoviz.org/reference/widgets/Checkbox.html) ([#326](https://github.com/panel-extensions/panel-material-ui/pull/326))
+- Review Indicators ([#316](https://github.com/panel-extensions/panel-material-ui/pull/316))
+- Update TextInput.ipynb to removed the word 'obfuscated' ([#319](https://github.com/panel-extensions/panel-material-ui/pull/319))
+- Update Button.ipynb to change section name and minor textual change ([#313](https://github.com/panel-extensions/panel-material-ui/pull/313))
+- Update Switch.ipynb to mention it is interchangeable not only with Toggle, but also with Checkbox ([#315](https://github.com/panel-extensions/panel-material-ui/pull/315))
+
+### 🧪 Infrastructure & Developer Experience
+
+- expose compile-dev ([#363](https://github.com/panel-extensions/panel-material-ui/pull/363))
+
+### 🗂️ Other
+
+- Enhance [`ChatAreaInput`](https://panel-material-ui.holoviz.org/reference/chat/ChatAreaInput.html) ([#362](https://github.com/panel-extensions/panel-material-ui/pull/362))
+- api tab names ([#311](https://github.com/panel-extensions/panel-material-ui/pull/311))
+
+## Version 0.2.0
+
+This release includes enhancements, bug fixes, documentation updates, and developer/infrastructure improvements.
+
+### ✨ Enhancements
+
+- Support href and target on [`MenuButton`](https://panel-material-ui.holoviz.org/reference/menus/MenuButton.html) ([#302](https://github.com/panel-extensions/panel-material-ui/pull/302))
+- Implement EditableRangeSliders ([#299](https://github.com/panel-extensions/panel-material-ui/pull/299))
+
+### 🐛 Bug Fixes
+
+- Correctly resolve themes and set default primary color ([#301](https://github.com/panel-extensions/panel-material-ui/pull/301))
+- Fix conda install instructions ([#300](https://github.com/panel-extensions/panel-material-ui/pull/300))
+- Fix [`FileInput`](https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html) not working ([#287](https://github.com/panel-extensions/panel-material-ui/pull/287))
+
+### 📚 Documentation
+
+- Consistently use Mui API in reference guide ([#305](https://github.com/panel-extensions/panel-material-ui/pull/305))
+- Add [`ThemeToggle`](https://panel-material-ui.holoviz.org/reference/page/ThemeToggle.html) reference page ([#304](https://github.com/panel-extensions/panel-material-ui/pull/304))
+- Reference doc alignment ([#303](https://github.com/panel-extensions/panel-material-ui/pull/303))
+- Review [`CheckBoxGroup`](https://panel-material-ui.holoviz.org/reference/widgets/CheckBoxGroup.html) ([#297](https://github.com/panel-extensions/panel-material-ui/pull/297))
+- Review follow up ([#296](https://github.com/panel-extensions/panel-material-ui/pull/296))
+- Review [`Checkbox`](https://panel-material-ui.holoviz.org/reference/widgets/Checkbox.html) ([#293](https://github.com/panel-extensions/panel-material-ui/pull/293))
+- Review [`AutocompleteInput`](https://panel-material-ui.holoviz.org/reference/widgets/AutocompleteInput.html) ([#291](https://github.com/panel-extensions/panel-material-ui/pull/291))
+
+### 🧪 Infrastructure & Developer Experience
+
+- Reorganize and add Menu tests ([#295](https://github.com/panel-extensions/panel-material-ui/pull/295))
+- Reorganize and add tests ([#294](https://github.com/panel-extensions/panel-material-ui/pull/294))
+- Add support for List inline actions ([#292](https://github.com/panel-extensions/panel-material-ui/pull/292))
+
+## Version 0.1.4
+
+This release includes enhancements, bug fixes, documentation updates, and additional changes.
+
+### ✨ Enhancements
+
+- Allow setting [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) size variant ([#286](https://github.com/panel-extensions/panel-material-ui/pull/286))
+
+### 🐛 Bug Fixes
+
+- Fix [`FileInput`](https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html) rendering of progress ([#279](https://github.com/panel-extensions/panel-material-ui/pull/279))
+
+### 📚 Documentation
+
+- [`FileInput`](https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html) Guide Review ([#278](https://github.com/panel-extensions/panel-material-ui/pull/278))
+
+### 🗂️ Other
+
+- Embed iframe content using srcdoc attribute for compatibility ([#285](https://github.com/panel-extensions/panel-material-ui/pull/285))
+
+## Version 0.1.3
+
+This release includes additional changes.
+
+### 🗂️ Other
+
+- Correctly determine sizing_mode on [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) ([#276](https://github.com/panel-extensions/panel-material-ui/pull/276))
+
+## Version 0.1.2
+
+This release includes documentation updates.
+
+### 📚 Documentation
+
+- Adjust header of demo example ([#275](https://github.com/panel-extensions/panel-material-ui/pull/275))
+
+## Version 0.1.1
+
+This release includes additional changes.
+
+### 🗂️ Other
+
+- slider color primary ([#273](https://github.com/panel-extensions/panel-material-ui/pull/273))
+
+## Version 0.1.0
+
+This release includes enhancements, bug fixes, documentation updates, developer/infrastructure improvements, and additional changes.
+
+### ✨ Enhancements
+
+- Add [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html).site_url option ([#268](https://github.com/panel-extensions/panel-material-ui/pull/268))
+- [`Card`](https://panel-material-ui.holoviz.org/reference/layouts/Card.html) padding tweaks ([#265](https://github.com/panel-extensions/panel-material-ui/pull/265))
+- Align [`IconButton`](https://panel-material-ui.holoviz.org/reference/widgets/IconButton.html) and [`ToggleIcon`](https://panel-material-ui.holoviz.org/reference/widgets/ToggleIcon.html) sizing ([#264](https://github.com/panel-extensions/panel-material-ui/pull/264))
+- Add [`Dialog`](https://panel-material-ui.holoviz.org/reference/layouts/Dialog.html).close_on_click ([#263](https://github.com/panel-extensions/panel-material-ui/pull/263))
+- Allow HTML in [`Card`](https://panel-material-ui.holoviz.org/reference/layouts/Card.html), [`Accordion`](https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html) and [`Tabs`](https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html) titles ([#259](https://github.com/panel-extensions/panel-material-ui/pull/259))
+- Add [`FlexBox`](https://panel-material-ui.holoviz.org/reference/layouts/FlexBox.html) layout ([#257](https://github.com/panel-extensions/panel-material-ui/pull/257))
+- Allow providing different logos per breakpoint ([#255](https://github.com/panel-extensions/panel-material-ui/pull/255))
+- Rename to [`IconButton`](https://panel-material-ui.holoviz.org/reference/widgets/IconButton.html) (and keep ButtonIcon alias) ([#239](https://github.com/panel-extensions/panel-material-ui/pull/239))
+- Various smaller tweaks ([#254](https://github.com/panel-extensions/panel-material-ui/pull/254))
+- Allow [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) to render local icons and logos ([#236](https://github.com/panel-extensions/panel-material-ui/pull/236))
+- Add busy indicator to [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) ([#235](https://github.com/panel-extensions/panel-material-ui/pull/235))
+- Add [`BreakpointSwitcher`](https://panel-material-ui.holoviz.org/reference/page/BreakpointSwitcher.html) ([#214](https://github.com/panel-extensions/panel-material-ui/pull/214))
+- Align import abbreviation on pmui ([#203](https://github.com/panel-extensions/panel-material-ui/pull/203))
+- Enable deep theme inheritance ([#197](https://github.com/panel-extensions/panel-material-ui/pull/197))
+- Add flex layouts and handling and improve managed theme ([#196](https://github.com/panel-extensions/panel-material-ui/pull/196))
+- Refactor theme inheritance and add standalone [`ThemeToggle`](https://panel-material-ui.holoviz.org/reference/page/ThemeToggle.html) ([#187](https://github.com/panel-extensions/panel-material-ui/pull/187))
+- Add [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html) layout ([#184](https://github.com/panel-extensions/panel-material-ui/pull/184))
+- Tweaks and fixes ([#178](https://github.com/panel-extensions/panel-material-ui/pull/178))
+- Various cleanup ([#173](https://github.com/panel-extensions/panel-material-ui/pull/173))
+- Improve handling of theme resources ([#163](https://github.com/panel-extensions/panel-material-ui/pull/163))
+- Clean up and improve Indicators ([#162](https://github.com/panel-extensions/panel-material-ui/pull/162))
+- Add [`Fab`](https://panel-material-ui.holoviz.org/reference/widgets/Fab.html) button ([#161](https://github.com/panel-extensions/panel-material-ui/pull/161))
+- Allow providing href to [`Button`](https://panel-material-ui.holoviz.org/reference/widgets/Button.html) ([#160](https://github.com/panel-extensions/panel-material-ui/pull/160))
+- Clean up widgets and consistently define default palette ([#137](https://github.com/panel-extensions/panel-material-ui/pull/137))
+- Align widget APIs ([#135](https://github.com/panel-extensions/panel-material-ui/pull/135))
+- Improve ButtonIcon icon handling ([#130](https://github.com/panel-extensions/panel-material-ui/pull/130))
+- Add customization guides ([#129](https://github.com/panel-extensions/panel-material-ui/pull/129))
+- More fixes and cleanup of [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) widget(s) ([#128](https://github.com/panel-extensions/panel-material-ui/pull/128))
+- New widgets : SelectPicker and SelectSearch ([#107](https://github.com/panel-extensions/panel-material-ui/pull/107))
+- Add theme inheritance ([#124](https://github.com/panel-extensions/panel-material-ui/pull/124))
+- Implement MaterialComponent.loading using native loading spinner ([#122](https://github.com/panel-extensions/panel-material-ui/pull/122))
+- Improve Menu API and functionality ([#117](https://github.com/panel-extensions/panel-material-ui/pull/117))
+- Implement [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html).meta to allow setting meta tags in template ([#114](https://github.com/panel-extensions/panel-material-ui/pull/114))
+- Add Param patches ([#111](https://github.com/panel-extensions/panel-material-ui/pull/111))
+- Add contextbar to [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) ([#105](https://github.com/panel-extensions/panel-material-ui/pull/105))
+- Unify theme handling ([#103](https://github.com/panel-extensions/panel-material-ui/pull/103))
+- Add [`FileDownload`](https://panel-material-ui.holoviz.org/reference/widgets/FileDownload.html) widget ([#102](https://github.com/panel-extensions/panel-material-ui/pull/102))
+- Minor cleanup of [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) widgets ([#99](https://github.com/panel-extensions/panel-material-ui/pull/99))
+- Implement Chat Components ([#100](https://github.com/panel-extensions/panel-material-ui/pull/100))
+- Add a website ([#101](https://github.com/panel-extensions/panel-material-ui/pull/101))
+- Implement [`Notifications`](https://panel-material-ui.holoviz.org/reference/global/Notifications.html) ([#94](https://github.com/panel-extensions/panel-material-ui/pull/94))
+- Add [`ColorPicker`](https://panel-material-ui.holoviz.org/reference/widgets/ColorPicker.html) ([#92](https://github.com/panel-extensions/panel-material-ui/pull/92))
+- Input widgets - implement missing features, bug fixes ([#82](https://github.com/panel-extensions/panel-material-ui/pull/82))
+- Add global control over theme ([#83](https://github.com/panel-extensions/panel-material-ui/pull/83))
+- Add Menu components ([#77](https://github.com/panel-extensions/panel-material-ui/pull/77))
+- Improve [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) and Slider components ([#71](https://github.com/panel-extensions/panel-material-ui/pull/71))
+- Allow setting [`IntSlider`](https://panel-material-ui.holoviz.org/reference/widgets/IntSlider.html).step ([#70](https://github.com/panel-extensions/panel-material-ui/pull/70))
+- Unify [`DatePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html) implementations ([#69](https://github.com/panel-extensions/panel-material-ui/pull/69))
+- Update docstrings - add references ([#63](https://github.com/panel-extensions/panel-material-ui/pull/63))
+- Implement bundling and add more components ([#50](https://github.com/panel-extensions/panel-material-ui/pull/50))
+
+### 🐛 Bug Fixes
+
+- Ensure flex styling is reapplied when update_layout is called ([#270](https://github.com/panel-extensions/panel-material-ui/pull/270))
+- Ensure template is correctly resolved ([#269](https://github.com/panel-extensions/panel-material-ui/pull/269))
+- Ensure components in [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) follow flex sizing ([#250](https://github.com/panel-extensions/panel-material-ui/pull/250))
+- Fix embedding of ico files on favicon ([#249](https://github.com/panel-extensions/panel-material-ui/pull/249))
+- Ensure theme class is correctly replaced on toggle ([#244](https://github.com/panel-extensions/panel-material-ui/pull/244))
+- Ensure [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) manages the theme ([#243](https://github.com/panel-extensions/panel-material-ui/pull/243))
+- Ensure temporary [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html) does not take up space ([#242](https://github.com/panel-extensions/panel-material-ui/pull/242))
+- Ensure [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) menu is correctly positioned in notebook ([#241](https://github.com/panel-extensions/panel-material-ui/pull/241))
+- Ensure theme_config can toggle between dark and light themes ([#229](https://github.com/panel-extensions/panel-material-ui/pull/229))
+- Resolve reported documentation issues ([#210](https://github.com/panel-extensions/panel-material-ui/pull/210))
+- Fix rendering of [`ChatMessage`](https://panel-material-ui.holoviz.org/reference/chat/ChatMessage.html) avatar ([#182](https://github.com/panel-extensions/panel-material-ui/pull/182))
+- Align theming and ensure variables are set ([#179](https://github.com/panel-extensions/panel-material-ui/pull/179))
+- Ensure no race conditions and multiple rerenders on theme changes ([#172](https://github.com/panel-extensions/panel-material-ui/pull/172))
+- Ensure ButtonIcon handles clicks ([#159](https://github.com/panel-extensions/panel-material-ui/pull/159))
+- Consistently handle Widget labels and width ([#158](https://github.com/panel-extensions/panel-material-ui/pull/158))
+- Fix SvgIcons ([#112](https://github.com/panel-extensions/panel-material-ui/pull/112))
+- build: Fix small typo ([#113](https://github.com/panel-extensions/panel-material-ui/pull/113))
+- Fix [`Checkbox`](https://panel-material-ui.holoviz.org/reference/widgets/Checkbox.html) alignment and width ([#98](https://github.com/panel-extensions/panel-material-ui/pull/98))
+- Fix and improve [`FileInput`](https://panel-material-ui.holoviz.org/reference/widgets/FileInput.html) ([#97](https://github.com/panel-extensions/panel-material-ui/pull/97))
+- Fix theming if no theme_config provided ([#93](https://github.com/panel-extensions/panel-material-ui/pull/93))
+- fix panel pin ([#91](https://github.com/panel-extensions/panel-material-ui/pull/91))
+- Fix and improve layout components ([#84](https://github.com/panel-extensions/panel-material-ui/pull/84))
+- Fix datetime picker ([#76](https://github.com/panel-extensions/panel-material-ui/pull/76))
+- Fix text input ([#74](https://github.com/panel-extensions/panel-material-ui/pull/74))
+- Fix time picker ([#75](https://github.com/panel-extensions/panel-material-ui/pull/75))
+- Fix versioning ([#73](https://github.com/panel-extensions/panel-material-ui/pull/73))
+- fix some dev guide issues ([#68](https://github.com/panel-extensions/panel-material-ui/pull/68))
+- Fix versioning and CDN loading code ([#65](https://github.com/panel-extensions/panel-material-ui/pull/65))
+
+### 📚 Documentation
+
+- Use last defined document ([#256](https://github.com/panel-extensions/panel-material-ui/pull/256))
+- Branded reference app ([#228](https://github.com/panel-extensions/panel-material-ui/pull/228))
+- [`DiscreteSlider`](https://panel-material-ui.holoviz.org/reference/widgets/DiscreteSlider.html) Follow Up Review ([#247](https://github.com/panel-extensions/panel-material-ui/pull/247))
+- [`Button`](https://panel-material-ui.holoviz.org/reference/widgets/Button.html) Follow Up Review ([#245](https://github.com/panel-extensions/panel-material-ui/pull/245))
+- [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) Review Feedback ([#234](https://github.com/panel-extensions/panel-material-ui/pull/234))
+- [`DiscreteSlider`](https://panel-material-ui.holoviz.org/reference/widgets/DiscreteSlider.html) Review ([#237](https://github.com/panel-extensions/panel-material-ui/pull/237))
+- button docs ([#176](https://github.com/panel-extensions/panel-material-ui/pull/176))
+- Fixes from non-reference docs review ([#216](https://github.com/panel-extensions/panel-material-ui/pull/216))
+- Docstring reference improvements ([#219](https://github.com/panel-extensions/panel-material-ui/pull/219))
+- add showcase ([#209](https://github.com/panel-extensions/panel-material-ui/pull/209))
+- Add example to homepage ([#207](https://github.com/panel-extensions/panel-material-ui/pull/207))
+- Document icon usage ([#204](https://github.com/panel-extensions/panel-material-ui/pull/204))
+- Theming Refactor - HoloViews Example ([#191](https://github.com/panel-extensions/panel-material-ui/pull/191))
+- Improve and document [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) ([#185](https://github.com/panel-extensions/panel-material-ui/pull/185))
+- Improve and document [`Notifications`](https://panel-material-ui.holoviz.org/reference/global/Notifications.html) ([#181](https://github.com/panel-extensions/panel-material-ui/pull/181))
+- Clean up chat and add docs ([#180](https://github.com/panel-extensions/panel-material-ui/pull/180))
+- Clean up and document Menus ([#169](https://github.com/panel-extensions/panel-material-ui/pull/169))
+- review feedback ([#134](https://github.com/panel-extensions/panel-material-ui/pull/134))
+- Improve CDN setup in pyodide and docs ([#127](https://github.com/panel-extensions/panel-material-ui/pull/127))
+- Move examples/reference/layout to examples/reference/layouts ([#126](https://github.com/panel-extensions/panel-material-ui/pull/126))
+- Review and document layouts ([#125](https://github.com/panel-extensions/panel-material-ui/pull/125))
+- Cleanup and review of all widgets ([#108](https://github.com/panel-extensions/panel-material-ui/pull/108))
+
+### 🧪 Infrastructure & Developer Experience
+
+- Bump prefix-dev/setup-pixi from 0.8.4 to 0.8.8 in the gh-actions group ([#220](https://github.com/panel-extensions/panel-material-ui/pull/220))
+- Bump panel and bokeh versions ([#271](https://github.com/panel-extensions/panel-material-ui/pull/271))
+- Add more menu tests ([#199](https://github.com/panel-extensions/panel-material-ui/pull/199))
+- Allow creating custom MaterialComponents using bundle shims ([#177](https://github.com/panel-extensions/panel-material-ui/pull/177))
+- Bump prefix-dev/setup-pixi from 0.8.3 to 0.8.4 in the gh-actions group ([#115](https://github.com/panel-extensions/panel-material-ui/pull/115))
+- Add Page.config to add resources ([#116](https://github.com/panel-extensions/panel-material-ui/pull/116))
+- Bump the gh-actions group with 3 updates ([#79](https://github.com/panel-extensions/panel-material-ui/pull/79))
+- Simplify pixi installation ([#66](https://github.com/panel-extensions/panel-material-ui/pull/66))
+- Align CI configuration ([#64](https://github.com/panel-extensions/panel-material-ui/pull/64))
+- Bump pypa/gh-action-pypi-publish in the gh-actions group ([#52](https://github.com/panel-extensions/panel-material-ui/pull/52))
+- Remove tests.util module ([#49](https://github.com/panel-extensions/panel-material-ui/pull/49))
+
+### 🗂️ Other
+
+- Standardize on primary color in theme ([#267](https://github.com/panel-extensions/panel-material-ui/pull/267))
+- Assorted fixes ([#262](https://github.com/panel-extensions/panel-material-ui/pull/262))
+- Make [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html).template configurable ([#261](https://github.com/panel-extensions/panel-material-ui/pull/261))
+- Treat [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html).main as flex container ([#260](https://github.com/panel-extensions/panel-material-ui/pull/260))
+- Reimplement editable sliders in React ([#258](https://github.com/panel-extensions/panel-material-ui/pull/258))
+- Make theming robust to failed view lookups ([#251](https://github.com/panel-extensions/panel-material-ui/pull/251))
+- Minor fixes for [`DiscreteSlider`](https://panel-material-ui.holoviz.org/reference/widgets/DiscreteSlider.html) ([#240](https://github.com/panel-extensions/panel-material-ui/pull/240))
+- Remove dotted border from bokeh plots ([#238](https://github.com/panel-extensions/panel-material-ui/pull/238))
+- Toggle dark theme from query parameter ([#211](https://github.com/panel-extensions/panel-material-ui/pull/211))
+- Automatically jslink widget references ([#206](https://github.com/panel-extensions/panel-material-ui/pull/206))
+- Define exports of slider module ([#205](https://github.com/panel-extensions/panel-material-ui/pull/205))
+- Font handling ([#202](https://github.com/panel-extensions/panel-material-ui/pull/202))
+- Style tooltips ([#201](https://github.com/panel-extensions/panel-material-ui/pull/201))
+- Automatically set bokeh theme client side ([#200](https://github.com/panel-extensions/panel-material-ui/pull/200))
+- More layout fixes ([#198](https://github.com/panel-extensions/panel-material-ui/pull/198))
+- Do no export all contents of notification module ([#186](https://github.com/panel-extensions/panel-material-ui/pull/186))
+- [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) theming fixes ([#183](https://github.com/panel-extensions/panel-material-ui/pull/183))
+- Attempt to make test_notifications_destroy passed on Windows ([#157](https://github.com/panel-extensions/panel-material-ui/pull/157))
+- Remove DateRangePicker and DatetimeRangePicker ([#136](https://github.com/panel-extensions/panel-material-ui/pull/136))
+- Use image to render SVG icons ([#123](https://github.com/panel-extensions/panel-material-ui/pull/123))
+- A range of small fixes ([#121](https://github.com/panel-extensions/panel-material-ui/pull/121))
+- More SVG fixes ([#120](https://github.com/panel-extensions/panel-material-ui/pull/120))
+- misc changes ([#119](https://github.com/panel-extensions/panel-material-ui/pull/119))
+- Various fixes ([#106](https://github.com/panel-extensions/panel-material-ui/pull/106))
+- Override [`ChatMessage`](https://panel-material-ui.holoviz.org/reference/chat/ChatMessage.html) background-color ([#104](https://github.com/panel-extensions/panel-material-ui/pull/104))
+- Reimplement NumberInput widgets ([#95](https://github.com/panel-extensions/panel-material-ui/pull/95))
+- TextArea sizing fixes and submit on shift+enter ([#96](https://github.com/panel-extensions/panel-material-ui/pull/96))
+- Various minor widget fixes ([#85](https://github.com/panel-extensions/panel-material-ui/pull/85))
