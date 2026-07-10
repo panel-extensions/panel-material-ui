@@ -197,7 +197,7 @@ export function render({model, el, view}) {
     }
     if (multi && chip) {
       return (
-        <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5}}>
+        <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5, alignContent: "flex-start"}}>
           {selected.map((selected_value) => (
             <Chip
               color={color}
@@ -475,10 +475,26 @@ export function render({model, el, view}) {
 
   const anchorEl = React.useRef(null)
 
+  const multiChipSx = React.useMemo(() => {
+    if (!multi || !chip) { return selectSx }
+    return [
+      ...Array.isArray(selectSx) ? selectSx : [selectSx],
+      {
+        height: "100%",
+        "& .MuiSelect-select": {overflow: "hidden auto !important", height: "100% !important", boxSizing: "border-box", alignItems: "flex-start"},
+      },
+    ]
+  }, [selectSx, multi, chip])
+
   return (
-    <FormControl disabled={disabled} error={error_state} fullWidth variant={variant}>
+    <FormControl disabled={disabled} error={error_state} fullWidth variant={variant} sx={multi && chip ? {height: "100%"} : undefined}>
       {label &&
-       <InputLabel color={color} id={`select-label-${model.id}`} shrink={hasValue || open}>
+       <InputLabel
+         color={color}
+         id={`select-label-${model.id}`}
+         shrink={hasValue || open}
+         sx={multi && chip && variant === "outlined" ? {backgroundColor: "background.paper", px: 0.5, zIndex: 1} : undefined}
+       >
          {render_icon_text(label)}
          {model.description ? render_description({model, el, view}) : null}
        </InputLabel>
@@ -503,7 +519,7 @@ export function render({model, el, view}) {
         ref={anchorEl}
         renderValue={renderValue}
         size={size}
-        sx={selectSx}
+        sx={multiChipSx}
         value={value}
         variant={variant}
 
