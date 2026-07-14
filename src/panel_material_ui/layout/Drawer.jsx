@@ -128,11 +128,13 @@ export function render({model, view}) {
     if (!inline) { return }
     if (isDocked) {
       if (isHorizontal) {
-        view.el.style.width = open ? `${size + TAB_SIZE}px` : `${TAB_SIZE}px`
+        view.el.style.width = open ? `${size + TAB_SIZE}px` : "0px"
         view.el.style.height = "100%"
+        view.el.style.overflow = "visible"
       } else {
-        view.el.style.height = open ? `${size + TAB_SIZE}px` : `${TAB_SIZE}px`
+        view.el.style.height = open ? `${size + TAB_SIZE}px` : "0px"
         view.el.style.width = "100%"
+        view.el.style.overflow = "visible"
       }
     } else {
       if (isHorizontal) {
@@ -147,13 +149,16 @@ export function render({model, view}) {
 
   if (isDocked) {
     if (inline) {
-      // Inline docked: same structure as fixed docked but scoped to a relative container.
+      // Inline docked: container collapses to 0 when closed; the tab is absolutely
+      // positioned so it overlays adjacent content rather than pushing it.
       const containerStyle = {
         position: "relative",
-        [isHorizontal ? "width" : "height"]: open ? `${size + TAB_SIZE}px` : `${TAB_SIZE}px`,
+        [isHorizontal ? "width" : "height"]: open ? `${size + TAB_SIZE}px` : "0px",
         [isHorizontal ? "height" : "width"]: "100%",
         transition: "width 225ms cubic-bezier(0, 0, 0.2, 1), height 225ms cubic-bezier(0, 0, 0.2, 1)",
+        overflow: "visible",
         pointerEvents: "none",
+        flexShrink: 0,
       }
 
       const innerStyle = {
@@ -162,6 +167,19 @@ export function render({model, view}) {
         height: "100%",
         pointerEvents: "auto",
       }
+
+      const closedTabStyle = (() => {
+        const offsetSide = anchor === "left" ? "right" : anchor === "right" ? "left" : anchor === "top" ? "bottom" : "top"
+        return {
+          position: "absolute",
+          [offsetSide]: `-${TAB_SIZE}px`,
+          ...getPositionStyle(anchor, dockPosition),
+          width: isHorizontal ? `${TAB_SIZE}px` : `${TAB_LENGTH}px`,
+          height: isHorizontal ? `${TAB_LENGTH}px` : `${TAB_SIZE}px`,
+          pointerEvents: "auto",
+          zIndex: 1200,
+        }
+      })()
 
       return (
         <div style={containerStyle}>
@@ -181,7 +199,9 @@ export function render({model, view}) {
               <DockedTab anchor={anchor} open={open} dockPosition={dockPosition} attached onClick={() => setOpen(false)} />
             </Drawer>
             {!open && (
-              <DockedTab anchor={anchor} open={false} dockPosition={dockPosition} attached={false} onClick={() => setOpen(true)} />
+              <div style={closedTabStyle}>
+                <DockedTab anchor={anchor} open={false} dockPosition={dockPosition} inline attached={false} onClick={() => setOpen(true)} />
+              </div>
             )}
           </div>
         </div>
