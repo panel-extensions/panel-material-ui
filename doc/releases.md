@@ -27,7 +27,7 @@ Many thanks to @philippjfr for their contributions to this release.
 
 ## Version 0.13.0
 
-Panel Material UI 0.13.0 introduces the [`AppBar`](https://panel-material-ui.holoviz.org/reference/layouts/AppBar.html) and [`MenuBar`](https://panel-material-ui.holoviz.org/reference/menus/MenuBar.html) components, adds `error_state` and `helper_text` support across all input widgets, and brings several Page layout improvements including configurable `main_width` and `app_bar_width`. The release also includes fixes for contextbar variants, skeleton sizing, and various UI polish.
+Panel Material UI 0.13.0 introduces the [`AppBar`](https://panel-material-ui.holoviz.org/reference/page/AppBar.html) and [`MenuBar`](https://panel-material-ui.holoviz.org/reference/menus/MenuBar.html) components, adds `error_state` and `helper_text` support across all input widgets, and brings several Page layout improvements including configurable `main_width` and `app_bar_width`. The release also includes fixes for contextbar variants, skeleton sizing, and various UI polish.
 
 Many thanks to @ahuang11, @ghostiee-11, and @philippjfr for their contributions to this release.
 
