@@ -23,6 +23,8 @@ import mimetypes
 import os
 import pathlib
 import re
+import site
+import sysconfig
 import textwrap
 import typing as t
 from collections.abc import Mapping
@@ -70,6 +72,33 @@ STYLE_ALIASES = {"outline": "outlined"}
 BASE_PATH = pathlib.Path(__file__).parent
 DIST_PATH = BASE_PATH / 'dist'
 IS_RELEASE = __version__ == base_version(__version__)
+
+
+def _in_site_packages(path: pathlib.Path) -> bool:
+    """
+    Whether the given path lives inside one of the interpreter's
+    site-packages directories, i.e. the library was installed normally
+    rather than in editable/development mode.
+    """
+    candidates = [sysconfig.get_path(name) for name in ('purelib', 'platlib')]
+    candidates += site.getsitepackages()
+    try:
+        candidates.append(site.getusersitepackages())
+    except Exception:
+        pass
+    resolved = path.resolve()
+    for candidate in candidates:
+        if not candidate:
+            continue
+        try:
+            if resolved.is_relative_to(pathlib.Path(candidate).resolve()):
+                return True
+        except OSError:
+            continue
+    return False
+
+
+IS_INSTALLED = _in_site_packages(BASE_PATH)
 CDN_ROOT = os.environ.get(
     "PANEL_MATERIAL_UI_CDN_ROOT",
     "https://cdn.holoviz.org/panel-material-ui/v"
@@ -357,6 +386,10 @@ class MaterialComponent(ReactComponent):
                 c.dark_theme = self.dark_theme
 
     async def _watch_esm(self):
+        if IS_INSTALLED:
+            # The bundle shipped in an installed distribution never changes,
+            # watching it is only useful for a development install.
+            return
         import watchfiles
         async for _ in watchfiles.awatch(self._bundle, stop_event=self._watching_esm):
             self._update_esm()
