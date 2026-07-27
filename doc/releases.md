@@ -1,5 +1,25 @@
 # Release Notes
 
+## Version 0.14.1
+
+Panel Material UI 0.14.1 is a micro-release focused on performance and correctness when serving components from a server. Resources served from the server now include a version hash so that stale assets are no longer cached across releases, and the ESM file watcher is skipped entirely when the package is installed rather than in development mode. The release also fixes sizing and positioning issues with the docked `Drawer` variant.
+
+Many thanks to @hoxbro and @philippjfr for their contributions to this release.
+
+### 🔧 Enhancements
+
+* Add version hash when serving resources from server ([#712](https://github.com/panel-extensions/panel-material-ui/pull/712))
+* Do not watch ESM files when the package is installed ([#713](https://github.com/panel-extensions/panel-material-ui/pull/713))
+
+### 🐛 Bug Fixes
+
+* Various fixes for docked [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html) variant sizing/positioning ([#709](https://github.com/panel-extensions/panel-material-ui/pull/709))
+
+### 📚 Documentation
+
+* Fix wrong url ([#711](https://github.com/panel-extensions/panel-material-ui/pull/711))
+
+
 ## Version 0.14.0
 
 Panel Material UI 0.14.0 introduces a new [`Clickable`](https://panel-material-ui.holoviz.org/reference/wrappers/Clickable.html) wrapper component and a docked variant for [`Drawer`](https://panel-material-ui.holoviz.org/reference/layouts/Drawer.html), along with several enhancements to the `Drawer` API including `inline` mode and a configurable dock icon. The release also brings a fix for failed connection error display and several smaller fixes and improvements.
