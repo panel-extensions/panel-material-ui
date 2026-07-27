@@ -15,6 +15,7 @@ The base module provides core functionality including:
 """
 from __future__ import annotations
 
+import hashlib
 import inspect
 import io
 import json
@@ -416,7 +417,11 @@ class MaterialComponent(ReactComponent):
             return cls._render_esm_base()
         elif not config.autoreload and (not (config.inline or server) or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
             return CDN_DIST
-        return super()._render_esm(compiled=True, server=server)
+        esm = super()._render_esm(compiled=True, server=server)
+        if server and not config.autoreload and esm and '?' not in esm and '\n' not in esm:
+            esm_hash = hashlib.md5(__version__.encode('utf-8')).hexdigest()
+            esm += f'?{esm_hash}'
+        return esm
 
     @property
     def _linked_properties(self) -> tuple[str, ...]:
@@ -443,6 +448,9 @@ class MaterialComponent(ReactComponent):
                 css_bundle=CDN_DIST.replace('.js', '.css'),
                 esm=CDN_DIST,
             )
+        elif not config.autoreload and model.css_bundle and '?' not in model.css_bundle:
+            esm_hash = hashlib.md5(__version__.encode('utf-8')).hexdigest()
+            model.css_bundle = f'{model.css_bundle}?{esm_hash}'
         return model
 
     def _process_param_change(self, params):
