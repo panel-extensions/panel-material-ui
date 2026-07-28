@@ -79,7 +79,7 @@ export function render(props, ref) {
       linkClick.current = false
     } else if (embed || (file_data != null && !auto && !linkRef.current)) {
       downloadFile()
-    } else if (file_data == null) {
+    } else {
       model.send_event("click", {})
     }
   }
