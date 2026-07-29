@@ -75,6 +75,7 @@ const Main = styled("main", {shouldForwardProp: (prop) => !["open", "variant", "
       marginLeft: variant === "persistent" ? `-${sidebar_width}px` : "0px",
       marginRight: context_variant === "persistent" ? `-${contextbar_width}px` : "0px",
       padding: "0px",
+      maxWidth: "100%",
       p: 3,
       transition: theme.transitions.create("margin", {
         easing: theme.transitions.easing.sharp,
