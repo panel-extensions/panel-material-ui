@@ -13,23 +13,43 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import {CustomMenu} from "./menu"
 import {render_icon, render_icon_text} from "./utils"
 
-function SubMenu({item, index, model, view, onCloseAll, path}) {
-  const [anchorEl, setAnchorEl] = React.useState(null)
-  const open = Boolean(anchorEl)
+function useSubMenus() {
+  const [state, setState] = React.useState({index: null, focus: false})
+  return React.useMemo(() => ({
+    openIndex: state.index,
+    focus: state.focus,
+    open: (index, focus) => setState({index, focus}),
+    close: () => setState({index: null, focus: false}),
+  }), [state])
+}
 
-  const handleOpen = (e) => {
-    setAnchorEl(e.currentTarget)
-  }
+// A closed menu keeps its React state (only its DOM is unmounted), so nested
+// state has to be cleared or the submenu reappears when the menu reopens.
+function useResetWhenClosed(open, subs) {
+  React.useEffect(() => {
+    if (!open && subs.openIndex !== null) { subs.close() }
+  }, [open, subs])
+}
+
+function SubMenu({item, index, model, view, onCloseAll, path, subs}) {
+  const anchorRef = React.useRef(null)
+  const open = subs.openIndex === index
+  const childSubs = useSubMenus()
+  useResetWhenClosed(open, childSubs)
 
   const handleClose = () => {
-    setAnchorEl(null)
+    childSubs.close()
+    subs.close()
   }
 
   return (
     <>
       <MenuItem
-        onClick={handleOpen}
+        ref={anchorRef}
+        onClick={() => subs.open(index, true)}
+        onMouseEnter={() => { if (!item.disabled) { subs.open(index, false) } }}
         disabled={item.disabled}
+        dense
       >
         {item.icon && (
           <ListItemIcon sx={{minWidth: 28}}>
@@ -45,10 +65,13 @@ function SubMenu({item, index, model, view, onCloseAll, path}) {
         <ChevronRightIcon fontSize="small" sx={{ml: 1, color: "text.secondary"}} />
       </MenuItem>
       <CustomMenu
-        anchorEl={() => anchorEl}
+        anchorEl={() => anchorRef.current}
         open={open}
         onClose={handleClose}
+        autoFocus={subs.focus}
+        passthrough
         view={view}
+        paperProps={{"data-menubar-surface": ""}}
         sx={{minWidth: 180, mt: -1}}
         anchorOrigin={{vertical: "top", horizontal: "right"}}
         transformOrigin={{vertical: 8, horizontal: "left"}}
@@ -63,6 +86,7 @@ function SubMenu({item, index, model, view, onCloseAll, path}) {
             view={view}
             onCloseAll={() => { handleClose(); onCloseAll() }}
             path={[...path, index]}
+            subs={childSubs}
           />
         ))}
       </CustomMenu>
@@ -70,7 +94,10 @@ function SubMenu({item, index, model, view, onCloseAll, path}) {
   )
 }
 
-function MenuItemContent({item, index, model, view, onCloseAll, path}) {
+function MenuItemContent({item, index, model, view, onCloseAll, path, subs}) {
+  // Hovering any non-submenu item dismisses a sibling submenu that was opened by hover.
+  const onMouseEnter = () => subs.close()
+
   if (item === null || item.label === "---") {
     return <Divider key={`divider-${path.join("-")}-${index}`} />
   }
@@ -95,6 +122,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path}) {
             view={view}
             onCloseAll={onCloseAll}
             path={[...path, index]}
+            subs={subs}
           />
         ))}
         <Divider />
@@ -112,6 +140,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path}) {
         view={view}
         onCloseAll={onCloseAll}
         path={path}
+        subs={subs}
       />
     )
   }
@@ -123,6 +152,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path}) {
         onClick={() => {
           model.send_msg({type: "checkbox", path: [...path, index], value: !item.checkbox})
         }}
+        onMouseEnter={onMouseEnter}
         disabled={item.disabled}
         dense
       >
@@ -150,6 +180,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path}) {
         onClick={() => {
           model.send_msg({type: "radio", path: [...path, index], value: item.radio})
         }}
+        onMouseEnter={onMouseEnter}
         disabled={item.disabled}
         dense
       >
@@ -177,6 +208,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path}) {
         model.send_msg({type: "click", path: [...path, index]})
         onCloseAll()
       }}
+      onMouseEnter={onMouseEnter}
       disabled={item.disabled}
       dense
     >
@@ -195,26 +227,31 @@ function MenuItemContent({item, index, model, view, onCloseAll, path}) {
   )
 }
 
-function TopLevelMenu({menu, menuIndex, model, view, color, size}) {
-  const [anchorEl, setAnchorEl] = React.useState(null)
-  const open = Boolean(anchorEl)
+function TopLevelMenu({menu, menuIndex, model, view, color, size, bar}) {
   const anchorRef = React.useRef(null)
-
-  const handleOpen = (e) => {
-    anchorRef.current = e.currentTarget
-    setAnchorEl(e.currentTarget)
-  }
+  const open = bar.openIndex === menuIndex
+  const subs = useSubMenus()
+  useResetWhenClosed(open, subs)
 
   const handleClose = () => {
-    setAnchorEl(null)
+    subs.close()
+    bar.close()
   }
 
   return (
     <>
       <Button
+        ref={anchorRef}
         color={color === "default" ? "inherit" : color}
         size={size}
-        onClick={handleOpen}
+        onClick={() => (open ? handleClose() : bar.open(menuIndex))}
+        // Once one menu is open, moving along the bar switches menus without a click.
+        onMouseEnter={() => {
+          if (!menu.disabled && bar.openIndex !== null && !open) {
+            subs.close()
+            bar.open(menuIndex)
+          }
+        }}
         startIcon={menu.icon ? render_icon(menu.icon, null, "small") : undefined}
         sx={{
           textTransform: "none",
@@ -230,7 +267,9 @@ function TopLevelMenu({menu, menuIndex, model, view, color, size}) {
         anchorEl={() => anchorRef.current}
         open={open}
         onClose={handleClose}
+        passthrough
         view={view}
+        paperProps={{"data-menubar-surface": ""}}
         sx={{minWidth: 200}}
         anchorOrigin={{vertical: "bottom", horizontal: "left"}}
         transformOrigin={{vertical: "top", horizontal: "left"}}
@@ -245,6 +284,7 @@ function TopLevelMenu({menu, menuIndex, model, view, color, size}) {
             view={view}
             onCloseAll={handleClose}
             path={[menuIndex]}
+            subs={subs}
           />
         ))}
       </CustomMenu>
@@ -260,9 +300,34 @@ export function render({model, view}) {
   const [sx] = model.useState("sx")
 
   const elevation = variant === "outlined" ? 0 : 1
+  const bar = useSubMenus()
+  const barRef = React.useRef(null)
+
+  // Every menu in the bar is pointer-transparent, so dismissal is handled once
+  // here: a single click or Escape anywhere outside the open menus closes the
+  // whole cascade rather than peeling off one layer at a time.
+  const anyOpen = bar.openIndex !== null
+  React.useEffect(() => {
+    if (!anyOpen) { return }
+    const onPointerDown = (e) => {
+      const path = e.composedPath ? e.composedPath() : [e.target]
+      const inside = path.some((el) => (
+        el?.dataset?.menubarSurface !== undefined || el === barRef.current
+      ))
+      if (!inside) { bar.close() }
+    }
+    const onKeyDown = (e) => { if (e.key === "Escape") { bar.close() } }
+    document.addEventListener("pointerdown", onPointerDown, true)
+    document.addEventListener("keydown", onKeyDown, true)
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true)
+      document.removeEventListener("keydown", onKeyDown, true)
+    }
+  }, [anyOpen, bar])
 
   return (
     <Paper
+      ref={barRef}
       variant={variant}
       elevation={elevation}
       sx={{
@@ -283,6 +348,7 @@ export function render({model, view}) {
             view={view}
             color={color}
             size={size}
+            bar={bar}
           />
         ))}
       </Toolbar>

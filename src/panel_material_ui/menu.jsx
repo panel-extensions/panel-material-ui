@@ -23,8 +23,19 @@ export function detect_nb(view) {
   return nb
 }
 
-export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMounted, anchorOrigin, transformOrigin, placement}) {
+/**
+ * `passthrough` opts a menu out of owning its own dismissal. The menu surface
+ * stays interactive but everything around it is pointer-transparent, so hover
+ * and clicks reach whatever sits behind, including sibling and ancestor menus.
+ * A menu structure using it (e.g. MenuBar) is responsible for closing itself,
+ * which lets one click away dismiss every open layer instead of just the
+ * innermost one. `autoFocus={false}` additionally keeps a menu opened by hover
+ * from stealing focus from the menu it was opened from.
+ */
+export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMounted, anchorOrigin, transformOrigin, placement, autoFocus, passthrough, paperProps}) {
   const nb = detect_nb(view)
+  const unfocused = autoFocus === false
+
   if (nb == null) {
     return (
       <Menu
@@ -41,6 +52,21 @@ export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMou
         }}
         sx={sx}
         keepMounted={keepMounted}
+        hideBackdrop={passthrough}
+        {...(unfocused ? {
+          autoFocus: false,
+          disableAutoFocus: true,
+          disableAutoFocusItem: true,
+          disableEnforceFocus: true,
+          disableRestoreFocus: true,
+        } : {})}
+        slotProps={{
+          root: passthrough ? {sx: {pointerEvents: "none"}} : undefined,
+          paper: {
+            ...paperProps,
+            sx: {...(passthrough ? {pointerEvents: "auto"} : {}), ...paperProps?.sx},
+          },
+        }}
       >
         {children}
       </Menu>
@@ -52,12 +78,24 @@ export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMou
     ? undefined
     : (anchorEl ? anchorEl.current : anchorEl)?.offsetWidth
 
+  const paper = (
+    <Paper
+      elevation={3}
+      {...paperProps}
+      sx={{overflowY: "auto", ...sx, ...(passthrough ? {pointerEvents: "auto"} : {}), ...paperProps?.sx}}
+    >
+      <MenuList autoFocusItem={open && !unfocused}>
+        {children}
+      </MenuList>
+    </Paper>
+  )
+
   return (
     <Popper
       open={open}
       anchorEl={anchorEl}
       placement={resolvedPlacement}
-      style={{zIndex: 1500, width: popperWidth}}
+      style={{zIndex: 1500, width: popperWidth, pointerEvents: passthrough ? "none" : undefined}}
     >
       {({TransitionProps, placement}) => (
         <Grow
@@ -67,13 +105,7 @@ export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMou
             placement === "bottom" ? "center top" : "center bottom",
           }}
         >
-          <ClickAwayListener onClickAway={onClose}>
-            <Paper elevation={3} sx={{overflowY: "auto", ...sx}}>
-              <MenuList>
-                {children}
-              </MenuList>
-            </Paper>
-          </ClickAwayListener>
+          {passthrough ? paper : <ClickAwayListener onClickAway={onClose}>{paper}</ClickAwayListener>}
         </Grow>
       )}
     </Popper>
