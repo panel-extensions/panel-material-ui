@@ -120,12 +120,20 @@ export function render({model, view, el}) {
 
   // Safely update the model value
   function updateModelValue(date) {
-    if (!date || !date.isValid()) {
+    if (!date) {
       if (clearable) {
         lastCommittedRef.current = null;
         setValue(null);
+        setInternalValue(null);
         model.value = null;
       }
+      return;
+    }
+
+    if (!date.isValid()) {
+      // Partial/incomplete edit (e.g. only some date sections filled in) -
+      // do not clear the committed value, just restore the display.
+      setInternalValue(value)
       return;
     }
 
@@ -151,7 +159,14 @@ export function render({model, view, el}) {
 
   // Handle changes from the date picker UI
   const handleChange = (newValue) => {
-    setInternalValue(newValue)
+    // Ignore transient invalid states produced while a section is being
+    // typed (e.g. only the year digit typed so far) so the other, already
+    // filled-in sections aren't wiped from the display mid-edit. A fully
+    // empty field is reported as `null`, not an invalid date, so that case
+    // is still tracked to support clearing.
+    if (!newValue || newValue.isValid()) {
+      setInternalValue(newValue)
+    }
 
     // For direct calendar selection, update immediately
     if (isCalendarOpen && newValue && newValue.isValid()) {

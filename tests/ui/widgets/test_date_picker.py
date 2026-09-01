@@ -92,3 +92,40 @@ def test_datepicker_clearable_manual_delete_propagates_none(page):
     input_el.press("Tab")
 
     wait_until(lambda: widget.value is None, page)
+
+
+def test_datepicker_clearable_partial_edit_does_not_clear(page):
+    # Regression test: editing a single date section (e.g. typing into the
+    # year) while other sections are still unset must not wipe the whole
+    # value, even when clearable=True.
+    widget = DatePicker(value=dt.date(2026, 8, 13), clearable=True)
+    serve_component(page, widget)
+
+    input_el = page.locator(".MuiPickersInputBase-input")
+    wait_until(lambda: "2026-08-13" in input_el.input_value(), page)
+
+    year_section = page.locator("span[aria-label='Year']")
+    year_section.click()
+    page.keyboard.press("2")
+
+    assert widget.value == dt.date(2026, 8, 13)
+    assert "08-13" in input_el.input_value()
+
+    page.keyboard.press("Tab")
+
+    assert widget.value == dt.date(2026, 8, 13)
+
+
+def test_datepicker_edit_single_section_commits(page):
+    widget = DatePicker(value=dt.date(2026, 8, 13), clearable=True)
+    serve_component(page, widget)
+
+    input_el = page.locator(".MuiPickersInputBase-input")
+    wait_until(lambda: "2026-08-13" in input_el.input_value(), page)
+
+    year_section = page.locator("span[aria-label='Year']")
+    year_section.click()
+    page.keyboard.type("2030")
+    input_el.press("Tab")
+
+    wait_until(lambda: widget.value == dt.date(2030, 8, 13), page)
