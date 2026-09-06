@@ -6,7 +6,16 @@ import param
 from panel.pane import HoloViews, Markdown
 
 from ..base import MaterialComponent
-from ..widgets import DatetimeInput, DiscreteSlider, EditableFloatSlider, EditableIntSlider, FloatSlider, IntSlider, Select
+from ..widgets import (
+    DatetimeInput,
+    DiscreteSlider,
+    EditableFloatSlider,
+    EditableIntSlider,
+    FloatSlider,
+    IntSlider,
+    Player,
+    Select,
+)
 
 HoloViews.default_widgets = dict(  # type: ignore[assignment]
     HoloViews.default_widgets,
@@ -14,7 +23,8 @@ HoloViews.default_widgets = dict(  # type: ignore[assignment]
     discrete=Select,
     discrete_numeric=DiscreteSlider,
     float=(FloatSlider, EditableFloatSlider),
-    int=(IntSlider, EditableIntSlider)
+    int=(IntSlider, EditableIntSlider),
+    scrubber=Player
 )
 
 class MaterialPaneBase(MaterialComponent):
