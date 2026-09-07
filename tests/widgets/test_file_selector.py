@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
@@ -366,8 +367,22 @@ def test_file_selector_remote_provider(fs, test_dir):
         os.path.join(test_dir, 'subdir2').replace(os.sep, '/'),
     ]
 
-    selector.directory = os.path.join(test_dir, 'subdir1')
+    selector.directory = paths(selector)[0]
 
+    assert names(selector) == ['..', 'a', 'b']
+
+
+def test_file_selector_remote_provider_os_separator(fs, test_dir):
+    # A remote provider separates with '/', but os.path.join hands in a
+    # path using the OS separator, which on Windows is a backslash. The
+    # root check compares paths textually so both have to agree.
+    selector = FileSelector(test_dir, fs=fs)
+
+    subdir1 = os.path.join(test_dir, 'subdir1')
+    selector.directory = subdir1
+
+    assert selector._cwd == subdir1.replace(os.sep, '/')
+    assert selector.directory == subdir1.replace(os.sep, '/')
     assert names(selector) == ['..', 'a', 'b']
 
 
@@ -431,6 +446,19 @@ def test_file_selector_remote_navigation_above_root_is_refused(memory_fs):
     selector._process_events({'directory': 'memory://other'})
 
     assert selector.directory == 'memory://datasets'
+
+
+def test_file_selector_remote_provider_windows_separator(memory_fs):
+    # Reproduces the Windows case portably: os.path.sep is a backslash
+    # while the remote provider still separates with '/'.
+    selector = FileSelector('memory://datasets', fs=memory_fs)
+
+    with mock.patch.object(os.path, 'sep', '\\'):
+        selector.directory = 'memory://datasets\\sub'
+
+    assert selector.directory == 'memory://datasets/sub'
+    assert selector._cwd == 'memory://datasets/sub'
+    assert names(selector) == ['..', 'b.csv']
 
 
 def test_file_selector_model_properties(test_dir, document, comm):

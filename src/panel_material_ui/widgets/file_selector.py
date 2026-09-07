@@ -126,6 +126,7 @@ class FileSelector(MaterialWidget, BaseFileSelector):
         self._position = -1
         self._cwd = ""
         self._push = True
+        self._updating = False
 
         resolved = self._normalize(params.pop("directory", type(self).directory))
         root_directory = params.pop("root_directory", None)
@@ -161,17 +162,22 @@ class FileSelector(MaterialWidget, BaseFileSelector):
     def _normalize(self, path: str | os.PathLike, root: str | None = None) -> str:
         """
         Normalize a path through the provider and, for remote providers,
-        canonicalize the separator following the scheme. `fsspec`
+        canonicalize the separators.
+
+        Remote paths are compared textually by the root check, so they have
+        to arrive in one form. Two things get in the way: `fsspec`
         implementations disagree on whether the names they list are
-        absolute, so `RemoteFileProvider.ls` can return 'memory:///a'
-        where the directory is 'memory://a'. Comparing the two forms
-        textually, as the root check does, requires one of them.
+        absolute, so `RemoteFileProvider.ls` can return 'memory:///a' where
+        the directory is 'memory://a'; and a caller can hand in a path
+        built with the OS separator, e.g. `os.path.join` on Windows, while
+        the provider lists with '/'.
         """
-        path = self._provider.normalize(path, root)
+        normalized = str(self._provider.normalize(path, root))
         if self._is_local:
-            return path
-        scheme, sep, rest = str(path).partition("://")
-        return f"{scheme}://{rest.lstrip('/')}" if sep else path
+            return normalized
+        normalized = normalized.replace(os.path.sep, self._sep)
+        scheme, sep, rest = normalized.partition("://")
+        return f"{scheme}://{rest.lstrip('/')}" if sep else normalized
 
     def _basename(self, path: str) -> str:
         stripped = path.rstrip(self._sep)
@@ -282,6 +288,15 @@ class FileSelector(MaterialWidget, BaseFileSelector):
     def _update_files(
         self, event: param.parameterized.Event | None = None, refresh: bool = False
     ):
+        if self._updating:
+            return
+        self._updating = True
+        try:
+            self._relist(refresh)
+        finally:
+            self._updating = False
+
+    def _relist(self, refresh: bool = False):
         if refresh:
             path = self._cwd or self._normalize(self.directory, self._root_directory)
         else:
@@ -300,6 +315,10 @@ class FileSelector(MaterialWidget, BaseFileSelector):
         self._can_back = self._position > 0
         self._can_forward = self._position < len(self._stack) - 1
         self._can_up = not self._at_root(path)
+        # Settle the parameter on the canonical form, e.g. after a remote
+        # path was handed in with the OS separator. The re-entrant
+        # _update_files this triggers is dropped by the guard above.
+        self.directory = path
 
     def _reload(self, event: param.parameterized.Event):
         if event.name == "only_files" and event.new:

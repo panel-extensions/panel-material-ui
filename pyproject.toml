@@ -141,6 +141,7 @@ exclude = []
 [[tool.mypy.overrides]]
 module = [
     "bokeh.*",
+    "fsspec.*",
     "pandas.*",
     "param.*",
     "panel.*",
