@@ -66,6 +66,7 @@ pytest-rerunfailures = "<16"
 pytest-xdist = "*"
 mypy = "*"
 plotly = "*"
+fsspec = "*"
 
 [feature.test-unit-task.tasks]
 _install = "pip install --no-deps --disable-pip-version-check -e ."
