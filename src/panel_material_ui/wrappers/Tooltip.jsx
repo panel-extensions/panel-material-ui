@@ -1,5 +1,6 @@
 import Tooltip from "@mui/material/Tooltip"
 import Box from "@mui/material/Box"
+import {render_icon_text} from "./utils"
 
 export function render({model}) {
   const [arrow] = model.useState("arrow")
@@ -26,7 +27,7 @@ export function render({model}) {
       leaveDelay={leaveDelay}
       placement={placement}
       sx={sx}
-      title={title}
+      title={render_icon_text(title)}
       {...openProps}
     >
       <Box sx={{display: "inline-flex", width: "100%", height: "100%"}}>

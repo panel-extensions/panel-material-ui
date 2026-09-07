@@ -17,7 +17,7 @@ import MenuItem from "@mui/material/MenuItem"
 import MoreVert from "@mui/icons-material/MoreVert"
 import Checkbox from "@mui/material/Checkbox"
 import Tooltip from "@mui/material/Tooltip"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text, render_icon_text_as_string} from "./utils"
 
 const LIST_SX = {p: 0}
 
@@ -152,7 +152,7 @@ export function render({model}) {
               bgcolor: icon_color
             }}
           >
-            {avatar || label[0].toUpperCase()}
+            {avatar || render_icon_text_as_string(label)[0].toUpperCase()}
           </Avatar>
         </ListItemAvatar>
       )
@@ -247,7 +247,7 @@ export function render({model}) {
               color={action.color}
               key={`action-button-${index}`}
               size="small"
-              title={action.label}
+              title={render_icon_text_as_string(action.label)}
               onMouseDown={(e) => {
                 e.stopPropagation()
                 e.preventDefault()

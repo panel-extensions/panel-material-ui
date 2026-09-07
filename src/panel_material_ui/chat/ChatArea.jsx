@@ -15,7 +15,7 @@ import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
-import {isFileAccepted, processFilesChunked, apply_flex, waitForRef} from "./utils"
+import {isFileAccepted, processFilesChunked, apply_flex, render_icon_text, render_icon_text_as_string, waitForRef} from "./utils"
 
 // Map MIME types to Material Icons
 const mimeTypeIcons = {
@@ -217,6 +217,9 @@ export function render({model, view}) {
   const [isDragOver, setIsDragOver] = React.useState(false)
   const fileInputRef = React.useRef(null)
   const footer_objects = model.get_child("footer_objects")
+
+  // placeholder is a string-only DOM attribute, so icon tokens are stripped
+  const placeholder_text = render_icon_text_as_string(placeholder)
 
   const [progress, setProgress] = React.useState(undefined)
   const [file_data, setFileData] = React.useState([])
@@ -526,11 +529,11 @@ export function render({model, view}) {
                 return object
               }),
               maxRows: max_rows,
-              placeholder,
+              placeholder: placeholder_text,
               ...props,
             }
           }}
-          placeholder={placeholder}
+          placeholder={placeholder_text}
           startAdornment={
             Object.keys(actions).length > 0 ? (
               <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "35px", mr: "4px", alignSelf: "center"}}>
@@ -561,7 +564,7 @@ export function render({model, view}) {
                       slotProps={{
                         popper: {container: view.container},
                         tooltip: {
-                          title: actions[action].label || action
+                          title: render_icon_text(actions[action].label || action)
                         }
                       }}
                       onClick={() => model.send_msg({type: "action", action})}
@@ -579,7 +582,7 @@ export function render({model, view}) {
             </InputAdornment>
           }
           error={error_state}
-          label={label}
+          label={render_icon_text_as_string(label)}
           variant={variant}
           fullWidth
           sx={{

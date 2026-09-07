@@ -3,10 +3,12 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"
 import Tooltip from "@mui/material/Tooltip"
 import {ThemeProvider, useTheme} from "@mui/material/styles"
 import {CacheProvider} from "@emotion/react"
+import {render_icon_text} from "./utils"
 
 export function render_description({model, el, view}) {
   const theme = useTheme()
   const [description] =  model.useState("description")
+  const title = render_icon_text(description)
 
   const iconRef = React.useRef(null)
   const [open, setOpen] = React.useState(false);
@@ -29,7 +31,7 @@ export function render_description({model, el, view}) {
         <CacheProvider value={cache}>
           <ThemeProvider theme={theme}>
             <Tooltip
-              title={description}
+              title={title}
               arrow
               open={open}
               placement="right"
@@ -50,7 +52,7 @@ export function render_description({model, el, view}) {
   }
   return (
     <Tooltip
-      title={description}
+      title={title}
       arrow
       placement="right"
       slotProps={{

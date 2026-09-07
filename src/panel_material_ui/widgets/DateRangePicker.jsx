@@ -13,6 +13,7 @@ import Typography from "@mui/material/Typography"
 import {useTheme} from "@mui/material/styles"
 import useMediaQuery from "@mui/material/useMediaQuery"
 import dayjs from "dayjs"
+import {render_icon_text} from "./utils"
 
 function formatDate(date, format) {
   if (!date) { return "" }
@@ -271,7 +272,7 @@ export function render({model, el, view}) {
     <div style={{width: "100%", ...(sx || {})}}>
       <TextField
         ref={anchorRef}
-        label={label}
+        label={render_icon_text(label)}
         value={displayValue}
         onClick={openPicker}
         variant={variant}
@@ -279,7 +280,7 @@ export function render({model, el, view}) {
         disabled={disabled}
         error={error_state}
         fullWidth
-        helperText={helper_text || undefined}
+        helperText={helper_text ? render_icon_text(helper_text) : undefined}
         slotProps={{
           input: {
             readOnly: true,

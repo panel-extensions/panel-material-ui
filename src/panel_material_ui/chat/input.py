@@ -93,6 +93,8 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
 
     _esm_transforms = [ThemedTransform]
 
+    _busy__ignore = ["value_input"]
+
     _rename = {"loading": "loading", "views": None, "value_uploaded": None, "footer_objects": "footer_objects"}
 
     def __init__(self, **params):

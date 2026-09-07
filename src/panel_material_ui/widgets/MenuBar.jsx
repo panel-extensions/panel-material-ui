@@ -59,7 +59,7 @@ function SubMenu({item, index, model, view, onCloseAll, path, subs}) {
         <ListItemText>{render_icon_text(item.label)}</ListItemText>
         {item.hint && (
           <Typography variant="body2" sx={{ml: 2, color: "text.secondary"}}>
-            {item.hint}
+            {render_icon_text(item.hint)}
           </Typography>
         )}
         <ChevronRightIcon fontSize="small" sx={{ml: 1, color: "text.secondary"}} />
@@ -166,7 +166,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path, subs}) {
         <ListItemText>{render_icon_text(item.label)}</ListItemText>
         {item.hint && (
           <Typography variant="body2" sx={{ml: 2, color: "text.secondary"}}>
-            {item.hint}
+            {render_icon_text(item.hint)}
           </Typography>
         )}
       </MenuItem>
@@ -194,7 +194,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path, subs}) {
         <ListItemText>{render_icon_text(item.label)}</ListItemText>
         {item.hint && (
           <Typography variant="body2" sx={{ml: 2, color: "text.secondary"}}>
-            {item.hint}
+            {render_icon_text(item.hint)}
           </Typography>
         )}
       </MenuItem>
@@ -220,7 +220,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path, subs}) {
       <ListItemText>{render_icon_text(item.label)}</ListItemText>
       {item.hint && (
         <Typography variant="body2" sx={{ml: 2, color: "text.secondary"}}>
-          {item.hint}
+          {render_icon_text(item.hint)}
         </Typography>
       )}
     </MenuItem>

@@ -10,7 +10,7 @@ import IconButton from "@mui/material/IconButton"
 import MenuItem from "@mui/material/MenuItem"
 import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
-import {parseIconName, render_icon, render_icon_text} from "./utils"
+import {parseIconName, render_icon, render_icon_text, render_icon_text_as_string} from "./utils"
 
 import ArticleIcon from "@mui/icons-material/Article"
 import DeleteIcon from "@mui/icons-material/Delete"
@@ -486,7 +486,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
           color={action.color}
           key={`tree-action-inline-${actionKey}`}
           size="small"
-          title={action.label}
+          title={render_icon_text_as_string(action.label)}
           onMouseDown={(event) => {
             event.stopPropagation()
             event.preventDefault()

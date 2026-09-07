@@ -3,7 +3,7 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon"
 import SpeedDialAction from "@mui/material/SpeedDialAction"
 import SpeedDial from "@mui/material/SpeedDial"
 import Icon from "@mui/material/Icon"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text, render_icon_text_as_string} from "./utils"
 
 const SPEED_DIAL_BASE_SX = {
   "& .MuiSpeedDial-actions": {
@@ -52,7 +52,7 @@ export function render({model, view}) {
 
   return (
     <SpeedDial
-      ariaLabel={label}
+      ariaLabel={render_icon_text_as_string(label)}
       direction={direction}
       FabProps={{color, disabled, size}}
       icon={icon ? render_icon(icon, null, size) : <SpeedDialIcon openIcon={open_icon ? open_icon : undefined} />}
@@ -61,7 +61,7 @@ export function render({model, view}) {
     >
       {items.map((item, index) => {
         const label = item.label
-        const avatar = item.avatar || label[0].toUpperCase()
+        const avatar = item.avatar || render_icon_text_as_string(label)[0].toUpperCase()
         return (
           <SpeedDialAction
             key={`speed-dial-action-${index}`}

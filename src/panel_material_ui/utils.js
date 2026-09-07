@@ -1692,6 +1692,37 @@ export function parseIconName(iconName, dflt = "") {
   }
 }
 
+/**
+ * Normalizes an icon variant to the suffix expected by parseIconName/render_icon.
+ *
+ * Accepts both the user facing spelling (e.g. "outlined") and the internal
+ * suffix spelling (e.g. "-outlined").
+ *
+ * @param {string} variant - Variant name or suffix
+ * @returns {string} - Variant suffix, e.g. "-outlined" or "" for filled icons
+ */
+function normalize_icon_variant(variant) {
+  if (variant == null || typeof variant !== "string") {
+    return ""
+  }
+  const normalized = variant.trim().toLowerCase().replace(/^[-_]/, "")
+  switch (normalized) {
+    case "":
+    case "filled":
+      return ""
+    case "outlined":
+    case "outline":
+      return "-outlined"
+    case "rounded":
+    case "round":
+      return "-round"
+    case "sharp":
+      return "-sharp"
+    default:
+      return ""
+  }
+}
+
 export function render_icon(icon, color, size, icon_size, variant, sx) {
   const standard_size = ["small", "medium", "large"].includes(size)
   const font_size = standard_size ? icon_size : size
@@ -1710,70 +1741,190 @@ export function render_icon(icon, color, size, icon_size, variant, sx) {
     }}
     />
   ) : (() => {
-    const iconData = parseIconName(icon, variant || "")
+    const iconData = parseIconName(icon, normalize_icon_variant(variant))
     return <Icon baseClassName={iconData.baseClassName} color={color || undefined} fontSize={icon_font_size} sx={sx} style={standard_icon_size ? {} : {fontSize: icon_size}}>{iconData.iconName}</Icon>
   })()
 }
 
+// Matches :material/<icon>: tokens with an optional @key=value,key=value suffix.
+// Icon names are restricted to the characters Material Icons actually uses so
+// that malformed tokens are left untouched.
+const ICON_TOKEN_PATTERN = /:material\/([a-zA-Z0-9_]+)(?:@([^:]*))?:/g
+
+const ICON_TOKEN_OPTIONS = ["color", "size", "icon_size", "variant"]
+
+const STANDARD_SIZES = ["small", "medium", "large"]
+
+function parse_icon_options(option_string) {
+  const options = {}
+  if (!option_string) {
+    return options
+  }
+  for (const pair of option_string.split(",")) {
+    const [key, ...rest] = pair.split("=")
+    if (!key) {
+      continue
+    }
+    const name = key.trim()
+    if (!ICON_TOKEN_OPTIONS.includes(name)) {
+      continue
+    }
+    const value = rest.join("=").trim()
+    options[name] = name === "variant" ? normalize_icon_variant(value) : value
+  }
+  return options
+}
+
+/**
+ * Splits text containing :material/<icon>: tokens into typed segments.
+ *
+ * Returns an array of segments, each either {type: "text", text} or
+ * {type: "icon", icon, options}. Plain text without any token yields a single
+ * text segment, so callers can always iterate over the result. Malformed
+ * tokens are preserved as text.
+ *
+ * @param {string} text - The text to parse
+ * @param {object} defaults - Default icon options merged into each token
+ * @returns {Array<object>} - Array of text and icon segments
+ *
+ * @example
+ * parse_icon_text("Zoom :material/search:")
+ * // [{type: "text", text: "Zoom "}, {type: "icon", icon: "search", options: {}}]
+ */
+export function parse_icon_text(text, defaults = {}) {
+  if (text == null || typeof text !== "string" || text === "") {
+    return []
+  }
+  const pattern = new RegExp(ICON_TOKEN_PATTERN.source, "g")
+  const segments = []
+  let match = null
+  let lastIndex = 0
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({type: "text", text: text.slice(lastIndex, match.index)})
+    }
+    segments.push({
+      type: "icon",
+      icon: match[1],
+      options: {...defaults, ...parse_icon_options(match[2])}
+    })
+    lastIndex = pattern.lastIndex
+  }
+  if (lastIndex < text.length) {
+    segments.push({type: "text", text: text.slice(lastIndex)})
+  }
+  return segments
+}
+
+function render_icon_segment(segment, iconProps = {}) {
+  const merged = {...iconProps, ...segment.options}
+  let {size, icon_size} = merged
+  if (icon_size == null && size != null && !STANDARD_SIZES.includes(size)) {
+    icon_size = size
+    size = undefined
+  }
+  if (icon_size == null && size == null) {
+    icon_size = "1em"
+  }
+  return render_icon(segment.icon, merged.color, size, icon_size, merged.variant, merged.sx)
+}
+
+/**
+ * Renders text containing :material/<icon>: tokens as a React tree.
+ *
+ * Plain strings (and non-string values) are returned unchanged so that MUI
+ * props which only accept strings keep working.
+ *
+ * @param {string} text - The text to render
+ * @param {object} iconProps - Default icon options (color, size, icon_size, variant, sx)
+ * @returns {*} - The original value or a React node
+ */
 export function render_icon_text(text, iconProps = {}) {
   if (text == null || typeof text !== "string") {
     return text
   }
 
-  const pattern = /:material\/([^:@]+)(?:@([^:]+))?:/g
-  let match = null
-  let lastIndex = 0
-  const parts = []
-
-  while ((match = pattern.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index))
-    }
-    const options = {}
-    if (match[2]) {
-      for (const pair of match[2].split(",")) {
-        const [key, ...rest] = pair.split("=")
-        const value = rest.join("=")
-        if (!key) {
-          continue
-        }
-        if (["color", "size", "icon_size", "variant"].includes(key)) {
-          options[key] = value
-        }
-      }
-    }
-    parts.push({icon: match[1], options})
-    lastIndex = pattern.lastIndex
-  }
-
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex))
-  }
-
-  if (parts.length === 0 || parts.every((part) => typeof part === "string")) {
+  const segments = parse_icon_text(text)
+  if (!segments.some((segment) => segment.type === "icon")) {
     return text
   }
 
   return (
     <span style={{display: "inline-flex", alignItems: "center", gap: "0.25em"}}>
-      {parts.map((part, idx) => {
-        if (typeof part === "string") {
-          return <span key={`icon-text-${idx}`}>{part}</span>
+      {segments.map((segment, idx) => {
+        if (segment.type === "text") {
+          return <span key={`icon-text-${idx}`}>{segment.text}</span>
         }
-        const mergedProps = {...iconProps, ...part.options}
         return (
           <span key={`icon-text-${idx}`} style={{display: "inline-flex", alignItems: "center"}}>
-            {render_icon(
-              part.icon,
-              mergedProps.color,
-              mergedProps.size,
-              mergedProps.icon_size ?? "1em",
-              mergedProps.variant,
-              mergedProps.sx
-            )}
+            {render_icon_segment(segment, iconProps)}
           </span>
         )
       })}
     </span>
   )
+}
+
+/**
+ * Renders text that may contain both HTML and :material/<icon>: tokens.
+ *
+ * Used by components which have always rendered their titles as HTML. The HTML
+ * segments are inserted as HTML, the tokens are rendered as React icon nodes,
+ * so user input is never concatenated into a mixed HTML/React string.
+ *
+ * @param {string} text - The text to render
+ * @param {object} iconProps - Default icon options
+ * @returns {*} - The original value or an array of React nodes
+ */
+export function render_html_icon_text(text, iconProps = {}) {
+  if (text == null || typeof text !== "string") {
+    return text
+  }
+  const segments = parse_icon_text(text)
+  if (segments.length === 0) {
+    return null
+  }
+  return segments.map((segment, idx) => {
+    if (segment.type === "text") {
+      return <span key={`icon-html-${idx}`} dangerouslySetInnerHTML={{__html: segment.text}} />
+    }
+    return (
+      <span key={`icon-html-${idx}`} style={{display: "inline-flex", alignItems: "center"}}>
+        {render_icon_segment(segment, iconProps)}
+      </span>
+    )
+  })
+}
+
+/**
+ * Converts text containing :material/<icon>: tokens into readable plain text.
+ *
+ * Intended for aria-label, native title, alt and other string-only consumers
+ * which cannot render React nodes. Tokens are stripped; if the text consists
+ * only of tokens the humanized icon names are used so the value is never empty.
+ *
+ * @param {string} text - The text to convert
+ * @returns {*} - The original value or the token-stripped text
+ */
+export function render_icon_text_as_string(text) {
+  if (text == null || typeof text !== "string") {
+    return text
+  }
+  const segments = parse_icon_text(text)
+  if (!segments.some((segment) => segment.type === "icon")) {
+    return text
+  }
+  const stripped = segments
+    .filter((segment) => segment.type === "text")
+    .map((segment) => segment.text)
+    .join("")
+    .replace(/\s+/g, " ")
+    .trim()
+  if (stripped) {
+    return stripped
+  }
+  return segments
+    .filter((segment) => segment.type === "icon")
+    .map((segment) => parseIconName(segment.icon).iconName.replace(/_/g, " "))
+    .join(" ")
 }

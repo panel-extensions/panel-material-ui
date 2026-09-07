@@ -45,7 +45,7 @@ export function render({model}) {
               return <Icon baseClassName={iconData.baseClassName} color={color_string} sx={{mr: 0.5}}>{iconData.iconName}</Icon>
             })() : null}
             {item.avatar ?
-              <StyledAvatar color={theme.palette[color_string]?.main || color_string} spacing={theme.spacing(0.5)}>{item.avatar}</StyledAvatar> : null
+              <StyledAvatar color={theme.palette[color_string]?.main || color_string} spacing={theme.spacing(0.5)}>{render_icon_text(item.avatar)}</StyledAvatar> : null
             }
             {render_icon_text(item.label)}
           </Link>
@@ -55,7 +55,7 @@ export function render({model}) {
           <Typography {...props}>
             {item.icon ? render_icon(item.icon, color_string, null, null, null, {mr: 0.5}) : null}
             {item.avatar ?
-              <StyledAvatar color={theme.palette[color_string]?.main || color_string} spacing={theme.spacing(0.5)}>{item.avatar}</StyledAvatar> : null
+              <StyledAvatar color={theme.palette[color_string]?.main || color_string} spacing={theme.spacing(0.5)}>{render_icon_text(item.avatar)}</StyledAvatar> : null
             }
             {render_icon_text(item.label)}
           </Typography>
@@ -73,7 +73,7 @@ export function render({model}) {
   return (
     <Breadcrumbs
       maxItems={max_items || undefined}
-      separator={separator || <NavigateNextIcon fontSize="small" />}
+      separator={render_icon_text(separator) || <NavigateNextIcon fontSize="small" />}
       sx={sx}
     >
       {breadcrumbItems}

@@ -76,7 +76,7 @@ export function render({model, el, view}) {
         onChange={handleChange}
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}
-        slotProps={{textField: {variant, color, error: error_state, helperText: helper_text || undefined}, popper: {container: view.container}}}
+        slotProps={{textField: {variant, color, error: error_state, helperText: helper_text ? render_icon_text(helper_text) : undefined}, popper: {container: view.container}}}
         sx={pickerSx}
         value={value}
         views={views}

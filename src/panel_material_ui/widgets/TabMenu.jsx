@@ -55,7 +55,7 @@ export function render({model}) {
             sx={TABMENU_AVATAR_SX}
             style={{backgroundColor: theme.palette[color]?.main || color}}
           >
-            {avatar}
+            {render_icon_text(avatar)}
           </Avatar>
         ) : null}
         {render_icon_text(label)}

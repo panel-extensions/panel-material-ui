@@ -13,7 +13,7 @@ import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import dayjs from "dayjs"
 import {render_description} from "./description"
-import {int_regex, float_regex, render_icon_text} from "./utils"
+import {int_regex, float_regex, render_icon_text, render_icon_text_as_string} from "./utils"
 
 const SLIDER_BASE_SX = {
   "& .MuiSlider-track": {
@@ -243,6 +243,12 @@ export function render({model, el, view}) {
     }
   }
 
+  // aria-valuetext is a string-only attribute, so tokens are stripped
+  function aria_value_text(d, i) {
+    const formatted = format_value(d, i)
+    return typeof formatted === "string" ? render_icon_text_as_string(formatted) : formatted
+  }
+
   React.useEffect(() => {
     if (valueLabel) {
       setValueLabel(valueLabel)
@@ -382,8 +388,8 @@ export function render({model, el, view}) {
           color={color}
           dir={direction}
           disabled={disabled}
-          getAriaLabel={() => label}
-          getAriaValueText={format_value}
+          getAriaLabel={() => render_icon_text_as_string(label)}
+          getAriaValueText={aria_value_text}
           marks={ticks}
           max={end}
           min={start}
@@ -398,7 +404,7 @@ export function render({model, el, view}) {
           track={track}
           value={value}
           valueLabelDisplay={tooltips === "auto" ? "auto" : tooltips ? "on" : "off"}
-          valueLabelFormat={format_value}
+          valueLabelFormat={(d, i) => render_icon_text(format_value(d, i))}
         />
         {editable && inline_layout && orientation !== "vertical" && (
           <TextField

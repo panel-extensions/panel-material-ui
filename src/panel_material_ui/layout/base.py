@@ -604,6 +604,8 @@ class Paper(MaterialListLike, PaperMixin):
         objects=["row", "column", "column-reverse", "row-reverse"], default="column",
         doc="Direction of content arrangement in the paper.")  # type: ignore[assignment]
 
+    margin = Margin(default=0, doc="The margin of the layout.")
+
     _esm_base = "Paper.jsx"
 
 

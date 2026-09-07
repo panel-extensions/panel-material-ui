@@ -1,5 +1,5 @@
 import Fab from "@mui/material/Fab"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text, render_icon_text_as_string} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -29,7 +29,7 @@ export function render(props, ref) {
 
   return (
     <Fab
-      aria-label={label}
+      aria-label={render_icon_text_as_string(label)}
       color={color}
       disabled={disabled}
       href={href}

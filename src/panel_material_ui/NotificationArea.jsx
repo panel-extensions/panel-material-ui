@@ -2,7 +2,7 @@ import Alert from "@mui/material/Alert"
 import Icon from "@mui/material/Icon"
 import {SnackbarProvider, useSnackbar} from "notistack"
 import {useTheme} from "@mui/material/styles"
-import {parseIconName} from "./utils"
+import {parseIconName, render_icon_text} from "./utils"
 
 function standardize_color(str) {
   const ctx = document.createElement("canvas").getContext("2d")
@@ -55,7 +55,7 @@ function NotificationArea({model, view}) {
             }
           ) : {margin: "0.5em 1em"}}
         >
-          {notification.message}
+          {render_icon_text(notification.message)}
         </Alert>
       ),
       key: uuid ?? notification._uuid,

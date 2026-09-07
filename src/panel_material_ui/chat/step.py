@@ -9,6 +9,7 @@ from panel.pane.image import ImageBase
 from panel.pane.markup import HTMLBasePane, Markdown
 from panel.util import edit_readonly
 
+from .._utils import render_icon_tokens_html
 from ..layout import Card
 
 
@@ -41,6 +42,9 @@ class ChatStep(Card, _PnChatStep):
         self._instance = None
         self._failed_title = ""
         Card.__init__(self, *objects, **params)
+        # The title is rendered by an HTML pane, so icon tokens are rewritten
+        # into Material Icons spans instead of React icon nodes.
+        self._title_pane.object = param.bind(render_icon_tokens_html, self.param.title)
         self._title_pane.styles = {'font-size': '1.1em', 'font-weight': '400', 'text-align': 'left', 'overflow-wrap': 'break-word'}
         with edit_readonly(self):
             self.header = Row(

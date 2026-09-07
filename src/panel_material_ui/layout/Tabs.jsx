@@ -2,10 +2,11 @@ import Tabs from "@mui/material/Tabs"
 import Tab from "@mui/material/Tab"
 import Box from "@mui/material/Box"
 import {useTheme} from "@mui/material/styles"
-import {apply_flex} from "./utils"
+import {apply_flex, render_html_icon_text} from "./utils"
 
 const TABS_BASE_SX = {transition: "height 0.3s"}
 const TAB_CLOSE_LABEL_SX = {display: "flex", alignItems: "center"}
+const TAB_TITLE_STYLE = {display: "inline-flex", alignItems: "center", gap: "0.25em"}
 const TAB_CLOSE_ICON_SX = {ml: 1, cursor: "pointer", "&:hover": {opacity: 0.7}}
 const TABS_PANEL_BASE_SX = {height: "100%", maxWidth: "100%", position: "relative"}
 const TABS_CONTENT_BASE_SX = {
@@ -81,7 +82,7 @@ export function render({model, view}) {
         label={
           closable ? (
             <Box sx={TAB_CLOSE_LABEL_SX}>
-              {label ? <span dangerouslySetInnerHTML={{__html: label}} />: headers[index]}
+              {label ? <span style={TAB_TITLE_STYLE}>{render_html_icon_text(label)}</span> : headers[index]}
               <Box
                 component="span"
                 sx={TAB_CLOSE_ICON_SX}
@@ -90,7 +91,7 @@ export function render({model, view}) {
                 ✕
               </Box>
             </Box>
-          ) : (label ? <span dangerouslySetInnerHTML={{__html: label}} /> : headers[index])
+          ) : (label ? <span style={TAB_TITLE_STYLE}>{render_html_icon_text(label)}</span> : headers[index])
         }
         wrapped={wrapped}
       />

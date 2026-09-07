@@ -214,7 +214,7 @@ export function render({model, view}) {
             spacing={theme.spacing(0.5)}
             sx={{width: 24, height: 24, mr: 0.5}}
           >
-            {item.avatar}
+            {render_icon_text(item.avatar)}
           </StyledAvatar>
         ) : null}
         {render_icon_text(item.label)}
@@ -283,7 +283,7 @@ export function render({model, view}) {
                       {sib.icon ? render_icon(sib.icon, null, null, null, null, {mr: 1}) : null}
                       {sib.avatar ? (
                         <StyledAvatar spacing={theme.spacing(0.5)} sx={{mr: 1}}>
-                          {sib.avatar}
+                          {render_icon_text(sib.avatar)}
                         </StyledAvatar>
                       ) : null}
                       <Typography>{render_icon_text(sib.label)}</Typography>
@@ -350,7 +350,7 @@ export function render({model, view}) {
                         {sib.icon ? render_icon(sib.icon, null, null, null, null, {mr: 1}) : null}
                         {sib.avatar ? (
                           <StyledAvatar spacing={theme.spacing(0.5)} sx={{mr: 1}}>
-                            {sib.avatar}
+                            {render_icon_text(sib.avatar)}
                           </StyledAvatar>
                         ) : null}
                         <Typography>{render_icon_text(sib.label)}</Typography>
@@ -382,7 +382,7 @@ export function render({model, view}) {
   return (
     <Breadcrumbs
       maxItems={max_items || undefined}
-      separator={separator || <NavigateNextIcon fontSize="small" />}
+      separator={render_icon_text(separator) || <NavigateNextIcon fontSize="small" />}
       sx={breadcrumbsSx}
     >
       {breadcrumbItems}

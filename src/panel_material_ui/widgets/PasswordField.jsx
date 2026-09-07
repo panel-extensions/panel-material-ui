@@ -34,7 +34,7 @@ export function render({model, el, view}) {
       disabled={disabled}
       error={error_state}
       fullWidth
-      helperText={helper_text || undefined}
+      helperText={helper_text ? render_icon_text(helper_text) : undefined}
       inputRef={ref}
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
       onBlur={() => setValue(value_input)}

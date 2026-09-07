@@ -2,7 +2,7 @@ import Autocomplete from "@mui/material/Autocomplete"
 import Popper from "@mui/material/Popper"
 import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {render_icon_text, render_icon_text_as_string} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -159,10 +159,10 @@ export function render({model, el, view}) {
           {...params}
           color={color}
           error={error_state}
-          helperText={helper_text || undefined}
+          helperText={helper_text ? render_icon_text(helper_text) : undefined}
           label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
           inputRef={ref}
-          placeholder={placeholder}
+          placeholder={render_icon_text_as_string(placeholder)}
           onChange={(event) => {
             setValueInput(event.target.value)
           }}
