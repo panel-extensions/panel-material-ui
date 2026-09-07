@@ -1,11 +1,11 @@
-import time
-
 import pytest
 
 pytest.importorskip('playwright')
 
 import panel as pn
+from panel.io.state import state
 from panel.tests.util import serve_component
+from panel.util import edit_readonly
 from playwright.sync_api import expect
 from panel_material_ui.template import Page
 from panel_material_ui.widgets import Button
@@ -308,15 +308,22 @@ def test_page_linear_progress_hidden_when_idle(page):
 
 def test_page_linear_progress_visible_when_busy(page):
     """Test that linear progress bar is visible (opacity: 1) when busy."""
-    def slow_operation(event):
-        time.sleep(2)
+    pg = Page(busy_indicator='linear')
 
-    button = Button(label='Trigger Busy', on_click=slow_operation)
+    def trigger_busy(event):
+        with edit_readonly(pg):
+            pg.busy = True
 
-    pg = Page(
-        busy_indicator='linear',
-        main=[button]
-    )
+        def clear_busy():
+            with edit_readonly(pg):
+                pg.busy = False
+
+        state.add_periodic_callback(
+            clear_busy, period=2000, count=1
+        )
+
+    button = Button(label='Trigger Busy', on_click=trigger_busy)
+    pg.main.append(button)
 
     serve_component(page, pg)
 

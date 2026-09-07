@@ -125,6 +125,16 @@ def context(context):
     context.set_default_timeout(20_000)
     yield context
 
+
+@pytest.fixture(autouse=True)
+def cleanup_panel_servers():
+    """Stop threaded Panel servers after each test."""
+    try:
+        yield
+    finally:
+        state.reset()
+
+
 PORT = [get_default_port()]
 
 @pytest.fixture

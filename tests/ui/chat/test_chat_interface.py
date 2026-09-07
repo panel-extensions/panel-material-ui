@@ -88,11 +88,9 @@ def test_chat_interface_auto_scroll_on_new_message(page):
     input_locator.fill("New message")
     input_locator.press("Enter")
 
-    try:
-        wait_until(lambda: len(chat.objects) == 7, page)
-    except Exception:
-        assert len(chat.objects) == 7
+    wait_until(lambda: len(chat.objects) == 7, page)
 
     # The latest message should be visible
     last_msg = page.get_by_text("Echo: New message")
+    expect(last_msg).to_be_attached(timeout=5000)
     expect(last_msg).to_be_visible(timeout=5000)
