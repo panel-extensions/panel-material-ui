@@ -1,4 +1,5 @@
 from .button import *  # noqa
+from .color_map import *  # noqa
 from .file_selector import *  # noqa
 from .icon import *  # noqa
 from .indicators import *  # noqa
