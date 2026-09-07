@@ -274,7 +274,7 @@ export function render({model, view, el}) {
             variant,
             color,
             error: error_state,
-            helperText: helper_text || undefined,
+            helperText: helper_text ? render_icon_text(helper_text) : undefined,
             onBlur: handleBlur,
             onKeyDown: handleKeyDown,
             slotProps: {

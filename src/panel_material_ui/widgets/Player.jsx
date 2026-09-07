@@ -20,7 +20,7 @@ import SkipNextIcon from "@mui/icons-material/SkipNext"
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious"
 import SyncAltIcon from "@mui/icons-material/SyncAlt"
 import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {render_icon_text, render_icon_text_as_string} from "./utils"
 
 const BUTTON_ORDER = [
   "slower", "first", "previous", "reverse", "pause", "play", "next", "last", "faster"
@@ -211,10 +211,10 @@ export function render({model, el, view}) {
 
   const slider = (
     <Slider
-      aria-label={label || "Player"}
+      aria-label={render_icon_text_as_string(label) || "Player"}
       color={color}
       disabled={disabled}
-      getAriaValueText={() => value_label}
+      getAriaValueText={() => render_icon_text_as_string(value_label)}
       max={end}
       min={start}
       onChange={(_, new_value) => { valueRef.current = new_value; setValue(new_value) }}

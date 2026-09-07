@@ -7,7 +7,7 @@ import Collapse from "@mui/material/Collapse"
 import IconButton from "@mui/material/IconButton"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
-import {apply_flex} from "./utils"
+import {apply_flex, render_icon_text} from "./utils"
 
 const status_colors = {
   failed: "red",
@@ -104,7 +104,7 @@ export function render({model, view}) {
           "& .MuiCardHeader-content": {minWidth: 0},
           "& .MuiCardHeader-title .step-header": {minWidth: 0}
         }}
-        title={model.header ? header : <Typography variant="h3">{title}</Typography>}
+        title={model.header ? header : <Typography variant="h3">{render_icon_text(title)}</Typography>}
       />
       <Collapse
         in={!collapsed}

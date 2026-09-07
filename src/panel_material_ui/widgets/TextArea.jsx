@@ -1,6 +1,6 @@
 import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {render_icon_text, render_icon_text_as_string} from "./utils"
 
 export function render({model, el}) {
   const [autogrow] = model.useState("auto_grow")
@@ -61,7 +61,7 @@ export function render({model, el}) {
       disabled={disabled}
       error={error_state}
       fullWidth
-      helperText={helper_text || undefined}
+      helperText={helper_text ? render_icon_text(helper_text) : undefined}
       slotProps={{htmlInput: {maxLength: max_length}}}
       inputRef={ref}
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el})}</> : render_icon_text(label)}
@@ -76,7 +76,7 @@ export function render({model, el}) {
       }}
       onBlur={() => setValue(value_input)}
       onChange={(event) => setValueInput(event.target.value)}
-      placeholder={placeholder}
+      placeholder={render_icon_text_as_string(placeholder)}
       sx={textAreaSx}
       value={value_input}
       variant={variant}

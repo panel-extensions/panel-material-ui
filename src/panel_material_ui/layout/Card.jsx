@@ -6,7 +6,7 @@ import Collapse from "@mui/material/Collapse"
 import IconButton from "@mui/material/IconButton"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
-import {apply_flex} from "./utils"
+import {apply_flex, render_html_icon_text} from "./utils"
 
 const CARD_BASE_SX = {
   display: "flex",
@@ -101,10 +101,11 @@ export function render({model, view}) {
           title={model.header ? header : (
             <Typography
               classes={title_css_classes}
-              dangerouslySetInnerHTML={{__html: title}}
               sx={{display: "inline-flex", alignItems: "center", gap: "0.25em", fontSize: "1.15rem", fontWeight: 500}}
               variant={title_variant}
-            />
+            >
+              {render_html_icon_text(title)}
+            </Typography>
           )}
           sx={{
             backgroundColor: header_background,

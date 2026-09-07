@@ -58,14 +58,14 @@ export function render({model}) {
         sx={mobileSx}
         nextButton={
           <Button size="small" onClick={handleNext} disabled={activeIndex >= mobileSteps - 1}>
-            {nextText}
+            {render_icon_text(nextText)}
             {render_icon("keyboard_arrow_right")}
           </Button>
         }
         backButton={
           <Button size="small" onClick={handleBack} disabled={activeIndex <= 0}>
             {render_icon("keyboard_arrow_left")}
-            {backText}
+            {render_icon_text(backText)}
           </Button>
         }
       />

@@ -20,7 +20,7 @@ import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
 import {render_description} from "./description"
 import {CustomMenu, detect_nb} from "./menu"
-import {render_icon_text} from "./utils"
+import {render_icon_text, render_icon_text_as_string} from "./utils"
 
 const SELECT_BASE_SX = {padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}}
 
@@ -155,7 +155,9 @@ export function render({model, el, view}) {
   }
 
   const spacer = model.description ? "\u00A0" : ""
-  const label_spacer = label ? label+spacer : null
+  // The floating label/notch legend is a string-only slot, so tokens are stripped
+  const label_text = render_icon_text_as_string(label)
+  const label_spacer = label_text ? label_text+spacer : null
 
   const hasValue = multi
     ? Array.isArray(value) && value.length > 0
@@ -503,7 +505,7 @@ export function render({model, el, view}) {
         color={color}
         disabled={disabled}
         input={getInput()}
-        label={label}
+        label={label_text}
         labelId={`select-label-${model.id}`}
         multiple={multi}
         onChange={(event) => {
@@ -538,7 +540,7 @@ export function render({model, el, view}) {
           {renderMenuItems()}
         </CustomMenu>
       )}
-      {helper_text && <FormHelperText>{helper_text}</FormHelperText>}
+      {helper_text && <FormHelperText>{render_icon_text(helper_text)}</FormHelperText>}
     </FormControl>
   )
 }

@@ -3,6 +3,7 @@ import AccordionSummary from "@mui/material/AccordionSummary"
 import AccordionDetails from "@mui/material/AccordionDetails"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
+import {render_html_icon_text} from "./utils"
 
 export function render({model}) {
   const [active, setActive] = model.useState("active")
@@ -60,7 +61,9 @@ export function render({model}) {
               }}
             >
               {names[index] ? (
-                <Typography className="title" variant={title_variant} sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}} dangerouslySetInnerHTML={{__html: names[index]}} />
+                <Typography className="title" variant={title_variant} sx={{display: "inline-flex", alignItems: "center", gap: "0.25em"}}>
+                  {render_html_icon_text(names[index])}
+                </Typography>
               ) : headers[index]}
             </AccordionSummary>
             <AccordionDetails sx={{pb: 1, pl: 1, pr: 1}}>{obj}</AccordionDetails>

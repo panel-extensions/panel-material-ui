@@ -1,6 +1,7 @@
 import Alert from "@mui/material/Alert"
 import AlertTitle from "@mui/material/AlertTitle"
 import Collapse from "@mui/material/Collapse"
+import {render_icon_text} from "./utils"
 
 function html_decode(input) {
   const doc = new DOMParser().parseFromString(input, "text/html")
@@ -32,7 +33,7 @@ export function render({model}) {
   return (
     <Collapse in={!closed}>
       <Alert severity={severity} variant={variant} {...props} sx={mergedSx}>
-        <AlertTitle>{title}</AlertTitle>
+        <AlertTitle>{render_icon_text(title)}</AlertTitle>
         <span dangerouslySetInnerHTML={{__html: html_decode(object)}} />
         {objects}
       </Alert>

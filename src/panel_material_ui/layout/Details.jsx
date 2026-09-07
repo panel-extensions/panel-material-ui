@@ -6,7 +6,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
-import {apply_flex} from "./utils"
+import {apply_flex, render_html_icon_text} from "./utils"
 
 const DETAILS_BASE_SX = {
   display: "flex",
@@ -158,7 +158,6 @@ export function render({model, view, el}) {
           {model.header ? header : (
             <Typography
               classes={title_css_classes}
-              dangerouslySetInnerHTML={{__html: title}}
               sx={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -169,7 +168,9 @@ export function render({model, view, el}) {
                 margin: 0,
                 padding: 0,
               }}
-            />
+            >
+              {render_html_icon_text(title)}
+            </Typography>
           )}
           {isFullyExpanded && (
             <ExpandFull

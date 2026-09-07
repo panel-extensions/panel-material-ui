@@ -1,4 +1,5 @@
 import Avatar from "@mui/material/Avatar"
+import {render_icon_text, render_icon_text_as_string} from "./utils"
 
 const sizeSettings = {
   small: {width: 24, height: 24},
@@ -32,14 +33,14 @@ export function render({model}) {
 
   return (
     <Avatar
-      alt={alt_text}
+      alt={render_icon_text_as_string(alt_text)}
       sx={avatarSx}
       size={size}
       src={isImageUrl ? content : undefined}
       variant={variant}
       onClick={(e) => model.send_event("click", e)}
     >
-      {!isImageUrl && content ? content : undefined}
+      {!isImageUrl && content ? render_icon_text(content) : undefined}
     </Avatar>
   )
 }

@@ -4,6 +4,7 @@ import DialogTitle from "@mui/material/DialogTitle"
 import IconButton from "@mui/material/IconButton"
 import CloseIcon from "@mui/icons-material/Close"
 import Box from "@mui/material/Box"
+import {render_icon_text} from "./utils"
 
 export function render({model, view}) {
   const [close_on_click] = model.useState("close_on_click")
@@ -30,7 +31,7 @@ export function render({model, view}) {
     >
       {(title || show_close_button) &&
       <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-        {title && <DialogTitle variant={title_variant}>{title}</DialogTitle>}
+        {title && <DialogTitle variant={title_variant}>{render_icon_text(title)}</DialogTitle>}
         {show_close_button && (
           <IconButton
             aria-label="close"

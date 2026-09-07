@@ -264,6 +264,7 @@ class TooltipTransform(ESMTransform):
     _transform = """\
 import Icon from "@mui/material/Icon";
 import Tooltip from "@mui/material/Tooltip";
+import {{render_icon_text as render_tooltip_icon_text}} from "./utils";
 
 {esm}
 
@@ -274,7 +275,7 @@ function {output}(props, ref) {{
   const Wrapped{input} = React.forwardRef({input})
   return (description ? (
     <Tooltip
-      title={{description}}
+      title={{render_tooltip_icon_text(description)}}
       arrow
       enterDelay={{description_delay}}
       enterNextDelay={{description_delay}}

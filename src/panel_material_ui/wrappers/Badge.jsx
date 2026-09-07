@@ -1,4 +1,5 @@
 import Badge from "@mui/material/Badge"
+import {render_icon_text} from "./utils"
 
 const PLACEMENT_TO_ANCHOR = {
   "top-right": {vertical: "top", horizontal: "right"},
@@ -48,7 +49,7 @@ export function render({model, view}) {
   return (
     <Badge
       anchorOrigin={anchorOrigin}
-      badgeContent={badgeContent}
+      badgeContent={render_icon_text(badgeContent)}
       color={color}
       max={max}
       overlap={overlap}

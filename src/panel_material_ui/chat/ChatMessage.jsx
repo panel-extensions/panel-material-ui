@@ -7,7 +7,7 @@ import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
 import ContentCopyIcon from "@mui/icons-material/ContentCopy"
 import EditNoteIcon from "@mui/icons-material/EditNote"
-import {parseIconName} from "./utils"
+import {parseIconName, render_icon_text} from "./utils"
 
 function PlaceholderAvatar() {
   return (
@@ -209,7 +209,7 @@ export function render({model, view}) {
       {placement === "left" && avatar_component}
       {!placeholder && <Stack direction="column" spacing={0} sx={{flexGrow: 1, maxWidth: "calc(100% - 60px)", alignItems: placement === "left" ? "flex-start" : "flex-end"}}>
         {show_user && <Typography variant="caption">
-          {user}
+          {render_icon_text(user)}
         </Typography>}
         <Stack direction="row" spacing={0}>
           {header}
