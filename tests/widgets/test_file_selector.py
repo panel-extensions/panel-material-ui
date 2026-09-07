@@ -55,6 +55,14 @@ def paths(selector):
     return [item['path'] for item in selector._items]
 
 
+def remote(path):
+    """
+    The canonical form a remote provider uses for a local path. Remote
+    providers separate with '/', so on Windows the OS separator differs.
+    """
+    return str(path).replace(os.sep, '/')
+
+
 def test_private_panel_imports_resolve():
     # The FileSelector reuses Panel's private file provider layer, so a
     # rename upstream should fail loudly here rather than at render time.
@@ -361,10 +369,12 @@ def test_file_selector_remote_provider(fs, test_dir):
     selector = FileSelector(test_dir, fs=fs)
 
     assert selector.fs is fs
+    assert selector.directory == remote(test_dir)
+    assert selector.root_directory == remote(test_dir)
     assert names(selector) == ['subdir1', 'subdir2']
     assert paths(selector) == [
-        os.path.join(test_dir, 'subdir1').replace(os.sep, '/'),
-        os.path.join(test_dir, 'subdir2').replace(os.sep, '/'),
+        remote(os.path.join(test_dir, 'subdir1')),
+        remote(os.path.join(test_dir, 'subdir2')),
     ]
 
     selector.directory = paths(selector)[0]
@@ -381,8 +391,8 @@ def test_file_selector_remote_provider_os_separator(fs, test_dir):
     subdir1 = os.path.join(test_dir, 'subdir1')
     selector.directory = subdir1
 
-    assert selector._cwd == subdir1.replace(os.sep, '/')
-    assert selector.directory == subdir1.replace(os.sep, '/')
+    assert selector._cwd == remote(subdir1)
+    assert selector.directory == remote(subdir1)
     assert names(selector) == ['..', 'a', 'b']
 
 
@@ -391,7 +401,7 @@ def test_file_selector_remote_provider_root_confinement(fs, test_dir):
 
     selector._process_events({'directory': os.path.dirname(test_dir)})
 
-    assert selector.directory == test_dir
+    assert selector.directory == remote(test_dir)
 
 
 def test_file_selector_remote_scheme_is_not_normalized_locally(fs):
