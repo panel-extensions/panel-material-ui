@@ -1,5 +1,35 @@
 # Release Notes
 
+## Version 0.15.0
+
+Panel Material UI 0.15.0 introduces Material UI implementations of the [`Player`](https://panel-material-ui.holoviz.org/reference/widgets/Player.html), [`DiscretePlayer`](https://panel-material-ui.holoviz.org/reference/widgets/DiscretePlayer.html), [`FileSelector`](https://panel-material-ui.holoviz.org/reference/widgets/FileSelector.html), and [`ColorMap`](https://panel-material-ui.holoviz.org/reference/widgets/ColorMap.html) widgets. The release also adds universal support for Material UI icon tokens in text, and ensures [`DatePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html) and [`DatetimePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatetimePicker.html) preserve partial entries.
+
+Many thanks to @philippjfr for their contributions to this release.
+
+### 🆕 New Widgets
+
+* Add [`Player`](https://panel-material-ui.holoviz.org/reference/widgets/Player.html) and [`DiscretePlayer`](https://panel-material-ui.holoviz.org/reference/widgets/DiscretePlayer.html) widgets ([#721](https://github.com/panel-extensions/panel-material-ui/pull/721))
+* Add [`FileSelector`](https://panel-material-ui.holoviz.org/reference/widgets/FileSelector.html) widget ([#722](https://github.com/panel-extensions/panel-material-ui/pull/722))
+* Add [`ColorMap`](https://panel-material-ui.holoviz.org/reference/widgets/ColorMap.html) widget
+
+### 🔧 Enhancements
+
+* Add universal support for `:material/...:` icons in text ([#723](https://github.com/panel-extensions/panel-material-ui/pull/723))
+
+### 🐛 Bug Fixes
+
+* Ensure [`DatePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html) and [`DatetimePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatetimePicker.html) do not clear on partial entry ([#720](https://github.com/panel-extensions/panel-material-ui/pull/720))
+
+## Version 0.14.2
+
+Panel Material UI 0.14.2 improves [`MenuBar`](https://panel-material-ui.holoviz.org/reference/menus/MenuBar.html) submenu behavior, opening submenus on hover and propagating close events.
+
+Many thanks to @philippjfr for their contributions to this release.
+
+### 🐛 Bug Fixes
+
+* Ensure [`MenuBar`](https://panel-material-ui.holoviz.org/reference/menus/MenuBar.html) opens submenus on hover and propagates close ([#717](https://github.com/panel-extensions/panel-material-ui/pull/717))
+
 ## Version 0.14.1
 
 Panel Material UI 0.14.1 is a micro-release focused on performance and correctness when serving components from a server. Resources served from the server now include a version hash so that stale assets are no longer cached across releases, and the ESM file watcher is skipped entirely when the package is installed rather than in development mode. The release also fixes sizing and positioning issues with the docked `Drawer` variant.
