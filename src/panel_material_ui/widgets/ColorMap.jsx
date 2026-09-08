@@ -25,13 +25,13 @@ export function render({model, el, view}) {
   const [label] = model.useState("label")
   const [description] = model.useState("description")
   const [ncols] = model.useState("ncols")
-  const [options] = model.useState("options")
+  const [items] = model.useState("options")
   const [swatch_height] = model.useState("swatch_height")
   const [swatch_width] = model.useState("swatch_width")
   const [value, setValue] = model.useState("value")
 
-  const items = Object.entries(options || {})
-  const selected = items.find(([name]) => name === value)
+  const options = Object.entries(items || {})
+  const selected = options.find(([name]) => name === value)
   const labelId = `colormap-label-${model.id}`
   const isNotebook = Boolean(detect_nb(view))
   const [open, setOpen] = React.useState(false)
@@ -46,7 +46,7 @@ export function render({model, el, view}) {
     setOpen(false)
   }
 
-  const menuItems = items.map(([name, colors]) => (
+  const menuItems = options.map(([name, colors]) => (
     <MenuItem key={name} value={name} onClick={isNotebook ? () => handleSelect(name) : undefined} sx={{display: "flex", flexDirection: "column", alignItems: "stretch", gap: 0.5, minWidth: 0}}>
       {palette(colors, ncols > 1)}
       <Box component="span" sx={{overflow: "hidden", textOverflow: "ellipsis"}}>{render_icon_text(name)}</Box>
