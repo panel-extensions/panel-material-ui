@@ -13,7 +13,7 @@ import Typography from "@mui/material/Typography"
 import {useTheme} from "@mui/material/styles"
 import useMediaQuery from "@mui/material/useMediaQuery"
 import dayjs from "dayjs"
-import {MUI_SIZE, render_icon_text} from "./utils"
+import {MUI_SIZE, denseSx, render_icon_text} from "./utils"
 
 function formatDate(date, format) {
   if (!date) { return "" }
@@ -282,6 +282,10 @@ export function render({model, el, view}) {
         error={error_state}
         fullWidth
         size={MUI_SIZE(size)}
+        // MUI's OutlinedInput has no native size="large" variant, so
+        // compensate the same way TextField-based widgets do; "small"
+        // is left to MUI's own native small styling, which already works.
+        sx={size === "large" ? denseSx(size) : undefined}
         helperText={helper_text ? render_icon_text(helper_text) : undefined}
         slotProps={{
           input: {

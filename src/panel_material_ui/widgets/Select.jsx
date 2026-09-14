@@ -20,7 +20,7 @@ import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
 import {render_description} from "./description"
 import {CustomMenu, detect_nb} from "./menu"
-import {render_icon_text, render_icon_text_as_string, MUI_SIZE, denseSx} from "./utils"
+import {render_icon_text, render_icon_text_as_string, MUI_SIZE, denseSx, denseInputLabelSx} from "./utils"
 
 const SELECT_BASE_SX = {padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}}
 
@@ -501,7 +501,7 @@ export function render({model, el, view}) {
          color={color}
          id={`select-label-${model.id}`}
          shrink={hasValue || open}
-         sx={multi && chip && variant === "outlined" ? {backgroundColor: "background.paper", px: 0.5, zIndex: 1} : undefined}
+         sx={denseInputLabelSx(size, multi && chip && variant === "outlined" ? {backgroundColor: "background.paper", px: 0.5, zIndex: 1} : undefined)}
        >
          {render_icon_text(label)}
          {model.description ? render_description({model, el, view}) : null}
