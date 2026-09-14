@@ -20,7 +20,7 @@ import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
 import {render_description} from "./description"
 import {CustomMenu, detect_nb} from "./menu"
-import {render_icon_text, render_icon_text_as_string} from "./utils"
+import {render_icon_text, render_icon_text_as_string, MUI_SIZE, denseSx} from "./utils"
 
 const SELECT_BASE_SX = {padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}}
 
@@ -489,7 +489,13 @@ export function render({model, el, view}) {
   }, [selectSx, multi, chip])
 
   return (
-    <FormControl disabled={disabled} error={error_state} fullWidth variant={variant} sx={multi && chip ? {height: "100%"} : undefined}>
+    <FormControl
+      disabled={disabled}
+      error={error_state}
+      fullWidth
+      variant={variant}
+      sx={multi && chip ? {height: "100%"} : undefined}
+    >
       {label &&
        <InputLabel
          color={color}
@@ -520,8 +526,8 @@ export function render({model, el, view}) {
         open={!nb && open}
         ref={anchorEl}
         renderValue={renderValue}
-        size={size}
-        sx={multiChipSx}
+        size={MUI_SIZE(size)}
+        sx={denseSx(size, multiChipSx)}
         value={value}
         variant={variant}
 

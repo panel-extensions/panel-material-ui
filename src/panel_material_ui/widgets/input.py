@@ -716,6 +716,11 @@ class NumberInput(_SpinnerBase):
 
 class _DatePickerBase(MaterialInputWidget):
 
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(
+        objects=["small", "medium", "large"], default="medium",
+        doc="The visual size of the date picker input."
+    )  # type: ignore[assignment]
+
     as_numpy_datetime64 = param.Boolean(default=None, doc="""
         Whether to return values as numpy.datetime64. If left unset,
         will be True if value is a numpy.datetime64, else False.""")
@@ -854,6 +859,11 @@ class DateRangePicker(MaterialInputWidget):
 
     format = param.String(default='YYYY-MM-DD', doc="""
         Format of the date when rendered in the input.""")
+
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(
+        objects=["small", "medium", "large"], default="medium",
+        doc="The visual size of the date range picker input."
+    )  # type: ignore[assignment]
 
     start = Date(default=None, doc="The minimum selectable date.")
 
@@ -1388,6 +1398,11 @@ class TimePicker(_TimeCommon):
     mode: t.Literal['digital', 'analog', 'auto'] = param.Selector(objects=["digital", "analog", "auto"], default="auto", doc="""
         Whether to render a digital or analog clock. By default automatically
         switches between digital clock on desktop to analog clock on mobile.""")  # type: ignore[assignment]
+
+    size: t.Literal['small', 'medium', 'large'] = param.Selector(
+        objects=["small", "medium", "large"], default="medium",
+        doc="The visual size of the time picker input."
+    )  # type: ignore[assignment]
 
     variant: t.Literal['filled', 'outlined', 'standard'] = param.Selector(
         objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the time picker."

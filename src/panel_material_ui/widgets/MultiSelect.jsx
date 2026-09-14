@@ -6,7 +6,7 @@ import OutlinedInput from "@mui/material/OutlinedInput"
 import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
 import {render_description} from "./description"
-import {render_icon_text, render_icon_text_as_string} from "./utils"
+import {MUI_SIZE, denseSx, render_icon_text, render_icon_text_as_string} from "./utils"
 
 export function render({model, view, el}) {
   const [color] = model.useState("color")
@@ -17,6 +17,7 @@ export function render({model, view, el}) {
   const [max_items] = model.useState("max_items")
   const [options] = model.useState("options")
   const [size] = model.useState("size")
+  const [visual_size] = model.useState("visual_size")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
@@ -86,9 +87,10 @@ export function render({model, view, el}) {
         inputProps={{size: size || undefined}}
         labelId={`select-multiple-label-${model.id}`}
         multiple
+        size={MUI_SIZE(visual_size)}
         native
         onChange={handleChange}
-        sx={sx}
+        sx={denseSx(visual_size, sx)}
         value={value}
       >
         {options.map((name) => (

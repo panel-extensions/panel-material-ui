@@ -3,7 +3,7 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
 import {TimePicker} from "@mui/x-date-pickers/TimePicker"
 import dayjs from "dayjs"
 import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {MUI_SIZE, render_icon_text} from "./utils"
 
 const TIME_PICKER_BASE_SX = {width: "100%"}
 
@@ -19,6 +19,7 @@ export function render({model, el, view}) {
   const [min_time] = model.useState("start")
   const [mode] = model.useState("mode")
   const [seconds] = model.useState("seconds")
+  const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [modelValue, setModelValue] = model.useState("value")
   const [variant] = model.useState("variant")
@@ -76,7 +77,7 @@ export function render({model, el, view}) {
         onChange={handleChange}
         minTime={min_time ? parseTime(min_time) : undefined}
         maxTime={max_time ? parseTime(max_time) : undefined}
-        slotProps={{textField: {variant, color, error: error_state, helperText: helper_text ? render_icon_text(helper_text) : undefined}, popper: {container: view.container}}}
+        slotProps={{textField: {variant, color, size: MUI_SIZE(size), error: error_state, helperText: helper_text ? render_icon_text(helper_text) : undefined}, popper: {container: view.container}}}
         sx={pickerSx}
         value={value}
         views={views}

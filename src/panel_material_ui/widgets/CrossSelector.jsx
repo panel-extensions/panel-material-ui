@@ -17,7 +17,7 @@ import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArro
 import InputLabel from "@mui/material/InputLabel"
 import Box from "@mui/material/Box"
 import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {MUI_SIZE, denseSx, render_icon_text} from "./utils"
 
 const CROSS_SELECTOR_ROOT_SX = {
   display: "flex",
@@ -47,7 +47,8 @@ export function render({model, el, view}) {
   const [sx] = model.useState("sx")
   const [searchable] = model.useState("searchable")
   const [size] = model.useState("size")
-  const rootSx = React.useMemo(() => (sx ? [CROSS_SELECTOR_ROOT_SX, sx] : CROSS_SELECTOR_ROOT_SX), [sx])
+  const [visual_size] = model.useState("visual_size")
+  const rootSx = React.useMemo(() => [CROSS_SELECTOR_ROOT_SX, denseSx(visual_size, sx)], [sx, visual_size])
 
   // CrossSelector specific props
   const [left_title] = ["Choices"]
@@ -126,7 +127,7 @@ export function render({model, el, view}) {
   }
 
   const customList = (title, items, filterStr, setFilterStr) => (
-    <Card sx={{height: "100%", overflowY: "auto"}}>
+    <Card sx={{flex: "1 1 0", minWidth: 0, height: "100%", overflowY: "auto"}}>
       <CardHeader
         sx={{p: "1em 0.8em 1em 0"}}
         avatar={
@@ -152,7 +153,7 @@ export function render({model, el, view}) {
       {searchable && (
         <TextField
           color={color}
-          size="small"
+          size={MUI_SIZE(visual_size)}
           variant="outlined"
           placeholder="Search..."
           fullWidth
@@ -171,9 +172,9 @@ export function render({model, el, view}) {
                 <InputAdornment position="end" sx={{ml: 0}}>
                   <IconButton
                     disableRipple
-                    size="small"
+                    size={MUI_SIZE(visual_size)}
                     onClick={() => setFilterStr("")}
-                    sx={{isibility: filterStr ? "visible" : "hidden"}}
+                    sx={{visibility: filterStr ? "visible" : "hidden"}}
                   >
                     <ClearIcon />
                   </IconButton>
@@ -188,6 +189,7 @@ export function render({model, el, view}) {
         sx={{
           bgcolor: "background.paper",
           overflow: "auto",
+          minWidth: 0,
           maxHeight: `calc((1.25rem + 18px) * ${size})`,
           pt: 0
         }}
@@ -203,7 +205,7 @@ export function render({model, el, view}) {
               key={item.value}
               role="listitem"
               onClick={handleToggle(item.value)}
-              sx={{p: "0 4px 0 0"}}
+              sx={{p: "0 4px 0 0", minWidth: 0}}
             >
               <ListItemIcon>
                 <Checkbox
@@ -211,11 +213,11 @@ export function render({model, el, view}) {
                   checked={checked.includes(item.value)}
                   tabIndex={-1}
                   disableRipple
-                  size="small"
+                  size={MUI_SIZE(visual_size)}
                   slotProps={{input: {"aria-labelledby": labelId}}}
                 />
               </ListItemIcon>
-              <ListItemText id={labelId} primary={render_icon_text(item.label)} />
+              <ListItemText id={labelId} primary={render_icon_text(item.label)} primaryTypographyProps={{noWrap: true}} />
             </ListItemButton>
           )
         })}
@@ -231,13 +233,13 @@ export function render({model, el, view}) {
           {model.description ? render_description({model, el, view}) : null}
         </InputLabel>
       )}
-      <Box sx={{display: "flex", flexGrow: 1, maxHeight: "calc(100% - 2em)", flexDirection: "row", justifyContent: "center"}}>
+      <Box sx={{display: "flex", flexGrow: 1, minWidth: 0, maxHeight: "calc(100% - 2em)", flexDirection: "row", justifyContent: "center", overflow: "hidden"}}>
         {customList(left_title, filteredAvailable, left_filter, setLeftFilter)}
-        <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: "0 1em"}}>
+        <Box sx={{display: "flex", flex: "0 0 auto", minWidth: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", p: "0 1em"}}>
           <Button
             sx={{my: 0.5}}
             variant="outlined"
-            size="small"
+            size={MUI_SIZE(visual_size)}
             onClick={handleCheckedRight}
             disabled={leftChecked.length === 0 || disabled}
             aria-label="move selected right"
@@ -248,7 +250,7 @@ export function render({model, el, view}) {
           <Button
             sx={{my: 0.5}}
             variant="outlined"
-            size="small"
+            size={MUI_SIZE(visual_size)}
             onClick={handleCheckedLeft}
             disabled={rightChecked.length === 0 || disabled}
             aria-label="move selected left"

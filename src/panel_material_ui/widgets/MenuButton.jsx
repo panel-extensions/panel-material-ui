@@ -5,6 +5,10 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import {CustomMenu} from "./menu"
 import {render_icon, render_icon_text} from "./utils"
 
+const MENU_BUTTON_BASE_SX = {
+  "&.MuiButton-sizeSmall": {py: "6px"}
+}
+
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
   const [color] = model.useState("color")
@@ -18,6 +22,10 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
   const [open, setOpen] = React.useState(false)
+  const buttonSx = React.useMemo(
+    () => (sx ? [MENU_BUTTON_BASE_SX, sx] : MENU_BUTTON_BASE_SX),
+    [sx]
+  )
   const anchorEl = React.useRef(null)
 
   if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
@@ -35,12 +43,13 @@ export function render(props, ref) {
         color={color}
         disabled={disabled}
         endIcon={<ArrowDropDownIcon />}
+        fullWidth
         loading={loading}
         onClick={() => setOpen(!open)}
         ref={anchorEl}
         size={size}
         startIcon={icon && render_icon(icon, null, size, icon_size)}
-        sx={sx}
+        sx={buttonSx}
         variant={variant}
         {...other}
       >

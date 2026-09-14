@@ -868,7 +868,7 @@ class MenuButton(MenuBase, _ButtonBase):
     ... ], label='File', icon='storage')
     """
 
-    margin = Margin(default=5)
+    margin = Margin(default=(5, 10))
 
     disable_elevation = param.Boolean(default=False, doc="Removes the menu's box-shadow for a flat appearance.")
 

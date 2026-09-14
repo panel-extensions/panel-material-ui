@@ -1928,3 +1928,92 @@ export function render_icon_text_as_string(text) {
     .map((segment) => parseIconName(segment.icon).iconName.replace(/_/g, " "))
     .join(" ")
 }
+
+export const MUI_SIZE = (size) => size
+
+// Switch's own root `padding` is independent of its switchBase/thumb, which
+// are pinned flush with the root's outer edge regardless of that padding
+// (only the track fills the root's content box, i.e. root size minus 2x this
+// padding). MUI's native switchBase padding is 9px at every non-"small" size,
+// so setting the root's own padding to that same 9px makes the track exactly
+// as tall as the thumb (0 overhang, matching the small variant's proportions)
+// and exactly twice the thumb's width (so the native translateX(20) checked
+// transform lands the thumb flush with the track's right edge). Anything
+// else (the previous 6px) leaves the track taller/wider than the thumb needs,
+// which reads as an inflated, disproportionate track.
+const SWITCH_MEDIUM_PADDING = "9px"
+
+export const DENSE_CONTROL_SX = {
+  small: {
+    "& .MuiInputBase-input": {py: "6px"},
+    "& .MuiInputLabel-root": {fontSize: "0.875rem"},
+    "&.MuiCheckbox-root, &.MuiRadio-root": {p: "4px"},
+    "& .MuiCheckbox-root, & .MuiRadio-root": {p: "4px"},
+    "&.MuiSwitch-root, & .MuiSwitch-root": {p: "4px"},
+    "& .MuiFormControlLabel-root": {ml: "-4px", mr: "8px", lineHeight: 1.25},
+    "& .MuiFormControlLabel-label": {lineHeight: 1.25},
+  },
+  medium: {
+    "&.MuiCheckbox-root, &.MuiRadio-root": {p: "6px"},
+    "& .MuiCheckbox-root, & .MuiRadio-root": {p: "6px"},
+    "&.MuiSwitch-root, & .MuiSwitch-root": {p: SWITCH_MEDIUM_PADDING},
+  },
+  large: {
+    "& .MuiInputBase-input": {py: "10px"},
+    // MUI has no native size="large" Switch variant (it silently falls back
+    // to plain, un-dense "medium" geometry), so start from the same coherent
+    // 9px-padding geometry used at medium and scale the whole control up.
+    // transformOrigin pins the left edge so it grows to the right/vertically
+    // centered instead of shifting left into preceding content, and the
+    // added `mr` reserves the ~14.5px (58px * 0.25) the scale adds to the
+    // control's painted width so it doesn't crowd/overlap the label text,
+    // which sits in an unscaled sibling node right after the control's
+    // (unscaled) layout box.
+    "&.MuiSwitch-root, & .MuiSwitch-root": {
+      p: SWITCH_MEDIUM_PADDING,
+      transform: "scale(1.25)",
+      transformOrigin: "left center",
+      mr: "16px",
+    },
+  },
+}
+
+const CHECKBOX_LABEL_SX = {
+  small: {
+    ml: "-4px",
+    mr: "8px",
+    lineHeight: 1.25,
+    "& .MuiFormControlLabel-label": {lineHeight: 1.25},
+  },
+  medium: {
+    ml: "-6px",
+    mr: "16px",
+  },
+}
+
+// Switch's own root padding (see SWITCH_MEDIUM_PADDING above) differs from
+// Checkbox/Radio's at "medium" (9px vs 6px), so the label-margin cancellation
+// that keeps the visible control flush with the widget's host edge has to
+// differ too; `kind="switch"` opts into these instead of the shared defaults
+// above, which remain exactly as before for Checkbox/Radio/CheckBoxGroup/
+// RadioBoxGroup.
+const SWITCH_LABEL_SX = {
+  small: CHECKBOX_LABEL_SX.small,
+  medium: {
+    ml: `-${SWITCH_MEDIUM_PADDING}`,
+    mr: "16px",
+  },
+  large: {
+    ml: `-${SWITCH_MEDIUM_PADDING}`,
+  },
+}
+
+export const denseLabelSx = (size, kind) => {
+  const table = kind === "switch" ? SWITCH_LABEL_SX : CHECKBOX_LABEL_SX
+  return table[size]
+}
+
+export const denseSx = (size, sx) => {
+  const base = DENSE_CONTROL_SX[size] || DENSE_CONTROL_SX.medium
+  return sx ? [base, sx] : base
+}

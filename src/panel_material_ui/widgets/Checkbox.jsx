@@ -1,9 +1,8 @@
 import Checkbox from "@mui/material/Checkbox"
 import FormControlLabel from "@mui/material/FormControlLabel"
+import {MUI_SIZE, denseLabelSx, denseSx} from "./utils"
 import {render_description} from "./description"
 import {render_icon_text} from "./utils"
-
-const CHECKBOX_BASE_SX = {p: "6px"}
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -13,7 +12,7 @@ export function render({model, el, view}) {
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [checked, setChecked] = model.useState("value")
-  const checkboxSx = React.useMemo(() => (sx ? [CHECKBOX_BASE_SX, sx] : CHECKBOX_BASE_SX), [sx])
+  const checkboxSx = denseSx(size, sx)
 
   const ref = React.useRef(null)
   React.useEffect(() => {
@@ -31,11 +30,12 @@ export function render({model, el, view}) {
           disabled={disabled}
           indeterminate={indeterminate}
           slotProps={{input: {ref}}}
-          size={size}
+          size={MUI_SIZE(size)}
           onChange={(event) => setChecked(event.target.checked)}
           sx={checkboxSx}
         />
       }
+      sx={denseLabelSx(size)}
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
     />
   )

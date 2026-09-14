@@ -1,6 +1,7 @@
 import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
 import {render_icon_text, render_icon_text_as_string} from "./utils"
+import {MUI_SIZE, denseSx} from "./utils"
 
 export function render({model, el}) {
   const [autogrow] = model.useState("auto_grow")
@@ -14,6 +15,7 @@ export function render({model, el}) {
   const [placeholder] = model.useState("placeholder")
   const [resizable] = model.useState("resizable")
   const [rows] = model.useState("rows")
+  const [size] = model.useState("size")
   const [value_input, setValueInput] = model.useState("value_input")
   const [_, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
@@ -77,7 +79,8 @@ export function render({model, el}) {
       onBlur={() => setValue(value_input)}
       onChange={(event) => setValueInput(event.target.value)}
       placeholder={render_icon_text_as_string(placeholder)}
-      sx={textAreaSx}
+      sx={denseSx(size, textAreaSx)}
+      size={MUI_SIZE(size)}
       value={value_input}
       variant={variant}
       {...props}

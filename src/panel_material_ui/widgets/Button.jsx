@@ -3,7 +3,8 @@ import {render_icon, render_icon_text} from "./utils"
 
 const BUTTON_BASE_SX = {
   height: "100%",
-  ".MuiButton-startIcon": {mr: "var(--pmui-starticon-mr, 8px)"}
+  ".MuiButton-startIcon": {mr: "var(--pmui-starticon-mr, 8px)"},
+  "&.MuiButton-sizeSmall": {py: "6px"}
 }
 
 export function render(props, ref) {

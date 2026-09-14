@@ -13,7 +13,7 @@ import Typography from "@mui/material/Typography"
 import {useTheme} from "@mui/material/styles"
 import useMediaQuery from "@mui/material/useMediaQuery"
 import dayjs from "dayjs"
-import {render_icon_text} from "./utils"
+import {MUI_SIZE, render_icon_text} from "./utils"
 
 function formatDate(date, format) {
   if (!date) { return "" }
@@ -62,6 +62,7 @@ export function render({model, el, view}) {
   const [helper_text] = model.useState("helper_text")
   const [label] = model.useState("label")
   const [color] = model.useState("color")
+  const [size] = model.useState("size")
   const [variant] = model.useState("variant")
   const [disabled_dates] = model.useState("disabled_dates")
   const [enabled_dates] = model.useState("enabled_dates")
@@ -280,6 +281,7 @@ export function render({model, el, view}) {
         disabled={disabled}
         error={error_state}
         fullWidth
+        size={MUI_SIZE(size)}
         helperText={helper_text ? render_icon_text(helper_text) : undefined}
         slotProps={{
           input: {
