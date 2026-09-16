@@ -1,0 +1,45 @@
+{% set pyproject = load_file_data('../../../pyproject.toml', from_recipe_dir=True) %}
+{% set buildsystem = pyproject['build-system'] %}
+{% set project = pyproject['project'] %}
+
+{% set name = project['name'] %}
+{% set version = VERSION %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: ../../../dist/{{ name.replace('-', '_') }}-{{ version }}.tar.gz
+
+build:
+  noarch: python
+  script: PANEL_MATERIAL_UI_SKIP_COMPILE=1 {{ PYTHON }} -m pip install --no-deps -vv .
+
+requirements:
+  build:
+    - python {{ project['requires-python'] }}
+    - pip
+    {% for dep in buildsystem['requires'] if dep.split()[0] != 'panel' %}
+    - {{ dep }}
+    {% endfor %}
+  run:
+    - python {{ project['requires-python'] }}
+    {% for dep in project['dependencies'] %}
+    - {{ dep }}
+    {% endfor %}
+
+test:
+  imports:
+    - panel_material_ui
+  commands:
+    - pip check
+    - python -c "import panel_material_ui; ver = panel_material_ui.__version__; assert ver != '0.0.0' and ver != 'unknown'"
+  requires:
+    - pip
+
+about:
+  home: {{ project['urls']['Homepage'] }}
+  summary: {{ project['description'] }}
+  license: {{ project['license']['text'] }}
+  license_file: LICENSE.txt
