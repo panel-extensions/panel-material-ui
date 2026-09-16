@@ -35,6 +35,42 @@ jobs:
         with:
           name: cdn
           path: src/panel_material_ui/dist/
+  build_conda:
+    name: Build Conda package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@82d477f15f3a381dbcc8adc1206ce643fe110fb7 # v0.9.3
+        with:
+          environments: build
+      - name: Build Conda package
+        run: pixi run -e build build-conda
+      - name: Upload Conda package
+        uses: actions/upload-artifact@v6
+        with:
+          name: conda
+          path: dist/*.conda
+          if-no-files-found: error
+  publish_conda:
+    name: Publish Conda package
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build_conda]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: conda
+          path: dist/
+      - name: Publish package to Conda
+        uses: anaconda/actions/upload-package@a6f488910b4a1e4f3fe01736241ca1b92b4b355a # v0.3.1
+        with:
+          token: ${{ secrets.CONDA_UPLOAD_TOKEN }}
+          channel: pyviz
+          packages: dist/*.conda
+          labels: ${{ (contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc')) && 'dev' || 'main,dev' }}
   release:
     name: Publish package
     if: startsWith(github.ref, 'refs/tags/')
