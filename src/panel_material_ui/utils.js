@@ -1928,3 +1928,153 @@ export function render_icon_text_as_string(text) {
     .map((segment) => parseIconName(segment.icon).iconName.replace(/_/g, " "))
     .join(" ")
 }
+
+export const MUI_SIZE = (size) => size
+
+// Switch's own root `padding` is independent of its switchBase/thumb, which
+// are pinned flush with the root's outer edge regardless of that padding
+// (only the track fills the root's content box, i.e. root size minus 2x this
+// padding). MUI's native switchBase padding is 9px at every non-"small" size,
+// so setting the root's own padding to that same 9px makes the track exactly
+// as tall as the thumb (0 overhang, matching the small variant's proportions)
+// and exactly twice the thumb's width (so the native translateX(20) checked
+// transform lands the thumb flush with the track's right edge). Anything
+// else (the previous 6px) leaves the track taller/wider than the thumb needs,
+// which reads as an inflated, disproportionate track.
+const SWITCH_MEDIUM_PADDING = "9px"
+
+// MUI's `.MuiSwitch-track` has a hardcoded `borderRadius: 14 / 2` (7px) in
+// its base styles, sized for MUI's own native (non-dense) track height of
+// 14px. Our root/switchBase padding above changes the track's *rendered*
+// height (e.g. ~20px at medium), so that fixed 7px radius is no longer at
+// least half the track's height and the pill ends look flattened/squarish
+// instead of fully rounded. A percentage-based radius doesn't reliably fix
+// this for a flexbox-fragile pill shape, so use an oversized fixed value
+// that's guaranteed to exceed half the height at every size we use, which
+// still resolves to a true stadium/pill regardless of exact padding/height
+// tweaks made later. This only needs to be set where our padding override
+// changes the rendered track height away from MUI's native default (i.e.
+// not at "small", which keeps MUI's own native small-track proportions and
+// already renders a correct pill with the native 7px radius).
+const SWITCH_TRACK_SX = {"& .MuiSwitch-track": {borderRadius: "999px"}}
+
+export const DENSE_CONTROL_SX = {
+  small: {
+    "& .MuiInputBase-input": {py: "6px"},
+    "& .MuiInputLabel-root": {fontSize: "0.875rem"},
+    "&.MuiCheckbox-root, &.MuiRadio-root": {p: "4px"},
+    "& .MuiCheckbox-root, & .MuiRadio-root": {p: "4px"},
+    "&.MuiSwitch-root, & .MuiSwitch-root": {p: "4px"},
+    "& .MuiFormControlLabel-root": {ml: "-4px", mr: "8px", lineHeight: 1.25},
+    "& .MuiFormControlLabel-label": {lineHeight: 1.25},
+  },
+  medium: {
+    "&.MuiCheckbox-root, &.MuiRadio-root": {p: "6px"},
+    "& .MuiCheckbox-root, & .MuiRadio-root": {p: "6px"},
+    "&.MuiSwitch-root, & .MuiSwitch-root": {p: SWITCH_MEDIUM_PADDING},
+    ...SWITCH_TRACK_SX,
+  },
+  large: {
+    // MUI's OutlinedInput/InputBase has no native size="large" variant at
+    // all (only 'small' gets a styled variant; 'large' silently falls back
+    // to the same, un-varied "medium" 16.5px padding while still stamping
+    // an inert `MuiInputBase-sizeLarge` class with zero backing CSS). A flat
+    // `py` smaller than that native 16.5px (e.g. the previous 10px) makes
+    // "large" render *shorter* than "medium", which is backwards. Use a
+    // `py` clearly above 16.5px so `small (6px) < medium (16.5px native) <
+    // large` holds for every single-line input that pulls in this rule
+    // (Select, TextInput-family, date/time pickers). 22px keeps the control
+    // comfortably, visibly taller than medium (roughly +11px/+20% overall
+    // height) without ballooning it.
+    "& .MuiInputBase-input": {py: "22px"},
+    // @mui/x-date-pickers' sectioned field UI (TimePicker/DatePicker/
+    // DateTimePicker) does not render a plain `<input class="MuiInputBase-
+    // input">` at all -- its editable content lives in a
+    // `.MuiPickersInputBase-sectionsContainer` with its own, separate
+    // native padding (`16.5px 0` medium / `8.5px 0` small, again with no
+    // "large" variant), so the rule above never reaches it. Harmless no-op
+    // for every other `denseSx` consumer that lacks this class.
+    "& .MuiPickersInputBase-sectionsContainer": {padding: "22px 0"},
+    "& .MuiInputLabel-root": {fontSize: "1.1rem"},
+    // MUI has no native size="large" Switch variant (it silently falls back
+    // to plain, un-dense "medium" geometry), so start from the same coherent
+    // 9px-padding geometry used at medium and scale the whole control up.
+    // transformOrigin pins the left edge so it grows to the right/vertically
+    // centered instead of shifting left into preceding content, and the
+    // added `mr` reserves the ~14.5px (58px * 0.25) the scale adds to the
+    // control's painted width so it doesn't crowd/overlap the label text,
+    // which sits in an unscaled sibling node right after the control's
+    // (unscaled) layout box.
+    "&.MuiSwitch-root, & .MuiSwitch-root": {
+      p: SWITCH_MEDIUM_PADDING,
+      transform: "scale(1.25)",
+      transformOrigin: "left center",
+      mr: "16px",
+    },
+    // `large`'s track/thumb are the same unscaled DOM/geometry as `medium`
+    // painted through a CSS `transform: scale(1.25)` on the root, which
+    // preserves radius:height *proportions* under uniform scaling but does
+    // NOT pull in `medium`'s own sx overrides (each size bucket here is a
+    // fully separate sx object, never merged), so the fixed 7px native
+    // radius bug is present here independently and needs the same explicit
+    // override, not just because `medium` has it.
+    ...SWITCH_TRACK_SX,
+  },
+}
+
+// `Select`'s <InputLabel> is rendered as a *sibling* of <Select> under the
+// same <FormControl> (not a descendant), so the `& .MuiInputLabel-root`
+// selectors nested inside DENSE_CONTROL_SX above (passed to <Select>'s own
+// sx) can never reach it. This gives InputLabel its own size-driven sx to
+// apply directly, reusing the same font-size values as DENSE_CONTROL_SX so
+// Select's label matches the sizing intent of every other dense control.
+const DENSE_INPUT_LABEL_SX = {
+  small: {fontSize: "0.875rem"},
+  large: {fontSize: "1.1rem"},
+}
+
+export const denseInputLabelSx = (size, sx) => {
+  const base = DENSE_INPUT_LABEL_SX[size]
+  if (!base) { return sx }
+  return sx ? [base, sx] : base
+}
+
+const CHECKBOX_LABEL_SX = {
+  small: {
+    ml: "-4px",
+    mr: "8px",
+    lineHeight: 1.25,
+    "& .MuiFormControlLabel-label": {lineHeight: 1.25},
+  },
+  medium: {
+    ml: "-6px",
+    mr: "16px",
+  },
+}
+
+// Switch's own root padding (see SWITCH_MEDIUM_PADDING above) differs from
+// Checkbox/Radio's at "medium" (9px vs 6px), so the label-margin cancellation
+// that keeps the visible control flush with the widget's host edge has to
+// differ too; `kind="switch"` opts into these instead of the shared defaults
+// above, which remain exactly as before for Checkbox/Radio/CheckBoxGroup/
+// RadioBoxGroup.
+const SWITCH_LABEL_SX = {
+  small: CHECKBOX_LABEL_SX.small,
+  medium: {
+    ml: `-${SWITCH_MEDIUM_PADDING}`,
+    mr: "16px",
+  },
+  large: {
+    ml: `-${SWITCH_MEDIUM_PADDING}`,
+  },
+}
+
+export const denseLabelSx = (size, kind) => {
+  const table = kind === "switch" ? SWITCH_LABEL_SX : CHECKBOX_LABEL_SX
+  return table[size]
+}
+
+export const denseSx = (size, sx) => {
+  const base = DENSE_CONTROL_SX[size] || DENSE_CONTROL_SX.medium
+  return sx ? [base, sx] : base
+}

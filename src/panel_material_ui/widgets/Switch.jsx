@@ -1,7 +1,7 @@
 import Switch from "@mui/material/Switch"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {MUI_SIZE, denseLabelSx, denseSx, render_icon_text} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -28,8 +28,8 @@ export function render({model, el, view}) {
           disabled={disabled}
           edge={edge}
           onChange={(event) => setChecked(event.target.checked)}
-          size={size}
-          sx={sx}
+          size={MUI_SIZE(size)}
+          sx={[{m: 0}, denseSx(size), sx]}
           slotProps={{
             input: {
               ref
@@ -38,7 +38,7 @@ export function render({model, el, view}) {
         />
       }
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
-      sx={{mr: 0}}
+      sx={[denseLabelSx(size, "switch"), {mr: 0}]}
     />
   );
 }

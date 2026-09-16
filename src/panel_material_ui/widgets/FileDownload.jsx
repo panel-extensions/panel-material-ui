@@ -5,7 +5,8 @@ import {useTheme} from "@mui/material/styles"
 import {render_icon, render_icon_text} from "./utils"
 
 const FILE_DOWNLOAD_BUTTON_SX = {
-  cursor: "var(--pmui-filedownload-cursor, pointer)"
+  cursor: "var(--pmui-filedownload-cursor, pointer)",
+  "&.MuiButton-sizeSmall": {py: "6px"}
 }
 
 function dataURItoBlob(dataURI) {

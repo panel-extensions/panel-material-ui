@@ -5,7 +5,7 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
 import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {MUI_SIZE, denseLabelSx, denseSx, render_icon_text} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -14,6 +14,7 @@ export function render({model, el, view}) {
   const [label] = model.useState("label")
   const [label_placement] = model.useState("label_placement")
   const [options] = model.useState("options")
+  const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [value, setValue] = model.useState("value")
   const exclusive = model.esm_constants.exclusive
@@ -40,7 +41,7 @@ export function render({model, el, view}) {
         fullWidth
         ref={ref}
         row={inline}
-        sx={sx}
+        sx={denseSx(size, sx)}
         value={value}
       >
         {options.map((option, index) => {
@@ -50,10 +51,12 @@ export function render({model, el, view}) {
               value={option}
               label={render_icon_text(option)}
               labelPlacement={label_placement}
+              sx={denseLabelSx(size)}
               control={
                 <RadioButton
                   checked={exclusive ? (value==option) : value.includes(option)}
                   color={color}
+                  size={MUI_SIZE(size)}
                   onClick={(e) => {
                     let newValue
                     if (exclusive) {

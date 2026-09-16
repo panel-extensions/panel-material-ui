@@ -28,7 +28,7 @@ class MaterialWidget(MaterialComponent, WidgetBase):
     description = param.String(default="", doc="Tooltip text to display when hovering over the widget.")
     disabled = param.Boolean(default=False, doc="Whether the widget is disabled.")
     label = param.String(default="", doc="The label for the widget.")
-    margin = Margin(default=10, doc="Margin around the widget.")
+    margin = Margin(default=(5, 10), doc="Margin around the widget.")
     width = param.Integer(default=300, bounds=(0, None), allow_None=True, doc="Width of the widget.")
 
     _rename = {"label": "label"}

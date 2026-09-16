@@ -1,6 +1,6 @@
 import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
-import {render_icon_text, render_icon_text_as_string} from "./utils"
+import {render_icon_text, render_icon_text_as_string, denseSx} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -45,7 +45,12 @@ export function render({model, el, view}) {
       }}
       rows={4}
       size={size}
-      sx={sx}
+      // MUI's OutlinedInput/InputBase has no native size="large" variant
+      // (only "small" is styled), so without this "large" would render
+      // pixel-identical to "medium". "small" is left untouched here since
+      // MUI's own <TextField> already wires size="small" through to
+      // InputLabel/InputBase natively and gets it right out of the box.
+      sx={size === "large" ? denseSx(size, sx) : sx}
       variant={variant}
       value={value_input}
     />

@@ -4,7 +4,7 @@ import {DatePicker} from "@mui/x-date-pickers/DatePicker"
 import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker"
 import dayjs from "dayjs"
 import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {MUI_SIZE, denseSx, render_icon_text} from "./utils"
 
 const DATE_TIME_PICKER_BASE_SX = {width: "100%"}
 
@@ -23,6 +23,7 @@ export function render({model, view, el}) {
   const [max_date] = model.useState("end")
   const [min_date] = model.useState("start")
   const [open_to] = model.useState("open_to")
+  const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
   const [modelValue] = model.useState("value")
@@ -272,7 +273,12 @@ export function render({model, view, el}) {
           field: {clearable, onClear: () => updateModelValue(null)},
           textField: {
             variant,
+            size: MUI_SIZE(size),
             color,
+            // MUI's OutlinedInput has no native size="large" variant, so
+            // compensate the same way TextField-based widgets do; "small"
+            // is left to MUI's own native small styling, which already works.
+            sx: size === "large" ? denseSx(size) : undefined,
             error: error_state,
             helperText: helper_text ? render_icon_text(helper_text) : undefined,
             onBlur: handleBlur,

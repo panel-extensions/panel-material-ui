@@ -13,7 +13,7 @@ import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import dayjs from "dayjs"
 import {render_description} from "./description"
-import {int_regex, float_regex, render_icon_text, render_icon_text_as_string} from "./utils"
+import {MUI_SIZE, denseSx, int_regex, float_regex, render_icon_text, render_icon_text_as_string} from "./utils"
 
 const SLIDER_BASE_SX = {
   "& .MuiSlider-track": {
@@ -397,9 +397,9 @@ export function render({model, el, view}) {
           onChange={(_, newValue) => setValue(newValue)}
           onChangeCommitted={(_, newValue) => setValueThrottled(newValue)}
           ref={ref}
-          size={size}
+          size={MUI_SIZE(size)}
           step={date ? step*86400000 : (datetime ? step*1000 : step)}
-          sx={sliderSx}
+          sx={denseSx(size, sliderSx)}
           style={sliderStyle}
           track={track}
           value={value}

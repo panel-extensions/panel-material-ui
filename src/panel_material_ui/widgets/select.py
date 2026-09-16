@@ -362,6 +362,10 @@ class _RadioGroup(MaterialWidget):
     label_placement: t.Literal['bottom', 'start', 'top', 'end'] = param.Selector(default="end", objects=["bottom", "start", "top", "end"], doc="""
         Placement of the option labels.""")  # type: ignore[assignment]
 
+    size: t.Literal["small", "medium", "large"] = param.Selector(
+        objects=["small", "medium", "large"], default="medium", doc="The visual size of the group controls."
+    )  # type: ignore[assignment]
+
     inline = param.Boolean(default=False, doc="""
         Whether the items be arrange vertically (``False``) or
         horizontally in-line (``True``).""")
@@ -548,6 +552,10 @@ class MultiSelect(MaterialMultiSelectBase):
         The number of options to display at once. Controls the visible
         height of the list area.""")
 
+    visual_size: t.Literal["small", "medium", "large"] = param.Selector(
+        objects=["small", "medium", "large"], default="medium", doc="The visual size of the multi-select control."
+    )  # type: ignore[assignment]
+
     value = param.List(default=[], allow_None=True)
 
     variant: t.Literal['filled', 'outlined', 'standard'] = param.Selector(
@@ -726,6 +734,10 @@ class CrossSelector(MaterialMultiSelectBase):
     size = param.Integer(default=10, doc="""
         The number of options shown at once (note this is the only way
         to control the height of this widget)""")
+
+    visual_size: t.Literal["small", "medium", "large"] = param.Selector(
+        objects=["small", "medium", "large"], default="medium", doc="The visual size of the cross selector."
+    )  # type: ignore[assignment]
 
     _esm_base = "CrossSelector.jsx"
 
