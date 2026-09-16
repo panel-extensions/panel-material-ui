@@ -61,8 +61,9 @@ export function render({model, el, view}) {
         labelId={labelId}
         value={value || ""}
         onChange={(event) => setValue(event.target.value)}
-        onClick={() => setOpen(true)}
-        onClose={() => setOpen(false)}
+        onClick={isNotebook ? () => setOpen(true) : undefined}
+        onOpen={!isNotebook ? () => setOpen(true) : undefined}
+        onClose={(event) => { event.stopPropagation(); setOpen(false) }}
         open={!isNotebook && open}
         ref={anchorEl}
         renderValue={() => selected ? (

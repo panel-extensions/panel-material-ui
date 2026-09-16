@@ -2,6 +2,8 @@ import pytest
 
 pytest.importorskip("playwright")
 
+from panel import Column
+
 from panel.tests.util import serve_component
 from panel_material_ui.widgets import ColorMap
 from playwright.sync_api import expect
@@ -26,7 +28,24 @@ def test_color_map_can_select_palette(page):
     assert selected_swatch.evaluate("el => getComputedStyle(el).backgroundImage != 'none'")
 
     page.locator(".MuiSelect-select").click()
-    page.locator("[role=option]").filter(has_text="Cool").click()
+    page.locator(".MuiMenuItem-root:visible").filter(has_text="Cool").click()
+    expect(page.locator(".MuiSelect-select")).to_contain_text("Cool")
+
+@pytest.mark.parametrize("notebook", [False, True])
+def test_color_map_menu_closes_on_click_away_and_selection(page, notebook):
+    widget = ColorMap(options={"Warm": ["#fff", "#f00"], "Cool": ["#fff", "#00f"]}, value_name="Warm")
+    app = Column(widget, css_classes=["jp-NotebookPanel"]) if notebook else widget
+    serve_component(page, app)
+
+    page.locator(".MuiSelect-select").click()
+    expect(page.locator(".MuiMenuItem-root:visible")).to_have_count(2)
+
+    page.locator(".MuiBackdrop-root").click(force=True) if not notebook else page.locator("body").click(position={"x": 1, "y": 1}, force=True)
+    expect(page.locator(".MuiMenuItem-root:visible")).to_have_count(0)
+
+    page.locator(".MuiSelect-select").click()
+    page.locator(".MuiMenuItem-root:visible").filter(has_text="Cool").click()
+    expect(page.locator(".MuiMenuItem-root:visible")).to_have_count(0)
     expect(page.locator(".MuiSelect-select")).to_contain_text("Cool")
 
 
