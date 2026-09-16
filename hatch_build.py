@@ -61,4 +61,10 @@ class BuildHook(BuildHookInterface):
         if self.target_name not in ["wheel", "sdist"]:
             return
 
+        if os.environ.get("PANEL_MATERIAL_UI_SKIP_COMPILE"):
+            # Used by the conda recipe, which installs from an sdist that
+            # already ships the compiled JS bundle, and whose isolated
+            # build environment does not have panel/nodejs available.
+            return
+
         compile_bundle()

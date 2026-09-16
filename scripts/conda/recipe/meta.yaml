@@ -14,13 +14,13 @@ source:
 
 build:
   noarch: python
-  script: {{ PYTHON }} -m pip install --no-deps -vv .
+  script: PANEL_MATERIAL_UI_SKIP_COMPILE=1 {{ PYTHON }} -m pip install --no-deps -vv .
 
 requirements:
   build:
     - python {{ project['requires-python'] }}
     - pip
-    {% for dep in buildsystem['requires'] %}
+    {% for dep in buildsystem['requires'] if dep.split()[0] != 'panel' %}
     - {{ dep }}
     {% endfor %}
   run:
