@@ -4,7 +4,8 @@ set -euxo pipefail
 
 python -m build --sdist .
 
-VERSION=$(python -c "import panel_material_ui; print(panel_material_ui.__version__)")
+SDIST=$(ls dist/panel_material_ui-*.tar.gz | sort -V | tail -n1)
+VERSION=$(basename "$SDIST" .tar.gz | sed 's/^panel_material_ui-//')
 export VERSION
 
 conda build scripts/conda/recipe --no-anaconda-upload --no-verify -c conda-forge --package-format 2
