@@ -1,17 +1,15 @@
 import datetime as dt
 import inspect
 import time
-
 from itertools import chain, product
-from typing import Type
 
 import panel as pn
+import param
 
 from panel_material_ui import *
 from panel_material_ui.base import MaterialComponent
 from panel_material_ui.template import Page
 
-import param
 pn.extension(defer_load=True, notifications=True)
 
 primary_color = ColorPicker(value='#0072b5', name='Primary', sizing_mode='stretch_width')
@@ -114,7 +112,7 @@ def render_spec(spec, depth=0, label='main', loading=False):
     return tabs
 
 
-def render_openable(component: Type[MaterialComponent], **kwargs):
+def render_openable(component: type[MaterialComponent], **kwargs):
     close = Button(on_click=lambda _: inst.param.update(open=False), label='Close')  # type: ignore
     inst = component(LoadingSpinner(), close)
     button = Button(on_click=lambda _: inst.param.update(open=True), label=f'Open {component.name}')
@@ -233,6 +231,10 @@ spec = {
             (IntRangeSlider, (['color', 'track'], ['disabled']), dict(start=0, end=10, value=(5, 7), label='IntRangeSlider')),
             (RangeSlider, (['color', 'track'], ['disabled']), dict(start=0, end=3.14, value=(0.1, 0.7), label='RangeSlider')),
             (Rating, [], dict(end=10, value=4))
+        ],
+        'Players': [
+            (Player, (['color'], ['variant'], ['disabled']), dict(start=0, end=10, value=3, label='Player', show_value=True)),
+            (DiscretePlayer, (['color'], ['variant'], ['disabled']), dict(options=['Foo', 'Bar', 'Baz'], label='DiscretePlayer')),
         ]
     },
 }

@@ -2,7 +2,7 @@
 
 ## Version 0.15.0
 
-Panel Material UI 0.15.0 introduces Material UI implementations of the [`Player`](https://panel-material-ui.holoviz.org/reference/widgets/Player.html), [`DiscretePlayer`](https://panel-material-ui.holoviz.org/reference/widgets/DiscretePlayer.html), [`FileSelector`](https://panel-material-ui.holoviz.org/reference/widgets/FileSelector.html), and [`ColorMap`](https://panel-material-ui.holoviz.org/reference/widgets/ColorMap.html) widgets. The release also adds universal support for Material UI icon tokens in text, and ensures [`DatePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html) and [`DatetimePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatetimePicker.html) preserve partial entries.
+Panel Material UI 0.15.0 introduces Material UI implementations of the [`Player`](https://panel-material-ui.holoviz.org/reference/widgets/Player.html), [`DiscretePlayer`](https://panel-material-ui.holoviz.org/reference/widgets/DiscretePlayer.html), [`FileSelector`](https://panel-material-ui.holoviz.org/reference/widgets/FileSelector.html), and [`ColorMap`](https://panel-material-ui.holoviz.org/reference/widgets/ColorMap.html) widgets. The release also adds universal support for Material UI icon tokens in text, exposes consistent size controls and aligned margins across widgets, ensures [`DatePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html) and [`DatetimePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatetimePicker.html) preserve partial entries, and adds conda packaging to the `pyviz` channel.
 
 Many thanks to @philippjfr for their contributions to this release.
 
@@ -10,15 +10,22 @@ Many thanks to @philippjfr for their contributions to this release.
 
 * Add [`Player`](https://panel-material-ui.holoviz.org/reference/widgets/Player.html) and [`DiscretePlayer`](https://panel-material-ui.holoviz.org/reference/widgets/DiscretePlayer.html) widgets ([#721](https://github.com/panel-extensions/panel-material-ui/pull/721))
 * Add [`FileSelector`](https://panel-material-ui.holoviz.org/reference/widgets/FileSelector.html) widget ([#722](https://github.com/panel-extensions/panel-material-ui/pull/722))
-* Add [`ColorMap`](https://panel-material-ui.holoviz.org/reference/widgets/ColorMap.html) widget
+* Add [`ColorMap`](https://panel-material-ui.holoviz.org/reference/widgets/ColorMap.html) widget ([#725](https://github.com/panel-extensions/panel-material-ui/pull/725))
 
 ### 🔧 Enhancements
 
 * Add universal support for `:material/...:` icons in text ([#723](https://github.com/panel-extensions/panel-material-ui/pull/723))
+* Expose size controls and align margins across widgets ([#727](https://github.com/panel-extensions/panel-material-ui/pull/727))
 
 ### 🐛 Bug Fixes
 
 * Ensure [`DatePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html) and [`DatetimePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatetimePicker.html) do not clear on partial entry ([#720](https://github.com/panel-extensions/panel-material-ui/pull/720))
+* Ensure [`ColorMap`](https://panel-material-ui.holoviz.org/reference/widgets/ColorMap.html) widget menu closes ([#729](https://github.com/panel-extensions/panel-material-ui/pull/729))
+* Respect global Material design if it's a subclass ([#730](https://github.com/panel-extensions/panel-material-ui/pull/730))
+
+### 🧪 Infrastructure & Developer Experience
+
+* Configure conda build to upload to the `pyviz` channel ([#728](https://github.com/panel-extensions/panel-material-ui/pull/728))
 
 ## Version 0.14.2
 

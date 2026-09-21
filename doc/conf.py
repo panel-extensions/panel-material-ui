@@ -1,10 +1,13 @@
 import json
 import os
 import pathlib
+import sys
 
 from typing import Any
 
 import param
+
+sys.path.insert(0, str(pathlib.Path(__file__).parent / '_ext'))
 
 param.parameterized.docstring_signature = False
 param.parameterized.docstring_describe_params = False
@@ -100,7 +103,15 @@ extensions = [
     'nbsite.gallery',
     'nbsite.pyodide',
     'nbsite.analytics',
+    'classic_reference',
 ]
+
+# Resolves the cross-links classic_reference adds from a Material reference page
+# to its classic counterpart. The 'external+' form is required because Sphinx
+# disables implicit intersphinx resolution of :doc: references by default.
+intersphinx_mapping = {
+    'panel': ('https://panel.holoviz.org', None),
+}
 
 numpydoc_show_inherited_class_members = False
 numpydoc_class_members_toctree = False
