@@ -5,7 +5,7 @@ import Select from "@mui/material/Select"
 import OutlinedInput from "@mui/material/OutlinedInput"
 import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
-import {render_description} from "./description"
+import {DESCRIPTION_LABEL_SPACER, render_description} from "./description"
 import {MUI_SIZE, denseSx, render_icon_text, render_icon_text_as_string} from "./utils"
 
 export function render({model, view, el}) {
@@ -54,10 +54,9 @@ export function render({model, view, el}) {
     }
   }
 
-  const spacer = model.description ? "\u00A0" : ""
   // The floating label/notch legend is a string-only slot, so tokens are stripped
   const label_text = render_icon_text_as_string(label)
-  const label_spacer = label_text ? label_text+spacer : null
+  const label_spacer = label_text ? `${label_text}${model.description ? DESCRIPTION_LABEL_SPACER : ""}` : null
 
   const inputId = `select-multiple-native-${model.id}`
 

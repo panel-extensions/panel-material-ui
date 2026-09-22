@@ -18,7 +18,7 @@ import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
 import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
-import {render_description} from "./description"
+import {DESCRIPTION_LABEL_SPACER, render_description} from "./description"
 import {CustomMenu, detect_nb} from "./menu"
 import {render_icon_text, render_icon_text_as_string, MUI_SIZE, denseSx, denseInputLabelSx} from "./utils"
 
@@ -154,10 +154,9 @@ export function render({model, el, view}) {
     }
   }
 
-  const spacer = model.description ? "\u00A0" : ""
   // The floating label/notch legend is a string-only slot, so tokens are stripped
   const label_text = render_icon_text_as_string(label)
-  const label_spacer = label_text ? label_text+spacer : null
+  const label_spacer = label_text ? `${label_text}${model.description ? DESCRIPTION_LABEL_SPACER : ""}` : null
 
   const hasValue = multi
     ? Array.isArray(value) && value.length > 0

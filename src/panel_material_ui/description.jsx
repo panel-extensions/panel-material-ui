@@ -5,6 +5,9 @@ import {ThemeProvider, useTheme} from "@mui/material/styles"
 import {CacheProvider} from "@emotion/react"
 import {render_icon_text} from "./utils"
 
+// Reserve the icon and its margin in outlined-input notches, which only accept text.
+export const DESCRIPTION_LABEL_SPACER = "\u00A0\u00A0\u00A0\u00A0\u00A0"
+
 export function render_description({model, el, view}) {
   const theme = useTheme()
   const [description] =  model.useState("description")
