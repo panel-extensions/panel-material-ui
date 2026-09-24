@@ -15,7 +15,7 @@ from typing_extensions import Self
 
 from ..base import COLORS, ColorType, LoadingTransform, ThemedTransform
 from .base import MaterialWidget
-from .button import _ButtonLike
+from .button import _ButtonLike, _ButtonVariant
 
 
 class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
@@ -338,6 +338,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     )  # type: ignore[assignment]
 
     _constants = {"multi": False, "loading_inset": -6}
+    _stylesheets: t.ClassVar[list[str]] = []
     _esm_base = "Select.jsx"
     _rename = {"name": None, "groups": None}
 
@@ -450,7 +451,7 @@ class _ButtonGroup(_ButtonLike):
         objects=["small", "medium", "large"], default="medium", doc="The size of the button group."
     )  # type: ignore[assignment]
 
-    variant: t.Literal['contained', 'outlined'] = param.Selector(
+    variant: t.Literal['contained', 'outlined'] = _ButtonVariant(
         objects=['contained', 'outlined'], default='contained', doc="Appearance of the button group."
     )  # type: ignore[assignment]
 
