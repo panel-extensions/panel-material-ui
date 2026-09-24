@@ -1,7 +1,41 @@
 import numpy as np
 import pytest
-from panel.pane import panel
-from panel_material_ui.widgets import AutocompleteInput, Select
+
+from panel_material_ui.widgets import AutocompleteInput, CheckButtonGroup, CrossSelector, RadioButtonGroup, Select
+
+
+@pytest.mark.parametrize('widget_type', [RadioButtonGroup, CheckButtonGroup])
+@pytest.mark.parametrize(('classic', 'material'), [('solid', 'contained'), ('outline', 'outlined')])
+def test_button_group_classic_variant_constructor(widget_type, classic, material):
+    """Classic button-group variants map to the corresponding Material appearance."""
+    assert widget_type(variant=classic).variant == material
+    assert widget_type(button_style=classic).variant == material
+    assert widget_type(variant=material).variant == material
+
+
+def test_cross_selector_filter_fn_and_selection_order(monkeypatch):
+    """Custom filtering runs on the server and order is exposed to the client."""
+    selector = CrossSelector(
+        options={'Alpha': 1, 'Beta': 2, 'Alpine': 3}, value=[3, 1],
+        definition_order=False, filter_fn=lambda query, label: label.startswith(query),
+    )
+    messages = []
+    monkeypatch.setattr(selector, '_send_msg', messages.append)
+    selector._handle_msg({'type': 'filter', 'side': 'left', 'query': 'Al'})
+    assert messages == [{'type': 'filter_response', 'side': 'left', 'query': 'Al', 'matches': ['Alpha', 'Alpine']}]
+    assert selector.definition_order is False
+    assert 'filter_fn' not in selector._process_param_change({'filter_fn': selector.filter_fn})
+
+
+def test_cross_selector_default_filter_and_invalid_pattern(monkeypatch):
+    """Default regex filtering follows the classic selector, including invalid patterns."""
+    selector = CrossSelector(options=['Alpha', 'Beta', 'Alpine'])
+    messages = []
+    monkeypatch.setattr(selector, '_send_msg', messages.append)
+    selector._handle_msg({'type': 'filter', 'side': 'right', 'query': '^Al'})
+    selector._handle_msg({'type': 'filter', 'side': 'right', 'query': '['})
+    assert messages[0]['matches'] == ['Alpha', 'Alpine']
+    assert messages[1]['matches'] == []
 
 
 @pytest.mark.parametrize('widget', [AutocompleteInput, Select])

@@ -13,6 +13,7 @@ export function render({model, el, view}) {
   const [orientation] = model.useState("orientation")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
+  const [variant] = model.useState("variant")
   const [value, setValue] = model.useState("value")
   const exclusive = model.esm_constants.exclusive
 
@@ -32,7 +33,7 @@ export function render({model, el, view}) {
         fullWidth
         orientation={orientation}
         value={value}
-        sx={sx}
+        sx={{...sx, "& .MuiToggleButton-root.Mui-selected": variant === "contained" ? {backgroundColor: `${color}.main`, color: `${color}.contrastText`, "&:hover": {backgroundColor: `${color}.dark`}} : undefined}}
       >
         {options.map((option, index) => {
           return (
