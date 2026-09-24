@@ -11,12 +11,18 @@ from ..base import COLOR_ALIASES, COLORS, STYLE_ALIASES, ColorType, LoadingTrans
 from .base import MaterialWidget
 
 
+class _ButtonVariant(param.Selector):
+
+    def __set__(self, obj, val):
+        return super().__set__(obj, {'solid': 'contained', 'outline': 'outlined'}.get(val, val))
+
+
 class _ButtonLike(MaterialWidget):
     """
     Abstract base class for Material UI button-like widgets.
     """
 
-    button_style: t.Literal["contained", "outlined", "text"] | None = param.Selector(objects=["contained", "outlined", "text"], default=None, precedence=-1, doc="""
+    button_style: t.Literal["contained", "outlined", "text"] | None = _ButtonVariant(objects=["contained", "outlined", "text"], default=None, precedence=-1, doc="""
         The variant of the component (alias for variant to match Panel's Button API).""")  # type: ignore[assignment]
 
     button_type: ColorType | None = param.Selector(
@@ -88,7 +94,7 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
         default="medium", objects=["small", "medium", "large"], doc="The size of the button."
     )  # type: ignore[assignment]
 
-    variant: t.Literal["contained", "outlined", "text"] = param.Selector(objects=["contained", "outlined", "text"], default="contained", doc="""
+    variant: t.Literal["contained", "outlined", "text"] = _ButtonVariant(objects=["contained", "outlined", "text"], default="contained", doc="""
         The variant of the component.""")  # type: ignore[assignment]
 
     width = param.Integer(default=None, doc="Width of the button in pixels.")
@@ -96,12 +102,13 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
     _rename: t.ClassVar[dict[str, str | None]] = {
         "color": "color", "label": "label", "variant": "variant"
     }
+    _stylesheets: t.ClassVar[list[str]] = []
 
     __abstract = True
 
-    @param.depends("variant", watch=True, on_init=True)
+    @param.depends("button_style", watch=True)
     def _update_variant(self):
-        if self.button_style:
+        if self.button_style and self.variant != self.button_style:
             self.variant = self.button_style
 
     def _process_param_change(self, params):

@@ -1,6 +1,44 @@
 import panel as pn
+import pytest
 
-from panel_material_ui.widgets import Button, Toggle
+from panel_material_ui.widgets import Button, FileDownload, FileInput, IconButton, MenuButton, MenuToggle, SplitButton, Toggle
+
+
+@pytest.mark.filterwarnings('ignore:.*button_style.*:PendingDeprecationWarning')
+@pytest.mark.parametrize('widget_type', [Button, Toggle, FileDownload, FileInput, IconButton, MenuButton, MenuToggle, SplitButton])
+@pytest.mark.parametrize(('classic', 'material'), [('solid', 'contained'), ('outline', 'outlined')])
+def test_classic_variant_compatibility(widget_type, classic, material):
+    widget = widget_type(variant=classic)
+    assert widget.variant == material
+    widget = widget_type(button_style=classic)
+    assert widget.variant == material
+    widget.variant = classic
+    assert widget.variant == material
+    widget.param.update(variant=classic)
+    assert widget.variant == material
+    widget.button_style = classic
+    assert widget.variant == material
+    assert widget._process_param_change({'variant': widget.variant})['variant'] == material
+
+
+@pytest.mark.filterwarnings('ignore:.*button_style.*:PendingDeprecationWarning')
+def test_variant_wins_over_button_style():
+    assert Button(variant='outline', button_style='solid').variant == 'outlined'
+
+
+@pytest.mark.filterwarnings('ignore:.*button_style.*:PendingDeprecationWarning')
+def test_material_variant_can_change_after_button_style():
+    widget = Button(button_style='solid')
+    widget.variant = 'outline'
+    assert widget.variant == 'outlined'
+
+
+def test_fab_variant_keeps_shape_semantics():
+    from panel_material_ui.widgets import Fab
+
+    assert Fab(variant='extended').variant == 'extended'
+    with pytest.raises(ValueError):
+        Fab(variant='solid')
 
 
 def test_button(document, comm):

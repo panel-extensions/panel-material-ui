@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import numbers
 import typing as t
 
 import param
@@ -26,7 +27,7 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
 
     start = param.Number(default=0, doc="The starting value of the slider.")
 
-    end = param.Number(default=100, doc="The ending value of the slider.")
+    end = param.Number(default=1, doc="The ending value of the slider.")
 
     format = param.ClassSelector(default='0[.]00', class_=(str, TickFormatter,), doc="""
         A custom format string or Bokeh TickFormatter.""")
@@ -92,7 +93,7 @@ class IntSlider(_ContinuousSlider):
     format = param.ClassSelector(default='0,0', class_=(str, TickFormatter,), doc="""
         A custom format string or Bokeh TickFormatter.""")
 
-    start = param.Integer(default=1)
+    start = param.Integer(default=0)
 
     step = param.Integer(default=1, bounds=(1, None))
 
@@ -228,9 +229,9 @@ class DatetimeSlider(DateSlider):
 
 class _RangeSliderBase(_ContinuousSlider):
 
-    value = param.Range(default=(0, 100))  # type: ignore[assignment]
+    value = param.Range(default=(0, 1))  # type: ignore[assignment]
 
-    value_throttled = param.Range(default=(0, 100), readonly=True)  # type: ignore[assignment]
+    value_throttled = param.Range(default=(0, 1), readonly=True)  # type: ignore[assignment]
 
     value_start = param.Parameter(readonly=True, doc="""The lower value of the selected range.""")
 
@@ -282,6 +283,8 @@ class RangeSlider(_RangeSliderBase):
     ... )
     """
 
+    step = param.Number(default=0.1, doc="The step size of the slider.")
+
 
 class IntRangeSlider(_RangeSliderBase):
     """
@@ -306,13 +309,13 @@ class IntRangeSlider(_RangeSliderBase):
     format = param.ClassSelector(default='0,0', class_=(str, TickFormatter,), doc="""
         A custom format string or Bokeh TickFormatter.""")
 
-    end = param.Integer(default=100)
+    end = param.Integer(default=1)
 
     step = param.Integer(default=1)
 
     value_start = param.Integer(default=0, readonly=True, doc="""The lower value of the selected range.""")
 
-    value_end = param.Integer(default=100, readonly=True, doc="""The upper value of the selected range.""")
+    value_end = param.Integer(default=1, readonly=True, doc="""The upper value of the selected range.""")
 
     _constants = {"int": True, "loading_inset": -6}
 
@@ -450,6 +453,9 @@ class DiscreteSlider(IntSlider, _PnSingleSelectBase):
     options = param.ClassSelector(default=[], class_=(dict, list), doc="""
         A list or dictionary of valid options.""")
 
+    formatter = param.String(default='%.3g', doc="""
+        Format applied to numeric option labels.""")
+
     value = param.Parameter(doc="""
         The selected value of the slider. Updated when the handle is
         dragged. Must be one of the options.""")
@@ -464,15 +470,25 @@ class DiscreteSlider(IntSlider, _PnSingleSelectBase):
     _allows_values = False
     _constants = {"discrete": True, "loading_inset": -6}
 
+    def __init__(self, **params):
+        super().__init__(**params)
+        if 'formatter' not in params and all(isinstance(v, numbers.Integral) for v in self.values):
+            self.formatter = '%d'
+
     @param.depends("options", watch=True)
     def _update_bounds(self):
         with edit_readonly(self):
             self.param.update(start=0, end=len(self.options)-1)
 
     def _process_param_change(self, msg):
+        format_changed = 'formatter' in msg
         msg = super()._process_param_change(msg)
-        if 'options' in msg:
-            msg['options'] = self.labels
+        msg.pop('formatter', None)
+        if 'options' in msg or format_changed:
+            msg['options'] = [
+                self.formatter % value if isinstance(value, numbers.Number) else label
+                for label, value in zip(self.labels, self.values, strict=True)
+            ] if isinstance(self.options, list) else self.labels
         if 'value' in msg:
             msg['value'] = self.labels.index(msg['value'])
         return msg
@@ -604,7 +620,7 @@ class EditableIntSlider(_EditableContinuousSliderBase, IntSlider):
 
 class _EditableRangeSliderBase(_RangeSliderBase):
 
-    value = param.Range(default=(0, 100))
+    value = param.Range(default=(0, 1))
 
     _constants = {"editable": True, "loading_inset": -6}
 

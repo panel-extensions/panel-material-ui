@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import typing as t
 
 import param
@@ -14,7 +15,7 @@ from typing_extensions import Self
 
 from ..base import COLORS, ColorType, LoadingTransform, ThemedTransform
 from .base import MaterialWidget
-from .button import _ButtonLike
+from .button import _ButtonLike, _ButtonVariant
 
 
 class MaterialSingleSelectBase(MaterialWidget, _PnSingleSelectBase):
@@ -337,6 +338,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     )  # type: ignore[assignment]
 
     _constants = {"multi": False, "loading_inset": -6}
+    _stylesheets: t.ClassVar[list[str]] = []
     _esm_base = "Select.jsx"
     _rename = {"name": None, "groups": None}
 
@@ -449,6 +451,10 @@ class _ButtonGroup(_ButtonLike):
         objects=["small", "medium", "large"], default="medium", doc="The size of the button group."
     )  # type: ignore[assignment]
 
+    variant: t.Literal['contained', 'outlined'] = _ButtonVariant(
+        objects=['contained', 'outlined'], default='contained', doc="Appearance of the button group."
+    )  # type: ignore[assignment]
+
     width = param.Integer(default=None)
 
     _esm_base = "ButtonGroup.jsx"
@@ -458,6 +464,19 @@ class _ButtonGroup(_ButtonLike):
     _rename = {"name": "name"}
 
     __abstract = True
+
+    def __init__(self, **params):
+        variant = params.get('variant', params.get('button_style'))
+        if variant is not None:
+            params['variant'] = {'solid': 'contained', 'outline': 'outlined'}.get(variant, variant)
+        if 'button_style' in params:
+            params['button_style'] = params['variant']
+        super().__init__(**params)
+
+    def _process_param_change(self, params):
+        params = super()._process_param_change(params)
+        params.pop('button_style', None)
+        return params
 
 
 class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
@@ -727,6 +746,10 @@ class CrossSelector(MaterialMultiSelectBase):
         objects=COLORS, default="primary", doc="The color of the cross selector widget."
     )  # type: ignore[assignment]
 
+    definition_order = param.Boolean(default=True, doc="Preserve option order when selecting values.")
+
+    filter_fn = param.Callable(default=re.search, doc="Function receiving a query and an option label.")
+
     searchable = param.Boolean(default=True, doc="Whether the dropdown is searchable")
 
     width = param.Integer(default=None, doc="Width of the widget")
@@ -740,6 +763,18 @@ class CrossSelector(MaterialMultiSelectBase):
     )  # type: ignore[assignment]
 
     _esm_base = "CrossSelector.jsx"
+
+    _rename = {"filter_fn": None}
+
+    def _handle_msg(self, msg: dict) -> None:
+        if msg.get('type') != 'filter':
+            return
+        query = msg['query']
+        try:
+            matches = [label for label in self.labels if self.filter_fn(query, label)]
+        except Exception:
+            matches = []
+        self._send_msg({'type': 'filter_response', 'side': msg['side'], 'query': query, 'matches': matches})
 
 
 class NestedSelect(_PnNestedSelect):

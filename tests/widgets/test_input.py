@@ -1,10 +1,12 @@
+from datetime import date, datetime
+
+import numpy as np
 import pytest
-
 from panel import config
-from datetime import date
 
-from panel_material_ui.widgets import IntInput, FloatInput, DatePicker
 from panel_material_ui.chat import ChatAreaInput
+from panel_material_ui.widgets import ArrayInput, DatePicker, DatetimeInput, DatetimeRangeInput, FloatInput, IntInput
+
 
 @pytest.mark.from_panel
 @pytest.mark.xfail(reason='')
@@ -96,6 +98,51 @@ def test_datepicker_accepts_strings():
         end="2024-04-07",
         value="2024-04-01"
     )
+
+
+def test_array_input(document):
+    widget = ArrayInput(label='Array', value=np.array([[1, 2], [3, 4]]))
+    model = widget.get_root(document)
+
+    assert model.data.value_input == '[[1, 2], [3, 4]]'
+    widget._process_events({'value': '[[5, 6], [7, 8]]'})
+    np.testing.assert_array_equal(widget.value, [[5, 6], [7, 8]])
+    widget._process_events({'value': 'invalid'})
+    np.testing.assert_array_equal(widget.value, [[5, 6], [7, 8]])
+    assert widget._state == ' (invalid)'
+
+
+def test_array_input_size_limit(document):
+    widget = ArrayInput(value=np.arange(10), max_array_size=3)
+    model = widget.get_root(document)
+
+    assert widget.disabled and model.data.disabled
+    assert model.data.value_input == np.array2string(widget.value, separator=',', threshold=3)
+    widget.value = np.array([1, 2])
+    assert not widget.disabled
+    assert model.data.value_input == '[1, 2]'
+
+    widget.disabled = True
+    widget.value = np.arange(10)
+    widget.value = np.array([3])
+    assert widget.disabled
+
+
+def test_datetime_range_input(document):
+    start, end = datetime(2024, 1, 1), datetime(2024, 2, 1)
+    widget = DatetimeRangeInput(label='Range', start=start, end=end)
+    widget.get_root(document)
+
+    assert widget.value == (start, end)
+    assert isinstance(widget._start, DatetimeInput)
+    assert isinstance(widget._end, DatetimeInput)
+    widget._start.value = datetime(2024, 1, 5)
+    assert widget.value == (datetime(2024, 1, 5), end)
+    widget._end.value = datetime(2024, 1, 3)
+    assert widget.value == (datetime(2024, 1, 5), end)
+    assert 'start of range must be <= end' in widget._text.value
+    widget.value = (start, end)
+    assert widget._start.value == start
 
 
 # ChatAreaInput accept parameter validation tests

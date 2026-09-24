@@ -70,10 +70,12 @@ class LinearProgress(MaterialWidget):
     color: ColorType = param.Selector(objects=COLORS, default="primary", doc="""
         The color of the progress bar.""")  # type: ignore[assignment]
 
-    value = param.Number(default=-1, bounds=(-1, 100), doc="""
+    max = param.Number(default=100, bounds=(0, None), inclusive_bounds=(False, True), doc="Maximum progress value.")
+
+    value = param.Number(default=-1, bounds=(-1, None), doc="""
         The value of the progress bar.""")
 
-    value_buffer = param.Number(default=-1, bounds=(-1, 100), doc="""
+    value_buffer = param.Number(default=-1, bounds=(-1, None), doc="""
         The buffer of the progress bar (if variant="buffer").""")
 
     variant: t.Literal["determinate", "indeterminate", "buffer", "query"] = param.Selector(

@@ -43,6 +43,7 @@ export function render({model, el, view}) {
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
   const [options] = model.useState("options")
+  const [definition_order] = model.useState("definition_order")
   const [value, setValue] = model.useState("value")
   const [sx] = model.useState("sx")
   const [searchable] = model.useState("searchable")
@@ -55,6 +56,25 @@ export function render({model, el, view}) {
   const [right_title] = ["Chosen"]
   const [left_filter, setLeftFilter] = React.useState("")
   const [right_filter, setRightFilter] = React.useState("")
+  const [matches, setMatches] = React.useState({left: null, right: null})
+
+  React.useEffect(() => {
+    const handler = (msg) => {
+      if (msg?.type === "filter_response") {
+        const query = msg.side === "left" ? left_filter : right_filter
+        if (msg.query === query) {
+          setMatches(current => ({...current, [msg.side]: {query: msg.query, labels: msg.matches}}))
+        }
+      }
+    }
+    model.on("msg:custom", handler)
+    return () => model.off("msg:custom", handler)
+  }, [model, left_filter, right_filter])
+
+  React.useEffect(() => {
+    if (left_filter) { model.send_msg({type: "filter", side: "left", query: left_filter}) }
+    if (right_filter) { model.send_msg({type: "filter", side: "right", query: right_filter}) }
+  }, [model, left_filter, right_filter, options])
 
   const [checked, setChecked] = React.useState([])
 
@@ -74,18 +94,18 @@ export function render({model, el, view}) {
   const allOptions = processOptions()
   const selectedValues = Array.isArray(value) ? value : []
   const availableValues = allOptions.filter(opt => !selectedValues.includes(opt.value))
-  const selectedOptions = allOptions.filter(opt => selectedValues.includes(opt.value))
+  const selectedOptions = definition_order
+    ? allOptions.filter(opt => selectedValues.includes(opt.value))
+    : selectedValues.map(selected => allOptions.find(opt => opt.value === selected)).filter(Boolean)
 
   // Filter options based on search
-  const filterOptions = (options, filterStr) => {
+  const filterOptions = (options, filterStr, side) => {
     if (!filterStr) { return options }
-    return options.filter(opt =>
-      opt.label.toLowerCase().includes(filterStr.toLowerCase())
-    )
+    return options.filter(opt => matches[side]?.query === filterStr && matches[side].labels.includes(opt.label))
   }
 
-  const filteredAvailable = filterOptions(availableValues, left_filter)
-  const filteredSelected = filterOptions(selectedOptions, right_filter)
+  const filteredAvailable = filterOptions(availableValues, left_filter, "left")
+  const filteredSelected = filterOptions(selectedOptions, right_filter, "right")
 
   const leftChecked = intersection(checked, filteredAvailable.map(opt => opt.value))
   const rightChecked = intersection(checked, filteredSelected.map(opt => opt.value))

@@ -4,10 +4,40 @@ pytest.importorskip('playwright')
 
 from panel import Column
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import MultiSelect, NestedSelect, Select
 from playwright.sync_api import expect
 
+from panel_material_ui.widgets import CrossSelector, MultiSelect, NestedSelect, RadioButtonGroup, Select
+
 pytestmark = pytest.mark.ui
+
+
+def test_radio_button_group_classic_variant(page):
+    """Classic solid and outline styles render differently on selected buttons."""
+    widget = RadioButtonGroup(options=['A', 'B'], value='A', variant='solid')
+    serve_component(page, widget)
+    selected = page.locator('.MuiToggleButton-root.Mui-selected')
+    expect(selected).to_have_css('background-color', 'rgb(25, 118, 210)')
+    widget.variant = 'outlined'
+    expect(selected).not_to_have_css('background-color', 'rgb(25, 118, 210)')
+
+
+def test_cross_selector_custom_filter_and_selection_order(page):
+    """Server-side search uses filter_fn; selection order can differ from option order."""
+    widget = CrossSelector(
+        options={'Alpha': 1, 'Beta': 2, 'Alpine': 3}, definition_order=False,
+        filter_fn=lambda query, label: label.startswith(query),
+    )
+    serve_component(page, widget)
+    left = page.get_by_role('list').first
+    right = page.get_by_role('list').last
+    left.get_by_text('Beta').click()
+    page.get_by_role('button', name='move selected right').click()
+    left.get_by_text('Alpha').click()
+    page.get_by_role('button', name='move selected right').click()
+    expect(right.get_by_role('listitem')).to_have_text(['Beta', 'Alpha'])
+
+    page.get_by_placeholder('Search...').first.fill('Al')
+    expect(left.get_by_role('listitem')).to_have_text(['Alpine'])
 
 
 @pytest.mark.parametrize('variant', ["filled", "outlined", "standard"])
