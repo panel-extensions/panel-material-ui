@@ -1,10 +1,14 @@
+from datetime import datetime
+
+import numpy as np
 import pytest
 
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import FloatInput, TextInput, PasswordInput, NumberInput
 from playwright.sync_api import expect
+
+from panel_material_ui.widgets import ArrayInput, DatetimeRangeInput, FloatInput, NumberInput, PasswordInput, TextInput
 
 pytestmark = pytest.mark.ui
 
@@ -140,3 +144,27 @@ def test_number_input_focus(page):
     expect(input_element).to_have_count(1)
     widget.focus()
     expect(input_element).to_be_focused()
+
+
+def test_array_input_editing(page):
+    widget = ArrayInput(value=np.array([1, 2]), max_array_size=2)
+    serve_component(page, widget)
+    input_field = page.locator('.MuiInputBase-input')
+    expect(input_field).to_have_value('[1, 2]')
+    input_field.fill('[3, 4]')
+    input_field.press('Enter')
+    wait_until(lambda: np.array_equal(widget.value, [3, 4]), page)
+
+    widget.value = np.arange(5)
+    expect(input_field).to_be_disabled()
+    expect(input_field).to_have_value(np.array2string(widget.value, separator=',', threshold=2))
+
+
+def test_datetime_range_input_editing(page):
+    widget = DatetimeRangeInput(value=(datetime(2024, 1, 1), datetime(2024, 2, 1)))
+    serve_component(page, widget)
+    inputs = page.locator('.MuiInputBase-input')
+    expect(inputs).to_have_count(2)
+    inputs.nth(0).fill('2024-01-05 00:00:00')
+    inputs.nth(0).press('Enter')
+    wait_until(lambda: widget.value[0] == datetime(2024, 1, 5), page)
