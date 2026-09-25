@@ -229,9 +229,9 @@ class DatetimeSlider(DateSlider):
 
 class _RangeSliderBase(_ContinuousSlider):
 
-    value = param.Range(default=(0, 1))  # type: ignore[assignment]
+    value = param.Range(default=(0, 1), nested_refs=True)  # type: ignore[assignment]
 
-    value_throttled = param.Range(default=(0, 1), readonly=True)  # type: ignore[assignment]
+    value_throttled = param.Range(default=(0, 1), constant=True, nested_refs=True)  # type: ignore[assignment]
 
     value_start = param.Parameter(readonly=True, doc="""The lower value of the selected range.""")
 
@@ -344,7 +344,7 @@ class DateRangeSlider(_RangeSliderBase):
     ... )
     """
 
-    value = param.DateRange(default=None, allow_None=False, doc="""
+    value = param.DateRange(default=None, allow_None=False, nested_refs=True, doc="""
         The selected range as a tuple of values. Updated when one of the handles is
         dragged. Supports datetime.datetime, datetime.date, and np.datetime64 ranges.""")  # type: ignore[assignment, call-overload]
 
