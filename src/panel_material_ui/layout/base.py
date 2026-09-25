@@ -609,6 +609,40 @@ class Paper(MaterialListLike, PaperMixin):
     _esm_base = "Paper.jsx"
 
 
+class FloatPanel(MaterialListLike, PaperMixin):
+    """A draggable, floating Paper surface for Panel and Material UI content.
+
+    Drag the empty surface to move the panel without blocking its children.
+    Position it relative to its parent or the viewport using named anchors.
+
+    :Example:
+
+    >>> FloatPanel("Content", position="center", contained=False)
+    """
+
+    contained = param.Boolean(default=True, doc="""
+        Whether to position the panel within its parent rather than the viewport.""")
+
+    position = param.Selector(default="right-top", objects=[
+        "center", "left-top", "center-top", "right-top", "right-center",
+        "right-bottom", "center-bottom", "left-bottom", "left-center",
+    ], doc="Initial position within the parent or viewport.")
+
+    offsetx = param.Integer(default=0, doc="Horizontal offset in pixels from the selected position.")
+
+    offsety = param.Integer(default=0, doc="Vertical offset in pixels from the selected position.")
+
+    controls = param.ListSelector(default=["minimize", "maximize", "close"],
+                                  objects=["minimize", "maximize", "close"], doc="""
+        Title-bar controls to display. Set to an empty list to hide all controls.""")
+
+    status = param.Selector(default="normalized", objects=[
+        "normalized", "maximized", "minimized", "smallified", "smallifiedmax", "closed",
+    ], doc="Current window state of the floating panel.")
+
+    _esm_base = "FloatPanel.jsx"
+
+
 class Container(MaterialListLike):
     """
     The `Container` layout centers your content horizontally. It's the most basic layout element.
@@ -1219,6 +1253,7 @@ __all__ = [
     "Drawer",
     "Feed",
     "FlexBox",
+    "FloatPanel",
     "Grid",
     "Paper",
     "Popup",
