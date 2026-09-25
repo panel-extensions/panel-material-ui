@@ -16,7 +16,7 @@ export function render({model, el, view}) {
   const [variant] = model.useState("variant")
   const [value, setValue] = model.useState("value")
   const exclusive = model.esm_constants.exclusive
-  const setActive = exclusive ? model.useState("active")[1] : null
+  const setActive = model.useState("active")[1]
 
   return (
     <FormControl component="fieldset" disabled={disabled} fullWidth>
@@ -51,7 +51,7 @@ export function render({model, el, view}) {
                   newValue = [...value]
                   newValue.push(option)
                 }
-                if (exclusive) { setActive(index) }
+                setActive(exclusive ? index : options.flatMap((item, i) => newValue.includes(item) ? [i] : []))
                 setValue(newValue)
               }}
               selected={exclusive ? (value==option) : value.includes(option)}

@@ -6,7 +6,7 @@ from panel import Column
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
-from panel_material_ui.widgets import CrossSelector, MultiSelect, NestedSelect, RadioButtonGroup, Select
+from panel_material_ui.widgets import CheckButtonGroup, CrossSelector, MultiSelect, NestedSelect, RadioButtonGroup, Select
 
 pytestmark = pytest.mark.ui
 
@@ -33,6 +33,24 @@ def test_radio_button_group_active_jslink(page):
     page.get_by_role('button', name='B').click()
     expect(page.locator('input.bk-input')).to_have_value('1')
     wait_until(lambda: widget.active == 1, page)
+
+
+def test_check_button_group_active_jslink(page):
+    """Non-exclusive selections update the active index list in JavaScript."""
+    from panel.widgets import TextInput
+
+    widget = CheckButtonGroup(options=['A', 'B', 'C'], value=['C'])
+    target = TextInput(value='2')
+    widget.jslink(target, code={'active': 'target.value = source.active.join(",")'})
+    serve_component(page, Column(widget, target))
+
+    page.get_by_role('button', name='A').click()
+    expect(page.locator('input.bk-input')).to_have_value('0,2')
+    wait_until(lambda: widget.active == [0, 2], page)
+
+    page.get_by_role('button', name='C').click()
+    expect(page.locator('input.bk-input')).to_have_value('0')
+    wait_until(lambda: widget.active == [0], page)
 
 
 def test_cross_selector_custom_filter_and_selection_order(page):
