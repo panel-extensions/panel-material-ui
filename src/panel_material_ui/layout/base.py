@@ -609,6 +609,34 @@ class Paper(MaterialListLike, PaperMixin):
     _esm_base = "Paper.jsx"
 
 
+class FloatPanel(MaterialListLike, PaperMixin):
+    """A draggable, floating Paper surface for Panel and Material UI content.
+
+    Drag the handle to move the panel without blocking interactions with its children.
+    ``position`` is the pixel offset from the viewport's left and top edges.
+
+    :Example:
+
+    >>> FloatPanel(Button(label="Submit"), position=(24, 24))
+    """
+
+    position = param.XYCoordinates(default=(24, 24), doc="""
+        Pixel offset (left, top) from the viewport origin. Updated after dragging.""")
+
+    _esm_base = "FloatPanel.jsx"
+
+    def __init__(self, *objects, **params):
+        params.setdefault("width", 0)
+        params.setdefault("height", 0)
+        params.setdefault("sizing_mode", "fixed")
+        super().__init__(*objects, **params)
+
+    def _process_property_change(self, msg):
+        if "position" in msg:
+            msg["position"] = tuple(msg["position"])
+        return super()._process_property_change(msg)
+
+
 class Container(MaterialListLike):
     """
     The `Container` layout centers your content horizontally. It's the most basic layout element.
@@ -1219,6 +1247,7 @@ __all__ = [
     "Drawer",
     "Feed",
     "FlexBox",
+    "FloatPanel",
     "Grid",
     "Paper",
     "Popup",
