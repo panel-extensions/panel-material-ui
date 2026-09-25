@@ -1,3 +1,6 @@
+import datetime as dt
+
+import param
 import pytest
 from panel.widgets import FloatSlider as ClassicFloatSlider
 from panel.widgets import IntRangeSlider as ClassicIntRangeSlider
@@ -5,6 +8,7 @@ from panel.widgets import IntSlider as ClassicIntSlider
 from panel.widgets import RangeSlider as ClassicRangeSlider
 
 from panel_material_ui import (
+    DateRangeSlider,
     DiscreteSlider,
     EditableRangeSlider,
     FloatSlider,
@@ -23,6 +27,28 @@ def test_numeric_slider_defaults_match_classic():
     assert RangeSlider.param.step.default == ClassicRangeSlider.param.step.default
     assert IntRangeSlider().value == ClassicIntRangeSlider().value
     assert EditableRangeSlider().value == ClassicRangeSlider().value
+
+
+@pytest.mark.parametrize('slider_type', [RangeSlider, IntRangeSlider])
+def test_range_slider_derives_value_from_reactive_bounds(slider_type):
+    """Reactive bounds should also drive the default selected range."""
+    start, end = param.rx(1), param.rx(4)
+    slider = slider_type(start=start, end=end)
+    assert slider.value == (1, 4)
+
+    start.rx.value = 2
+    assert slider.start == 2
+    assert slider.value == (2, 4)
+
+
+def test_date_range_slider_derives_value_from_reactive_bounds():
+    """Date range handles retain their nested references when bounds change."""
+    start, end = param.rx(dt.date(2025, 1, 1)), param.rx(dt.date(2025, 1, 4))
+    slider = DateRangeSlider(start=start, end=end)
+    assert slider.value == (dt.date(2025, 1, 1), dt.date(2025, 1, 4))
+
+    start.rx.value = dt.date(2025, 1, 2)
+    assert slider.value == (dt.date(2025, 1, 2), dt.date(2025, 1, 4))
 
 
 @pytest.mark.parametrize(('options', 'formatter', 'expected'), [
