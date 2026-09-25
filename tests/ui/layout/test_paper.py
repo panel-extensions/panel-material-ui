@@ -114,24 +114,21 @@ def test_float_panel_size_and_smallified(page):
 
 
 def test_float_panel_buttons_can_be_hidden(page):
-    """Each title-bar action can be hidden independently (#679)."""
-    panel = FloatPanel("Content", contained=False, show_minimize_button=False,
-                       show_maximize_button=False)
+    """The controls list selects title-bar actions and updates live (#679)."""
+    panel = FloatPanel("Content", contained=False, controls=["close"])
     serve_component(page, panel)
     expect(page.get_by_role("button", name="Minimize floating panel")).to_have_count(0)
     expect(page.get_by_role("button", name="Maximize floating panel")).to_have_count(0)
     expect(page.get_by_role("button", name="Close floating panel")).to_be_visible()
-    panel.show_close_button = False
+    panel.controls = []
     expect(page.get_by_role("button", name="Close floating panel")).to_have_count(0)
-    panel.show_maximize_button = True
+    panel.controls = ["maximize"]
     expect(page.get_by_role("button", name="Maximize floating panel")).to_be_visible()
 
 
 def test_float_panel_no_controls(page):
     """A floating toolbar can omit all title-bar actions (#679)."""
-    panel = FloatPanel(Button(label="Submit"), contained=False, position="center",
-                       show_minimize_button=False, show_maximize_button=False,
-                       show_close_button=False)
+    panel = FloatPanel(Button(label="Submit"), contained=False, position="center", controls=[])
     serve_component(page, panel)
     surface = page.get_by_role("group", name="Floating panel")
     expect(surface.get_by_role("button")).to_have_count(1)

@@ -1,4 +1,5 @@
 import panel_material_ui as pmui
+import pytest
 
 
 def test_float_panel_defaults_and_list_api():
@@ -9,7 +10,7 @@ def test_float_panel_defaults_and_list_api():
     assert panel.contained is True
     assert panel.offsetx == panel.offsety == 0
     assert panel.status == "normalized"
-    assert panel.show_close_button and panel.show_maximize_button and panel.show_minimize_button
+    assert panel.controls == ["minimize", "maximize", "close"]
     assert panel.width is None and panel.height is None
     assert len(panel.objects) == 1
 
@@ -19,3 +20,9 @@ def test_float_panel_defaults_and_list_api():
     panel.status = "minimized"
     assert panel.position == "center"
     assert panel.status == "minimized"
+
+
+def test_float_panel_controls_validate_options():
+    """Unknown window controls are rejected instead of silently disappearing (#679)."""
+    with pytest.raises(ValueError):
+        pmui.FloatPanel(controls=["unknown"])

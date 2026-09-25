@@ -632,11 +632,9 @@ class FloatPanel(MaterialListLike, PaperMixin):
 
     offsety = param.Integer(default=0, doc="Vertical offset in pixels from the selected position.")
 
-    show_close_button = param.Boolean(default=True, doc="Whether to show the close button.")
-
-    show_maximize_button = param.Boolean(default=True, doc="Whether to show the maximize button.")
-
-    show_minimize_button = param.Boolean(default=True, doc="Whether to show the minimize button.")
+    controls = param.ListSelector(default=["minimize", "maximize", "close"],
+                                  objects=["minimize", "maximize", "close"], doc="""
+        Title-bar controls to display. Set to an empty list to hide all controls.""")
 
     status = param.Selector(default="normalized", objects=[
         "normalized", "maximized", "minimized", "smallified", "smallifiedmax", "closed",

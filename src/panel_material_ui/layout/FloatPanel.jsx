@@ -9,15 +9,13 @@ import Minimize from "@mui/icons-material/Minimize"
 
 export function render({model, view}) {
   const [contained] = model.useState("contained")
+  const [controls] = model.useState("controls")
   const [elevation] = model.useState("elevation")
   const [name] = model.useState("name")
   const [offsetx] = model.useState("offsetx")
   const [offsety] = model.useState("offsety")
   const [position] = model.useState("position")
   const [square] = model.useState("square")
-  const [show_close_button] = model.useState("show_close_button")
-  const [show_maximize_button] = model.useState("show_maximize_button")
-  const [show_minimize_button] = model.useState("show_minimize_button")
   const [status, setStatus] = model.useState("status")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
@@ -113,17 +111,17 @@ export function render({model, view}) {
     >
       <Box ref={header} sx={{display: "flex", alignItems: "center", minHeight: 36, px: 1}}>
         <Typography variant="subtitle2" sx={{flex: 1, pointerEvents: "none"}}>{name}</Typography>
-        {show_minimize_button && <IconButton size="small" aria-label={collapsed ? "Restore floating panel" : "Minimize floating panel"}
+        {controls.includes("minimize") && <IconButton size="small" aria-label={collapsed ? "Restore floating panel" : "Minimize floating panel"}
           onClick={() => setStatus(collapsed ? "normalized" : "minimized")}
         >
           <Minimize fontSize="small" />
         </IconButton>}
-        {show_maximize_button && <IconButton size="small" aria-label={maximized ? "Restore size" : "Maximize floating panel"}
+        {controls.includes("maximize") && <IconButton size="small" aria-label={maximized ? "Restore size" : "Maximize floating panel"}
           onClick={() => setStatus(maximized ? "normalized" : "maximized")}
         >
           {maximized ? <FilterNone fontSize="small" /> : <CropSquare fontSize="small" />}
         </IconButton>}
-        {show_close_button && <IconButton size="small" aria-label="Close floating panel" onClick={() => setStatus("closed")}>
+        {controls.includes("close") && <IconButton size="small" aria-label="Close floating panel" onClick={() => setStatus("closed")}>
           <Close fontSize="small" />
         </IconButton>}
       </Box>
