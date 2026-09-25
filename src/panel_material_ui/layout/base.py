@@ -612,29 +612,37 @@ class Paper(MaterialListLike, PaperMixin):
 class FloatPanel(MaterialListLike, PaperMixin):
     """A draggable, floating Paper surface for Panel and Material UI content.
 
-    Drag the empty surface to move the panel without blocking interactions with its children.
-    ``position`` is the pixel offset from the viewport's left and top edges.
+    Drag the empty surface to move the panel without blocking its children.
+    Position it relative to its parent or the viewport using named anchors.
 
     :Example:
 
-    >>> FloatPanel(Button(label="Submit"), position=(24, 24))
+    >>> FloatPanel("Content", position="center", contained=False)
     """
 
-    position = param.XYCoordinates(default=(24, 24), doc="""
-        Pixel offset (left, top) from the viewport origin. Updated after dragging.""")
+    contained = param.Boolean(default=True, doc="""
+        Whether to position the panel within its parent rather than the viewport.""")
+
+    position = param.Selector(default="right-top", objects=[
+        "center", "left-top", "center-top", "right-top", "right-center",
+        "right-bottom", "center-bottom", "left-bottom", "left-center",
+    ], doc="Initial position within the parent or viewport.")
+
+    offsetx = param.Integer(default=0, doc="Horizontal offset in pixels from the selected position.")
+
+    offsety = param.Integer(default=0, doc="Vertical offset in pixels from the selected position.")
+
+    show_close_button = param.Boolean(default=True, doc="Whether to show the close button.")
+
+    show_maximize_button = param.Boolean(default=True, doc="Whether to show the maximize button.")
+
+    show_minimize_button = param.Boolean(default=True, doc="Whether to show the minimize button.")
+
+    status = param.Selector(default="normalized", objects=[
+        "normalized", "maximized", "minimized", "smallified", "smallifiedmax", "closed",
+    ], doc="Current window state of the floating panel.")
 
     _esm_base = "FloatPanel.jsx"
-
-    def __init__(self, *objects, **params):
-        params.setdefault("width", 0)
-        params.setdefault("height", 0)
-        params.setdefault("sizing_mode", "fixed")
-        super().__init__(*objects, **params)
-
-    def _process_property_change(self, msg):
-        if "position" in msg:
-            msg["position"] = tuple(msg["position"])
-        return super()._process_property_change(msg)
 
 
 class Container(MaterialListLike):

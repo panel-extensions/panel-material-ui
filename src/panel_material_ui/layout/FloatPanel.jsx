@@ -1,62 +1,92 @@
 import Paper from "@mui/material/Paper"
+import Box from "@mui/material/Box"
+import IconButton from "@mui/material/IconButton"
+import Typography from "@mui/material/Typography"
+import Close from "@mui/icons-material/Close"
+import CropSquare from "@mui/icons-material/CropSquare"
+import FilterNone from "@mui/icons-material/FilterNone"
+import Minimize from "@mui/icons-material/Minimize"
 
-export function render({model}) {
+export function render({model, view}) {
+  const [contained] = model.useState("contained")
   const [elevation] = model.useState("elevation")
-  const [position, setPosition] = model.useState("position")
+  const [name] = model.useState("name")
+  const [offsetx] = model.useState("offsetx")
+  const [offsety] = model.useState("offsety")
+  const [position] = model.useState("position")
   const [square] = model.useState("square")
+  const [show_close_button] = model.useState("show_close_button")
+  const [show_maximize_button] = model.useState("show_maximize_button")
+  const [show_minimize_button] = model.useState("show_minimize_button")
+  const [status, setStatus] = model.useState("status")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
   const objects = model.get_child("objects")
-  const [location, setLocation] = React.useState(position)
+  const [location, setLocation] = React.useState(null)
   const paper = React.useRef(null)
+  const header = React.useRef(null)
   const drag = React.useRef(null)
-  const locationRef = React.useRef(position)
 
   React.useEffect(() => {
-    if (drag.current) { return }
-    locationRef.current = position
-    setLocation(position)
-  }, [position])
+    setLocation(null)
+  }, [position, offsetx, offsety, contained])
 
+  const bounds = () => contained ? view.el.getBoundingClientRect() : {
+    left: 0, top: 0, width: window.innerWidth, height: window.innerHeight,
+  }
   const move = (x, y) => {
     const rect = paper.current.getBoundingClientRect()
+    const container = bounds()
     const next = [
-      Math.max(0, Math.min(x, window.innerWidth - rect.width)),
-      Math.max(0, Math.min(y, window.innerHeight - rect.height)),
+      Math.max(0, Math.min(x, Math.max(0, container.width - rect.width))),
+      Math.max(0, Math.min(y, Math.max(0, container.height - rect.height))),
     ]
-    locationRef.current = next
     setLocation(next)
   }
 
   const startDrag = (event) => {
-    if (event.button !== 0 || event.target !== paper.current) { return }
-    drag.current = {x: event.clientX, y: event.clientY, position: locationRef.current}
+    if (event.button !== 0 || (event.target !== paper.current && event.target !== header.current)) { return }
+    const rect = paper.current.getBoundingClientRect()
+    const container = bounds()
+    drag.current = {x: event.clientX, y: event.clientY, left: rect.left - container.left, top: rect.top - container.top}
     event.currentTarget.setPointerCapture(event.pointerId)
     event.preventDefault()
   }
 
   const onPointerMove = (event) => {
     if (!drag.current) { return }
-    const {x, y, position: origin} = drag.current
-    move(origin[0] + event.clientX - x, origin[1] + event.clientY - y)
+    const {x, y, left, top} = drag.current
+    move(left + event.clientX - x, top + event.clientY - y)
   }
 
-  const endDrag = () => {
-    if (!drag.current) { return }
-    drag.current = null
-    setPosition(locationRef.current)
-  }
+  const endDrag = () => { drag.current = null }
 
   const onKeyDown = (event) => {
     const offsets = {ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, -10], ArrowDown: [0, 10]}
-    const offset = offsets[event.key]
-    if (!offset) { return }
+    const delta = offsets[event.key]
+    if (!delta || event.target !== paper.current) { return }
     event.preventDefault()
-    move(locationRef.current[0] + offset[0], locationRef.current[1] + offset[1])
-    setPosition(locationRef.current)
+    const rect = paper.current.getBoundingClientRect()
+    const container = bounds()
+    move(rect.left - container.left + delta[0], rect.top - container.top + delta[1])
   }
 
-  return (
+  const [horizontal, vertical] = position.split("-")
+  const maximized = status === "maximized" || status === "smallifiedmax"
+  const collapsed = status === "minimized" || status.startsWith("smallified")
+  const positioned = location ? {left: location[0], top: location[1]} : {
+    left: horizontal === "left" ? offsetx : horizontal === "center" || !vertical ? `calc(50% + ${offsetx}px)` : undefined,
+    right: horizontal === "right" ? offsetx : undefined,
+    top: vertical === "top" ? offsety : vertical === "center" || !vertical ? `calc(50% + ${offsety}px)` : undefined,
+    bottom: vertical === "bottom" ? offsety : undefined,
+    transform: `translate(${horizontal === "center" || !vertical ? "-50%" : "0"}, ${vertical === "center" || !vertical ? "-50%" : "0"})`,
+  }
+
+  view.el.style.position = contained ? "relative" : "static"
+  view.el.style.width = contained ? "100%" : "0px"
+  view.el.style.height = contained ? "100%" : "0px"
+
+  return status === "closed" ? null : (
     <Paper
       ref={paper}
       aria-label="Floating panel"
@@ -71,13 +101,33 @@ export function render({model}) {
       tabIndex={0}
       variant={variant}
       sx={[{
-        position: "fixed", left: location[0], top: location[1], zIndex: "modal",
-        width: "max-content", maxWidth: "100vw", maxHeight: "100vh",
-        display: "flex", flexDirection: "column", gap: 1, p: 1, overflow: "auto",
-        cursor: "grab", touchAction: "none",
+        position: contained ? "absolute" : "fixed", zIndex: "modal",
+        ...(maximized ? {inset: 0, transform: "none"} : positioned),
+        width: maximized ? "100%" : model.width || "max-content", minWidth: 180,
+        height: maximized ? "100%" : model.height || undefined,
+        maxWidth: "100%", maxHeight: "100%", overflow: "auto",
+        resize: maximized || collapsed ? "none" : "both",
+        display: "flex", flexDirection: "column", cursor: "grab",
+        touchAction: "none",
       }, sx || {}]}
     >
-      {objects}
+      <Box ref={header} sx={{display: "flex", alignItems: "center", minHeight: 36, px: 1}}>
+        <Typography variant="subtitle2" sx={{flex: 1, pointerEvents: "none"}}>{name}</Typography>
+        {show_minimize_button && <IconButton size="small" aria-label={collapsed ? "Restore floating panel" : "Minimize floating panel"}
+          onClick={() => setStatus(collapsed ? "normalized" : "minimized")}
+        >
+          <Minimize fontSize="small" />
+        </IconButton>}
+        {show_maximize_button && <IconButton size="small" aria-label={maximized ? "Restore size" : "Maximize floating panel"}
+          onClick={() => setStatus(maximized ? "normalized" : "maximized")}
+        >
+          {maximized ? <FilterNone fontSize="small" /> : <CropSquare fontSize="small" />}
+        </IconButton>}
+        {show_close_button && <IconButton size="small" aria-label="Close floating panel" onClick={() => setStatus("closed")}>
+          <Close fontSize="small" />
+        </IconButton>}
+      </Box>
+      {!collapsed && <Box sx={{display: "flex", flexDirection: "column", gap: 1, p: 1}}>{objects}</Box>}
     </Paper>
   )
 }
