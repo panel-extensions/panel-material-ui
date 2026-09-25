@@ -4,6 +4,31 @@ import pytest
 from panel_material_ui.widgets import AutocompleteInput, CheckButtonGroup, CrossSelector, RadioButtonGroup, Select
 
 
+def test_radio_button_group_active_tracks_value_and_options(document, comm):
+    """Active exposes the selected index on both Python and the client model."""
+    group = RadioButtonGroup(options={'Low': 2, 'Medium': 5, 'High': 10}, value=5)
+    model = group.get_root(document, comm=comm)
+    assert group.active == model.data.active == 1
+
+    group.value = 10
+    assert group.active == model.data.active == 2
+
+    group.options = {'High': 10, 'Low': 2}
+    assert group.active == model.data.active == 0
+
+    group._process_events({'value': 'Low'})
+    assert group.value == 2
+    assert group.active == model.data.active == 1
+
+    group.options = ['Other']
+    assert group.value == 'Other'
+    assert group.active == model.data.active == 0
+
+    group.options = []
+    assert group.active is None
+    assert model.data.active is None
+
+
 @pytest.mark.parametrize('widget_type', [RadioButtonGroup, CheckButtonGroup])
 @pytest.mark.parametrize(('classic', 'material'), [('solid', 'contained'), ('outline', 'outlined')])
 def test_button_group_classic_variant_constructor(widget_type, classic, material):

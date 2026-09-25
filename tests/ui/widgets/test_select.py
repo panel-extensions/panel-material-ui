@@ -21,6 +21,20 @@ def test_radio_button_group_classic_variant(page):
     expect(selected).not_to_have_css('background-color', 'rgb(25, 118, 210)')
 
 
+def test_radio_button_group_active_jslink(page):
+    """Clicking a Material radio button updates active on the client for jslink."""
+    from panel.widgets import IntInput
+
+    widget = RadioButtonGroup(options=['A', 'B'], value='A')
+    target = IntInput(value=0)
+    widget.jslink(target, active='value')
+    serve_component(page, Column(widget, target))
+
+    page.get_by_role('button', name='B').click()
+    expect(page.locator('input.bk-input')).to_have_value('1')
+    wait_until(lambda: widget.active == 1, page)
+
+
 def test_cross_selector_custom_filter_and_selection_order(page):
     """Server-side search uses filter_fn; selection order can differ from option order."""
     widget = CrossSelector(

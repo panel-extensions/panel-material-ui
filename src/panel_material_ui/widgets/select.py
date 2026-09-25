@@ -501,9 +501,17 @@ class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
     ... )
     """
 
+    active = param.Integer(default=None, readonly=True, doc="""
+        Zero-based index of the selected option, or None if none is selected.""")
+
     value = param.Parameter()
 
     _constants = {"exclusive": True, "loading_inset": -6}
+
+    @param.depends('value', 'options', watch=True, on_init=True)
+    def _sync_active(self):
+        with edit_readonly(self):
+            self.active = indexOf(self.value, self.values) if isIn(self.value, self.values) else None
 
 
 class CheckButtonGroup(_ButtonGroup, MaterialMultiSelectBase):
