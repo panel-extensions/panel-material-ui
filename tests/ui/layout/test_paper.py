@@ -106,11 +106,65 @@ def test_float_panel_size_and_smallified(page):
                        position="left-top", contained=False)
     serve_component(page, panel)
     surface = page.get_by_role("group", name="Floating panel")
-    expect(surface).to_have_css("resize", "both")
+    handle = page.get_by_label("Resize floating panel")
+    expect(handle).to_be_visible()
+    before = surface.bounding_box()
+    corner = handle.bounding_box()
+    assert before is not None and corner is not None
+    page.mouse.move(corner["x"] + corner["width"] / 2, corner["y"] + corner["height"] / 2)
+    page.mouse.down()
+    page.mouse.move(corner["x"] + corner["width"] / 2 + 80,
+                    corner["y"] + corner["height"] / 2 + 60, steps=8)
+    page.mouse.up()
+    after = surface.bounding_box()
+    assert after is not None
+    assert after["width"] >= before["width"] + 60
+    assert after["height"] >= before["height"] + 40
     panel.status = "smallified"
     expect(page.get_by_role("button", name="Content")).to_have_count(0)
     panel.status = "normalized"
     expect(surface).to_contain_text("Content")
+
+
+def test_float_panel_resizes_without_explicit_dimensions(page):
+    """A content-sized panel can be resized from the browser corner (#679)."""
+    panel = FloatPanel("Content", position="left-top", contained=False)
+    serve_component(page, panel)
+    surface = page.get_by_role("group", name="Floating panel")
+    before = surface.bounding_box()
+    corner = page.get_by_label("Resize floating panel").bounding_box()
+    assert before is not None and corner is not None
+    page.mouse.move(corner["x"] + corner["width"] / 2, corner["y"] + corner["height"] / 2)
+    page.mouse.down()
+    page.mouse.move(corner["x"] + corner["width"] / 2 + 80,
+                    corner["y"] + corner["height"] / 2 + 60, steps=8)
+    page.mouse.up()
+    after = surface.bounding_box()
+    assert after is not None
+    assert after["width"] >= before["width"] + 60
+    assert after["height"] >= before["height"] + 40
+
+
+def test_float_panel_resizes_from_right_bottom_anchor(page):
+    """Resizing an anchored panel grows it without moving its top-left corner (#679)."""
+    panel = FloatPanel("Content", position="right-bottom", offsetx=40, offsety=50,
+                       contained=False)
+    serve_component(page, panel)
+    surface = page.get_by_role("group", name="Floating panel")
+    before = surface.bounding_box()
+    corner = page.get_by_label("Resize floating panel").bounding_box()
+    assert before is not None and corner is not None
+    page.mouse.move(corner["x"] + corner["width"] / 2, corner["y"] + corner["height"] / 2)
+    page.mouse.down()
+    page.mouse.move(corner["x"] + corner["width"] / 2 + 30,
+                    corner["y"] + corner["height"] / 2 + 35, steps=8)
+    page.mouse.up()
+    after = surface.bounding_box()
+    assert after is not None
+    assert abs(after["x"] - before["x"]) < 2
+    assert abs(after["y"] - before["y"]) < 2
+    assert after["width"] >= before["width"] + 20
+    assert after["height"] >= before["height"] + 25
 
 
 def test_float_panel_buttons_can_be_hidden(page):

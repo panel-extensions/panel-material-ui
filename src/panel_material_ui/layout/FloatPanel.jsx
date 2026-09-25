@@ -21,16 +21,19 @@ export function render({model, view}) {
   const [variant] = model.useState("variant")
   const objects = model.get_child("objects")
   const [location, setLocation] = React.useState(null)
+  const [size, setSize] = React.useState(null)
   const paper = React.useRef(null)
   const header = React.useRef(null)
   const drag = React.useRef(null)
+  const resizing = React.useRef(null)
 
   React.useEffect(() => {
     setLocation(null)
   }, [position, offsetx, offsety, contained])
 
   const bounds = () => contained ? view.el.getBoundingClientRect() : {
-    left: 0, top: 0, width: window.innerWidth, height: window.innerHeight,
+    left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight,
+    width: window.innerWidth, height: window.innerHeight,
   }
   const move = (x, y) => {
     const rect = paper.current.getBoundingClientRect()
@@ -58,6 +61,30 @@ export function render({model, view}) {
   }
 
   const endDrag = () => { drag.current = null }
+
+  const startResize = (event) => {
+    if (event.button !== 0) { return }
+    const rect = paper.current.getBoundingClientRect()
+    const container = bounds()
+    resizing.current = {x: event.clientX, y: event.clientY, width: rect.width, height: rect.height}
+    setLocation([rect.left - container.left, rect.top - container.top])
+    event.currentTarget.setPointerCapture(event.pointerId)
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
+  const onResize = (event) => {
+    if (!resizing.current) { return }
+    const {x, y, width: initialWidth, height: initialHeight} = resizing.current
+    const rect = paper.current.getBoundingClientRect()
+    const container = bounds()
+    setSize([
+      Math.max(180, Math.min(initialWidth + event.clientX - x, Math.max(180, container.right - rect.left))),
+      Math.max(40, Math.min(initialHeight + event.clientY - y, Math.max(40, container.bottom - rect.top))),
+    ])
+  }
+
+  const endResize = () => { resizing.current = null }
 
   const onKeyDown = (event) => {
     const offsets = {ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, -10], ArrowDown: [0, 10]}
@@ -101,10 +128,9 @@ export function render({model, view}) {
       sx={[{
         position: contained ? "absolute" : "fixed", zIndex: "modal",
         ...(maximized ? {inset: 0, transform: "none"} : positioned),
-        width: maximized ? "100%" : model.width || "max-content", minWidth: 180,
-        height: maximized ? "100%" : model.height || undefined,
+        width: maximized ? "100%" : (size ? size[0] : model.width || "max-content"), minWidth: 180,
+        height: maximized ? "100%" : (size ? size[1] : model.height || undefined),
         maxWidth: "100%", maxHeight: "100%", overflow: "auto",
-        resize: maximized || collapsed ? "none" : "both",
         display: "flex", flexDirection: "column", cursor: "grab",
         touchAction: "none",
       }, sx || {}]}
@@ -126,6 +152,14 @@ export function render({model, view}) {
         </IconButton>}
       </Box>
       {!collapsed && <Box sx={{display: "flex", flexDirection: "column", gap: 1, p: 1}}>{objects}</Box>}
+      {!maximized && !collapsed && <Box
+        aria-label="Resize floating panel"
+        onPointerDown={startResize}
+        onPointerMove={onResize}
+        onPointerUp={endResize}
+        onPointerCancel={endResize}
+        sx={{position: "absolute", right: 0, bottom: 0, width: 16, height: 16, cursor: "nwse-resize", touchAction: "none"}}
+      />}
     </Paper>
   )
 }
