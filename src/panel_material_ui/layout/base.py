@@ -612,7 +612,7 @@ class Paper(MaterialListLike, PaperMixin):
 class FloatPanel(MaterialListLike, PaperMixin):
     """A draggable, floating Paper surface for Panel and Material UI content.
 
-    Drag the handle to move the panel without blocking interactions with its children.
+    Drag the empty surface to move the panel without blocking interactions with its children.
     ``position`` is the pixel offset from the viewport's left and top edges.
 
     :Example:

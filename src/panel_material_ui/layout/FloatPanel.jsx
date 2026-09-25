@@ -1,6 +1,4 @@
-import Box from "@mui/material/Box"
 import Paper from "@mui/material/Paper"
-import DragIndicator from "@mui/icons-material/DragIndicator"
 
 export function render({model}) {
   const [elevation] = model.useState("elevation")
@@ -31,7 +29,7 @@ export function render({model}) {
   }
 
   const startDrag = (event) => {
-    if (event.button !== 0) { return }
+    if (event.button !== 0 || event.target !== paper.current) { return }
     drag.current = {x: event.clientX, y: event.clientY, position: locationRef.current}
     event.currentTarget.setPointerCapture(event.pointerId)
     event.preventDefault()
@@ -61,29 +59,25 @@ export function render({model}) {
   return (
     <Paper
       ref={paper}
+      aria-label="Floating panel"
       elevation={elevation}
+      onPointerDown={startDrag}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onKeyDown={onKeyDown}
+      role="group"
       square={square}
+      tabIndex={0}
       variant={variant}
       sx={[{
         position: "fixed", left: location[0], top: location[1], zIndex: "modal",
         width: "max-content", maxWidth: "100vw", maxHeight: "100vh",
-        display: "flex", flexDirection: "column", overflow: "auto",
+        display: "flex", flexDirection: "column", gap: 1, p: 1, overflow: "auto",
+        cursor: "grab", touchAction: "none",
       }, sx || {}]}
     >
-      <Box
-        aria-label="Drag floating panel"
-        onPointerDown={startDrag}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        onKeyDown={onKeyDown}
-        role="button"
-        tabIndex={0}
-        sx={{display: "flex", justifyContent: "center", cursor: "grab", touchAction: "none", userSelect: "none"}}
-      >
-        <DragIndicator fontSize="small" sx={{pointerEvents: "none"}} />
-      </Box>
-      <Box sx={{display: "flex", flexDirection: "column", p: 1}}>{objects}</Box>
+      {objects}
     </Paper>
   )
 }
