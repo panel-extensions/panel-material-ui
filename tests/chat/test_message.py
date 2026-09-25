@@ -3,8 +3,9 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component
-from panel_material_ui.chat import ChatMessage
 from playwright.sync_api import expect
+
+from panel_material_ui.chat import ChatMessage
 
 pytestmark = pytest.mark.ui
 
@@ -42,6 +43,28 @@ def test_chat_message_footer_objects(page):
     # Both footer items should be visible
     expect(page.get_by_text("Footer Item 1")).to_be_visible()
     expect(page.get_by_text("Footer Item 2")).to_be_visible()
+
+
+def test_chat_message_header_footer_layout(page):
+    """#719: Header and footer objects stack; the footer precedes message icons."""
+    widget = ChatMessage(
+        object="Main content",
+        header_objects=["Header A", "Header B"],
+        footer_objects=["Footer A", "Footer B"],
+        show_copy_icon=True,
+    )
+    serve_component(page, widget)
+
+    header = page.get_by_text("Header A")
+    header_next = page.get_by_text("Header B")
+    footer = page.get_by_text("Footer A")
+    footer_next = page.get_by_text("Footer B")
+    icon = page.locator('.MuiIconButton-root').first
+    expect(icon).to_be_visible()
+
+    assert header.bounding_box()['y'] < header_next.bounding_box()['y']
+    assert footer.bounding_box()['y'] < footer_next.bounding_box()['y']
+    assert footer_next.bounding_box()['y'] < icon.bounding_box()['y']
 
 
 def test_chat_message_all_sections(page):

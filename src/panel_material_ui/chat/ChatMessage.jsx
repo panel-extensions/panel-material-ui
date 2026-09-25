@@ -211,12 +211,15 @@ export function render({model, view}) {
         {show_user && <Typography variant="caption">
           {render_icon_text(user)}
         </Typography>}
-        <Stack direction="row" spacing={0}>
+        <Stack direction="column" spacing={0}>
           {header}
         </Stack>
         <Paper ref={paperRef} elevation={elevation} sx={{bgcolor: "background.paper", width: (isResponsive || isEditing) ? "100%" : "fit-content"}}>
           {object}
         </Paper>
+        <Stack direction="column" spacing={0}>
+          {footer}
+        </Stack>
         <Stack direction="row" spacing={0} sx={{position: "relative", zIndex: 1}}>
           {show_edit_icon && <IconButton disableRipple size="small" sx={{padding: "0 0.1em"}} onClick={() => { model.send_msg("edit") }}>
             <EditNoteIcon sx={{width: "0.8em"}} color="lightgray"/>
@@ -233,9 +236,6 @@ export function render({model, view}) {
               })()}
             </IconButton>
           ))}
-        </Stack>
-        <Stack direction="row" spacing={0}>
-          {footer}
         </Stack>
         {show_timestamp && <Typography variant="caption" color="text.secondary">
           {timestamp}
