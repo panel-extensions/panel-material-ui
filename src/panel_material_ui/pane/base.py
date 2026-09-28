@@ -6,6 +6,7 @@ import param
 from panel.pane import HoloViews, Markdown
 
 from ..base import MaterialComponent
+from ..theme import PANEL_DESIGN_HOOKS
 from ..widgets import (
     DatetimeInput,
     DiscreteSlider,
@@ -17,15 +18,16 @@ from ..widgets import (
     Select,
 )
 
-HoloViews.default_widgets = dict(  # type: ignore[assignment]
-    HoloViews.default_widgets,
-    date=DatetimeInput,
-    discrete=Select,
-    discrete_numeric=DiscreteSlider,
-    float=(FloatSlider, EditableFloatSlider),
-    int=(IntSlider, EditableIntSlider),
-    scrubber=Player
-)
+if not PANEL_DESIGN_HOOKS:
+    HoloViews.default_widgets = dict(  # type: ignore[assignment]
+        HoloViews.default_widgets,
+        date=DatetimeInput,
+        discrete=Select,
+        discrete_numeric=DiscreteSlider,
+        float=(FloatSlider, EditableFloatSlider),
+        int=(IntSlider, EditableIntSlider),
+        scrubber=Player
+    )
 
 class MaterialPaneBase(MaterialComponent):
 

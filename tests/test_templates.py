@@ -1,4 +1,5 @@
 import pathlib
+import re
 from io import StringIO
 
 import pytest
@@ -6,6 +7,8 @@ import pytest
 import panel_material_ui as pmui
 from panel.config import config
 from panel.io.resources import CDN_DIST
+from panel_material_ui.base import _env
+from panel_material_ui.theme import PANEL_DESIGN_HOOKS
 
 STATIC_PATH = pathlib.Path(__file__).parent.parent / "doc" / "_static"
 
@@ -29,14 +32,9 @@ def _render_page(**kwargs) -> str:
 def test_default_page_parameters():
     html = _render_page()
 
-    assert (
-        f"""<link rel="icon" href="{CDN_DIST}images/favicon.ico">"""
-        in html
-    )
-    assert (
-        f"""<link rel="apple-touch-icon" href="{CDN_DIST}images/apple-touch-icon.png">"""
-        in html
-    )
+    # Panel's base template (Panel >= 1.10) also declares the icon sizes.
+    assert re.search(f'<link rel="icon"[^>]* href="{CDN_DIST}images/favicon.ico">', html)
+    assert re.search(f'<link rel="apple-touch-icon"[^>]* href="{CDN_DIST}images/apple-touch-icon.png">', html)
     assert not """<meta name="name" """ in html
     assert not """<meta name="description" """ in html
     assert not """<meta name="keywords" """ in html
@@ -89,6 +87,20 @@ def test_custom_page_parameters(key, value, expected):
 def test_favicon():
     html = _render_page(favicon=STATIC_PATH / "icons" / "icon-16x16.png")
     assert """<link rel="icon" href="data:image/png;""" in html
+
+
+@pytest.mark.skipif(not PANEL_DESIGN_HOOKS, reason='Requires Panel shared base template')
+def test_custom_legacy_page_template():
+    html = _render_page(
+        template=_env.get_template('base.html'),
+        favicon='https://example.com/favicon.ico',
+        meta_apple_touch_icon='https://example.com/apple-touch.png',
+    )
+    assert '<link rel="icon" href="https://example.com/favicon.ico">' in html
+    assert '<link rel="apple-touch-icon" href="https://example.com/apple-touch.png">' in html
+    assert 'data-theme-managed="true"' in html
+    assert f'<link rel="stylesheet" href="{CDN_DIST}bundled/theme/default.css">' not in html
+
 
 def test_logo():
     page = pmui.Page(logo=STATIC_PATH / "logo_horizontal_light_theme.png")

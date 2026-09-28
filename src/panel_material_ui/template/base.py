@@ -16,6 +16,7 @@ from param.parameterized import edit_constant
 
 from .._utils import _read_icon
 from ..base import BASE_TEMPLATE, MaterialComponent, ThemedTransform, _env
+from ..theme import APPLE_ICON_VAR, FAVICON_VAR, THEME_MANAGED_VAR
 from ..widgets.base import MaterialWidget
 
 if t.TYPE_CHECKING:
@@ -223,11 +224,11 @@ class Page(MaterialComponent, ResourceComponent):
     def _populate_template_variables(self, template_variables):
         template_variables['meta'] = self.meta
         if favicon := self.favicon or self.meta.icon:
-            template_variables['favicon'] = _read_icon(favicon)
+            template_variables[FAVICON_VAR] = template_variables['favicon'] = _read_icon(favicon)
         if apple_touch_icon := self.meta.apple_touch_icon:
-            template_variables['apple_touch_icon'] = _read_icon(apple_touch_icon)
+            template_variables[APPLE_ICON_VAR] = template_variables['apple_touch_icon'] = _read_icon(apple_touch_icon)
         template_variables['resources'] = self.resolve_resources()
-        template_variables['is_page'] = True
+        template_variables[THEME_MANAGED_VAR] = template_variables['is_page'] = True
 
     def get_root(
         self, doc: Document | None = None, comm: Comm | None = None,
