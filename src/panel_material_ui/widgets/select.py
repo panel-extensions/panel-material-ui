@@ -303,7 +303,8 @@ class _SelectDropdownBase(MaterialWidget):
         props = super()._process_param_change(params)
         # The frontend identifies options by label, so disabled values must be
         # translated like the value itself.
-        if props.get('disabled_options') and (isinstance(self.options, dict) or self.groups):
+        # MultiChoice shares this base but has no groups.
+        if props.get('disabled_options') and (isinstance(self.options, dict) or getattr(self, 'groups', None)):
             labels, values = self.labels, self.values
             props['disabled_options'] = [
                 labels[indexOf(v, values)] if isIn(v, values) else v

@@ -6,6 +6,7 @@ from panel_material_ui.widgets import (
     CheckBoxGroup,
     CheckButtonGroup,
     CrossSelector,
+    MultiChoice,
     RadioBoxGroup,
     RadioButtonGroup,
     Select,
@@ -248,6 +249,21 @@ def test_select_dict_disabled_options_sent_as_labels(kwargs, document, comm):
 
     select.disabled_options = [3]
     assert widget.data.disabled_options == ['c']
+
+@pytest.mark.parametrize('widget_type', [Select, MultiChoice])
+def test_list_disabled_options_sent_unchanged(widget_type, document, comm):
+    select = widget_type(options=['a', 'b', 'c'], disabled_options=['b'])
+
+    widget = select.get_root(document, comm=comm)
+
+    assert widget.data.disabled_options == ['b']
+
+def test_multi_choice_dict_disabled_options_sent_as_labels(document, comm):
+    select = MultiChoice(options={'a': 1, 'b': 2, 'c': 3}, disabled_options=[2])
+
+    widget = select.get_root(document, comm=comm)
+
+    assert widget.data.disabled_options == ['b']
 
 def test_select_change_groups(document, comm):
     groups = dict(A=dict(a=1, b=2), B=dict(c=3))
