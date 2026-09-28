@@ -4,6 +4,7 @@ from panel.theme.base import Design
 
 from panel_material_ui.base import MaterialUIComponent
 from panel_material_ui.theme import MaterialDesign
+from panel_material_ui.widgets import Button
 
 
 class _TestComponentESMBase(MaterialUIComponent):
@@ -81,3 +82,26 @@ def test_design_explicit_kwarg_always_wins(reset_config_design):
     config.design = _OtherMaterialDesign
     component = _TestComponentESM(design=MaterialDesign)
     assert component.design is MaterialDesign
+
+
+class _ExternalButton(Button):
+    """A subclass defined outside panel_material_ui, which the bundle does not export."""
+
+
+def test_external_subclass_renders_with_compiled_ancestor(document):
+    button = _ExternalButton(label='External')
+    assert button._get_properties(document)['class_name'] == 'Button'
+
+
+def test_interactive_subclass_resolves_bundle(document):
+    # Classes defined in IPython have no module file to resolve the bundle from.
+    cls = type('InteractiveButton', (Button,), {'__module__': 'interactive_session'})
+    props = cls(label='Interactive')._get_properties(document)
+    assert props['bundle'] is not None
+    assert props['class_name'] == 'Button'
+
+
+def test_material_ui_component_keeps_its_class_name(document):
+    props = _TestComponentESM()._get_properties(document)
+    assert props['bundle'] is None
+    assert props['class_name'] == '_TestComponentESM'

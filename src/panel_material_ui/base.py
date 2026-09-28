@@ -293,6 +293,14 @@ function {output}(props, ref) {{
 """
 
 
+def _compiled_ancestor(cls: type) -> type:
+    """Returns the closest class in the MRO that is compiled into the bundle."""
+    for scls in cls.__mro__:
+        if scls.__module__.startswith("panel_material_ui."):
+            return scls
+    return cls
+
+
 class MaterialComponent(ReactComponent):
     """
     Baseclass for all MaterialComponents which defines the bundle location,
@@ -397,6 +405,14 @@ class MaterialComponent(ReactComponent):
         watcher = current_bundle_watcher()
         if watcher is not None and not self._models:
             watcher.unsubscribe(self)
+
+    @classproperty  # type: ignore
+    def _bundle_path(cls) -> os.PathLike | None:
+        # Panel resolves the bundle relative to the module of the class, which
+        # fails for classes defined interactively, e.g. in IPython.
+        if isinstance(cls._bundle, os.PathLike) and not (config.autoreload and cls._esm):
+            return cls._bundle
+        return super(MaterialComponent, cls)._bundle_path
 
     @classmethod
     def _esm_path(cls, compiled=True):
@@ -505,6 +521,10 @@ class MaterialComponent(ReactComponent):
         props = super()._get_properties(doc)
         props.pop('loading', None)
         props['data'].loading = self.loading
+        if props.get('bundle') is not None:
+            # The bundle only exports the components defined in this package,
+            # so subclasses defined elsewhere render with their compiled ancestor.
+            props['class_name'] = _compiled_ancestor(type(self)).__name__
         return props
 
     @property
@@ -732,7 +752,9 @@ class MaterialUIComponent(MaterialComponent):
 
     def _get_properties(self, doc: Document | None) -> dict[str, t.Any]:
         props = super()._get_properties(doc)
-        props['bundle'] = None
+        # Renders its own ESM, so it keeps its own name rather than the one of
+        # the ancestor it would be looked up by in the bundle.
+        props.update(bundle=None, class_name=type(self).__name__)
         return props
 
     @classmethod

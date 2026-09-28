@@ -89,6 +89,7 @@ export function render_theme_css(theme) {
       --bokeh-base-font: ${theme.typography.fontFamily};
       --divider-color: ${theme.palette.divider};
       --border-color: rgba(${theme.palette.common.onBackgroundChannel} / 0.23);
+      --panel-icon-filter: ${dark ? "invert(1)" : "none"};
     }
   `
 }
@@ -679,6 +680,18 @@ function alpha(theme, channel, value) {
   return `rgba(${normalizedChannel}, ${value})`
 }
 
+const _original_figure_styles = new WeakMap()
+
+function original_figure_style(model) {
+  if (!_original_figure_styles.has(model)) {
+    _original_figure_styles.set(model, {
+      outline: model.outline_line_color != null,
+      transparent: model.background_fill_alpha === 0,
+    })
+  }
+  return _original_figure_styles.get(model)
+}
+
 function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   const model_props = {}
   const model_type = model.type.endsWith("ReactiveESM") ? model.class_name : model.type
@@ -779,10 +792,26 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   } else if ((model_type.endsWith("Figure") | model_type.endsWith("Figure")) && !custom_theme.includes("Plot") && !custom_theme.includes("Figure")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = view ? find_on_parent(view, "elevation") : 0
+    const original = original_figure_style(model)
     model_props.background_fill_color = theme.palette.background.paper
     model_props.border_fill_color = elevation_color(elevation, theme, dark)
-    model_props.outline_line_color = text
-    model_props.outline_line_alpha = minimal ? (dark ? 0.25 : 0) : 1
+    if (original.transparent) {
+      // Figures that opted into a transparent background, e.g. the Panel
+      // indicators, should not become boxes on the themed surface.
+      model_props.border_fill_alpha = 0
+    }
+    if (!original.outline) {
+      model_props.outline_line_color = null
+    } else {
+      model_props.outline_line_color = text
+      model_props.outline_line_alpha = minimal ? (dark ? 0.25 : 0) : 1
+    }
+    const layer = view?.canvas_view.primary
+    if (layer?.canvas instanceof HTMLCanvasElement && model.border_fill_color !== model_props.border_fill_color) {
+      // BokehJS clears the canvas after its half-pixel translate, so the outermost
+      // pixel row and column keep the previous border fill after a theme change.
+      layer.undo_transform(ctx => ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height))
+    }
     if (view) {
       apply_bokeh_theme(view.canvas_view.model, theme, dark, font_family, custom_theme)
     }
@@ -797,6 +826,32 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
         color: ${theme.palette.primary.main} !important;
       `
     ]
+  } else if (model_type.endsWith("Terminal")) {
+    const view = Bokeh.index.find_one_by_id(model.id)
+    const elevation = view ? find_on_parent(view, "elevation") : 0
+    // Stays dark in the light theme too: the ANSI palette of terminal output
+    // assumes a dark background, so e.g. yellow and white text would vanish.
+    const background = dark ? elevation_color(elevation, theme, dark) : theme.palette.grey[900]
+    const term_theme = {
+      background,
+      foreground: theme.palette.common.white,
+      cursor: theme.palette.common.white,
+      cursorAccent: background,
+      selection: "rgba(255, 255, 255, 0.3)",
+      selectionBackground: "rgba(255, 255, 255, 0.3)",
+    }
+    // Options are only read when the terminal is created, so update the live
+    // terminal directly and store the theme silently for later re-renders.
+    model.setv({options: {...model.options, theme: term_theme}}, {silent: true})
+    if (view?.term) {
+      if (view.term.setOption) {
+        view.term.setOption("theme", term_theme)
+      } else {
+        view.term.options.theme = term_theme
+      }
+    }
+  } else if (model_type.endsWith("ECharts") && (model.data?.series ?? []).length && model.data.series.every(s => s.type === "gauge")) {
+    model_props.theme = dark ? "dark" : "default"
   } else if (model_type.endsWith("AcePlot")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     model_props.theme = dark ? "github_dark" : "github_light_default"
