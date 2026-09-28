@@ -623,10 +623,13 @@ class FloatPanel(MaterialListLike, PaperMixin):
     contained = param.Boolean(default=True, doc="""
         Whether to position the panel within its parent rather than the viewport.""")
 
-    position = param.Selector(default="right-top", objects=[
+    position: t.Literal[
         "center", "left-top", "center-top", "right-top", "right-center",
         "right-bottom", "center-bottom", "left-bottom", "left-center",
-    ], doc="Initial position within the parent or viewport.")
+    ] = param.Selector(default="right-top", objects=[
+        "center", "left-top", "center-top", "right-top", "right-center",
+        "right-bottom", "center-bottom", "left-bottom", "left-center",
+    ], doc="Initial position within the parent or viewport.")  # type: ignore[assignment]
 
     offsetx = param.Integer(default=0, doc="Horizontal offset in pixels from the selected position.")
 
@@ -636,9 +639,11 @@ class FloatPanel(MaterialListLike, PaperMixin):
                                   objects=["minimize", "maximize", "close"], doc="""
         Title-bar controls to display. Set to an empty list to hide all controls.""")
 
-    status = param.Selector(default="normalized", objects=[
+    status: t.Literal[
         "normalized", "maximized", "minimized", "smallified", "smallifiedmax", "closed",
-    ], doc="Current window state of the floating panel.")
+    ] = param.Selector(default="normalized", objects=[
+        "normalized", "maximized", "minimized", "smallified", "smallifiedmax", "closed",
+    ], doc="Current window state of the floating panel.")  # type: ignore[assignment]
 
     _esm_base = "FloatPanel.jsx"
 
