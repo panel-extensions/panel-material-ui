@@ -158,6 +158,47 @@ def test_select_groups(page):
     page.locator(".MuiMenuItem-root").nth(3).click()
     wait_until(lambda: widget.value == "Option 4", page)
 
+def test_select_groups_dict_labels(page):
+    widget = Select(
+        label='Select test',
+        groups={
+            "Group 1": {"Label A": "a", "Label B": "b"},
+            "Group 2": {"Label C": "c"},
+        }
+    )
+    serve_component(page, widget)
+
+    page.locator(".select").click()
+
+    items = page.locator(".MuiMenuItem-root")
+    expect(items).to_have_text(["Label A", "Label B", "Label C"])
+
+    items.nth(2).click()
+    wait_until(lambda: widget.value == "c", page)
+    expect(page.locator(".select")).to_contain_text("Label C")
+
+def test_select_groups_searchable(page):
+    widget = Select(
+        label='Select test',
+        groups={
+            "Group 1": {"Apple": "a", "Banana": "b"},
+            "Group 2": {"Cherry": "c", "Apricot": "d"},
+        },
+        searchable=True,
+        filter_on_search=True,
+    )
+    serve_component(page, widget)
+
+    page.locator(".select").click()
+    page.locator("input[placeholder='Search...']").fill("ap")
+
+    items = page.locator(".MuiMenuItem-root[data-matched]")
+    expect(items).to_have_text(["Apple", "Apricot"])
+    expect(page.locator(".MuiListSubheader-root")).to_have_text(["Group 1", "Group 2"])
+
+    items.nth(1).click()
+    wait_until(lambda: widget.value == "d", page)
+
 @pytest.mark.parametrize('color', ["primary", "secondary", "error", "info", "success", "warning"])
 def test_select_colors(page, color):
     widget = Select(label='Select test', options=["Option 1", "Option 2"], color=color)

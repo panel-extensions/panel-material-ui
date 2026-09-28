@@ -89,6 +89,16 @@ export function render({model, el, view}) {
         return {value, label}
       })
     }
+    if (options && typeof options === "object") {
+      // Grouped options arrive as Panel's (str(value), label) pairs, but the
+      // model value is the label, so the label serves as both.
+      return Object.entries(options).flatMap(([group, groupOptions]) => (
+        groupOptions.map((option) => {
+          const label = Array.isArray(option) ? option[1] : option
+          return {value: label, label, group}
+        })
+      ))
+    }
     return []
   }
 
@@ -218,25 +228,6 @@ export function render({model, el, view}) {
   }
 
   const renderMenuItems = () => {
-    if (typeof options === "object" && !Array.isArray(options)) {
-      return Object.entries(options).flatMap(([groupLabel, groupOptions]) => [
-        <ListSubheader key={`${groupLabel}-header`}>{render_icon_text(groupLabel)}</ListSubheader>,
-        ...groupOptions.map((option, idx) => {
-          const optValue = Array.isArray(option) ? option[1] : option
-          const optLabel = Array.isArray(option) ? option[0] : option
-          return (
-            <MenuItem
-              key={`${groupLabel}-${idx}`}
-              value={optValue}
-              disabled={disabled_options?.includes(optValue)}
-            >
-              {render_icon_text(optLabel)}
-            </MenuItem>
-          )
-        }),
-      ])
-    }
-
     return (
       <>
         {searchable && <MenuItem
@@ -420,10 +411,17 @@ export function render({model, el, view}) {
             ...(bookmarkedOptions.length > 0
               ? [...bookmarkedOptions.map(item => ({...item, isBookmarked: true})), {isDivider: true}]
               : []),
-            ...filteredOptions.map(item => ({...item, isBookmarked: false}))
+            ...filteredOptions.flatMap((item, index) => {
+              const entry = {...item, isBookmarked: false}
+              const newGroup = item.group !== undefined && item.group !== filteredOptions[index - 1]?.group
+              return newGroup ? [{isHeader: true, group: item.group}, entry] : [entry]
+            })
           ].map((item, index) => {
             if (item.isDivider) {
               return <MenuItem key={`divider-${index}`} disabled divider />;
+            }
+            if (item.isHeader) {
+              return <ListSubheader key={`${item.group}-header`}>{render_icon_text(item.group)}</ListSubheader>
             }
 
             const matched = filterStr && matches(item.label);
