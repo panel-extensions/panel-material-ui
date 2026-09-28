@@ -1,6 +1,8 @@
 import pytest
+from panel.config import config
 from panel.pane import HoloViews
 
+from panel_material_ui.theme import PANEL_DESIGN_HOOKS, MaterialDesign
 from panel_material_ui.widgets import DiscretePlayer, Player
 
 
@@ -87,4 +89,8 @@ def test_discrete_player_option_change_keeps_value_valid(document, comm):
 
 
 def test_holoviews_scrubber_is_material_player():
-    assert HoloViews.default_widgets['scrubber'] is Player
+    if PANEL_DESIGN_HOOKS:
+        with config.set(design=MaterialDesign):
+            assert HoloViews._resolve_widget('scrubber', False) is Player
+    else:
+        assert HoloViews.default_widgets['scrubber'] is Player

@@ -13,10 +13,20 @@ from panel.io.resources import (
     resolve_custom_path,
 )
 from panel.io.state import state
-from panel.theme.base import THEME_CSS, Theme
+from panel.theme.base import THEME_CSS, Design, Theme
 from panel.theme.material import Material, MaterialDarkTheme, MaterialDefaultTheme
 from panel.util import relative_to
 from panel.viewable import Viewable
+
+# Panel 1.10 resolves generated widgets and loading resources through the
+# active Design, which replaces patching Panel's globals at import time.
+PANEL_DESIGN_HOOKS = hasattr(Design, 'component_mapping')
+
+# Panel's base template names these like its classic templates.
+FAVICON_VAR, APPLE_ICON_VAR, THEME_MANAGED_VAR = (
+    ('app_favicon', 'apple_icon', 'theme_managed') if PANEL_DESIGN_HOOKS
+    else ('favicon', 'apple_touch_icon', 'is_page')
+)
 
 MATERIAL_UI_ICONS = """
 .material-icons { font-family: 'Material Icons'; }
@@ -159,6 +169,7 @@ class MaterialDesign(Material):
     }
 
     _resources = {}
+    _template_variables = {'material_ui': True}
     _themes = {'dark': MuiDarkTheme, 'default': MuiDefaultTheme}
 
     @classmethod

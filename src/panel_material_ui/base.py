@@ -55,7 +55,7 @@ from ._watcher import (
     get_bundle_watcher,
     in_site_packages,
 )
-from .theme import MaterialDesign
+from .theme import PANEL_DESIGN_HOOKS, THEME_MANAGED_VAR, MaterialDesign
 
 if t.TYPE_CHECKING:
     from bokeh.document import Document
@@ -126,12 +126,15 @@ _env.filters['json'] = lambda obj: Markup(json.dumps(obj, cls=json_dumps))
 _env.filters['conffilter'] = conffilter
 _env.filters['sorted'] = sorted
 
-BASE_TEMPLATE = _env.get_template('base.html')
-
-# Replace the default convert template and loading spinner
-panel.io.convert.BASE_TEMPLATE = panel.io.resources.BASE_TEMPLATE = BASE_TEMPLATE
-
-panel.io.convert.loading_resources = lambda template, inline: [PN_LOADING_MSG_CSS]
+if PANEL_DESIGN_HOOKS:
+    # Panel's base template renders the Material document styles when the
+    # design sets the material_ui template variable.
+    BASE_TEMPLATE = panel.io.resources.BASE_TEMPLATE
+else:
+    BASE_TEMPLATE = _env.get_template('base.html')
+    # Replace the default convert template and loading spinner
+    panel.io.convert.BASE_TEMPLATE = panel.io.resources.BASE_TEMPLATE = BASE_TEMPLATE
+    panel.io.convert.loading_resources = lambda template, inline: [PN_LOADING_MSG_CSS]
 
 FONT_WOFF = [
     str(p) for p in DIST_PATH.glob('material-icons-*.woff*')
@@ -155,10 +158,11 @@ FONT_CSS = [str(DIST_PATH / "material-icons.css")]
 mimetypes.add_type("font/woff", ".woff")
 mimetypes.add_type("font/woff2", ".woff2")
 
-try:
-    panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
-except AttributeError:
-    pass
+if not PANEL_DESIGN_HOOKS:
+    try:
+        panel.io.server.BASE_TEMPLATE = BASE_TEMPLATE
+    except AttributeError:
+        pass
 
 
 class ESMTransform:
@@ -592,7 +596,7 @@ class MaterialComponent(ReactComponent):
         if not template_variables:
             template_variables = {}
         if any(isinstance(c, ThemeToggle) for c in self.select()):
-            template_variables['is_page'] = True
+            template_variables[THEME_MANAGED_VAR] = True
         super().save(
             filename,
             title,
@@ -611,7 +615,7 @@ class MaterialComponent(ReactComponent):
         doc.title = title or 'Panel Application'
         doc.template = BASE_TEMPLATE
         if any(isinstance(c, ThemeToggle) for c in self.select()):
-            doc.template_variables['is_page'] = True
+            doc.template_variables[THEME_MANAGED_VAR] = True
         return doc
 
     def preview(self, width: int | None = 800, height: int | None = 600, border: str="1px solid #ccc", **kwargs):
