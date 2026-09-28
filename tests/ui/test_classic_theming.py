@@ -45,18 +45,18 @@ def test_opaque_figure_is_themed(page):
     ) == ['#fff', '#121212'], page)
 
 
-def test_terminal_follows_theme(page):
+def test_terminal_stays_dark_and_matches_dark_surface(page):
     serve_component(page, Page(main=[pn.widgets.Terminal('Hello', height=100)]))
 
     wait_until(lambda: model_state(
         page, 'Terminal', '[model.options.theme.background, model.options.theme.foreground]'
-    ) == ['#fff', '#212121'], page)
+    ) == ['#212121', '#fff'], page)
 
     toggle_theme(page)
 
     wait_until(lambda: model_state(
-        page, 'Terminal', '[model.options.theme.foreground, view.term.getOption("theme").foreground]'
-    ) == ['#fff', '#fff'], page)
+        page, 'Terminal', '[model.options.theme.background, view.term.getOption("theme").background]'
+    ) == ['#121212', '#121212'], page)
 
 
 def test_gauge_follows_theme(page):

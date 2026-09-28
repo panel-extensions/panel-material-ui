@@ -829,15 +829,16 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   } else if (model_type.endsWith("Terminal")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = view ? find_on_parent(view, "elevation") : 0
-    // xterm drops translucent colors such as the MUI text color.
-    const foreground = dark ? theme.palette.common.white : theme.palette.grey[900]
+    // Stays dark in the light theme too: the ANSI palette of terminal output
+    // assumes a dark background, so e.g. yellow and white text would vanish.
+    const background = dark ? elevation_color(elevation, theme, dark) : theme.palette.grey[900]
     const term_theme = {
-      background: elevation_color(elevation, theme, dark),
-      foreground,
-      cursor: foreground,
-      cursorAccent: elevation_color(elevation, theme, dark),
-      selection: alpha(theme, theme.palette.primary.mainChannel, 0.3),
-      selectionBackground: alpha(theme, theme.palette.primary.mainChannel, 0.3),
+      background,
+      foreground: theme.palette.common.white,
+      cursor: theme.palette.common.white,
+      cursorAccent: background,
+      selection: "rgba(255, 255, 255, 0.3)",
+      selectionBackground: "rgba(255, 255, 255, 0.3)",
     }
     // Options are only read when the terminal is created, so update the live
     // terminal directly and store the theme silently for later re-renders.
