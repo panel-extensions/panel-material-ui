@@ -293,6 +293,14 @@ function {output}(props, ref) {{
 """
 
 
+def _compiled_ancestor(cls: type) -> type:
+    """Returns the closest class in the MRO that is compiled into the bundle."""
+    for scls in cls.__mro__:
+        if scls.__module__.startswith("panel_material_ui."):
+            return scls
+    return cls
+
+
 class MaterialComponent(ReactComponent):
     """
     Baseclass for all MaterialComponents which defines the bundle location,
@@ -505,6 +513,10 @@ class MaterialComponent(ReactComponent):
         props = super()._get_properties(doc)
         props.pop('loading', None)
         props['data'].loading = self.loading
+        if props.get('bundle') is not None:
+            # The bundle only exports the components defined in this package,
+            # so subclasses defined elsewhere render with their compiled ancestor.
+            props['class_name'] = _compiled_ancestor(type(self)).__name__
         return props
 
     @property

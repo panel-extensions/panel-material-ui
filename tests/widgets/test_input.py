@@ -5,7 +5,7 @@ import pytest
 from panel import config
 
 from panel_material_ui.chat import ChatAreaInput
-from panel_material_ui.widgets import ArrayInput, DatePicker, DatetimeInput, DatetimeRangeInput, FloatInput, IntInput
+from panel_material_ui.widgets import ArrayInput, DatePicker, DatetimeInput, DatetimeRangeInput, FloatInput, IntInput, StaticText
 
 
 @pytest.mark.from_panel
@@ -237,3 +237,15 @@ def test_chat_area_input_basic_functionality():
     assert chat_input.accept is None
     assert chat_input.enable_upload is True
     assert chat_input.enter_sends is True
+
+
+def test_static_text_escapes_non_string_values(document, comm):
+    widget = StaticText(label='Text', value=['<b>'])
+    model = widget.get_root(document, comm=comm)
+    assert model.data.value == "[&#x27;&lt;b&gt;&#x27;]"
+
+    widget.value = '<b>bold</b>'
+    assert model.data.value == '<b>bold</b>'
+
+    widget.value = None
+    assert model.data.value == ''

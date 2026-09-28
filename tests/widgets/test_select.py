@@ -1,7 +1,16 @@
 import numpy as np
 import pytest
 
-from panel_material_ui.widgets import AutocompleteInput, CheckButtonGroup, CrossSelector, RadioButtonGroup, Select
+from panel_material_ui.widgets import (
+    AutocompleteInput,
+    CheckBoxGroup,
+    CheckButtonGroup,
+    CrossSelector,
+    RadioBoxGroup,
+    RadioButtonGroup,
+    Select,
+    ToggleGroup,
+)
 
 
 def test_radio_button_group_active_tracks_value_and_options(document, comm):
@@ -402,3 +411,23 @@ def test_autocomplete_lazy_search_options_present(document, comm):
     assert model.data.value == str(opts['1'])
     # Options should be present when lazy_search is False
     assert model.data.options == list(opts)
+
+
+@pytest.mark.parametrize(('widget_type', 'behavior', 'expected'), [
+    ('button', 'check', CheckButtonGroup),
+    ('box', 'check', CheckBoxGroup),
+    ('button', 'radio', RadioButtonGroup),
+    ('box', 'radio', RadioBoxGroup),
+])
+def test_toggle_group_builds_material_widgets(widget_type, behavior, expected):
+    group = ToggleGroup(options=['a', 'b'], widget_type=widget_type, behavior=behavior)
+    assert type(group) is expected
+
+
+def test_toggle_group_validates_arguments():
+    with pytest.raises(ValueError, match='widget_type'):
+        ToggleGroup(options=['a'], widget_type='switch')
+    with pytest.raises(ValueError, match='behavior'):
+        ToggleGroup(options=['a'], behavior='toggle')
+    with pytest.raises(ValueError, match='single value'):
+        ToggleGroup(options=['a'], behavior='radio', value=['a'])
