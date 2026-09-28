@@ -356,6 +356,29 @@ def test_autocomplete_dict_options_value_input():
     assert w.value_input == ""
 
 
+def test_autocomplete_icon_option_value_input():
+    widget = AutocompleteInput(options={
+        ':material/zoom_out_map: Full screen': 'fullscreen',
+        ':material/zoom_in: Zoom in': 'zoom_in',
+    }, value='fullscreen')
+    assert widget.value_input == 'Full screen'
+
+    widget.value = 'zoom_in'
+    assert widget.value_input == 'Zoom in'
+
+    widget.options = [':material/zoom_out: Zoom out']
+    widget.value = widget.options[0]
+    assert widget.value_input == 'Zoom out'
+
+
+def test_autocomplete_icon_option_lazy_search():
+    widget = AutocompleteInput(
+        options={':material/zoom_out_map: Full screen': 'fullscreen'},
+        lazy_search=True,
+    )
+    assert widget._filter_options('Full') == [':material/zoom_out_map: Full screen']
+
+
 def test_autocomplete_lazy_search_options_empty(document, comm):
     """Test that when lazy_search is True, model.data.options is None"""
     opts = {'A': 'a', '1': 1, 'B': 'b'}

@@ -1816,7 +1816,7 @@ export function parse_icon_text(text, defaults = {}) {
   return segments
 }
 
-function render_icon_segment(segment, iconProps = {}) {
+export function render_icon_segment(segment, iconProps = {}) {
   const merged = {...iconProps, ...segment.options}
   let {size, icon_size} = merged
   if (icon_size == null && size != null && !STANDARD_SIZES.includes(size)) {

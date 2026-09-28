@@ -3,8 +3,9 @@ import pytest
 pytest.importorskip("playwright")
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import AutocompleteInput
 from playwright.sync_api import expect
+
+from panel_material_ui.widgets import AutocompleteInput
 
 pytestmark = pytest.mark.ui
 
@@ -38,6 +39,36 @@ def test_autocomplete_dict_options(page):
     page.locator(".MuiAutocomplete-option").click()
 
     wait_until(lambda: widget.value == 2, page)
+
+
+def test_autocomplete_icon_options(page):
+    options = {
+        ':material/zoom_out_map: Full screen': 'fullscreen',
+        ':material/zoom_in: Zoom in': 'zoom_in',
+        ':material/zoom_out: Zoom out': 'zoom_out',
+    }
+    widget = AutocompleteInput(label=':material/zoom_out_map: View', options=options, value='fullscreen')
+    serve_component(page, widget)
+
+    input_field = page.locator('.MuiAutocomplete-input')
+    adornment = page.locator('.MuiInputAdornment-positionStart .material-icons')
+    expect(input_field).to_have_value('Full screen')
+    expect(adornment).to_have_text('zoom_out_map')
+
+    input_field.fill('Zoom in')
+    expect(adornment).to_have_count(0)
+    option = page.locator('.MuiAutocomplete-option')
+    expect(option).to_have_count(1)
+    expect(option.locator('.material-icons')).to_have_text('zoom_in')
+    option.click()
+    wait_until(lambda: widget.value == 'zoom_in', page)
+    expect(input_field).to_have_value('Zoom in')
+    expect(adornment).to_have_text('zoom_in')
+
+    widget.value = 'zoom_out'
+    expect(input_field).to_have_value('Zoom out')
+    expect(adornment).to_have_text('zoom_out')
+
 
 def test_autocomplete_input_value_updates_unrestricted(page):
     widget = AutocompleteInput(label='Autocomplete Input test', options=["Option 1", "Option 2", "123"], restrict=False)
