@@ -128,6 +128,8 @@ def test_slider_label_no_trailing_colon_when_value_hidden(page):
 
 @pytest.mark.parametrize('size', ["small", "medium", "large"])
 def test_rating(page, size):
+    warnings = []
+    page.on('console', lambda message: warnings.append(message.text) if message.type == 'warning' else None)
     widget = Rating(value=3, size=size)
     serve_component(page, widget)
 
@@ -136,6 +138,7 @@ def test_rating(page, size):
 
     rating_size = page.locator(f'.MuiRating-size{size.capitalize()}')
     expect(rating_size).to_have_count(1)
+    assert not any('fullWidth' in warning for warning in warnings)
 
 
 # --- EditableIntSlider / EditableFloatSlider throttled tests ---

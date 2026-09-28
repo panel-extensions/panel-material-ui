@@ -46,7 +46,6 @@ export function render({model, el, view}) {
         color={color}
         disabled={disabled}
         emptyIcon={empty ? render_icon(empty, null, size, SIZES[size]) : null}
-        fullWidth
         highlightSelectedOnly={only_selected}
         icon={icon ? render_icon(icon, color, size, SIZES[size]) : null}
         ref={ref}
