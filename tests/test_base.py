@@ -91,3 +91,17 @@ class _ExternalButton(Button):
 def test_external_subclass_renders_with_compiled_ancestor(document):
     button = _ExternalButton(label='External')
     assert button._get_properties(document)['class_name'] == 'Button'
+
+
+def test_interactive_subclass_resolves_bundle(document):
+    # Classes defined in IPython have no module file to resolve the bundle from.
+    cls = type('InteractiveButton', (Button,), {'__module__': 'interactive_session'})
+    props = cls(label='Interactive')._get_properties(document)
+    assert props['bundle'] is not None
+    assert props['class_name'] == 'Button'
+
+
+def test_material_ui_component_keeps_its_class_name(document):
+    props = _TestComponentESM()._get_properties(document)
+    assert props['bundle'] is None
+    assert props['class_name'] == '_TestComponentESM'
