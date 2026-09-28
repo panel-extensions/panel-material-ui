@@ -10,6 +10,7 @@ from panel.widgets.base import Widget
 from panel.widgets.select import NestedSelect as _PnNestedSelect
 from panel.widgets.select import Select as _PnSelect
 from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
+from panel.widgets.select import ToggleGroup as _PnToggleGroup
 from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
 from typing_extensions import Self
 
@@ -556,6 +557,39 @@ class CheckButtonGroup(_ButtonGroup, MaterialMultiSelectBase):
             self.active = [i for i, value in enumerate(self.values) if isIn(value, self.value)]
 
 
+class ToggleGroup(_PnToggleGroup):
+    """
+    A factory of Material toggle groups, a group of widgets which can be
+    switched on or off.
+
+    The `widget_type` selects between `'button'` (default) and `'box'` widgets
+    and the `behavior` between `'check'` (default), where any number of
+    options may be selected and the value is a list, and `'radio'`, where
+    exactly one option is selected.
+
+    :References:
+
+    - https://panel.holoviz.org/reference/widgets/ToggleGroup.html
+
+    :Example:
+
+    >>> ToggleGroup(
+    ...     label='Fruits', options=['Apple', 'Banana', 'Pear'], behavior='radio'
+    ... )
+    """
+
+    def __new__(cls, widget_type='button', behavior='check', **params):
+        if widget_type not in cls._widgets_type:
+            raise ValueError(f'widget_type {widget_type!r} is not valid. Valid options are {cls._widgets_type}')
+        if behavior not in cls._behaviors:
+            raise ValueError(f'behavior {behavior!r} is not valid. Valid options are {cls._behaviors}')
+        if behavior == 'check':
+            return (CheckButtonGroup if widget_type == 'button' else CheckBoxGroup)(**params)
+        if isinstance(params.get('value'), list):
+            raise ValueError(f'Radio buttons require a single value, found: {params["value"]}')
+        return (RadioButtonGroup if widget_type == 'button' else RadioBoxGroup)(**params)
+
+
 class MultiSelect(MaterialMultiSelectBase):
     """
     The `MultiSelect` widget allows selecting multiple values from a list of
@@ -853,6 +887,7 @@ __all__ = [
     "CheckBoxGroup",
     "RadioButtonGroup",
     "CheckButtonGroup",
+    "ToggleGroup",
     "MultiSelect",
     "MultiChoice",
     "Pill",

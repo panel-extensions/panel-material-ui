@@ -15,6 +15,8 @@ NO_REFENCE_GUIDE_NEEDED = [
     "ListInput",
     "NumberInput",
     "NotificationArea",
+    "StaticText",
+    "ToggleGroup",
     "TupleInput",
     "Column",
     "Row",

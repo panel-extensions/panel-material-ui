@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import inspect
 import typing as t
 from collections.abc import Iterable
@@ -1615,6 +1616,35 @@ class ColorPicker(MaterialWidget):
     _esm_base = "ColorPicker.jsx"
 
 
+class StaticText(MaterialWidget):
+    """
+    The `StaticText` widget displays a text value, but does not allow editing
+    it. String values are rendered as HTML, any other value is escaped.
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/widgets/StaticText.html
+    - https://panel.holoviz.org/reference/widgets/StaticText.html
+
+    :Example:
+
+    >>> StaticText(label='Model', value='animagen2')
+    """
+
+    value = param.Parameter(default=None, doc="""
+        The current value to be displayed.""")
+
+    _esm_base = "StaticText.jsx"
+
+    def _process_param_change(self, params):
+        props = super()._process_param_change(params)
+        if 'value' in props:
+            value = props['value']
+            if not isinstance(value, str):
+                props['value'] = html.escape('' if value is None else str(value))
+        return props
+
+
 class LiteralInput(TextInput, _PnLiteralInput):
     """
     The `LiteralInput` allows entering any string using a text input box.
@@ -1779,6 +1809,7 @@ __all__ = [
     "Checkbox",
     "Switch",
     "ColorPicker",
+    "StaticText",
     "LiteralInput",
     "ArrayInput",
     "DatetimeInput",
