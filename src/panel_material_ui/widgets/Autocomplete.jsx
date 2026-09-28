@@ -1,8 +1,9 @@
 import Autocomplete from "@mui/material/Autocomplete"
+import InputAdornment from "@mui/material/InputAdornment"
 import Popper from "@mui/material/Popper"
 import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
-import {render_icon_text, render_icon_text_as_string} from "./utils"
+import {parse_icon_text, render_icon_segment, render_icon_text, render_icon_text_as_string} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -54,6 +55,7 @@ export function render({model, el, view}) {
 
   const filter_op = (input) => {
     return (opt) => {
+      opt = render_icon_text_as_string(opt)
       if (!model.case_sensitive) {
         opt = opt.toLowerCase()
         input = input.toLowerCase()
@@ -125,6 +127,8 @@ export function render({model, el, view}) {
   // Use filtered options for lazy search, otherwise use all options with local filtering
   const displayOptions = lazy_search ? filteredOptions : options
   const filterOptions = lazy_search ? undefined : filt_func
+  const selectedIcon = options?.includes(value) && value_input === render_icon_text_as_string(value)
+    ? parse_icon_text(value).find((segment) => segment.type === "icon") : null
 
   const renderOptionLabel = (option) => {
     if (typeof option === "string") {
@@ -151,6 +155,7 @@ export function render({model, el, view}) {
       filterOptions={filterOptions}
       freeSolo={!restrict}
       fullWidth
+      getOptionLabel={render_icon_text_as_string}
       inputValue={value_input || ""}
       onChange={(event, newValue) => setValue(newValue)}
       options={displayOptions}
@@ -162,6 +167,12 @@ export function render({model, el, view}) {
           helperText={helper_text ? render_icon_text(helper_text) : undefined}
           label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
           inputRef={ref}
+          slotProps={{...params.slotProps, input: {
+            ...params.slotProps.input,
+            startAdornment: selectedIcon ? (
+              <InputAdornment position="start">{render_icon_segment(selectedIcon)}</InputAdornment>
+            ) : params.slotProps.input.startAdornment,
+          }}}
           placeholder={render_icon_text_as_string(placeholder)}
           onChange={(event) => {
             setValueInput(event.target.value)

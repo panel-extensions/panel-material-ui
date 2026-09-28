@@ -13,6 +13,7 @@ from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
 from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
 from typing_extensions import Self
 
+from .._utils import ICON_TOKEN_PATTERN
 from ..base import COLORS, ColorType, LoadingTransform, ThemedTransform
 from .base import MaterialWidget
 from .button import _ButtonLike, _ButtonVariant
@@ -167,8 +168,15 @@ class AutocompleteInput(MaterialSingleSelectBase):
         with edit_readonly(self):
             if self.value is None:
                 self.value_input = ''
-            elif isinstance(self.options, dict) and isIn(self.value, self.values):
-                self.value_input = self.labels[indexOf(self.value, self.values)]
+            elif isIn(self.value, self.values):
+                label = self.labels[indexOf(self.value, self.values)]
+                if isinstance(label, str) and ICON_TOKEN_PATTERN.search(label):
+                    text = ' '.join(ICON_TOKEN_PATTERN.sub('', label).split())
+                    self.value_input = text or ' '.join(match.group(1).replace('_', ' ') for match in ICON_TOKEN_PATTERN.finditer(label))
+                elif isinstance(self.options, dict):
+                    self.value_input = label
+                else:
+                    self.value_input = self.value
             else:
                 self.value_input = self.value
 
@@ -226,13 +234,13 @@ class AutocompleteInput(MaterialSingleSelectBase):
         if not query or len(query) < self.min_characters:
             return []
 
-        options = self.values
+        options = self.labels
         if not case_sensitive:
             query = query.lower()
 
         filtered = []
         for opt in options:
-            opt_str = str(opt)
+            opt_str = ICON_TOKEN_PATTERN.sub('', str(opt)).strip()
             if not case_sensitive:
                 opt_str = opt_str.lower()
 
