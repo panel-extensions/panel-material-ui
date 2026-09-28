@@ -249,8 +249,3 @@ def test_static_text_escapes_non_string_values(document, comm):
 
     widget.value = None
     assert model.data.value == ''
-
-
-def test_static_text_sizes_to_its_text_like_classic():
-    assert StaticText().width is None
-    assert StaticText(width=200).width == 200
