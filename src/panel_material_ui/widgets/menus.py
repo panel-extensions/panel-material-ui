@@ -17,6 +17,9 @@ from ..base import COLORS, ColorType, ThemedTransform, TooltipTransform
 from .base import MaterialWidget
 from .button import _ButtonBase
 
+#: Default MIME type of dragged MenuList items.
+DRAG_TYPE = "application/x-pmui-menu-item"
+
 
 class MenuBase(MaterialWidget):
 
@@ -674,6 +677,7 @@ class MenuList(TreeLikeBase):
       - `href`: The URL to navigate to when the list item is clicked (optional)
       - `target`: The target to open the URL in (optional)
       - `tooltip`: The tooltip text shown on hover (optional)
+      - `draggable`: Whether the item can be dragged, overriding `draggable` (optional)
 
     :References:
 
@@ -698,6 +702,15 @@ class MenuList(TreeLikeBase):
 
     dense = param.Boolean(default=True, doc="Whether to show the list items in a dense format.")
 
+    drag_type = param.String(default=DRAG_TYPE, doc="""
+        MIME type under which a dragged item's payload is set, so drop
+        targets can accept items from specific lists only.""")
+
+    draggable = param.Boolean(default=False, doc="""
+        Whether items can be dragged. A dragged item carries
+        ``{"path": [...], "label": ...}`` as JSON under ``drag_type``. An
+        item's own ``draggable`` key overrides this.""")
+
     highlight = param.Boolean(default=True, doc="""
         Whether to highlight the currently selected menu item.""")
 
@@ -707,7 +720,7 @@ class MenuList(TreeLikeBase):
 
     _item_keys = [
         'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
-        'href', 'target', 'buttons', 'disable_link', 'tooltip'
+        'href', 'target', 'buttons', 'disable_link', 'tooltip', 'draggable'
     ]
 
 List = MenuList
