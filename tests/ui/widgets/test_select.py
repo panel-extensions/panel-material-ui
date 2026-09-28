@@ -98,6 +98,17 @@ def test_select_disabled_options(page):
     expect(page.locator(".MuiMenuItem-root")).to_have_count(3)
     expect(page.locator(".MuiMenuItem-root.Mui-disabled")).to_have_text("Option 2")
 
+@pytest.mark.parametrize('kwargs', [
+    {'options': {'Label A': 'a', 'Label B': 'b'}},
+    {'groups': {'Group': {'Label A': 'a', 'Label B': 'b'}}},
+])
+def test_select_dict_disabled_options(page, kwargs):
+    widget = Select(label='Select test', disabled_options=['b'], **kwargs)
+    serve_component(page, widget)
+
+    page.locator(".select").click(force=True)
+    expect(page.locator(".MuiMenuItem-root.Mui-disabled")).to_have_text("Label B")
+
 def test_select_basic_functionality(page):
     widget = Select(label='Select test', options=["Option 1", "Option 2", "Option 3"])
     serve_component(page, widget)

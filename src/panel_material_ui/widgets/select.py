@@ -299,6 +299,18 @@ class _SelectDropdownBase(MaterialWidget):
 
     value_label = param.String(doc="Custom label to describe the current option(s).")
 
+    def _process_param_change(self, params):
+        props = super()._process_param_change(params)
+        # The frontend identifies options by label, so disabled values must be
+        # translated like the value itself.
+        if props.get('disabled_options') and (isinstance(self.options, dict) or self.groups):
+            labels, values = self.labels, self.values
+            props['disabled_options'] = [
+                labels[indexOf(v, values)] if isIn(v, values) else v
+                for v in props['disabled_options']
+            ]
+        return props
+
     __abstract = True
 
 

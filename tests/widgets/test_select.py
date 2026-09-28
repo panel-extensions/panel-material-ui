@@ -235,6 +235,20 @@ def test_select_groups_dict_options(document, comm):
     select.value = groups['A']['a']
     assert widget.data.value == 'a'
 
+@pytest.mark.parametrize('kwargs', [
+    {'options': {'a': 1, 'b': 2, 'c': 3}},
+    {'groups': {'A': {'a': 1, 'b': 2}, 'B': {'c': 3}}},
+])
+def test_select_dict_disabled_options_sent_as_labels(kwargs, document, comm):
+    select = Select(value=1, disabled_options=[2], **kwargs)
+
+    widget = select.get_root(document, comm=comm)
+
+    assert widget.data.disabled_options == ['b']
+
+    select.disabled_options = [3]
+    assert widget.data.disabled_options == ['c']
+
 def test_select_change_groups(document, comm):
     groups = dict(A=dict(a=1, b=2), B=dict(c=3))
     select = Select(value=groups['A']['a'], groups=groups, label='Select')
