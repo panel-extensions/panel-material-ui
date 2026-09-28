@@ -1634,6 +1634,10 @@ class StaticText(MaterialWidget):
     value = param.Parameter(default=None, doc="""
         The current value to be displayed.""")
 
+    width = param.Integer(default=None, bounds=(0, None), allow_None=True, doc="""
+        Width of the widget, sized to its text by default like the classic
+        StaticText.""")
+
     _esm_base = "StaticText.jsx"
 
     def _process_param_change(self, params):
