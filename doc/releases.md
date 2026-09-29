@@ -1,5 +1,40 @@
 # Release Notes
 
+## Version 0.16.0
+
+Panel Material UI 0.16.0 prepares the components for integration into Panel 1.10, where they become available under the `pn.ui` namespace. Material widgets now match the parameters and defaults of their classic Panel counterparts, the package hooks into Panel's design system instead of patching Panel's templates, and new [`StaticText`](https://panel-material-ui.holoviz.org/reference/widgets/StaticText.html), `ToggleGroup`, `ArrayInput` and `DatetimeRangeInput` widgets fill the remaining gaps. The release also adds a draggable [`FloatPanel`](https://panel-material-ui.holoviz.org/reference/layouts/FloatPanel.html) layout and draggable [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) items, and themes classic `Terminal`, `Gauge` and indicator figures.
+
+Many thanks to @philippjfr for their contributions to this release.
+
+### 🆕 New Components
+
+* Add draggable [`FloatPanel`](https://panel-material-ui.holoviz.org/reference/layouts/FloatPanel.html) layout ([#739](https://github.com/panel-extensions/panel-material-ui/pull/739))
+* Add [`StaticText`](https://panel-material-ui.holoviz.org/reference/widgets/StaticText.html) and `ToggleGroup` widgets ([#742](https://github.com/panel-extensions/panel-material-ui/pull/742), [#745](https://github.com/panel-extensions/panel-material-ui/pull/745))
+* Add `ArrayInput` and `DatetimeRangeInput` widgets ([#735](https://github.com/panel-extensions/panel-material-ui/pull/735))
+
+### 🔧 Enhancements
+
+* Add draggable [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) items via the `draggable` and `drag_type` parameters ([#746](https://github.com/panel-extensions/panel-material-ui/pull/746))
+* Align Material widgets with classic Panel APIs, adding `LinearProgress.max`, `DiscreteSlider.formatter`, `CrossSelector.definition_order` and `CrossSelector.filter_fn`, a `variant` for button groups, and support for the classic `solid` and `outline` button styles ([#735](https://github.com/panel-extensions/panel-material-ui/pull/735))
+* Theme classic `Terminal`, `Gauge` and indicator figures, and render subclasses defined outside the package ([#743](https://github.com/panel-extensions/panel-material-ui/pull/743))
+* Support `:material/...:` icon tokens in [`AutocompleteInput`](https://panel-material-ui.holoviz.org/reference/widgets/AutocompleteInput.html) options ([#741](https://github.com/panel-extensions/panel-material-ui/pull/741))
+
+### 📦 Compatibility & Dependency Updates
+
+* Use Panel 1.10 design hooks instead of replacing Panel's base templates at import time ([#740](https://github.com/panel-extensions/panel-material-ui/pull/740))
+* Slider defaults now match Panel: continuous and range sliders default to `end=1` instead of `100`, and `IntSlider` defaults to `start=0` instead of `1` ([#735](https://github.com/panel-extensions/panel-material-ui/pull/735))
+
+### 🐛 Bug Fixes
+
+* Preserve reactive range slider bounds ([#736](https://github.com/panel-extensions/panel-material-ui/pull/736))
+* Expose [`RadioButtonGroup`](https://panel-material-ui.holoviz.org/reference/widgets/RadioButtonGroup.html) and [`CheckButtonGroup`](https://panel-material-ui.holoviz.org/reference/widgets/CheckButtonGroup.html) active indices to `jslink` ([#737](https://github.com/panel-extensions/panel-material-ui/pull/737))
+* Align [`ChatMessage`](https://panel-material-ui.holoviz.org/reference/chat/ChatMessage.html) header and footer layout with Panel ([#738](https://github.com/panel-extensions/panel-material-ui/pull/738))
+* Render labels, search and disabled options for dict [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) options ([#744](https://github.com/panel-extensions/panel-material-ui/pull/744))
+
+### 📚 Documentation
+
+* Explain the `panel.ui` integration in the banner on reference pages that replace a classic Panel component ([#747](https://github.com/panel-extensions/panel-material-ui/pull/747))
+
 ## Version 0.15.0
 
 Panel Material UI 0.15.0 introduces Material UI implementations of the [`Player`](https://panel-material-ui.holoviz.org/reference/widgets/Player.html), [`DiscretePlayer`](https://panel-material-ui.holoviz.org/reference/widgets/DiscretePlayer.html), [`FileSelector`](https://panel-material-ui.holoviz.org/reference/widgets/FileSelector.html), and [`ColorMap`](https://panel-material-ui.holoviz.org/reference/widgets/ColorMap.html) widgets. The release also adds universal support for Material UI icon tokens in text, exposes consistent size controls and aligned margins across widgets, ensures [`DatePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatePicker.html) and [`DatetimePicker`](https://panel-material-ui.holoviz.org/reference/widgets/DatetimePicker.html) preserve partial entries, and adds conda packaging to the `pyviz` channel.
