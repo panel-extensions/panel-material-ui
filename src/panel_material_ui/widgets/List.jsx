@@ -62,12 +62,41 @@ const LIST_ITEM_BUTTON_SX = {
   },
 }
 
+const DRAGGABLE_ITEM_SX = {...LIST_ITEM_BUTTON_SX, cursor: "grab", userSelect: "none"}
+
+// Chromium snapshots the dragged element's screen region, so a transparent,
+// nested item drags along slices of its neighbours. An opaque off-screen clone
+// at the top of the item's shadow root keeps its class-based styles while
+// escaping clipping ancestors such as a collapsed section.
+function dragGhost(el, rect) {
+  const ghost = el.cloneNode(true)
+  Object.assign(ghost.style, {
+    position: "fixed",
+    top: `${-rect.height - 100}px`,
+    left: "0px",
+    width: `${rect.width}px`,
+    height: `${rect.height}px`,
+    margin: "0",
+    background: "var(--mui-palette-background-paper, #fff)",
+    borderRadius: "4px",
+    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+    pointerEvents: "none",
+  })
+  ghost.classList.add("pmui-drag-ghost")
+  const root = el.getRootNode()
+  ;(root === document ? document.body : root).appendChild(ghost)
+  setTimeout(() => ghost.remove(), 0)
+  return ghost
+}
+
 export function render({model}) {
   const [active, setActive] = model.useState("active")
   const [color] = model.useState("color")
   const [collapsed] = model.useState("collapsed")
   const [dense] = model.useState("dense")
   const [disabled] = model.useState("disabled")
+  const [drag_type] = model.useState("drag_type")
+  const [draggable] = model.useState("draggable")
   const [expanded, setExpanded] = model.useState("expanded")
   const [highlight] = model.useState("highlight")
   const [label] = model.useState("label")
@@ -162,6 +191,7 @@ export function render({model}) {
     const menu_actions = actions ? actions.filter(b => !b.inline) : []
     const hasSubitems = !collapsed && subitems && subitems.length > 0
     const tooltip_text = isObject ? item.tooltip : null
+    const isDraggable = !disabled && ((isObject && item.draggable != null) ? item.draggable : draggable)
 
     const toggleExpand = () => {
       const index = expanded.map((e) => e.toString()).indexOf(key.toString())
@@ -190,6 +220,16 @@ export function render({model}) {
         href={href}
         target={target}
         key={`list-item-${key}`}
+        draggable={isDraggable || undefined}
+        onDragStart={isDraggable ? (e) => {
+          // A lingering text selection would otherwise become the drag image,
+          // making several items look dragged at once.
+          window.getSelection()?.removeAllRanges()
+          const rect = e.currentTarget.getBoundingClientRect()
+          e.dataTransfer.setDragImage(dragGhost(e.currentTarget, rect), e.clientX - rect.left, e.clientY - rect.top)
+          e.dataTransfer.setData(drag_type, JSON.stringify({path, label: render_icon_text_as_string(label)}))
+          e.dataTransfer.effectAllowed = "copy"
+        } : undefined}
         onClick={(e) => {
           if (isSelectable) {
             setActive(path)
@@ -204,7 +244,7 @@ export function render({model}) {
           }
         }}
         selected={highlight && isActive}
-        sx={LIST_ITEM_BUTTON_SX}
+        sx={isDraggable ? DRAGGABLE_ITEM_SX : LIST_ITEM_BUTTON_SX}
         style={itemStyle}
       >
         {leadingComponent}

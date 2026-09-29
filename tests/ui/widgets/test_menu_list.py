@@ -486,3 +486,107 @@ def test_menu_list_update_item_with_icon(page):
 
     # Verify icon is rendered
     expect(page.locator('.MuiListItemButton-root').nth(0).locator('.material-icons')).to_have_text('home')
+
+
+def _drag_payload(locator, drag_type):
+    """Dispatch a dragstart on *locator* and return the JSON set under *drag_type*."""
+    return locator.evaluate(
+        """(el, type) => {
+          const dt = new DataTransfer()
+          el.dispatchEvent(new DragEvent("dragstart", {dataTransfer: dt, bubbles: true}))
+          const data = dt.getData(type)
+          return data ? JSON.parse(data) : null
+        }""",
+        drag_type,
+    )
+
+
+def test_menu_list_not_draggable_by_default(page):
+    widget = MenuList(items=['Item 1'])
+    serve_component(page, widget)
+
+    item = page.locator('.MuiListItemButton-root').first
+    expect(item).not_to_have_attribute('draggable', 'true')
+    assert _drag_payload(item, widget.drag_type) is None
+
+
+def test_menu_list_draggable_payload(page):
+    items = [
+        {'label': 'Group', 'items': [{'label': 'Child 1'}, {'label': 'Child 2'}]},
+        {'label': ':material/home: Home'},
+    ]
+    widget = MenuList(items=items, draggable=True, expanded=[(0,)])
+    serve_component(page, widget)
+
+    list_items = page.locator('.MuiListItemButton-root')
+    expect(list_items).to_have_count(4)
+    expect(list_items.nth(2)).to_have_attribute('draggable', 'true')
+
+    assert _drag_payload(list_items.nth(2), widget.drag_type) == {'path': [0, 1], 'label': 'Child 2'}
+    assert _drag_payload(list_items.nth(3), widget.drag_type) == {'path': [1], 'label': 'Home'}
+
+
+def test_menu_list_item_draggable_overrides_widget(page):
+    items = [{'label': 'Header', 'draggable': False}, {'label': 'Entry'}]
+    widget = MenuList(items=items, draggable=True, drag_type='application/x-test')
+    serve_component(page, widget)
+
+    list_items = page.locator('.MuiListItemButton-root')
+    expect(list_items.nth(0)).not_to_have_attribute('draggable', 'true')
+    assert _drag_payload(list_items.nth(0), 'application/x-test') is None
+    assert _drag_payload(list_items.nth(1), 'application/x-test') == {'path': [1], 'label': 'Entry'}
+
+
+def test_menu_list_drag_clears_text_selection(page):
+    widget = MenuList(items=['Item 1', 'Item 2', 'Item 3'], draggable=True)
+    serve_component(page, widget)
+
+    items = page.locator('.MuiListItemButton-root')
+    expect(items).to_have_count(3)
+    assert items.first.evaluate("el => getComputedStyle(el).userSelect") == "none"
+
+    selected = items.nth(1).evaluate(
+        """el => {
+          const range = document.createRange()
+          range.selectNodeContents(document.body)
+          window.getSelection().addRange(range)
+          const before = window.getSelection().rangeCount
+          el.dispatchEvent(new DragEvent("dragstart", {dataTransfer: new DataTransfer(), bubbles: true}))
+          return [before, window.getSelection().rangeCount]
+        }"""
+    )
+    assert selected == [1, 0]
+
+
+def test_menu_list_drag_uses_opaque_ghost_image(page):
+    children = [{'label': 'Child 1', 'icon': None}, {'label': 'Child 2', 'icon': None}]
+    widget = MenuList(items=[{'label': 'Group', 'items': children}], draggable=True, expanded=[(0,)])
+    serve_component(page, widget)
+
+    child = page.locator('.MuiListItemButton-root').nth(1)
+    expect(child).to_have_text('Child 1')
+    result = child.evaluate(
+        """el => {
+          const dt = new DataTransfer()
+          let image = null
+          dt.setDragImage = (img) => {
+            const rect = img.getBoundingClientRect()
+            image = {
+              ghost: img.classList.contains("pmui-drag-ghost"),
+              text: img.innerText.trim(),
+              connected: img.isConnected,
+              width: rect.width,
+              visible: img.checkVisibility(),
+              background: getComputedStyle(img).backgroundColor,
+            }
+          }
+          el.dispatchEvent(new DragEvent("dragstart", {dataTransfer: dt, bubbles: true}))
+          return image
+        }"""
+    )
+    assert result['ghost'] and result['connected'] and result['visible']
+    assert result['text'] == 'Child 1'
+    assert result['width'] > 0
+    assert result['background'] not in ('rgba(0, 0, 0, 0)', 'transparent')
+    page.wait_for_timeout(100)
+    expect(page.locator('.pmui-drag-ghost')).to_have_count(0)
