@@ -9,7 +9,7 @@ reference page that has a classic counterpart, pointing at its Panel page.
 The set is derived at build time from Panel's intersphinx inventory and from the
 classic namespaces, so it cannot drift out of sync with either project's pages.
 
-The reciprocal banner is added by ``doc/_ext/material_reference.py`` in Panel.
+The reciprocal banner is added by ``doc/_ext/ui_reference.py`` in Panel.
 """
 from __future__ import annotations
 
@@ -36,10 +36,10 @@ BANNER = """
 :::{{admonition}} This component replaces a classic Panel component
 :class: tip
 
-Panel's own implementation is `{classic}`, documented in the
-{{external+{inventory}:doc}}`Panel reference <{target}>`. This page documents the
-Material Design version, which is what `pn.ui.{name}` resolves to in Panel 1.10
-and later.
+This component is being integrated into Panel. Starting with Panel 1.10 it is
+available as `pn.ui.{name}`, documented in the
+{{external+{inventory}:doc}}`Panel reference <{target}>`, and supersedes the
+classic `{classic}`. On Panel 1.10 and later, prefer the `panel.ui` namespace.
 :::
 """
 
