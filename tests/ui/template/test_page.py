@@ -387,3 +387,21 @@ def test_page_inline_theme_toggle_scoped(page):
         assert page.evaluate("() => document.head.querySelector('#page-style')") is None
     finally:
         pn.config.theme = "default"
+
+
+def test_page_inline_theme_overrides_host_environment(page):
+    pg = Page(main=[pn.pane.Markdown("Some text")])
+
+    serve_component(page, pn.Column(pg))
+
+    # Simulates JupyterLab's theme variables, which Panel's Material
+    # stylesheets otherwise prefer over the Page theme.
+    page.add_style_tag(content=":root { --jp-widgets-label-color: rgb(255, 0, 0); }")
+    text = page.locator(".markdown p")
+    expect(text).to_have_css("color", "rgba(0, 0, 0, 0.87)")
+
+    try:
+        page.locator('[aria-label="Toggle theme"]').click()
+        expect(text).to_have_css("color", "rgb(255, 255, 255)")
+    finally:
+        pn.config.theme = "default"

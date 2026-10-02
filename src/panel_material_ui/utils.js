@@ -1168,6 +1168,22 @@ export const apply_global_css = (model, view, theme) => {
   }, [theme])
 }
 
+// Classic Panel stylesheets prefer the --design-* variables over the host
+// environment's (e.g. JupyterLab's --jp-*), so a scoped theme must set them to
+// keep components following its theme rather than the notebook's.
+const SCOPED_DESIGN_CSS = `
+  :host {
+    --design-primary-color: var(--panel-primary-color);
+    --design-primary-text-color: var(--panel-on-primary-color);
+    --design-secondary-color: var(--panel-secondary-color);
+    --design-secondary-text-color: var(--panel-on-secondary-color);
+    --design-background-color: var(--panel-background-color);
+    --design-background-text-color: var(--panel-on-background-color);
+    --design-surface-color: var(--panel-surface-color);
+    --design-surface-text-color: var(--panel-on-surface-color);
+  }
+`
+
 // With scoped=true the styles go into the view's shadow root, so a component
 // that does not own the document (e.g. a Page in a notebook output) cannot
 // restyle the rest of the page.
@@ -1242,7 +1258,7 @@ export const setup_global_styles = (view, theme, custom_theme=[], scoped=false) 
       theme.typography.fontFamily
     )
     doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family, custom_theme))
-    global_style_el.textContent = render_theme_css(theme)
+    global_style_el.textContent = render_theme_css(theme) + (scoped ? SCOPED_DESIGN_CSS : "")
     page_style_el.textContent = render_page_css(theme)
   }, [theme, scoped])
 }
