@@ -1,5 +1,20 @@
 # Release Notes
 
+## Version 0.16.1
+
+Panel Material UI 0.16.1 renders menus, dropdowns, pickers, tooltips, popups and dialogs in the browser top layer, so they no longer end up behind or clipped by other components, and renders a [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) inline when it is displayed in a notebook.
+
+Many thanks to @philippjfr for their contributions to this release.
+
+### 🐛 Bug Fixes
+
+* Render overlays such as [`Select`](https://panel-material-ui.holoviz.org/reference/widgets/Select.html) and [`AutocompleteInput`](https://panel-material-ui.holoviz.org/reference/widgets/AutocompleteInput.html) dropdowns, menus, pickers, tooltips, [`Popup`](https://panel-material-ui.holoviz.org/reference/layouts/Popup.html) and [`Dialog`](https://panel-material-ui.holoviz.org/reference/layouts/Dialog.html) in the browser top layer, above other components' stacking contexts and outside scrolling or transformed containers ([#749](https://github.com/panel-extensions/panel-material-ui/pull/749))
+* Render a [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) inline in notebooks and nested layouts, scope its theme styles to the page, and make components follow its `dark_theme` ([#750](https://github.com/panel-extensions/panel-material-ui/pull/750))
+
+### 📚 Documentation
+
+* Drop layout heights from reference examples that only made room for overlays ([#751](https://github.com/panel-extensions/panel-material-ui/pull/751))
+
 ## Version 0.16.0
 
 Panel Material UI 0.16.0 prepares the components for integration into Panel 1.10, where they become available under the `pn.ui` namespace. Material widgets now match the parameters and defaults of their classic Panel counterparts, the package hooks into Panel's design system instead of patching Panel's templates, and new [`StaticText`](https://panel-material-ui.holoviz.org/reference/widgets/StaticText.html), `ToggleGroup`, `ArrayInput` and `DatetimeRangeInput` widgets fill the remaining gaps. The release also adds a draggable [`FloatPanel`](https://panel-material-ui.holoviz.org/reference/layouts/FloatPanel.html) layout and draggable [`MenuList`](https://panel-material-ui.holoviz.org/reference/menus/MenuList.html) items, and themes classic `Terminal`, `Gauge` and indicator figures.
