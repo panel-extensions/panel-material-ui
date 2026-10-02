@@ -1,6 +1,6 @@
 import {MuiColorInput} from "mui-color-input"
 import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {render_icon_text, overlay_container} from "./utils"
 
 export function render({model, el, view}) {
   const [alpha] = model.useState("alpha")
@@ -31,7 +31,7 @@ export function render({model, el, view}) {
       value={value || ""}
       variant={variant}
       PopoverProps={{
-        container: el,
+        container: overlay_container(el),
       }}
     />
   )

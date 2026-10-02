@@ -15,7 +15,7 @@ import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
-import {isFileAccepted, processFilesChunked, apply_flex, render_icon_text, render_icon_text_as_string, waitForRef} from "./utils"
+import {isFileAccepted, processFilesChunked, apply_flex, render_icon_text, render_icon_text_as_string, waitForRef, overlay_container} from "./utils"
 
 // Map MIME types to Material Icons
 const mimeTypeIcons = {
@@ -549,7 +549,7 @@ export function render({model, view}) {
                     <SpeedDialAction
                       icon={<AttachFileIcon />}
                       slotProps={{
-                        popper: {container: view.container},
+                        popper: {container: overlay_container(view.container)},
                         tooltip: {
                           title: "Attach files"
                         }
@@ -562,7 +562,7 @@ export function render({model, view}) {
                       key={action}
                       icon={<Icon>{actions[action].icon}</Icon>}
                       slotProps={{
-                        popper: {container: view.container},
+                        popper: {container: overlay_container(view.container)},
                         tooltip: {
                           title: render_icon_text(actions[action].label || action)
                         }

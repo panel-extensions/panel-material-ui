@@ -4,7 +4,7 @@ import {DatePicker} from "@mui/x-date-pickers/DatePicker"
 import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker"
 import dayjs from "dayjs"
 import {render_description} from "./description"
-import {MUI_SIZE, denseSx, render_icon_text} from "./utils"
+import {MUI_SIZE, denseSx, render_icon_text, overlay_container} from "./utils"
 
 const DATE_TIME_PICKER_BASE_SX = {width: "100%"}
 
@@ -289,7 +289,7 @@ export function render({model, view, el}) {
               }
             }
           },
-          popper: {container: view.container}
+          popper: {container: overlay_container(view.container)}
         }}
         {...timeProps}
       />
