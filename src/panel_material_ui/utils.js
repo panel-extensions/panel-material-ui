@@ -929,7 +929,92 @@ const headingStyle = (fontSize, lineHeight) => ({
   lineHeight
 })
 
+const TOP_LAYER = typeof HTMLElement !== "undefined" && Object.hasOwn(HTMLElement.prototype, "popover")
+
+// Popper v2 locates the containing block by walking DOM ancestors for transforms
+// and does not know the top layer escapes them; the layer's own transform makes it
+// stop here, so positions resolve against the viewport.
+const LAYER_CSS = `
+[data-pmui-layer] {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: transparent;
+  color: inherit;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+[data-pmui-layer] > * {
+  pointer-events: auto;
+}
+`
+
+const layer_containers = new WeakMap()
+
+function install_layer_styles(parent) {
+  const root = parent.getRootNode()
+  const target = root instanceof ShadowRoot ? root : document.head
+  // Checked on every mount since Bokeh may re-render the shadow root contents.
+  if (target.querySelector(":scope > style[data-pmui-layer-styles]") == null) {
+    const style = document.createElement("style")
+    style.dataset.pmuiLayerStyles = ""
+    style.textContent = LAYER_CSS
+    target.prepend(style)
+  }
+}
+
+/**
+ * Returns a MUI `container` that mounts each portal into its own top-layer
+ * popover inside `parent`. Overlays stay in the shadow DOM, so styles and theme
+ * variables still apply, but render above every stacking context and escape
+ * ancestor clipping. Layers are created on portal mount, so overlays stack in
+ * the order they were opened.
+ *
+ * The function is cached per parent because MUI's Portal re-resolves its
+ * container whenever the prop identity changes.
+ */
+export function overlay_container(parent) {
+  if (!TOP_LAYER || parent == null) {
+    return parent
+  }
+  let container = layer_containers.get(parent)
+  if (container === undefined) {
+    container = () => {
+      install_layer_styles(parent)
+      const layer = document.createElement("div")
+      layer.setAttribute("popover", "manual")
+      layer.dataset.pmuiLayer = ""
+      parent.appendChild(layer)
+      layer.showPopover()
+      const observer = new MutationObserver(() => {
+        if (layer.childElementCount === 0) {
+          observer.disconnect()
+          layer.remove()
+        }
+      })
+      observer.observe(layer, {childList: true})
+      // MUI's useModal also resolves the container for scroll locking without
+      // mounting anything into it, so drop layers that never receive content.
+      requestAnimationFrame(() => {
+        if (layer.childElementCount === 0) {
+          observer.disconnect()
+          layer.remove()
+        }
+      })
+      return layer
+    }
+    layer_containers.set(parent, container)
+  }
+  return container
+}
+
 export function render_theme_config(props, theme_config, dark_theme) {
+  const container = overlay_container(props.view.container)
   const config = {
     cssVariables: {
       rootSelector: ":host",
@@ -967,17 +1052,17 @@ export function render_theme_config(props, theme_config, dark_theme) {
     components: {
       MuiPopover: {
         defaultProps: {
-          container: props.view.container,
+          container,
         },
       },
       MuiPopper: {
         defaultProps: {
-          container: props.view.container,
+          container,
         },
       },
       MuiModal: {
         defaultProps: {
-          container: props.view.container,
+          container,
         },
       },
       MuiIconButton: {

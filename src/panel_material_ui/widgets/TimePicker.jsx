@@ -3,7 +3,7 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
 import {TimePicker} from "@mui/x-date-pickers/TimePicker"
 import dayjs from "dayjs"
 import {render_description} from "./description"
-import {MUI_SIZE, denseSx, render_icon_text} from "./utils"
+import {MUI_SIZE, denseSx, render_icon_text, overlay_container} from "./utils"
 
 const TIME_PICKER_BASE_SX = {width: "100%"}
 
@@ -89,7 +89,7 @@ export function render({model, el, view}) {
             error: error_state,
             helperText: helper_text ? render_icon_text(helper_text) : undefined,
           },
-          popper: {container: view.container},
+          popper: {container: overlay_container(view.container)},
         }}
         sx={pickerSx}
         value={value}

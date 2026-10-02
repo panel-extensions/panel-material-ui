@@ -4,7 +4,7 @@ import DialogTitle from "@mui/material/DialogTitle"
 import IconButton from "@mui/material/IconButton"
 import CloseIcon from "@mui/icons-material/Close"
 import Box from "@mui/material/Box"
-import {render_icon_text} from "./utils"
+import {render_icon_text, overlay_container} from "./utils"
 
 export function render({model, view}) {
   const [close_on_click] = model.useState("close_on_click")
@@ -20,7 +20,7 @@ export function render({model, view}) {
 
   return (
     <Dialog
-      container={view.container}
+      container={overlay_container(view.container)}
       fullScreen={full_screen}
       fullWidth={view.model.sizing_mode === "stretch_width" || view.model.sizing_mode === "stretch_both"}
       maxWidth={width_option}

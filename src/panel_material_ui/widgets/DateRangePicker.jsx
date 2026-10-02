@@ -13,7 +13,7 @@ import Typography from "@mui/material/Typography"
 import {useTheme} from "@mui/material/styles"
 import useMediaQuery from "@mui/material/useMediaQuery"
 import dayjs from "dayjs"
-import {MUI_SIZE, denseSx, render_icon_text} from "./utils"
+import {MUI_SIZE, denseSx, render_icon_text, overlay_container} from "./utils"
 
 function formatDate(date, format) {
   if (!date) { return "" }
@@ -312,7 +312,7 @@ export function render({model, el, view}) {
         open={open}
         anchorEl={anchorRef.current}
         placement="bottom-start"
-        container={view.container}
+        container={overlay_container(view.container)}
         style={{zIndex: theme.zIndex.modal}}
       >
         <ClickAwayListener onClickAway={handleCancel}>

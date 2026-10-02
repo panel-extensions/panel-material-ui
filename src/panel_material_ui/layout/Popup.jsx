@@ -1,5 +1,5 @@
 import Popover from "@mui/material/Popover"
-import {apply_flex} from "./utils"
+import {apply_flex, overlay_container} from "./utils"
 
 export function render({model, view}, ref) {
   const [anchor_origin] = model.useState("anchor_origin")
@@ -31,7 +31,7 @@ export function render({model, view}, ref) {
       anchorOrigin={anchor_origin}
       anchorPosition={anchor_position ? {left: anchor_position[1], top: anchor_position[0]} : undefined}
       anchorReference={anchor_position == null ? "anchorEl" : "anchorPosition"}
-      container={view.container}
+      container={overlay_container(view.container)}
       disableEnforceFocus={!enforce_focus}
       elevation={elevation}
       marginThreshold={0}

@@ -3,7 +3,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"
 import Tooltip from "@mui/material/Tooltip"
 import {ThemeProvider, useTheme} from "@mui/material/styles"
 import {CacheProvider} from "@emotion/react"
-import {render_icon_text} from "./utils"
+import {render_icon_text, overlay_container} from "./utils"
 
 // Reserve the icon and its margin in outlined-input notches, which only accept text.
 export const DESCRIPTION_LABEL_SPACER = "\u00A0\u00A0\u00A0\u00A0\u00A0"
@@ -16,10 +16,10 @@ export function render_description({model, el, view}) {
   const iconRef = React.useRef(null)
   const [open, setOpen] = React.useState(false);
 
-  let container = el
+  let container = overlay_container(el)
   let cache = null
   if (view && view.root.model.class_name == "Page" && view.root.mui_cache != null) {
-    container = view.root.shadow_el
+    container = overlay_container(view.root.shadow_el)
     cache = view.root.mui_cache
     return (
       <>
