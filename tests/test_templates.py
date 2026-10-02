@@ -106,3 +106,12 @@ def test_logo():
     page = pmui.Page(logo=STATIC_PATH / "logo_horizontal_light_theme.png")
     model = page.get_root()
     assert model.data.logo.startswith("data:image/png;")
+
+
+def test_page_defaults_to_stretch_width():
+    assert pmui.Page().sizing_mode == "stretch_width"
+
+
+@pytest.mark.parametrize("kwargs", [{"width": 500}, {"sizing_mode": "fixed"}, {"max_width": 800}])
+def test_page_explicit_width_keeps_sizing(kwargs):
+    assert pmui.Page(**kwargs).sizing_mode != "stretch_width"

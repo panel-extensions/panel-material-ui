@@ -17,7 +17,20 @@ import {styled, useTheme} from "@mui/material/styles";
 import {apply_flex, dark_mode, setup_global_styles, render_icon_text} from "./utils"
 
 const PAGE_ROOT_SX = {display: "flex", width: "100vw", height: "100vh", overflow: "hidden"}
+// Inline pages size to their host (or content) and become the containing block
+// for the header and temporary drawers, which otherwise escape to the viewport.
+const PAGE_INLINE_ROOT_SX = {display: "flex", position: "relative", width: "100%", height: "100%", overflow: "hidden"}
 const PAGE_APPBAR_SX = {zIndex: (theme) => theme.zIndex.drawer + 1}
+const INLINE_MODAL_SX = {position: "absolute"}
+
+// A Page only owns the viewport when it is a document root mounted directly in
+// <body> (panel serve, save). In notebook outputs or nested inside other
+// layouts, fixed positioning would attach it to the notebook or tab instead.
+function is_fullscreen(view) {
+  if (view.parent != null) { return false }
+  const container = view.el.parentNode
+  return container == null || container.parentNode === document.body
+}
 const PAGE_BUSY_TOOLBAR_SX = {m: "4px"}
 const PAGE_HEADER_ICON_SX = {
   mr: 2,
@@ -150,39 +163,56 @@ export function render({model, view}) {
   const isSm = useMediaQuery(theme.breakpoints.up("sm"))
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
+  const rootRef = React.useRef(null)
+  const [fullscreen, setFullscreen] = React.useState(() => is_fullscreen(view))
+  React.useLayoutEffect(() => setFullscreen(is_fullscreen(view)), [])
+  const modalProps = React.useMemo(() => (fullscreen ? undefined : {container: () => rootRef.current}), [fullscreen])
+  const backdropProps = fullscreen ? undefined : {sx: INLINE_MODAL_SX}
+
   const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
   const context_drawer_variant = contextbar_variant === "auto" ? (isMobile ? "temporary" : "persistent") : contextbar_variant
 
   const toolbarSx = busy_indicator === "linear" ? PAGE_BUSY_TOOLBAR_SX : undefined
-  const pageRootSx = React.useMemo(() => (sx ? [PAGE_ROOT_SX, sx] : PAGE_ROOT_SX), [sx])
+  const pageRootSx = React.useMemo(() => {
+    const root = fullscreen ? PAGE_ROOT_SX : PAGE_INLINE_ROOT_SX
+    return sx ? [root, sx] : root
+  }, [fullscreen, sx])
+  // Inline pages may have an auto height, so drawers stretch via flex instead of
+  // a height that would resolve against the viewport or an indefinite parent.
+  const drawerHeight = fullscreen ? "100vh" : undefined
   const drawerSx = React.useMemo(() => ({
     display: "flex",
     flexDirection: "column",
     flexShrink: 0,
-    height: "100vh",
+    height: drawerHeight,
+    ...(!fullscreen && drawer_variant === "temporary" && INLINE_MODAL_SX),
     "& .MuiDrawer-paper": {
       width: sidebar_width,
-      height: "100vh",
+      height: drawerHeight,
       boxSizing: "border-box",
-      position: "relative",
-      overflowX: "hidden"
+      position: drawer_variant === "temporary" && !fullscreen ? "absolute" : "relative",
+      overflowX: "hidden",
     },
-  }), [sidebar_width])
-  const contextDrawerSx = React.useMemo(() => ({
-    display: "flex",
-    flexDirection: "column",
-    flexShrink: 0,
-    height: "100vh",
-    ...(context_drawer_variant !== "temporary" && {width: contextbar_width}),
-    zIndex: (theme) => theme.zIndex.drawer + 2,
-    "& .MuiDrawer-paper": {
-      width: contextbar_width,
-      height: "100vh",
-      boxSizing: "border-box",
-      ...(context_drawer_variant !== "temporary" && {position: "relative"}),
-      overflowX: "hidden"
-    },
-  }), [contextbar_width, context_drawer_variant])
+  }), [sidebar_width, fullscreen, drawer_variant])
+  const contextDrawerSx = React.useMemo(() => {
+    const temporary = context_drawer_variant === "temporary"
+    return {
+      display: "flex",
+      flexDirection: "column",
+      flexShrink: 0,
+      height: drawerHeight,
+      ...(!temporary && {width: contextbar_width}),
+      ...(!fullscreen && temporary && INLINE_MODAL_SX),
+      zIndex: (theme) => theme.zIndex.drawer + 2,
+      "& .MuiDrawer-paper": {
+        width: contextbar_width,
+        height: drawerHeight,
+        boxSizing: "border-box",
+        ...(!temporary ? {position: "relative"} : !fullscreen && INLINE_MODAL_SX),
+        overflowX: "hidden",
+      },
+    }
+  }, [contextbar_width, context_drawer_variant, fullscreen])
 
   const logoContent = React.useMemo(() => {
     if (!logo) { return null }
@@ -246,7 +276,7 @@ export function render({model, view}) {
     setDarkTheme(!dark_theme)
   }
 
-  setup_global_styles(view, theme, view.model.data._custom_theme)
+  setup_global_styles(view, theme, view.model.data._custom_theme, !fullscreen)
   React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
 
   const [highlight, setHighlight] = React.useState(false)
@@ -369,10 +399,11 @@ export function render({model, view}) {
 
   const drawer = sidebar.length > 0 ? (
     <Drawer
-      slotProps={{paper: {className: "sidebar"}}}
+      slotProps={{paper: {className: "sidebar"}, backdrop: backdropProps}}
       anchor="left"
       open={open}
       onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
+      ModalProps={modalProps}
       sx={drawerSx}
       variant={drawer_variant}
     >
@@ -402,10 +433,11 @@ export function render({model, view}) {
 
   const context_drawer = contextbar.length > 0 ? (
     <Drawer
-      slotProps={{paper: {className: "contextbar"}}}
+      slotProps={{paper: {className: "contextbar"}, backdrop: backdropProps}}
       anchor="right"
       open={contextbar_open}
       onClose={context_drawer_variant === "temporary" ? (() => contextOpen(false)) : null}
+      ModalProps={modalProps}
       sx={contextDrawerSx}
       variant={context_drawer_variant}
     >
@@ -466,8 +498,8 @@ export function render({model, view}) {
   }, [main_stretch, main_width])
 
   return (
-    <Box className={`mui-${color_scheme}`} sx={pageRootSx}>
-      <AppBar position="fixed" color="primary" className="header" sx={appBarSx}>
+    <Box ref={rootRef} className={`mui-${color_scheme}`} sx={pageRootSx}>
+      <AppBar position={fullscreen ? "fixed" : "absolute"} color="primary" className="header" sx={appBarSx}>
         <Toolbar sx={appBarToolbarSx}>
           {(model.sidebar.length > 0 && drawer_variant !== "permanent") &&
             <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>
@@ -561,7 +593,7 @@ export function render({model, view}) {
           drawer_variant === "temporary" ? (
             {width: 0, flexShrink: {xs: 0}}
           ) : (
-            {width: {sm: sidebar_width}, flexShrink: {sm: 0}}
+            {width: {sm: sidebar_width}, flexShrink: {sm: 0}, display: fullscreen ? undefined : "flex"}
           )
         }
       >
@@ -587,7 +619,7 @@ export function render({model, view}) {
           context_drawer_variant === "temporary" ? (
             {width: 0, flexShrink: {xs: 0}}
           ) : (
-            {width: {sm: contextbar_width}, flexShrink: {sm: 0}}
+            {width: {sm: contextbar_width}, flexShrink: {sm: 0}, display: fullscreen ? undefined : "flex"}
           )
         }
       >
