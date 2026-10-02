@@ -1013,6 +1013,28 @@ export function overlay_container(parent) {
   return container
 }
 
+// createTheme is the costliest part of mounting a component, and every
+// component with the same theme config builds an identical theme, except for
+// the overlay container of its popups, which is patched into a shallow copy.
+const THEMES = new Map()
+const CONTAINER_COMPONENTS = ["MuiPopover", "MuiPopper", "MuiModal"]
+
+function cached_theme(props, theme_config, dark_theme) {
+  const key = JSON.stringify([theme_config, dark_theme])
+  let base = THEMES.get(key)
+  if (base === undefined) {
+    base = createTheme(render_theme_config({view: {container: null}}, theme_config, dark_theme))
+    THEMES.set(key, base)
+  }
+  const container = overlay_container(props.view.container)
+  const components = {...base.components}
+  for (const name of CONTAINER_COMPONENTS) {
+    const component = components[name] ?? {}
+    components[name] = {...component, defaultProps: {...component.defaultProps, container}}
+  }
+  return {...base, components}
+}
+
 export function render_theme_config(props, theme_config, dark_theme) {
   const container = overlay_container(props.view.container)
   const config = {
@@ -1407,10 +1429,9 @@ export const install_theme_hooks = (props) => {
     }
   }, [])
   React.useEffect(() => update_views(), [dark_theme])
-  const theme = React.useMemo(() => {
-    const config = render_theme_config(props, theme_config, dark_theme)
-    return createTheme(config)
-  }, [dark_theme, theme_config])
+  const theme = React.useMemo(
+    () => cached_theme(props, theme_config, dark_theme), [dark_theme, theme_config]
+  )
 
   // Sync local dark_mode with global dark mode
   const isFirstRender = React.useRef(true)
