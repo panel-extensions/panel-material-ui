@@ -640,11 +640,11 @@ class MaterialComponent(ReactComponent):
 
     def preview(self, width: int | None = 800, height: int | None = 600, border: str="1px solid #ccc", **kwargs):
         """
-        Render the page as an iframe.
+        Render the component as a standalone page inside an iframe.
 
-        Since the Page component assumes it is the root component
-        this approach provides a way to see a preview of the rendered
-        page.
+        Useful for previewing output that depends on owning the whole
+        document, e.g. a Page with a custom template, or components
+        positioned or sized relative to the browser window.
 
         Parameters
         ----------

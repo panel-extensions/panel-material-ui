@@ -1168,31 +1168,32 @@ export const apply_global_css = (model, view, theme) => {
   }, [theme])
 }
 
-export const setup_global_styles = (view, theme, custom_theme=[]) => {
+// With scoped=true the styles go into the view's shadow root, so a component
+// that does not own the document (e.g. a Page in a notebook output) cannot
+// restyle the rest of the page.
+export const setup_global_styles = (view, theme, custom_theme=[], scoped=false) => {
   const doc = view.model.document
-  let global_style_el = document.querySelector("#global-styles-panel-mui")
-  const template_style_el = document.querySelector("#template-styles")
-  const theme_ref = React.useRef(theme)
-  if (!global_style_el) {
-    {
-      global_style_el = document.createElement("style")
-      global_style_el.id = "global-styles-panel-mui"
-      if (template_style_el) {
-        document.head.insertBefore(global_style_el, template_style_el)
-      } else {
-        document.head.appendChild(global_style_el)
-      }
+  const target = scoped ? view.shadow_el : document.head
+  const anchor_el = scoped ? view.container : document.querySelector("#template-styles")
+  const insert = (el) => {
+    if (anchor_el && anchor_el.parentNode === target) {
+      target.insertBefore(el, anchor_el)
+    } else {
+      target.appendChild(el)
     }
   }
-  let page_style_el = document.querySelector("#page-style")
+  let global_style_el = target.querySelector("#global-styles-panel-mui")
+  const theme_ref = React.useRef(theme)
+  if (!global_style_el) {
+    global_style_el = document.createElement("style")
+    global_style_el.id = "global-styles-panel-mui"
+    insert(global_style_el)
+  }
+  let page_style_el = target.querySelector("#page-style")
   if (!page_style_el) {
     page_style_el = document.createElement("style")
     page_style_el.id = "page-style"
-    if (template_style_el) {
-      document.head.insertBefore(page_style_el, template_style_el)
-    } else {
-      document.head.appendChild(page_style_el)
-    }
+    insert(page_style_el)
   }
 
   React.useEffect(() => {
@@ -1243,7 +1244,7 @@ export const setup_global_styles = (view, theme, custom_theme=[]) => {
     doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family, custom_theme))
     global_style_el.textContent = render_theme_css(theme)
     page_style_el.textContent = render_page_css(theme)
-  }, [theme])
+  }, [theme, scoped])
 }
 
 export const install_theme_hooks = (props) => {
@@ -1348,13 +1349,26 @@ export const install_theme_hooks = (props) => {
     const cb = (val) => setDarkTheme(val)
     if (document.documentElement.dataset.themeManaged === "true") {
       dark_mode.subscribe(cb)
-    } else {
-      const style_el = document.createElement("style")
-      style_el.id = "styles-panel-mui"
-      props.view.shadow_el.insertBefore(style_el, props.view.container)
-      style_el.textContent = render_theme_css(theme)
+      return () => dark_mode.unsubscribe(cb)
     }
-    return () => dark_mode.unsubscribe(cb)
+    const style_el = document.createElement("style")
+    style_el.id = "styles-panel-mui"
+    props.view.shadow_el.insertBefore(style_el, props.view.container)
+    style_el.textContent = render_theme_css(theme)
+
+    // Without a theme-managed document (e.g. a Page in a notebook or docs page)
+    // there is no global dark_mode to follow, so track the enclosing Page.
+    let page = props.view.parent
+    while (page != null && page.model.class_name !== "Page") {
+      page = page.parent
+    }
+    if (page == null) {
+      return
+    }
+    const sync = () => setDarkTheme(page.model.data.dark_theme)
+    sync()
+    page.model_proxy.on("dark_theme", sync)
+    return () => page.model_proxy.off("dark_theme", sync)
   }, [])
 
   React.useEffect(() => {

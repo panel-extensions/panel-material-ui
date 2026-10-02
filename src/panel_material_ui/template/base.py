@@ -174,6 +174,10 @@ class Page(MaterialComponent, ResourceComponent):
             meta["title"] = params["title"]
         if "meta" not in params:
             params["meta"] = Meta(**meta)
+        # Served pages fill the viewport regardless, but rendered inline (e.g. in
+        # a notebook) an unsized Page would shrink to its content width.
+        if not {"sizing_mode", "width", "min_width", "max_width"} & set(params):
+            params["sizing_mode"] = "stretch_width"
         super().__init__(**params)
         with edit_constant(self.meta):
             self.meta.param.update(**meta)

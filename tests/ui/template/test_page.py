@@ -4,7 +4,7 @@ pytest.importorskip('playwright')
 
 import panel as pn
 from panel.io.state import state
-from panel.tests.util import serve_component
+from panel.tests.util import serve_component, wait_until
 from panel.util import edit_readonly
 from playwright.sync_api import expect
 from panel_material_ui.template import Page
@@ -341,3 +341,49 @@ def test_page_linear_progress_visible_when_busy(page):
 
     # Progress bar should now be visible
     expect(progress).to_have_css("opacity", "1")
+
+
+def test_page_served_uses_fixed_header(page):
+    pg = Page(main=[pn.pane.Markdown("# Main")])
+
+    serve_component(page, pg)
+
+    expect(page.locator(".MuiAppBar-root")).to_have_css("position", "fixed")
+
+
+def test_page_inline_contains_header_and_drawers(page):
+    pg = Page(
+        title="Inline",
+        main=[pn.pane.Markdown("# Main")],
+        sidebar=[pn.pane.Markdown("# Sidebar")],
+        contextbar=[pn.pane.Markdown("# Context")],
+    )
+    layout = pn.Column(pn.pane.Markdown("Above", height=100), pg, sizing_mode="stretch_width")
+
+    serve_component(page, layout)
+
+    header = page.locator(".MuiAppBar-root")
+    expect(header).to_have_css("position", "absolute")
+    # The header sits below the preceding output instead of at the viewport top
+    assert header.bounding_box()["y"] >= 100
+
+    page.locator('[aria-label="Open contextbar"]').click()
+    contextbar = page.locator(".MuiDrawer-paper.contextbar")
+    expect(contextbar).to_be_visible()
+    expect(contextbar).to_have_css("position", "absolute")
+    expect(page.locator(".MuiBackdrop-root")).to_have_css("position", "absolute")
+
+
+def test_page_inline_theme_toggle_scoped(page):
+    button = Button(label="Click")
+    pg = Page(main=[button])
+
+    serve_component(page, pn.Column(pg))
+
+    try:
+        page.locator('[aria-label="Toggle theme"]').click()
+        wait_until(lambda: pg.dark_theme and button.dark_theme, page)
+        expect(page.locator(".mui-dark .MuiButton-root")).to_have_count(1)
+        assert page.evaluate("() => document.head.querySelector('#page-style')") is None
+    finally:
+        pn.config.theme = "default"
