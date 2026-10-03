@@ -520,6 +520,11 @@ export function render({model, el, view}) {
         onClick={() => setOpen(true)}
         onClose={(e) => { e.stopPropagation(); setOpen(false) }}
         open={!nb && open}
+        // With a controlled `open` MUI reads the anchor's clientWidth on every
+        // render, closed or not, forcing a page reflow per Select as a page
+        // mounts. Measure only while open and let autoWidth skip MUI's read.
+        autoWidth
+        MenuProps={{slotProps: {paper: {style: {minWidth: open ? anchorEl.current?.clientWidth : undefined}}}}}
         ref={anchorEl}
         renderValue={renderValue}
         size={MUI_SIZE(size)}

@@ -124,6 +124,19 @@ def test_select_basic_functionality(page):
     wait_until(lambda: widget.value == "Option 2", page)
     expect(page.locator(".MuiSelect-select")).to_have_text("Option 2")
 
+def test_select_menu_matches_input_width(page):
+    widget = Select(options=["a", "b"], width=300)
+    serve_component(page, widget)
+
+    page.locator(".select").click()
+    expect(page.locator(".MuiMenuItem-root")).to_have_count(2)
+
+    # The menu is at least as wide as the input it drops down from, even
+    # though its options are much narrower.
+    input_width = page.locator(".MuiInputBase-root").bounding_box()["width"]
+    wait_until(lambda: page.locator(".MuiMenu-paper").bounding_box()["width"] >= input_width - 1, page)
+
+
 def test_select_searchable(page):
     widget = Select(
         label='Select test',
