@@ -4,11 +4,11 @@ import time
 from itertools import chain, product
 
 import panel as pn
-import param
 
 from panel_material_ui import *
 from panel_material_ui.base import MaterialComponent
 from panel_material_ui.template import Page
+import param
 
 pn.extension(defer_load=True, notifications=True)
 
@@ -216,7 +216,7 @@ spec = {
             (CheckBoxGroup, (['color', 'inline'],), dict(options=['Foo', 'Bar', 'Baz'], label='CheckBoxGroup', value=['Bar'])),
             (CheckButtonGroup, (['button_type', 'orientation'],), dict(options=['Foo', 'Bar', 'Baz'], label='CheckButtonGroup', value=['Foo', 'Bar'])),
             (RadioBoxGroup, (['color', 'inline'],), dict(options=['Foo', 'Bar', 'Baz'], label='RadioBoxGroup', value='Foo')),
-            (RadioButtonGroup, (['button_type', 'button_style'], ['size'], ['orientation']), dict(options=['Foo', 'Bar', 'Baz'], label='RadioButtonGroup', value='Foo')),
+            (RadioButtonGroup, (['variant', 'color'], ['size'], ['orientation']), dict(options=['Foo', 'Bar', 'Baz'], label='RadioButtonGroup', value='Foo')),
             (MultiSelect, (['variant', 'color'], ['disabled'],), dict(options=['Foo', 'Bar', 'Baz'], label='Select')),
             (MultiChoice, (['variant', 'color'], ['disabled'],), dict(options=['Foo', 'Bar', 'Baz'], label='Select')),
             (Select, (['variant', 'color'], ['disabled'],), dict(value='Foo', options=['Foo', 'Bar', 'Baz'], label='Select')),
