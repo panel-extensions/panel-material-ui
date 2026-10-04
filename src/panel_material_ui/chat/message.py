@@ -83,6 +83,16 @@ DEFAULT_AVATARS = {
 }
 
 
+# Reaction icons are Material Icons names; tabler names, which Panel's reaction
+# icons use, are translated since most only differ by using dashes.
+_TABLER_ICONS = {"heart": "favorite", "thumbup": "thumb_up", "thumbdown": "thumb_down"}
+
+
+def _material_icon(name: str) -> str:
+    name = name.strip().lower().replace("-", "_").replace(" ", "_").removesuffix("_filled")
+    return _TABLER_ICONS.get(name, name)
+
+
 class MessageState(param.Parameterized):
 
     avatar = param.Parameter(allow_refs=True)
@@ -95,6 +105,9 @@ class MessageState(param.Parameterized):
 
     help = param.Boolean(default=False, doc="""
         Whether the message is the help text of a feed.""")
+
+    reaction_options = param.Dict(default={}, doc="""
+        Material icon names for each reaction, in its inactive and active state.""")
 
     show_user = param.Boolean(default=False, doc="""
         Whether a feed resolved show_user='auto' to show the name.""")
@@ -166,7 +179,8 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
         "avatar": None,
         "avatar_lookup": None,
         "default_avatars": None,
-        "object": None
+        "object": None,
+        "reaction_icons": None,
     }
 
     def __init__(self, object=None, **params):
@@ -181,7 +195,7 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
             elif state.browser_info and state.browser_info.timezone:
                 tz = ZoneInfo(state.browser_info.timezone)
             params["timestamp"] = datetime.datetime.now(tz=tz)
-        reaction_icons = params.get("reaction_icons", {"favorite": "heart"})
+        reaction_icons = params.get("reaction_icons", {"favorite": "favorite"})
         if isinstance(reaction_icons, dict):
             params["reaction_icons"] = ChatReactionIcons(options=reaction_icons, default_layout=Row, sizing_mode=None)
         self._internal = True
@@ -233,6 +247,12 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
                 elif isinstance(self._object_panel, Widget):
                     self._edit_area.value = self._object_panel.value
                 self._object_panel = self._edit_area
+        elif isinstance(msg, dict) and msg.get('type') == 'reaction':
+            reaction = msg['reaction']
+            if reaction in self.reactions:
+                self.reactions = [r for r in self.reactions if r != reaction]
+            else:
+                self.reactions = [*self.reactions, reaction]
         elif msg == 'copy':
             object_panel = self._object_panel
             if isinstance(object_panel, HTMLBasePane):
@@ -274,6 +294,18 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
         self._edit_area.param.watch(self._submit_edit, "enter_pressed")
         self._composite = Row()
         self._update_chat_copy_icon()
+        self._update_reaction_icons()
+
+    def _update_reaction_icons(self, event=None):
+        icons = self.reaction_icons
+        if isinstance(icons, dict):
+            options, active_icons = icons, {}
+        else:
+            options, active_icons = icons.options, icons.active_icons
+        self._internal_state.reaction_options = {
+            reaction: {"icon": _material_icon(icon), "active_icon": _material_icon(active_icons.get(reaction, icon))}
+            for reaction, icon in options.items()
+        }
 
     def _update_chat_copy_icon(self):
         # Replaces Panel's ChatCopyIcon handling, the frontend renders the

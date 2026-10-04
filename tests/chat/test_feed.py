@@ -1,4 +1,5 @@
 import panel as pn
+from panel.chat import ChatReactionIcons
 
 from panel_material_ui import ChatFeed, ChatInterface, ChatMessage, ChatStep, Column
 
@@ -76,6 +77,25 @@ def test_chat_message_has_text():
     assert not message._internal_state.has_text
     message.object = pn.pane.Markdown("Hello")
     assert message._internal_state.has_text
+
+
+def test_chat_message_reaction_options():
+    message = ChatMessage("Hi", reaction_icons={"like": "thumbup", "favorite": "heart", "dislike": "thumb-down"})
+    assert message._internal_state.reaction_options == {
+        "like": {"icon": "thumb_up", "active_icon": "thumb_up"},
+        "favorite": {"icon": "favorite", "active_icon": "favorite"},
+        "dislike": {"icon": "thumb_down", "active_icon": "thumb_down"},
+    }
+    message.reaction_icons = ChatReactionIcons(options={"star": "star"})
+    assert list(message._internal_state.reaction_options) == ["star"]
+
+
+def test_chat_message_reaction_toggle():
+    message = ChatMessage("Hi", reaction_icons={"like": "thumb-up"})
+    message._handle_msg({"type": "reaction", "reaction": "like"})
+    assert message.reactions == ["like"]
+    message._handle_msg({"type": "reaction", "reaction": "like"})
+    assert message.reactions == []
 
 
 def test_chat_message_empty_text_not_copyable():

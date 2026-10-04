@@ -56,11 +56,38 @@ def test_chat_message_meta_revealed_on_hover(page):
     message = ChatMessage("Hover me", user="Assistant")
     serve_component(page, message)
 
-    meta = page.locator(".chat-message-meta")
-    expect(meta).to_have_css("opacity", "0")
+    copy = page.get_by_role("button", name="Copy")
+    timestamp = page.locator(".MuiTypography-caption.chat-message-hover")
+    expect(copy).to_have_css("opacity", "0")
+    expect(timestamp).to_have_css("opacity", "0")
     page.get_by_text("Hover me").hover()
-    expect(meta).to_have_css("opacity", "1")
+    expect(copy).to_have_css("opacity", "1")
+    expect(timestamp).to_have_css("opacity", "1")
     expect(page.get_by_role("button", name="Copy")).to_be_visible()
+
+
+def test_chat_message_reactions(page):
+    message = ChatMessage(
+        "Looks good!",
+        reactions=["like"],
+        reaction_icons={"like": "thumbup", "dislike": "thumb-down"},
+    )
+    serve_component(page, message)
+
+    like = page.get_by_role("button", name="like", exact=True)
+    dislike = page.get_by_role("button", name="dislike", exact=True)
+    expect(like).to_have_attribute("aria-pressed", "true")
+    expect(like).to_have_text("thumb_up")
+    expect(like).to_have_css("opacity", "1")
+    expect(dislike).to_have_css("opacity", "0")
+    expect(dislike).to_have_text("thumb_down")
+
+    page.get_by_text("Looks good!").hover()
+    dislike.click()
+    wait_until(lambda: message.reactions == ["like", "dislike"], page)
+    expect(dislike).to_have_attribute("aria-pressed", "true")
+    like.click()
+    wait_until(lambda: message.reactions == ["dislike"], page)
 
 
 def test_chat_message_copy_hidden_for_non_text(page):

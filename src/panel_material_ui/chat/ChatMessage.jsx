@@ -55,10 +55,17 @@ function isEmoji(str) {
   return /\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(str)
 }
 
-function ActionButton({label, onClick, children}) {
+function ActionButton({label, onClick, children, className = "chat-message-hover", ...props}) {
   return (
     <Tooltip title={label} placement="top" disableInteractive>
-      <IconButton size="small" aria-label={label} onClick={onClick} sx={{color: "text.secondary", p: "4px"}}>
+      <IconButton
+        size="small"
+        aria-label={label}
+        className={className}
+        onClick={onClick}
+        sx={{color: "text.secondary", p: "4px"}}
+        {...props}
+      >
         {children}
       </IconButton>
     </Tooltip>
@@ -77,7 +84,7 @@ export function render({model, view}) {
   const [show_timestamp] = model.useState("show_timestamp")
   const [show_reaction_icons] = model.useState("show_reaction_icons")
   const [show_copy_icon] = model.useState("show_copy_icon")
-  const [reaction_icons] = model.useState("reaction_icons")
+  const [reaction_options] = model.useState("_internal_state.reaction_options")
   const [reactions] = model.useState("reactions")
   const [avatar] = model.useState("_internal_state.avatar")
   const [timestamp] = model.useState("_internal_state.timestamp")
@@ -247,9 +254,9 @@ export function render({model, view}) {
 
   const show_copy = show_copy_icon && has_text
   const show_edit = show_edit_icon && has_text
-  const active_reactions = show_reaction_icons ? reactions : []
+  const reaction_names = show_reaction_icons ? Object.keys(reaction_options) : []
   const has_footer = footer?.length > 0
-  const has_meta = show_copy || show_edit || active_reactions.length > 0 || (show_timestamp && !is_help)
+  const has_meta = show_copy || show_edit || reaction_names.length > 0 || (show_timestamp && !is_help)
 
   return (
     <Box
@@ -260,12 +267,13 @@ export function render({model, view}) {
         gap: 1.5,
         maxWidth: "100%",
         pt: hide_identity ? 0 : 1,
-        "& .chat-message-meta": {
+        // Active reactions stay visible; other actions appear on hover or focus.
+        "& .chat-message-hover": {
           opacity: 0,
           transition: (theme) => theme.transitions.create("opacity", {duration: theme.transitions.duration.shorter}),
         },
-        "&:hover .chat-message-meta, &:focus-within .chat-message-meta": {opacity: 1},
-        "@media (hover: none)": {"& .chat-message-meta": {opacity: 1}},
+        "&:hover .chat-message-hover, &:focus-within .chat-message-hover": {opacity: 1},
+        "@media (hover: none)": {"& .chat-message-hover": {opacity: 1}},
       }}
     >
       {avatar_component}
@@ -321,6 +329,27 @@ export function render({model, view}) {
                   spacing={0.25}
                   sx={{alignItems: "center", minHeight: 24}}
                 >
+                  {/* Reactions lead the row so active ones sit at the content edge while the rest is hidden. */}
+                  {reaction_names.map((reaction) => {
+                    const active = reactions.includes(reaction)
+                    const {icon, active_icon} = reaction_options[reaction]
+                    return (
+                      <ActionButton
+                        key={`reaction-${reaction}`}
+                        label={reaction}
+                        aria-pressed={active}
+                        className={active ? "" : "chat-message-hover"}
+                        onClick={() => model.send_msg({type: "reaction", reaction})}
+                      >
+                        <Icon
+                          baseClassName={active ? "material-icons" : "material-icons-outlined"}
+                          sx={{...ICON_SX, color: active ? "primary.main" : undefined}}
+                        >
+                          {active ? active_icon : icon}
+                        </Icon>
+                      </ActionButton>
+                    )
+                  })}
                   {show_copy && (
                     <ActionButton label={copied ? "Copied" : "Copy"} onClick={() => model.send_msg("copy")}>
                       {copied ? <CheckIcon sx={ICON_SX} /> : <ContentCopyIcon sx={ICON_SX} />}
@@ -331,16 +360,8 @@ export function render({model, view}) {
                       <EditOutlinedIcon sx={ICON_SX} />
                     </ActionButton>
                   )}
-                  {active_reactions.map((reaction) => {
-                    const iconData = parseIconName(reaction_icons[reaction] || reaction)
-                    return (
-                      <ActionButton key={`reaction-${reaction}`} label={reaction} onClick={() => model.send_msg(reaction)}>
-                        <Icon baseClassName={iconData.baseClassName} sx={ICON_SX}>{iconData.iconName}</Icon>
-                      </ActionButton>
-                    )
-                  })}
                   {show_timestamp && !is_help && (
-                    <Typography variant="caption" color="text.secondary" sx={{px: 0.75}}>
+                    <Typography className="chat-message-hover" variant="caption" color="text.secondary" sx={{px: 0.75}}>
                       {timestamp}
                     </Typography>
                   )}
