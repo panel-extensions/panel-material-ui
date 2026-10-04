@@ -150,9 +150,6 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
     show_avatar = param.Boolean(default=False, doc="""
         Whether to display the avatar of the user.""")
 
-    show_user = param.Boolean(default=False, doc="""
-        Whether to display the name of the user.""")
-
     _internal_state = param.ClassSelector(class_=MessageState, default=MessageState())
     _object_panel = Child()
 
