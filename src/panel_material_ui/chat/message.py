@@ -163,9 +163,6 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
         The placement of the message. If None, messages from the user named
         'User' are placed on the right and all others on the left.""")  # type: ignore[assignment]
 
-    show_avatar = param.Boolean(default=False, doc="""
-        Whether to display the avatar of the user.""")
-
     show_user: t.Literal["auto"] | bool = param.Selector(default="auto", objects=["auto", True, False], doc="""
         Whether to display the name of the user. With 'auto' the name is only
         shown in a feed where messages from more than one other user, e.g.

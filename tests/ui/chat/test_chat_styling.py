@@ -99,13 +99,13 @@ def test_chat_message_copy_hidden_for_non_text(page):
     expect(page.get_by_role("button", name="Copy")).to_have_count(0)
 
 
-def test_chat_message_hides_user_and_avatar_by_default(page):
+def test_chat_message_hides_user_and_shows_avatar_by_default(page):
     message = ChatMessage("Hi", user="Assistant")
     serve_component(page, message)
 
     expect(page.get_by_text("Hi")).to_be_visible()
     expect(page.get_by_text("Assistant")).to_have_count(0)
-    expect(page.locator(".MuiAvatar-root")).to_have_count(0)
+    expect(page.locator(".MuiAvatar-root")).to_have_count(1)
 
 
 def test_chat_feed_shows_users_when_multiple_agents_reply(page):
