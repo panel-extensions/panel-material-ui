@@ -72,17 +72,31 @@ def test_chat_message_copy_hidden_for_non_text(page):
     expect(page.get_by_role("button", name="Copy")).to_have_count(0)
 
 
-def test_chat_message_shows_user_and_hides_avatar_by_default(page):
+def test_chat_message_hides_user_and_avatar_by_default(page):
     message = ChatMessage("Hi", user="Assistant")
     serve_component(page, message)
 
     expect(page.get_by_text("Hi")).to_be_visible()
-    expect(page.get_by_text("Assistant")).to_be_visible()
+    expect(page.get_by_text("Assistant")).to_have_count(0)
     expect(page.locator(".MuiAvatar-root")).to_have_count(0)
 
 
-def test_chat_feed_grouped_message_hides_user(page):
+def test_chat_feed_shows_users_when_multiple_agents_reply(page):
     feed = ChatFeed()
+    feed.send("Question", user="User", respond=False)
+    feed.send("Answer", user="Agent A", respond=False)
+    serve_component(page, feed)
+
+    expect(page.get_by_text("Answer")).to_be_visible()
+    expect(page.get_by_text("Agent A")).to_have_count(0)
+    feed.send("Second opinion", user="Agent B", respond=False)
+    expect(page.get_by_text("Agent A")).to_be_visible()
+    expect(page.get_by_text("Agent B")).to_be_visible()
+    expect(page.locator(".MuiTypography-caption").filter(has_text="User")).to_have_count(0)
+
+
+def test_chat_feed_grouped_message_hides_user(page):
+    feed = ChatFeed(message_params={"show_user": True})
     feed.send("First", user="Assistant", respond=False)
     feed.send("Second", user="Assistant", respond=False)
     serve_component(page, feed)

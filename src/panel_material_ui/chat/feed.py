@@ -109,6 +109,13 @@ class ChatFeed(_PnChatFeed):
 
     @param.depends('objects', watch=True, on_init=True)
     def _update_message_groups(self):
+        messages = [
+            obj for obj in self.objects
+            if isinstance(obj, ChatMessage) and not obj._internal_state.help
+            and obj is not getattr(self, '_placeholder', None)
+        ]
+        # Names only disambiguate when several users reply on the left.
+        show_users = len({m.user for m in messages if m.placement != 'right'}) > 1
         previous = None
         for obj in self.objects:
             if isinstance(obj, ChatMessage):
@@ -116,6 +123,7 @@ class ChatFeed(_PnChatFeed):
                     isinstance(previous, ChatMessage) and not previous._internal_state.help
                     and previous.user == obj.user and previous.placement == obj.placement
                 )
+                obj._internal_state.show_user = show_users and obj.placement != 'right'
             previous = obj
 
     def _message_placement(self, user: str) -> str | None:

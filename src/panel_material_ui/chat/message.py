@@ -96,6 +96,9 @@ class MessageState(param.Parameterized):
     help = param.Boolean(default=False, doc="""
         Whether the message is the help text of a feed.""")
 
+    show_user = param.Boolean(default=False, doc="""
+        Whether a feed resolved show_user='auto' to show the name.""")
+
     timestamp = param.String(allow_refs=True)
 
 
@@ -149,6 +152,11 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
 
     show_avatar = param.Boolean(default=False, doc="""
         Whether to display the avatar of the user.""")
+
+    show_user: t.Literal["auto"] | bool = param.Selector(default="auto", objects=["auto", True, False], doc="""
+        Whether to display the name of the user. With 'auto' the name is only
+        shown in a feed where messages from more than one other user, e.g.
+        multiple agents, are placed on the left.""")  # type: ignore[assignment]
 
     _internal_state = param.ClassSelector(class_=MessageState, default=MessageState())
     _object_panel = Child()
