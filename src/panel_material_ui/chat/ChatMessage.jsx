@@ -4,80 +4,65 @@ import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
 import Paper from "@mui/material/Paper"
 import Stack from "@mui/material/Stack"
+import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
+import CheckIcon from "@mui/icons-material/Check"
 import ContentCopyIcon from "@mui/icons-material/ContentCopy"
-import EditNoteIcon from "@mui/icons-material/EditNote"
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
 import {parseIconName, render_icon_text} from "./utils"
 
-function PlaceholderAvatar() {
+const AVATAR_SIZE = 32
+
+// Bubble-scoped overrides read by _MESSAGE_STYLESHEET, since links and inline
+// code use the primary and hover colors that vanish on a primary background.
+const BUBBLE_VARS = {
+  "--pmui-chat-link-color": "currentColor",
+  "--pmui-chat-code-bg": "rgba(255, 255, 255, 0.18)",
+}
+const ICON_SX = {fontSize: 16}
+
+function PlaceholderDots() {
+  const dot = (delay) => ({
+    width: 8,
+    height: 8,
+    borderRadius: "50%",
+    bgcolor: "text.disabled",
+    animation: "pmui-chat-pulse 1.4s ease-in-out infinite",
+    animationDelay: delay,
+    "@keyframes pmui-chat-pulse": {
+      "0%, 80%, 100%": {opacity: 0.3, transform: "scale(0.7)"},
+      "40%": {opacity: 1, transform: "scale(1)"},
+    },
+    "@media (prefers-reduced-motion: reduce)": {
+      animation: "none",
+      opacity: 0.6,
+    },
+  })
   return (
-    <Box sx={{
-      margin: "1em 0.5em 0 0",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: "8px",
-      width: "90px" // Increased width to space dots further apart
-    }}
+    <Box
+      role="status"
+      aria-label="Waiting for response"
+      sx={{display: "flex", alignItems: "center", gap: 0.75, height: AVATAR_SIZE, px: "10px"}}
     >
-      <Box
-        component="span"
-        sx={{
-          width: 12,
-          height: 12,
-          borderRadius: "50%",
-          backgroundColor: "text.disabled",
-          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
-          "@keyframes grow": {
-            "0%, 100%": {transform: "scale(0)"},
-            "50%": {transform: "scale(1)"}
-          },
-          "@keyframes fade": {
-            "0%, 100%": {opacity: 0.3},
-            "50%": {opacity: 1}
-          }
-        }}
-      />
-      <Box
-        component="span"
-        sx={{
-          width: 12,
-          height: 12,
-          borderRadius: "50%",
-          backgroundColor: "text.disabled",
-          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
-          animationDelay: "0.6s"
-        }}
-      />
-      <Box
-        component="span"
-        sx={{
-          width: 12,
-          height: 12,
-          borderRadius: "50%",
-          backgroundColor: "text.disabled",
-          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
-          animationDelay: "1.2s"
-        }}
-      />
-      <Box
-        component="span"
-        sx={{
-          width: 12,
-          height: 12,
-          borderRadius: "50%",
-          backgroundColor: "text.disabled",
-          animation: "grow 2.4s ease-in-out infinite, fade 2.4s ease-in-out infinite",
-          animationDelay: "1.8s"
-        }}
-      />
+      <Box sx={dot("0s")} />
+      <Box sx={dot("0.2s")} />
+      <Box sx={dot("0.4s")} />
     </Box>
   )
 }
 
 function isEmoji(str) {
-  const emojiRegex = /[\p{Emoji}]/u;
-  return emojiRegex.test(str);
+  return /\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(str)
+}
+
+function ActionButton({label, onClick, children}) {
+  return (
+    <Tooltip title={label} placement="top" disableInteractive>
+      <IconButton size="small" aria-label={label} onClick={onClick} sx={{color: "text.secondary", p: "4px"}}>
+        {children}
+      </IconButton>
+    </Tooltip>
+  )
 }
 
 export function render({model, view}) {
@@ -94,34 +79,76 @@ export function render({model, view}) {
   const [reactions] = model.useState("reactions")
   const [avatar] = model.useState("_internal_state.avatar")
   const [timestamp] = model.useState("_internal_state.timestamp")
+  const [grouped] = model.useState("_internal_state.grouped")
+  const [has_text] = model.useState("_internal_state.has_text")
+  const [is_help] = model.useState("_internal_state.help")
   const object = model.get_child("_object_panel")
 
   const header = model.get_child("header_objects")
   const footer = model.get_child("footer_objects")
 
-  model.on("msg:custom", (msg) => {
-    navigator.clipboard.writeText(msg.text)
-  })
+  const [copied, setCopied] = React.useState(false)
+  React.useEffect(() => {
+    let timer = null
+    const onMsg = (msg) => {
+      if (msg.type !== "copy") { return }
+      navigator.clipboard.writeText(msg.text).then(() => {
+        setCopied(true)
+        clearTimeout(timer)
+        timer = setTimeout(() => setCopied(false), 1500)
+      })
+    }
+    model.on("msg:custom", onMsg)
+    return () => {
+      model.off("msg:custom", onMsg)
+      clearTimeout(timer)
+    }
+  }, [])
 
-  const placeholder = show_avatar && (avatar.type === "text" && avatar.text == "PLACEHOLDER")
-  const avatar_component = (placeholder ? (
-    <PlaceholderAvatar />
-  ) : (
-    <Avatar
-      src={avatar.type === "image" ? avatar.src : null}
-      sx={{margin: placement === "left" ? "1em 0.5em 0 0" : "1em 0 0 0.5em", bgcolor: "background.paper", color: "text.primary", boxShadow: 3}}
-    >
-      {avatar.type !== "image" && (avatar.type == "text" ? isEmoji(avatar.text) ? avatar.text : [...avatar.text][0] : (() => {
-        const iconData = parseIconName(avatar.icon)
-        return <Icon baseClassName={iconData.baseClassName}>{iconData.iconName}</Icon>
-      })())}
-    </Avatar>
-  ))
+  const right = placement === "right"
+  const placeholder = avatar.type === "text" && avatar.text === "PLACEHOLDER"
+  // Grouped and help messages keep the avatar column so their content stays aligned.
+  const hide_identity = grouped || is_help
+  // Without elevation, own messages get a filled bubble and others render
+  // directly on the feed; any elevation restores the classic paper card.
+  const flat = !elevation
+  const bubble = flat && right
+  const name_height = show_user && !hide_identity ? AVATAR_SIZE / 2 : 0
+
+  let avatar_component = null
+  if (show_avatar && (hide_identity || placeholder)) {
+    avatar_component = <Box sx={{width: AVATAR_SIZE, flexShrink: 0}} />
+  } else if (show_avatar) {
+    const emoji = avatar.type === "text" && isEmoji(avatar.text)
+    avatar_component = (
+      <Avatar
+        alt={typeof user === "string" ? user : undefined}
+        src={avatar.type === "image" ? avatar.src : null}
+        sx={{
+          width: AVATAR_SIZE,
+          height: AVATAR_SIZE,
+          flexShrink: 0,
+          // Centers the avatar on the first line of the message rather than the name.
+          mt: `${name_height + (bubble ? 4 : 0)}px`,
+          fontSize: emoji ? "1.1rem" : "0.875rem",
+          bgcolor: "background.paper",
+          border: 1,
+          borderColor: "divider",
+          color: "text.primary",
+        }}
+      >
+        {avatar.type !== "image" && (avatar.type === "text" ? (emoji ? avatar.text : [...avatar.text][0]) : (() => {
+          const iconData = parseIconName(avatar.icon)
+          return <Icon baseClassName={iconData.baseClassName} sx={{fontSize: 18}}>{iconData.iconName}</Icon>
+        })())}
+      </Avatar>
+    )
+  }
 
   const obj_model = view.model.data._object_panel
   const isResponsive = obj_model.sizing_mode && (obj_model.sizing_mode.includes("width") || obj_model.sizing_mode.includes("both"))
 
-  const paperRef = React.useRef(null);
+  const paperRef = React.useRef(null)
 
   // Detect when the edit area is swapped into the Paper and stretch width accordingly.
   const [isEditing, setIsEditing] = React.useState(false)
@@ -136,112 +163,191 @@ export function render({model, view}) {
 
   // Find and cache the scrollable feed ancestor once on mount.
   // Walk up from view.el, crossing shadow DOM boundaries via getRootNode().host.
-  const scrollContainerRef = React.useRef(null);
+  const scrollContainerRef = React.useRef(null)
   // Track whether the user has manually scrolled up. Reset when they
   // scroll back near the bottom. This lets us distinguish "user scrolled
   // up to read history" from "content grew and pushed the scroll position".
-  const userScrolledUpRef = React.useRef(false);
+  const userScrolledUpRef = React.useRef(false)
   React.useEffect(() => {
-    let el = view.el;
+    let el = view.el
     while (el) {
       // +1 accounts for subpixel rounding differences across browsers
       if (el.scrollHeight > el.clientHeight + 1) {
-        const style = getComputedStyle(el);
+        const style = getComputedStyle(el)
         if (style.overflowY === "auto" || style.overflowY === "scroll") {
-          scrollContainerRef.current = el;
-          break;
+          scrollContainerRef.current = el
+          break
         }
       }
       if (el.parentElement) {
-        el = el.parentElement;
+        el = el.parentElement
       } else {
-        const root = el.getRootNode();
-        el = root instanceof ShadowRoot ? root.host : null;
+        const root = el.getRootNode()
+        el = root instanceof ShadowRoot ? root.host : null
       }
     }
     // Listen for user-initiated scroll events on the feed container.
-    const feed = scrollContainerRef.current;
-    if (!feed) { return; }
-    let prevScrollTop = feed.scrollTop;
+    const feed = scrollContainerRef.current
+    if (!feed) { return }
+    let prevScrollTop = feed.scrollTop
     const onScroll = () => {
-      const currentTop = feed.scrollTop;
-      const distFromBottom = feed.scrollHeight - currentTop - feed.clientHeight;
+      const currentTop = feed.scrollTop
+      const distFromBottom = feed.scrollHeight - currentTop - feed.clientHeight
       if (currentTop < prevScrollTop) {
-        // User scrolled up
-        userScrolledUpRef.current = true;
+        userScrolledUpRef.current = true
       } else if (distFromBottom < 50) {
-        // User scrolled back to (near) the bottom — re-enable auto-scroll
-        userScrolledUpRef.current = false;
+        userScrolledUpRef.current = false
       }
-      prevScrollTop = currentTop;
-    };
-    feed.addEventListener("scroll", onScroll);
-    return () => feed.removeEventListener("scroll", onScroll);
-  }, []);
+      prevScrollTop = currentTop
+    }
+    feed.addEventListener("scroll", onScroll)
+    return () => feed.removeEventListener("scroll", onScroll)
+  }, [])
 
   React.useEffect(() => {
-    if (!paperRef.current || (view.parent?.model.type != "panel.models.feed.Feed")) { return; }
-    let layoutTimer = null;
+    if (!paperRef.current || (view.parent?.model.type != "panel.models.feed.Feed")) { return }
+    let layoutTimer = null
     const observer = new ResizeObserver(() => {
       // Debounce layout invalidation to avoid thrashing during streaming.
-      clearTimeout(layoutTimer);
-      layoutTimer = setTimeout(() => view.invalidate_layout(), 50);
+      clearTimeout(layoutTimer)
+      layoutTimer = setTimeout(() => view.invalidate_layout(), 50)
       // Scroll the feed to show new/expanded content after React paints,
       // but only if the user hasn't manually scrolled up.
       if (!userScrolledUpRef.current) {
         requestAnimationFrame(() => {
-          const feed = scrollContainerRef.current;
+          const feed = scrollContainerRef.current
           if (feed) {
-            feed.scrollTop = feed.scrollHeight;
+            feed.scrollTop = feed.scrollHeight
           }
-        });
+        })
       }
-    });
-    observer.observe(paperRef.current);
+    })
+    observer.observe(paperRef.current)
     return () => {
-      observer.disconnect();
-      clearTimeout(layoutTimer);
-    };
-  }, []);
+      observer.disconnect()
+      clearTimeout(layoutTimer)
+    }
+  }, [])
+
+  // Unboxed content keeps Panel's default 10px pane margin, so the name and
+  // actions are inset to line up with the text.
+  const inset = flat && !right ? "10px" : 0
+  const paper_sx = {
+    bgcolor: flat ? (bubble && !isEditing ? "primary.main" : "transparent") : "background.paper",
+    borderRadius: bubble ? 3 : undefined,
+    p: bubble ? "4px" : 0,
+    color: is_help ? "text.secondary" : (bubble && !isEditing ? "primary.contrastText" : "text.primary"),
+    ...(bubble && !isEditing ? BUBBLE_VARS : {}),
+    maxWidth: bubble && !isEditing ? "80%" : "100%",
+    minWidth: 0,
+    width: (isResponsive || isEditing) ? "100%" : "fit-content",
+  }
+
+  const show_copy = show_copy_icon && has_text
+  const show_edit = show_edit_icon && has_text
+  const active_reactions = show_reaction_icons ? reactions : []
+  const has_footer = footer?.length > 0
+  const has_meta = show_copy || show_edit || active_reactions.length > 0 || (show_timestamp && !is_help)
 
   return (
-    <Box sx={{flexDirection: "row", display: "flex", maxWidth: "100%"}}>
-      {placement === "left" && avatar_component}
-      {!placeholder && <Stack direction="column" spacing={0} sx={{flexGrow: 1, maxWidth: "calc(100% - 60px)", alignItems: placement === "left" ? "flex-start" : "flex-end"}}>
-        {show_user && <Typography variant="caption">
-          {render_icon_text(user)}
-        </Typography>}
-        <Stack direction="column" spacing={0}>
-          {header}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: right ? "row-reverse" : "row",
+        alignItems: "flex-start",
+        gap: 1.5,
+        maxWidth: "100%",
+        pt: hide_identity ? 0 : 1,
+        "& .chat-message-meta": {
+          opacity: 0,
+          transition: (theme) => theme.transitions.create("opacity", {duration: theme.transitions.duration.shorter}),
+        },
+        "&:hover .chat-message-meta, &:focus-within .chat-message-meta": {opacity: 1},
+        "@media (hover: none)": {"& .chat-message-meta": {opacity: 1}},
+      }}
+    >
+      {avatar_component}
+      {placeholder ? (
+        <Stack direction="row" spacing={1} sx={{alignItems: "center", minWidth: 0}}>
+          <PlaceholderDots />
+          {has_text && object}
         </Stack>
-        <Paper ref={paperRef} elevation={elevation} sx={{bgcolor: "background.paper", width: (isResponsive || isEditing) ? "100%" : "fit-content"}}>
-          {object}
-        </Paper>
-        <Stack direction="column" spacing={0}>
-          {footer}
+      ) : (
+        <Stack
+          direction="column"
+          spacing={0}
+          sx={{flexGrow: 1, minWidth: 0, alignItems: right ? "flex-end" : "flex-start"}}
+        >
+          {show_user && !hide_identity && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{fontWeight: 500, lineHeight: `${name_height}px`, pl: inset}}
+            >
+              {render_icon_text(user)}
+            </Typography>
+          )}
+          <Stack direction="column" spacing={0}>
+            {header}
+          </Stack>
+          <Paper ref={paperRef} elevation={elevation} sx={paper_sx}>
+            {object}
+          </Paper>
+          {(has_footer || has_meta) && (
+            <Stack
+              direction={right ? "row-reverse" : "row"}
+              spacing={1}
+              // Line the leading item up with the content edge: footer panes
+              // keep Panel's default 10px margin, which on the right would
+              // inset them from the bubble, and icon buttons have 4px padding.
+              sx={{
+                alignItems: "center",
+                ...(has_footer
+                  ? {mt: 0.5, mr: right ? "-10px" : 0}
+                  : {ml: right ? 0 : (flat ? "6px" : "-4px"), mr: right ? "-4px" : 0})
+              }}
+            >
+              {has_footer && (
+                <Stack direction="column" spacing={0} sx={{alignItems: right ? "flex-end" : "flex-start"}}>
+                  {footer}
+                </Stack>
+              )}
+              {has_meta && (
+                <Stack
+                  className="chat-message-meta"
+                  direction={right ? "row-reverse" : "row"}
+                  spacing={0.25}
+                  sx={{alignItems: "center", minHeight: 24}}
+                >
+                  {show_copy && (
+                    <ActionButton label={copied ? "Copied" : "Copy"} onClick={() => model.send_msg("copy")}>
+                      {copied ? <CheckIcon sx={ICON_SX} /> : <ContentCopyIcon sx={ICON_SX} />}
+                    </ActionButton>
+                  )}
+                  {show_edit && (
+                    <ActionButton label="Edit" onClick={() => model.send_msg("edit")}>
+                      <EditOutlinedIcon sx={ICON_SX} />
+                    </ActionButton>
+                  )}
+                  {active_reactions.map((reaction) => {
+                    const iconData = parseIconName(reaction_icons[reaction] || reaction)
+                    return (
+                      <ActionButton key={`reaction-${reaction}`} label={reaction} onClick={() => model.send_msg(reaction)}>
+                        <Icon baseClassName={iconData.baseClassName} sx={ICON_SX}>{iconData.iconName}</Icon>
+                      </ActionButton>
+                    )
+                  })}
+                  {show_timestamp && !is_help && (
+                    <Typography variant="caption" color="text.secondary" sx={{px: 0.75}}>
+                      {timestamp}
+                    </Typography>
+                  )}
+                </Stack>
+              )}
+            </Stack>
+          )}
         </Stack>
-        <Stack direction="row" spacing={0} sx={{position: "relative", zIndex: 1}}>
-          {show_edit_icon && <IconButton disableRipple size="small" sx={{padding: "0 0.1em"}} onClick={() => { model.send_msg("edit") }}>
-            <EditNoteIcon sx={{width: "0.8em"}} color="lightgray"/>
-          </IconButton>}
-          {show_copy_icon && <IconButton disableRipple size="small" sx={{padding: "0 0.1em"}} onClick={() => { model.send_msg("copy") }}>
-            <ContentCopyIcon sx={{width: "0.5em"}} color="lightgray"/>
-          </IconButton>}
-          {show_reaction_icons && reactions.map((reaction) => (
-            <IconButton key={`reaction-${reaction}`} disableRipple size="small" sx={{padding: "0 0.1em"}} onClick={() => { model.send_msg(reaction) }}>
-              {(() => {
-                const iconName = reaction_icons[reaction] || reaction
-                const iconData = parseIconName(iconName)
-                return <Icon baseClassName={iconData.baseClassName} sx={{width: "0.5em"}}>{iconData.iconName}</Icon>
-              })()}
-            </IconButton>
-          ))}
-        </Stack>
-        {show_timestamp && <Typography variant="caption" color="text.secondary">
-          {timestamp}
-        </Typography>}
-      </Stack>}
-      {placement === "right" && avatar_component}
+      )}
     </Box>
-  );
-};
+  )
+}

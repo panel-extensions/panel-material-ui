@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import typing as t
+
 import param
 from panel.chat.feed import ChatFeed as _PnChatFeed
 from panel.config import config
@@ -9,6 +13,17 @@ from .message import ChatMessage
 from .step import ChatStep
 
 CARD_SX = {".MuiCollapse-vertical > .MuiCardContent-root": {"p": 0, "pb": 0}}
+
+# Messages are capped at their max_width; centering them keeps both
+# placements aligned with the input on wide screens.
+FEED_SX = {"& > div[data-feed-child-id] > .child-wrapper > *": {"marginInline": "auto"}}
+
+STEPS_SX = {
+    "bgcolor": "transparent",
+    "& > .MuiCardHeader-root": {"px": 0, "py": 0.5},
+    "& > .MuiCardHeader-root .MuiTypography-root": {"color": "text.secondary", "fontSize": "0.875rem"},
+    "& .MuiCollapse-root > .MuiCollapse-wrapper .MuiCardContent-root": {"px": 0},
+}
 
 
 class ChatFeed(_PnChatFeed):
@@ -68,10 +83,61 @@ class ChatFeed(_PnChatFeed):
             sx=self.param.sx.rx.pipe(lambda v: dict(CARD_SX, **v) if v else CARD_SX),
             theme_config=self.param.theme_config,
         )
+        self._chat_log.sx = FEED_SX
+        if self.help_text and self.objects and isinstance(self.objects[0], ChatMessage):
+            help_message = self.objects[0]
+            help_message._internal_state.help = True
+            help_message.param.update(**{
+                p: False for p in ('show_user', 'show_timestamp')
+                if p not in self.message_params
+            })
+
+    @param.depends("placeholder_text", "placeholder_params", watch=True, on_init=True)
+    def _update_placeholder(self):
+        # The placeholder follows the feed's avatar setting so its dots line
+        # up with the message content rather than its own explicit avatar.
+        placeholder_params = {
+            'show_avatar': self.message_params.get('show_avatar', self._message_type.show_avatar),
+            **self.placeholder_params,
+        }
+        self._placeholder = self._message_type(
+            self.placeholder_text,
+            avatar='PLACEHOLDER',
+            css_classes=["message"],
+            **placeholder_params
+        )
+
+    @param.depends('objects', watch=True, on_init=True)
+    def _update_message_groups(self):
+        previous = None
+        for obj in self.objects:
+            if isinstance(obj, ChatMessage):
+                obj._internal_state.grouped = (
+                    isinstance(previous, ChatMessage) and not previous._internal_state.help
+                    and previous.user == obj.user and previous.placement == obj.placement
+                )
+            previous = obj
+
+    def _message_placement(self, user: str) -> str | None:
+        """
+        Placement of a message from `user` if not set explicitly; None
+        defers to the ChatMessage default.
+        """
+        return None
+
+    def _build_message(self, value, user=None, avatar=None, **input_message_params):
+        explicit = (
+            self._message_type.placement is not None or
+            any('placement' in p for p in (value, self.message_params, input_message_params))
+        )
+        message = super()._build_message(value, user=user, avatar=avatar, **input_message_params)
+        if message is not None and not explicit and (placement := self._message_placement(message.user)):
+            message.placement = placement
+        return message
 
     def _build_steps_layout(self, step, layout_params, default_layout):
         layout_params = layout_params or {}
-        input_layout_params = dict(
+        input_layout_params: dict[str, t.Any] = dict(
             min_width=100
         )
         if default_layout == "column":
@@ -79,8 +145,13 @@ class ChatFeed(_PnChatFeed):
         elif default_layout == "card":
             layout = self._card_type
             title = layout_params.pop("title", None)
-            input_layout_params["title"] = title or "🪜 Steps"
+            input_layout_params["title"] = title or "Steps"
             input_layout_params["sizing_mode"] = "stretch_width"
+            # The steps are cards themselves, so the container only adds the
+            # collapsible header.
+            input_layout_params["elevation"] = 0
+            input_layout_params["margin"] = (5, 10)
+            input_layout_params["sx"] = STEPS_SX
         else:
             raise ValueError(
                 f"Invalid default_layout {default_layout!r}; "

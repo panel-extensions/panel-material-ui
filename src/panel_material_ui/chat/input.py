@@ -36,7 +36,7 @@ class ChatAreaInput(TextAreaInput, _FileUploadArea):
         'text/csv,application/json'.""")
 
     actions = param.Dict(default={}, doc="""
-        A dictionary of actions that can be invoked via the speed dial to the
+        A dictionary of actions that can be invoked via the actions menu to the
         left of input area. The actions should be defined as a dictionary indexed
         by the name of the action mapping to values that themselves are dictionaries
         containing an icon. Users can define callbacks by registering callbacks using

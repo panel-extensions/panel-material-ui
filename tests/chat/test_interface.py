@@ -51,7 +51,7 @@ def test_chat_interface_auto_scroll_limit_override():
 def test_chat_interface_chat_log_flex_stylesheet():
     """_chat_log should have the flex stylesheet for sticky input."""
     chat = ChatInterface()
-    assert any("flex: 1 1 0px" in s for s in chat._chat_log.stylesheets)
+    assert any("flex: 1 1 auto" in s for s in chat._chat_log.stylesheets)
 
 
 def test_chat_area_input_focus():

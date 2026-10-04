@@ -46,12 +46,13 @@ def test_chat_message_footer_objects(page):
 
 
 def test_chat_message_header_footer_layout(page):
-    """#719: Header and footer objects stack; the footer precedes message icons."""
+    """#719: Header and footer objects stack; the footer sits beside the message icons."""
     widget = ChatMessage(
         object="Main content",
         header_objects=["Header A", "Header B"],
         footer_objects=["Footer A", "Footer B"],
         show_copy_icon=True,
+        user="Assistant",
     )
     serve_component(page, widget)
 
@@ -64,7 +65,10 @@ def test_chat_message_header_footer_layout(page):
 
     assert header.bounding_box()['y'] < header_next.bounding_box()['y']
     assert footer.bounding_box()['y'] < footer_next.bounding_box()['y']
-    assert footer_next.bounding_box()['y'] < icon.bounding_box()['y']
+    footer_box, footer_next_box, icon_box = footer.bounding_box(), footer_next.bounding_box(), icon.bounding_box()
+    assert footer_box['x'] < icon_box['x']
+    footer_center = (footer_box['y'] + footer_next_box['y'] + footer_next_box['height']) / 2
+    assert abs(footer_center - (icon_box['y'] + icon_box['height'] / 2)) < 4
 
 
 def test_chat_message_all_sections(page):
