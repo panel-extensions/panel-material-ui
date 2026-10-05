@@ -99,16 +99,16 @@ def test_chat_message_copy_hidden_for_non_text(page):
     expect(page.get_by_role("button", name="Copy")).to_have_count(0)
 
 
-def test_chat_message_hides_user_and_shows_avatar_by_default(page):
+def test_chat_message_hides_user_and_avatar_by_default(page):
     message = ChatMessage("Hi", user="Assistant")
     serve_component(page, message)
 
     expect(page.get_by_text("Hi")).to_be_visible()
     expect(page.get_by_text("Assistant")).to_have_count(0)
-    expect(page.locator(".MuiAvatar-root")).to_have_count(1)
+    expect(page.locator(".MuiAvatar-root")).to_have_count(0)
 
 
-def test_chat_feed_shows_users_when_multiple_agents_reply(page):
+def test_chat_feed_shows_users_and_avatars_when_multiple_agents_reply(page):
     feed = ChatFeed()
     feed.send("Question", user="User", respond=False)
     feed.send("Answer", user="Agent A", respond=False)
@@ -116,9 +116,12 @@ def test_chat_feed_shows_users_when_multiple_agents_reply(page):
 
     expect(page.get_by_text("Answer")).to_be_visible()
     expect(page.get_by_text("Agent A")).to_have_count(0)
+    expect(page.locator(".MuiAvatar-root")).to_have_count(0)
     feed.send("Second opinion", user="Agent B", respond=False)
     expect(page.get_by_text("Agent A")).to_be_visible()
     expect(page.get_by_text("Agent B")).to_be_visible()
+    # The right aligned User message stays without an avatar.
+    expect(page.locator(".MuiAvatar-root")).to_have_count(2)
     expect(page.locator(".MuiTypography-caption").filter(has_text="User")).to_have_count(0)
 
 

@@ -76,11 +76,12 @@ export function render({model, view}) {
   const [placement] = model.useState("placement")
   const [elevation] = model.useState("elevation")
   const [user] = model.useState("user")
-  const [show_avatar] = model.useState("show_avatar")
+  const [show_avatar_param] = model.useState("show_avatar")
   const [show_edit_icon] = model.useState("show_edit_icon")
   const [show_user_param] = model.useState("show_user")
-  const [auto_user] = model.useState("_internal_state.show_user")
-  const show_user = show_user_param === "auto" ? auto_user : show_user_param
+  const [multi_user] = model.useState("_internal_state.multi_user")
+  const show_user = show_user_param === "auto" ? multi_user : show_user_param
+  const show_avatar = show_avatar_param === "auto" ? multi_user : show_avatar_param
   const [show_timestamp] = model.useState("show_timestamp")
   const [show_reaction_icons] = model.useState("show_reaction_icons")
   const [show_copy_icon] = model.useState("show_copy_icon")
