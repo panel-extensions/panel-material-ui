@@ -35,16 +35,17 @@ def test_chat_feed_groups_consecutive_messages():
     assert [m._internal_state.grouped for m in (first, second, third, fourth)] == [False, True, False, False]
 
 
-def test_chat_feed_auto_show_user():
+def test_chat_feed_auto_show_user_and_avatar():
     feed = ChatFeed()
     question = feed.send("Question", user="User", respond=False)
     answer = feed.send("Answer", user="Agent A", respond=False)
     assert ChatMessage("Hi").show_user == "auto"
-    assert not answer._internal_state.show_user
+    assert ChatMessage("Hi").show_avatar == "auto"
+    assert not answer._internal_state.multi_user
     other = feed.send("Second opinion", user="Agent B", respond=False)
-    assert answer._internal_state.show_user
-    assert other._internal_state.show_user
-    assert not question._internal_state.show_user
+    assert answer._internal_state.multi_user
+    assert other._internal_state.multi_user
+    assert not question._internal_state.multi_user
 
 
 def test_chat_feed_regroups_on_removal():
