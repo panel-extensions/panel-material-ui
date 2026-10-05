@@ -45,7 +45,7 @@ class ChatStep(Card, _PnChatStep):
         # The title is rendered by an HTML pane, so icon tokens are rewritten
         # into Material Icons spans instead of React icon nodes.
         self._title_pane.object = param.bind(render_icon_tokens_html, self.param.title)
-        self._title_pane.styles = {'font-size': '1.1em', 'font-weight': '400', 'text-align': 'left', 'overflow-wrap': 'break-word'}
+        self._title_pane.styles = {'font-size': '0.875rem', 'font-weight': '500', 'text-align': 'left', 'overflow-wrap': 'break-word'}
         with edit_readonly(self):
             self.header = Row(
                 self._title_pane,
@@ -84,7 +84,7 @@ class ChatStep(Card, _PnChatStep):
         if (
             len(self.objects) == 0 or not isinstance(self.objects[-1], HTMLBasePane) or isinstance(self.objects[-1], ImageBase)
         ):
-            message = Markdown(token, styles={'font-size': '1.1em', 'padding-block': '0px', 'padding-inline': '7px', 'overflow-wrap': 'break-word'})
+            message = Markdown(token, styles={'padding-block': '0px', 'overflow-wrap': 'break-word'})
             self.append(message)
         else:
             stream_to(self.objects[-1], token, replace=replace)

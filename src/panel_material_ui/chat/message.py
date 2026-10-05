@@ -23,11 +23,59 @@ from panel.widgets import Widget
 from ..base import MaterialComponent
 from .input import ChatAreaInput
 
-_MESSAGE_STYLESHEET = (
-    ":host(.message), .message { background-color: unset !important; box-shadow: unset !important; font-size: 1.1em; padding-inline: 8px; }"
-    " .MuiPaper-root:has(.edit-area) { width: 100% !important; }"
-    ".edit-area { height: unset; }"
-)
+_SLOT_STYLESHEET = """
+:host { color: var(--mui-palette-text-secondary); font-size: 0.875rem; }
+:host > div > :first-child { margin-top: 0; }
+:host > div > :last-child { margin-bottom: 0; }
+"""
+
+# Undoes the bubble styling Panel's chat_message.css applies to markup panes,
+# since the Paper in ChatMessage.jsx draws the bubble.
+_MESSAGE_STYLESHEET = """
+:host(.message), .message, :host(.step-message) {
+  background-color: unset !important;
+  box-shadow: unset !important;
+  color: inherit;
+  font-size: inherit;
+  min-height: unset;
+  padding: 0;
+}
+/* Panel's chat_message.css pads markdown children from the parent's scope. */
+.markdown { padding-inline: 0; }
+:host(.message) > div > :first-child, :host(.step-message) > div > :first-child { margin-top: 0; }
+:host(.message) > div > :last-child, :host(.step-message) > div > :last-child { margin-bottom: 0; }
+.MuiPaper-root:has(.edit-area) { width: 100% !important; }
+.edit-area { height: unset; }
+:host(.message) table {
+  border: 1px solid var(--mui-palette-divider);
+  border-collapse: separate;
+  border-radius: var(--mui-shape-borderRadius, 4px);
+  border-spacing: 0;
+  overflow: hidden;
+}
+:host(.message) th, :host(.message) td {
+  border: 0;
+  border-bottom: 1px solid var(--mui-palette-divider);
+  padding: 6px 12px;
+}
+:host(.message) thead th {
+  background-color: var(--mui-palette-action-hover);
+  font-weight: 500;
+}
+:host(.message) tbody tr:last-child td { border-bottom: 0; }
+:host(.message) a { color: var(--pmui-chat-link-color, var(--mui-palette-primary-main)); }
+:host(.message) :not(pre) > code {
+  background-color: var(--pmui-chat-code-bg, var(--mui-palette-action-hover));
+  border-radius: 4px;
+  color: inherit;
+  font-size: 0.875em;
+  padding: 0.1em 0.35em;
+}
+:host(.message) .codehilite { margin: 0.5em 0; position: relative; }
+/* Panel's copy button takes up a line of its own when the pre is the
+   .codehilite element, so float it over the code instead. */
+:host(.message) pre.codehilite > .copybtn { position: absolute; top: 0.5em; right: 0.5em; left: auto; }
+"""
 
 DEFAULT_AVATARS = {
     "system": {"type": "icon", "icon": "settings"},
@@ -35,9 +83,34 @@ DEFAULT_AVATARS = {
 }
 
 
+# Reaction icons are Material Icons names; tabler names, which Panel's reaction
+# icons use, are translated since most only differ by using dashes.
+_TABLER_ICONS = {"heart": "favorite", "thumbup": "thumb_up", "thumbdown": "thumb_down"}
+
+
+def _material_icon(name: str) -> str:
+    name = name.strip().lower().replace("-", "_").replace(" ", "_").removesuffix("_filled")
+    return _TABLER_ICONS.get(name, name)
+
+
 class MessageState(param.Parameterized):
 
     avatar = param.Parameter(allow_refs=True)
+
+    grouped = param.Boolean(default=False, doc="""
+        Whether the message continues a run of messages from the same user.""")
+
+    has_text = param.Boolean(default=False, doc="""
+        Whether the rendered object is text that can be copied or edited.""")
+
+    help = param.Boolean(default=False, doc="""
+        Whether the message is the help text of a feed.""")
+
+    reaction_options = param.Dict(default={}, doc="""
+        Material icon names for each reaction, in its inactive and active state.""")
+
+    show_user = param.Boolean(default=False, doc="""
+        Whether a feed resolved show_user='auto' to show the name.""")
 
     timestamp = param.String(allow_refs=True)
 
@@ -80,11 +153,20 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
 
     default_layout = param.ClassSelector(class_=(Panel), precedence=-1)  # type: ignore[assignment]
 
-    elevation = param.Integer(default=2, doc="The elevation of the message.")
+    elevation = param.Integer(default=0, doc="""
+        The elevation of the message. At 0 right aligned messages render in
+        a primary colored bubble and left aligned messages without a container; a
+        positive elevation renders every message on a raised card.""")
 
-    placement: t.Literal['left', 'right'] = param.Selector(
-        default="left", objects=["left", "right"],
-        doc="The placement of the message.")  # type: ignore[assignment]
+    placement: t.Literal['left', 'right'] | None = param.Selector(
+        default=None, objects=["left", "right"], allow_None=True, doc="""
+        The placement of the message. If None, messages from the user named
+        'User' are placed on the right and all others on the left.""")  # type: ignore[assignment]
+
+    show_user: t.Literal["auto"] | bool = param.Selector(default="auto", objects=["auto", True, False], doc="""
+        Whether to display the name of the user. With 'auto' the name is only
+        shown in a feed where messages from more than one other user, e.g.
+        multiple agents, are placed on the left.""")  # type: ignore[assignment]
 
     _internal_state = param.ClassSelector(class_=MessageState, default=MessageState())
     _object_panel = Child()
@@ -94,13 +176,14 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
         "avatar": None,
         "avatar_lookup": None,
         "default_avatars": None,
-        "object": None
+        "object": None,
+        "reaction_icons": None,
     }
 
     def __init__(self, object=None, **params):
         self._exit_stack = ExitStack()
-        if 'placement' not in params and ChatMessage.placement is None:
-            user = params.get('user', ChatMessage.user).lower()
+        if params.get('placement') is None and type(self).placement is None:
+            user = str(params.get('user', type(self).user)).lower()
             params['placement'] = 'right' if user == 'user' else 'left'
         if params.get("timestamp") is None:
             tz = params.get("timestamp_tz")
@@ -109,7 +192,7 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
             elif state.browser_info and state.browser_info.timezone:
                 tz = ZoneInfo(state.browser_info.timezone)
             params["timestamp"] = datetime.datetime.now(tz=tz)
-        reaction_icons = params.get("reaction_icons", {"favorite": "heart"})
+        reaction_icons = params.get("reaction_icons", {"favorite": "favorite"})
         if isinstance(reaction_icons, dict):
             params["reaction_icons"] = ChatReactionIcons(options=reaction_icons, default_layout=Row, sizing_mode=None)
         self._internal = True
@@ -161,6 +244,12 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
                 elif isinstance(self._object_panel, Widget):
                     self._edit_area.value = self._object_panel.value
                 self._object_panel = self._edit_area
+        elif isinstance(msg, dict) and msg.get('type') == 'reaction':
+            reaction = msg['reaction']
+            if reaction in self.reactions:
+                self.reactions = [r for r in self.reactions if r != reaction]
+            else:
+                self.reactions = [*self.reactions, reaction]
         elif msg == 'copy':
             object_panel = self._object_panel
             if isinstance(object_panel, HTMLBasePane):
@@ -201,6 +290,39 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
         self.param.watch(self._update_reaction_icons, "reaction_icons")
         self._edit_area.param.watch(self._submit_edit, "enter_pressed")
         self._composite = Row()
+        self._update_chat_copy_icon()
+        self._update_reaction_icons()
+
+    def _update_reaction_icons(self, event=None):
+        icons = self.reaction_icons
+        if isinstance(icons, dict):
+            options, active_icons = icons, {}
+        else:
+            options, active_icons = icons.options, icons.active_icons
+        self._internal_state.reaction_options = {
+            reaction: {"icon": _material_icon(icon), "active_icon": _material_icon(active_icons.get(reaction, icon))}
+            for reaction, icon in options.items()
+        }
+
+    def _update_chat_copy_icon(self):
+        # Replaces Panel's ChatCopyIcon handling, the frontend renders the
+        # copy and edit actions itself.
+        object_panel = self._object_panel
+        if isinstance(object_panel, HTMLBasePane):
+            object_panel = object_panel.object
+        elif isinstance(object_panel, Widget):
+            object_panel = object_panel.value
+        self._internal_state.has_text = isinstance(object_panel, str) and bool(object_panel)
+
+    @param.depends('header_objects', 'footer_objects', watch=True, on_init=True)
+    def _trim_slot_margins(self):
+        # Header and footer text is secondary to the message, and paragraph
+        # margins would push it away from the bubble and off-center from the
+        # action buttons.
+        for obj in (*self.header_objects, *self.footer_objects):
+            for o in obj.select(HTMLBasePane):
+                if _SLOT_STYLESHEET not in o.stylesheets:
+                    o.stylesheets = [*o.stylesheets, _SLOT_STYLESHEET]
 
     def _include_styles(self, obj):
         obj = as_panel(obj)

@@ -65,9 +65,11 @@ class ChatInterface(ChatFeed, PnChatInterface):
         # is bound to a reactive expression from _stretches_height(self) that
         # reads the ChatInterface's sizing_mode, not the Feed's. We must use
         # CSS !important to override the flex value that apply_flex computes.
+        # An auto basis lets the log grow with its messages when the interface
+        # has no height, while min-height 0 lets it shrink and scroll when it does.
         self._chat_log.stylesheets = [
             *self._chat_log.stylesheets,
-            ":host { flex: 1 1 0px !important; min-height: 0 !important; }"
+            ":host { flex: 1 1 auto !important; min-height: 0 !important; }"
         ]
         # Panel's default auto_scroll_limit (200px) is too small — when
         # streaming replaces message content with taller text, the distance
@@ -90,7 +92,12 @@ class ChatInterface(ChatFeed, PnChatInterface):
             kw = {k: v for k, v in self.input_params.items() if k not in ("sizing_mode", "disabled")}
             self._widget = ChatAreaInput(sizing_mode="stretch_width", disabled=self.param.disabled, **kw)
             self._widget.on_action("stop", self._click_stop)
-            input_container = Row(self._widget, sizing_mode="stretch_width")
+            # Matches the centered message column of the feed.
+            input_container = Row(
+                self._widget, sizing_mode="stretch_width", margin=0,
+                max_width=self._message_type.param.max_width.default,
+                styles={"margin-inline": "auto"},
+            )
             self._input_container.objects = [input_container]
             self._input_layout = input_container
             self._init_button_data()
@@ -138,13 +145,7 @@ class ChatInterface(ChatFeed, PnChatInterface):
                 if key not in self._MANAGED_KEYS and key in self._widget.param:
                     setattr(self._widget, key, value)
 
-    @param.depends("placeholder_text", "placeholder_params", watch=True, on_init=True)
-    def _update_placeholder(self):
-        self._placeholder = self._message_type(
-            self.placeholder_text,
-            avatar='PLACEHOLDER',
-            css_classes=["message"],
-            **self.placeholder_params
-        )
+    def _message_placement(self, user: str) -> str | None:
+        return "right" if user == self.user else "left"
 
 __all__ = ["ChatInterface"]
