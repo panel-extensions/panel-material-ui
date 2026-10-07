@@ -184,3 +184,36 @@ def test_accordion_square_variant(page):
     # Check if square class is applied
     accordion = page.locator('.MuiAccordion-root')
     expect(accordion).to_have_css('border-radius', '0px')
+
+def test_accordion_dynamic(page):
+    widget = Accordion(
+        ('Section 1', Column("Content 1")),
+        ('Section 2', Column("Content 2")),
+        active=[0],
+        dynamic=True
+    )
+    serve_component(page, widget)
+
+    details = page.locator('.MuiAccordionDetails-root')
+    expect(details.nth(0)).to_contain_text('Content 1')
+    expect(details.nth(1)).not_to_contain_text('Content 2')
+
+    page.locator('.MuiAccordionSummary-root').nth(1).click()
+    wait_until(lambda: widget.active == [0, 1], page)
+    expect(details.nth(1)).to_contain_text('Content 2')
+
+    page.locator('.MuiAccordionSummary-root').nth(0).click()
+    wait_until(lambda: widget.active == [1], page)
+    expect(details.nth(0)).not_to_contain_text('Content 1')
+
+def test_accordion_dynamic_component_title(page):
+    widget = Accordion(
+        (Typography("Section 1"), Column("Content 1")),
+        (Typography("Section 2"), Column("Content 2")),
+        dynamic=True
+    )
+    serve_component(page, widget)
+
+    headers = page.locator('.MuiAccordionSummary-content')
+    expect(headers.nth(0)).to_contain_text('Section 1')
+    expect(headers.nth(1)).to_contain_text('Section 2')
