@@ -145,6 +145,17 @@ export function render({model, el, view}) {
     return () => window.clearInterval(timer)
   }, [direction, disabled, frame_interval, loop_policy, start, end, step, set_frame, setDirection])
 
+  const slider_ref = React.useRef(null)
+  React.useEffect(() => {
+    const handler = (msg) => {
+      if (msg?.action === "focus") {
+        slider_ref.current?.querySelector(".MuiSlider-thumb input")?.focus()
+      }
+    }
+    model.on("msg:custom", handler)
+    return () => model.off("msg:custom", handler)
+  }, [])
+
   const [fps_preview, setFpsPreview] = React.useState(null)
   const preview_timer = React.useRef(null)
   React.useEffect(() => () => window.clearTimeout(preview_timer.current), [])
@@ -219,6 +230,7 @@ export function render({model, el, view}) {
       min={start}
       onChange={(_, new_value) => { valueRef.current = new_value; setValue(new_value) }}
       onChangeCommitted={(_, new_value) => setValueThrottled(new_value)}
+      ref={slider_ref}
       size={size}
       step={1}
       sx={{flexGrow: 1, minWidth: 0}}
