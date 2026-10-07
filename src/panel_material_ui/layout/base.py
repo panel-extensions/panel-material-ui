@@ -28,6 +28,22 @@ if t.TYPE_CHECKING:
     from pyviz_comms import Comm
 
 
+def _acquire_model(obj: Viewable, doc: Document, root: Model, parent: Model, comm: Comm | None) -> Model:
+    """
+    Returns the model of the object in the given root, reusing an
+    existing model if the object is already rendered elsewhere.
+
+    Panel versions which share models between parents reference count
+    them via `_acquire_model`, older versions only support reuse.
+    """
+    if hasattr(obj, "_acquire_model"):
+        return obj._acquire_model(doc, root, parent, comm)
+    ref = root.ref["id"]
+    if ref in obj._models:
+        return obj._models[ref][0]
+    return obj._get_model(doc, root, parent, comm)
+
+
 class MaterialLayout(MaterialComponent, SizingModeMixin):
 
     margin = Margin(default=0, doc="The margin of the layout.")
@@ -449,17 +465,15 @@ class Feed(Column):
         for i in range(*self._last_synced):
             pane = current_objects[i]
             if ref in pane._models:
-                child, _ = pane._models[root.ref["id"]]
-                old_models.append(child)
-            else:
-                try:
-                    child = pane._get_model(doc, root, parent, comm)
-                except RerenderError as e:
-                    if e.layout is not None and e.layout is not self:
-                        raise e
-                    e.layout = None
-                    return self._get_child_model(current_objects[:i], doc, root, parent, comm)
-            new_models.append(child)
+                old_models.append(pane._models[ref][0])
+            try:
+                model = _acquire_model(pane, doc, root, parent, comm)
+            except RerenderError as e:
+                if e.layout is not None and e.layout is not self:
+                    raise e
+                e.layout = None
+                return self._get_child_model(current_objects[:i], doc, root, parent, comm)
+            new_models.append(model)
         return new_models, old_models  # type: ignore[return-value]
 
     def _process_event(self, event=None) -> None:
@@ -963,11 +977,10 @@ class Tabs(MaterialNamedListLike):
         for i, sv in enumerate(child):
             if self.dynamic and i != self.active:
                 model = BkSpacer()
-            elif ref in sv._models:
-                model = sv._models[ref][0]
-                old_models.append(model)
             else:
-                model = sv._get_model(doc, root, parent, comm)
+                if ref in sv._models:
+                    old_models.append(sv._models[ref][0])
+                model = _acquire_model(sv, doc, root, parent, comm)
             models.append(model)
         return models, old_models
 
