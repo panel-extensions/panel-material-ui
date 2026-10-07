@@ -467,13 +467,13 @@ class Feed(Column):
             if ref in pane._models:
                 old_models.append(pane._models[ref][0])
             try:
-                child = _acquire_model(pane, doc, root, parent, comm)
+                model = _acquire_model(pane, doc, root, parent, comm)
             except RerenderError as e:
                 if e.layout is not None and e.layout is not self:
                     raise e
                 e.layout = None
                 return self._get_child_model(current_objects[:i], doc, root, parent, comm)
-            new_models.append(child)
+            new_models.append(model)
         return new_models, old_models  # type: ignore[return-value]
 
     def _process_event(self, event=None) -> None:
