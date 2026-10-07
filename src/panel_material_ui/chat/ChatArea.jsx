@@ -3,19 +3,22 @@ import Box from "@mui/material/Box";
 import InputAdornment from "@mui/material/InputAdornment"
 import IconButton from "@mui/material/IconButton"
 import Icon from "@mui/material/Icon"
-import SpeedDial from "@mui/material/SpeedDial"
-import SpeedDialAction from "@mui/material/SpeedDialAction"
+import ListItemIcon from "@mui/material/ListItemIcon"
+import ListItemText from "@mui/material/ListItemText"
+import Menu from "@mui/material/Menu"
+import MenuItem from "@mui/material/MenuItem"
+import Tooltip from "@mui/material/Tooltip"
+import AddIcon from "@mui/icons-material/Add"
 import SendIcon from "@mui/icons-material/Send"
 import StopIcon from "@mui/icons-material/Stop"
-import SpeedDialIcon from "@mui/material/SpeedDialIcon"
 import OutlinedInput from "@mui/material/OutlinedInput"
-import {styled} from "@mui/material/styles"
+import {alpha, styled} from "@mui/material/styles"
 import Chip from "@mui/material/Chip"
 import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
-import {isFileAccepted, processFilesChunked, apply_flex, render_icon_text, render_icon_text_as_string, waitForRef, overlay_container} from "./utils"
+import {isFileAccepted, processFilesChunked, apply_flex, render_icon_text, render_icon_text_as_string, waitForRef} from "./utils"
 
 // Map MIME types to Material Icons
 const mimeTypeIcons = {
@@ -95,7 +98,7 @@ const SpinningStopIcon = (props) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          backgroundColor: "white",
+          backgroundColor: "background.paper",
           borderRadius: "50%",
           display: "flex",
           alignItems: "center",
@@ -233,35 +236,41 @@ export function render({model, view}) {
     setPendingUploads(file_data.length)
   }, [file_data])
 
+  const focusInput = () => {
+    // Defer focus to next frame so React re-renders (e.g. disabled state) complete first.
+    setTimeout(() => {
+      view.container.querySelector("textarea")?.focus({preventScroll: true})
+    }, 0)
+  }
+
   React.useEffect(() => {
-    model.on("msg:custom", (msg) => {
+    const onMsg = (msg) => {
       if (msg.status === "finished") {
         upload_ref.current = msg
       } else if (msg.type === "sync") {
         // Programmatically trigger file sync using ref to get current file_data
         syncFilesFromRef()
       } else if (msg.type === "focus") {
-        // Defer focus to next frame so React re-renders complete first.
-        setTimeout(() => {
-          const textarea = view.container.querySelector("textarea")
-          textarea?.focus()
-        }, 0)
+        focusInput()
       }
-    })
-
-    model.on("lifecycle:update_layout", () => {
-      footer_objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.footer_objects[index]), "row")
+    }
+    const onUpdateLayout = () => {
+      model.footer_objects.map((object) => {
+        apply_flex(view.get_child_view(object), "row")
       })
-    })
+    }
+    // If there is an input event in progress when the component is
+    // removed, release the waitForRef handlers that depend on it.
+    const onRemove = () => { upload_ref.current = {status: "removed"} }
+    model.on("msg:custom", onMsg)
+    model.on("lifecycle:update_layout", onUpdateLayout)
+    model.on("remove", onRemove)
+    return () => {
+      model.off("msg:custom", onMsg)
+      model.off("lifecycle:update_layout", onUpdateLayout)
+      model.off("remove", onRemove)
+    }
   }, [])
-
-  model.on("remove", () => {
-    // If there is an input event in progress when the
-    // component is removed we clear any waitForRef
-    // handlers that depend on it
-    upload_ref.current = {status: "removed"}
-  })
 
   const isSendEvent = (event) => {
     return (event.key === "Enter") && (
@@ -425,12 +434,11 @@ export function render({model, view}) {
 
   const inputRef = React.useRef(null);
 
-  // Auto-focus the textarea on initial mount.
+  // Auto-focus the textarea on mount unless the user already focused something else.
   React.useEffect(() => {
-    setTimeout(() => {
-      const textarea = view.container.querySelector("textarea")
-      textarea?.focus()
-    }, 0)
+    if (!document.activeElement || document.activeElement === document.body) {
+      focusInput()
+    }
   }, [])
 
   // Focus the textarea when loading transitions from true → false
@@ -439,14 +447,67 @@ export function render({model, view}) {
   const prevLoadingRef = React.useRef(loading);
   React.useEffect(() => {
     if (prevLoadingRef.current && !loading) {
-      // Defer to next frame so React re-renders (e.g. disabled state) complete first
-      setTimeout(() => {
-        const textarea = view.container.querySelector("textarea")
-        textarea?.focus()
-      }, 0)
+      focusInput()
     }
     prevLoadingRef.current = loading;
   }, [loading])
+
+  const [menuAnchor, setMenuAnchor] = React.useState(null)
+  const closeMenu = () => setMenuAnchor(null)
+  const action_names = Object.keys(actions)
+  const busy = disabled_enter || loading || progress !== undefined
+  const empty = !value_input?.trim() && file_data.length === 0
+
+  let startAdornment = null
+  if (action_names.length > 0) {
+    startAdornment = (
+      <InputAdornment position="start" sx={{mr: "4px", alignSelf: "center", height: "auto", maxHeight: "none"}}>
+        <IconButton
+          aria-label="Actions"
+          aria-haspopup="menu"
+          aria-expanded={Boolean(menuAnchor)}
+          color={color}
+          disabled={disabled}
+          onClick={(event) => setMenuAnchor(event.currentTarget)}
+        >
+          <AddIcon />
+        </IconButton>
+        <Menu
+          anchorEl={menuAnchor}
+          open={Boolean(menuAnchor)}
+          onClose={closeMenu}
+          anchorOrigin={{vertical: "top", horizontal: "left"}}
+          transformOrigin={{vertical: "bottom", horizontal: "left"}}
+          slotProps={{paper: {sx: {minWidth: 180}}}}
+        >
+          {enable_upload && (
+            <MenuItem onClick={() => { closeMenu(); fileInputRef.current?.click() }}>
+              <ListItemIcon><AttachFileIcon fontSize="small" /></ListItemIcon>
+              <ListItemText>Attach files</ListItemText>
+            </MenuItem>
+          )}
+          {action_names.map((action) => (
+            <MenuItem key={action} onClick={() => { closeMenu(); model.send_msg({type: "action", action}) }}>
+              <ListItemIcon><Icon fontSize="small">{actions[action].icon}</Icon></ListItemIcon>
+              <ListItemText>{render_icon_text(actions[action].label || action)}</ListItemText>
+            </MenuItem>
+          ))}
+        </Menu>
+      </InputAdornment>
+    )
+  } else if (enable_upload) {
+    startAdornment = (
+      <InputAdornment position="start" sx={{mr: "4px", alignSelf: "center", height: "auto", maxHeight: "none"}}>
+        <Tooltip title="Attach files" disableInteractive>
+          <span>
+            <IconButton aria-label="Attach files" color={color} disabled={disabled} onClick={() => fileInputRef.current?.click()}>
+              <AttachFileIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
+      </InputAdornment>
+    )
+  }
 
   return (
     <Box
@@ -463,27 +524,32 @@ export function render({model, view}) {
           position: "relative",
           width: "100%",
           height: "100%",
-          ...(isDragOver && {
-            "&::after": {
-              content: '""',
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.1)",
-              border: "2px dashed",
-              borderColor: `${color}.main`,
-              borderRadius: 1,
-              zIndex: 2,
-            }
-          })
         }}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
+        {isDragOver && (
+          <Box
+            sx={(theme) => ({
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: alpha(theme.palette.background.paper, 0.9),
+              border: "2px dashed",
+              borderColor: `${color}.main`,
+              borderRadius: 1,
+              color: `${color}.main`,
+              pointerEvents: "none",
+              zIndex: 2,
+            })}
+          >
+            <Typography variant="body2" sx={{fontWeight: 500}}>Drop files to attach</Typography>
+          </Box>
+        )}
         {enable_upload && (
           <HiddenFileInput
             ref={fileInputRef}
@@ -534,50 +600,16 @@ export function render({model, view}) {
             }
           }}
           placeholder={placeholder_text}
-          startAdornment={
-            Object.keys(actions).length > 0 ? (
-              <InputAdornment position="start" sx={{alignItems: "end", maxHeight: "35px", mr: "4px", alignSelf: "center"}}>
-                <SpeedDial
-                  ariaLabel="Actions"
-                  disabled={disabled}
-                  size="small"
-                  FabProps={{size: "small", sx: {width: "35px", height: "35px", minHeight: "35px"}}}
-                  icon={<SpeedDialIcon color={color}/>}
-                  sx={{zIndex: 1000, ml: "-4px"}}
-                >
-                  {enable_upload && (
-                    <SpeedDialAction
-                      icon={<AttachFileIcon />}
-                      slotProps={{
-                        popper: {container: overlay_container(view.container)},
-                        tooltip: {
-                          title: "Attach files"
-                        }
-                      }}
-                      onClick={() => fileInputRef.current?.click()}
-                    />
-                  )}
-                  {Object.keys(actions).map((action) => (
-                    <SpeedDialAction
-                      key={action}
-                      icon={<Icon>{actions[action].icon}</Icon>}
-                      slotProps={{
-                        popper: {container: overlay_container(view.container)},
-                        tooltip: {
-                          title: render_icon_text(actions[action].label || action)
-                        }
-                      }}
-                      onClick={() => model.send_msg({type: "action", action})}
-                    />
-                  ))}
-                </SpeedDial>
-              </InputAdornment>
-            ) : (enable_upload ? <IconButton color="primary" disabled={disabled} onClick={() => fileInputRef.current?.click()}><AttachFileIcon /></IconButton> : null)
-          }
+          startAdornment={startAdornment}
           endAdornment={
-            <InputAdornment onClick={() => (disabled_enter || loading) ? stop() : send()} position="end" sx={{mb: "2px", ml: "-4px", alignSelf: "center"}}>
-              <IconButton color="primary" disabled={disabled}>
-                {(disabled_enter || loading || progress !== undefined) ? <SpinningStopIcon color={color} progress={progress}/> : <SendIcon/>}
+            <InputAdornment position="end" sx={{mb: "2px", ml: "-4px", alignSelf: "center", height: "auto", maxHeight: "none"}}>
+              <IconButton
+                aria-label={busy ? "Stop" : "Send message"}
+                color={color}
+                disabled={disabled || (!busy && empty)}
+                onClick={() => (disabled_enter || loading) ? stop() : send()}
+              >
+                {busy ? <SpinningStopIcon color={color} progress={progress}/> : <SendIcon/>}
               </IconButton>
             </InputAdornment>
           }

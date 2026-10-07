@@ -28,6 +28,22 @@ if t.TYPE_CHECKING:
     from pyviz_comms import Comm
 
 
+def _acquire_model(obj: Viewable, doc: Document, root: Model, parent: Model, comm: Comm | None) -> Model:
+    """
+    Returns the model of the object in the given root, reusing an
+    existing model if the object is already rendered elsewhere.
+
+    Panel versions which share models between parents reference count
+    them via `_acquire_model`, older versions only support reuse.
+    """
+    if hasattr(obj, "_acquire_model"):
+        return obj._acquire_model(doc, root, parent, comm)
+    ref = root.ref["id"]
+    if ref in obj._models:
+        return obj._models[ref][0]
+    return obj._get_model(doc, root, parent, comm)
+
+
 class MaterialLayout(MaterialComponent, SizingModeMixin):
 
     margin = Margin(default=0, doc="The margin of the layout.")
@@ -449,17 +465,15 @@ class Feed(Column):
         for i in range(*self._last_synced):
             pane = current_objects[i]
             if ref in pane._models:
-                child, _ = pane._models[root.ref["id"]]
-                old_models.append(child)
-            else:
-                try:
-                    child = pane._get_model(doc, root, parent, comm)
-                except RerenderError as e:
-                    if e.layout is not None and e.layout is not self:
-                        raise e
-                    e.layout = None
-                    return self._get_child_model(current_objects[:i], doc, root, parent, comm)
-            new_models.append(child)
+                old_models.append(pane._models[ref][0])
+            try:
+                model = _acquire_model(pane, doc, root, parent, comm)
+            except RerenderError as e:
+                if e.layout is not None and e.layout is not self:
+                    raise e
+                e.layout = None
+                return self._get_child_model(current_objects[:i], doc, root, parent, comm)
+            new_models.append(model)
         return new_models, old_models  # type: ignore[return-value]
 
     def _process_event(self, event=None) -> None:
@@ -718,6 +732,44 @@ class Grid(MaterialListLike):
     _esm_base = "Grid.jsx"
 
 
+class MaterialDynamicNamedListLike(MaterialNamedListLike):
+    """
+    Base class for named layouts which display a subset of their
+    objects, determined by the `active` parameter, and can optionally
+    defer rendering of inactive objects.
+    """
+
+    dynamic = param.Boolean(default=False, doc="""
+        Whether the contents should be rendered dynamically,
+        i.e. only when they are active.""")
+
+    __abstract = True
+
+    def _is_active(self, index: int) -> bool:
+        raise NotImplementedError
+
+    @param.depends("active", watch=True)
+    def _trigger_children(self):
+        if self.dynamic:
+            self.param.trigger("objects")
+
+    def _get_child_model(self, child, doc, root, parent, comm):
+        if child is not self.objects or not self.dynamic:
+            return super()._get_child_model(child, doc, root, parent, comm)
+        ref = root.ref["id"]
+        models, old_models = [], []
+        for i, sv in enumerate(child):
+            if not self._is_active(i):
+                model = BkSpacer()
+            elif ref in sv._models:
+                model = sv._models[ref][0]
+                old_models.append(model)
+            else:
+                model = sv._get_model(doc, root, parent, comm)
+            models.append(model)
+        return models, old_models
+
+
 class Card(MaterialNamedListLike, PaperMixin):
     """
     A `Card` layout allows arranging multiple panel objects in a
@@ -834,7 +886,7 @@ class Details(MaterialNamedListLike, PaperMixin):
         return ([] if self.header is None else self.header.select(selector)) + super().select(selector)
 
 
-class Accordion(MaterialNamedListLike, PaperMixin):
+class Accordion(MaterialDynamicNamedListLike, PaperMixin):
     """
     The `Accordion` layout is a type of `Card` layout that allows switching
     between multiple objects by clicking on the corresponding card header.
@@ -872,6 +924,10 @@ class Accordion(MaterialNamedListLike, PaperMixin):
     disable_gutters = param.Boolean(default=False, doc="""
         Whether to disable margins between expanded sections.""")
 
+    dynamic = param.Boolean(default=False, doc="""
+        Whether the card contents should be rendered dynamically,
+        i.e. only when the card is expanded.""")
+
     header_background = param.Color(doc="""
         The background color of the Card header.""")
 
@@ -891,8 +947,11 @@ class Accordion(MaterialNamedListLike, PaperMixin):
             params["objects"] = objects
         super().__init__(**params)
 
+    def _is_active(self, index: int) -> bool:
+        return index in self.active
 
-class Tabs(MaterialNamedListLike):
+
+class Tabs(MaterialDynamicNamedListLike):
     """
     The `Tabs` layout allows switching between multiple objects by clicking
     on the corresponding tab header.
@@ -952,6 +1011,9 @@ class Tabs(MaterialNamedListLike):
             params["objects"] = objects
         super().__init__(**params)
 
+    def _is_active(self, index: int) -> bool:
+        return index == self.active
+
     @param.depends("active", watch=True)
     def _trigger_children(self):
         if self.dynamic:
@@ -963,11 +1025,10 @@ class Tabs(MaterialNamedListLike):
         for i, sv in enumerate(child):
             if self.dynamic and i != self.active:
                 model = BkSpacer()
-            elif ref in sv._models:
-                model = sv._models[ref][0]
-                old_models.append(model)
             else:
-                model = sv._get_model(doc, root, parent, comm)
+                if ref in sv._models:
+                    old_models.append(sv._models[ref][0])
+                model = _acquire_model(sv, doc, root, parent, comm)
             models.append(model)
         return models, old_models
 

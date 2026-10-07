@@ -112,6 +112,34 @@ def test_tabs_dynamic_update(page):
     widget.objects = [('Tab 1', content1), ('Tab 2', content2)]
     expect(page.locator('.MuiTab-root')).to_have_count(2)
 
+def test_tabs_dynamic(page):
+    widget = Tabs(
+        ("Tab 1", Column("Content 1")),
+        ("Tab 2", Column("Content 2")),
+        dynamic=True
+    )
+    serve_component(page, widget)
+
+    expect(page.locator('.tabs')).to_contain_text('Content 1')
+    expect(page.locator('.tabs')).not_to_contain_text('Content 2')
+
+    page.locator('.MuiTab-root').nth(1).click()
+    wait_until(lambda: widget.active == 1, page)
+    expect(page.locator('.tabs')).to_contain_text('Content 2')
+    expect(page.locator('.tabs')).not_to_contain_text('Content 1')
+
+def test_tabs_dynamic_component_title(page):
+    widget = Tabs(
+        (Typography("Tab 1"), Column("Content 1")),
+        (Typography("Tab 2"), Column("Content 2")),
+        dynamic=True
+    )
+    serve_component(page, widget)
+
+    tabs = page.locator('.MuiTab-root')
+    expect(tabs.nth(0)).to_contain_text('Tab 1')
+    expect(tabs.nth(1)).to_contain_text('Tab 2')
+
 def test_tabs_color(page):
     content1 = Column("Content 1")
     widget = Tabs(

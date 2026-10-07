@@ -213,3 +213,20 @@ def test_discrete_player_minimal_shows_label(page):
     serve_component(page, widget)
 
     expect(page.locator('.discrete-player')).to_contain_text('b')
+
+
+@pytest.mark.parametrize('variant', ['full', 'minimal'])
+@pytest.mark.parametrize('player', [
+    lambda variant: Player(length=10, variant=variant),
+    lambda variant: DiscretePlayer(options=[1, 2, 3], variant=variant),
+])
+def test_player_focus(page, player, variant):
+    widget = player(variant)
+    serve_component(page, widget)
+
+    slider = page.locator('.MuiSlider-thumb input')
+    expect(slider).not_to_be_focused()
+
+    widget.focus()
+
+    expect(slider).to_be_focused()
