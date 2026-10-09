@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 pytest.importorskip("playwright")
@@ -46,10 +48,13 @@ def test_chat_interface_grows_without_height(page):
     serve_component(page, chat)
 
     textarea = page.locator("textarea").first
+    expect(textarea).to_be_editable()
     textarea.fill("Hello")
     textarea.press("Enter")
-    expect(page.get_by_text("Echo: Hello")).to_be_visible()
-    expect(page.get_by_text("Hello", exact=True)).to_be_visible()
+    # The textarea keeps its text until the callback finishes, so match
+    # the rendered messages only
+    expect(page.locator("p", has_text=re.compile(r"^Hello$"))).to_be_visible()
+    expect(page.locator("p", has_text=re.compile(r"^Echo: Hello$"))).to_be_visible()
 
 
 def test_chat_message_meta_revealed_on_hover(page):

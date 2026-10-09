@@ -214,12 +214,8 @@ def test_editable_range_slider_increment_decrement_buttons(page):
     expect(inputs.nth(1)).to_have_value("8")  # Should decrement by step
 
 
-@pytest.mark.parametrize("inline_layout,targets", [
-    (False, [87, 200, 240]),
-    (True, [75, 173, 210])
-])
-def test_editable_range_slider_slider_interaction(page, inline_layout, targets):
-    x1, x2, x3 = targets
+@pytest.mark.parametrize("inline_layout", [False, True])
+def test_editable_range_slider_slider_interaction(page, inline_layout):
     widget = EditableRangeSlider(
         label='Range Slider',
         start=0,
@@ -233,17 +229,23 @@ def test_editable_range_slider_slider_interaction(page, inline_layout, targets):
 
     inputs = page.locator("input[type='text']")
     slider = page.locator(".MuiSlider-thumb")
+    rail = page.locator(".MuiSlider-rail")
+
+    # Positions are derived from the rendered rail, whose width depends on
+    # the platform's fonts, e.g. when the label is laid out inline
+    width = rail.bounding_box()["width"]
+    x1, x2, x3 = (width * value / 5 for value in (1.4, 3.3, 4))
 
     # Test moving first thumb
-    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x1, "y": 0}, force=True)
+    slider.first.drag_to(rail, target_position={"x": x1, "y": 0}, force=True)
     expect(inputs.nth(0)).to_have_value("1.40")  # Should update input value
 
     # Test moving second thumb
-    slider.nth(1).drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x2, "y": 0}, force=True)
+    slider.nth(1).drag_to(rail, target_position={"x": x2, "y": 0}, force=True)
     expect(inputs.nth(1)).to_have_value("3.30")  # Should update input value
 
     # Test that thumbs can't cross each other
-    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x3, "y": 0}, force=True)
+    slider.first.drag_to(rail, target_position={"x": x3, "y": 0}, force=True)
     expect(inputs.nth(0)).to_have_value("3.30")  # Should be limited by second thumb
     expect(inputs.nth(1)).to_have_value("4")  # Should follow movement and be set to the value corresponding to the drag movement
 
@@ -275,12 +277,8 @@ def test_editable_int_range_slider_increment_decrement_buttons(page):
     page.locator(".MuiIconButton-root").nth(3).click()
     expect(inputs.nth(1)).to_have_value("8")  # Should decrement by step
 
-@pytest.mark.parametrize("inline_layout,targets", [
-    (False, [90, 210, 250]),
-    (True, [38, 87, 103])
-])
-def test_editable_int_range_slider_slider_interaction(page, inline_layout, targets):
-    x1, x2, x3 = targets
+@pytest.mark.parametrize("inline_layout", [False, True])
+def test_editable_int_range_slider_slider_interaction(page, inline_layout):
     widget = EditableIntRangeSlider(
         label='Int Range Slider',
         start=0,
@@ -293,17 +291,23 @@ def test_editable_int_range_slider_slider_interaction(page, inline_layout, targe
 
     inputs = page.locator("input[type='text']")
     slider = page.locator(".MuiSlider-thumb")
+    rail = page.locator(".MuiSlider-rail")
+
+    # Positions are derived from the rendered rail, whose width depends on
+    # the platform's fonts, e.g. when the label is laid out inline
+    width = rail.bounding_box()["width"]
+    x1, x2, x3 = (width * value / 10 for value in (3, 7, 8))
 
     # Test moving first thumb
-    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x1, "y": 0}, force=True)
+    slider.first.drag_to(rail, target_position={"x": x1, "y": 0}, force=True)
     expect(inputs.nth(0)).to_have_value("3")  # Should update input value with integer
 
     # Test moving second thumb
-    slider.nth(1).drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x2, "y": 0}, force=True)
+    slider.nth(1).drag_to(rail, target_position={"x": x2, "y": 0}, force=True)
     expect(inputs.nth(1)).to_have_value("7")  # Should update input value with integer
 
     # Test that thumbs can't cross each other
-    slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": x3, "y": 0}, force=True)
+    slider.first.drag_to(rail, target_position={"x": x3, "y": 0}, force=True)
     expect(inputs.nth(0)).to_have_value("7")  # Should be limited by second thumb
     expect(inputs.nth(1)).to_have_value("8")  # Should follow movement and be set to the value corresponding to the drag movement
 
