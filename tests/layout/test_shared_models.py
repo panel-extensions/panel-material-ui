@@ -3,7 +3,7 @@ from panel.layout import Column as PnColumn, Row as PnRow
 from panel.viewable import Viewable
 from panel.widgets import TextInput
 
-from panel_material_ui.layout import Feed, Tabs
+from panel_material_ui.layout import Accordion, Feed, Tabs
 
 refcounted = pytest.mark.skipif(
     not hasattr(Viewable, "_acquire_model"),
@@ -11,7 +11,7 @@ refcounted = pytest.mark.skipif(
 )
 
 
-@pytest.mark.parametrize("layout", [Feed, Tabs])
+@pytest.mark.parametrize("layout", [Accordion, Feed, Tabs])
 def test_shared_child_reuses_model(layout, document, comm):
     widget = TextInput(value="A")
     row = PnRow(widget)
@@ -27,7 +27,7 @@ def test_shared_child_reuses_model(layout, document, comm):
 
 
 @refcounted
-@pytest.mark.parametrize("layout", [Feed, Tabs])
+@pytest.mark.parametrize("layout", [Accordion, Feed, Tabs])
 def test_shared_child_survives_removal_from_other_parent(layout, document, comm):
     widget = TextInput(value="A")
     row = PnRow(widget)
@@ -44,7 +44,7 @@ def test_shared_child_survives_removal_from_other_parent(layout, document, comm)
 
 
 @refcounted
-@pytest.mark.parametrize("layout", [Feed, Tabs])
+@pytest.mark.parametrize("layout", [Accordion, Feed, Tabs])
 def test_shared_child_cleaned_up_once_released_by_all(layout, document, comm):
     widget = TextInput(value="A")
     row = PnRow(widget)
