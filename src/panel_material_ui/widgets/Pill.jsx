@@ -1,9 +1,10 @@
+import * as React from "react"
 import Box from "@mui/material/Box"
 import Chip from "@mui/material/Chip"
 import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
-import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {render_description} from "../description"
+import {render_icon_text} from "../utils"
 
 const PILL_CONTAINER_SX = {
   display: "flex",

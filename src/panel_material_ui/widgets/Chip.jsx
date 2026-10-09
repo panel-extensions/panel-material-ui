@@ -1,5 +1,6 @@
+import * as React from "react"
 import Chip from "@mui/material/Chip"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text} from "../utils"
 
 const SIZES = {
   small: "1.2em",

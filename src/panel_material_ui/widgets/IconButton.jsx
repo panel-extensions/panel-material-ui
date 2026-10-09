@@ -1,6 +1,7 @@
+import * as React from "react"
 import IconButton from "@mui/material/IconButton"
 import {useTheme} from "@mui/material/styles"
-import {render_icon} from "./utils"
+import {render_icon} from "../utils"
 
 const BASE_ICON_BUTTON_SX = {
   width: "100%",

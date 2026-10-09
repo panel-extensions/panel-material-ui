@@ -1,5 +1,6 @@
+import * as React from "react"
 import Badge from "@mui/material/Badge"
-import {render_icon_text} from "./utils"
+import {render_icon_text} from "../utils"
 
 const PLACEMENT_TO_ANCHOR = {
   "top-right": {vertical: "top", horizontal: "right"},

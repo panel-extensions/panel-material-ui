@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import os
-import sys
+import shutil
 import subprocess
+import sys
 import typing as t
 
 from pathlib import Path
@@ -14,41 +15,33 @@ GREEN, RED, RESET = "\033[0;32m", "\033[0;31m", "\033[0m"
 
 
 def compile_bundle():
-    from panel.io.compile import compile_components, find_module_bundles
-
     print(f"{GREEN}[PANEL-MATERIAL-UI]{RESET} Compile panel-material-ui bundle", flush=True)
 
-    sys.path.insert(0, str(BASE_DIR / "src"))
-    module_bundles = find_module_bundles('panel_material_ui')
-    errors = 0
-    for bundle, components in module_bundles.items():
-        ret = compile_components(
-            components,
-            outfile=bundle,
-            file_loaders=['woff', 'woff2']
-        )
-        if ret is None:
-            errors += 1
-        else:
-            errors += ret
-    if sys.platform != "win32":
-        # npm can cause non-blocking stdout; so reset it just in case
-        import fcntl
+    npm = shutil.which("npm") or shutil.which("npm.cmd")
+    if npm is None:
+        print(f"{RED}[PANEL-MATERIAL-UI]{RESET} npm is required to build the bundle", flush=True)
+        sys.exit(1)
+    try:
+        if not (BASE_DIR / "node_modules").is_dir():
+            subprocess.run([npm, "ci", "--no-audit", "--no-fund"], cwd=BASE_DIR, check=True)
+        subprocess.run([npm, "run", "build"], cwd=BASE_DIR, check=True)
+    except subprocess.CalledProcessError:
+        print(f"{RED}[PANEL-MATERIAL-UI]{RESET} Failed building bundle", flush=True)
+        sys.exit(1)
+    finally:
+        if sys.platform != "win32":
+            # npm can cause non-blocking stdout; so reset it just in case
+            import fcntl
 
-        flags = fcntl.fcntl(sys.stdout, fcntl.F_GETFL)
-        fcntl.fcntl(sys.stdout, fcntl.F_SETFL, flags & ~os.O_NONBLOCK)
+            flags = fcntl.fcntl(sys.stdout, fcntl.F_GETFL)
+            fcntl.fcntl(sys.stdout, fcntl.F_SETFL, flags & ~os.O_NONBLOCK)
 
     subprocess.run(
         [sys.executable, str(BASE_DIR / "scripts" / "generate_font_css.py")],
         cwd=BASE_DIR,
         check=True,
     )
-
-    if not errors:
-        print(f"{GREEN}[PANEL-MATERIAL-UI]{RESET} Finished building bundle", flush=True)
-    else:
-        print(f"{RED}[PANEL-MATERIAL-UI]{RESET} Failed building bundle", flush=True)
-        sys.exit(1)
+    print(f"{GREEN}[PANEL-MATERIAL-UI]{RESET} Finished building bundle", flush=True)
 
 
 class BuildHook(BuildHookInterface):

@@ -1,3 +1,5 @@
+import * as React from "react"
+import Tooltip from "@mui/material/Tooltip"
 import Button from "@mui/material/Button"
 import Divider from "@mui/material/Divider"
 import MenuItem from "@mui/material/MenuItem"
@@ -5,8 +7,8 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp"
-import {CustomMenu} from "./menu"
-import {render_icon, render_icon_text} from "./utils"
+import {CustomMenu} from "../menu"
+import {render_icon, render_icon_text} from "../utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props

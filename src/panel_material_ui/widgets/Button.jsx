@@ -1,5 +1,6 @@
+import * as React from "react"
 import Button from "@mui/material/Button"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text} from "../utils"
 
 const BUTTON_BASE_SX = {
   height: "100%",

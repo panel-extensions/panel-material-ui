@@ -1,3 +1,4 @@
+import * as React from "react"
 import Avatar from "@mui/material/Avatar"
 import Collapse from "@mui/material/Collapse"
 import Divider from "@mui/material/Divider"
@@ -5,7 +6,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess"
 import ExpandMore from "@mui/icons-material/ExpandMore"
 import Icon from "@mui/material/Icon"
 import IconButton from "@mui/material/IconButton"
-import {parseIconName} from "./utils"
+import {parseIconName} from "../utils"
 import List from "@mui/material/List"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
@@ -17,7 +18,7 @@ import MenuItem from "@mui/material/MenuItem"
 import MoreVert from "@mui/icons-material/MoreVert"
 import Checkbox from "@mui/material/Checkbox"
 import Tooltip from "@mui/material/Tooltip"
-import {render_icon, render_icon_text, render_icon_text_as_string} from "./utils"
+import {render_icon, render_icon_text, render_icon_text_as_string} from "../utils"
 
 const LIST_SX = {p: 0}
 

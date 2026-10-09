@@ -1,3 +1,4 @@
+import * as React from "react"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward"
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward"
@@ -25,8 +26,8 @@ import RefreshIcon from "@mui/icons-material/Refresh"
 import TextField from "@mui/material/TextField"
 import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
-import {render_description} from "./description"
-import {formatBytes, render_icon_text} from "./utils"
+import {render_description} from "../description"
+import {formatBytes, render_icon_text} from "../utils"
 
 const ROW_HEIGHT = "calc(1.25rem + 18px)"
 // Matches the footprint of a size="small" Checkbox so rows without one stay aligned

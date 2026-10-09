@@ -1,10 +1,11 @@
+import * as React from "react"
 import AppBar from "@mui/material/AppBar"
 import Box from "@mui/material/Box"
 import Toolbar from "@mui/material/Toolbar"
 import Typography from "@mui/material/Typography"
 import IconButton from "@mui/material/IconButton"
-import {render_icon, render_icon_text} from "./utils"
-import {apply_flex} from "./utils"
+import {render_icon, render_icon_text} from "../utils"
+import {apply_flex} from "../utils"
 
 export function render({model, view}) {
   const [color] = model.useState("color")

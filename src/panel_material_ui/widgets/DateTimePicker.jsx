@@ -1,10 +1,11 @@
+import * as React from "react"
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider"
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
 import {DatePicker} from "@mui/x-date-pickers/DatePicker"
 import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker"
 import dayjs from "dayjs"
-import {render_description} from "./description"
-import {MUI_SIZE, denseSx, render_icon_text, overlay_container} from "./utils"
+import {render_description} from "../description"
+import {MUI_SIZE, denseSx, render_icon_text, overlay_container} from "../utils"
 
 const DATE_TIME_PICKER_BASE_SX = {width: "100%"}
 

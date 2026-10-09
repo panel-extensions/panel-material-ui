@@ -1,5 +1,6 @@
+import * as React from "react"
 import Paper from "@mui/material/Paper"
-import {apply_flex} from "./utils"
+import {apply_flex} from "../utils"
 
 const PAPER_BASE_SX = {
   height: "100%",

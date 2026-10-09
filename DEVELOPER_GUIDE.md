@@ -50,6 +50,14 @@ pixi run compile-dev
 
 **This will continuously watch the files for changes and automatically recompile**.
 
+The bundle is an ordinary npm project: `package.json` pins the JS dependencies and `scripts/build.mjs` runs esbuild on `src/panel_material_ui/index.js`. Every component is registered in that entry under its class name, together with the wrappers from `src/panel_material_ui/transforms.jsx` that match its `_esm_transforms`, e.g.:
+
+```js
+Button: component(Button, withTooltip, withTheme),
+```
+
+When adding a component, import its `render` function in `index.js` and register it there. `tests/test_bundle.py` checks that the entry stays in sync with the Python classes. To inspect what ends up in the bundle run `node scripts/build.mjs --metafile` and load `build/meta.json` into https://esbuild.github.io/analyze/.
+
 In a separate terminal you can now launch a Panel server to preview the components:
 
 ```bash

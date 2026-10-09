@@ -1,3 +1,4 @@
+import * as React from "react"
 import Avatar from "@mui/material/Avatar"
 import Box from "@mui/material/Box"
 import Breadcrumbs from "@mui/material/Breadcrumbs"
@@ -10,8 +11,8 @@ import Tooltip from "@mui/material/Tooltip"
 import NavigateNextIcon from "@mui/icons-material/NavigateNext"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import {useTheme, styled} from "@mui/material/styles"
-import {CustomMenu} from "./menu"
-import {render_icon, render_icon_text} from "./utils"
+import {CustomMenu} from "../menu"
+import {render_icon, render_icon_text} from "../utils"
 
 const StyledAvatar = styled(Avatar)(({color, spacing}) => ({
   backgroundColor: color,

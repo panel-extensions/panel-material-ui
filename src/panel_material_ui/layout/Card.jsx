@@ -1,3 +1,4 @@
+import * as React from "react"
 import {styled} from "@mui/material/styles"
 import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
@@ -6,7 +7,7 @@ import Collapse from "@mui/material/Collapse"
 import IconButton from "@mui/material/IconButton"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
-import {apply_flex, render_html_icon_text} from "./utils"
+import {apply_flex, render_html_icon_text} from "../utils"
 
 const CARD_BASE_SX = {
   display: "flex",

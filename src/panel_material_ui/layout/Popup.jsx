@@ -1,5 +1,6 @@
+import * as React from "react"
 import Popover from "@mui/material/Popover"
-import {apply_flex, overlay_container} from "./utils"
+import {apply_flex, overlay_container} from "../utils"
 
 export function render({model, view}, ref) {
   const [anchor_origin] = model.useState("anchor_origin")

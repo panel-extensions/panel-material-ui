@@ -391,3 +391,6 @@ doc/reference/
 
 panel_sparse_ref/
 .virtual_documents/
+
+# npm
+/node_modules/

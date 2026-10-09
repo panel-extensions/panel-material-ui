@@ -1,9 +1,10 @@
+import * as React from "react"
 import Avatar from "@mui/material/Avatar"
 import SpeedDialIcon from "@mui/material/SpeedDialIcon"
 import SpeedDialAction from "@mui/material/SpeedDialAction"
 import SpeedDial from "@mui/material/SpeedDial"
 import Icon from "@mui/material/Icon"
-import {render_icon, render_icon_text, render_icon_text_as_string, overlay_container} from "./utils"
+import {render_icon, render_icon_text, render_icon_text_as_string, overlay_container} from "../utils"
 
 const SPEED_DIAL_BASE_SX = {
   "& .MuiSpeedDial-actions": {

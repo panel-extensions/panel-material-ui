@@ -1,3 +1,5 @@
+import * as React from "react"
+import CircularProgress from "@mui/material/CircularProgress"
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
@@ -14,7 +16,7 @@ import TocIcon from "@mui/icons-material/Toc";
 import Tooltip from "@mui/material/Tooltip";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
-import {apply_flex, dark_mode, setup_global_styles, render_icon_text} from "./utils"
+import {apply_flex, dark_mode, setup_global_styles, render_icon_text} from "../utils"
 
 const PAGE_ROOT_SX = {display: "flex", width: "100vw", height: "100vh", overflow: "hidden"}
 // Inline pages size to their host (or content) and become the containing block
