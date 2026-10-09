@@ -1,6 +1,7 @@
+import * as React from "react"
 import TextField from "@mui/material/TextField"
-import {render_description} from "./description"
-import {render_icon_text, render_icon_text_as_string, denseSx} from "./utils"
+import {render_description} from "../description"
+import {render_icon_text, render_icon_text_as_string, denseSx} from "../utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")

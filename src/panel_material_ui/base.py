@@ -92,6 +92,7 @@ RE_IMPORT = re.compile(r'import\s+(\w+)\s+from\s+[\'"]@mui/material/(\w+)[\'"]')
 RE_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
 RE_NAMED_IMPORT = re.compile(r'import\s+{([^}]+)}\s+from\s+[\'"]@mui/material[\'"]')
 RE_NAMED_IMPORT_REPLACE = r'import {\1} from "panel-material-ui/mui"'
+RE_TRANSFORMS_IMPORT = re.compile(r'import\s*{([^}]+)}\s*from\s*[\'"]\./transforms[\'"]')
 
 PN_LOADING_MSG_CSS = """
 <style>
@@ -185,115 +186,76 @@ class ESMTransform:
         ), output
 
 
-class ThemedTransform(ESMTransform):
+class WrapperTransform(ESMTransform):
+    """
+    Wraps the component in one of the higher-order components defined in
+    transforms.jsx, which also implements them for the bundled components.
+
+    The imports the transforms used to inject are kept, since component
+    code compiled with them may rely on them being in scope.
+    """
+
+    _imports: str = ''
+
+    _wrapper: str = ''
+
+    @classmethod
+    def apply(cls, component: type[ReactComponent], esm: str, input_component: str) -> tuple[str, str]:
+        output = f'{cls.__name__.replace("Transform", "")}{component.__name__}'
+        return (
+            f'{cls._imports}import {{{cls._wrapper}}} from "./transforms"\n\n{esm}\n\n'
+            f'const {output} = {cls._wrapper}({input_component})\n'
+        ), output
+
+
+class ThemedTransform(WrapperTransform):
     """
     ThemedTransform is a transform that applies a theme to a component.
     It adds a ThemeProvider and CssBaseline to the component.
     """
 
-    _transform = """\
+    _imports = """\
 import * as React from "react"
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/700.css';
 import 'material-icons/iconfont/filled.css';
 import 'material-icons/iconfont/outlined.css';
-import {{ ThemeProvider }} from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import {{apply_global_css, install_theme_hooks}} from "./utils"
-
-{esm}
-
-function {output}(props) {{
-  const theme = install_theme_hooks(props)
-  const attached = ("attached" in props.view.model.data.properties) ? props.model.get_child("attached") : []
-  if (props.view.is_root && document.documentElement.getAttribute("data-theme-managed") === "false") {{
-    apply_global_css(props.model, props.view, theme)
-  }}
-  return (
-    <ThemeProvider theme={{theme}}>
-      <CssBaseline />
-      <{input} {{...props}}/>
-      {{attached.length ? <div class="attached">{{attached}}</div> : null}}
-    </ThemeProvider>
-  )
-}}
+import {apply_global_css, install_theme_hooks} from "./utils"
 """
 
+    _wrapper = 'withTheme'
 
-class LoadingTransform(ESMTransform):
 
-    _transform = """\
+class LoadingTransform(WrapperTransform):
+    """
+    LoadingTransform overlays a loading spinner while the component's
+    loading parameter is set.
+    """
+
+    _imports = """\
 import CircularProgress from '@mui/material/CircularProgress'
-import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
+import { useTheme as useMuiTheme } from '@mui/material/styles'
+"""
 
-{esm}
-
-function {output}(props) {{
-  const [loading] = props.model.useState('loading')
-  const loading_inset = props.model.esm_constants.loading_inset || 0
-  const theme = useMuiTheme()
-
-  const overlayColor = theme.palette.mode === 'dark'
-    ? 'rgba(18, 18, 18, 0.7)'
-    : 'rgba(255, 255, 255, 0.5)'
-
-  return (
-    <div style={{{{ display: 'contents', position: 'relative' }}}}>
-      <{input} {{...props}}/>
-      {{loading && (
-        <div style={{{{
-          position: 'absolute',
-          inset: loading_inset,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: overlayColor,
-          zIndex: theme.zIndex.modal - 1
-        }}}}>
-          <CircularProgress color="primary" sx={{{{p: "8px"}}}} />
-        </div>
-      )}}
-    </div>
-  )
-}}"""
+    _wrapper = 'withLoading'
 
 
-class TooltipTransform(ESMTransform):
+class TooltipTransform(WrapperTransform):
     """
     TooltipTransform wraps a Material UI widget with a tooltip that displays a description.
 
     This transform is used to provide additional context or help to users when they hover over a widget.
     """
 
-    _transform = """\
+    _imports = """\
 import Icon from "@mui/material/Icon";
 import Tooltip from "@mui/material/Tooltip";
-import {{render_icon_text as render_tooltip_icon_text}} from "./utils";
-
-{esm}
-
-// Created once, since a new forwardRef component type on every render would
-// remount the wrapped component whenever the tooltip re-renders.
-const Wrapped{input} = React.forwardRef({input})
-
-function {output}(props, ref) {{
-  const [description] = props.model.useState("description")
-  const [description_delay] = props.model.useState("description_delay")
-
-  return (description ? (
-    <Tooltip
-      title={{render_tooltip_icon_text(description)}}
-      arrow
-      enterDelay={{description_delay}}
-      enterNextDelay={{description_delay}}
-      placement="right"
-      slotProps={{{{ popper: {{ container: props.el }} }}}}
-    >
-      <Wrapped{input} {{...props}}/>
-    </Tooltip>) : <{input} {{...props}}/>
-  )
-}}
+import {render_icon_text as render_tooltip_icon_text} from "./utils";
 """
+
+    _wrapper = 'withTooltip'
 
 
 def _compiled_ancestor(cls: type) -> type:
@@ -333,7 +295,8 @@ class MaterialComponent(ReactComponent):
     _esm_shared = {
         'utils': BASE_PATH / "utils.js",
         'menu': BASE_PATH / "menu.jsx",
-        'description': BASE_PATH / 'description.jsx'
+        'description': BASE_PATH / 'description.jsx',
+        'transforms': BASE_PATH / 'transforms.jsx',
     }
     _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
@@ -773,12 +736,16 @@ class MaterialUIComponent(MaterialComponent):
             for transform in cls._esm_transforms:
                 esm_base, component_name = transform.apply(cls, esm_base, component_name)
             esm_base += f'\nexport default {{ render: {component_name} }}'
+        # The transforms and theme hooks are provided by the loaded bundle
         esm_base = esm_base.replace(
             'import {apply_global_css, install_theme_hooks} from "./utils"',
-            'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks; const apply_global_css = pnmui.apply_global_css;'
+            'const install_theme_hooks = pnmui.install_theme_hooks; const apply_global_css = pnmui.apply_global_css;'
         ).replace(
             'import * as React from "react"', ''
         )
+        esm_base = RE_TRANSFORMS_IMPORT.sub(r'const {\1} = pnmui;', esm_base)
+        if 'pnmui.' in esm_base or '= pnmui;' in esm_base:
+            esm_base = 'import pnmui from "panel-material-ui";\n' + esm_base
         esm_base = RE_IMPORT.sub(RE_IMPORT_REPLACE, esm_base)
         esm_base = RE_NAMED_IMPORT.sub(RE_NAMED_IMPORT_REPLACE, esm_base)
         return textwrap.dedent(esm_base)

@@ -1,9 +1,10 @@
+import * as React from "react"
 import Tabs from "@mui/material/Tabs"
 import Tab from "@mui/material/Tab"
 import Box from "@mui/material/Box"
 import Avatar from "@mui/material/Avatar"
 import {useTheme} from "@mui/material/styles"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text} from "../utils"
 
 const TABMENU_LABEL_ROW_SX = {display: "flex", alignItems: "center", gap: 0.5}
 const TABMENU_AVATAR_SX = {fontSize: "1em", width: 24, height: 24, marginRight: 4}

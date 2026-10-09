@@ -1,3 +1,4 @@
+import * as React from "react"
 import Avatar from "@mui/material/Avatar"
 import Box from "@mui/material/Box"
 import Icon from "@mui/material/Icon"
@@ -9,7 +10,7 @@ import Typography from "@mui/material/Typography"
 import CheckIcon from "@mui/icons-material/Check"
 import ContentCopyIcon from "@mui/icons-material/ContentCopy"
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
-import {parseIconName, render_icon_text} from "./utils"
+import {parseIconName, render_icon_text} from "../utils"
 
 const AVATAR_SIZE = 32
 

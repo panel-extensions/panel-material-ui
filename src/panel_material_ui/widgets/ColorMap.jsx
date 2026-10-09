@@ -1,12 +1,13 @@
+import * as React from "react"
 import Box from "@mui/material/Box"
 import FormControl from "@mui/material/FormControl"
 import FormHelperText from "@mui/material/FormHelperText"
 import InputLabel from "@mui/material/InputLabel"
 import MenuItem from "@mui/material/MenuItem"
 import Select from "@mui/material/Select"
-import {render_description} from "./description"
-import {CustomMenu, detect_nb} from "./menu"
-import {render_icon_text} from "./utils"
+import {render_description} from "../description"
+import {CustomMenu, detect_nb} from "../menu"
+import {render_icon_text} from "../utils"
 
 const paletteStyle = (colors, height, width, fit) => ({
   backgroundImage: `linear-gradient(to right, ${colors.join(", ")})`,

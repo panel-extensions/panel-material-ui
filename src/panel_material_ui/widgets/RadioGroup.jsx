@@ -1,11 +1,12 @@
+import * as React from "react"
 import Checkbox from "@mui/material/Checkbox"
 import Radio from "@mui/material/Radio"
 import RadioGroup from "@mui/material/RadioGroup"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
-import {render_description} from "./description"
-import {MUI_SIZE, denseLabelSx, denseSx, render_icon_text} from "./utils"
+import {render_description} from "../description"
+import {MUI_SIZE, denseLabelSx, denseSx, render_icon_text} from "../utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")

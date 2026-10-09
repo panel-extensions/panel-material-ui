@@ -1,7 +1,8 @@
+import * as React from "react"
 import Alert from "@mui/material/Alert"
 import AlertTitle from "@mui/material/AlertTitle"
 import Collapse from "@mui/material/Collapse"
-import {render_icon_text} from "./utils"
+import {render_icon_text} from "../utils"
 
 function html_decode(input) {
   const doc = new DOMParser().parseFromString(input, "text/html")

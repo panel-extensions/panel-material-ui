@@ -7,8 +7,9 @@ platforms = ["osx-arm64", "linux-64", "win-64"]
 install = "pip install --no-build-isolation --no-deps --disable-pip-version-check -e ."
 serve-dev = "panel serve examples/components.py --dev --port 0 --show"
 serve-example = { cmd = "echo ", depends-on = ["install", "serve-dev"] }
-compile = { cmd = "panel compile panel_material_ui --file-loader woff woff2", env = { PYTHONPATH = "./src:$PYTHONPATH" } }
-compile-dev = { cmd = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch", env = { PYTHONPATH = "./src:$PYTHONPATH" } }
+npm-install = { cmd = "npm ci --no-audit --no-fund", inputs = ["package-lock.json"], outputs = ["node_modules/.package-lock.json"] }
+compile = { cmd = "npm run build", depends-on = ["npm-install"] }
+compile-dev = { cmd = "npm run dev", depends-on = ["npm-install"] }
 pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
 
@@ -24,7 +25,6 @@ setuptools-scm = "*"
 hatchling = "*"
 hatch-vcs = "*"
 nodejs = ">=18"
-esbuild = "*"
 
 [environments]
 test-310 = ["py310", "compile", "test-core", "example", "test-example", "test-unit-task"]
@@ -177,7 +177,6 @@ build-conda = 'bash scripts/conda/build.sh'
 
 [feature.compile.dependencies]
 nodejs = ">=18"
-esbuild = "*"
 
 # =============================================
 # ================== LINT =====================

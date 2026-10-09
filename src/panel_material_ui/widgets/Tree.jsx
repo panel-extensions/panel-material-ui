@@ -1,3 +1,4 @@
+import * as React from "react"
 import {styled} from "@mui/material/styles"
 
 import Box from "@mui/material/Box"
@@ -10,7 +11,7 @@ import IconButton from "@mui/material/IconButton"
 import MenuItem from "@mui/material/MenuItem"
 import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
-import {parseIconName, render_icon, render_icon_text, render_icon_text_as_string} from "./utils"
+import {parseIconName, render_icon, render_icon_text, render_icon_text_as_string} from "../utils"
 
 import ArticleIcon from "@mui/icons-material/Article"
 import DeleteIcon from "@mui/icons-material/Delete"
@@ -32,7 +33,7 @@ import {TreeItemIcon} from "@mui/x-tree-view/TreeItemIcon"
 import {TreeItemProvider} from "@mui/x-tree-view/TreeItemProvider"
 import {TreeItemDragAndDropOverlay} from "@mui/x-tree-view/TreeItemDragAndDropOverlay"
 import {useTreeItemModel} from "@mui/x-tree-view/hooks"
-import {CustomMenu} from "./menu"
+import {CustomMenu} from "../menu"
 
 const TREE_ITEM_CHECKBOX_SX = {
   color: "text.secondary",

@@ -1,10 +1,11 @@
+import * as React from "react"
 import IconButton from "@mui/material/IconButton"
 import InputAdornment from "@mui/material/InputAdornment"
 import TextField from "@mui/material/TextField"
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff"
-import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {render_description} from "../description"
+import {render_icon_text} from "../utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")

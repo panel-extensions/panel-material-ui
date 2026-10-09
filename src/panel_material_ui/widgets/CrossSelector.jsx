@@ -1,3 +1,4 @@
+import * as React from "react"
 import List from "@mui/material/List"
 import Card from "@mui/material/Card"
 import CardHeader from "@mui/material/CardHeader"
@@ -16,8 +17,8 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight"
 import InputLabel from "@mui/material/InputLabel"
 import Box from "@mui/material/Box"
-import {render_description} from "./description"
-import {MUI_SIZE, denseSx, render_icon_text} from "./utils"
+import {render_description} from "../description"
+import {MUI_SIZE, denseSx, render_icon_text} from "../utils"
 
 const CROSS_SELECTOR_ROOT_SX = {
   display: "flex",

@@ -1,8 +1,9 @@
+import * as React from "react"
 import Tabs from "@mui/material/Tabs"
 import Tab from "@mui/material/Tab"
 import Box from "@mui/material/Box"
 import {useTheme} from "@mui/material/styles"
-import {apply_flex, render_html_icon_text} from "./utils"
+import {apply_flex, render_html_icon_text} from "../utils"
 
 const TABS_BASE_SX = {transition: "height 0.3s"}
 const TAB_CLOSE_LABEL_SX = {display: "flex", alignItems: "center"}

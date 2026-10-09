@@ -1,6 +1,7 @@
+import * as React from "react"
 import Drawer from "@mui/material/Drawer"
 import Paper from "@mui/material/Paper"
-import {apply_flex, render_icon} from "./utils"
+import {apply_flex, render_icon} from "../utils"
 
 const TAB_SIZE = 24
 const TAB_LENGTH = 48

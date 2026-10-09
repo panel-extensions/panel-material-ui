@@ -1,3 +1,4 @@
+import * as React from "react"
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import InputAdornment from "@mui/material/InputAdornment"
@@ -18,7 +19,7 @@ import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
-import {isFileAccepted, processFilesChunked, apply_flex, render_icon_text, render_icon_text_as_string, waitForRef} from "./utils"
+import {isFileAccepted, processFilesChunked, apply_flex, render_icon_text, render_icon_text_as_string, waitForRef} from "../utils"
 
 // Map MIME types to Material Icons
 const mimeTypeIcons = {
