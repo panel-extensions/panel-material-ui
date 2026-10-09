@@ -144,8 +144,8 @@ def test_split_button_update_item(page):
 
     assert widget.items[0]['label'] == 'Open File'
 
-    # Reopen menu to verify update
-    page.locator('.MuiButtonBase-root').nth(1).click(force=True)
+    # The open menu re-renders with the updated item, clicking the
+    # toggle again would close it
     expect(menu_items.nth(0)).to_have_text('folder_openOpen File')
     expect(menu_items.nth(0).locator('.material-icons')).to_have_text('folder_open')
     expect(menu_items.nth(1)).to_have_text('Save')  # Other item unchanged
