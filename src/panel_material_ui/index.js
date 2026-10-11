@@ -13,7 +13,9 @@ import {jsx, jsxs, Fragment} from "react/jsx-runtime"
 import * as material_styles from "@mui/material/styles"
 import * as material_ui from "@mui/material"
 import {apply_global_css, install_theme_hooks} from "./utils"
-import {component, withLoading, withTheme, withTooltip} from "./transforms"
+import {component, lazy, withLoading, withTheme, withTooltip} from "./transforms"
+// Loaded eagerly since stylesheets of lazily loaded chunks are not injected
+import "react-day-picker/style.css"
 
 import {render as NotificationArea} from "./NotificationArea"
 import {render as ChatArea} from "./chat/ChatArea"
@@ -49,10 +51,7 @@ import {render as Checkbox} from "./widgets/Checkbox"
 import {render as Chip} from "./widgets/Chip"
 import {render as CircularProgress} from "./widgets/CircularProgress"
 import {render as ColorMap} from "./widgets/ColorMap"
-import {render as ColorPicker} from "./widgets/ColorPicker"
 import {render as CrossSelector} from "./widgets/CrossSelector"
-import {render as DateRangePicker} from "./widgets/DateRangePicker"
-import {render as DateTimePicker} from "./widgets/DateTimePicker"
 import {render as Fab} from "./widgets/Fab"
 import {render as FileDownload} from "./widgets/FileDownload"
 import {render as FileInput} from "./widgets/FileInput"
@@ -82,15 +81,21 @@ import {render as Switch} from "./widgets/Switch"
 import {render as TabMenu} from "./widgets/TabMenu"
 import {render as TextArea} from "./widgets/TextArea"
 import {render as TextField} from "./widgets/TextField"
-import {render as TimePicker} from "./widgets/TimePicker"
 import {render as ToggleButton} from "./widgets/ToggleButton"
 import {render as ToggleIcon} from "./widgets/ToggleIcon"
-import {render as Tree} from "./widgets/Tree"
 import {render as Badge} from "./wrappers/Badge"
 import {render as Clickable} from "./wrappers/Clickable"
 import {render as Skeleton} from "./wrappers/Skeleton"
 import {render as Tooltip} from "./wrappers/Tooltip"
 import {render as Transition} from "./wrappers/Transition"
+
+// Widgets with large dependencies, e.g. date and color pickers, are split
+// into chunks that are only loaded once such a widget is rendered
+const ColorPicker = lazy(() => import("./widgets/ColorPicker"))
+const DateRangePicker = lazy(() => import("./widgets/DateRangePicker"))
+const DateTimePicker = lazy(() => import("./widgets/DateTimePicker"))
+const TimePicker = lazy(() => import("./widgets/TimePicker"))
+const Tree = lazy(() => import("./widgets/Tree"))
 
 export default {
   ChatAreaInput: component(ChatArea, withTheme),

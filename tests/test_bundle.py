@@ -15,7 +15,8 @@ WRAPPERS = {
 }
 
 IMPORTS = dict(
-    (name, path) for name, path in re.findall(r'^import \{render as (\w+)\} from "\./([\w/]+)"$', INDEX, re.M)
+    re.findall(r'^import \{render as (\w+)\} from "\./([\w/]+)"$', INDEX, re.M) +
+    re.findall(r'^const (\w+) = lazy\(\(\) => import\("\./([\w/]+)"\)\)$', INDEX, re.M)
 )
 
 ENTRIES = {
@@ -45,3 +46,21 @@ def test_bundle_entry_has_no_stale_components():
 def test_bundle_entry_imports_exist():
     for path in IMPORTS.values():
         assert pathlib.Path(BASE_PATH / f"{path}.jsx").is_file()
+
+
+def test_inlined_bundle_does_not_load_chunks():
+    from panel.config import config
+
+    from panel_material_ui.base import INLINE_BUNDLE_PATH
+    from panel_material_ui.widgets import DatePicker
+
+    if not INLINE_BUNDLE_PATH.is_file():
+        pytest.skip("Bundle has not been built")
+    inline = config.inline
+    config.inline = True
+    try:
+        esm = DatePicker._render_esm(compiled=True, server=False)
+    finally:
+        config.inline = inline
+    assert esm == INLINE_BUNDLE_PATH.read_text(encoding="utf-8")
+    assert not re.search(r'import\(\s*"\./', esm)

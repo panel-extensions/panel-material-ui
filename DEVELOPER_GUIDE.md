@@ -56,7 +56,7 @@ The bundle is an ordinary npm project: `package.json` pins the JS dependencies a
 Button: component(Button, withTooltip, withTheme),
 ```
 
-When adding a component, import its `render` function in `index.js` and register it there. `tests/test_bundle.py` checks that the entry stays in sync with the Python classes. To inspect what ends up in the bundle run `node scripts/build.mjs --metafile` and load `build/meta.json` into https://esbuild.github.io/analyze/.
+When adding a component, import its `render` function in `index.js` and register it there. Widgets with large dependencies that most apps do not use, like the date and color pickers, are loaded with `lazy(() => import(...))` instead, which splits them into chunks that are only fetched when such a widget is rendered. The build also writes `panel-material-ui.inline.js`, a single-file variant used when the bundle is inlined into saved HTML. `tests/test_bundle.py` checks that the entry stays in sync with the Python classes. To inspect what ends up in the bundle run `node scripts/build.mjs --metafile` and load `build/meta.json` into https://esbuild.github.io/analyze/.
 
 In a separate terminal you can now launch a Panel server to preview the components:
 

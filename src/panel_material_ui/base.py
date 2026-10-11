@@ -82,6 +82,8 @@ IS_RELEASE = __version__ == base_version(__version__)
 IS_INSTALLED = in_site_packages(BASE_PATH)
 
 BUNDLE_PATH = DIST_PATH / "panel-material-ui.bundle.js"
+# Single-file build for output that inlines the bundle, see scripts/build.mjs
+INLINE_BUNDLE_PATH = DIST_PATH / "panel-material-ui.inline.js"
 CDN_ROOT = os.environ.get(
     "PANEL_MATERIAL_UI_CDN_ROOT",
     "https://cdn.holoviz.org/panel-material-ui/v"
@@ -436,6 +438,10 @@ class MaterialComponent(ReactComponent):
             return cls._render_esm_base()
         elif not config.autoreload and (not (config.inline or server) or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
             return CDN_DIST
+        elif not server and cls._bundle_path == BUNDLE_PATH:
+            # An inlined bundle is imported from a blob, which cannot resolve
+            # the chunks that rarely used widgets are split into
+            return INLINE_BUNDLE_PATH.read_text(encoding='utf-8')
         esm = super()._render_esm(compiled=True, server=server)
         if server and not config.autoreload and esm and '?' not in esm and '\n' not in esm:
             esm_hash = hashlib.md5(__version__.encode('utf-8')).hexdigest()

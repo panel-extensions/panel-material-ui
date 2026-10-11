@@ -16,6 +16,15 @@ export function component(render, ...wrappers) {
   return {render: wrappers.reduce((wrapped, wrapper) => wrapper(wrapped), render)}
 }
 
+// Loads the render function of a component on first use, letting the bundler
+// split rarely used widgets with large dependencies into separate chunks
+export function lazy(load) {
+  const Lazy = React.lazy(() => load().then((mod) => ({default: mod.render})))
+  return function LazyRender(props) {
+    return <React.Suspense fallback={null}><Lazy {...props}/></React.Suspense>
+  }
+}
+
 export function withTheme(Component) {
   return function Themed(props) {
     const theme = install_theme_hooks(props)
