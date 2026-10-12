@@ -312,7 +312,8 @@ class MaterialComponent(ReactComponent):
 
     dark_theme = param.Boolean(doc="""
         Whether to use dark theme. If not specified, will default to Panel's
-        global theme setting.""")
+        global theme setting. When rendered in a VSCode or JupyterLab
+        notebook the editor theme takes precedence.""")
 
     loading = param.Boolean(default=False, doc="""
         If True displays a loading spinner on top of the component.""")

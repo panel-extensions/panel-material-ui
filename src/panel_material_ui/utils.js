@@ -39,6 +39,35 @@ export class SessionStore {
 
 export const dark_mode = new SessionStore()
 
+// Notebook frontends advertise their theme on the document body, VSCode
+// in its output webview and JupyterLab in the main document.
+function host_dark_mode() {
+  const vscode = document.body?.dataset.vscodeThemeKind
+  if (vscode != null) {
+    return vscode === "vscode-dark" || vscode === "vscode-high-contrast"
+  }
+  const jupyterlab = document.body?.dataset.jpThemeLight
+  if (jupyterlab != null) {
+    return jupyterlab === "false"
+  }
+  return null
+}
+
+const host_theme = new SessionStore()
+let host_observer = null
+
+function watch_host_theme(callback) {
+  if (host_observer == null && document.body != null) {
+    host_theme.set_value(host_dark_mode())
+    host_observer = new MutationObserver(() => host_theme.set_value(host_dark_mode()))
+    host_observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-vscode-theme-kind", "data-jp-theme-light"],
+    })
+  }
+  return host_theme.subscribe(callback)
+}
+
 export function render_theme_css(theme) {
   const dark = theme.palette.mode === "dark"
   return `
@@ -1436,10 +1465,12 @@ export const install_theme_hooks = (props) => {
   // Sync local dark_mode with global dark mode
   const isFirstRender = React.useRef(true)
   React.useEffect(() => {
-    if (isFirstRender.current && dark_mode.get_value() != null) {
+    if (isFirstRender.current) {
       isFirstRender.current = false
-      setDarkTheme(dark_mode.get_value())
-      return
+      if (dark_mode.get_value() != null) {
+        setDarkTheme(dark_mode.get_value())
+        return
+      }
     }
     dark_mode.set_value(dark_theme)
   }, [dark_theme])
@@ -1475,6 +1506,13 @@ export const install_theme_hooks = (props) => {
     sync()
     page.model_proxy.on("dark_theme", sync)
     return () => page.model_proxy.off("dark_theme", sync)
+  }, [])
+
+  React.useEffect(() => {
+    const cb = (dark) => dark != null && setDarkTheme(dark)
+    const unwatch = watch_host_theme(cb)
+    cb(host_theme.get_value())
+    return unwatch
   }, [])
 
   React.useEffect(() => {
