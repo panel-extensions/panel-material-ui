@@ -272,11 +272,14 @@ import {{render_icon_text as render_tooltip_icon_text}} from "./utils";
 
 {esm}
 
+// Created once, since a new forwardRef component type on every render would
+// remount the wrapped component whenever the tooltip re-renders.
+const Wrapped{input} = React.forwardRef({input})
+
 function {output}(props, ref) {{
   const [description] = props.model.useState("description")
   const [description_delay] = props.model.useState("description_delay")
 
-  const Wrapped{input} = React.forwardRef({input})
   return (description ? (
     <Tooltip
       title={{render_tooltip_icon_text(description)}}
@@ -309,7 +312,8 @@ class MaterialComponent(ReactComponent):
 
     dark_theme = param.Boolean(doc="""
         Whether to use dark theme. If not specified, will default to Panel's
-        global theme setting.""")
+        global theme setting. When rendered in a VSCode or JupyterLab
+        notebook the editor theme takes precedence.""")
 
     loading = param.Boolean(default=False, doc="""
         If True displays a loading spinner on top of the component.""")

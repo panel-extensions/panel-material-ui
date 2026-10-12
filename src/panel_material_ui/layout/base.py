@@ -754,18 +754,18 @@ class MaterialDynamicNamedListLike(MaterialNamedListLike):
             self.param.trigger("objects")
 
     def _get_child_model(self, child, doc, root, parent, comm):
-        if child is not self.objects or not self.dynamic:
+        # Other children, e.g. the headers, are always rendered
+        if child is not self.objects:
             return super()._get_child_model(child, doc, root, parent, comm)
         ref = root.ref["id"]
         models, old_models = [], []
         for i, sv in enumerate(child):
-            if not self._is_active(i):
+            if self.dynamic and not self._is_active(i):
                 model = BkSpacer()
-            elif ref in sv._models:
-                model = sv._models[ref][0]
-                old_models.append(model)
             else:
-                model = sv._get_model(doc, root, parent, comm)
+                if ref in sv._models:
+                    old_models.append(sv._models[ref][0])
+                model = _acquire_model(sv, doc, root, parent, comm)
             models.append(model)
         return models, old_models
 
@@ -1013,24 +1013,6 @@ class Tabs(MaterialDynamicNamedListLike):
 
     def _is_active(self, index: int) -> bool:
         return index == self.active
-
-    @param.depends("active", watch=True)
-    def _trigger_children(self):
-        if self.dynamic:
-            self.param.trigger("objects")
-
-    def _get_child_model(self, child, doc, root, parent, comm):
-        ref = root.ref["id"]
-        models, old_models = [], []
-        for i, sv in enumerate(child):
-            if self.dynamic and i != self.active:
-                model = BkSpacer()
-            else:
-                if ref in sv._models:
-                    old_models.append(sv._models[ref][0])
-                model = _acquire_model(sv, doc, root, parent, comm)
-            models.append(model)
-        return models, old_models
 
     def _handle_msg(self, msg):
         if msg.get('type') == 'close':

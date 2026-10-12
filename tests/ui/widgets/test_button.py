@@ -32,6 +32,19 @@ def test_button_focus(page):
     widget.focus()
     expect(button).to_be_focused()
 
+def test_button_with_description_keeps_dom_node_on_update(page):
+    widget = Button(label='Click', description='Help')
+    serve_component(page, widget)
+    button = page.locator('.MuiButton-root')
+    expect(button).to_have_count(1)
+    handle = button.element_handle()
+
+    widget.description = 'More help'
+    widget.label = 'Updated'
+
+    expect(button).to_contain_text('Updated')
+    assert handle.evaluate('el => el.isConnected')
+
 def test_button_on_click(page):
     events = []
     def cb(event):

@@ -25,7 +25,6 @@ export function render({model, el, view}) {
   const [oldValue, setOldValue] = React.useState(value)
   const [focused, setFocused] = React.useState(false)
   const [editableValue, setEditableValue] = React.useState(value)
-  const [valueLabel, setValueLabel] = React.useState()
 
   const ref = React.useRef(null)
   React.useEffect(() => {
@@ -60,9 +59,9 @@ export function render({model, el, view}) {
     setEditableValue(value)
   }, [value])
 
-  React.useEffect(() => {
-    setValueLabel(format && !focused ? format.doFormat([value], {loc: 0})[0] : editableValue)
-  }, [format, value, editableValue, focused])
+  // Derived during render, since updating it in an effect leaves the input
+  // showing the previous text for a render and drops fast keystrokes
+  const valueLabel = (format && !focused ? format.doFormat([value], {loc: 0})[0] : editableValue) ?? ""
 
   const increment = (multiplier = 1) => {
     setOldValue(value)
