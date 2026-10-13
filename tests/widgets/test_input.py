@@ -1,11 +1,12 @@
 from datetime import date, datetime
 
 import numpy as np
+import param
 import pytest
 from panel import config
 
 from panel_material_ui.chat import ChatAreaInput
-from panel_material_ui.widgets import ArrayInput, DatePicker, DatetimeInput, DatetimeRangeInput, FloatInput, IntInput, StaticText
+from panel_material_ui.widgets import ArrayInput, DatePicker, DatetimeInput, DatetimeRangeInput, FloatInput, IntInput, StaticText, Switch, ToggleIcon
 
 
 @pytest.mark.from_panel
@@ -249,3 +250,12 @@ def test_static_text_escapes_non_string_values(document, comm):
 
     widget.value = None
     assert model.data.value == ''
+
+
+@pytest.mark.parametrize("widget", [Switch, ToggleIcon])
+def test_toggle_widgets_integer_width(widget):
+    assert isinstance(widget.param.width, param.Integer)
+    assert widget().width is None
+    assert widget(width=100).width == 100
+    with pytest.raises(ValueError):
+        widget(width=-1)
