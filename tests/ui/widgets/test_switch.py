@@ -21,3 +21,10 @@ def test_switch_focus(page):
     expect(switch).to_have_count(1)
     widget.focus()
     expect(switch).to_be_focused()
+
+def test_switch_width(page):
+    widget = Switch(label='Test Switch', width=200)
+    serve_component(page, widget)
+    switch = page.locator('.switch')
+    expect(switch).to_have_count(1)
+    assert switch.bounding_box()['width'] == 200
