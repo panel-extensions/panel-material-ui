@@ -20,6 +20,14 @@ def test_toggle_icon(page):
     expect(icon).to_have_text("thumb-down")
 
 
+def test_toggle_icon_width(page):
+    widget = ToggleIcon(icon="favorite", width=120)
+    serve_component(page, widget)
+    icon = page.locator('.toggle-icon')
+    expect(icon).to_have_count(1)
+    assert icon.bounding_box()['width'] == 120
+
+
 def test_toggle_icon_active_icon_not_outlined(page):
     # When an active_icon is provided, the inactive icon should NOT be
     # forced to the outlined variant.

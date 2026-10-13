@@ -1559,7 +1559,7 @@ class Switch(MaterialWidget):
 
     value = param.Boolean(default=False)
 
-    width = param.Boolean(default=None)
+    width = param.Integer(default=None, bounds=(0, None), allow_None=True, doc="Width of the widget.")
 
     _esm_base = "Switch.jsx"
     _esm_transforms = [LoadingTransform, ThemedTransform]
