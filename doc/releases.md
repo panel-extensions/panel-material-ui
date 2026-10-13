@@ -1,5 +1,26 @@
 # Release Notes
 
+## Version 0.16.2
+
+Panel Material UI 0.16.2 makes components follow the editor theme when they are displayed in VSCode and JupyterLab notebooks, adds a `dynamic` option to [`Accordion`](https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html) that only renders expanded cards, and fixes `Switch` and `ToggleIcon` rejecting an integer `width`.
+
+Many thanks to @philippjfr and @ghostiee-11 for their contributions to this release.
+
+### 🔧 Enhancements
+
+* Follow the editor theme in VSCode and JupyterLab notebooks, switching components between light and dark whenever the editor theme changes ([#764](https://github.com/panel-extensions/panel-material-ui/pull/764))
+* Add a `dynamic` option to [`Accordion`](https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html), matching [`Tabs`](https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html), so the contents of a card are only rendered while it is expanded ([#757](https://github.com/panel-extensions/panel-material-ui/pull/757))
+* Support `focus()` on [`Player`](https://panel-material-ui.holoviz.org/reference/widgets/Player.html) and [`DiscretePlayer`](https://panel-material-ui.holoviz.org/reference/widgets/DiscretePlayer.html), focusing the slider so the arrow keys step through frames ([#758](https://github.com/panel-extensions/panel-material-ui/pull/758))
+
+### 🐛 Bug Fixes
+
+* Accept an integer `width` on [`Switch`](https://panel-material-ui.holoviz.org/reference/widgets/Switch.html) and [`ToggleIcon`](https://panel-material-ui.holoviz.org/reference/widgets/ToggleIcon.html), as on their classic Panel counterparts ([#766](https://github.com/panel-extensions/panel-material-ui/pull/766))
+* Stop the tooltip wrapper from remounting buttons and other widgets with a `description`, which lost their focus, state and open popovers on re-render ([#760](https://github.com/panel-extensions/panel-material-ui/pull/760))
+* Keep a component's `dark_theme` change instead of reverting it to the global dark mode store's value when the store was empty on first render ([#764](https://github.com/panel-extensions/panel-material-ui/pull/764))
+* Stop number inputs from dropping keystrokes when typing quickly ([#763](https://github.com/panel-extensions/panel-material-ui/pull/763))
+* Render the headers of inactive tabs when [`Tabs`](https://panel-material-ui.holoviz.org/reference/layouts/Tabs.html) is `dynamic` ([#762](https://github.com/panel-extensions/panel-material-ui/pull/762))
+* Register `Tabs` and `Feed` as users of child models shared with other layouts, so removing a component from one layout no longer breaks it in the other ([#759](https://github.com/panel-extensions/panel-material-ui/pull/759))
+
 ## Version 0.16.1
 
 Panel Material UI 0.16.1 renders menus, dropdowns, pickers, tooltips, popups and dialogs in the browser top layer, so they no longer end up behind or clipped by other components, and renders a [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) inline when it is displayed in a notebook.
