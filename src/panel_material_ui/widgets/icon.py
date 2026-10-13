@@ -70,7 +70,7 @@ class ToggleIcon(_ClickableIcon):
         Delay (in milliseconds) to display the tooltip after the cursor has
         hovered over the Button, default is 1000ms.""")
 
-    width = param.Boolean(default=None)
+    width = param.Integer(default=None, bounds=(0, None), allow_None=True, doc="Width of the widget.")
 
     _esm_transforms = [TooltipTransform, LoadingTransform, ThemedTransform]
 
