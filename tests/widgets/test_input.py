@@ -6,7 +6,7 @@ import pytest
 from panel import config
 
 from panel_material_ui.chat import ChatAreaInput
-from panel_material_ui.widgets import ArrayInput, DatePicker, DatetimeInput, DatetimeRangeInput, FloatInput, IntInput, StaticText, Switch, ToggleIcon
+from panel_material_ui.widgets import ArrayInput, DatePicker, DatetimeInput, DatetimeRangeInput, FloatInput, IntInput, StaticText, Switch
 
 
 @pytest.mark.from_panel
@@ -252,10 +252,9 @@ def test_static_text_escapes_non_string_values(document, comm):
     assert model.data.value == ''
 
 
-@pytest.mark.parametrize("widget", [Switch, ToggleIcon])
-def test_toggle_widgets_integer_width(widget):
-    assert isinstance(widget.param.width, param.Integer)
-    assert widget().width is None
-    assert widget(width=100).width == 100
+def test_switch_width():
+    assert isinstance(Switch.param.width, param.Integer)
+    assert Switch().width is None
+    assert Switch(width=100).width == 100
     with pytest.raises(ValueError):
-        widget(width=-1)
+        Switch(width=-1)
