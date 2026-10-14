@@ -40,7 +40,8 @@ export class SessionStore {
 export const dark_mode = new SessionStore()
 
 // Notebook frontends advertise their theme on the document body, VSCode
-// in its output webview and JupyterLab in the main document.
+// in its output webview and JupyterLab in the main document, while nteract
+// output frames and pydata-sphinx-theme set data-theme on the root element.
 function host_dark_mode() {
   const vscode = document.body?.dataset.vscodeThemeKind
   if (vscode != null) {
@@ -49,6 +50,10 @@ function host_dark_mode() {
   const jupyterlab = document.body?.dataset.jpThemeLight
   if (jupyterlab != null) {
     return jupyterlab === "false"
+  }
+  const root_theme = document.documentElement.dataset.theme
+  if (root_theme === "dark" || root_theme === "light") {
+    return root_theme === "dark"
   }
   return null
 }
@@ -63,6 +68,10 @@ function watch_host_theme(callback) {
     host_observer.observe(document.body, {
       attributes: true,
       attributeFilter: ["data-vscode-theme-kind", "data-jp-theme-light"],
+    })
+    host_observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
     })
   }
   return host_theme.subscribe(callback)
@@ -1476,10 +1485,8 @@ export const install_theme_hooks = (props) => {
   }, [dark_theme])
 
   React.useEffect(() => {
-    // If the page has a data-theme attribute (e.g. from pydata-sphinx-theme), use it to set the dark theme
-    const page_theme = document.documentElement.dataset.theme
     const params = new URLSearchParams(window.location.search);
-    if (page_theme === "dark" || params.get("theme") === "dark") {
+    if (params.get("theme") === "dark") {
       setDarkTheme(true)
     }
 
