@@ -1,8 +1,9 @@
+import * as React from "react"
 import Box from "@mui/material/Box"
 import CircularProgress from "@mui/material/CircularProgress"
 import Typography from "@mui/material/Typography"
 import {useTheme} from "@mui/material/styles"
-import {render_icon_text} from "./utils"
+import {render_icon_text} from "../utils"
 
 const CIRCULAR_PROGRESS_ROOT_SX = {display: "flex", alignItems: "center", flexDirection: "row"}
 const CIRCULAR_PROGRESS_CONTAINER_SX = {position: "relative", overflow: "hidden"}

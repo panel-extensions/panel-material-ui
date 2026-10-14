@@ -1,7 +1,8 @@
+import * as React from "react"
 import Box from "@mui/material/Box"
 import Checkbox from "@mui/material/Checkbox"
 import Typography from "@mui/material/Typography"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text} from "../utils"
 
 const SIZES = {
   small: "1.5em",

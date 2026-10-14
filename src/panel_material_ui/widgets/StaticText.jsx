@@ -1,8 +1,9 @@
+import * as React from "react"
 import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
 import Typography from "@mui/material/Typography"
-import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {render_description} from "../description"
+import {render_icon_text} from "../utils"
 
 export function render({model, el, view}) {
   const [disabled] = model.useState("disabled")

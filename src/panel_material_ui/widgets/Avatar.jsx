@@ -1,5 +1,6 @@
+import * as React from "react"
 import Avatar from "@mui/material/Avatar"
-import {render_icon_text, render_icon_text_as_string} from "./utils"
+import {render_icon_text, render_icon_text_as_string} from "../utils"
 
 const sizeSettings = {
   small: {width: 24, height: 24},

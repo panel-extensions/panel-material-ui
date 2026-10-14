@@ -1,9 +1,10 @@
+import * as React from "react"
 import Autocomplete from "@mui/material/Autocomplete"
 import InputAdornment from "@mui/material/InputAdornment"
 import Popper from "@mui/material/Popper"
 import TextField from "@mui/material/TextField"
-import {render_description} from "./description"
-import {parse_icon_text, render_icon_segment, render_icon_text, render_icon_text_as_string, overlay_container} from "./utils"
+import {render_description} from "../description"
+import {parse_icon_text, render_icon_segment, render_icon_text, render_icon_text_as_string, overlay_container} from "../utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")

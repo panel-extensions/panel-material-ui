@@ -1,3 +1,4 @@
+import * as React from "react"
 import Divider from "@mui/material/Divider";
 
 export function render({model}) {

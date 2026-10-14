@@ -1,5 +1,5 @@
+import * as React from "react"
 import {DayPicker} from "react-day-picker"
-import "react-day-picker/style.css"
 import TextField from "@mui/material/TextField"
 import Paper from "@mui/material/Paper"
 import Popper from "@mui/material/Popper"
@@ -13,7 +13,7 @@ import Typography from "@mui/material/Typography"
 import {useTheme} from "@mui/material/styles"
 import useMediaQuery from "@mui/material/useMediaQuery"
 import dayjs from "dayjs"
-import {MUI_SIZE, denseSx, render_icon_text, overlay_container} from "./utils"
+import {MUI_SIZE, denseSx, render_icon_text, overlay_container} from "../utils"
 
 function formatDate(date, format) {
   if (!date) { return "" }

@@ -1,3 +1,4 @@
+import * as React from "react"
 import {styled} from "@mui/material/styles"
 import Box from "@mui/material/Box"
 import Card from "@mui/material/Card"
@@ -11,7 +12,7 @@ import ErrorIcon from "@mui/icons-material/Error"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked"
 import Typography from "@mui/material/Typography"
-import {apply_flex, render_icon_text} from "./utils"
+import {apply_flex, render_icon_text} from "../utils"
 
 const STATUS_SIZE = 20
 // Lines the body up with the title: header padding, status icon and its

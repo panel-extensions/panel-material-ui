@@ -1,3 +1,4 @@
+import * as React from "react"
 import InputLabel from "@mui/material/InputLabel"
 import FormControl from "@mui/material/FormControl"
 import FormHelperText from "@mui/material/FormHelperText"
@@ -5,8 +6,8 @@ import Select from "@mui/material/Select"
 import OutlinedInput from "@mui/material/OutlinedInput"
 import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
-import {DESCRIPTION_LABEL_SPACER, render_description} from "./description"
-import {MUI_SIZE, denseSx, render_icon_text, render_icon_text_as_string} from "./utils"
+import {DESCRIPTION_LABEL_SPACER, render_description} from "../description"
+import {MUI_SIZE, denseSx, render_icon_text, render_icon_text_as_string} from "../utils"
 
 export function render({model, view, el}) {
   const [color] = model.useState("color")

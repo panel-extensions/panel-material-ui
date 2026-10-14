@@ -1,3 +1,4 @@
+import * as React from "react"
 import Box from "@mui/material/Box"
 import Chip from "@mui/material/Chip"
 import Button from "@mui/material/Button"
@@ -18,9 +19,9 @@ import FilledInput from "@mui/material/FilledInput"
 import Input from "@mui/material/Input"
 import Typography from "@mui/material/Typography"
 import ListSubheader from "@mui/material/ListSubheader"
-import {DESCRIPTION_LABEL_SPACER, render_description} from "./description"
-import {CustomMenu, detect_nb} from "./menu"
-import {render_icon_text, render_icon_text_as_string, MUI_SIZE, denseSx, denseInputLabelSx, overlay_container} from "./utils"
+import {DESCRIPTION_LABEL_SPACER, render_description} from "../description"
+import {CustomMenu, detect_nb} from "../menu"
+import {render_icon_text, render_icon_text_as_string, MUI_SIZE, denseSx, denseInputLabelSx, overlay_container} from "../utils"
 
 const SELECT_BASE_SX = {padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}}
 

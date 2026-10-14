@@ -1,8 +1,9 @@
+import * as React from "react"
 import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
 import Icon from "@mui/material/Icon"
 import Rating from "@mui/material/Rating"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text} from "../utils"
 
 const SIZES = {
   small: "1.5em",

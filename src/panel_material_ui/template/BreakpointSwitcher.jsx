@@ -1,3 +1,4 @@
+import * as React from "react"
 import Box from "@mui/material/Box"
 import useMediaQuery from "@mui/material/useMediaQuery"
 import {useTheme} from "@mui/material/styles"

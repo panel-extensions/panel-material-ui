@@ -1,5 +1,6 @@
+import * as React from "react"
 import Container from "@mui/material/Container"
-import {apply_flex} from "./utils"
+import {apply_flex} from "../utils"
 
 const CONTAINER_BASE_SX = {
   height: "100%",

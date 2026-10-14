@@ -1,3 +1,4 @@
+import * as React from "react"
 import {styled, useTheme} from "@mui/material/styles"
 import Box from "@mui/material/Box"
 import Collapse from "@mui/material/Collapse"
@@ -6,7 +7,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
-import {apply_flex, render_html_icon_text} from "./utils"
+import {apply_flex, render_html_icon_text} from "../utils"
 
 const DETAILS_BASE_SX = {
   display: "flex",

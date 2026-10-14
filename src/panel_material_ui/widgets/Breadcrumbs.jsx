@@ -1,10 +1,11 @@
+import * as React from "react"
 import Avatar from "@mui/material/Avatar"
 import Breadcrumbs from "@mui/material/Breadcrumbs"
 import Link from "@mui/material/Link"
 import Typography from "@mui/material/Typography"
 import Icon from "@mui/material/Icon"
 import NavigateNextIcon from "@mui/icons-material/NavigateNext"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text} from "../utils"
 import {useTheme, styled} from "@mui/material/styles"
 
 const StyledAvatar = styled(Avatar)(({color, spacing}) => ({

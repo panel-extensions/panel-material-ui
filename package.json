@@ -1,0 +1,31 @@
+{
+  "name": "panel-material-ui-bundle",
+  "private": true,
+  "description": "Builds the panel-material-ui JS bundle.",
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --watch"
+  },
+  "dependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource/roboto": "^5.2.5",
+    "@mui/icons-material": "^9.0.1",
+    "@mui/material": "^9.0.1",
+    "@mui/x-date-pickers": "^9.2.0",
+    "@mui/x-tree-view": "^9.1.0",
+    "dayjs": "^1.11.5",
+    "material-icons": "^1.13.14",
+    "mui-color-input": "^9.0.0",
+    "notistack": "^3.0.2",
+    "react": "^18.3.1",
+    "react-day-picker": "^9.7.0",
+    "react-dom": "^18.3.1",
+    "react-is": "^18.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

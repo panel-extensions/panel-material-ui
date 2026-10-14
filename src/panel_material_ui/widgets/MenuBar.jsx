@@ -1,3 +1,4 @@
+import * as React from "react"
 import Button from "@mui/material/Button"
 import Checkbox from "@mui/material/Checkbox"
 import Divider from "@mui/material/Divider"
@@ -10,8 +11,8 @@ import Radio from "@mui/material/Radio"
 import Toolbar from "@mui/material/Toolbar"
 import Typography from "@mui/material/Typography"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import {CustomMenu} from "./menu"
-import {render_icon, render_icon_text} from "./utils"
+import {CustomMenu} from "../menu"
+import {render_icon, render_icon_text} from "../utils"
 
 function useSubMenus() {
   const [state, setState] = React.useState({index: null, focus: false})

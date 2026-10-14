@@ -1,8 +1,9 @@
+import * as React from "react"
 import Checkbox from "@mui/material/Checkbox"
 import FormControlLabel from "@mui/material/FormControlLabel"
-import {MUI_SIZE, denseLabelSx, denseSx} from "./utils"
-import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {MUI_SIZE, denseLabelSx, denseSx} from "../utils"
+import {render_description} from "../description"
+import {render_icon_text} from "../utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")

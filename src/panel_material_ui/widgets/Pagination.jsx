@@ -1,3 +1,4 @@
+import * as React from "react"
 import Pagination from "@mui/material/Pagination"
 
 export function render({model, view}) {

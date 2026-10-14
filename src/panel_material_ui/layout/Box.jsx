@@ -1,8 +1,9 @@
+import * as React from "react"
 import Box from "@mui/material/Box"
 import {
   apply_flex, child_at_latest, scroll_to_child, scroll_to_latest,
   update_scroll_button, use_latest_scroll_settlement
-} from "./utils"
+} from "../utils"
 
 const BOX_BASE_SX = {
   height: "100%",

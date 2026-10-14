@@ -1,3 +1,4 @@
+import * as React from "react"
 import {Typography} from "@mui/material"
 
 function html_decode(input) {

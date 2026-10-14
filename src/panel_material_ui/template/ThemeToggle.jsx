@@ -1,3 +1,4 @@
+import * as React from "react"
 import DarkMode from "@mui/icons-material/DarkMode"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import LightMode from "@mui/icons-material/LightMode"
@@ -5,7 +6,7 @@ import IconButton from "@mui/material/IconButton"
 import Switch from "@mui/material/Switch"
 import Tooltip from "@mui/material/Tooltip"
 import {useTheme} from "@mui/material/styles"
-import {dark_mode, setup_global_styles} from "./utils"
+import {dark_mode, setup_global_styles} from "../utils"
 
 export function render({model, view}) {
   const theme = useTheme()

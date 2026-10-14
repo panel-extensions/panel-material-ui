@@ -1,10 +1,11 @@
+import * as React from "react"
 import TextField from "@mui/material/TextField"
 import InputAdornment from "@mui/material/InputAdornment"
 import IconButton from "@mui/material/IconButton"
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
-import {float_regex, int_regex, render_icon_text, render_icon_text_as_string} from "./utils"
-import {render_description} from "./description"
+import {float_regex, int_regex, render_icon_text, render_icon_text_as_string} from "../utils"
+import {render_description} from "../description"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")

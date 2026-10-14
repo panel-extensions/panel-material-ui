@@ -1,6 +1,7 @@
+import * as React from "react"
 import {MuiColorInput} from "mui-color-input"
-import {render_description} from "./description"
-import {render_icon_text, overlay_container} from "./utils"
+import {render_description} from "../description"
+import {render_icon_text, overlay_container} from "../utils"
 
 export function render({model, el, view}) {
   const [alpha] = model.useState("alpha")

@@ -1,3 +1,5 @@
+import * as React from "react"
+import Tooltip from "@mui/material/Tooltip"
 import Button from "@mui/material/Button"
 import {styled} from "@mui/material/styles"
 import CircularProgress from "@mui/material/CircularProgress"
@@ -5,7 +7,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import ErrorIcon from "@mui/icons-material/Error"
 import TaskAltIcon from "@mui/icons-material/TaskAlt"
 import {useTheme} from "@mui/material/styles"
-import {isFileAccepted, processFilesChunked, render_icon, render_icon_text} from "./utils"
+import {isFileAccepted, processFilesChunked, render_icon, render_icon_text} from "../utils"
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",

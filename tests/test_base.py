@@ -55,6 +55,16 @@ def test_render_esm_patches_utils_import():
     ) in esm_base
 
 
+def test_render_esm_wraps_with_bundle_transforms():
+    esm_base = _TestComponentESM._render_esm_base()
+    assert esm_base.count('import pnmui from "panel-material-ui"') == 1
+    assert 'const {withLoading} = pnmui;' in esm_base
+    assert 'const {withTheme} = pnmui;' in esm_base
+    assert 'from "./transforms"' not in esm_base
+    assert 'const Themed_TestComponentESM = withTheme(Loading_TestComponentESM)' in esm_base
+    assert esm_base.rstrip().endswith('export default { render: Themed_TestComponentESM }')
+
+
 def test_design_defaults_to_material_design_when_config_design_unset(reset_config_design):
     config.design = None
     component = _TestComponentESM()

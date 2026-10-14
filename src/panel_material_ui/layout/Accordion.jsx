@@ -1,9 +1,10 @@
+import * as React from "react"
 import Accordion from "@mui/material/Accordion"
 import AccordionSummary from "@mui/material/AccordionSummary"
 import AccordionDetails from "@mui/material/AccordionDetails"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
-import {render_html_icon_text} from "./utils"
+import {render_html_icon_text} from "../utils"
 
 export function render({model}) {
   const [active, setActive] = model.useState("active")

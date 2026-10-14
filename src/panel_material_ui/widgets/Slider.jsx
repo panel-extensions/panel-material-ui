@@ -1,3 +1,4 @@
+import * as React from "react"
 import Box from "@mui/material/Box"
 import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
@@ -12,8 +13,8 @@ import Slider from "@mui/material/Slider"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import dayjs from "dayjs"
-import {render_description} from "./description"
-import {MUI_SIZE, denseSx, int_regex, float_regex, render_icon_text, render_icon_text_as_string} from "./utils"
+import {render_description} from "../description"
+import {MUI_SIZE, denseSx, int_regex, float_regex, render_icon_text, render_icon_text_as_string} from "../utils"
 
 const SLIDER_BASE_SX = {
   "& .MuiSlider-track": {

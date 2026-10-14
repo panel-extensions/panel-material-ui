@@ -1,10 +1,11 @@
+import * as React from "react"
 import Dialog from "@mui/material/Dialog"
 import DialogContent from "@mui/material/DialogContent"
 import DialogTitle from "@mui/material/DialogTitle"
 import IconButton from "@mui/material/IconButton"
 import CloseIcon from "@mui/icons-material/Close"
 import Box from "@mui/material/Box"
-import {render_icon_text, overlay_container} from "./utils"
+import {render_icon_text, overlay_container} from "../utils"
 
 export function render({model, view}) {
   const [close_on_click] = model.useState("close_on_click")

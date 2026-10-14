@@ -1,3 +1,4 @@
+import * as React from "react"
 import Stepper from "@mui/material/Stepper"
 import Step from "@mui/material/Step"
 import StepLabel from "@mui/material/StepLabel"
@@ -5,7 +6,7 @@ import StepButton from "@mui/material/StepButton"
 import MobileStepper from "@mui/material/MobileStepper"
 import Button from "@mui/material/Button"
 import Typography from "@mui/material/Typography"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text} from "../utils"
 
 export function render({model}) {
   const [active, setActive] = model.useState("active")

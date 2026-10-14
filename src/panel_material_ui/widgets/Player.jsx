@@ -1,3 +1,4 @@
+import * as React from "react"
 import Box from "@mui/material/Box"
 import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
@@ -19,8 +20,8 @@ import RepeatIcon from "@mui/icons-material/Repeat"
 import SkipNextIcon from "@mui/icons-material/SkipNext"
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious"
 import SyncAltIcon from "@mui/icons-material/SyncAlt"
-import {render_description} from "./description"
-import {render_icon_text, render_icon_text_as_string} from "./utils"
+import {render_description} from "../description"
+import {render_icon_text, render_icon_text_as_string} from "../utils"
 
 const BUTTON_ORDER = [
   "slower", "first", "previous", "reverse", "pause", "play", "next", "last", "faster"
