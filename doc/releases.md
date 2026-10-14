@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version 0.16.3
+
+Panel Material UI 0.16.3 makes components follow the notebook theme in nteract, including nteract embedded in Kilo Desktop, and on pages built with the pydata-sphinx-theme, switching between light and dark whenever the theme changes.
+
+Many thanks to @philippjfr for their contributions to this release.
+
+### 🔧 Enhancements
+
+* Follow the theme advertised through `data-theme` on the root element, as set by nteract output frames and the pydata-sphinx-theme, and track it live alongside the VSCode and JupyterLab themes ([#768](https://github.com/panel-extensions/panel-material-ui/pull/768))
+
 ## Version 0.16.2
 
 Panel Material UI 0.16.2 makes components follow the editor theme when they are displayed in VSCode and JupyterLab notebooks, adds a `dynamic` option to [`Accordion`](https://panel-material-ui.holoviz.org/reference/layouts/Accordion.html) that only renders expanded cards, and fixes `Switch` and `ToggleIcon` rejecting an integer `width`.
