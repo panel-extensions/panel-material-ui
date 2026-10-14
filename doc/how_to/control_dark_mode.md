@@ -50,7 +50,7 @@ Row(Button(name="Hello"), ThemeToggle()).preview()
 
 ## Notebook themes
 
-When rendered in a VSCode or JupyterLab notebook, components follow the editor theme automatically. They pick up the theme when they are first rendered and switch along with it whenever you change the theme in the editor, which takes precedence over `dark_theme` and `pn.extension(theme=...)`. Once rendered, a `ThemeToggle` or `Page` theme toggle can still switch the theme manually until the editor theme changes again.
+When rendered in a VSCode, JupyterLab or nteract notebook (including nteract embedded in Kilo Desktop), components follow the editor theme automatically. They pick up the theme when they are first rendered and switch along with it whenever you change the theme in the editor, which takes precedence over `dark_theme` and `pn.extension(theme=...)`. Once rendered, a `ThemeToggle` or `Page` theme toggle can still switch the theme manually until the editor theme changes again.
 
 ## Overriding dark palette
 
