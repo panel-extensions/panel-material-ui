@@ -693,6 +693,16 @@ class Container(MaterialListLike):
     _esm_base = "Container.jsx"
 
 
+class MaterialWrapper(MaterialListLike):
+    """
+    Provides the Material theme to a component which does not render one
+    itself, e.g. a classic Panel component at the root of a notebook output,
+    so it resolves the same theme variables as in a served application.
+    """
+
+    _esm_base = "MaterialWrapper.jsx"
+
+
 class Grid(MaterialListLike):
     """
     The `Grid` layout is a two-dimensional layout that allows arranging items in a grid.
@@ -1303,6 +1313,7 @@ __all__ = [
     "FlexBox",
     "FloatPanel",
     "Grid",
+    "MaterialWrapper",
     "Paper",
     "Popup",
     "Row",
