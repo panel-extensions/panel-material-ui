@@ -199,15 +199,19 @@ import 'material-icons/iconfont/filled.css';
 import 'material-icons/iconfont/outlined.css';
 import {{ ThemeProvider }} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import {{apply_global_css, install_theme_hooks}} from "./utils"
+import {{apply_global_css, install_theme_hooks, setup_global_styles as setup_root_styles}} from "./utils"
 
 {esm}
 
 function {output}(props) {{
   const theme = install_theme_hooks(props)
   const attached = ("attached" in props.view.model.data.properties) ? props.model.get_child("attached") : []
-  if (props.view.is_root && document.documentElement.getAttribute("data-theme-managed") === "false") {{
+  const theme_managed = document.documentElement.getAttribute("data-theme-managed")
+  if (props.view.is_root && theme_managed === "false") {{
     apply_global_css(props.model, props.view, theme)
+  }} else if (props.view.is_root && theme_managed == null && props.model.class_name !== "Page") {{
+    // Hosts like Jupyter own the document, so the root themes its own output.
+    setup_root_styles(props.view, theme, [], true)
   }}
   return (
     <ThemeProvider theme={{theme}}>
@@ -436,7 +440,7 @@ class MaterialComponent(ReactComponent):
             "react-is": ["*react_is"],
             "react-dom": ["*react_dom"],
             "react/jsx-runtime": [("jsx", "jsxs", "Fragment")],
-            "./utils": [("apply_global_css","install_theme_hooks",)],
+            "./utils": [("apply_global_css","install_theme_hooks","setup_global_styles",)],
             "@mui/material/styles": ["*material_styles"],
             "@mui/material": ["*material_ui"],
         })
@@ -775,8 +779,9 @@ class MaterialUIComponent(MaterialComponent):
                 esm_base, component_name = transform.apply(cls, esm_base, component_name)
             esm_base += f'\nexport default {{ render: {component_name} }}'
         esm_base = esm_base.replace(
-            'import {apply_global_css, install_theme_hooks} from "./utils"',
-            'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks; const apply_global_css = pnmui.apply_global_css;'
+            'import {apply_global_css, install_theme_hooks, setup_global_styles as setup_root_styles} from "./utils"',
+            'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks; '
+            'const apply_global_css = pnmui.apply_global_css; const setup_root_styles = pnmui.setup_global_styles;'
         ).replace(
             'import * as React from "react"', ''
         )

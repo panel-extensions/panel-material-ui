@@ -172,6 +172,13 @@ class MaterialDesign(Material):
     _template_variables = {'material_ui': True}
     _themes = {'dark': MuiDarkTheme, 'default': MuiDefaultTheme}
 
+    def _wrapper(self, viewable):
+        # Served documents are themed by the template, notebook outputs are not.
+        if hasattr(viewable, '_esm_base') or (state.curdoc and state.curdoc.session_context):
+            return viewable
+        from .layout.base import MaterialWrapper
+        return MaterialWrapper(viewable)
+
     @classmethod
     def _get_modifiers(cls, viewable, theme, isolated=None):
         if isolated is None:

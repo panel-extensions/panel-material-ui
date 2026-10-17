@@ -43,7 +43,8 @@ def test_render_esm_base_patches_utils_import():
     esm_base = _TestComponentESM._render_esm_base()
     assert (
         "const install_theme_hooks = pnmui.install_theme_hooks; "
-        "const apply_global_css = pnmui.apply_global_css;"
+        "const apply_global_css = pnmui.apply_global_css; "
+        "const setup_root_styles = pnmui.setup_global_styles;"
     ) in esm_base
 
 
@@ -51,7 +52,8 @@ def test_render_esm_patches_utils_import():
     esm_base = _TestComponentESMBase._render_esm_base()
     assert (
         "const install_theme_hooks = pnmui.install_theme_hooks; "
-        "const apply_global_css = pnmui.apply_global_css;"
+        "const apply_global_css = pnmui.apply_global_css; "
+        "const setup_root_styles = pnmui.setup_global_styles;"
     ) in esm_base
 
 
@@ -105,3 +107,37 @@ def test_material_ui_component_keeps_its_class_name(document):
     props = _TestComponentESM()._get_properties(document)
     assert props['bundle'] is None
     assert props['class_name'] == '_TestComponentESM'
+
+
+def test_design_wraps_classic_root_in_notebook(document, comm):
+    import panel as pn
+    from panel.io.state import state
+
+    from panel_material_ui.layout import MaterialWrapper
+
+    md = pn.pane.Markdown("Hello")
+    md._design = MaterialDesign()
+    root = md.get_root(document, comm=comm)
+
+    wrapper = state._views[root.ref['id']][0]
+    assert isinstance(wrapper, MaterialWrapper)
+    assert wrapper.objects == [md]
+    assert root.data.objects[0] is md._models[root.ref['id']][0]
+
+
+def test_design_does_not_wrap_material_root_in_notebook(document, comm):
+    from panel.io.state import state
+
+    button = Button(label="Click")
+    root = button.get_root(document, comm=comm)
+
+    assert state._views[root.ref['id']][0] is button
+
+
+def test_design_does_not_wrap_classic_root_when_served(server_document):
+    import panel as pn
+
+    md = pn.pane.Markdown("Hello")
+    md._design = MaterialDesign()
+
+    assert md._design._wrapper(md) is md

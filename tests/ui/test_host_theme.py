@@ -6,6 +6,7 @@ import panel as pn
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
+from panel_material_ui.layout import MaterialWrapper
 from panel_material_ui.widgets import Button
 
 pytestmark = pytest.mark.ui
@@ -45,3 +46,64 @@ def test_host_theme_applied_on_mount(page):
     col.append(button)
     wait_until(lambda: button.dark_theme, page)
     expect(page.locator(".mui-dark .MuiButton-root")).to_have_count(1)
+
+
+def strip_theme_managed(page):
+    # Emulates a host like Jupyter, which owns the document element.
+    page.add_init_script("""
+      new MutationObserver((_, observer) => {
+        if (document.documentElement) {
+          document.documentElement.removeAttribute("data-theme-managed")
+          observer.disconnect()
+        }
+      }).observe(document, {childList: true})
+    """)
+
+
+@pytest.mark.parametrize('managed', [True, False])
+def test_wrapped_classic_root_resolves_theme_variables(page, managed):
+    if not managed:
+        strip_theme_managed(page)
+    md = pn.pane.Markdown("Hello")
+    serve_component(page, MaterialWrapper(md))
+    expect(page.locator(".markdown")).to_have_count(1)
+
+    assert page.evaluate(
+        "() => document.documentElement.hasAttribute('data-theme-managed')"
+    ) is managed
+    divider = page.locator(".markdown").evaluate(
+        "el => getComputedStyle(el).getPropertyValue('--mui-palette-divider').trim()"
+    )
+    assert divider
+
+
+def test_unmanaged_root_does_not_style_host_document(page):
+    strip_theme_managed(page)
+    serve_component(page, MaterialWrapper(pn.pane.Markdown("Hello")))
+    expect(page.locator(".markdown")).to_have_count(1)
+
+    assert page.evaluate("() => document.head.querySelector('#global-styles-panel-mui')") is None
+    assert page.evaluate("""() => [...document.querySelectorAll('*')].some(
+      el => el.shadowRoot?.querySelector('#global-styles-panel-mui')
+    )""")
+    assert page.evaluate(
+        "() => getComputedStyle(document.documentElement).getPropertyValue('--mui-palette-divider').trim()"
+    ) == ''
+
+
+def test_unmanaged_root_follows_host_theme(page):
+    strip_theme_managed(page)
+    md = pn.pane.Markdown("Hello")
+    wrapper = MaterialWrapper(md)
+    serve_component(page, wrapper)
+    expect(page.locator(".markdown")).to_have_count(1)
+
+    def divider():
+        return page.locator(".markdown").evaluate(
+            "el => getComputedStyle(el).getPropertyValue('--mui-palette-divider').trim()"
+        )
+    light = divider()
+
+    set_body_data(page, 'jpThemeLight', 'false')
+    wait_until(lambda: wrapper.dark_theme, page)
+    wait_until(lambda: divider() not in ('', light), page)
