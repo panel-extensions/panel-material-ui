@@ -293,10 +293,13 @@ export function render({model, el, view}) {
     return sx || undefined
   }, [orientation, sx])
   const sliderSx = React.useMemo(() => {
-    const orientationSx = orientation !== "vertical" ? {width: "100%"} : {}
+    // MUI centres the thumbs on the rail ends, so at start/end they overhang the
+    // widget by half their width and collide with the container edge.
+    const thumbInset = (size === "small" ? 12 : 20) / 2
+    const orientationSx = orientation !== "vertical" ? {width: `calc(100% - ${2 * thumbInset}px)`, mx: `${thumbInset}px`} : {}
     const baseSx = bar_color == null ? [] : [SLIDER_BASE_SX]
     return sx ? [...baseSx, orientationSx, sx] : [...baseSx, orientationSx]
-  }, [sx, orientation, bar_color])
+  }, [sx, orientation, bar_color, size])
   const sliderStyle = React.useMemo(() => {
     return bar_color == null ? undefined : {"--pmui-slider-bar-color": bar_color}
   }, [bar_color])

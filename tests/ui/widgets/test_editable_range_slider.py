@@ -332,7 +332,7 @@ def test_editable_range_slider_sync_input_slider(page):
 
     # Test slider updates input
     slider.first.drag_to(page.locator(".MuiSlider-rail"), target_position={"x": 40, "y": 0})
-    expect(inputs.nth(0)).to_have_value("1.30")  # Should update input value
+    expect(inputs.nth(0)).to_have_value("1.40")  # Should update input value
 
     # Test both inputs and thumbs stay in sync
     inputs.nth(1).fill("6.5")
