@@ -2296,5 +2296,6 @@ export const denseLabelSx = (size, kind) => {
 
 export const denseSx = (size, sx) => {
   const base = DENSE_CONTROL_SX[size] || DENSE_CONTROL_SX.medium
-  return sx ? [base, sx] : base
+  // MUI ignores arrays nested inside an sx array, so callers' sx arrays are spread.
+  return sx ? [base, ...(Array.isArray(sx) ? sx : [sx])] : base
 }

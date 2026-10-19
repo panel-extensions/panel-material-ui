@@ -7,7 +7,7 @@ from panel import config
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
-from panel_material_ui.widgets import DiscreteSlider, EditableFloatSlider, EditableIntSlider, IntSlider, LinearProgress, Rating
+from panel_material_ui.widgets import DiscreteSlider, EditableFloatSlider, EditableIntSlider, IntSlider, LinearProgress, RangeSlider, Rating
 
 pytestmark = pytest.mark.ui
 
@@ -86,6 +86,26 @@ def test_slider_vertical_orientation(page):
 
     expect(page.locator('.MuiSlider-vertical')).to_have_count(1)
     assert page.locator('.MuiSlider-rail').evaluate("el => el.offsetHeight") == 277
+
+
+@pytest.mark.parametrize('size', ['small', 'medium'])
+def test_range_slider_thumbs_stay_within_widget(page, size):
+    widget = RangeSlider(value=(0, 10), start=0, end=10, size=size, width=300)
+    serve_component(page, widget)
+
+    root = page.locator('.MuiFormControl-root').bounding_box()
+    thumbs = page.locator('.MuiSlider-thumb')
+    expect(thumbs).to_have_count(2)
+    first, last = thumbs.nth(0).bounding_box(), thumbs.nth(1).bounding_box()
+    assert first['x'] == pytest.approx(root['x'], abs=1)
+    assert last['x'] + last['width'] == pytest.approx(root['x'] + root['width'], abs=1)
+
+
+def test_slider_bar_color(page):
+    widget = IntSlider(value=5, start=0, end=10, bar_color='#ff0000')
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiSlider-track')).to_have_css('background-color', 'rgb(255, 0, 0)')
 
 
 def test_slider_format_str(page):
