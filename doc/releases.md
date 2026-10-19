@@ -1,5 +1,19 @@
 # Release Notes
 
+## Version 0.16.4
+
+Panel Material UI 0.16.4 themes classic components displayed on their own in a notebook, so a `pn.ui.Tabulator` or Bokeh plot in a notebook output looks the same as in a served application without restyling the rest of the notebook, and keeps slider thumbs within the bounds of the widget.
+
+Many thanks to @philippjfr for their contributions to this release.
+
+### 🔧 Enhancements
+
+* Theme classic components at the root of a notebook output, giving them the same Material theme variables and Bokeh theme as in a served application, scoped to the output and following the notebook theme ([#770](https://github.com/panel-extensions/panel-material-ui/pull/770))
+
+### 🐛 Bug Fixes
+
+* Keep the thumbs of [`IntSlider`](https://panel-material-ui.holoviz.org/reference/widgets/IntSlider.html), [`RangeSlider`](https://panel-material-ui.holoviz.org/reference/widgets/RangeSlider.html) and the other sliders within the widget at their start and end values instead of overhanging the container edge ([#771](https://github.com/panel-extensions/panel-material-ui/pull/771))
+
 ## Version 0.16.3
 
 Panel Material UI 0.16.3 makes components follow the notebook theme in nteract, including nteract embedded in Kilo Desktop, and on pages built with the pydata-sphinx-theme, switching between light and dark whenever the theme changes.
