@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "paths": {
+      "*": ["./build/node_modules/*", "./build/node_modules/@types/*"]
+    },
+    "typeRoots": ["./build/node_modules/@types"],
+    "rootDirs": [
+      "src/panel_material_ui",
+      "src/panel_material_ui/chat",
+      "src/panel_material_ui/layout",
+      "src/panel_material_ui/pane",
+      "src/panel_material_ui/template",
+      "src/panel_material_ui/widgets",
+      "src/panel_material_ui/wrappers"
+    ]
+  },
+  "include": ["src/**/*.js", "src/**/*.jsx"],
+  "exclude": ["src/panel_material_ui/dist", "build"]
+}
