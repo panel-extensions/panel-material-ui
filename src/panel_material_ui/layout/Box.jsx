@@ -174,12 +174,15 @@ export function render({model, view}) {
       flexDirection: flex_direction,
     }
   }
+  const childDirection = flexDirection === "flex" ? (props.flexDirection?.startsWith("column") ? "column" : "row") : flexDirection
+  const childDirectionRef = React.useRef(childDirection)
+  childDirectionRef.current = childDirection
 
   React.useEffect(() => {
     const handler = () => {
       layoutUpdatedRef.current = true
       objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), flexDirection)
+        apply_flex(view.get_child_view(model.objects[index]), childDirectionRef.current)
       })
       if (pendingScrollLatestRef.current) {
         scrollToLatest()
@@ -203,7 +206,7 @@ export function render({model, view}) {
       sx={boxSx}
     >
       {objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), flexDirection)
+        apply_flex(view.get_child_view(model.objects[index]), childDirection)
         return object
       })}
       {managedScroll && scroll_button_threshold > 0 && (

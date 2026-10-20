@@ -1554,7 +1554,7 @@ export function apply_flex(view, direction) {
   const flex = (() => {
     const policy = direction == "row" ? sizing.width_policy : sizing.height_policy
     const size = direction == "row" ? sizing.width : sizing.height
-    const basis = size != null ? (isNumber(size) ? `${size}px` : value) : "auto"
+    const basis = size != null ? (isNumber(size) ? `${size}px` : size) : "auto"
     switch (policy) {
       case "auto":
       case "fixed": return `0 0 ${basis}`

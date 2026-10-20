@@ -582,6 +582,13 @@ class FlexBox(MaterialListLike):
     _esm_base = "Box.jsx"
     _constants = {"direction": "flex"}
 
+    def __init__(self, *objects, **params):
+        # Children with no fixed size would otherwise collapse the container to zero width
+        if 'sizing_mode' not in params:
+            direction = params.get('flex_direction', self.flex_direction)
+            params['sizing_mode'] = 'stretch_width' if direction.startswith('row') else 'stretch_height'
+        super().__init__(*objects, **params)
+
 
 class PaperMixin(param.Parameterized):
     """
