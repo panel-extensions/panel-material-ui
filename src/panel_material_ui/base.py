@@ -57,6 +57,12 @@ from ._watcher import (
 )
 from .theme import PANEL_DESIGN_HOOKS, THEME_MANAGED_VAR, MaterialDesign
 
+try:
+    from panel.io.resources import notebook_extension_url
+except ImportError:
+    def notebook_extension_url(path: str) -> str | None:
+        return None
+
 if t.TYPE_CHECKING:
     from bokeh.document import Document
     from bokeh.model import Model
@@ -446,10 +452,18 @@ class MaterialComponent(ReactComponent):
         })
         return exports
 
+    @classmethod
+    def _notebook_endpoint(cls) -> bool:
+        """
+        Whether notebook output loads the bundle from the Jupyter server
+        extension rather than the CDN.
+        """
+        return not config.autoreload and notebook_extension_url('static/extensions/panel-material-ui/') is not None
+
     @classproperty
     def _bundle_css(cls):
         from panel.io.resources import RESOURCE_MODE
-        if not config.autoreload and ('cdn' in (RESOURCE_MODE, _settings.resources(default='server'))):
+        if not config.autoreload and not cls._notebook_endpoint() and ('cdn' in (RESOURCE_MODE, _settings.resources(default='server'))):
             return [CDN_DIST.replace('.js', '.css')]
         esm_path = cls._esm_path(compiled=True)
         css_path = esm_path.with_suffix('.css')
@@ -476,7 +490,9 @@ class MaterialComponent(ReactComponent):
             return None
         elif compiled == 'compiling':
             return cls._render_esm_base()
-        elif not config.autoreload and (not (config.inline or server) or (IS_RELEASE and _settings.resources(default='server') == 'cdn')):
+        elif not config.autoreload and not cls._notebook_endpoint() and (
+            not (config.inline or server) or (IS_RELEASE and _settings.resources(default='server') == 'cdn')
+        ):
             return CDN_DIST
         esm = super()._render_esm(compiled=True, server=server)
         if server and not config.autoreload and esm and '?' not in esm and '\n' not in esm:
@@ -502,7 +518,7 @@ class MaterialComponent(ReactComponent):
         # if requested or if in notebook
         if (
             (comm is None and not config.autoreload and IS_RELEASE and _settings.resources(default='server') == 'cdn') or
-            ((comm or state._is_pyodide) and not config.inline) or model.esm is CDN_DIST
+            ((comm or state._is_pyodide) and not (config.inline or self._notebook_endpoint())) or model.esm is CDN_DIST
         ):
             model.update(
                 bundle='url',
