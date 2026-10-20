@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "1.6.3",
+    "eslint": "8.57.0",
+    "eslint-plugin-react": "7.37.2"
+  },
+  "scripts": {
+    "lint": "eslint 'src/panel_material_ui/**/*.jsx'",
+    "lint-fix": "eslint 'src/panel_material_ui/**/*.jsx' --fix"
+  }
+}

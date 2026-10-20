@@ -185,7 +185,10 @@ esbuild = "*"
 
 [feature.lint.dependencies]
 pre-commit = "*"
+nodejs = ">=18"
 
 [feature.lint.tasks]
 pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
+lint-js-install = "npm ci"
+lint-js = { cmd = "npm run lint", depends-on = ["lint-js-install"] }
