@@ -141,3 +141,20 @@ def test_design_does_not_wrap_classic_root_when_served(server_document):
     md._design = MaterialDesign()
 
     assert md._design._wrapper(md) is md
+
+
+def test_material_ui_component_keeps_importmap_in_server_session(server_document):
+    model = _TestComponentESM().get_root(server_document)
+
+    assert model.bundle is None
+    assert model.importmap['imports']['react'].endswith('react-shim.js')
+
+
+def test_render_esm_from_file(tmp_path, monkeypatch):
+    (tmp_path / 'component.jsx').write_text('export function render() { return null }')
+    monkeypatch.setattr('inspect.getfile', lambda cls: str(tmp_path / 'module.py'))
+
+    class FileESM(MaterialUIComponent):
+        _esm = 'component.jsx'
+
+    assert 'return null' in FileESM._render_esm_base()

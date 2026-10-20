@@ -777,17 +777,18 @@ class MaterialUIComponent(MaterialComponent):
     def _get_properties(self, doc: Document | None) -> dict[str, t.Any]:
         props = super()._get_properties(doc)
         # Renders its own ESM, so it keeps its own name rather than the one of
-        # the ancestor it would be looked up by in the bundle.
-        props.update(bundle=None, class_name=type(self).__name__)
+        # the ancestor it would be looked up by in the bundle, and needs the
+        # import map that is omitted for components loaded from the bundle.
+        props.update(bundle=None, class_name=type(self).__name__, importmap=self._process_importmap())
         return props
 
     @classmethod
     def _render_esm_base(cls):
-        esm = cls._esm_base or cls._esm
+        esm = str(cls._esm_base or cls._esm)
         if not esm.endswith(('.js', '.jsx', '.ts', '.tsx')):
             esm_base = esm
         else:
-            esm_base = (pathlib.Path(inspect.getfile(cls)).parent / cls._esm_base).read_text()
+            esm_base = (pathlib.Path(inspect.getfile(cls)).parent / esm).read_text()
         if cls._esm_transforms:
             component_name = f'Panel{cls.__name__}'
             esm_base = esm_base.replace('export function render', f'function {component_name}')
