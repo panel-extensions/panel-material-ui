@@ -6,7 +6,8 @@ import panel as pn
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
-from panel_material_ui.layout import MaterialWrapper
+from panel_material_ui.layout import MaterialWrapper, Row
+from panel_material_ui.template import Page
 from panel_material_ui.widgets import Button
 
 pytestmark = pytest.mark.ui
@@ -107,3 +108,55 @@ def test_unmanaged_root_follows_host_theme(page):
     set_body_data(page, 'jpThemeLight', 'false')
     wait_until(lambda: wrapper.dark_theme, page)
     wait_until(lambda: divider() not in ('', light), page)
+
+
+def themed_figure():
+    from bokeh.plotting import figure
+    fig = figure(title="Plot")
+    fig.line([0, 1], [0, 1])
+    return fig
+
+
+def test_unmanaged_standalone_figure_is_grounded(page):
+    strip_theme_managed(page)
+    fig = themed_figure()
+    serve_component(page, Row(fig))
+    expect(page.locator(".bk-Figure")).to_have_count(1)
+
+    axis = fig.yaxis[0]
+    wait_until(lambda: axis.axis_line_alpha == 1 and axis.major_tick_line_alpha == 1, page)
+    assert axis.minor_tick_line_alpha == 0
+    assert fig.outline_line_alpha == 0.3
+    assert fig.title.text_font_style == "bold"
+
+
+def test_unmanaged_explicit_minimal_figure(page):
+    strip_theme_managed(page)
+    fig = themed_figure()
+    serve_component(page, Row(fig, theme_config={"chart_style": "minimal"}))
+    expect(page.locator(".bk-Figure")).to_have_count(1)
+
+    axis = fig.yaxis[0]
+    wait_until(lambda: axis.axis_line_alpha == 0 and axis.major_tick_line_alpha == 0, page)
+    assert fig.title.text_font_style == "normal"
+
+
+def test_page_figure_stays_minimal(page):
+    fig = themed_figure()
+    serve_component(page, Page(main=[fig]))
+    expect(page.locator(".bk-Figure")).to_have_count(1)
+
+    axis = fig.yaxis[0]
+    wait_until(lambda: axis.axis_line_alpha == 0 and axis.major_tick_line_alpha == 0, page)
+    assert fig.title.text_font_style == "normal"
+
+
+def test_page_figure_standard_chart_style(page):
+    fig = themed_figure()
+    serve_component(page, Page(main=[fig], theme_config={"chart_style": "standard"}))
+    expect(page.locator(".bk-Figure")).to_have_count(1)
+
+    axis = fig.yaxis[0]
+    wait_until(lambda: axis.axis_line_alpha == 1 and axis.major_tick_line_alpha == 1, page)
+    assert axis.minor_tick_line_alpha == 0
+    assert fig.title.text_font_style == "bold"

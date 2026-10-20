@@ -29,7 +29,13 @@ pmu.Container(
 ).preview()
 ```
 
-The `"classic"` chart style restores visible axis lines, tick marks, legend borders, colorbar outlines, and plot frame outlines. When `chart_style` is omitted or set to `"minimal"`, the cleaner look is used.
+There are three chart styles:
+
+- `"minimal"` hides axis lines, tick marks, legend borders and plot outlines. It suits plots placed on the surfaces of an application.
+- `"standard"` keeps the minimal palette but adds a soft plot frame, axis lines with major ticks, a legend box and a bold title, so a plot holds together on its own.
+- `"classic"` restores the full Bokeh look, with solid axis lines, major and minor ticks, legend borders, colorbar outlines and plot frames.
+
+When `chart_style` is omitted, plots use `"minimal"` inside a `Page` and `"standard"` when rendered on their own, e.g. as a notebook output.
 
 ## Theme Bokeh, hvPlot, and HoloViews
 

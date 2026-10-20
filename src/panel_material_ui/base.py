@@ -211,7 +211,7 @@ function {output}(props) {{
     apply_global_css(props.model, props.view, theme)
   }} else if (props.view.is_root && theme_managed == null && props.model.class_name !== "Page") {{
     // Hosts like Jupyter own the document, so the root themes its own output.
-    setup_root_styles(props.view, theme, [], true)
+    setup_root_styles(props.view, theme, [], true, true)
   }}
   return (
     <ThemeProvider theme={{theme}}>
