@@ -4,7 +4,7 @@ The `panel-material-ui` components automatically integrate with Panel’s dark m
 
 ## Dark mode only (no system preference)
 
-If you want your application to always use dark mode, you can use `dark_mode=True` on each component:
+If you want your application to always use dark mode, you can set `dark_theme=True` on a component:
 
 ```{pyodide}
 from panel_material_ui import Button
@@ -22,7 +22,7 @@ pn.extension(theme='dark')
 
 ## Managed theme
 
-By default each component will control its own theme, however if you want to manage dark mode globally you have two options:
+The theme is shared by the whole page: when a served app contains a component with `dark_theme=True`, the entire page switches to dark mode, not just that component. Rather than setting `dark_theme` on individual components, we therefore recommend controlling the theme for the whole app and letting users switch it. You have two options:
 
 1. Use the `Page` component, which will automatically include a theme toggle and manage the theme for you.
 
@@ -45,7 +45,7 @@ Page(
 ```{pyodide}
 from panel_material_ui import Button, Row, ThemeToggle
 
-Row(Button(name="Hello"), ThemeToggle()).preview()
+Row(Button(label="Hello"), ThemeToggle()).preview()
 ```
 
 ## Notebook themes
@@ -54,7 +54,7 @@ When rendered in a VSCode, JupyterLab or nteract notebook (including nteract emb
 
 ## Overriding dark palette
 
-When `dark_mode=True`, your components automatically swap to a dark palette. To customize that palette further—for instance, to change the primary color—you can use `theme_config`, just like you would for other color overrides:
+When `dark_theme=True`, your components automatically swap to a dark palette. To customize that palette further, for instance to change the primary color, you can use `theme_config`, just like you would for other color overrides:
 
 ```{pyodide}
 from panel_material_ui import Button

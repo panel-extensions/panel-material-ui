@@ -75,7 +75,7 @@ You can find existing categorical color maps [here](https://colorcet.holoviz.org
 
 #### Categorical
 
-If you want to create categorical color maps aligned with your Material theme, you can use the `pmu.utils.get_palette` function.
+If you want to create categorical color maps aligned with your Material theme, you can use the `pmu.theme.generate_palette` function. It takes a base color and the number of colors to generate (3 by default).
 
 ```{pyodide}
 import pandas as pd

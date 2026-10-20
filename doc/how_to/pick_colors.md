@@ -40,13 +40,15 @@ my_theme = {
 }
 
 Row(
-    Button(label="Primary Button", theme_config=my_theme, button_type="primary"),
-    Button(label="Secondary Button", theme_config=my_theme, button_type="secondary"),
+    Button(label="Primary Button", button_type="primary"),
+    Button(label="Secondary Button", button_type="secondary"),
+    theme_config=my_theme,
 ).servable()
 ```
 
 - If you only provide main, `panel-material-ui` may calculate light, dark, and contrastText automatically (note this does not work for the default, dark, and light palettes).
 - Defining all four explicitly lets you fine-tune exactly how your components appear.
+- Colors must be hex, `rgb()` or `hsl()` strings; named CSS colors are not supported. See [Customize Color Palettes](./customize_palette) for details.
 
 ### Playground
 
@@ -73,8 +75,9 @@ my_theme = {
 }
 
 Row(
-    Button(label="Purple", theme_config=my_theme, button_type="primary"),
-    Button(label="Red", theme_config=my_theme, button_type="secondary"),
+    Button(label="Purple", button_type="primary"),
+    Button(label="Red", button_type="secondary"),
+    theme_config=my_theme,
 ).servable()
 ```
 
