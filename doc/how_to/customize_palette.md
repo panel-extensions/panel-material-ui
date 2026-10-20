@@ -66,11 +66,17 @@ my_theme = {
 Button(label="Custom Themed Button", theme_config=my_theme, button_type='primary')
 ```
 
+:::{important}
+Palette colors must be specified as hex, `rgb()`, `rgba()`, `hsl()` or `hsla()` strings. Named CSS colors such as `"teal"` are not supported by Material UI's color manipulation functions and will raise an error.
+:::
+
 ### Providing colors directly
 
 You don’t need to use a predefined palette. For each palette entry (e.g., primary), you can specify `main` (required), and optionally `light`, `dark`, and `contrastText`:
 
 ```{pyodide}
+from panel_material_ui import Button, Row
+
 my_theme = {
     "palette": {
         "primary": {
@@ -85,7 +91,11 @@ my_theme = {
         }
     }
 }
-Button(label="Custom Themed Button", theme_config=my_theme, button_type='primary')
+
+Row(
+    Button(label="Primary", theme_config=my_theme, button_type='primary'),
+    Button(label="Secondary", theme_config=my_theme, button_type='secondary'),
+)
 ```
 
 ### Contrast threshold
@@ -140,7 +150,7 @@ However, you should still verify that the chosen foreground and background color
 
 ## Dark mode
 
-For more guidance on setting up dark mode, including toggling, see our [Dark mode guide](./control_dark_mode). Typically, in `panel_material_ui`, you either set `dark_mode=True` on individual components or at the `Page` level.
+For more guidance on setting up dark mode, including toggling, see our [Dark mode guide](./control_dark_mode). Typically, in `panel_material_ui`, you either set `dark_theme=True` on individual components or at the `Page` level. To use a separate palette in dark mode, nest the palette under `"light"` and `"dark"` keys in the `theme_config`.
 
 ## Summary
 
@@ -149,6 +159,7 @@ For more guidance on setting up dark mode, including toggling, see our [Dark mod
 - **Tokens**: `main`, `light`, `dark`, `contrastText` (and optionally more)
 - **Automatic computations**: If you only specify main, panel-material-ui tries to infer `light`, `dark`, and `contrastText` using `contrastThreshold` and `tonalOffset`.
 - **Accessibility**: Increase `contrastThreshold` if you need a higher text contrast ratio.
-- **Dark mode: Supply a dark-themed `theme_config` or set `dark_mode=True` if your wrapper supports it.
+- **Color format**: hex, `rgb()` or `hsl()` strings, not CSS color names
+- **Dark mode**: Supply a mode-specific `theme_config` with `"light"` and `"dark"` keys and set `dark_theme=True` to enable dark mode.
 
 With `panel-material-ui`, you have the full flexibility to define or override any palette color you need—at a component level using theme_config or globally across your entire application.

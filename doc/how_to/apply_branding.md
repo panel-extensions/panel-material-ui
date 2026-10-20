@@ -91,6 +91,8 @@ Configure Material-UI themes with your brand colors and typography:
 
 ```python
 # brand/mui.py
+from copy import deepcopy
+
 import panel_material_ui as pmui
 import panel as pn
 from .colors import DARK_THEME, LIGHT_THEME
@@ -106,11 +108,10 @@ LIGHT_THEME_CONFIG = {
         "info": {"main": LIGHT_THEME.info},
     },
     "typography": {
-        "fontFamily": ("Montserrat", "Helvetica Neue", "Arial", "sans-serif"),
+        "fontFamily": "Montserrat, 'Helvetica Neue', Arial, sans-serif",
         "fontSize": 16,
-        "fontWeight": 700,
-        "letterSpacing": 0.2,
-        "lineHeight": 1.5,
+        "fontWeightRegular": 500,
+        "allVariants": {"letterSpacing": "0.02em", "lineHeight": 1.5},
     },
     "shape": {
         "borderRadius": 8,
@@ -121,7 +122,14 @@ LIGHT_THEME_CONFIG = {
         },
     },
 }
+
+# Dark theme configuration
+DARK_THEME_CONFIG = deepcopy(LIGHT_THEME_CONFIG)
+DARK_THEME_CONFIG["palette"]["primary"] = {"main": DARK_THEME.primary}
+DARK_THEME_CONFIG["palette"]["secondary"] = {"main": DARK_THEME.secondary}
 ```
+
+Typography settings that apply to all text, such as weights, go into the top-level `fontWeightLight`, `fontWeightRegular`, `fontWeightMedium` and `fontWeightBold` keys, while CSS properties like `letterSpacing` or `lineHeight` go into `allVariants`. Other top-level keys such as `fontWeight` or `letterSpacing` are ignored by Material UI. See [Customize Typography](customize_typography) for details.
 
 Apply the theme configuration to your components:
 
@@ -175,13 +183,14 @@ Configure your page with brand assets:
 def configure():
     # Brand assets configuration
     pmui.Page.param.logo.default = LOGO_PATH
-    pmui.Page.favicon = FAVICON_PATH
-    pmui.Page.meta.name = "Your Brand Name"
+    pmui.Page.param.favicon.default = FAVICON_PATH
 
     # Add custom CSS
     if RAW_CSS:
         pmui.Page.config.raw_css.append(RAW_CSS)
 ```
+
+The page title, which also appears in the browser tab, and other metadata are set on each `Page` with the `title` and `meta_*` arguments, e.g. `pmui.Page(title="Your Brand Name", meta_description="...")`.
 
 > **📝 Reference:** See the asset management implementation in [`brand/assets/__init__.py`](https://github.com/panel-extensions/panel-material-ui/tree/main/examples/apps/branding/brand/assets/__init__.py).
 
@@ -191,8 +200,8 @@ Apply your brand consistently across all Panel Material-UI components:
 
 ```python
 # Configure component-specific styling
-pn.pane.Image.stylesheets = ["img {border-radius: 8px}"]
-pn.widgets.Tabulator.param.theme = "materialize"
+pn.pane.Image.param.stylesheets.default = ["img {border-radius: 8px}"]
+pn.widgets.Tabulator.param.theme.default = "materialize"
 ```
 
 ## 6. State Management Pattern
@@ -206,7 +215,7 @@ from panel.viewable import Viewer
 class AppState(Viewer):
     """Application state management with theme support."""
 
-    dark_theme = param.Boolean(default=False, label="Dark Theme")
+    dark_theme = param.Boolean(default=False, label="Dark Theme", allow_refs=True)
     currency = param.Selector(default="EUR", objects=["EUR", "GBP", "USD"])
 
     def __init__(self, **params):
@@ -222,6 +231,8 @@ class AppState(Viewer):
         )
 ```
 
+Declaring `dark_theme` with `allow_refs=True` lets you pass it a reference, e.g. the `dark_theme` parameter of the `Page`, so that it stays in sync with the page's theme toggle. This is what the layout in the next step does.
+
 > **📝 Reference:** See the complete state management in [`app.py`](https://github.com/panel-extensions/panel-material-ui/tree/main/examples/apps/branding/app.py#L75-L140).
 
 ## 7. Responsive Layout Structure
@@ -235,6 +246,7 @@ def create_app():
 
     # Create branded page layout
     page = pmui.Page(
+        title="Your Brand Name",
         sidebar=[
             pn.pane.Image(LOGO_PATH, sizing_mode="scale_width"),
             pmui.Column(
@@ -242,7 +254,7 @@ def create_app():
                 state,
                 "### References",
                 pmui.Button(
-                    name="Documentation",
+                    label="Documentation",
                     href="https://panel-material-ui.holoviz.org/",
                     target="_blank",
                     variant="outlined"
@@ -320,9 +332,6 @@ def configure_deployment():
     # Ensure theme persistence
     pn.config.theme = "light"  # or "dark" as default
 
-    # Configure caching for assets
-    pn.config.static_dirs = {"assets": "brand/assets"}
-
 def main():
     """Main application entry point."""
     # Apply brand configuration
@@ -338,6 +347,12 @@ def main():
 
 if pn.state.served:
     main()
+```
+
+If your app references assets by URL rather than by path, serve the assets folder as static files when launching the app:
+
+```bash
+panel serve app.py --static-dirs assets=./brand/assets
 ```
 
 ## Complete Example

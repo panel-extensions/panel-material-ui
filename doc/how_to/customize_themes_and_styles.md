@@ -44,7 +44,7 @@ Button(
 
 #### Dark and Light Mode Selectors
 
-If you need to apply styling only in dark or light mode, use the `.mui-dark` or `.mui-light` class:
+If you need to apply styling only in dark or light mode, use the `.mui-dark` or `.mui-light` class. The class is set on a container wrapping the component, so the selector has to target an ancestor of the component using `".mui-dark &"`:
 
 ```{pyodide}
 from panel_material_ui import Button, Row, ThemeToggle
@@ -58,7 +58,7 @@ Row(
             "&:hover": {
                 "backgroundColor": "pink",
             },
-            "&.mui-dark:hover": {
+            ".mui-dark &:hover": {
                 "backgroundColor": "orange",
             }
         }
@@ -93,10 +93,10 @@ Row(
         sx={
             "& .MuiSlider-thumb": {
                 "borderRadius": 0,
-                "backgroundColor": "white",
-            },
-            "&.mui-dark .MuiSlider-thumb": {
                 "backgroundColor": "black",
+            },
+            ".mui-dark & .MuiSlider-thumb": {
+                "backgroundColor": "white",
             }
         }
     ),
@@ -105,8 +105,7 @@ Row(
 ```
 
 :::{note}
-Note: Even though Panel Mui components reuse Material UI’s internal class names, these names are subject to change. Make sure to k
-eep an eye on release notes if you override nested classes.
+Note: Even though Panel Mui components reuse Material UI’s internal class names, these names are subject to change. Make sure to keep an eye on release notes if you override nested classes.
 :::
 
 Learn more about the [`sx` parameter in the Mui docs](https://mui.com/system/getting-started/the-sx-prop/).
@@ -135,6 +134,10 @@ Button(
     label="Themed Button", theme_config=theme_config, button_type="primary"
 ).servable()
 ```
+
+:::{important}
+Palette colors must be specified as hex, `rgb()`, `rgba()`, `hsl()` or `hsla()` strings. Named CSS colors such as `"teal"` are not supported by Material UI's color manipulation functions and will raise an error.
+:::
 
 ### Mode-Specific Themes
 

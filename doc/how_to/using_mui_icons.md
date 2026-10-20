@@ -17,6 +17,10 @@ pmui.Row(
 )
 ```
 
+:::{note}
+Only the filled and outlined Material Icons fonts are bundled. The rounded and sharp variants (`_rounded`, `_sharp`) are not available and render as plain text.
+:::
+
 ## Icons in `Markdown` and `HTML`
 
 You can also include icons in `Markdown` and `HTML` components by wrapping the icon name in `material-icons` or `material-icons-outlined` classes:
@@ -34,7 +38,7 @@ You can embed icons directly in text rendered by **panel-material-ui** component
 
 ```{pyodide}
 pmui.Select(
-  name="Mode",
+  label="Mode",
   options=[
     "Zoom :material/zoom_out_map:",
     "Explore :material/explore:",
@@ -46,7 +50,7 @@ You can also pass per-icon options after the icon name using `@key=value` pairs,
 
 ```{pyodide}
 pmui.Button(
-  name="Warn :material/zoom_out_map@size=large,color=warning:",
+  label="Warn :material/zoom_out_map@size=large,color=warning:",
 )
 ```
 
@@ -55,7 +59,7 @@ Supported per-icon options are:
 | Option | Description | Example |
 | --- | --- | --- |
 | `color` | Theme color or CSS color of the icon | `@color=warning` |
-| `variant` | Icon variant: `filled`, `outlined`, `rounded` or `sharp` | `@variant=outlined` |
+| `variant` | Icon variant: `filled` or `outlined` | `@variant=outlined` |
 | `size` | Icon size, either `small`, `medium`, `large` or a CSS size | `@size=large` |
 | `icon_size` | Explicit CSS font size of the icon | `@icon_size=2rem` |
 

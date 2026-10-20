@@ -49,7 +49,7 @@ class RainbowButton(MaterialUIComponent):
     interval = param.Integer(default=200, doc="""
         Time in ms between color changes.""")
 
-    _esm = "RainbowButton.jsx"
+    _esm_base = "RainbowButton.jsx"
     _importmap = {
       "imports": {
           "confetti": "https://esm.sh/canvas-confetti@1.6.0"
@@ -61,12 +61,14 @@ Here we:
 
 - Subclass `MaterialUIComponent`
 - Define five parameters: `label`, `size`, `mode`, `interval`, and `colors`
-- Point at our React file `RainbowButton.jsx`
+- Point at our React file `RainbowButton.jsx` with `_esm_base`, given as a path relative to the Python file
 - Add an import map to load the `canvas-confetti` library
 
 ### The React Side
 
 Now we need to create the React component that will be used to render the `RainbowButton`. As with all ESM components, we need to export a `render` function that takes a `model` argument.
+
+Material UI components can be imported one at a time (`import Button from "@mui/material/Button"`) or several at once (`import {Stack, Typography} from "@mui/material"`), and they resolve to the copy bundled with `panel-material-ui` rather than being downloaded again. Note that the default import name has to match the name of the Material UI component, i.e. `import Button from "@mui/material/Button"` works but `import MyButton from "@mui/material/Button"` does not.
 
 ```jsx
 import Button from "@mui/material/Button";
@@ -74,7 +76,8 @@ import confetti from "confetti"
 
 export function render({model}) {
   // Sync Python params into React state
-  const [label]    = model.useState("name");
+  const [label]    = model.useState("label");
+  const [colors]   = model.useState("colors");
   const [size]     = model.useState("size");
   const [mode]     = model.useState("mode");
   const [interval] = model.useState("interval");
@@ -84,7 +87,7 @@ export function render({model}) {
 
   // Function to advance the color
   const nextColor = () => (
-    setIndex(i => (i + 1) % model.colors.length)
+    setIndex(i => (i + 1) % colors.length)
   );
 
   // On “click” mode, cycle once per click
@@ -106,7 +109,7 @@ export function render({model}) {
     }
   };
 
-  const currentColor = model.colors[index];
+  const currentColor = colors[index % colors.length];
 
   return (
     <Button
@@ -129,7 +132,7 @@ export function render({model}) {
 
 **What’s happening?**
 
-- We pull in the Python params via `model.useState(...)`
+- We pull in the Python params via `model.useState(...)`, which also re-renders the component whenever a parameter changes (reading `model.colors` directly would not)
 - We maintain our own index to track which color we’re on
 - Two modes:
   - `hover`: start a setInterval on enter, clear it on leave
@@ -187,7 +190,8 @@ import confetti from "confetti"
 
 export function render({model}) {
   // Sync Python params into React state
-  const [label]    = model.useState("name");
+  const [label]    = model.useState("label");
+  const [colors]   = model.useState("colors");
   const [size]     = model.useState("size");
   const [mode]     = model.useState("mode");
   const [interval] = model.useState("interval");
@@ -197,7 +201,7 @@ export function render({model}) {
 
   // Function to advance the color
   const nextColor = () => (
-    setIndex(i => (i + 1) % model.colors.length)
+    setIndex(i => (i + 1) % colors.length)
   );
 
   // On “click” mode, cycle once per click
@@ -219,7 +223,7 @@ export function render({model}) {
     }
   };
 
-  const currentColor = model.colors[index];
+  const currentColor = colors[index % colors.length];
 
   return (
     <Button
@@ -239,14 +243,49 @@ export function render({model}) {
   );
 }"""
 
-RainbowButton(name="Unicorn Power!", mode="hover", interval=150)
+RainbowButton(label="Unicorn Power!", mode="hover", interval=150)
 ```
 
 Give it a try, hover over the button to see it cycle through the rainbow colors and click it to see the confetti effect!
 
-## Icon imports
+## Icons
 
-When you need to use MUI icons, add explicit imports for each icon to the `_importmap`. This ensures the icons load as separate ESM modules while sharing the React instance.
+The Material Icons font is loaded together with the component, so the simplest way to add an icon is the `Icon` component with the icon name as its text. Set the font family explicitly with `style={{fontFamily: "Material Icons"}}` so that the icon resolves inside the component's shadow DOM; use `"Material Icons Outlined"` for the outlined variants:
+
+```{pyodide}
+import param
+import panel as pn
+
+from panel_material_ui import MaterialUIComponent
+
+pn.extension()
+
+class LikeButton(MaterialUIComponent):
+
+    liked = param.Boolean(default=False)
+
+    _esm = """
+import IconButton from "@mui/material/IconButton";
+import Icon from "@mui/material/Icon";
+
+export function render({ model }) {
+  const [liked, setLiked] = model.useState("liked");
+  return (
+    <IconButton color="primary" onClick={() => setLiked(!liked)}>
+      <Icon fontSize="large" style={{fontFamily: "Material Icons"}}>
+        {liked ? "favorite" : "favorite_border"}
+      </Icon>
+    </IconButton>
+  );
+}
+"""
+
+LikeButton()
+```
+
+### SVG icon imports
+
+If you prefer the SVG icons of `@mui/icons-material`, add an explicit import for each icon to the `_importmap`, using the same version as the bundled Material UI (currently 9.0.1). Marking React as external with `?external=react` ensures the icons load as separate ESM modules while sharing the React instance of the other components. Only list `react` there: `?external=react,react/jsx-runtime` fails to load and `?external=react,@emotion/react` breaks the icon. The icons bring their own copy of the Material UI styles, which are not applied inside the component, so give them their dimensions and fill with inline styles:
 
 ```{pyodide}
 import panel as pn
@@ -260,9 +299,7 @@ class IconComponent(MaterialUIComponent):
 
     _importmap = {
         "imports": {
-            # Explicit import for each icon used - ?external=react shares React instance
-            "@mui/icons-material/Favorite": "https://esm.sh/@mui/icons-material@5.16.7/Favorite?external=react",
-            "@mui/icons-material/Delete": "https://esm.sh/@mui/icons-material@5.16.7/Delete?external=react",
+            "@mui/icons-material/Favorite": "https://esm.sh/@mui/icons-material@9.0.1/Favorite?external=react",
         }
     }
 
@@ -273,7 +310,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 export function render({ model }) {
     return (
       <IconButton id="icon-btn" color="primary" style={{ padding: '8px' }}>
-        <FavoriteIcon size="large"/>
+        <FavoriteIcon style={{width: 35, height: 35, fill: "currentColor"}} />
       </IconButton>
   );
 }
@@ -281,6 +318,8 @@ export function render({ model }) {
 
 IconComponent()
 ```
+
+Import map entries are global to the page, so two components that map the same icon to different URLs conflict. Keep the URL for each icon identical across your components.
 
 ## Summary
 
