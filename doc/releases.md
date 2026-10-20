@@ -1,5 +1,19 @@
 # Release Notes
 
+## Version 0.16.5
+
+Panel Material UI 0.16.5 adds a `"standard"` Bokeh chart style with a soft frame, axis lines and a legend box, which is now the default for plots displayed on their own, e.g. in a notebook output, and loads the bundle from Panel's Jupyter server extension endpoint in notebooks so it no longer depends on the CDN.
+
+Many thanks to @philippjfr for their contributions to this release.
+
+### 🔧 Enhancements
+
+* Add a `"standard"` value for `theme_config["chart_style"]`, between `"minimal"` and `"classic"`, with a soft plot frame, axis lines and major ticks, a legend box and a bold title. Plots displayed on their own default to it, while a [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) and served applications keep the `"minimal"` style ([#774](https://github.com/panel-extensions/panel-material-ui/pull/774))
+
+### 🐛 Bug Fixes
+
+* Load the bundle JS, bundle CSS and Material icons from Panel's Jupyter server extension endpoint in notebooks when it is available, instead of always forcing the CDN ([#775](https://github.com/panel-extensions/panel-material-ui/pull/775))
+
 ## Version 0.16.4
 
 Panel Material UI 0.16.4 themes classic components displayed on their own in a notebook, so a `pn.ui.Tabulator` or Bokeh plot in a notebook output looks the same as in a served application without restyling the rest of the notebook, and keeps slider thumbs within the bounds of the widget.
