@@ -730,15 +730,18 @@ function original_figure_style(model) {
   return _original_figure_styles.get(model)
 }
 
-function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
+function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[], standalone=false) {
   const model_props = {}
   const model_type = model.type.endsWith("ReactiveESM") ? model.class_name : model.type
   const minimal = theme.chart_style !== "classic"
+  // Without an app surface around it a minimal plot has nothing anchoring it,
+  // so standalone plots default to the standard style.
+  const grounded = theme.chart_style === "standard" || (standalone && theme.chart_style == null)
 
   const text = theme.palette.text.primary
   const muted = theme.palette.text.secondary
   const grid = alpha(theme, theme.palette.common.onBackgroundChannel, dark ? 0.12 : 0.10)
-  const axis = alpha(theme, theme.palette.common.onBackgroundChannel, dark ? 0.28 : 0.22)
+  const axis = alpha(theme, theme.palette.common.onBackgroundChannel, grounded ? (dark ? 0.55 : 0.5) : (dark ? 0.28 : 0.22))
   const surface = theme.palette.background.paper
 
   if (model_type.endsWith("Axis") && !has_custom_theme(custom_theme, "Axis")) {
@@ -746,7 +749,11 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     model_props.major_tick_line_color = axis
     model_props.minor_tick_line_color = axis
 
-    if (minimal) {
+    if (grounded) {
+      model_props.axis_line_alpha = 1
+      model_props.major_tick_line_alpha = 1
+      model_props.minor_tick_line_alpha = 0
+    } else if (minimal) {
       model_props.axis_line_alpha = 0
       model_props.major_tick_line_alpha = 0
       model_props.minor_tick_line_alpha = 0
@@ -771,7 +778,11 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   } else if (model_type.endsWith("Legend") && !has_custom_theme(custom_theme, "Legend")) {
     model_props.background_fill_color = surface
 
-    if (minimal) {
+    if (grounded) {
+      model_props.border_line_color = axis
+      model_props.border_line_alpha = 0.6
+      model_props.background_fill_alpha = 0.9
+    } else if (minimal) {
       model_props.border_line_alpha = 0
       model_props.background_fill_alpha = 0
     } else {
@@ -820,8 +831,8 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
   } else if (model_type.endsWith("Title") && !has_custom_theme(custom_theme, "Title")) {
     model_props.text_color = text
     model_props.text_font = font_family
-    model_props.text_font_size = "1.05em"
-    model_props.text_font_style = "normal"
+    model_props.text_font_size = grounded ? "1.15em" : "1.05em"
+    model_props.text_font_style = grounded ? "bold" : "normal"
   } else if (model_type.endsWith("Grid") && !has_custom_theme(custom_theme, "Grid")) {
     if (model.grid_line_color != null) {
       model_props.grid_line_color = grid
@@ -842,7 +853,7 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
       model_props.outline_line_color = null
     } else {
       model_props.outline_line_color = text
-      model_props.outline_line_alpha = minimal ? (dark ? 0.25 : 0) : 1
+      model_props.outline_line_alpha = grounded ? 0.3 : minimal ? (dark ? 0.25 : 0) : 1
     }
     const layer = view?.canvas_view.primary
     if (layer?.canvas instanceof HTMLCanvasElement && model.border_fill_color !== model_props.border_fill_color) {
@@ -851,7 +862,7 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
       layer.undo_transform(ctx => ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height))
     }
     if (view) {
-      apply_bokeh_theme(view.canvas_view.model, theme, dark, font_family, custom_theme)
+      apply_bokeh_theme(view.canvas_view.model, theme, dark, font_family, custom_theme, standalone)
     }
   } else if (model_type.endsWith("Toolbar")) {
     const stylesheet = `.bk-right.bk-active, .bk-above.bk-active {
@@ -952,7 +963,7 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[]) {
     const view = Bokeh.index.find_one_by_id(model.id)
     if (view) {
       view.ttmodels.forEach(ttmodel => {
-        apply_bokeh_theme(ttmodel, theme, dark, font_family, custom_theme)
+        apply_bokeh_theme(ttmodel, theme, dark, font_family, custom_theme, standalone)
       })
     }
   }
@@ -1316,7 +1327,7 @@ export const apply_global_css = (model, view, theme) => {
 // With scoped=true the styles go into the view's shadow root, so a component
 // that does not own the document (e.g. a Page in a notebook output) cannot
 // restyle the rest of the page.
-export const setup_global_styles = (view, theme, custom_theme=[], scoped=false) => {
+export const setup_global_styles = (view, theme, custom_theme=[], scoped=false, standalone=false) => {
   const doc = view.model.document
   const target = scoped ? view.shadow_el : document.head
   const anchor_el = scoped ? view.container : document.querySelector("#template-styles")
@@ -1369,9 +1380,9 @@ export const setup_global_styles = (view, theme, custom_theme=[], scoped=false) 
       )
       models.forEach(model => {
         model.references().forEach((ref) => {
-          apply_bokeh_theme(ref, theme, dark, font_family, custom_theme)
+          apply_bokeh_theme(ref, theme, dark, font_family, custom_theme, standalone)
         })
-        apply_bokeh_theme(model, theme, dark, font_family, custom_theme)
+        apply_bokeh_theme(model, theme, dark, font_family, custom_theme, standalone)
       })
     }
     doc.on_change(cb)
@@ -1386,7 +1397,7 @@ export const setup_global_styles = (view, theme, custom_theme=[], scoped=false) 
     ) : (
       theme.typography.fontFamily
     )
-    doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family, custom_theme))
+    doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family, custom_theme, standalone))
     global_style_el.textContent = render_theme_css(theme)
     page_style_el.textContent = render_page_css(theme)
   }, [theme, scoped])
