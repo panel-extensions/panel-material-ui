@@ -1,5 +1,20 @@
 # Release Notes
 
+## Version 0.16.6
+
+Panel Material UI 0.16.6 fixes custom `MaterialUIComponent`s failing to load in served applications, sizes [`FlexBox`](https://panel-material-ui.holoviz.org/reference/layouts/FlexBox.html) children along the flex direction, and corrects a number of examples and claims in the how-to guides.
+
+Many thanks to @philippjfr for their contributions to this release.
+
+### 🐛 Bug Fixes
+
+* Restore the import map of a custom `MaterialUIComponent` in served applications, which failed with `Unable to resolve specifier 'react'`, and support a file-based `_esm`, including a `pathlib.Path` ([#778](https://github.com/panel-extensions/panel-material-ui/pull/778))
+* Size the children of [`FlexBox`](https://panel-material-ui.holoviz.org/reference/layouts/FlexBox.html) along the `flex_direction` instead of always treating it as a column, and stretch it along that direction by default, as the classic `pn.FlexBox` does, instead of collapsing to zero width ([#777](https://github.com/panel-extensions/panel-material-ui/pull/777))
+
+### 📚 Documentation
+
+* Fix incorrect claims and broken examples in the how-to guides on theming, dark mode, typography, branding, icons, plotting and custom components ([#779](https://github.com/panel-extensions/panel-material-ui/pull/779))
+
 ## Version 0.16.5
 
 Panel Material UI 0.16.5 adds a `"standard"` Bokeh chart style with a soft frame, axis lines and a legend box, which is now the default for plots displayed on their own, e.g. in a notebook output, and loads the bundle from Panel's Jupyter server extension endpoint in notebooks so it no longer depends on the CDN.
