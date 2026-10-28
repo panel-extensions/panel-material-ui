@@ -115,3 +115,19 @@ def test_page_defaults_to_stretch_width():
 @pytest.mark.parametrize("kwargs", [{"width": 500}, {"sizing_mode": "fixed"}, {"max_width": 800}])
 def test_page_explicit_width_keeps_sizing(kwargs):
     assert pmui.Page(**kwargs).sizing_mode != "stretch_width"
+
+
+def test_page_app_bar_width_deprecated_alias():
+    with pytest.warns(DeprecationWarning, match="app_bar_width"):
+        page = pmui.Page(app_bar_width=900)
+    assert page.header_width == 900
+    with pytest.warns(DeprecationWarning, match="app_bar_width"):
+        page.app_bar_width = 1200
+    assert page.header_width == 1200
+    assert not hasattr(page.get_root().data, "app_bar_width")
+
+
+def test_page_header_width_does_not_warn(recwarn):
+    page = pmui.Page(header_width=900)
+    page.header_width = 1200
+    assert not [w for w in recwarn if issubclass(w.category, DeprecationWarning)]

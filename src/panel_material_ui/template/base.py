@@ -72,15 +72,8 @@ class Page(MaterialComponent, ResourceComponent):
     >>> Page(main=['# Content'], title='My App')
     """
 
-    app_bar_width = param.ClassSelector(default=None, class_=(int, str, dict), doc="""
-        Maximum width of the app bar (header) content. When set, the toolbar
-        content is clamped to this width and centered, aligning it with a
-        clamped main area. Accepts a number (interpreted as pixels), a CSS
-        length string (e.g. '70ch', '60rem', '90%'), or a dict mapping Material
-        UI breakpoints to widths (e.g. {'xs': '100%', 'md': 720, 'lg': 960}),
-        where each value applies at that breakpoint and up. Defaults to None
-        (full width), independent of ``main_width``; set both to the same value
-        to align the header with a clamped main area.""")
+    app_bar_width = param.ClassSelector(default=None, class_=(int, str, dict), precedence=-1, doc="""
+        Deprecated alias for ``header_width``.""")
 
     busy = param.Boolean(default=False, readonly=True, doc="Whether the page is busy.")
 
@@ -108,6 +101,15 @@ class Page(MaterialComponent, ResourceComponent):
     favicon = param.ClassSelector(default=None, class_=(str, pathlib.Path), doc="The favicon of the page.")
 
     header = Children(doc="Items rendered in the header.")
+
+    header_width = param.ClassSelector(default=None, class_=(int, str, dict), doc="""
+        Maximum width of the header content. When set, the toolbar content is
+        clamped to this width and centered. Accepts a number (interpreted as
+        pixels), a CSS length string (e.g. '70ch', '60rem', '90%'), or a dict
+        mapping Material UI breakpoints to widths (e.g. {'xs': '100%', 'md': 720,
+        'lg': 960}), where each value applies at that breakpoint and up.
+        Defaults to None (full width), independent of ``main_width``; set both
+        to the same value to align the header with a clamped main area.""")
 
     main = Children(doc="Items rendered in the main area.")
 
@@ -153,7 +155,7 @@ class Page(MaterialComponent, ResourceComponent):
     _custom_theme = param.List(default=[])
 
     _esm_base = "Page.jsx"
-    _rename = {"config": None, "meta": None, "favicon": None, "apple_touch_icon": None, "template": None}
+    _rename = {"app_bar_width": None, "config": None, "meta": None, "favicon": None, "apple_touch_icon": None, "template": None}
     _source_transforms = {
         "header": None,
         "contextbar": None,
@@ -193,6 +195,18 @@ class Page(MaterialComponent, ResourceComponent):
             self._template = parse_template(self.template)
         else:
             self._template = self.template
+
+    @param.depends('app_bar_width', watch=True, on_init=True)
+    def _update_header_width(self):
+        if self.app_bar_width is None:
+            return
+        import warnings
+        warnings.warn(
+            "Page's 'app_bar_width' parameter is deprecated, use 'header_width' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.header_width = self.app_bar_width
 
     @param.depends('dark_theme', watch=True)
     def _update_config(self):

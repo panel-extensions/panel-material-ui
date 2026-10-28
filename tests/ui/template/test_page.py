@@ -212,8 +212,8 @@ def test_page_main_width_custom(page):
     expect(main_content).to_have_css("align-self", "center")
 
 
-def test_page_app_bar_width_default_unclamped(page):
-    """By default the app bar toolbar is not clamped (no max-width)."""
+def test_page_header_width_default_unclamped(page):
+    """By default the header toolbar is not clamped (no max-width)."""
     pg = Page(main=[pn.pane.Markdown("# Content")])
 
     serve_component(page, pg)
@@ -222,9 +222,9 @@ def test_page_app_bar_width_default_unclamped(page):
     expect(toolbar).to_have_css("max-width", "none")
 
 
-def test_page_app_bar_width_custom(page):
-    """app_bar_width clamps and centers the app bar toolbar content."""
-    pg = Page(main=[pn.pane.Markdown("# Content")], app_bar_width=900)
+def test_page_header_width_custom(page):
+    """header_width clamps and centers the header toolbar content."""
+    pg = Page(main=[pn.pane.Markdown("# Content")], header_width=900)
 
     serve_component(page, pg)
 
@@ -260,8 +260,8 @@ def test_page_main_width_breakpoint_dict(page):
     expect(main_content).not_to_have_css("max-width", "800px")
 
 
-def test_page_app_bar_width_independent_of_main_width(page):
-    """Setting main_width does not clamp the app bar toolbar."""
+def test_page_header_width_independent_of_main_width(page):
+    """Setting main_width does not clamp the header toolbar."""
     pg = Page(main=[pn.pane.Markdown("# Content")], main_width=800)
 
     serve_component(page, pg)
@@ -272,9 +272,9 @@ def test_page_app_bar_width_independent_of_main_width(page):
     expect(main_content).to_have_css("max-width", "800px")
 
 
-def test_page_app_bar_width_overrides_main_width(page):
-    """An explicit app_bar_width takes precedence over main_width for the toolbar."""
-    pg = Page(main=[pn.pane.Markdown("# Content")], main_width=800, app_bar_width=1200)
+def test_page_header_width_overrides_main_width(page):
+    """header_width and main_width clamp the header and main area independently."""
+    pg = Page(main=[pn.pane.Markdown("# Content")], main_width=800, header_width=1200)
 
     serve_component(page, pg)
 
