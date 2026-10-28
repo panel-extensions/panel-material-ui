@@ -154,6 +154,8 @@ class Page(MaterialComponent, ResourceComponent):
 
     _custom_theme = param.List(default=[])
 
+    _syncing_header_width = False
+
     _esm_base = "Page.jsx"
     _rename = {"app_bar_width": None, "config": None, "meta": None, "favicon": None, "apple_touch_icon": None, "template": None}
     _source_transforms = {
@@ -180,7 +182,12 @@ class Page(MaterialComponent, ResourceComponent):
         # a notebook) an unsized Page would shrink to its content width.
         if not {"sizing_mode", "width", "min_width", "max_width"} & set(params):
             params["sizing_mode"] = "stretch_width"
+        if "app_bar_width" in params:
+            self._warn_app_bar_width()
+            app_bar_width = params.pop("app_bar_width")
+            params.setdefault("header_width", app_bar_width)
         super().__init__(**params)
+        self._sync_header_width(app_bar_width=self.header_width)
         with edit_constant(self.meta):
             self.meta.param.update(**meta)
         self.config.param.update(**resources)
@@ -196,17 +203,47 @@ class Page(MaterialComponent, ResourceComponent):
         else:
             self._template = self.template
 
-    @param.depends('app_bar_width', watch=True, on_init=True)
-    def _update_header_width(self):
-        if self.app_bar_width is None:
-            return
+    @staticmethod
+    def _warn_app_bar_width():
+        import inspect
         import warnings
+
+        import panel
+
+        import panel_material_ui
+        # Point the warning at user code, past panel, param and panel_material_ui
+        # frames, whether it was raised from the constructor or a watcher.
+        internal = tuple(
+            os.path.dirname(mod.__file__) for mod in (panel, param, panel_material_ui)
+        )
+        frame, stacklevel = inspect.currentframe(), 1
+        while frame and frame.f_code.co_filename.startswith(internal):
+            frame, stacklevel = frame.f_back, stacklevel + 1
+        del frame
         warnings.warn(
             "Page's 'app_bar_width' parameter is deprecated, use 'header_width' instead.",
             DeprecationWarning,
-            stacklevel=2,
+            stacklevel=stacklevel,
         )
-        self.header_width = self.app_bar_width
+
+    @param.depends('app_bar_width', watch=True)
+    def _update_header_width(self):
+        if self._syncing_header_width:
+            return
+        self._warn_app_bar_width()
+        self._sync_header_width(header_width=self.app_bar_width)
+
+    @param.depends('header_width', watch=True)
+    def _update_app_bar_width(self):
+        if not self._syncing_header_width:
+            self._sync_header_width(app_bar_width=self.header_width)
+
+    def _sync_header_width(self, **values):
+        self._syncing_header_width = True
+        try:
+            self.param.update(**values)
+        finally:
+            self._syncing_header_width = False
 
     @param.depends('dark_theme', watch=True)
     def _update_config(self):
