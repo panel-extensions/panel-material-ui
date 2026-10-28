@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import functools
+import inspect
 import os
 import pathlib
 import typing as t
+import warnings
 
+import panel
 import param
 from jinja2 import Template
 from panel.config import _base_config, config
@@ -25,6 +28,10 @@ if t.TYPE_CHECKING:
     from panel.io.location import LocationAreaBase
     from panel.io.resources import ResourcesType
     from pyviz_comms import Comm
+
+_INTERNAL_DIRS = tuple(
+    os.path.dirname(path) for path in (panel.__file__, param.__file__, os.path.dirname(__file__))
+)
 
 SIDEBAR_VARIANTS = ["persistent", "temporary", "permanent", "auto"]
 
@@ -205,19 +212,10 @@ class Page(MaterialComponent, ResourceComponent):
 
     @staticmethod
     def _warn_app_bar_width():
-        import inspect
-        import warnings
-
-        import panel
-
-        import panel_material_ui
         # Point the warning at user code, past panel, param and panel_material_ui
         # frames, whether it was raised from the constructor or a watcher.
-        internal = tuple(
-            os.path.dirname(mod.__file__) for mod in (panel, param, panel_material_ui)
-        )
         frame, stacklevel = inspect.currentframe(), 1
-        while frame and frame.f_code.co_filename.startswith(internal):
+        while frame and frame.f_code.co_filename.startswith(_INTERNAL_DIRS):
             frame, stacklevel = frame.f_back, stacklevel + 1
         del frame
         warnings.warn(
