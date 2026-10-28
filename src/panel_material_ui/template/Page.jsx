@@ -478,11 +478,9 @@ export function render({model, view}) {
   )
   const appBarSx = React.useMemo(() => [PAGE_APPBAR_SX, header_sx], [header_sx])
   const appBarToolbarSx = React.useMemo(() => {
-    // app_bar_width follows main_width when unset, so the header stays aligned
-    // with the clamped main content; an explicit app_bar_width overrides it.
-    const maxWidth = to_max_width(app_bar_width ?? main_width)
+    const maxWidth = to_max_width(app_bar_width)
     return maxWidth == null ? undefined : {maxWidth, width: "100%", alignSelf: "center"}
-  }, [app_bar_width, main_width])
+  }, [app_bar_width])
   const mainContentSx = React.useMemo(() => {
     const maxWidth = to_max_width(main_width)
     return {

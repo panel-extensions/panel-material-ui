@@ -260,16 +260,16 @@ def test_page_main_width_breakpoint_dict(page):
     expect(main_content).not_to_have_css("max-width", "800px")
 
 
-def test_page_app_bar_width_follows_main_width(page):
-    """When app_bar_width is unset, the toolbar follows main_width so the
-    header stays aligned with the clamped main content."""
+def test_page_app_bar_width_independent_of_main_width(page):
+    """Setting main_width does not clamp the app bar toolbar."""
     pg = Page(main=[pn.pane.Markdown("# Content")], main_width=800)
 
     serve_component(page, pg)
 
     toolbar = page.locator(".header .MuiToolbar-root")
-    expect(toolbar).to_have_css("max-width", "800px")
-    expect(toolbar).to_have_css("align-self", "center")
+    expect(toolbar).to_have_css("max-width", "none")
+    main_content = page.locator(".main-content")
+    expect(main_content).to_have_css("max-width", "800px")
 
 
 def test_page_app_bar_width_overrides_main_width(page):

@@ -79,8 +79,8 @@ class Page(MaterialComponent, ResourceComponent):
         length string (e.g. '70ch', '60rem', '90%'), or a dict mapping Material
         UI breakpoints to widths (e.g. {'xs': '100%', 'md': 720, 'lg': 960}),
         where each value applies at that breakpoint and up. Defaults to None
-        (full width); when unset it follows ``main_width`` so the header stays
-        aligned with the main content.""")
+        (full width), independent of ``main_width``; set both to the same value
+        to align the header with a clamped main area.""")
 
     busy = param.Boolean(default=False, readonly=True, doc="Whether the page is busy.")
 
