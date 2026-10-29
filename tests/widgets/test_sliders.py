@@ -2,6 +2,7 @@ import datetime as dt
 
 import param
 import pytest
+from panel.config import config
 from panel.widgets import FloatSlider as ClassicFloatSlider
 from panel.widgets import IntRangeSlider as ClassicIntRangeSlider
 from panel.widgets import IntSlider as ClassicIntSlider
@@ -68,3 +69,14 @@ def test_discrete_slider_formatter(options, formatter, expected):
 def test_rating_initial_end():
     """Should not raise an exception when end is not set."""
     Rating(label='Max 10', end=10, value=7)
+
+
+@pytest.mark.parametrize('throttled', [False, True])
+def test_discrete_slider_value_throttled(throttled):
+    """Throttled updates arrive as indexes and must map to option values."""
+    options = [dt.datetime(2020, 1, 1, 0, i) for i in range(1, 4)]
+    slider = DiscreteSlider(options=options)
+    with config.set(throttled=throttled):
+        slider._process_events({'value': 1, 'value_throttled': 1})
+    assert slider.value == options[1]
+    assert slider.value_throttled == options[1]
