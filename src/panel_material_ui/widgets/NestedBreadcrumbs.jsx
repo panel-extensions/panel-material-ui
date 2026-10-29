@@ -326,7 +326,7 @@ export function render({model, view}) {
               sx={{display: "inline-flex", alignItems: "center", lineHeight: 1.2, fontStyle: "italic"}}
               onClick={(e) => openMenu(e, depth)}
             >
-                Select…
+              Select…
             </Typography>
             {siblings.length > 0 && (
               <>
