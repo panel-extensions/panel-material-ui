@@ -1,10 +1,12 @@
 import pathlib
 import re
 from io import StringIO
+from types import SimpleNamespace
 
 import pytest
 
 import panel_material_ui as pmui
+from bokeh.document import Document
 from panel.config import config
 from panel.io.resources import CDN_DIST
 from panel_material_ui.base import _env
@@ -139,3 +141,31 @@ def test_page_header_width_wins_over_app_bar_width():
     with pytest.warns(DeprecationWarning, match="app_bar_width"):
         page = pmui.Page(app_bar_width=900, header_width=1200)
     assert page.header_width == page.app_bar_width == 1200
+
+
+def _document(served: bool) -> Document:
+    doc = Document()
+    if served:
+        context = SimpleNamespace(server_context=object())
+        doc._session_context = lambda: context
+    return doc
+
+
+@pytest.mark.parametrize(
+    ("site_url", "served", "expected"),
+    [
+        ("/", False, ""),
+        ("/", True, "/"),
+        ("https://example.com", False, "https://example.com"),
+        ("/app", False, "/app"),
+        ("https://example.com", True, "https://example.com"),
+    ],
+    ids=["default-embedded", "default-served", "explicit-embedded", "relative-embedded", "explicit-served"],
+)
+def test_page_site_url_links_default_only_when_served(site_url, served, expected):
+    """The default '/' points at whatever embeds the page (notebook, exported
+    file) unless a Panel server serves it, so it is dropped there; explicit
+    URLs are always kept."""
+    root = pmui.Page(title="Atlas", site_url=site_url).get_root(_document(served))
+
+    assert root.data.site_url == expected

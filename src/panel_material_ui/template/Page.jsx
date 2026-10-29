@@ -23,6 +23,12 @@ const PAGE_INLINE_ROOT_SX = {display: "flex", position: "relative", width: "100%
 const PAGE_APPBAR_SX = {zIndex: (theme) => theme.zIndex.drawer + 1}
 const INLINE_MODAL_SX = {position: "absolute"}
 
+// A null href means there is nowhere sensible to link (see Page._get_model),
+// while "" is a valid link to the current app.
+function SiteLink({href, style, children}) {
+  return href == null ? <Box sx={style}>{children}</Box> : <a href={href} style={style}>{children}</a>
+}
+
 // A Page only owns the viewport when it is a document root mounted directly in
 // <body> (panel serve, save). In notebook outputs or nested inside other
 // layouts, fixed positioning would attach it to the notebook or tab instead.
@@ -151,6 +157,9 @@ export function render({model, view}) {
   const [contextDragStartWidth, setContextDragStartWidth] = React.useState(0)
   const [site] = model.useState("site")
   const [site_url] = model.useState("site_url")
+  const site_href = site_url || null
+  // Without a linkable site_url (e.g. embedded) there is no app URL either.
+  const title_href = site ? (site_href == null ? null : "") : site_href
   const [title] = model.useState("title")
   const [variant] = model.useState("sidebar_variant")
   const [sx] = model.useState("sx")
@@ -517,21 +526,21 @@ export function render({model, view}) {
           {(logo || site || title) && (
             <Box sx={{display: "flex", alignItems: "center", gap: 2}}>
               {logo && (
-                <a href={site_url} style={{display: "flex", alignItems: "center"}}>
+                <SiteLink href={site_href} style={{display: "flex", alignItems: "center"}}>
                   <img
                     src={logoContent}
                     alt="Logo"
                     className="logo"
                     style={{height: "2.5em", display: "block"}}
                   />
-                </a>
+                </SiteLink>
               )}
               {site && (
-                <a href={site_url} style={{textDecoration: "none", display: "flex", alignItems: "center"}}>
+                <SiteLink href={site_href} style={{textDecoration: "none", display: "flex", alignItems: "center"}}>
                   <Typography variant="h3" className="site" sx={{color: "white", lineHeight: 1}}>
                     {render_icon_text(site)}
                   </Typography>
-                </a>
+                </SiteLink>
               )}
               {site && title && (
                 <Typography variant="h3" className="separator" aria-hidden="true" sx={{color: "white", lineHeight: 1, opacity: 0.7}}>
@@ -539,11 +548,11 @@ export function render({model, view}) {
                 </Typography>
               )}
               {title && (
-                <a href={site ? "" : site_url} style={{textDecoration: "none", display: "flex", alignItems: "center"}}>
+                <SiteLink href={title_href} style={{textDecoration: "none", display: "flex", alignItems: "center"}}>
                   <Typography variant="h3" className="title" sx={{color: "white", lineHeight: 1}}>
                     {render_icon_text(title)}
                   </Typography>
-                </a>
+                </SiteLink>
               )}
             </Box>
           )}

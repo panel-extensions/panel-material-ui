@@ -12,6 +12,8 @@ from panel_material_ui.widgets import Button
 
 pytestmark = pytest.mark.ui
 
+LOGO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'/%3E"
+
 
 def test_page_theme_config_header_color(page):
     pg = Page()
@@ -417,3 +419,26 @@ def test_page_inline_theme_toggle_scoped(page):
         assert page.evaluate("() => document.head.querySelector('#page-style')") is None
     finally:
         pn.config.theme = "default"
+
+
+def test_page_served_links_title_and_logo_to_site_url(page):
+    serve_component(page, Page(title="Atlas", logo=LOGO))
+
+    expect(page.locator('a[href="/"] .title')).to_have_text("Atlas")
+    expect(page.locator('a[href="/"] img.logo')).to_have_count(1)
+
+
+def test_page_empty_site_url_renders_title_and_logo_without_link(page):
+    serve_component(page, Page(title="Atlas", logo=LOGO, site_url=""))
+
+    expect(page.locator(".title")).to_have_text("Atlas")
+    expect(page.locator("img.logo")).to_have_count(1)
+    expect(page.locator(".MuiAppBar-root a")).to_have_count(0)
+
+
+def test_page_empty_site_url_renders_site_and_title_without_link(page):
+    serve_component(page, Page(title="Atlas", site="Site", logo=LOGO, site_url=""))
+
+    expect(page.locator(".site")).to_have_text("Site")
+    expect(page.locator(".title")).to_have_text("Atlas")
+    expect(page.locator(".MuiAppBar-root a")).to_have_count(0)

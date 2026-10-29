@@ -153,7 +153,10 @@ class Page(MaterialComponent, ResourceComponent):
         ``site_url``. When set, the title links to the current app instead.""")
 
     site_url = param.String(default="/", doc="""
-        URL of the site and logo. Default is '/'.""")
+        URL the logo and site name (or the title, when no ``site`` is set)
+        link to. The default '/' is only linked when a
+        Panel server serves the page; in a notebook or exported file it would
+        resolve against the embedding page.""")
 
     template = param.ClassSelector(default=None, class_=(str, pathlib.Path, Template), doc="""
         Overrides the default jinja2 template. Template can be provided as a string,
@@ -295,6 +298,18 @@ class Page(MaterialComponent, ResourceComponent):
         if doc and doc.theme is not self._design.theme.bokeh_theme:
             root.data._custom_theme = list(doc.theme._json.get("attrs", {}))
         return root
+
+    def _get_model(
+        self, doc: Document, root: Model | None = None,
+        parent: Model | None = None, comm: Comm | None = None
+    ) -> Model:
+        model = super()._get_model(doc, root, parent, comm)
+        served = bool(doc.session_context and doc.session_context.server_context)
+        if not served and model.data.site_url == "/":
+            # Outside a server '/' resolves against the notebook or file that
+            # embeds the page, so clicking it would navigate away from it.
+            model.data.site_url = ""
+        return model
 
     def resolve_resources(
         self,
