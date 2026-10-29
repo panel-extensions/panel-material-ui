@@ -295,6 +295,7 @@ class Column(MaterialListLike):
     _event = "dom_event"
     _rename = {"scroll_button_click": None}
 
+    _direction = "vertical"
     _esm_base = "Box.jsx"
     _constants = {"direction": "column", "loading_inset": 0}
 
@@ -528,6 +529,7 @@ class Row(MaterialListLike):
     The `Row` layout arranges its contents horizontally.
     """
 
+    _direction = "horizontal"
     _esm_base = "Box.jsx"
     _constants = {"direction": "row", "loading_inset": 0}
 
