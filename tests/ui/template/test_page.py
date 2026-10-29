@@ -284,6 +284,36 @@ def test_page_header_width_overrides_main_width(page):
     expect(main_content).to_have_css("max-width", "800px")
 
 
+
+def test_page_title_links_to_site_url(page):
+    pg = Page(title="My App", site_url="/home")
+
+    serve_component(page, pg)
+
+    title = page.locator(".MuiAppBar-root a:has(.title)")
+    expect(title).to_have_attribute("href", "/home")
+    expect(page.locator(".MuiAppBar-root .site")).to_have_count(0)
+    expect(page.locator(".MuiAppBar-root .separator")).to_have_count(0)
+
+
+def test_page_site_and_title_link_separately(page):
+    pg = Page(title="My App", site="My Site", site_url="/home")
+
+    serve_component(page, pg)
+
+    site = page.locator(".MuiAppBar-root a:has(.site)")
+    expect(site).to_have_text("My Site")
+    expect(site).to_have_attribute("href", "/home")
+    expect(page.locator(".MuiAppBar-root .separator")).to_have_text("/")
+    title = page.locator(".MuiAppBar-root a:has(.title)")
+    expect(title).to_have_text("My App")
+    expect(title).to_have_attribute("href", "")
+
+    pg.site = ""
+    expect(page.locator(".MuiAppBar-root .site")).to_have_count(0)
+    expect(title).to_have_attribute("href", "/home")
+
+
 def test_page_linear_progress_hidden_when_idle(page):
     """Test that linear progress bar is hidden (opacity: 0) when not busy."""
     pg = Page(

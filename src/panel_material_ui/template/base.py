@@ -148,6 +148,10 @@ class Page(MaterialComponent, ResourceComponent):
 
     sidebar_width = param.Integer(default=320, doc="Width of the sidebar")
 
+    site = param.String(default="", doc="""
+        Name of the site, shown in the header before the title and linking to
+        ``site_url``. When set, the title links to the current app instead.""")
+
     site_url = param.String(default="/", doc="""
         URL of the site and logo. Default is '/'.""")
 
