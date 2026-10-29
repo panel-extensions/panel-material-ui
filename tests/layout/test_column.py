@@ -24,3 +24,8 @@ def test_column_scroll_to_updates_scroll_index():
     col.scroll_to(2)
 
     assert events == [{"type": "scroll_to", "index": 2}]
+
+def test_column_scroll_true_is_vertical():
+    col = Column(scroll=True)
+
+    assert 'scrollable-vertical' in col._process_param_change({'scroll': True})['css_classes']
