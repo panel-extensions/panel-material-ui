@@ -165,6 +165,7 @@ python-build = "*"
 twine = "*"
 wheel = "*"
 conda-build = "*"
+simdjson = "<5.0.8" # tmp pin: 5.0.8 bumped its soname, breaking libmamba 2.10.0 built against 5.0.5-5.0.7
 
 [feature.build.tasks]
 build-wheel = "python -m build --no-isolation ."

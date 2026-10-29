@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import functools
+import inspect
 import os
 import pathlib
 import typing as t
+import warnings
 
+import panel
 import param
 from jinja2 import Template
 from panel.config import _base_config, config
@@ -25,6 +28,10 @@ if t.TYPE_CHECKING:
     from panel.io.location import LocationAreaBase
     from panel.io.resources import ResourcesType
     from pyviz_comms import Comm
+
+_INTERNAL_DIRS = tuple(
+    os.path.dirname(path) for path in (panel.__file__, param.__file__, os.path.dirname(__file__))
+)
 
 SIDEBAR_VARIANTS = ["persistent", "temporary", "permanent", "auto"]
 
@@ -72,15 +79,8 @@ class Page(MaterialComponent, ResourceComponent):
     >>> Page(main=['# Content'], title='My App')
     """
 
-    app_bar_width = param.ClassSelector(default=None, class_=(int, str, dict), doc="""
-        Maximum width of the app bar (header) content. When set, the toolbar
-        content is clamped to this width and centered, aligning it with a
-        clamped main area. Accepts a number (interpreted as pixels), a CSS
-        length string (e.g. '70ch', '60rem', '90%'), or a dict mapping Material
-        UI breakpoints to widths (e.g. {'xs': '100%', 'md': 720, 'lg': 960}),
-        where each value applies at that breakpoint and up. Defaults to None
-        (full width); when unset it follows ``main_width`` so the header stays
-        aligned with the main content.""")
+    app_bar_width = param.ClassSelector(default=None, class_=(int, str, dict), precedence=-1, doc="""
+        Deprecated alias for ``header_width``.""")
 
     busy = param.Boolean(default=False, readonly=True, doc="Whether the page is busy.")
 
@@ -108,6 +108,15 @@ class Page(MaterialComponent, ResourceComponent):
     favicon = param.ClassSelector(default=None, class_=(str, pathlib.Path), doc="The favicon of the page.")
 
     header = Children(doc="Items rendered in the header.")
+
+    header_width = param.ClassSelector(default=None, class_=(int, str, dict), doc="""
+        Maximum width of the header content. When set, the toolbar content is
+        clamped to this width and centered. Accepts a number (interpreted as
+        pixels), a CSS length string (e.g. '70ch', '60rem', '90%'), or a dict
+        mapping Material UI breakpoints to widths (e.g. {'xs': '100%', 'md': 720,
+        'lg': 960}), where each value applies at that breakpoint and up.
+        Defaults to None (full width), independent of ``main_width``; set both
+        to the same value to align the header with a clamped main area.""")
 
     main = Children(doc="Items rendered in the main area.")
 
@@ -152,8 +161,10 @@ class Page(MaterialComponent, ResourceComponent):
 
     _custom_theme = param.List(default=[])
 
+    _syncing_header_width = False
+
     _esm_base = "Page.jsx"
-    _rename = {"config": None, "meta": None, "favicon": None, "apple_touch_icon": None, "template": None}
+    _rename = {"app_bar_width": None, "config": None, "meta": None, "favicon": None, "apple_touch_icon": None, "template": None}
     _source_transforms = {
         "header": None,
         "contextbar": None,
@@ -178,7 +189,12 @@ class Page(MaterialComponent, ResourceComponent):
         # a notebook) an unsized Page would shrink to its content width.
         if not {"sizing_mode", "width", "min_width", "max_width"} & set(params):
             params["sizing_mode"] = "stretch_width"
+        if "app_bar_width" in params:
+            self._warn_app_bar_width()
+            app_bar_width = params.pop("app_bar_width")
+            params.setdefault("header_width", app_bar_width)
         super().__init__(**params)
+        self._sync_header_width(app_bar_width=self.header_width)
         with edit_constant(self.meta):
             self.meta.param.update(**meta)
         self.config.param.update(**resources)
@@ -193,6 +209,39 @@ class Page(MaterialComponent, ResourceComponent):
             self._template = parse_template(self.template)
         else:
             self._template = self.template
+
+    @staticmethod
+    def _warn_app_bar_width():
+        # Point the warning at user code, past panel, param and panel_material_ui
+        # frames, whether it was raised from the constructor or a watcher.
+        frame, stacklevel = inspect.currentframe(), 1
+        while frame and frame.f_code.co_filename.startswith(_INTERNAL_DIRS):
+            frame, stacklevel = frame.f_back, stacklevel + 1
+        del frame
+        warnings.warn(
+            "Page's 'app_bar_width' parameter is deprecated, use 'header_width' instead.",
+            DeprecationWarning,
+            stacklevel=stacklevel,
+        )
+
+    @param.depends('app_bar_width', watch=True)
+    def _update_header_width(self):
+        if self._syncing_header_width:
+            return
+        self._warn_app_bar_width()
+        self._sync_header_width(header_width=self.app_bar_width)
+
+    @param.depends('header_width', watch=True)
+    def _update_app_bar_width(self):
+        if not self._syncing_header_width:
+            self._sync_header_width(app_bar_width=self.header_width)
+
+    def _sync_header_width(self, **values):
+        self._syncing_header_width = True
+        try:
+            self.param.update(**values)
+        finally:
+            self._syncing_header_width = False
 
     @param.depends('dark_theme', watch=True)
     def _update_config(self):
