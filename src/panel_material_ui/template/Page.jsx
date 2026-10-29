@@ -149,6 +149,7 @@ export function render({model, view}) {
   const [isContextDragging, setIsContextDragging] = React.useState(false)
   const [contextDragStartX, setContextDragStartX] = React.useState(0)
   const [contextDragStartWidth, setContextDragStartWidth] = React.useState(0)
+  const [site] = model.useState("site")
   const [site_url] = model.useState("site_url")
   const [title] = model.useState("title")
   const [variant] = model.useState("sidebar_variant")
@@ -513,7 +514,7 @@ export function render({model, view}) {
               </IconButton>
             </Tooltip>
           }
-          {(logo || title) && (
+          {(logo || site || title) && (
             <Box sx={{display: "flex", alignItems: "center", gap: 2}}>
               {logo && (
                 <a href={site_url} style={{display: "flex", alignItems: "center"}}>
@@ -525,8 +526,20 @@ export function render({model, view}) {
                   />
                 </a>
               )}
-              {title && (
+              {site && (
                 <a href={site_url} style={{textDecoration: "none", display: "flex", alignItems: "center"}}>
+                  <Typography variant="h3" className="site" sx={{color: "white", lineHeight: 1}}>
+                    {render_icon_text(site)}
+                  </Typography>
+                </a>
+              )}
+              {site && title && (
+                <Typography variant="h3" className="separator" aria-hidden="true" sx={{color: "white", lineHeight: 1, opacity: 0.7}}>
+                  /
+                </Typography>
+              )}
+              {title && (
+                <a href={site ? "" : site_url} style={{textDecoration: "none", display: "flex", alignItems: "center"}}>
                   <Typography variant="h3" className="title" sx={{color: "white", lineHeight: 1}}>
                     {render_icon_text(title)}
                   </Typography>
