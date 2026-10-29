@@ -123,6 +123,7 @@ filterwarnings = [
   "ignore:.*is shallow and may cause errors:UserWarning",
   "ignore:unclosed <socket.socket:ResourceWarning", # Windows
   "ignore:_pytest.python.CallSpec2 has been renamed:pytest.PytestRemovedIn10Warning", # anyio<4.15 with pytest>=9.2
+  "ignore:The inplace keyword in DataFrame.reset_index is deprecated:DeprecationWarning", # bokeh<3.10.2 with pandas>=3.1
 ]
 testpaths = ["tests"]
 
