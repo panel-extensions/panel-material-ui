@@ -1,5 +1,26 @@
 # Release Notes
 
+## Version 0.16.7
+
+Panel Material UI 0.16.7 adds a `site` parameter to the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) header for multi-page deployments, keeps the header full width when `main_width` is set, and fixes `DiscreteSlider` with throttling enabled.
+
+Many thanks to @philippjfr and @hoxbro for their contributions to this release.
+
+### 🔧 Enhancements
+
+* Add a `site` parameter to [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html), which shows the header as `site / title`, with the site name and logo linking to `site_url` and the title linking to the current app, as in the classic Panel templates ([#783](https://github.com/panel-extensions/panel-material-ui/pull/783))
+
+### 🐛 Bug Fixes
+
+* Keep the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) header full width when `main_width` is set, and rename `app_bar_width` to `header_width`. `app_bar_width` still works as a deprecated alias ([#781](https://github.com/panel-extensions/panel-material-ui/pull/781))
+* Only link the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) logo and title to the default `site_url` of `"/"` in served applications, so clicking them in a notebook output or an exported HTML file no longer navigates away. Pass `site_url="/"` explicitly to keep the link, e.g. in an app converted with `panel convert` ([#782](https://github.com/panel-extensions/panel-material-ui/pull/782))
+* Map the `value_throttled` index of [`DiscreteSlider`](https://panel-material-ui.holoviz.org/reference/widgets/DiscreteSlider.html) to the option value, which raised a `ValueError` with `pn.extension(throttled=True)` ([#784](https://github.com/panel-extensions/panel-material-ui/pull/784))
+* Give `Row` and `Column` a layout direction, so `scroll=True` scrolls along the layout's own axis and a HoloViews pane with `widget_layout=pmui.Row` sizes its widgets horizontally ([#785](https://github.com/panel-extensions/panel-material-ui/pull/785))
+
+### 🧪 Infrastructure & Developer Experience
+
+* Add a `jsconfig.json` for the TypeScript language server and update ESLint ([#773](https://github.com/panel-extensions/panel-material-ui/pull/773))
+
 ## Version 0.16.6
 
 Panel Material UI 0.16.6 fixes custom `MaterialUIComponent`s failing to load in served applications, sizes [`FlexBox`](https://panel-material-ui.holoviz.org/reference/layouts/FlexBox.html) children along the flex direction, and corrects a number of examples and claims in the how-to guides.
