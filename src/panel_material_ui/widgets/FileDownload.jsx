@@ -40,7 +40,7 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const [_syncing] = model.useState("_syncing")
 
-  const linkClick = React.useRef(false)
+  const pendingDownload = React.useRef(false)
   const linkRef = React.useRef(null)
   const theme = useTheme()
   const buttonSx = React.useMemo(
@@ -71,19 +71,37 @@ export function render(props, ref) {
   }
 
   const handleClick = () => {
-    if (linkRef.current && file_data != null) {
-      // We temporarily allow a click to trigger a download
-      // this avoids triggering two downloads since otherwise
-      // button and a click events both trigger
-      linkClick.current = true
-      linkRef.current.click()
-      linkClick.current = false
-    } else if (embed || (file_data != null && !auto && !linkRef.current)) {
+    if (embed) {
       downloadFile()
-    } else {
-      model.send_event("click", {})
+      return
     }
+    // With auto=False the link holds the data of the previous transfer so
+    // the download is deferred until the callback has re-run.
+    pendingDownload.current = !auto && file_data != null
+    model.send_event("click", {})
   }
+
+  React.useEffect(() => {
+    const transferHandler = () => {
+      if (pendingDownload.current && model.data != null) {
+        pendingDownload.current = false
+        downloadFile()
+      }
+    }
+    // Cleared once syncing ends so that a failed callback cannot leave
+    // a download pending for an unrelated later transfer.
+    const syncingHandler = () => {
+      if (!model._syncing) {
+        pendingDownload.current = false
+      }
+    }
+    model.on("change:_transfers", transferHandler)
+    model.on("change:_syncing", syncingHandler)
+    return () => {
+      model.off("change:_transfers", transferHandler)
+      model.off("change:_syncing", syncingHandler)
+    }
+  }, [model])
 
   React.useEffect(() => {
     const changeDataHandler = () => {
@@ -124,7 +142,7 @@ export function render(props, ref) {
         ref={linkRef}
         href={file_data == null ? null : URL.createObjectURL(dataURItoBlob(file_data))}
         download={filename}
-        onClick={(e) => linkClick.current || e.preventDefault()}
+        onClick={(e) => e.preventDefault()}
         style={{color: theme.palette[color].contrastText}}
       >
         {render_icon_text(label)}
