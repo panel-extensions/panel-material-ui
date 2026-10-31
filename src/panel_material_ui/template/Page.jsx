@@ -491,14 +491,24 @@ export function render({model, view}) {
     const maxWidth = to_max_width(header_width)
     return maxWidth == null ? undefined : {maxWidth, width: "100%", alignSelf: "center"}
   }, [header_width])
+  // Scrolling happens on a full-width wrapper so the scrollbar sits at the
+  // edge of the main area and wheel events in the gutters around a clamped
+  // main_width still scroll the content.
+  const mainScrollSx = React.useMemo(() => ({
+    flexGrow: 1,
+    display: "flex",
+    minHeight: 0,
+    flexDirection: "column",
+    overflowY: main_stretch ? "hidden" : "auto",
+  }), [main_stretch])
   const mainContentSx = React.useMemo(() => {
     const maxWidth = to_max_width(main_width)
     return {
       flexGrow: 1,
+      flexShrink: main_stretch ? 1 : 0,
       display: "flex",
       minHeight: 0,
       flexDirection: "column",
-      overflowY: main_stretch ? "hidden" : "auto",
       // alignSelf centers the clamped content within the (column) flex parent;
       // margin:auto would compute to resolved pixels and is harder to assert on.
       ...(maxWidth == null ? {} : {maxWidth, width: "100%", alignSelf: "center"}),
@@ -624,11 +634,13 @@ export function render({model, view}) {
           <Toolbar sx={toolbarSx}>
             <Typography variant="h5">&nbsp;</Typography>
           </Toolbar>
-          <Box className="main-content" sx={mainContentSx}>
-            {main.map((object, index) => {
-              apply_flex(view.get_child_view(model.main[index]), "column")
-              return object
-            })}
+          <Box className="main-scroll" sx={mainScrollSx}>
+            <Box className="main-content" sx={mainContentSx}>
+              {main.map((object, index) => {
+                apply_flex(view.get_child_view(model.main[index]), "column")
+                return object
+              })}
+            </Box>
           </Box>
         </Box>
       </Main>

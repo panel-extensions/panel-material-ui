@@ -214,6 +214,26 @@ def test_page_main_width_custom(page):
     expect(main_content).to_have_css("align-self", "center")
 
 
+def test_page_main_width_scrolls_from_gutter(page):
+    pg = Page(main=[pn.Column(*[pn.pane.Markdown(f"# Row {i}") for i in range(50)])], main_width=400)
+
+    serve_component(page, pg)
+
+    page.set_viewport_size({"width": 1200, "height": 600})
+    scroller = page.locator(".main-scroll")
+    content = page.locator(".main-content")
+    expect(content).to_have_css("max-width", "400px")
+
+    scroll_box = scroller.bounding_box()
+    content_box = content.bounding_box()
+    assert scroll_box["width"] > content_box["width"]
+    assert scroll_box["x"] + scroll_box["width"] == pytest.approx(1200, abs=1)
+
+    page.mouse.move(scroll_box["x"] + 20, scroll_box["y"] + 100)
+    page.mouse.wheel(0, 300)
+    wait_until(lambda: scroller.evaluate("el => el.scrollTop") > 0, page)
+
+
 def test_page_header_width_default_unclamped(page):
     """By default the header toolbar is not clamped (no max-width)."""
     pg = Page(main=[pn.pane.Markdown("# Content")])
