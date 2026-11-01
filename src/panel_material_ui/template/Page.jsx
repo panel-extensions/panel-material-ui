@@ -95,7 +95,7 @@ const Main = styled("main", {shouldForwardProp: (prop) => !["open", "variant", "
       marginRight: context_variant === "persistent" ? `-${contextbar_width}px` : "0px",
       padding: "0px",
       maxWidth: "100%",
-      p: 3,
+      p: 0,
       transition: theme.transitions.create("margin", {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
@@ -492,18 +492,25 @@ export function render({model, view}) {
     return maxWidth == null ? undefined : {maxWidth, width: "100%", alignSelf: "center"}
   }, [header_width])
   const mainContentSx = React.useMemo(() => {
-    const maxWidth = to_max_width(main_width)
     return {
       flexGrow: 1,
       display: "flex",
       minHeight: 0,
       flexDirection: "column",
       overflowY: main_stretch ? "hidden" : "auto",
-      // alignSelf centers the clamped content within the (column) flex parent;
-      // margin:auto would compute to resolved pixels and is harder to assert on.
-      ...(maxWidth == null ? {} : {maxWidth, width: "100%", alignSelf: "center"}),
+      p: 3,
     }
-  }, [main_stretch, main_width])
+  }, [main_stretch])
+  const mainInnerSx = React.useMemo(() => {
+    const maxWidth = to_max_width(main_width)
+    return {
+      display: "flex",
+      flexDirection: "column",
+      flexGrow: 1,
+      width: "100%",
+      ...(maxWidth == null ? {} : {maxWidth, alignSelf: "center"}),
+    }
+  }, [main_width])
 
   return (
     <Box ref={rootRef} className={`mui-${color_scheme}`} sx={pageRootSx}>
@@ -625,10 +632,12 @@ export function render({model, view}) {
             <Typography variant="h5">&nbsp;</Typography>
           </Toolbar>
           <Box className="main-content" sx={mainContentSx}>
-            {main.map((object, index) => {
-              apply_flex(view.get_child_view(model.main[index]), "column")
-              return object
-            })}
+            <Box className="main-content-inner" sx={mainInnerSx}>
+              {main.map((object, index) => {
+                apply_flex(view.get_child_view(model.main[index]), "column")
+                return object
+              })}
+            </Box>
           </Box>
         </Box>
       </Main>

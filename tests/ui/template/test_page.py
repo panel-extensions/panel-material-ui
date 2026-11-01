@@ -191,27 +191,48 @@ def test_page_sidebar_width_persistence(page):
 
 
 def test_page_main_width_default_unclamped(page):
-    """By default the main content area is not clamped (no max-width)."""
+    """By default the inner main content is not clamped (no max-width)."""
     pg = Page(main=[pn.pane.Markdown("# Content")])
 
     serve_component(page, pg)
 
-    main_content = page.locator(".main-content")
+    main_content = page.locator(".main-content-inner")
     expect(main_content).to_be_attached()
     expect(main_content).to_have_css("max-width", "none")
 
 
 def test_page_main_width_custom(page):
-    """main_width clamps and centers the main content area."""
-    pg = Page(main=[pn.pane.Markdown("# Content")], main_width=800)
+    """Regression for issue #8959: full-width scrolling with main_width."""
+    content = "\n\n".join(f"## Section {i}\nContent" for i in range(30))
+    pg = Page(main=[pn.pane.Markdown(content)], main_width=800)
 
     serve_component(page, pg)
+    page.set_viewport_size({"width": 1280, "height": 900})
 
     main_content = page.locator(".main-content")
-    expect(main_content).to_have_css("max-width", "800px")
+    main_inner = page.locator(".main-content-inner")
+    expect(main_content).to_have_css("max-width", "none")
+    expect(main_inner).to_have_css("max-width", "800px")
+    expect(main_content).to_have_css("overflow-y", "auto")
     # Centered via alignSelf in the column flex parent (margin:auto would
     # compute to resolved pixels, so we assert on align-self instead).
-    expect(main_content).to_have_css("align-self", "center")
+    expect(main_inner).to_have_css("align-self", "center")
+    scroll_metrics = main_content.evaluate(
+        "el => ({scrollHeight: el.scrollHeight, clientHeight: el.clientHeight})"
+    )
+    assert scroll_metrics["scrollHeight"] > scroll_metrics["clientHeight"]
+    scroll_top = main_content.evaluate("el => { el.scrollTop = 100; return el.scrollTop }")
+    assert scroll_top > 0
+    scroll_box = main_content.bounding_box()
+    inner_box = main_inner.bounding_box()
+    assert abs(inner_box["width"] - 800) < 1
+    page_root_right = page.locator(".mui-light, .mui-dark").evaluate_all(
+        "els => Math.max(...els.map(el => el.getBoundingClientRect().right))"
+    )
+    assert abs(scroll_box["x"] + scroll_box["width"] - page_root_right) < 1
+    scroll_center = scroll_box["x"] + scroll_box["width"] / 2
+    inner_center = inner_box["x"] + inner_box["width"] / 2
+    assert abs(inner_center - scroll_center) < 1
 
 
 def test_page_header_width_default_unclamped(page):
@@ -242,7 +263,7 @@ def test_page_main_width_css_string(page):
 
     serve_component(page, pg)
 
-    main_content = page.locator(".main-content")
+    main_content = page.locator(".main-content-inner")
     expect(main_content).to_have_css("max-width", "960px")
     expect(main_content).to_have_css("align-self", "center")
 
@@ -253,7 +274,7 @@ def test_page_main_width_breakpoint_dict(page):
 
     serve_component(page, pg)
 
-    main_content = page.locator(".main-content")
+    main_content = page.locator(".main-content-inner")
     # At/above the md breakpoint the 800px clamp applies.
     page.set_viewport_size({"width": 1200, "height": 800})
     expect(main_content).to_have_css("max-width", "800px")
@@ -270,7 +291,7 @@ def test_page_header_width_independent_of_main_width(page):
 
     toolbar = page.locator(".header .MuiToolbar-root")
     expect(toolbar).to_have_css("max-width", "none")
-    main_content = page.locator(".main-content")
+    main_content = page.locator(".main-content-inner")
     expect(main_content).to_have_css("max-width", "800px")
 
 
@@ -282,7 +303,7 @@ def test_page_header_width_overrides_main_width(page):
 
     toolbar = page.locator(".header .MuiToolbar-root")
     expect(toolbar).to_have_css("max-width", "1200px")
-    main_content = page.locator(".main-content")
+    main_content = page.locator(".main-content-inner")
     expect(main_content).to_have_css("max-width", "800px")
 
 
