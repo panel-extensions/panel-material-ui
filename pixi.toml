@@ -8,7 +8,10 @@ install = "pip install --no-build-isolation --no-deps --disable-pip-version-chec
 serve-dev = "panel serve examples/components.py --dev --port 0 --show"
 serve-example = { cmd = "echo ", depends-on = ["install", "serve-dev"] }
 compile = { cmd = "panel compile panel_material_ui --file-loader woff woff2", env = { PYTHONPATH = "./src:$PYTHONPATH" } }
-compile-dev = { cmd = "panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch", env = { PYTHONPATH = "./src:$PYTHONPATH" } }
+# jsconfig.json maps bare imports onto build/node_modules for editors; esbuild
+# honors those paths too, bypassing package exports and bundling MUI twice,
+# so an empty tsconfig in the build dir shields the build from it.
+compile-dev = { cmd = "mkdir -p build && echo '{}' > build/tsconfig.json && panel compile panel_material_ui --build-dir build --file-loader woff woff2 --watch", env = { PYTHONPATH = "./src:$PYTHONPATH" } }
 pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
 
