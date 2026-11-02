@@ -2,9 +2,9 @@
 
 ## Version 0.16.7
 
-Panel Material UI 0.16.7 adds a `site` parameter to the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) header for multi-page deployments, keeps the header full width when `main_width` is set, and fixes `DiscreteSlider` with throttling enabled.
+Panel Material UI 0.16.7 adds a `site` parameter to the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) header for multi-page deployments, keeps the header full width and places the main scrollbar at the edge of the page when `main_width` is set, and fixes `DiscreteSlider` with throttling enabled.
 
-Many thanks to @philippjfr and @hoxbro for their contributions to this release.
+Many thanks to @philippjfr, @hoxbro and @AaryanRS for their contributions to this release.
 
 ### 🔧 Enhancements
 
@@ -13,6 +13,7 @@ Many thanks to @philippjfr and @hoxbro for their contributions to this release.
 ### 🐛 Bug Fixes
 
 * Keep the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) header full width when `main_width` is set, and rename `app_bar_width` to `header_width`. `app_bar_width` still works as a deprecated alias ([#781](https://github.com/panel-extensions/panel-material-ui/pull/781))
+* Place the main scrollbar of the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) at the right edge of the page instead of next to the centered content when `main_width` is set, so mouse-wheel scrolling in the gutters also scrolls the main area ([#788](https://github.com/panel-extensions/panel-material-ui/pull/788))
 * Only link the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) logo and title to the default `site_url` of `"/"` in served applications, so clicking them in a notebook output or an exported HTML file no longer navigates away. Pass `site_url="/"` explicitly to keep the link, e.g. in an app converted with `panel convert` ([#782](https://github.com/panel-extensions/panel-material-ui/pull/782))
 * Map the `value_throttled` index of [`DiscreteSlider`](https://panel-material-ui.holoviz.org/reference/widgets/DiscreteSlider.html) to the option value, which raised a `ValueError` with `pn.extension(throttled=True)` ([#784](https://github.com/panel-extensions/panel-material-ui/pull/784))
 * Give `Row` and `Column` a layout direction, so `scroll=True` scrolls along the layout's own axis and a HoloViews pane with `widget_layout=pmui.Row` sizes its widgets horizontally ([#785](https://github.com/panel-extensions/panel-material-ui/pull/785))
@@ -20,6 +21,7 @@ Many thanks to @philippjfr and @hoxbro for their contributions to this release.
 ### 🧪 Infrastructure & Developer Experience
 
 * Add a `jsconfig.json` for the TypeScript language server and update ESLint ([#773](https://github.com/panel-extensions/panel-material-ui/pull/773))
+* Stop `compile-dev` from picking up the editor `jsconfig.json` paths, which bundled duplicate copies of MUI and Emotion and rendered components unstyled ([#789](https://github.com/panel-extensions/panel-material-ui/pull/789))
 
 ## Version 0.16.6
 
