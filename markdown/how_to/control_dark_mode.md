@@ -1,0 +1,85 @@
+# Control Dark Mode
+
+The `panel-material-ui` components automatically integrate with Panel’s dark mode configuration and allow you to force dark mode by setting `dark_theme=True` at the component level or in your Panel extension.
+
+## Dark mode only (no system preference)
+
+If you want your application to always use dark mode, you can set `dark_theme=True` on a component:
+
+```{pyodide}
+from panel_material_ui import Button
+
+Button(
+    label="Dark Button", dark_theme=True
+).servable()
+```
+
+or set it globally:
+
+```python
+pn.extension(theme='dark')
+```
+
+## Managed theme
+
+The theme is shared by the whole page: when a served app contains a component with `dark_theme=True`, the entire page switches to dark mode, not just that component. Rather than setting `dark_theme` on individual components, we therefore recommend controlling the theme for the whole app and letting users switch it. You have two options:
+
+1. Use the `Page` component, which will automatically include a theme toggle and manage the theme for you.
+
+```{pyodide}
+from panel_material_ui import Page, Button
+
+Page(
+    dark_theme=True,
+    main=[
+        Button(
+            label="Dark Button"
+        )
+    ],
+    title="Dark Mode Demo",
+).preview()
+```
+
+2. Embed the `ThemeToggle` component, which will ensure the theme is managed globally and let you switch between light and dark mode.
+
+```{pyodide}
+from panel_material_ui import Button, Row, ThemeToggle
+
+Row(Button(label="Hello"), ThemeToggle()).preview()
+```
+
+## Notebook themes
+
+When rendered in a VSCode, JupyterLab or nteract notebook (including nteract embedded in Kilo Desktop), components follow the editor theme automatically. They pick up the theme when they are first rendered and switch along with it whenever you change the theme in the editor, which takes precedence over `dark_theme` and `pn.extension(theme=...)`. Once rendered, a `ThemeToggle` or `Page` theme toggle can still switch the theme manually until the editor theme changes again.
+
+## Overriding dark palette
+
+When `dark_theme=True`, your components automatically swap to a dark palette. To customize that palette further, for instance to change the primary color, you can use `theme_config`, just like you would for other color overrides:
+
+```{pyodide}
+from panel_material_ui import Button
+
+dark_theme_config = {
+    "dark": {
+        "palette": {
+            "primary": {
+                "main": "#450c0c"
+            }
+        }
+    },
+    "light": {
+        "palette": {
+            "primary": {
+                "main": "#eb5252"
+            }
+        }
+    }
+}
+
+Button(
+    label="Custom Dark",
+    dark_theme=True,
+    button_type="primary",
+    theme_config=dark_theme_config
+).servable()
+```
