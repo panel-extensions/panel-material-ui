@@ -4,10 +4,13 @@ import pytest
 
 pytest.importorskip("playwright")
 
+from panel.pane import Markdown
 from panel.tests.util import serve_component, wait_until
+from panel.viewable import Viewer
 from playwright.sync_api import expect
 
 from panel_material_ui.chat import ChatAreaInput, ChatFeed, ChatInterface, ChatMessage
+from panel_material_ui.layout import Column
 
 pytestmark = pytest.mark.ui
 
@@ -169,3 +172,31 @@ def test_chat_interface_actions_menu(page):
     page.get_by_role("menuitem", name="Clear").click()
     wait_until(lambda: len(chat.objects) == 0, page)
     expect(page.get_by_role("menu")).to_have_count(0)
+
+
+@pytest.mark.parametrize("margin", [0, (0, 0, 0, 20), (5, 10)])
+def test_chat_message_short_markdown_does_not_wrap(page, margin):
+    text = "Let me check which tables are available in the database."
+    feed = ChatFeed(width=900, height=300)
+    feed.send(ChatMessage(Markdown(text, margin=margin), user="Assistant"), respond=False)
+    serve_component(page, feed)
+
+    paragraph = page.locator("p").filter(has_text=text)
+    expect(paragraph).to_have_count(1)
+    line_height = paragraph.evaluate("el => parseFloat(getComputedStyle(el).lineHeight)")
+    assert paragraph.bounding_box()["height"] < 1.5 * line_height
+
+
+def test_chat_message_viewer_renders_at_natural_height(page):
+    feed = ChatFeed(width=600, height=800)
+    feed.send(ChatMessage(_Summary(), user="Assistant"), respond=False)
+    serve_component(page, feed)
+
+    expect(page.get_by_text("Summary text")).to_be_visible()
+    assert _bubble(page, "Summary text").bounding_box()["height"] < 200
+
+
+class _Summary(Viewer):
+
+    def __panel__(self):
+        return Column(Markdown("Summary text"))
