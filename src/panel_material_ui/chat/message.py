@@ -11,16 +11,19 @@ import param
 from panel.chat.message import DEFAULT_AVATARS as DEFAULT_AVATARS_PANEL
 from panel.chat.message import ChatMessage, ChatReactionIcons
 from panel.io import state
+from panel.layout import Column as PanelColumn
 from panel.layout import Panel, Row
 from panel.pane import Placeholder
 from panel.pane import panel as as_panel
 from panel.pane.image import FileBase, Image, ImageBase
 from panel.pane.markup import HTMLBasePane
 from panel.util import isfile
-from panel.viewable import Child
+from panel.viewable import Child, Viewable
 from panel.widgets import Widget
 
 from ..base import MaterialComponent
+from ..layout import Column as MaterialColumn
+from ..layout import Row as MaterialRow
 from .input import ChatAreaInput
 
 _SLOT_STYLESHEET = """
@@ -40,6 +43,10 @@ _MESSAGE_STYLESHEET = """
   min-height: unset;
   padding: 0;
 }
+/* Panel's chat_message.css caps the width relative to the bubble, which is
+   sized from its content, so text wrapped early whenever the margins did
+   not offset the cap exactly, e.g. with margin=0. */
+.message { max-width: 100%; }
 /* Panel's chat_message.css pads markdown children from the parent's scope. */
 .markdown { padding-inline: 0; }
 :host(.message) > div > :first-child, :host(.step-message) > div > :first-child { margin-top: 0; }
@@ -86,6 +93,23 @@ DEFAULT_AVATARS = {
 # Reaction icons are Material Icons names; tabler names, which Panel's reaction
 # icons use, are translated since most only differ by using dashes.
 _TABLER_ICONS = {"heart": "favorite", "thumbup": "thumb_up", "thumbdown": "thumb_down"}
+
+
+# Markup inside other components (cards, steps, tabs, ...) belongs to that
+# component's design, so only markup reached through these is restyled.
+_PLAIN_LAYOUTS = (PanelColumn, Row, MaterialColumn, MaterialRow)
+
+
+def _message_markup(obj):
+    if isinstance(obj, HTMLBasePane) and not isinstance(obj, FileBase):
+        yield obj
+    elif type(obj) in _PLAIN_LAYOUTS:
+        for o in obj:
+            yield from _message_markup(o)
+
+
+def _has_content(obj) -> bool:
+    return obj is not None and str(obj) != ""
 
 
 def _material_icon(name: str) -> str:
@@ -330,24 +354,46 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
                 if _SLOT_STYLESHEET not in o.stylesheets:
                     o.stylesheets = [*o.stylesheets, _SLOT_STYLESHEET]
 
+    def _create_panel(self, value, old=None):
+        # Viewers would otherwise go through the renderers, which force a
+        # fixed height on anything that is not a Viewable.
+        if not isinstance(value, Viewable) and hasattr(value, '__panel__'):
+            value = as_panel(value)
+        return super()._create_panel(value, old)
+
     def _include_styles(self, obj):
         obj = as_panel(obj)
+        for pane, watcher in getattr(self, '_markup_watchers', []):
+            pane.param.unwatch(watcher)
+        self._markup_watchers = []
         combined = self._stylesheets + self.stylesheets + [_MESSAGE_STYLESHEET]
         for o in obj.select():
-            params = {
-                "stylesheets": [
-                    stylesheet for stylesheet in combined
-                    if stylesheet not in o.stylesheets
-                ] + o.stylesheets
-            }
-            is_markup = isinstance(o, HTMLBasePane) and not isinstance(o, FileBase)
-            if is_markup:
-                params["sizing_mode"] = None
-                if not o.css_classes and len(str(o.object)) > 0:  # only show a background if there is content
-                    params["css_classes"] = [
-                        *(css for css in o.css_classes if css != "message"), "message"
-                    ]
-            o.param.update(**params)
+            o.param.update(stylesheets=[
+                stylesheet for stylesheet in combined
+                if stylesheet not in o.stylesheets
+            ] + o.stylesheets)
+        for o in _message_markup(obj):
+            o.sizing_mode = None
+            if o.css_classes:
+                continue
+            if _has_content(o.object):
+                o.css_classes = ["message"]
+            else:
+                # Only show a background once there is content, e.g. when streaming.
+                watcher = o.param.watch(self._add_message_class, 'object')
+                self._markup_watchers.append((o, watcher))
+
+    def _add_message_class(self, event):
+        pane = event.obj
+        if not _has_content(event.new):
+            return
+        if not pane.css_classes:
+            pane.css_classes = ["message"]
+        for i, (p, watcher) in enumerate(self._markup_watchers):
+            if p is pane:
+                pane.param.unwatch(watcher)
+                del self._markup_watchers[i]
+                break
 
     def _process_param_change(self, params):
         params = super()._process_param_change(params)
