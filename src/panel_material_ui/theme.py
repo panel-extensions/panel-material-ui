@@ -34,76 +34,6 @@ MATERIAL_UI_ICONS = """
 .material-icons-outlined { font-family: 'Material Icons Outlined'; }
 """
 
-# Panel's own table styles draw a full grid, which reads as unthemed next to
-# MUI components, so tables follow the MUI Table look instead.
-DATAFRAME_CSS = """
-:host {
-  display: block;
-  overflow: auto;
-}
-:host table.panel-df {
-  background: transparent;
-  border: 1px solid var(--mui-palette-divider, rgba(0, 0, 0, 0.12));
-  border-collapse: separate;
-  border-radius: var(--mui-shape-borderRadius, 4px);
-  border-spacing: 0;
-  color: var(--mui-palette-text-primary, inherit);
-  font: var(--mui-font-body2, inherit);
-  margin: 0;
-  overflow: hidden;
-  width: 100%;
-}
-:host .panel-df th,
-:host .panel-df td {
-  border-bottom: 1px solid var(--mui-palette-divider, rgba(0, 0, 0, 0.12));
-  padding: 10px 16px;
-}
-:host .panel-df thead th {
-  background: var(--mui-palette-action-hover, rgba(0, 0, 0, 0.04));
-  color: var(--mui-palette-text-secondary, inherit);
-  font: var(--mui-font-overline, inherit);
-  font-weight: 500;
-  letter-spacing: 0.08333em;
-  text-transform: uppercase;
-}
-:host .panel-df tbody th {
-  color: var(--mui-palette-text-secondary, inherit);
-  font-weight: 500;
-}
-:host .panel-df tbody tr:last-child th,
-:host .panel-df tbody tr:last-child td {
-  border-bottom: 0;
-}
-:host .panel-df tbody tr:hover {
-  background: var(--mui-palette-action-hover, rgba(0, 0, 0, 0.04));
-}
-"""
-
-MARKDOWN_CSS = """
-:host table {
-  border: 1px solid var(--mui-palette-divider, rgba(0, 0, 0, 0.12));
-  border-collapse: separate;
-  border-radius: var(--mui-shape-borderRadius, 4px);
-  border-spacing: 0;
-  overflow: hidden;
-  padding: 0;
-}
-:host th,
-:host td {
-  border: 0;
-  border-bottom: 1px solid var(--mui-palette-divider, rgba(0, 0, 0, 0.12));
-  padding: 6px 16px;
-}
-:host thead th {
-  background-color: var(--mui-palette-action-hover, rgba(0, 0, 0, 0.04));
-  color: var(--mui-palette-text-secondary, inherit);
-  font-weight: 500;
-}
-:host tbody tr:last-child td {
-  border-bottom: 0;
-}
-"""
-
 MATERIAL_THEME = {
     "attrs": {
         "Axis": {
@@ -237,11 +167,13 @@ class MaterialDesign(Material):
         Viewable: {
             'stylesheets': Material.modifiers[Viewable]['stylesheets'] + [MATERIAL_UI_ICONS]
         },
+        # Panel's table styles draw a full grid, which reads as unthemed
+        # next to MUI components.
         DataFrame: {
-            'stylesheets': [Inherit, DATAFRAME_CSS]
+            'stylesheets': [Inherit, 'css/dataframe.css']
         },
         Markdown: {
-            'stylesheets': [Inherit, MARKDOWN_CSS]
+            'stylesheets': [Inherit, 'css/markdown.css']
         },
     }
 
