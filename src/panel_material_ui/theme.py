@@ -13,7 +13,8 @@ from panel.io.resources import (
     resolve_custom_path,
 )
 from panel.io.state import state
-from panel.theme.base import THEME_CSS, Design, Theme
+from panel.pane import DataFrame, Markdown
+from panel.theme.base import THEME_CSS, Design, Inherit, Theme
 from panel.theme.material import Material, MaterialDarkTheme, MaterialDefaultTheme
 from panel.util import relative_to
 from panel.viewable import Viewable
@@ -165,7 +166,15 @@ class MaterialDesign(Material):
         **Material.modifiers,
         Viewable: {
             'stylesheets': Material.modifiers[Viewable]['stylesheets'] + [MATERIAL_UI_ICONS]
-        }
+        },
+        # Panel's table styles draw a full grid, which reads as unthemed
+        # next to MUI components.
+        DataFrame: {
+            'stylesheets': [Inherit, 'css/dataframe.css']
+        },
+        Markdown: {
+            'stylesheets': [Inherit, 'css/markdown.css']
+        },
     }
 
     _resources = {}
