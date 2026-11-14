@@ -79,3 +79,33 @@ def test_icon_filter_variable_follows_theme(page):
     toggle_theme(page)
 
     wait_until(lambda: page.evaluate(icon_filter) == 'invert(1)', page)
+
+
+TABLE_STYLE = """(selector) => {
+  const find = (root) => {
+    const match = root.querySelector(selector)
+    if (match) { return match }
+    for (const el of root.querySelectorAll('*')) {
+      const found = el.shadowRoot && find(el.shadowRoot)
+      if (found) { return found }
+    }
+    return null
+  }
+  const table = find(document)
+  if (!table) { return null }
+  const header = getComputedStyle(table.querySelector('thead th'))
+  return [getComputedStyle(table).borderCollapse, header.textTransform, header.borderLeftWidth]
+}"""
+
+
+def test_dataframe_table_is_material_styled(page):
+    pd = pytest.importorskip('pandas')
+    serve_component(page, Page(main=[pn.pane.DataFrame(pd.DataFrame({'a': [1, 2], 'b': ['x', 'y']}))]))
+
+    wait_until(lambda: page.evaluate(TABLE_STYLE, 'table.panel-df') == ['separate', 'uppercase', '0px'], page)
+
+
+def test_markdown_table_is_material_styled(page):
+    serve_component(page, Page(main=[pn.pane.Markdown('| a | b |\n|---|---|\n| 1 | x |')]))
+
+    wait_until(lambda: page.evaluate(TABLE_STYLE, 'table')[::2] == ['separate', '0px'], page)
