@@ -26,6 +26,7 @@ import re
 import textwrap
 import typing as t
 from collections.abc import Mapping
+from weakref import WeakKeyDictionary
 
 import panel
 import panel.io.convert
@@ -45,7 +46,7 @@ from panel.param import Param
 from panel.reactive import Syncable
 from panel.util import base_version, classproperty
 from panel.util.checks import import_available
-from panel.viewable import Child, Children, Viewable
+from panel.viewable import Viewable
 from panel.widgets.base import CompositeWidget, WidgetBase
 
 from .__version import __version__  # noqa
@@ -68,7 +69,7 @@ if t.TYPE_CHECKING:
     from bokeh.model import Model
     from pyviz_comms import Comm
 
-_IGNORED_ESM_PROPERTIES = ('js_event_callbacks', 'esm_constants', 'js_property_callbacks', 'subscribed_events', 'syncable')
+_SYNCED_PARAMS: WeakKeyDictionary[type, tuple[str, ...]] = WeakKeyDictionary()
 
 COLORS = ["default", "primary", "secondary", "error", "info", "success", "warning", "light", "dark", "danger"]
 
@@ -500,15 +501,6 @@ class MaterialComponent(ReactComponent):
             esm += f'?{esm_hash}'
         return esm
 
-    @property
-    def _linked_properties(self) -> tuple[str, ...]:
-        mapping = {v: k for k, v in self._property_mapping.items() if v is not None}
-        params = self.param.objects(instance=False)
-        return tuple(
-            p for p in self._data_model.properties()
-            if p not in _IGNORED_ESM_PROPERTIES and not isinstance(params[mapping.get(p, p)], (Child, Children))
-        )
-
     def _get_model(
         self, doc: Document, root: Model | None = None,
         parent: Model | None = None, comm: Comm | None = None
@@ -553,8 +545,13 @@ class MaterialComponent(ReactComponent):
 
     @property
     def _synced_params(self) -> list[str]:
-        ignored = ['default_layout']
-        return [p for p in self.param if p not in ignored]
+        # Queried once per parameter when a model is initialized, so the
+        # class level result is cached.
+        cls = type(self)
+        synced = _SYNCED_PARAMS.get(cls)
+        if synced is None:
+            _SYNCED_PARAMS[cls] = synced = tuple(p for p in cls.param if p != 'default_layout')
+        return list(synced)
 
     def _update_loading(self, *_) -> None:
         pass
