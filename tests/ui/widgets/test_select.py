@@ -1,12 +1,14 @@
+import re
+
 import pytest
 
 pytest.importorskip('playwright')
 
-from panel import Column
+from panel import Column, Row
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
-from panel_material_ui.widgets import CheckButtonGroup, CrossSelector, MultiSelect, NestedSelect, RadioButtonGroup, Select
+from panel_material_ui.widgets import CheckButtonGroup, CrossSelector, MultiChoice, MultiSelect, NestedSelect, RadioButtonGroup, Select, TextInput
 
 pytestmark = pytest.mark.ui
 
@@ -238,6 +240,58 @@ def test_select_sizes(page, size):
 
     expect(page.locator(".select")).to_have_count(1)
     expect(page.locator(f".MuiInputBase-size{size.capitalize()}")).to_have_count(1)
+
+@pytest.mark.parametrize('variant', ["outlined", "filled", "standard"])
+def test_select_small_label_within_input(page, variant):
+    widget = Select(label='Projections', options=[], size='small', variant=variant)
+    serve_component(page, widget)
+
+    label = page.locator(".MuiInputLabel-root")
+    expect(label).to_have_class(re.compile("MuiInputLabel-sizeSmall"))
+    label_box = label.bounding_box()
+    input_box = page.locator(".MuiInputBase-root").bounding_box()
+    assert label_box["y"] >= input_box["y"]
+    assert label_box["y"] + label_box["height"] <= input_box["y"] + input_box["height"]
+
+
+@pytest.mark.parametrize('variant', ["outlined", "filled", "standard"])
+def test_select_small_shrunk_label_placement(page, variant):
+    widget = Select(label='Projections', options=['A', 'B'], value='A', size='small', variant=variant)
+    serve_component(page, widget)
+
+    label = page.locator(".MuiInputLabel-root")
+    expect(label).to_have_class(re.compile("MuiInputLabel-shrink"))
+    label_box = label.bounding_box()
+    input_box = page.locator(".MuiInputBase-root").bounding_box()
+    value_top = page.locator(".MuiSelect-select").evaluate(
+        "el => el.getBoundingClientRect().top + parseFloat(getComputedStyle(el).paddingTop)"
+    )
+    assert label_box["y"] + label_box["height"] <= value_top + 1
+    if variant == "filled":
+        assert label_box["y"] >= input_box["y"]
+
+
+@pytest.mark.parametrize('variant', ["outlined", "filled", "standard"])
+@pytest.mark.parametrize('value', [None, 'A'])
+def test_select_small_label_matches_text_input(page, variant, value):
+    select = Select(label='Projections', options=['A', 'B'] if value else [], value=value, size='small', variant=variant)
+    text_input = TextInput(label='Projections', value=value or '', size='small', variant=variant)
+    serve_component(page, Row(select, text_input))
+
+    labels = page.locator(".MuiInputLabel-root")
+    expect(labels).to_have_count(2)
+    select_box, text_box = labels.nth(0).bounding_box(), labels.nth(1).bounding_box()
+    assert select_box["y"] == pytest.approx(text_box["y"], abs=0.5)
+    assert select_box["height"] == pytest.approx(text_box["height"], abs=0.5)
+
+
+def test_multichoice_visual_size(page):
+    widget = MultiChoice(label='Projections', options=['A', 'B'], visual_size='small')
+    serve_component(page, widget)
+
+    expect(page.locator(".MuiInputBase-sizeSmall")).to_have_count(1)
+    expect(page.locator(".MuiInputLabel-sizeSmall")).to_have_count(1)
+
 
 def test_select_disabled_state(page):
     widget = Select(label='Select test', options=["Option 1", "Option 2"], disabled=True)

@@ -32,7 +32,8 @@ export function render({model, el, view}) {
   const [label] = model.useState("label")
   const [options] = model.useState("options")
   const [sx] = model.useState("sx")
-  const [size] = model.useState("size")
+  // MultiChoice inherits MultiSelect's integer `size` (visible rows), so its MUI size lives in `visual_size`
+  const [size] = model.useState(model.esm_constants.multi ? "visual_size" : "size")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
   const selectSx = React.useMemo(() => (sx ? [SELECT_BASE_SX, sx] : SELECT_BASE_SX), [sx])
@@ -489,6 +490,7 @@ export function render({model, el, view}) {
       disabled={disabled}
       error={error_state}
       fullWidth
+      size={MUI_SIZE(size)}
       variant={variant}
       sx={multi && chip ? {height: "100%"} : undefined}
     >
@@ -528,7 +530,7 @@ export function render({model, el, view}) {
         ref={anchorEl}
         renderValue={renderValue}
         size={MUI_SIZE(size)}
-        sx={denseSx(size, multiChipSx)}
+        sx={size === "large" ? denseSx(size, multiChipSx) : multiChipSx}
         value={value}
         variant={variant}
 
