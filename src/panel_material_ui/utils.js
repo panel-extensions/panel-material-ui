@@ -2227,6 +2227,9 @@ export const DENSE_CONTROL_SX = {
     // for every other `denseSx` consumer that lacks this class.
     "& .MuiPickersInputBase-sectionsContainer": {padding: "22px 0"},
     "& .MuiInputLabel-root": {fontSize: "1.1rem"},
+    // The outlined notch is sized by a hidden <legend> at MUI's 0.75em shrink
+    // scale of the input font, so it has to grow with the 1.1rem label above.
+    "& .MuiOutlinedInput-notchedOutline legend": {fontSize: "0.825em"},
     // MUI has no native size="large" Switch variant (it silently falls back
     // to plain, un-dense "medium" geometry), so start from the same coherent
     // 9px-padding geometry used at medium and scale the whole control up.
@@ -2259,8 +2262,9 @@ export const DENSE_CONTROL_SX = {
 // sx) can never reach it. This gives InputLabel its own size-driven sx to
 // apply directly, reusing the same font-size values as DENSE_CONTROL_SX so
 // Select's label matches the sizing intent of every other dense control.
+// "small" needs no entry: <FormControl size="small"> gives InputLabel MUI's
+// native small geometry, matching TextField and Autocomplete.
 const DENSE_INPUT_LABEL_SX = {
-  small: {fontSize: "0.875rem"},
   large: {fontSize: "1.1rem"},
 }
 

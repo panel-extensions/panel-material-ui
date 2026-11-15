@@ -67,7 +67,7 @@ export function render({model, view, el}) {
   };
 
   return (
-    <FormControl disabled={disabled} error={error_state} fullWidth variant={variant}>
+    <FormControl disabled={disabled} error={error_state} fullWidth size={MUI_SIZE(visual_size)} variant={variant}>
       {label &&
         <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
           {render_icon_text(label)}
@@ -89,7 +89,7 @@ export function render({model, view, el}) {
         size={MUI_SIZE(visual_size)}
         native
         onChange={handleChange}
-        sx={denseSx(visual_size, sx)}
+        sx={visual_size === "large" ? denseSx(visual_size, sx) : sx}
         value={value}
       >
         {options.map((name) => (
