@@ -265,3 +265,46 @@ def run_all_tests():
 if __name__ == "__main__":
     success = run_all_tests()
     sys.exit(0 if success else 1)
+
+
+def test_handle_msg_error_clears_buffers():
+    widget = FileInput()
+    widget._handle_msg({"type": "status", "status": "initializing"})
+    widget._process_chunk({"name": "a.txt", "chunk": 1, "total_chunks": 2, "mime_type": "text/plain", "data": b"ab"})
+    widget._process_chunk({"name": "b.txt", "chunk": 1, "total_chunks": 1, "mime_type": "text/plain", "data": b"cd"})
+    assert widget._file_buffer and widget._buffer
+
+    widget._handle_msg({"type": "status", "status": "error", "error": "too large"})
+    assert widget._file_buffer == {}
+    assert widget._buffer == []
+    assert widget.value is None
+
+
+def test_handle_msg_initializing_resets_stale_buffers():
+    widget = FileInput()
+    widget._process_chunk({"name": "stale.txt", "chunk": 1, "total_chunks": 2, "mime_type": "text/plain", "data": b"x"})
+    widget._handle_msg({"type": "status", "status": "initializing"})
+    widget._process_chunk({"name": "stale.txt", "chunk": 1, "total_chunks": 1, "mime_type": "text/plain", "data": b"new"})
+    widget._handle_msg({"type": "status", "status": "finished"})
+    assert widget.value == b"new"
+
+
+def test_chunks_with_same_basename_are_kept_apart():
+    widget = FileInput(directory=True)
+    widget._handle_msg({"type": "status", "status": "initializing"})
+    for index, (first, second) in enumerate([(b"a1", b"a2"), (b"b1", b"b2")]):
+        widget._process_chunk({"name": "data.csv", "index": index, "chunk": 1, "total_chunks": 2, "mime_type": "text/csv", "data": first})
+    for index, (first, second) in enumerate([(b"a1", b"a2"), (b"b1", b"b2")]):
+        widget._process_chunk({"name": "data.csv", "index": index, "chunk": 2, "total_chunks": 2, "mime_type": "text/csv", "data": second})
+    widget._handle_msg({"type": "status", "status": "finished"})
+    assert widget.value == [b"a1a2", b"b1b2"]
+    assert widget.filename == ["data.csv", "data.csv"]
+
+
+def test_empty_file_chunk():
+    widget = FileInput()
+    widget._handle_msg({"type": "status", "status": "initializing"})
+    widget._process_chunk({"name": "empty.txt", "index": 0, "chunk": 1, "total_chunks": 1, "mime_type": "text/plain", "data": b""})
+    widget._handle_msg({"type": "status", "status": "finished"})
+    assert widget.value == b""
+    assert widget.filename == "empty.txt"

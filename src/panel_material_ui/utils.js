@@ -1748,8 +1748,8 @@ function validateFileSize(file, maxFileSize, maxTotalFileSize, existingFiles = [
   if (maxTotalFileSize) {
     const maxTotalSizeBytes = typeof maxTotalFileSize === "string" ? parseSizeString(maxTotalFileSize) : maxTotalFileSize
     if (maxTotalSizeBytes) {
-      const existingSize = existingFiles.reduce((sum, f) => sum + f.size, 0)
-      const totalSize = existingSize + file.size
+      const otherSize = existingFiles.reduce((sum, f) => (f === file ? sum : sum + f.size), 0)
+      const totalSize = otherSize + file.size
       if (totalSize > maxTotalSizeBytes) {
         errors.push(`Adding "${file.name}" would exceed maximum total size of ${formatBytes(maxTotalSizeBytes)}`)
       }
@@ -1769,8 +1769,9 @@ export function formatBytes(bytes) {
 }
 
 // Chunked upload function using FileDropper's protocol
-export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 1024, setProgress = null, combined_chunks = null) {
-  const total_chunks = Math.ceil(file.size / chunkSize);
+export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 1024, setProgress = null, combined_chunks = null, index = null, chunk_offset = 0) {
+  // Empty files are still sent as a single empty chunk
+  const total_chunks = Math.max(1, Math.ceil(file.size / chunkSize))
 
   for (let chunkIndex = 0; chunkIndex < total_chunks; chunkIndex++) {
     const start = chunkIndex * chunkSize;
@@ -1792,11 +1793,12 @@ export async function uploadFileChunked(file, model, chunkSize = 10 * 1024 * 102
       chunk: chunkIndex + 1, // 1-indexed
       data: arrayBuffer,
       name: file.name,
+      index,
       total_chunks,
       mime_type: file.type
     })
     if (setProgress) {
-      setProgress(((chunkIndex+1) / (combined_chunks ?? total_chunks)) * 100)
+      setProgress(((chunk_offset + chunkIndex + 1) / (combined_chunks ?? total_chunks)) * 100)
     }
   }
 }
@@ -1830,14 +1832,16 @@ export async function processFilesChunked(files, model, maxFileSize, maxTotalFil
       if (sizeErrors.length > 0) {
         throw new Error(sizeErrors.join("; "))
       }
-      combined_chunks += Math.ceil(file.size / chunkSize);
+      combined_chunks += Math.max(1, Math.ceil(file.size / chunkSize))
     }
 
     model.send_msg({status: "initializing", type: "status"})
 
     // Upload all files using chunked protocol
-    for (const file of fileArray) {
-      await uploadFileChunked(file, model, chunkSize, setProgress, combined_chunks)
+    let chunk_offset = 0
+    for (const [index, file] of fileArray.entries()) {
+      await uploadFileChunked(file, model, chunkSize, setProgress, combined_chunks, index, chunk_offset)
+      chunk_offset += Math.max(1, Math.ceil(file.size / chunkSize))
     }
 
     model.send_msg({status: "finished", type: "status"})
