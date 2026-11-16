@@ -267,7 +267,6 @@ export function render({model, view, el}) {
         onClose={handleClose}
         onOpen={handleOpen}
         shouldDisableDate={shouldDisableDate}
-        sx={pickerSx}
         value={internalValue}
         views={views}
         slotProps={{
@@ -279,7 +278,9 @@ export function render({model, view, el}) {
             // MUI's OutlinedInput has no native size="large" variant, so
             // compensate the same way TextField-based widgets do; "small"
             // is left to MUI's own native small styling, which already works.
-            sx: size === "large" ? denseSx(size) : undefined,
+            // The picker-level sx is passed here too because slotProps.textField.sx
+            // replaces it rather than merging with it.
+            sx: size === "large" ? denseSx(size, pickerSx) : pickerSx,
             error: error_state,
             helperText: helper_text ? render_icon_text(helper_text) : undefined,
             onBlur: handleBlur,
