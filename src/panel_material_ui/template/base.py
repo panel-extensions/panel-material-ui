@@ -12,6 +12,7 @@ import panel
 import param
 from jinja2 import Template
 from panel.config import _base_config, config
+from panel.io.document import hold
 from panel.io.resources import ResourceComponent, Resources
 from panel.io.state import state
 from panel.util import edit_readonly
@@ -62,6 +63,32 @@ class Meta(param.Parameterized):
         if 'name' not in params:
             params["name"] = ""
         super().__init__(**params)
+
+
+def _set_session_theme(owner: MaterialComponent, dark: bool) -> None:
+    """
+    Applies the theme chosen on a Page or ThemeToggle to the session.
+
+    Only these owners write config.theme, so components created later
+    default to the chosen theme. The frontend switches every component
+    locally without syncing each of them back, so the owner brings the
+    Python side of the components rendered alongside it in line, in a
+    single batch of events.
+    """
+    theme = 'dark' if dark else 'default'
+    if config.theme != theme:
+        config.theme = theme
+    docs = {}
+    for ref in list(owner._models):
+        if ref in state._views:
+            _, _, doc, comm = state._views[ref]
+            docs[id(doc)] = (doc, comm)
+    for doc, comm in docs.values():
+        roots = [view for view, _, vdoc, _ in list(state._views.values()) if vdoc is doc]
+        with hold(doc, comm=comm):
+            for root in roots:
+                for c in root.select(MaterialComponent):
+                    c.dark_theme = dark
 
 
 class Page(MaterialComponent, ResourceComponent):
@@ -202,6 +229,8 @@ class Page(MaterialComponent, ResourceComponent):
             app_bar_width = params.pop("app_bar_width")
             params.setdefault("header_width", app_bar_width)
         super().__init__(**params)
+        if self._explicit_dark_theme:
+            _set_session_theme(self, self.dark_theme)
         self._sync_header_width(app_bar_width=self.header_width)
         with edit_constant(self.meta):
             self.meta.param.update(**meta)
@@ -261,7 +290,7 @@ class Page(MaterialComponent, ResourceComponent):
 
     @param.depends('dark_theme', watch=True)
     def _update_config(self):
-        config.theme = 'dark' if self.dark_theme else 'default'
+        _set_session_theme(self, self.dark_theme)
 
     def _add_resources(self, resources, extras, raw_css):
         for rname, res in resources.items():
@@ -416,7 +445,8 @@ class ThemeToggle(MaterialWidget):
     @param.depends('value', watch=True, on_init=True)
     def _update_theme(self):
         with param.parameterized.edit_constant(self):
-            self.theme = config.theme = 'dark' if self.value else 'default'
+            self.theme = 'dark' if self.value else 'default'
+        _set_session_theme(self, self.value)
 
 
 class AppBar(MaterialComponent):

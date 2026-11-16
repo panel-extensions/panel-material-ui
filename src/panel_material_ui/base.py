@@ -206,7 +206,7 @@ import 'material-icons/iconfont/filled.css';
 import 'material-icons/iconfont/outlined.css';
 import {{ ThemeProvider }} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import {{apply_global_css, install_theme_hooks, setup_global_styles as setup_root_styles}} from "./utils"
+import {{apply_global_css, install_theme_hooks, setup_global_styles as setup_root_styles, ComponentErrorBoundary}} from "./utils"
 
 {esm}
 
@@ -223,7 +223,9 @@ function {output}(props) {{
   return (
     <ThemeProvider theme={{theme}}>
       <CssBaseline />
-      <{input} {{...props}}/>
+      <ComponentErrorBoundary view={{props.view}}>
+        <{input} {{...props}}/>
+      </ComponentErrorBoundary>
       {{attached.length ? <div class="attached">{{attached}}</div> : null}}
     </ThemeProvider>
   )
@@ -368,10 +370,13 @@ class MaterialComponent(ReactComponent):
 
     _busy__ignore: t.ClassVar[list[str]] = ["dark_theme"]
 
+    _explicit_dark_theme: bool = False
+
     __abstract = True
 
     def __init__(self, **params):
-        if 'dark_theme' not in params:
+        explicit_dark_theme = 'dark_theme' in params
+        if not explicit_dark_theme:
             params['dark_theme'] = config.theme == 'dark'
         if 'design' not in params:
             design = config.design
@@ -397,10 +402,21 @@ class MaterialComponent(ReactComponent):
                 self._target_transforms.get(name, False) is not None
             ):
                 value.jslink(self, **{name: p})
-        theme = "dark" if self.dark_theme else "default"
-        if config.theme != theme:
-            config.theme = theme
-            for c in self.select(MaterialComponent):
+        self._explicit_dark_theme = explicit_dark_theme
+        if explicit_dark_theme:
+            self._propagate_dark_theme()
+
+    def _propagate_dark_theme(self):
+        # An explicit dark_theme applies to descendants that did not set one
+        # themselves, a descendant that did shields its own subtree. The
+        # session wide config.theme is only owned by Page and ThemeToggle.
+        descendants = [c for c in self.select(MaterialComponent) if c is not self]
+        shielded = {
+            id(sub) for c in descendants if c._explicit_dark_theme
+            for sub in c.select(MaterialComponent)
+        }
+        for c in descendants:
+            if id(c) not in shielded:
                 c.dark_theme = self.dark_theme
 
     def _setup_autoreload(self):
@@ -450,7 +466,7 @@ class MaterialComponent(ReactComponent):
             "react-is": ["*react_is"],
             "react-dom": ["*react_dom"],
             "react/jsx-runtime": [("jsx", "jsxs", "Fragment")],
-            "./utils": [("apply_global_css","install_theme_hooks","setup_global_styles",)],
+            "./utils": [("apply_global_css","install_theme_hooks","setup_global_styles","ComponentErrorBoundary",)],
             "@mui/material/styles": ["*material_styles"],
             "@mui/material": ["*material_ui"],
         })
@@ -796,9 +812,11 @@ class MaterialUIComponent(MaterialComponent):
                 esm_base, component_name = transform.apply(cls, esm_base, component_name)
             esm_base += f'\nexport default {{ render: {component_name} }}'
         esm_base = esm_base.replace(
-            'import {apply_global_css, install_theme_hooks, setup_global_styles as setup_root_styles} from "./utils"',
+            'import {apply_global_css, install_theme_hooks, setup_global_styles as setup_root_styles, '
+            'ComponentErrorBoundary} from "./utils"',
             'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks; '
-            'const apply_global_css = pnmui.apply_global_css; const setup_root_styles = pnmui.setup_global_styles;'
+            'const apply_global_css = pnmui.apply_global_css; const setup_root_styles = pnmui.setup_global_styles; '
+            'const ComponentErrorBoundary = pnmui.ComponentErrorBoundary;'
         ).replace(
             'import * as React from "react"', ''
         )

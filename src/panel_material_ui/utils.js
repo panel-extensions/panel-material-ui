@@ -710,7 +710,7 @@ function has_custom_theme(custom_theme, ...names) {
 function themed_stylesheets(model, key, stylesheet) {
   const marker = `/* ${key} */`
   const next = `${marker}\n${stylesheet}`
-  return [...model.stylesheets.filter(s => !s.includes(marker)), next]
+  return [...model.stylesheets.filter(s => !(typeof s === "string" && s.includes(marker))), next]
 }
 
 function alpha(theme, channel, value) {
@@ -868,13 +868,13 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[], sta
     const stylesheet = `.bk-right.bk-active, .bk-above.bk-active {
       --highlight-color: ${theme.palette.primary.main} !important;
     }`
-    model_props.stylesheets = [...model.stylesheets, stylesheet]
+    model_props.stylesheets = themed_stylesheets(model, "pmui-toolbar", stylesheet)
   } else if (model_type.endsWith("Tooltip")) {
-    model.stylesheets = [...model.stylesheets, `
+    model.stylesheets = themed_stylesheets(model, "pmui-tooltip", `
       .bk-tooltip-row-label {
         color: ${theme.palette.primary.main} !important;
-      `
-    ]
+      }`
+    )
   } else if (model_type.endsWith("Terminal")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = view ? find_on_parent(view, "elevation") : 0
@@ -904,20 +904,20 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[], sta
   } else if (model_type.endsWith("AcePlot")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     model_props.theme = dark ? "github_dark" : "github_light_default"
-    model.stylesheets = [...model.stylesheets, `
+    model.stylesheets = themed_stylesheets(model, "pmui-ace", `
       :host {
         --border-color: rgba(${theme.palette.common.onBackgroundChannel} / 0.23);
       }
-    `]
+    `)
   } else if (model_type.endsWith("DataTabulator")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = view ? find_on_parent(view, "elevation") : 0
-    model.stylesheets = [...model.stylesheets, `
+    model.stylesheets = themed_stylesheets(model, "pmui-tabulator", `
       :host {
         --mdc-theme-background: ${elevation_color(elevation, theme, dark)};
         --mdc-theme-surface: ${elevation_color(elevation+1, theme, dark, true)};
       }
-    `]
+    `)
   } else if (model_type.endsWith("VizzuChart")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = view ? find_on_parent(view, "elevation") : 0
@@ -953,12 +953,12 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[], sta
   } else if (model_type.endsWith("Split")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     const elevation = find_on_parent(view, "elevation")
-    model.stylesheets = [...model.stylesheets, `
+    model.stylesheets = themed_stylesheets(model, "pmui-split", `
       :host {
         --border-color: rgba(${theme.palette.common.onBackgroundChannel} / 0.23);
         --panel-background-color: ${elevation_color(elevation, theme, dark)};
       }
-    `]
+    `)
   } else if (model_type.endsWith("HoverTool")) {
     const view = Bokeh.index.find_one_by_id(model.id)
     if (view) {
@@ -1065,23 +1065,38 @@ export function overlay_container(parent) {
 // createTheme is the costliest part of mounting a component, and every
 // component with the same theme config builds an identical theme, except for
 // the overlay container of its popups, which is patched into a shallow copy.
+// The patched copies are cached per container too, so switching back and
+// forth between themes hands each component the same theme objects.
 const THEMES = new Map()
+const CONTAINER_THEMES = new WeakMap()
 const CONTAINER_COMPONENTS = ["MuiPopover", "MuiPopper", "MuiModal"]
 
 function cached_theme(props, theme_config, dark_theme) {
   const key = JSON.stringify([theme_config, dark_theme])
+  const container = overlay_container(props.view.container)
+  let themes = container == null ? null : CONTAINER_THEMES.get(container)
+  if (themes?.has(key)) {
+    return themes.get(key)
+  }
   let base = THEMES.get(key)
   if (base === undefined) {
     base = createTheme(render_theme_config({view: {container: null}}, theme_config, dark_theme))
     THEMES.set(key, base)
   }
-  const container = overlay_container(props.view.container)
   const components = {...base.components}
   for (const name of CONTAINER_COMPONENTS) {
     const component = components[name] ?? {}
     components[name] = {...component, defaultProps: {...component.defaultProps, container}}
   }
-  return {...base, components}
+  const theme = {...base, components}
+  if (container != null) {
+    if (themes == null) {
+      themes = new Map()
+      CONTAINER_THEMES.set(container, themes)
+    }
+    themes.set(key, theme)
+  }
+  return theme
 }
 
 export function render_theme_config(props, theme_config, dark_theme) {
@@ -1316,7 +1331,7 @@ export const apply_global_css = (model, view, theme) => {
       if (global_style_el) {
         global_style_el.textContent = render_theme_css(theme)
       }
-      const page_style_el = document.querySelector("#page_style")
+      const page_style_el = document.querySelector("#page-style")
       if (page_style_el) {
         page_style_el.textContent = render_page_css(theme)
       }
@@ -1418,7 +1433,8 @@ export const install_theme_hooks = (props) => {
   const inverseClass = `mui-${dark_theme ? "light" : "dark"}`
   props.view.container.className = `${props.view.container.className.replace(inverseClass, "").replace(themeClass, "").trim()} ${themeClass}`.trim()
 
-  const merge_theme_configs = (view) => {
+  const merge_theme_configs = (view, dark) => {
+    const color_scheme = dark ? "dark" : "light"
     let current = view
     let prev = null
     const theme_configs = []
@@ -1429,7 +1445,7 @@ export const install_theme_hooks = (props) => {
         const config = current.model.data.theme_config
         views.push(current)
         if (is_header) {
-          const primary_color = current.model.theme_config?.palette?.primary?.main ?? current.model.theme_config?.[color_scheme]?.palette?.primary?.main
+          const primary_color = config?.palette?.primary?.main ?? config?.[color_scheme]?.palette?.primary?.main
           let skip = false
           const header_color = primary_color ?? "#0072b5"
           const header_bg = luminance(header_color) < 164 ? "#ffffff" : "#000000"
@@ -1452,7 +1468,7 @@ export const install_theme_hooks = (props) => {
           }
         }
         if (config !== null) {
-          theme_configs.push((config.dark && config.light) ? config[dark_ref.current ? "dark" : "light"] : config)
+          theme_configs.push((config.dark && config.light) ? config[color_scheme] : config)
         }
       }
       prev = current
@@ -1462,12 +1478,22 @@ export const install_theme_hooks = (props) => {
     return [merged, views]
   }
 
-  const [theme_config, setThemeConfig] = React.useState(() => merge_theme_configs(props.view, dark_ref.current)[0])
-  const update_views = () => setThemeConfig(merge_theme_configs(props.view)[0])
+  // The theme config is merged during render, so a dark mode switch builds
+  // the theme once, and the theme only changes when the merged config does.
+  const [config_version, setConfigVersion] = React.useState(0)
+  const theme_config = React.useMemo(
+    () => merge_theme_configs(props.view, dark_theme)[0], [dark_theme, config_version]
+  )
+  const theme_key = React.useMemo(
+    () => JSON.stringify([theme_config, dark_theme]), [theme_config, dark_theme]
+  )
+  const theme = React.useMemo(
+    () => cached_theme(props, theme_config, dark_theme), [theme_key]
+  )
 
   React.useEffect(() => {
-    const [_, views] = merge_theme_configs(props.view)
-    const cb = () => update_views()
+    const [_, views] = merge_theme_configs(props.view, dark_ref.current)
+    const cb = () => setConfigVersion(v => v + 1)
     for (const view of views) {
       view.model_proxy.on("theme_config", cb)
     }
@@ -1477,23 +1503,20 @@ export const install_theme_hooks = (props) => {
       }
     }
   }, [])
-  React.useEffect(() => update_views(), [dark_theme])
-  const theme = React.useMemo(
-    () => cached_theme(props, theme_config, dark_theme), [dark_theme, theme_config]
-  )
 
-  // Sync local dark_mode with global dark mode
-  const isFirstRender = React.useRef(true)
+  // Only Page and ThemeToggle publish to dark_mode. Components follow it
+  // locally, without syncing, the owner updates the Python side of all of
+  // them in one go. Adopting the value on mount covers components that
+  // were created before the owner last switched.
+  const follow_dark_mode = (dark) => {
+    props.view.model.data.setv({dark_theme: dark}, {sync: false})
+  }
   React.useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      if (dark_mode.get_value() != null) {
-        setDarkTheme(dark_mode.get_value())
-        return
-      }
+    const value = dark_mode.get_value()
+    if (value != null && value !== dark_theme) {
+      setDarkTheme(value)
     }
-    dark_mode.set_value(dark_theme)
-  }, [dark_theme])
+  }, [])
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -1501,7 +1524,7 @@ export const install_theme_hooks = (props) => {
       setDarkTheme(true)
     }
 
-    const cb = (val) => setDarkTheme(val)
+    const cb = (val) => follow_dark_mode(val)
     if (document.documentElement.dataset.themeManaged === "true") {
       dark_mode.subscribe(cb)
       return () => dark_mode.unsubscribe(cb)
@@ -1520,7 +1543,7 @@ export const install_theme_hooks = (props) => {
     if (page == null) {
       return
     }
-    const sync = () => setDarkTheme(page.model.data.dark_theme)
+    const sync = () => follow_dark_mode(page.model.data.dark_theme)
     sync()
     page.model_proxy.on("dark_theme", sync)
     return () => page.model_proxy.off("dark_theme", sync)
@@ -1540,6 +1563,44 @@ export const install_theme_hooks = (props) => {
     }
   }, [theme])
   return theme
+}
+
+// Panel only wraps components in an error boundary in dev mode, so without
+// one a component that throws while rendering unmounts its React root for
+// good, together with any children rendered into it. The boundary keeps the
+// root alive and retries once the model changes, e.g. when Python replaces
+// the offending value.
+export class ComponentErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {error: null}
+    this._reset = () => {
+      if (this.state.error != null) {
+        this.setState({error: null})
+      }
+    }
+  }
+
+  static getDerivedStateFromError(error) {
+    return {error}
+  }
+
+  componentDidMount() {
+    this.props.view?.model?.data?.change.connect(this._reset)
+  }
+
+  componentWillUnmount() {
+    this.props.view?.model?.data?.change.disconnect(this._reset)
+  }
+
+  componentDidCatch(error) {
+    const name = this.props.view?.model?.class_name ?? "component"
+    console.error(`panel-material-ui: ${name} failed to render`, error)
+  }
+
+  render() {
+    return this.state.error == null ? this.props.children : null
+  }
 }
 
 export function isNumber(obj) {
