@@ -1,6 +1,6 @@
 import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
-import {render_icon_text, render_icon_text_as_string, denseSx} from "./utils"
+import {render_icon_text, render_icon_text_as_string, denseSx, useDraftInput} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -12,9 +12,8 @@ export function render({model, el, view}) {
   const [placeholder] = model.useState("placeholder")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
-  const [value, setValue] = model.useState("value")
-  const [value_input, setValueInput] = model.useState("value_input")
   const [variant] = model.useState("variant")
+  const {draft, commit, inputProps} = useDraftInput(model)
 
   const ref = React.useRef(null)
   React.useEffect(() => {
@@ -35,12 +34,11 @@ export function render({model, el, view}) {
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
       multiline={model.esm_constants.multiline}
       placeholder={render_icon_text_as_string(placeholder)}
-      onBlur={() => setValue(value_input)}
-      onChange={(event) => setValueInput(event.target.value)}
+      {...inputProps}
       onKeyDown={(event) => {
         if (event.key === "Enter") {
           model.send_event("enter", event)
-          setValue(value_input)
+          commit()
         }
       }}
       rows={4}
@@ -52,7 +50,7 @@ export function render({model, el, view}) {
       // InputLabel/InputBase natively and gets it right out of the box.
       sx={size === "large" ? denseSx(size, sx) : sx}
       variant={variant}
-      value={value_input}
+      value={draft}
     />
   )
 }

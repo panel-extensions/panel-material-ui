@@ -4,7 +4,7 @@ import TextField from "@mui/material/TextField"
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff"
 import {render_description} from "./description"
-import {render_icon_text} from "./utils"
+import {render_icon_text, useDraftInput} from "./utils"
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -16,9 +16,8 @@ export function render({model, el, view}) {
   const [placeholder] = model.useState("placeholder")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
-  const [value, setValue] = model.useState("value")
-  const [value_input, setValueInput] = model.useState("value_input")
   const [variant] = model.useState("variant")
+  const {draft, commit, inputProps} = useDraftInput(model)
   const [showPassword, setShowPassword] = React.useState(false)
 
   const ref = React.useRef(null)
@@ -37,12 +36,11 @@ export function render({model, el, view}) {
       helperText={helper_text ? render_icon_text(helper_text) : undefined}
       inputRef={ref}
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
-      onBlur={() => setValue(value_input)}
-      onChange={(event) => setValueInput(event.target.value)}
+      {...inputProps}
       onKeyDown={(event) => {
         if (event.key === "Enter") {
           model.send_event("enter", event)
-          setValue(value_input)
+          commit()
         }
       }}
       maxLength={max_length}
@@ -69,7 +67,7 @@ export function render({model, el, view}) {
       sx={sx}
       type={showPassword ? "text" : "password"}
       variant={variant}
-      value={value_input}
+      value={draft}
     />
   )
 }

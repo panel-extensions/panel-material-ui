@@ -200,3 +200,38 @@ def test_time_picker_increments(page):
     # Verify the format shows seconds
     input_value = page.locator(".MuiPickersInputBase-input").input_value().lower()
     assert "06:08:00 pm" in input_value or "06:08:00pm" in input_value
+
+
+def test_time_picker_partial_edit_not_committed(page):
+    widget = TimePicker(value=datetime.time(10, 30), clock='24h')
+    values = []
+    widget.param.watch(lambda e: values.append(e.new), 'value')
+    serve_component(page, widget)
+
+    input_el = page.locator(".MuiPickersInputBase-input")
+    wait_until(lambda: "10:30" in input_el.input_value(), page)
+
+    page.locator("span[aria-label='Minutes']").click()
+    page.keyboard.press("Backspace")
+    expect(input_el).to_have_value("10:mm")
+    page.wait_for_timeout(300)
+    assert values == []
+
+    page.keyboard.type("45")
+    wait_until(lambda: widget.value == datetime.time(10, 45), page)
+    assert values == [datetime.time(10, 45)]
+
+
+def test_time_picker_partial_edit_restored_on_blur(page):
+    widget = TimePicker(value=datetime.time(10, 30), clock='24h')
+    serve_component(page, widget)
+
+    input_el = page.locator(".MuiPickersInputBase-input")
+    wait_until(lambda: "10:30" in input_el.input_value(), page)
+
+    page.locator("span[aria-label='Minutes']").click()
+    page.keyboard.press("Backspace")
+    page.keyboard.press("Tab")
+
+    expect(input_el).to_have_value("10:30")
+    assert widget.value == "10:30:00"

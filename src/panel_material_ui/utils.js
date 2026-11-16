@@ -1887,6 +1887,81 @@ export function isFileAccepted(file, accept) {
   })
 }
 
+// While the user is typing, value_input updates coming back from the server
+// may answer an earlier keystroke, so they are only applied once typing has
+// paused for this many milliseconds, or the input loses focus.
+export const TYPING_IDLE_MS = 300
+
+/**
+ * Local draft for a text input bound to value_input/value. Server updates of
+ * value_input are deferred while the user is typing or composing with an IME,
+ * so stale echoes cannot overwrite newer keystrokes or break a composition.
+ *
+ * @returns {{draft: string, commit: Function, inputProps: Object}} the text to
+ * render, a callback that commits the draft to value, and the event handlers
+ * to spread onto the MUI TextField.
+ */
+export function useDraftInput(model) {
+  const [value_input, setValueInput] = model.useState("value_input")
+  const [, setValue] = model.useState("value")
+  const [draft, setDraft] = React.useState(value_input ?? "")
+  const draftRef = React.useRef(draft)
+  const focusedRef = React.useRef(false)
+  const composingRef = React.useRef(false)
+  const lastEditRef = React.useRef(0)
+  const syncTimerRef = React.useRef(null)
+
+  const updateDraft = (text) => {
+    draftRef.current = text
+    setDraft(text)
+  }
+
+  const syncFromModel = () => {
+    clearTimeout(syncTimerRef.current)
+    const remote = model.value_input ?? ""
+    if (remote === draftRef.current) {
+      return
+    }
+    if (!focusedRef.current) {
+      updateDraft(remote)
+    } else if (!composingRef.current) {
+      const idle = Date.now() - lastEditRef.current
+      if (idle >= TYPING_IDLE_MS) {
+        updateDraft(remote)
+      } else {
+        syncTimerRef.current = setTimeout(syncFromModel, TYPING_IDLE_MS - idle)
+      }
+    }
+    // While composing, compositionend re-runs the sync
+  }
+
+  React.useEffect(syncFromModel, [value_input])
+  React.useEffect(() => () => clearTimeout(syncTimerRef.current), [])
+
+  const commit = () => setValue(draftRef.current)
+
+  const inputProps = {
+    onBlur: () => {
+      focusedRef.current = false
+      commit()
+      syncFromModel()
+    },
+    onChange: (event) => {
+      lastEditRef.current = Date.now()
+      updateDraft(event.target.value)
+      setValueInput(event.target.value)
+    },
+    onCompositionEnd: () => {
+      composingRef.current = false
+      lastEditRef.current = Date.now()
+      syncFromModel()
+    },
+    onCompositionStart: () => { composingRef.current = true },
+    onFocus: () => { focusedRef.current = true },
+  }
+  return {draft, commit, inputProps}
+}
+
 /**
  * Parses an icon name with optional variant suffix and returns the baseClassName and clean icon name.
  *

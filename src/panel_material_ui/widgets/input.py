@@ -1464,11 +1464,13 @@ class TimePicker(_TimeCommon):
             time_str = msg['value']
             if time_str and isinstance(time_str, str):
                 time_parts = time_str.split(':')
-                if len(time_parts) >= 2:
-                    hours = int(time_parts[0])
-                    minutes = int(time_parts[1])
+                try:
+                    hours, minutes = int(time_parts[0]), int(time_parts[1])
                     seconds = int(time_parts[2]) if len(time_parts) > 2 else 0
                     msg['value'] = dt_time(hours, minutes, seconds)
+                except (IndexError, ValueError):
+                    # Incomplete or invalid edit from the frontend, keep the current value
+                    del msg['value']
         return msg
 
 

@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 import numpy as np
 import param
@@ -6,7 +6,7 @@ import pytest
 from panel import config
 
 from panel_material_ui.chat import ChatAreaInput
-from panel_material_ui.widgets import ArrayInput, DatePicker, DatetimeInput, DatetimeRangeInput, FloatInput, IntInput, StaticText, Switch
+from panel_material_ui.widgets import ArrayInput, DatePicker, DatetimeInput, DatetimeRangeInput, FloatInput, IntInput, StaticText, Switch, TimePicker
 
 
 @pytest.mark.from_panel
@@ -258,3 +258,16 @@ def test_switch_width():
     assert Switch(width=100).width == 100
     with pytest.raises(ValueError):
         Switch(width=-1)
+
+
+@pytest.mark.parametrize('invalid', ['Invalid Date', '12:xx:00', '12', 'aa:bb'])
+def test_time_picker_ignores_invalid_frontend_value(invalid):
+    widget = TimePicker(value=time(10, 30))
+    msg = widget._process_property_change({'value': invalid})
+    assert 'value' not in msg
+
+
+def test_time_picker_parses_frontend_value():
+    widget = TimePicker()
+    assert widget._process_property_change({'value': '09:05:07'}) == {'value': time(9, 5, 7)}
+    assert widget._process_property_change({'value': None}) == {'value': None}
