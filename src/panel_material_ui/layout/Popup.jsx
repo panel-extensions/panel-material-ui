@@ -1,5 +1,5 @@
 import Popover from "@mui/material/Popover"
-import {apply_flex, overlay_container} from "./utils"
+import {apply_flex, child_model, overlay_container} from "./utils"
 
 export function render({model, view}, ref) {
   const [anchor_origin] = model.useState("anchor_origin")
@@ -18,7 +18,7 @@ export function render({model, view}, ref) {
   React.useEffect(() => {
     const handler = () => {
       objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), "column")
+        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
       })
     }
     model.on("lifecycle:update_layout", handler)

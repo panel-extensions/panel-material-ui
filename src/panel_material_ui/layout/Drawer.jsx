@@ -1,6 +1,6 @@
 import Drawer from "@mui/material/Drawer"
 import Paper from "@mui/material/Paper"
-import {apply_flex, render_icon} from "./utils"
+import {apply_flex, child_model, render_icon} from "./utils"
 
 const TAB_SIZE = 24
 const TAB_LENGTH = 48
@@ -116,7 +116,7 @@ export function render({model, view}) {
   React.useEffect(() => {
     const handler = () => {
       objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), "column")
+        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
       })
     }
     model.on("lifecycle:update_layout", handler)
@@ -193,7 +193,7 @@ export function render({model, view}) {
               sx={{"& .MuiDrawer-root": {position: "absolute"}, "& .MuiPaper-root": {position: "absolute"}}}
             >
               {objects.map((object, index) => {
-                apply_flex(view.get_child_view(model.objects[index]), "column")
+                apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
                 return object
               })}
               <DockedTab anchor={anchor} open={open} dockPosition={dockPosition} attached onClick={() => setOpen(false)} />
@@ -237,7 +237,7 @@ export function render({model, view}) {
             variant="persistent"
           >
             {objects.map((object, index) => {
-              apply_flex(view.get_child_view(model.objects[index]), "column")
+              apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
               return object
             })}
             <DockedTab anchor={anchor} open={open} dockPosition={dockPosition} attached onClick={() => setOpen(false)} icon={dockIcon} />
@@ -266,7 +266,7 @@ export function render({model, view}) {
           sx={{"& .MuiDrawer-root": {position: "absolute"}, "& .MuiPaper-root": {position: "absolute"}}}
         >
           {objects.map((object, index) => {
-            apply_flex(view.get_child_view(model.objects[index]), "column")
+            apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
             return object
           })}
         </Drawer>
@@ -277,7 +277,7 @@ export function render({model, view}) {
   return (
     <Drawer anchor={anchor} open={open} onClose={() => setOpen(false)} slotProps={slotProps} variant={variant}>
       {objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), "column")
+        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
         return object
       })}
     </Drawer>

@@ -3,11 +3,13 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.layout import Column
+from panel.pane import Markdown
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import Button
+from playwright.sync_api import expect
+
 from panel_material_ui.layout import Tabs
 from panel_material_ui.pane import Typography
-from playwright.sync_api import expect
+from panel_material_ui.widgets import Button
 
 pytestmark = pytest.mark.ui
 
@@ -251,3 +253,48 @@ def test_tabs_closable_inactive(page):
     wait_until(lambda: len(widget.objects) == 2, page)
     wait_until(lambda: widget.active == 0, page)
     expect(page.locator('.MuiTabsPanel')).to_contain_text('Content 1')
+
+
+def test_tabs_duplicate_object(page):
+    shared = Markdown("Shared")
+    widget = Tabs(("A", shared), ("B", "Other"), ("C", shared), ("D", "Last"))
+    serve_component(page, widget)
+
+    tabs = page.locator('.MuiTab-root')
+    expect(tabs).to_have_count(4)
+    content = page.locator('.MuiTabsPanel')
+
+    tabs.nth(3).click()
+    wait_until(lambda: widget.active == 3, page)
+    expect(content).to_contain_text('Last')
+
+    tabs.nth(2).click()
+    wait_until(lambda: widget.active == 2, page)
+    expect(content).to_contain_text('Shared')
+
+
+def test_tabs_closable_duplicate_object(page):
+    shared = Markdown("Shared")
+    widget = Tabs(("A", shared), ("B", "Other"), ("C", shared), closable=True, active=1)
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiTab-root')).to_have_count(3)
+    page.locator('.MuiTab-root >> nth=2 >> span:has-text("✕")').click()
+
+    wait_until(lambda: widget._names == ["A", "B"], page)
+    expect(page.locator('.MuiTab-root')).to_have_count(2)
+    assert widget.active == 1
+
+
+def test_tabs_pop_active_from_python(page):
+    widget = Tabs(("A", "Content A"), ("B", "Content B"), ("C", "Content C"), active=2)
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiTab-root')).to_have_count(3)
+    widget.pop(2)
+
+    assert widget.active == 1
+    expect(page.locator('.MuiTab-root')).to_have_count(2)
+    expect(page.locator('.MuiTab-root.Mui-selected')).to_have_count(1)
+    expect(page.locator('.MuiTab-root.Mui-selected')).to_have_text('B')
+    expect(page.locator('.MuiTabsPanel')).to_contain_text('Content B')

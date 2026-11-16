@@ -4,7 +4,7 @@ import Toolbar from "@mui/material/Toolbar"
 import Typography from "@mui/material/Typography"
 import IconButton from "@mui/material/IconButton"
 import {render_icon, render_icon_text} from "./utils"
-import {apply_flex} from "./utils"
+import {apply_flex, child_model} from "./utils"
 
 export function render({model, view}) {
   const [color] = model.useState("color")
@@ -20,7 +20,7 @@ export function render({model, view}) {
   React.useEffect(() => {
     const handler = () => {
       objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), "row")
+        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "row")
       })
     }
     model.on("lifecycle:update_layout", handler)
@@ -54,7 +54,7 @@ export function render({model, view}) {
         )}
         <Box sx={{flexGrow: 1, display: "flex", alignItems: "center", ml: title ? 2 : 0}}>
           {objects.map((object, index) => {
-            apply_flex(view.get_child_view(model.objects[index]), "row")
+            apply_flex(view.get_child_view(child_model(model.objects, object, index)), "row")
             return object
           })}
         </Box>

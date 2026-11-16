@@ -127,9 +127,32 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         #        replaced by watch precedence support in param
         self.param.watchers['objects']['value'].reverse()
 
-    @param.depends("objects", watch=True)
-    def _trigger_names(self):
-        self.param.trigger("_names", "_headers")
+    def _update_items(self, objects, headers, names, **params) -> None:
+        # Updating the names and headers in the same batch as the objects
+        # ensures they are validated and synced in a single update.
+        self.param.update(objects=objects, _headers=headers, _names=names, **params)
+
+    def _update_names(self, event: param.parameterized.Event) -> None:
+        if len(event.new) == len(self._names):
+            return
+        names, headers = [], []
+        for obj in event.new:
+            if obj in event.old:
+                index = event.old.index(obj)
+                names.append(self._names[index])
+                headers.append(self._headers[index] if index < len(self._headers) else None)
+            else:
+                names.append(obj.name)
+                headers.append(None)
+        self.param.update(_names=names, _headers=headers)
+
+    def _index_updates(self, n: int, removed: int | None = None) -> dict[str, t.Any]:
+        """
+        Returns parameter updates which keep index based parameters
+        valid for n objects and, if an object was removed, pointing
+        at the same objects.
+        """
+        return {}
 
     def _to_object_and_name(self, item):
         if isinstance(item, tuple):
@@ -156,12 +179,12 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         return objs, names
 
     def __setitem__(self, index, panes):
-        new_objects = list(self)
+        new_objects, headers, names = list(self), list(self._headers), list(self._names)
         if isinstance(index, slice):
-            new_objects[index], self._headers[index], self._names[index] = self._to_objects_and_names(panes)
+            new_objects[index], headers[index], names[index] = self._to_objects_and_names(panes)
         else:
-            new_objects[index], self._headers[index], self._names[index] = self._to_object_and_name(panes)
-        self.objects = new_objects
+            new_objects[index], headers[index], names[index] = self._to_object_and_name(panes)
+        self._update_items(new_objects, headers, names)
 
     def append(self, pane: t.Any) -> None:
         """
@@ -172,19 +195,15 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         obj (object): Panel component to add as a tab.
         """
         new_object, new_header, new_name = self._to_object_and_name(pane)
-        new_objects = list(self)
-        new_objects.append(new_object)
-        self._names.append(new_name)
-        self._headers.append(new_header)
-        self.objects = new_objects
+        self._update_items(
+            [*self, new_object], [*self._headers, new_header], [*self._names, new_name]
+        )
 
     def clear(self) -> None:
         """
         Clears the tabs.
         """
-        self._names = []
-        self._headers = []
-        self.objects = []
+        self._update_items([], [], [], **self._index_updates(0))
 
     def extend(self, panes: Iterable[t.Any]) -> None:
         """
@@ -195,11 +214,9 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         objects (list): List of panel components to add as tabs.
         """
         new_objects, new_headers, new_names = self._to_objects_and_names(panes)
-        objects = list(self)
-        objects.extend(new_objects)
-        self._names.extend(new_names)
-        self._headers.extend(new_headers)
-        self.objects = objects
+        self._update_items(
+            [*self, *new_objects], [*self._headers, *new_headers], [*self._names, *new_names]
+        )
 
     def insert(self, index: int, pane: t.Any) -> None:
         """
@@ -211,11 +228,11 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         object (object): Panel components to insert as tabs.
         """
         new_object, new_header, new_name = self._to_object_and_name(pane)
-        new_objects = list(self.objects)
+        new_objects, headers, names = list(self), list(self._headers), list(self._names)
         new_objects.insert(index, new_object)
-        self._headers.insert(index, new_header)
-        self._names.insert(index, new_name)
-        self.objects = new_objects
+        headers.insert(index, new_header)
+        names.insert(index, new_name)
+        self._update_items(new_objects, headers, names)
 
     def pop(self, index: int = -1) -> Viewable:
         """
@@ -225,11 +242,14 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         ----------
         index (int): The index of the item to pop from the tabs.
         """
-        new_objects = list(self)
+        new_objects, headers, names = list(self), list(self._headers), list(self._names)
         obj = new_objects.pop(index)
-        self._names.pop(index)
-        self._headers.pop(index)
-        self.objects = new_objects
+        headers.pop(index)
+        names.pop(index)
+        index = index % (len(new_objects) + 1)
+        self._update_items(
+            new_objects, headers, names, **self._index_updates(len(new_objects), index)
+        )
         return obj
 
     def remove(self, pane: Viewable) -> None:
@@ -240,25 +260,15 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         ----------
         obj (object): The object to remove from the tabs.
         """
-        new_objects = list(self)
-        if pane in new_objects:
-            index = new_objects.index(pane)
-            new_objects.remove(pane)
-            self._names.pop(index)
-            self._headers.pop(index)
-            self.objects = new_objects
-        else:
+        if pane not in self.objects:
             raise ValueError(f'{pane!r} is not in list')
+        self.pop(self.objects.index(pane))
 
     def reverse(self) -> None:
         """
         Reverses the tabs.
         """
-        new_objects = list(self)
-        new_objects.reverse()
-        self._names.reverse()
-        self._headers.reverse()
-        self.objects = new_objects
+        self._update_items(self.objects[::-1], self._headers[::-1], self._names[::-1])
 
 
 class Column(MaterialListLike):
@@ -764,6 +774,38 @@ class MaterialDynamicNamedListLike(MaterialNamedListLike):
 
     __abstract = True
 
+    def __init__(self, *objects, **params):
+        super().__init__(*objects, **params)
+        # One placeholder per root and position, so that switching only
+        # replaces the models of the objects that were (de)activated.
+        self._placeholders: dict[str, dict[int, BkSpacer]] = {}
+        self.param.watch(self._clamp_indices, 'objects')
+
+    def _clamp_indices(self, event: param.parameterized.Event):
+        # A trigger (e.g. a dynamic re-render on an active change) leaves
+        # the objects unchanged, so indices are only clamped on real changes.
+        if event.old is event.new:
+            return
+        if (updates := self._index_updates(len(event.new))):
+            self.param.update(updates)
+
+    @staticmethod
+    def _shift_indices(indices: list[int], n: int, removed: int | None) -> list[int]:
+        shifted = []
+        for i in indices:
+            if removed is not None:
+                if i == removed:
+                    continue
+                elif i > removed:
+                    i -= 1
+            if 0 <= i < n:
+                shifted.append(i)
+        return shifted
+
+    def _index_updates(self, n: int, removed: int | None = None) -> dict[str, t.Any]:
+        disabled = self._shift_indices(self.disabled, n, removed)
+        return {} if disabled == self.disabled else {'disabled': disabled}
+
     def _is_active(self, index: int) -> bool:
         raise NotImplementedError
 
@@ -772,15 +814,25 @@ class MaterialDynamicNamedListLike(MaterialNamedListLike):
         if self.dynamic:
             self.param.trigger("objects")
 
+    def _cleanup(self, root: Model | None = None) -> None:
+        if root:
+            self._placeholders.pop(root.ref['id'], None)
+        super()._cleanup(root)
+
     def _get_child_model(self, child, doc, root, parent, comm):
         # Other children, e.g. the headers, are always rendered
         if child is not self.objects:
             return super()._get_child_model(child, doc, root, parent, comm)
         ref = root.ref["id"]
+        placeholders = self._placeholders.setdefault(ref, {})
+        for i in [i for i in placeholders if i >= len(child)]:
+            del placeholders[i]
         models, old_models = [], []
         for i, sv in enumerate(child):
             if self.dynamic and not self._is_active(i):
-                model = BkSpacer()
+                if i not in placeholders:
+                    placeholders[i] = BkSpacer()
+                model = placeholders[i]
             else:
                 if ref in sv._models:
                     old_models.append(sv._models[ref][0])
@@ -966,6 +1018,13 @@ class Accordion(MaterialDynamicNamedListLike, PaperMixin):
             params["objects"] = objects
         super().__init__(**params)
 
+    def _index_updates(self, n: int, removed: int | None = None) -> dict[str, t.Any]:
+        updates = super()._index_updates(n, removed)
+        active = self._shift_indices(self.active, n, removed)
+        if active != self.active:
+            updates['active'] = active
+        return updates
+
     def _is_active(self, index: int) -> bool:
         return index in self.active
 
@@ -1030,16 +1089,33 @@ class Tabs(MaterialDynamicNamedListLike):
             params["objects"] = objects
         super().__init__(**params)
 
+    def _index_updates(self, n: int, removed: int | None = None) -> dict[str, t.Any]:
+        updates = super()._index_updates(n, removed)
+        active = self.active
+        if removed is not None and (removed < active or active >= n):
+            active -= 1
+        active = max(min(active, n - 1), 0)
+        if active != self.active:
+            updates['active'] = active
+        return updates
+
     def _is_active(self, index: int) -> bool:
         return index == self.active
 
     def _handle_msg(self, msg):
         if msg.get('type') == 'close':
             obj_id = msg['id']
+            index = msg.get('index')
             for model, _ in self._models.values():
                 if model is None:
                     continue
-                for i, obj_model in enumerate(model.data.objects):
+                objects = model.data.objects
+                # The same object may be listed more than once, so the index
+                # the frontend reports is preferred if it still matches.
+                if isinstance(index, int) and 0 <= index < len(objects) and objects[index].id == obj_id:
+                    self.pop(index)
+                    return
+                for i, obj_model in enumerate(objects):
                     if obj_model.id == obj_id:
                         self.pop(i)
                         return

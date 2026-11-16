@@ -6,7 +6,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
-import {apply_flex, render_html_icon_text} from "./utils"
+import {apply_flex, child_model, render_html_icon_text} from "./utils"
 
 const DETAILS_BASE_SX = {
   display: "flex",
@@ -82,7 +82,7 @@ export function render({model, view, el}) {
   React.useEffect(() => {
     const handler = () => {
       objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), "column")
+        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
       })
     }
     model.on("lifecycle:update_layout", handler)
@@ -223,7 +223,7 @@ export function render({model, view, el}) {
               }}
             >
               {objects.map((object, index) => {
-                apply_flex(view.get_child_view(model.objects[index]), "column")
+                apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
                 return object
               })}
             </Box>
