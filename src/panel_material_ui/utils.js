@@ -1546,6 +1546,16 @@ export function isNumber(obj) {
   return toString.call(obj) === "[object Number]"
 }
 
+// Panel renders a child model listed more than once a single time, so the
+// rendered children may not line up with the list of child models.
+export function child_model(models, child, index) {
+  const model = models[index]
+  if (model == null || child?.props?.id == null || model.id === child.props.id) {
+    return model
+  }
+  return models.find((m) => m.id === child.props.id)
+}
+
 export function apply_flex(view, direction) {
   if (view == null) {
     return

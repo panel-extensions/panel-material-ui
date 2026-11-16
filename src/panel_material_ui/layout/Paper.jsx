@@ -1,5 +1,5 @@
 import Paper from "@mui/material/Paper"
-import {apply_flex} from "./utils"
+import {apply_flex, child_model} from "./utils"
 
 const PAPER_BASE_SX = {
   height: "100%",
@@ -18,7 +18,7 @@ export function render({model, view}) {
   React.useEffect(() => {
     const handler = () => {
       objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), "column")
+        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
       })
     }
     model.on("lifecycle:update_layout", handler)
@@ -38,7 +38,7 @@ export function render({model, view}) {
       variant={variant}
     >
       {objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), "column")
+        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
         return object
       })}
     </Paper>

@@ -22,6 +22,16 @@ export function render({model}) {
   const [variant] = model.useState("variant")
   const headers = model.get_child("_headers")
   const objects = model.get_child("objects")
+  const children = new Map(objects.map((object) => [object.props.id, object]))
+  const object_models = model.objects
+  // A child listed more than once can only be mounted in one place, so it is
+  // rendered in the first expanded section it belongs to.
+  const placement = new Map()
+  object_models.forEach((m, index) => {
+    if (!placement.has(m.id) || (active.includes(index) && !active.includes(placement.get(m.id)))) {
+      placement.set(m.id, index)
+    }
+  })
 
   const handle_expand = (index) => () => {
     let newActive
@@ -38,7 +48,8 @@ export function render({model}) {
 
   return (
     <>
-      { objects.map((obj, index) => {
+      { object_models.map((obj_model, index) => {
+        const obj = placement.get(obj_model.id) === index ? children.get(obj_model.id) : null
         return (
           <Accordion
             defaultExpanded={active.includes(index)}
@@ -47,6 +58,7 @@ export function render({model}) {
             elevation={elevation}
             expanded={active.includes(index)}
             key={`accordion-${index}`}
+            slotProps={{transition: {unmountOnExit: true}}}
             square={square}
             sx={sx}
             variant={variant}

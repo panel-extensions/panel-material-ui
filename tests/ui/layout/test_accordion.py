@@ -4,9 +4,10 @@ pytest.importorskip('playwright')
 
 from panel.layout import Column
 from panel.tests.util import serve_component, wait_until
+from playwright.sync_api import expect
+
 from panel_material_ui.layout import Accordion
 from panel_material_ui.pane import Typography
-from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
 
@@ -77,7 +78,7 @@ def test_accordion_expansion(page):
     serve_component(page, widget)
 
     # Initially no sections should be expanded
-    hidden = page.locator('.MuiCollapse-hidden')
+    hidden = page.locator('.MuiAccordion-root:not(.Mui-expanded)')
     expect(hidden).to_have_count(2)
 
     # Click to expand first section
@@ -103,7 +104,7 @@ def test_accordion_toggle_mode(page):
     # Expand second section (should collapse first in toggle mode)
     summaries.nth(1).click()
     wait_until(lambda: widget.active == [1], page)
-    hidden = page.locator('.MuiCollapse-hidden')
+    hidden = page.locator('.MuiAccordion-root:not(.Mui-expanded)')
     expect(hidden).to_have_count(1)
 
 def test_accordion_multiple_sections(page):
@@ -121,7 +122,7 @@ def test_accordion_multiple_sections(page):
     summaries.nth(0).click()
     summaries.nth(1).click()
 
-    hidden = page.locator('.MuiCollapse-hidden')
+    hidden = page.locator('.MuiAccordion-root:not(.Mui-expanded)')
     expect(hidden).to_have_count(0)
     wait_until(lambda: sorted(widget.active) == [0, 1], page)
 
@@ -141,7 +142,7 @@ def test_accordion_disabled_sections(page):
 
     # Try to click disabled section (should not expand)
     page.locator('.MuiAccordionSummary-root').nth(1).click(force=True)
-    hidden = page.locator('.MuiCollapse-hidden')
+    hidden = page.locator('.MuiAccordion-root:not(.Mui-expanded)')
     expect(hidden).to_have_count(2)
 
 def test_accordion_initial_state(page):
@@ -155,7 +156,7 @@ def test_accordion_initial_state(page):
     serve_component(page, widget)
 
     # Check initial expansion
-    hidden = page.locator('.MuiCollapse-hidden')
+    hidden = page.locator('.MuiAccordion-root:not(.Mui-expanded)')
     expect(hidden).to_have_count(1)
     expect(page.locator('.MuiAccordionDetails-root').nth(0)).to_contain_text('Content 1')
 
@@ -169,7 +170,7 @@ def test_accordion_collapse(page):
 
     # Click to collapse
     page.locator('.MuiAccordionSummary-root').click()
-    hidden = page.locator('.MuiCollapse-hidden')
+    hidden = page.locator('.MuiAccordion-root:not(.Mui-expanded)')
     expect(hidden).to_have_count(1)
     wait_until(lambda: widget.active == [], page)
 
@@ -194,7 +195,7 @@ def test_accordion_dynamic(page):
     )
     serve_component(page, widget)
 
-    details = page.locator('.MuiAccordionDetails-root')
+    details = page.locator('.MuiAccordion-root')
     expect(details.nth(0)).to_contain_text('Content 1')
     expect(details.nth(1)).not_to_contain_text('Content 2')
 
@@ -228,7 +229,7 @@ def test_accordion_dynamic_toggle(page):
     )
     serve_component(page, widget)
 
-    details = page.locator('.MuiAccordionDetails-root')
+    details = page.locator('.MuiAccordion-root')
     expect(details.nth(0)).to_contain_text('Content 1')
     expect(details.nth(1)).not_to_contain_text('Content 2')
 
@@ -249,7 +250,7 @@ def test_accordion_dynamic_active_from_python(page):
     )
     serve_component(page, widget)
 
-    details = page.locator('.MuiAccordionDetails-root')
+    details = page.locator('.MuiAccordion-root')
     expect(details.nth(0)).not_to_contain_text('Content 1')
     expect(details.nth(1)).not_to_contain_text('Content 2')
 
@@ -260,3 +261,40 @@ def test_accordion_dynamic_active_from_python(page):
     widget.active = [1]
     expect(details.nth(0)).not_to_contain_text('Content 1')
     expect(details.nth(1)).to_contain_text('Content 2')
+
+
+def test_accordion_collapsed_sections_unmounted(page):
+    widget = Accordion(
+        ('Section 1', Column("Content 1")),
+        ('Section 2', Column("Content 2")),
+        ('Section 3', Column("Content 3")),
+        active=[1]
+    )
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiAccordion-root')).to_have_count(3)
+    expect(page.locator('.MuiAccordionDetails-root')).to_have_count(1)
+    expect(page.locator('.MuiAccordionDetails-root')).to_contain_text('Content 2')
+
+    widget.active = [0, 2]
+    expect(page.locator('.MuiAccordionDetails-root')).to_have_count(2)
+    expect(page.locator('.MuiAccordion-root').nth(0)).to_contain_text('Content 1')
+    expect(page.locator('.MuiAccordion-root').nth(2)).to_contain_text('Content 3')
+
+
+def test_accordion_duplicate_object(page):
+    shared = Column("Shared")
+    widget = Accordion(('A', shared), ('B', "Other"), ('C', shared), ('D', "Last"), active=[3])
+    serve_component(page, widget)
+
+    sections = page.locator('.MuiAccordion-root')
+    expect(sections).to_have_count(4)
+    headers = page.locator('.MuiAccordionSummary-content')
+    for i, name in enumerate('ABCD'):
+        expect(headers.nth(i)).to_have_text(name)
+    expect(sections.nth(3)).to_contain_text('Last')
+
+    widget.active = [2]
+    expect(sections.nth(2)).to_contain_text('Shared')
+    widget.active = [0, 2]
+    expect(sections.nth(0)).to_contain_text('Shared')

@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box"
 import {
-  apply_flex, child_at_latest, scroll_to_child, scroll_to_latest,
+  apply_flex, child_model, child_at_latest, scroll_to_child, scroll_to_latest,
   update_scroll_button, use_latest_scroll_settlement
 } from "./utils"
 
@@ -182,7 +182,7 @@ export function render({model, view}) {
     const handler = () => {
       layoutUpdatedRef.current = true
       objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), childDirectionRef.current)
+        apply_flex(view.get_child_view(child_model(model.objects, object, index)), childDirectionRef.current)
       })
       if (pendingScrollLatestRef.current) {
         scrollToLatest()
@@ -206,7 +206,7 @@ export function render({model, view}) {
       sx={boxSx}
     >
       {objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), childDirection)
+        apply_flex(view.get_child_view(child_model(model.objects, object, index)), childDirection)
         return object
       })}
       {managedScroll && scroll_button_threshold > 0 && (
