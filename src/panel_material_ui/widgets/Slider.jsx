@@ -95,8 +95,11 @@ export function render({model, el, view}) {
     const [labels_state] = model.useState("options")
     labels = labels_state === undefined ? [] : labels_state
     start = 0
-    end = labels.length - 1
+    // MUI divides by (max - min), so a slider with fewer than two options needs a non-empty range
+    end = Math.max(labels.length - 1, 1)
   }
+  const empty = discrete && labels.length === 0
+  const slider_disabled = disabled || (discrete && labels.length < 2)
 
   let editableValue = null
   let handleKeyDown = null
@@ -249,7 +252,7 @@ export function render({model, el, view}) {
     if (valueLabel) {
       setValueLabel(valueLabel)
     } else if (discrete) {
-      setValueLabel(labels[value])
+      setValueLabel(labels.length ? labels[value] : "-")
     } else if (Array.isArray(value)) {
       let [v1, v2] = value;
       [v1, v2] = [format_value(v1), format_value(v2)];
@@ -294,8 +297,9 @@ export function render({model, el, view}) {
     const thumbInset = (size === "small" ? 12 : 20) / 2
     const orientationSx = orientation !== "vertical" ? {width: `calc(100% - ${2 * thumbInset}px)`, mx: `${thumbInset}px`} : {}
     const baseSx = bar_color == null ? [] : [SLIDER_BASE_SX]
-    return sx ? [...baseSx, orientationSx, sx] : [...baseSx, orientationSx]
-  }, [sx, orientation, bar_color, size])
+    const emptySx = empty ? [{"& .MuiSlider-thumb": {display: "none"}}] : []
+    return sx ? [...baseSx, orientationSx, ...emptySx, sx] : [...baseSx, orientationSx, ...emptySx]
+  }, [sx, orientation, bar_color, size, empty])
   const sliderStyle = React.useMemo(() => {
     return bar_color == null ? undefined : {"--pmui-slider-bar-color": bar_color}
   }, [bar_color])
@@ -386,7 +390,7 @@ export function render({model, el, view}) {
         <Slider
           color={color}
           dir={direction}
-          disabled={disabled}
+          disabled={slider_disabled}
           getAriaLabel={() => render_icon_text_as_string(label)}
           getAriaValueText={aria_value_text}
           marks={ticks}
@@ -400,8 +404,8 @@ export function render({model, el, view}) {
           step={date ? step*86400000 : (datetime ? step*1000 : step)}
           sx={denseSx(size, sliderSx)}
           style={sliderStyle}
-          track={track}
-          value={value}
+          track={empty ? false : track}
+          value={empty ? start : value}
           valueLabelDisplay={tooltips === "auto" ? "auto" : tooltips ? "on" : "off"}
           valueLabelFormat={(d, i) => render_icon_text(format_value(d, i))}
         />
