@@ -21,7 +21,7 @@ export function render(props, ref) {
   const [persistent] = model.useState("persistent")
   const [size] = model.useState("size")
   const [toggle_icon] = model.useState("toggle_icon")
-  const [toggled, setToggled] = model.useState("toggled")
+  const [toggled] = model.useState("toggled")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
   const [open, setOpen] = React.useState(false)
@@ -42,17 +42,8 @@ export function render(props, ref) {
       event.stopPropagation()
     }
 
-    if (toggled) {
-      const new_toggled = [...toggled]
-      const idx = new_toggled.indexOf(index)
-      if (idx > -1) {
-        new_toggled.splice(idx, 1)
-      } else {
-        new_toggled.push(index)
-      }
-      setToggled(new_toggled)
-    }
-    // Send toggle_item message to toggle the item's state
+    // Python owns `toggled`; flipping it here as well would race the message
+    // and double-toggle once the model write reaches Python first.
     model.send_msg({type: "toggle_item", item: index})
 
     // Close menu if not persistent

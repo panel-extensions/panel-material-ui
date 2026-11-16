@@ -2511,7 +2511,8 @@ export function useThrottledModelState(model, name, wait = 50) {
   const [pending, setPending] = React.useState(undefined)
   const state = React.useRef({timer: null, last: 0, value: undefined})
   // Unmounting mid-drag (e.g. a ColorPicker in a closing Popup) still sends
-  // the trailing value. The useState setter only syncs from an effect, which
+  // the trailing value. Depending on the Panel version the useState setter
+  // either writes the model synchronously or only syncs from an effect, which
   // never runs once unmounted, so the model is written to directly.
   React.useEffect(() => () => {
     const s = state.current
