@@ -59,6 +59,13 @@ def test_python_dark_theme_change_applies_to_page(server_document):
     assert config.theme == 'dark'
 
 
+def test_python_dark_theme_change_does_not_add_watcher_per_instance():
+    # Construction cost: the session theme follows Python changes through
+    # the watcher on the synced parameters, not a dedicated one per instance.
+    button = Button()
+    assert len(button.param.watchers['dark_theme']['value']) == 1
+
+
 def test_frontend_dark_theme_change_is_not_fanned_out(server_document):
     button = Button()
     other = Button()

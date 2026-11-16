@@ -518,7 +518,13 @@ class MaterialComponent(ReactComponent):
                 for c in self.select(MaterialComponent):
                     c.dark_theme = self.dark_theme
 
-    @param.depends('dark_theme', watch=True)
+    def _param_change(self, *events: param.parameterized.Event) -> None:
+        super()._param_change(*events)
+        # dark_theme is synced, so the existing watcher on the synced
+        # parameters picks up its changes without a watcher per instance.
+        if any(event.name == 'dark_theme' for event in events):
+            self._update_session_theme()
+
     def _update_session_theme(self):
         # Changes made in Python apply to the whole page, changes made in
         # the frontend are already shared there.
