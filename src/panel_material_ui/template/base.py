@@ -18,7 +18,8 @@ from panel.util import edit_readonly
 from panel.viewable import Child, Children
 from param.parameterized import edit_constant
 
-from .._utils import _read_icon, edit_readonly_params
+from .. import _utils
+from .._utils import _read_icon
 from ..base import BASE_TEMPLATE, MaterialComponent, ThemedTransform, _env
 from ..theme import APPLE_ICON_VAR, FAVICON_VAR, THEME_MANAGED_VAR
 from ..widgets.base import MaterialWidget
@@ -224,10 +225,10 @@ class Page(MaterialComponent, ResourceComponent):
         page_ref = weakref.ref(self)
         def _sync_busy(event):
             if (page := page_ref()) is not None:
-                with edit_readonly_params(page, 'busy'):
+                with _utils.edit_readonly_params(page, 'busy'):
                     page.busy = event.new
         self._busy_watchers.append(state.param.watch(_sync_busy, 'busy'))
-        with edit_readonly_params(self, 'busy'):
+        with _utils.edit_readonly_params(self, 'busy'):
             self.busy = state.busy
 
     def _cleanup(self, root: Model | None = None) -> None:
