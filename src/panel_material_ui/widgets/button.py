@@ -104,7 +104,21 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
     }
     _stylesheets: t.ClassVar[list[str]] = []
 
+    # Whether to pass the color and variant defaults to the constructor.
+    _seed_appearance_defaults: t.ClassVar[bool] = True
+
     __abstract = True
+
+    def __init__(self, **params):
+        # The alias defaults (None) differ from color and variant, so Panel's
+        # post-init alias sync would set both aliases and fire a cascade of
+        # watchers; passing the defaults lets the constructor align them.
+        if self._seed_appearance_defaults:
+            if 'color' not in params and 'button_type' not in params:
+                params['color'] = type(self).color
+            if 'variant' not in params and 'button_style' not in params:
+                params['variant'] = type(self).variant
+        super().__init__(**params)
 
     @param.depends("button_style", watch=True)
     def _update_variant(self):

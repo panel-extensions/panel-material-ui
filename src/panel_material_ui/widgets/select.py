@@ -4,7 +4,7 @@ import re
 import typing as t
 
 import param
-from panel.util import edit_readonly, indexOf, isIn
+from panel.util import indexOf, isIn
 from panel.util.parameters import get_params_to_inherit
 from panel.widgets.base import Widget
 from panel.widgets.select import NestedSelect as _PnNestedSelect
@@ -14,7 +14,7 @@ from panel.widgets.select import ToggleGroup as _PnToggleGroup
 from panel.widgets.select import _MultiSelectBase as _PnMultiSelectBase
 from typing_extensions import Self
 
-from .._utils import ICON_TOKEN_PATTERN
+from .._utils import ICON_TOKEN_PATTERN, edit_readonly_params
 from ..base import COLORS, ColorType, LoadingTransform, ThemedTransform
 from .base import MaterialWidget
 from .button import _ButtonLike, _ButtonVariant
@@ -166,7 +166,7 @@ class AutocompleteInput(MaterialSingleSelectBase):
 
     @param.depends('value', watch=True, on_init=True)
     def _sync_value_input(self):
-        with edit_readonly(self):
+        with edit_readonly_params(self, 'value_input'):
             if self.value is None:
                 self.value_input = ''
             elif isIn(self.value, self.values):
@@ -532,7 +532,7 @@ class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
 
     @param.depends('value', 'options', watch=True, on_init=True)
     def _sync_active(self):
-        with edit_readonly(self):
+        with edit_readonly_params(self, 'active'):
             self.active = indexOf(self.value, self.values) if isIn(self.value, self.values) else None
 
 
@@ -566,7 +566,7 @@ class CheckButtonGroup(_ButtonGroup, MaterialMultiSelectBase):
 
     @param.depends('value', 'options', watch=True, on_init=True)
     def _sync_active(self):
-        with edit_readonly(self):
+        with edit_readonly_params(self, 'active'):
             self.active = [i for i, value in enumerate(self.values) if isIn(value, self.value)]
 
 

@@ -158,3 +158,53 @@ def test_render_esm_from_file(tmp_path, monkeypatch):
         _esm = 'component.jsx'
 
     assert 'return null' in FileESM._render_esm_base()
+
+
+def test_init_does_not_instantiate_passed_parameters():
+    from panel_material_ui.widgets import TextInput
+    widget = TextInput(label='a', placeholder='b', disabled=True)
+    assert not {'label', 'placeholder', 'disabled'} & set(widget._param__private.params)
+
+
+def test_edit_readonly_params_only_unlocks_named_parameters():
+    import param
+
+    from panel_material_ui._utils import edit_readonly_params
+
+    class Locked(param.Parameterized):
+        a = param.Integer(default=0, readonly=True)
+        b = param.Integer(default=0, constant=True)
+
+    obj = Locked()
+    with edit_readonly_params(obj, 'a'):
+        obj.a = 1
+        with pytest.raises(TypeError):
+            obj.b = 1
+    assert obj.a == 1
+    assert Locked.param.a.readonly
+    with pytest.raises(TypeError):
+        obj.a = 2
+
+
+def test_text_input_value_input_stays_readonly_after_sync():
+    from panel_material_ui.widgets import TextInput
+    widget = TextInput()
+    widget.value = 'x'
+    assert widget.value_input == 'x'
+    with pytest.raises(TypeError):
+        widget.value_input = 'y'
+
+
+def test_edit_readonly_params_restores_on_error():
+    import param
+
+    from panel_material_ui._utils import edit_readonly_params
+
+    class Locked(param.Parameterized):
+        a = param.Integer(default=0, readonly=True)
+
+    obj = Locked()
+    with pytest.raises(ValueError):
+        with edit_readonly_params(obj, 'a'):
+            raise ValueError
+    assert Locked.param.a.readonly
