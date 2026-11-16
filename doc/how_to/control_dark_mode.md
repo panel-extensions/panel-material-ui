@@ -20,6 +20,8 @@ or set it globally:
 pn.extension(theme='dark')
 ```
 
+A component only sets the theme of the session it is rendered in. Constructing `Button(dark_theme=True)` at import time, in a function cached with `pn.cache` or in a thread does not change the theme of other sessions, so use `pn.extension(theme='dark')` when every session should start dark. A `?theme=dark` URL parameter makes the page dark even when a component sets `dark_theme=False`.
+
 ## Managed theme
 
 The theme is shared by the whole page: when a served app contains a component with `dark_theme=True`, the entire page switches to dark mode, not just that component. The theme is tracked per session, and setting `dark_theme` on a component from Python later on also switches the whole page. Once the theme was switched, with a toggle or from Python, components created afterwards follow the current theme even if they set `dark_theme` themselves. Rather than setting `dark_theme` on individual components, we therefore recommend controlling the theme for the whole app and letting users switch it. You have two options:
@@ -51,6 +53,8 @@ Row(Button(label="Hello"), ThemeToggle()).preview()
 ## Notebook themes
 
 When rendered in a VSCode, JupyterLab or nteract notebook (including nteract embedded in Kilo Desktop), components follow the editor theme automatically. They pick up the theme when they are first rendered and switch along with it whenever you change the theme in the editor, which takes precedence over `dark_theme` and `pn.extension(theme=...)`. Once rendered, a `ThemeToggle` or `Page` theme toggle can still switch the theme manually until the editor theme changes again.
+
+Each notebook output manages its own theme. A `ThemeToggle`, or setting `dark_theme` from Python on one component, switches the other components in the same output, but it does not change the theme of other cells or of outputs rendered later.
 
 ## Overriding dark palette
 

@@ -121,7 +121,7 @@ class FloatSlider(_ContinuousSlider):
     >>> FloatSlider(value=0.5, start=0.0, end=1.0, step=0.1, label="Float value")
     """
 
-    step = param.Number(default=0.1, bounds=(0, None), inclusive_bounds=(False, True), doc="The step size.")
+    step = param.Number(default=0.1, bounds=(0, None), inclusive_bounds=(False, True), doc="The step size, must be greater than 0.")
 
 
 class DateSlider(_ContinuousSlider):
@@ -286,7 +286,7 @@ class RangeSlider(_RangeSliderBase):
     ... )
     """
 
-    step = param.Number(default=0.1, bounds=(0, None), inclusive_bounds=(False, True), doc="The step size of the slider.")
+    step = param.Number(default=0.1, bounds=(0, None), inclusive_bounds=(False, True), doc="The step size of the slider, must be greater than 0.")
 
 
 class IntRangeSlider(_RangeSliderBase):
@@ -521,7 +521,7 @@ class Rating(MaterialWidget):
 
     color: ColorType = param.Selector(objects=COLORS, default=None, doc="The color of the ratings.")  # type: ignore[assignment]
 
-    end = param.Integer(default=5, bounds=(1, None), doc="The maximum value for the rating.")
+    end = param.Integer(default=5, bounds=(1, None), doc="The maximum value for the rating. Lowering it below `value` clamps the value.")
 
     empty_icon = param.String(default=None, doc="""
         The icon to render for a non-selected rating.""",

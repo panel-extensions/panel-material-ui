@@ -80,7 +80,9 @@ class _TextInputBase(MaterialInputWidget):
         allow_None=True,
         readonly=True,
         doc="""
-        Initial or entered text value updated on every key press.""",
+        Initial or entered text value updated on every key press. While the
+        input has focus, updates sent from Python are applied once the user
+        pauses typing for 300 ms or finishes an IME composition.""",
     )
 
     _constants = {"multiline": False, "loading_inset": -6}
@@ -657,7 +659,8 @@ class _SpinnerBase(_NumericInputBase):
 
     wheel_wait = param.Integer(default=100, doc="""
         Defines the debounce time in ms before updating `value_throttled` when
-        the mouse wheel is used to change the input.""")
+        the value is stepped with the arrow buttons, the arrow or page keys or
+        the mouse wheel.""")
 
     width = param.Integer(default=300, allow_None=True, doc="""
       Width of this component. If sizing_mode is set to stretch
@@ -691,7 +694,9 @@ class IntInput(_SpinnerBase, _IntInputBase):
         The step size.""")
 
     value_throttled = param.Integer(default=None, constant=True, doc="""
-        The current value. Updates only on `<enter>` or when the widget looses focus.""")
+        The current value. Updates when an edited value is committed with
+        `<enter>` or when the widget loses focus, and once stepping pauses
+        for `wheel_wait` ms.""")
 
 
 class FloatInput(_SpinnerBase, _FloatInputBase):
@@ -716,7 +721,9 @@ class FloatInput(_SpinnerBase, _FloatInputBase):
         The step size.""")
 
     value_throttled = param.Number(default=None, constant=True, doc="""
-        The current value. Updates only on `<enter>` or when the widget looses focus.""")
+        The current value. Updates when an edited value is committed with
+        `<enter>` or when the widget loses focus, and once stepping pauses
+        for `wheel_wait` ms.""")
 
 
 class NumberInput(_SpinnerBase):
