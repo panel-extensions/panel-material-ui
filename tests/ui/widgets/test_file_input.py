@@ -5,8 +5,9 @@ import pytest
 
 pytest.importorskip('playwright')
 
-from playwright.sync_api import Error, expect
 from panel.tests.util import serve_component, wait_until
+from playwright.sync_api import Error, expect
+
 from panel_material_ui.widgets import FileInput
 
 pytestmark = pytest.mark.ui
@@ -74,3 +75,45 @@ def test_fileinput_focus(page):
     expect(file_input).to_have_count(1)
     widget.focus()
     expect(file_input).to_be_focused()
+
+
+def test_fileinput_max_total_file_size_counts_each_file_once(page):
+    widget = FileInput(max_total_file_size=100)
+    serve_component(page, widget)
+    page.set_input_files('input[type="file"]', files=[
+        {'name': 'a.txt', 'mimeType': 'text/plain', 'buffer': b'x' * 60}
+    ])
+    wait_until(lambda: widget.value == b'x' * 60, page)
+    assert widget.filename == 'a.txt'
+
+
+def test_fileinput_max_total_file_size_rejects_batch(page):
+    errors = []
+    page.on('pageerror', lambda e: errors.append(str(e)))
+    widget = FileInput(max_total_file_size=100, multiple=True)
+    serve_component(page, widget)
+    page.set_input_files('input[type="file"]', files=[
+        {'name': 'a.txt', 'mimeType': 'text/plain', 'buffer': b'x' * 60},
+        {'name': 'b.txt', 'mimeType': 'text/plain', 'buffer': b'y' * 60},
+    ])
+    expect(page.locator('.MuiSvgIcon-colorError')).to_have_count(1)
+    assert widget.value is None
+    assert widget._buffer == []
+    assert widget._file_buffer == {}
+
+    # A valid upload after the rejected one still works
+    page.set_input_files('input[type="file"]', files=[
+        {'name': 'c.txt', 'mimeType': 'text/plain', 'buffer': b'z' * 10},
+    ])
+    wait_until(lambda: widget.value == [b'z' * 10], page)
+
+
+def test_fileinput_empty_file(page):
+    widget = FileInput(multiple=True)
+    serve_component(page, widget)
+    page.set_input_files('input[type="file"]', files=[
+        {'name': 'empty.txt', 'mimeType': 'text/plain', 'buffer': b''},
+        {'name': 'b.txt', 'mimeType': 'text/plain', 'buffer': b'hi'},
+    ])
+    wait_until(lambda: widget.filename == ['empty.txt', 'b.txt'], page)
+    assert widget.value == [b'', b'hi']

@@ -321,6 +321,14 @@ class _FileUploadArea(param.Parameterized):
             self._process_chunk(msg)
             return
         elif status == "initializing":
+            self._buffer.clear()
+            self._file_buffer.clear()
+            return
+        elif status == "error":
+            # The frontend aborted the upload (e.g. size validation failed),
+            # discard any partially received files.
+            self._buffer.clear()
+            self._file_buffer.clear()
             return
         elif status == "finished":
             try:
@@ -338,26 +346,29 @@ class _FileUploadArea(param.Parameterized):
         chunk = msg["chunk"]
         total_chunks = msg["total_chunks"]
         mime_type = msg["mime_type"]
+        # Files in a directory upload may share a basename, so key by
+        # the position in the upload batch when the frontend provides it.
+        index = msg.get("index")
+        key = name if index is None else (index, name)
 
         data = msg["data"]
         data = bytes(data)
 
-        if name not in self._file_buffer:
-            self._file_buffer[name] = {
+        if key not in self._file_buffer:
+            self._file_buffer[key] = {
                 "chunks": {},
                 "total_chunks": total_chunks,
                 "mime_type": mime_type,
                 "filename": name
             }
 
-        self._file_buffer[name]["chunks"][chunk] = data
+        self._file_buffer[key]["chunks"][chunk] = data
 
         # Check if all chunks are received for this file
-        if len(self._file_buffer[name]["chunks"]) == total_chunks:
-            # Reassemble the file
-            file_data = b""
-            for i in range(1, total_chunks + 1):  # Chunks are 1-indexed
-                file_data += self._file_buffer[name]["chunks"][i]
+        chunks = self._file_buffer[key]["chunks"]
+        if len(chunks) == total_chunks:
+            # Chunks are 1-indexed
+            file_data = b"".join(chunks[i] for i in range(1, total_chunks + 1))
 
             self._buffer.append({
                 "value": file_data,
@@ -365,7 +376,7 @@ class _FileUploadArea(param.Parameterized):
                 "mime_type": mime_type
             })
 
-            del self._file_buffer[name]
+            del self._file_buffer[key]
 
     def _flush_buffer(self):
         value, mime_type, filename = [], [], []
