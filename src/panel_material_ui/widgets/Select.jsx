@@ -107,7 +107,12 @@ export function render({model, el, view}) {
     return []
   }, [options])
 
-  const valueSet = React.useMemo(() => new Set(multi && Array.isArray(value) ? value : []), [value])
+  const valueSet = React.useMemo(() => {
+    if (multi) {
+      return new Set(Array.isArray(value) ? value : [])
+    }
+    return new Set(value === "" || value == null ? [] : [value])
+  }, [value])
   const bookmarkSet = React.useMemo(() => new Set(bookmarks || []), [bookmarks])
   const disabledSet = React.useMemo(() => new Set(disabled_options || []), [disabled_options])
 
@@ -164,8 +169,13 @@ export function render({model, el, view}) {
       renderLimit = firstMatch + 1
     }
   }
-  const visibleBookmarked = bookmarkedOptions.slice(0, renderLimit)
-  const visibleFiltered = filteredOptions.slice(0, Math.max(renderLimit - visibleBookmarked.length, 0))
+  // Bookmarks and selected options are always rendered, even past the current
+  // page, so the current value is visible and can be deselected from the menu.
+  const visibleBookmarked = bookmarkedOptions
+  const filteredLimit = Math.max(renderLimit - visibleBookmarked.length, 0)
+  const visibleFiltered = filteredLimit >= filteredOptions.length ? filteredOptions : filteredOptions.filter(
+    (item, index) => index < filteredLimit || valueSet.has(item.value)
+  )
   const hiddenCount = items.length - visibleBookmarked.length - visibleFiltered.length
 
   React.useEffect(() => {

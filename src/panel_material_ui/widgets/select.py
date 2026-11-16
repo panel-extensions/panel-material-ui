@@ -688,10 +688,14 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
         Whether to display a button to delete a selected option.""")
 
     option_limit = param.Integer(default=None, bounds=(1, None), doc="""
-        Maximum number of options to display at once.""")
+        Number of options the dropdown menu renders per page. Further options
+        are summarized in a row that renders the next page when clicked.
+        Bookmarked and selected options are always rendered. Defaults to
+        pages of 200 options when searchable and all options otherwise.""")
 
     search_option_limit = param.Integer(default=None, bounds=(1, None), doc="""
-        Maximum number of options to display at once if search string is entered.""")
+        Number of matching options the dropdown menu renders per page while
+        a search string is entered. Falls back to option_limit if unset.""")
 
     placeholder = param.String(default='', doc="""
         String displayed when no selection has been made.""")

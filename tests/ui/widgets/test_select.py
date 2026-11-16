@@ -211,6 +211,42 @@ def test_select_searchable_highlight_renders_first_match(page):
     page.locator("input[placeholder='Search...']").fill("option 420")
     expect(page.locator(".MuiMenuItem-root[data-matched='true']")).to_have_text(["option 420"])
 
+def test_select_searchable_renders_selected_value_beyond_page(page):
+    options = [f"opt{i}" for i in range(500)]
+    widget = Select(options=options, value="opt450", searchable=True)
+    serve_component(page, widget)
+
+    page.locator(".select").click()
+    selected = page.locator(".MuiMenuItem-root[data-matched]", has_text=re.compile(r"^opt450$"))
+    expect(selected).to_have_count(1)
+    expect(page.locator(".MuiMenuItem-root[data-matched]")).to_have_count(201)
+    expect(page.locator(".select-more-options")).to_have_text("299 more options; refine the search or click to show more")
+
+def test_select_searchable_renders_bookmarks_beyond_page(page):
+    options = [f"opt{i}" for i in range(500)]
+    widget = Select(options=options, value="opt299", bookmarks=[f"opt{i}" for i in range(299, 500)], searchable=True)
+    serve_component(page, widget)
+
+    page.locator(".select").click()
+    expect(page.locator(".MuiMenuItem-root[data-matched]")).to_have_count(201)
+    expect(page.locator(".MuiMenuItem-root[data-matched]", has_text=re.compile(r"^opt499$"))).to_have_count(1)
+    expect(page.locator(".select-more-options")).to_have_text("299 more options; refine the search or click to show more")
+
+def test_multichoice_searchable_unchecks_selected_value_beyond_page(page):
+    options = [f"opt{i}" for i in range(500)]
+    widget = MultiChoice(options=options, value=["opt1", "opt300"], searchable=True)
+    serve_component(page, widget)
+
+    # Clicking the select would land on a chip, which does not open the menu
+    widget.dropdown_open = True
+    item = page.locator(".MuiMenuItem-root[data-matched]", has_text=re.compile(r"^opt300$"))
+    expect(item).to_have_count(1)
+    expect(item.locator("input[type='checkbox']")).to_be_checked()
+    expect(page.locator(".select-more-options")).to_have_text("299 more options; refine the search or click to show more")
+
+    item.locator("input[type='checkbox']").click()
+    wait_until(lambda: widget.value == ["opt1"], page)
+
 def test_multichoice_option_limit(page):
     options = [f"option {i}" for i in range(20)]
     widget = MultiChoice(options=options, option_limit=5, search_option_limit=3, searchable=True)
