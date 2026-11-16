@@ -281,6 +281,33 @@ def test_menutoggle_multiple_toggles(page):
     expect(icons[1]).to_have_text('radio_button_unchecked')
     expect(icons[2]).to_have_text('radio_button_checked')
 
+
+def test_menutoggle_single_click_toggles_once(page):
+    items = [
+        {'label': 'Favorite', 'icon': 'favorite_border', 'active_icon': 'favorite'},
+        {'label': 'Bookmark', 'icon': 'bookmark_border', 'active_icon': 'bookmark', 'toggled': True},
+    ]
+    widget = MenuToggle(items=items, label='Actions')
+    changes = []
+    widget.param.watch(lambda event: changes.append(event.new), 'toggled')
+    serve_component(page, widget)
+
+    page.locator('.MuiButton-root').click()
+    page.locator('.MuiMenuItem-root').first.click()
+    wait_until(lambda: changes == [[1, 0]], page)
+    expect(page.locator('.MuiMenuItem-root').first).to_have_class(re.compile('Mui-selected'))
+    page.wait_for_timeout(300)
+    assert changes == [[1, 0]]
+    assert widget.items[0]['toggled'] is True
+
+    page.locator('.MuiMenuItem-root').nth(1).click()
+    wait_until(lambda: changes == [[1, 0], [0]], page)
+    expect(page.locator('.MuiMenuItem-root').nth(1)).not_to_have_class(re.compile('Mui-selected'))
+    page.wait_for_timeout(300)
+    assert changes == [[1, 0], [0]]
+    assert widget.items[1]['toggled'] is False
+
+
 def test_menu_toggle_focus(page):
     widget = MenuToggle(items=[{'label': 'Item 1'}, {'label': 'Item 2'}], label='Menu')
     serve_component(page, widget)
