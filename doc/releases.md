@@ -42,7 +42,7 @@ This release makes panel-material-ui faster and sturdier under load. Streaming i
 
 ### 📚 Documentation
 
-* Document the behaviour changes above in the reference pages and the dark mode how-to, and fix the `FileInput` size limits, which are given in bytes
+* Document the behaviour changes above in the reference pages and the dark mode how-to, and fix the `FileInput` size limits, which are given in bytes ([#809](https://github.com/panel-extensions/panel-material-ui/pull/809))
 
 ## Version 0.16.7
 
