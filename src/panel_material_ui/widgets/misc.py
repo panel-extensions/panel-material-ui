@@ -31,6 +31,10 @@ class FileDownload(_ButtonBase, _FileDownload):
     _syncing = param.Boolean(default=False, doc="""
         If `auto` is False track syncing data state.""")
 
+    # Panel < 1.10 normalizes the aliases again in FileDownload.__init__ and
+    # warns when both an alias and its target are passed.
+    _seed_appearance_defaults = False
+
     _esm_base = "FileDownload.jsx"
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _rename = _rename_fix = {
