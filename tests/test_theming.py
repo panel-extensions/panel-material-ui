@@ -22,9 +22,16 @@ def test_component_dark_theme_does_not_set_global_theme():
     assert not Button().dark_theme
 
 
-def test_component_dark_theme_does_not_set_session_theme(server_document):
+def test_component_dark_theme_sets_session_theme(server_document):
     Button(dark_theme=True)
-    assert config.theme == 'default'
+    assert config.theme == 'dark'
+    assert Button().dark_theme
+
+
+def test_page_dark_theme_outside_session_does_not_set_global_theme():
+    Page(dark_theme=True)
+    ThemeToggle(value=True)
+    assert config._theme_ is None
 
 
 def test_dark_theme_propagates_to_children():
@@ -33,18 +40,45 @@ def test_dark_theme_propagates_to_children():
     assert button.dark_theme
 
 
-def test_dark_theme_does_not_override_explicit_child():
-    inner = Button(dark_theme=True)
-    Column(inner, dark_theme=False)
-    assert inner.dark_theme
-
-
-def test_explicit_child_shields_its_descendants():
+def test_explicit_parent_aligns_explicit_children():
     button = Button()
     inner = Column(button, dark_theme=True)
     Column(inner, dark_theme=False)
-    assert inner.dark_theme
+    assert not inner.dark_theme
+    assert not button.dark_theme
+
+
+def test_python_dark_theme_change_applies_to_page(server_document):
+    button = Button()
+    other = Button()
+    Column(button, other).get_root(server_document)
+
+    button.dark_theme = True
+
+    assert other.dark_theme
+    assert config.theme == 'dark'
+
+
+def test_frontend_dark_theme_change_is_not_fanned_out(server_document):
+    button = Button()
+    other = Button()
+    Column(button, other).get_root(server_document)
+
+    button._process_events({'dark_theme': True})
+
     assert button.dark_theme
+    assert not other.dark_theme
+
+
+def test_explicit_component_aligns_rendered_siblings(server_document):
+    other = Button()
+    dark = Button(dark_theme=True)
+    Column(other, dark).get_root(server_document)
+    callbacks = list(server_document.session_callbacks)
+    assert callbacks
+    for cb in callbacks:
+        cb.callback()
+    assert other.dark_theme
 
 
 def test_page_dark_theme_sets_session_theme(server_document):

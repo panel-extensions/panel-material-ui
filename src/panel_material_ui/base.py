@@ -26,6 +26,7 @@ import re
 import textwrap
 import typing as t
 from collections.abc import Mapping
+from functools import partial
 from weakref import WeakKeyDictionary
 
 import panel
@@ -37,6 +38,7 @@ from jinja2 import Environment, FileSystemLoader, Template
 from markupsafe import Markup
 from panel.config import config
 from panel.custom import PyComponent, ReactComponent
+from panel.io.document import hold
 from panel.io.location import Location
 from panel.io.resources import EXTENSION_CDN, Resources
 from panel.io.state import state
@@ -317,6 +319,57 @@ def _compiled_ancestor(cls: type) -> type:
     return cls
 
 
+_ALIGNING = False
+
+
+class _aligning:
+
+    def __enter__(self):
+        global _ALIGNING
+        self._prev, _ALIGNING = _ALIGNING, True
+
+    def __exit__(self, *args):
+        global _ALIGNING
+        _ALIGNING = self._prev
+
+
+def aligning_session_theme() -> bool:
+    return _ALIGNING
+
+
+def set_session_theme(dark: bool) -> None:
+    """
+    Sets config.theme for the current session. Outside a session, e.g. at
+    import time, in pn.cache or in a thread, the global theme is left alone.
+    """
+    theme = 'dark' if dark else 'default'
+    if state.curdoc is not None and config.theme != theme:
+        config.theme = theme
+
+
+def align_session_theme(owner: MaterialComponent, dark: bool) -> None:
+    """
+    Applies a page wide theme change made on owner to the session.
+
+    The frontend switches every component locally without syncing each of
+    them back, so the components rendered alongside the owner are brought
+    in line on the Python side in a single batch of events.
+    """
+    set_session_theme(dark)
+    docs = {}
+    for ref in list(owner._models):
+        if ref in state._views:
+            _, _, doc, comm = state._views[ref]
+            docs[id(doc)] = (doc, comm)
+    with _aligning():
+        for doc, comm in docs.values():
+            roots = [view for view, _, vdoc, _ in list(state._views.values()) if vdoc is doc]
+            with hold(doc, comm=comm):
+                for root in roots:
+                    for c in root.select(MaterialComponent):
+                        c.dark_theme = dark
+
+
 class MaterialComponent(ReactComponent):
     """
     Baseclass for all MaterialComponents which defines the bundle location,
@@ -330,6 +383,10 @@ class MaterialComponent(ReactComponent):
 
     loading = param.Boolean(default=False, doc="""
         If True displays a loading spinner on top of the component.""")
+
+    _dark_theme_explicit = param.Boolean(default=False, doc="""
+        Whether dark_theme was passed explicitly, such a component sets the
+        theme of the whole page when it is rendered.""")
 
     theme_config = param.Dict(default=None, nested_refs=True, doc="""
         Options to configure the ThemeProvider.
@@ -370,13 +427,16 @@ class MaterialComponent(ReactComponent):
 
     _busy__ignore: t.ClassVar[list[str]] = ["dark_theme"]
 
-    _explicit_dark_theme: bool = False
+    # Owners apply every dark_theme change to the session themselves.
+    _session_theme_owner: t.ClassVar[bool] = False
 
     __abstract = True
 
     def __init__(self, **params):
         explicit_dark_theme = 'dark_theme' in params
-        if not explicit_dark_theme:
+        if explicit_dark_theme:
+            params['_dark_theme_explicit'] = True
+        else:
             params['dark_theme'] = config.theme == 'dark'
         if 'design' not in params:
             design = config.design
@@ -402,22 +462,22 @@ class MaterialComponent(ReactComponent):
                 self._target_transforms.get(name, False) is not None
             ):
                 value.jslink(self, **{name: p})
-        self._explicit_dark_theme = explicit_dark_theme
         if explicit_dark_theme:
-            self._propagate_dark_theme()
+            # The theme is shared by the whole page, so an explicit dark_theme
+            # sets the session theme and aligns the descendants, which
+            # avoids a light flash while a dark app loads.
+            set_session_theme(self.dark_theme)
+            with _aligning():
+                for c in self.select(MaterialComponent):
+                    c.dark_theme = self.dark_theme
 
-    def _propagate_dark_theme(self):
-        # An explicit dark_theme applies to descendants that did not set one
-        # themselves, a descendant that did shields its own subtree. The
-        # session wide config.theme is only owned by Page and ThemeToggle.
-        descendants = [c for c in self.select(MaterialComponent) if c is not self]
-        shielded = {
-            id(sub) for c in descendants if c._explicit_dark_theme
-            for sub in c.select(MaterialComponent)
-        }
-        for c in descendants:
-            if id(c) not in shielded:
-                c.dark_theme = self.dark_theme
+    @param.depends('dark_theme', watch=True)
+    def _update_session_theme(self):
+        # Changes made in Python apply to the whole page, changes made in
+        # the frontend are already shared there.
+        if self._session_theme_owner or _ALIGNING or 'dark_theme' in self._param__private.syncing:
+            return
+        align_session_theme(self, self.dark_theme)
 
     def _setup_autoreload(self):
         # Skips ReactiveESM._setup_autoreload, which would start a watcher
@@ -525,6 +585,10 @@ class MaterialComponent(ReactComponent):
         parent: Model | None = None, comm: Comm | None = None
     ) -> Model:
         model = super()._get_model(doc, root, parent, comm)
+        if self._dark_theme_explicit and comm is None and doc.session_context:
+            # The frontend switches the other components without syncing
+            # them back, so bring their Python state in line once rendered.
+            doc.add_next_tick_callback(partial(align_session_theme, self, self.dark_theme))
         # Ensure model loads ESM and CSS bundles from CDN
         # if requested or if in notebook
         if (

@@ -1504,19 +1504,35 @@ export const install_theme_hooks = (props) => {
     }
   }, [])
 
-  // Only Page and ThemeToggle publish to dark_mode. Components follow it
-  // locally, without syncing, the owner updates the Python side of all of
-  // them in one go. Adopting the value on mount covers components that
-  // were created before the owner last switched.
+  // The theme is shared by the whole page. A component publishes its
+  // dark_theme to dark_mode when it was set explicitly and whenever it
+  // changes other than by following dark_mode. Followers switch locally
+  // without syncing, Python brings their state in line in a single batch.
+  // A Page owns the session theme, so it syncs its own switch to Python.
+  const [explicit] = props.model.useState("_dark_theme_explicit")
+  const followed_ref = React.useRef(null)
   const follow_dark_mode = (dark) => {
-    props.view.model.data.setv({dark_theme: dark}, {sync: false})
-  }
-  React.useEffect(() => {
-    const value = dark_mode.get_value()
-    if (value != null && value !== dark_theme) {
-      setDarkTheme(value)
+    followed_ref.current = dark
+    if (props.view.model.class_name === "Page") {
+      setDarkTheme(dark)
+    } else {
+      props.view.model.data.setv({dark_theme: dark}, {sync: false})
     }
-  }, [])
+  }
+  const mounted_ref = React.useRef(false)
+  React.useEffect(() => {
+    if (!mounted_ref.current) {
+      mounted_ref.current = true
+      const value = dark_mode.get_value()
+      if (explicit || value == null) {
+        dark_mode.set_value(dark_theme)
+      } else if (value !== dark_theme) {
+        setDarkTheme(value)
+      }
+    } else if (dark_theme !== followed_ref.current) {
+      dark_mode.set_value(dark_theme)
+    }
+  }, [dark_theme])
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);

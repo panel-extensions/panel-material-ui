@@ -46,19 +46,77 @@ def test_dark_toggle_syncs_once_and_updates_python(page):
     assert page.evaluate("() => window.__ws_sent") - sent <= 3
 
 
-def test_page_toggle_does_not_flip_from_component_change(page):
+RECORD_LIGHT = """
+window.__light_seen = false
+new MutationObserver((records) => {
+  for (const r of records) {
+    const nodes = r.type === "attributes" ? [r.target] : [...r.addedNodes]
+    for (const n of nodes) {
+      if (n.classList && n.classList.contains("mui-light")) {
+        window.__light_seen = true
+      }
+    }
+  }
+}).observe(document, {subtree: true, childList: true, attributes: true, attributeFilter: ["class"]})
+const _attach = Element.prototype.attachShadow
+Element.prototype.attachShadow = function(init) {
+  const root = _attach.call(this, init)
+  new MutationObserver((records) => {
+    for (const r of records) {
+      const nodes = r.type === "attributes" ? [r.target] : [...r.addedNodes]
+      for (const n of nodes) {
+        if (n.classList && n.classList.contains("mui-light")) {
+          window.__light_seen = true
+        }
+      }
+    }
+  }).observe(root, {subtree: true, childList: true, attributes: true, attributeFilter: ["class"]})
+  return root
+}
+"""
+
+
+def body_background(page):
+    return page.evaluate("() => getComputedStyle(document.body).backgroundColor")
+
+
+def test_explicit_dark_component_makes_page_dark(page):
+    button = Button(label="Dark Button", dark_theme=True)
+    serve_component(page, button)
+
+    expect(page.locator(".mui-dark .MuiButton-root")).to_have_count(1)
+    wait_until(lambda: body_background(page) == "rgb(18, 18, 18)", page)
+    assert pn.config.theme == "default"
+
+
+def test_explicit_dark_component_switches_siblings(page):
+    other = Button(label="Other")
+    dark = Button(label="Dark", dark_theme=True)
+    serve_component(page, Row(other, dark))
+
+    expect(page.locator(".mui-dark .MuiButton-root")).to_have_count(2)
+    wait_until(lambda: other.dark_theme, page)
+
+
+def test_dark_column_renders_dark_from_first_paint(page):
+    page.add_init_script(RECORD_LIGHT)
+    serve_component(page, Column(Button(label="A"), Button(label="B"), dark_theme=True))
+
+    expect(page.locator(".mui-dark .MuiButton-root")).to_have_count(2)
+    page.wait_for_timeout(300)
+    assert not page.evaluate("() => window.__light_seen")
+
+
+def test_python_component_change_switches_page(page):
     button = Button(label="Click")
     other = Button(label="Other")
-    pg = Page(main=[button, other])
-    serve_component(page, pg)
-    expect(page.locator(".MuiButton-root").first).to_be_visible()
+    serve_component(page, Column(button, other))
+    expect(page.locator(".mui-light .MuiButton-root")).to_have_count(2)
 
     button.dark_theme = True
 
-    expect(page.locator(".mui-dark .MuiButton-root")).to_have_count(1)
-    page.wait_for_timeout(300)
-    assert not pg.dark_theme
-    assert not other.dark_theme
+    expect(page.locator(".mui-dark .MuiButton-root")).to_have_count(2)
+    assert other.dark_theme
 
 
 def test_bokeh_toolbar_stylesheets_do_not_grow(page):
