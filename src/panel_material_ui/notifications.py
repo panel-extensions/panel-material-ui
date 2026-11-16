@@ -57,8 +57,9 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
     _root_node = '#notistack-container'
 
     def __init__(self, **params):
-        super().__init__(**params)
         self._notification_watchers = {}
+        super().__init__(**params)
+        self._sync_notification_watchers()
 
     def _get_model(
         self, doc: Document, root: Model | None = None,
@@ -93,17 +94,27 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
                         k: v for k, v in notification.properties_with_values().items()
                         if k in MuiNotification.param
                     }
-                if isinstance(notification, dict):
+                is_dict = isinstance(notification, dict)
+                key = notification.get('_uuid') if is_dict else notification._uuid
+                if key in old:
+                    notification = old[key]
+                elif is_dict:
                     notification = MuiNotification(notification_area=self, **notification)
-                    self._notification_watchers[notification] = (
-                        notification.param.watch(self._remove_notification, '_destroyed')
-                    )
-                if notification._uuid in old:
-                    notifications.append(old[notification._uuid])
-                else:
-                    notifications.append(notification)
+                notifications.append(notification)
             self.notifications = notifications
         return super()._process_events(events)
+
+    @param.depends('notifications', watch=True)
+    def _sync_notification_watchers(self):
+        current = {n for n in self.notifications if isinstance(n, MuiNotification)}
+        for notification in list(self._notification_watchers):
+            if notification not in current:
+                notification.param.unwatch(self._notification_watchers.pop(notification))
+        for notification in current:
+            if notification not in self._notification_watchers:
+                self._notification_watchers[notification] = (
+                    notification.param.watch(self._remove_notification, '_destroyed')
+                )
 
     def _get_properties(self, doc):
         props = super()._get_properties(doc)
@@ -154,9 +165,6 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
             message=message, duration=duration, notification_type=type,
             background=background, icon=icon, notification_area=self
         )
-        self._notification_watchers[notification] = (
-            notification.param.watch(self._remove_notification, '_destroyed')
-        )
         self.notifications.append(notification)
         self.param.trigger('notifications')
         self._send_msg({
@@ -170,7 +178,6 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
 
     def clear(self):
         for notification in self.notifications:
-            notification.param.unwatch(self._notification_watchers.pop(notification))
             self._send_msg({'type': 'destroy', 'uuid': notification._uuid})
         self.notifications = []
 
@@ -181,7 +188,6 @@ class NotificationArea(MaterialComponent, NotificationAreaBase):
     def _remove_notification(self, event):
         if event.obj in self.notifications:
             self.notifications.remove(event.obj)
-        event.obj.param.unwatch(self._notification_watchers.pop(event.obj))
         self.param.trigger('notifications')
         self._send_msg({'type': 'destroy', 'uuid': event.obj._uuid})
 

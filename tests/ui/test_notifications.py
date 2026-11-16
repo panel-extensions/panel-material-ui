@@ -2,13 +2,13 @@ import pytest
 
 pytest.importorskip("playwright")
 
-from playwright.sync_api import expect
-
 from panel.config import config
 from panel.io.state import state
 from panel.layout import Row
 from panel.pane import Markdown
 from panel.tests.util import serve_component, wait_until
+from playwright.sync_api import expect
+
 from panel_material_ui.notifications import NotificationArea
 from panel_material_ui.widgets import Button
 
@@ -204,3 +204,45 @@ def test_onload_notification(page):
     expect(page.locator('.MuiAlert-message')).to_have_count(2)
     expect(page.locator('.MuiAlert-colorWarning .MuiAlert-message')).to_have_text("Warning")
     expect(page.locator('.MuiAlert-colorInfo .MuiAlert-message')).to_have_text("Info")
+
+
+def test_notifications_dismiss_releases_watchers(page):
+    area = NotificationArea()
+    serve_component(page, area)
+
+    for i in range(5):
+        area.send(f'Message {i}', duration=0)
+
+    expect(page.locator('.MuiAlert-message')).to_have_count(5)
+
+    for _ in range(5):
+        page.locator('.MuiAlert-action .MuiIconButton-root').first.click()
+
+    expect(page.locator('.MuiAlert-message')).to_have_count(0)
+    wait_until(lambda: area.notifications == [] and area._notification_watchers == {}, page)
+
+
+def test_notifications_remount_removes_handlers(page):
+    area = NotificationArea()
+    row = Row(area)
+    serve_component(page, row)
+
+    def count_callbacks():
+        return page.evaluate("""() => {
+          const callbacks = Bokeh.documents[0]._document_callbacks
+          return (callbacks.get('connection_lost') || []).length
+        }""")
+
+    wait_until(lambda: count_callbacks() > 0, page)
+    initial = count_callbacks()
+
+    for _ in range(3):
+        row.objects = []
+        page.wait_for_timeout(200)
+        row.objects = [area]
+        page.wait_for_timeout(200)
+
+    area.send('After remount', duration=0)
+    expect(page.locator('.MuiAlert-message')).to_have_text('After remount')
+    expect(page.locator('.MuiAlert-message')).to_have_count(1)
+    assert count_callbacks() == initial
