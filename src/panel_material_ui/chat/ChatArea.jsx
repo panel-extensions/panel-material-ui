@@ -328,11 +328,13 @@ export function render({model, view}) {
         upload_ref
       )
     }
-    model.send_msg({type: "input", value: value_input})
+    const sent = value_input ?? ""
+    model.send_msg({type: "input", value: sent})
     await waitForRef(upload_ref)
     setFileData([])
     file_data_ref.current = []
-    setValueInput("")
+    // Only clear what was sent, text typed while waiting is the next message
+    setValueInput((current) => (current ?? "").startsWith(sent) ? (current ?? "").slice(sent.length) : current)
     setProgress(undefined)
   }
 
