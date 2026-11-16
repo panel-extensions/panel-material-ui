@@ -459,11 +459,11 @@ class DiscreteSlider(IntSlider, _PnSingleSelectBase):
     formatter = param.String(default='%.3g', doc="""
         Format applied to numeric option labels.""")
 
-    value = param.Parameter(doc="""
+    value = param.Parameter(default=None, doc="""
         The selected value of the slider. Updated when the handle is
         dragged. Must be one of the options.""")
 
-    value_throttled = param.Parameter(constant=True, doc="""
+    value_throttled = param.Parameter(default=None, constant=True, doc="""
         The value of the slider. Updated when the handle is released.""")
 
     start = param.Integer(default=0, readonly=True)
@@ -477,11 +477,21 @@ class DiscreteSlider(IntSlider, _PnSingleSelectBase):
         super().__init__(**params)
         if 'formatter' not in params and all(isinstance(v, numbers.Integral) for v in self.values):
             self.formatter = '%d'
+        self._update_bounds()
 
     @param.depends("options", watch=True)
     def _update_bounds(self):
+        values = self.values
         with edit_readonly(self):
-            self.param.update(start=0, end=len(self.options)-1)
+            self.param.update(start=0, end=max(len(values)-1, 0))
+        if not values:
+            value = None
+        elif self.value in values:
+            return
+        else:
+            value = values[0]
+        with param.edit_constant(self):
+            self.param.update(value=value, value_throttled=value)
 
     def _process_param_change(self, msg):
         format_changed = 'formatter' in msg
@@ -493,13 +503,20 @@ class DiscreteSlider(IntSlider, _PnSingleSelectBase):
                 for label, value in zip(self.labels, self.values, strict=True)
             ] if isinstance(self.options, list) else self.labels
         if 'value' in msg:
-            msg['value'] = self.labels.index(msg['value'])
+            labels = self.labels
+            msg['value'] = labels.index(msg['value']) if msg['value'] in labels else None
         return msg
 
     def _process_property_change(self, msg):
+        labels = self.labels
         for prop in ('value', 'value_throttled'):
-            if prop in msg:
-                msg[prop] = self.labels[msg[prop]]
+            if prop not in msg:
+                continue
+            index = msg[prop]
+            if index is None or not 0 <= index < len(labels):
+                del msg[prop]
+            else:
+                msg[prop] = labels[index]
         msg = super()._process_property_change(msg)
         if 'value_throttled' in msg:
             msg['value_throttled'] = self._items[msg['value_throttled']]

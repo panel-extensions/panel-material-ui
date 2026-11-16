@@ -1,3 +1,4 @@
+import re
 import time
 
 import pytest
@@ -45,6 +46,38 @@ def test_discrete_slider_formatter(page):
     widget.formatter = '%.2f'
     expect(page.locator('.MuiFormLabel-root')).to_have_text('1.23')
     assert widget.value == 1.234
+
+
+def test_discrete_slider_empty_options(page):
+    """An empty slider renders disabled without a thumb until options are set."""
+    widget = DiscreteSlider(label='Forecast', options=[])
+    serve_component(page, widget)
+    label = page.locator('.MuiFormLabel-root')
+    slider = page.locator('.MuiSlider-root')
+    expect(label).to_have_text('Forecast: -')
+    expect(slider).to_have_class(re.compile('Mui-disabled'))
+    expect(page.locator('.MuiSlider-thumb')).to_be_hidden()
+
+    widget.options = ['a', 'b', 'c']
+    expect(label).to_have_text('Forecast: a')
+    expect(slider).not_to_have_class(re.compile('Mui-disabled'))
+    expect(page.locator('.MuiSlider-thumb')).to_be_visible()
+    page.locator('.MuiSlider-thumb input').focus()
+    page.keyboard.press('ArrowRight')
+    wait_until(lambda: widget.value == 'b', page)
+
+    widget.options = []
+    expect(label).to_have_text('Forecast: -')
+    expect(slider).to_have_class(re.compile('Mui-disabled'))
+    assert widget.value is None
+
+
+def test_discrete_slider_single_option(page):
+    widget = DiscreteSlider(label='Forecast', options=['only'])
+    serve_component(page, widget)
+    expect(page.locator('.MuiFormLabel-root')).to_have_text('Forecast: only')
+    expect(page.locator('.MuiSlider-root')).to_have_class(re.compile('Mui-disabled'))
+    assert widget.value == 'only'
 
 
 def test_int_slider(page):
