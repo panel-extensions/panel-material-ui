@@ -111,6 +111,31 @@ def test_select_dict_disabled_options(page, kwargs):
     page.locator(".select").click(force=True)
     expect(page.locator(".MuiMenuItem-root.Mui-disabled")).to_have_text("Label B")
 
+def test_select_size_list(page):
+    widget = Select(
+        label='Select', options=['Biology', 'Chemistry', 'Physics', 'Math'],
+        disabled_options=['Math'], size=3
+    )
+    serve_component(page, widget)
+
+    listbox = page.locator('select.MuiNativeSelect-select')
+    expect(listbox).to_have_attribute('size', '3')
+    expect(listbox).to_have_value('Biology')
+    expect(listbox.locator('option')).to_have_text(['Biology', 'Chemistry', 'Physics', 'Math'])
+    expect(listbox.locator('option[disabled]')).to_have_text('Math')
+    expect(page.locator('.MuiMenu-root')).to_have_count(0)
+
+    listbox.select_option('Physics')
+    wait_until(lambda: widget.value == 'Physics', page)
+
+    widget.value = 'Chemistry'
+    expect(listbox).to_have_value('Chemistry')
+
+    widget.size = 1
+    expect(listbox).to_have_count(0)
+    expect(page.locator('.MuiSelect-select')).to_have_text('Chemistry')
+
+
 def test_select_basic_functionality(page):
     widget = Select(label='Select test', options=["Option 1", "Option 2", "Option 3"])
     serve_component(page, widget)

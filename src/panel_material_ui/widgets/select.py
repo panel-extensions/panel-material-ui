@@ -315,6 +315,22 @@ class _SelectDropdownBase(MaterialWidget):
     __abstract = True
 
 
+class _SelectSize(param.Integer):
+    """
+    Number of visible rows, also accepting the legacy visual size strings.
+    """
+
+    _visual_sizes = ("small", "medium", "large")
+
+    def __init__(self, default=1, **params):
+        super().__init__(default=default, bounds=(1, None), **params)
+
+    def _validate(self, val):
+        if val in self._visual_sizes:
+            return
+        super()._validate(val)
+
+
 class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     """
     The `Select` widget allows selecting a value from a list.
@@ -353,10 +369,18 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
         to select from. Mutually exclusive with ``options``  and valid only
         if ``size`` is 1.""")
 
-    size: t.Literal['small', 'medium', 'large'] = param.Selector(objects=["small", "medium", "large"], default="medium")  # type: ignore[assignment]
+    size: int | t.Literal['small', 'medium', 'large'] = _SelectSize(default=1, doc="""
+        Number of options displayed at the same time. If 1 the options are
+        displayed in a dropdown, otherwise in a scrollable list. For
+        backward compatibility one of 'small', 'medium' or 'large' is
+        also accepted and sets the ``visual_size``.""")  # type: ignore[assignment]
 
     variant: t.Literal['filled', 'outlined', 'standard'] = param.Selector(
         objects=["filled", "outlined", "standard"], default="outlined", doc="The variant style of the select widget."
+    )  # type: ignore[assignment]
+
+    visual_size: t.Literal["small", "medium", "large"] = param.Selector(
+        objects=["small", "medium", "large"], default="medium", doc="The visual size of the select control."
     )  # type: ignore[assignment]
 
     _constants = {"multi": False, "loading_inset": -6}
@@ -364,12 +388,36 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     _esm_base = "Select.jsx"
     _rename = {"name": None, "groups": None}
 
+    def __init__(self, **params):
+        if isinstance(params.get('size'), str):
+            params.setdefault('visual_size', params['size'])
+        super().__init__(**params)
+        # Panel's Select freezes size=1 because it swaps Bokeh models on size,
+        # this component renders both modes.
+        self.param.size.constant = False
+
+    @param.depends('size', watch=True)
+    def _sync_visual_size(self):
+        if isinstance(self.size, str):
+            self.visual_size = self.size
+
     def _validate_options_groups(self, *events):
         if self.options and self.groups:
             raise ValueError(
                 f'{type(self).__name__} options and groups parameters '
                 'are mutually exclusive.'
             )
+        if isinstance(self.size, int) and self.size > 1 and self.groups:
+            raise ValueError(
+                f'{type(self).__name__} with size > 1 does not support the '
+                '`groups` parameter, use `options` instead.'
+            )
+
+    def _process_param_change(self, params):
+        props = super()._process_param_change(params)
+        if isinstance(props.get('size'), str):
+            props['size'] = 1
+        return props
 
 class _RadioGroup(MaterialWidget):
     """
