@@ -1170,7 +1170,8 @@ export function render_theme_config(props, theme_config, dark_theme) {
               {
                 props: {color: "default"},
                 style: {
-                  color: "var(--mui-palette-default-dark)",
+                  // default.dark is a background shade in dark mode, so icons need default.main there
+                  color: `var(--mui-palette-default-${dark_theme ? "main" : "dark"})`,
                 },
               },
             ],
