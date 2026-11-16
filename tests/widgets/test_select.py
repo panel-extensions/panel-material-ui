@@ -281,6 +281,48 @@ def test_select_change_groups(document, comm):
     assert select.value is None
     assert widget.data.value is None
 
+def test_select_size_rows(document, comm):
+    select = Select(options=['Biology', 'Chemistry', 'Physics'], size=2)
+
+    widget = select.get_root(document, comm=comm)
+
+    assert widget.data.size == 2
+    assert widget.data.visual_size == 'medium'
+    assert select.value == 'Biology'
+
+    select.size = 1
+    assert widget.data.size == 1
+    select.size = 3
+    assert widget.data.size == 3
+
+
+@pytest.mark.parametrize('size', ['small', 'large'])
+def test_select_size_string_sets_visual_size(size, document, comm):
+    select = Select(options=['A', 'B'], size=size)
+
+    widget = select.get_root(document, comm=comm)
+
+    assert select.size == size
+    assert select.visual_size == size
+    assert widget.data.size == 1
+    assert widget.data.visual_size == size
+
+    select.size = 'medium'
+    assert select.visual_size == 'medium'
+    assert widget.data.visual_size == 'medium'
+
+
+@pytest.mark.parametrize('size', [0, 'huge', 1.5])
+def test_select_size_invalid(size):
+    with pytest.raises(ValueError):
+        Select(options=['A', 'B'], size=size)
+
+
+def test_select_size_rows_error_with_groups():
+    with pytest.raises(ValueError):
+        Select(groups=dict(a=[1], b=[2]), size=2)
+
+
 def test_select_groups_error_with_options():
     # Instantiate with groups and options
     with pytest.raises(ValueError):

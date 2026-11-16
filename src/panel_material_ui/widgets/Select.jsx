@@ -24,6 +24,15 @@ import {render_icon_text, render_icon_text_as_string, MUI_SIZE, denseSx, denseIn
 
 const SELECT_BASE_SX = {padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}}
 
+// MUI styles a single native select as a one line dropdown, so a list box
+// needs its height, icon and option backgrounds (which hide the selection) undone.
+const LIST_BOX_SX = {
+  "& .MuiNativeSelect-select": {height: "auto"},
+  "& .MuiNativeSelect-icon": {display: "none"},
+  "& .MuiNativeSelect-select option": {backgroundColor: "transparent"},
+  "& .MuiNativeSelect-select option:checked": {backgroundColor: "action.selected"},
+}
+
 // Rendering a MenuItem per option makes searchable menus with thousands of
 // options slow to open and to type into, so they render in pages of this size.
 const MENU_PAGE_SIZE = 200
@@ -36,8 +45,9 @@ export function render({model, el, view}) {
   const [label] = model.useState("label")
   const [options] = model.useState("options")
   const [sx] = model.useState("sx")
-  // MultiChoice inherits MultiSelect's integer `size` (visible rows), so its MUI size lives in `visual_size`
-  const [size] = model.useState(model.esm_constants.multi ? "visual_size" : "size")
+  // `size` is the number of visible rows, the MUI size lives in `visual_size`
+  const [size] = model.useState("visual_size")
+  const [rows] = model.useState("size")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
   const selectSx = React.useMemo(() => (sx ? [SELECT_BASE_SX, sx] : SELECT_BASE_SX), [sx])
@@ -527,6 +537,46 @@ export function render({model, el, view}) {
       },
     ]
   }, [selectSx, multi, chip])
+
+  if (!multi && rows > 1) {
+    const listId = `select-list-${model.id}`
+    const listInputProps = {inputRef: ref, id: listId, label: label_spacer}
+    const listSx = sx ? [LIST_BOX_SX, sx] : LIST_BOX_SX
+    return (
+      <FormControl disabled={disabled} error={error_state} fullWidth size={MUI_SIZE(size)} variant={variant}>
+        {label &&
+          <InputLabel id={`select-label-${model.id}`} shrink htmlFor={listId}>
+            {render_icon_text(label)}
+            {model.description ? render_description({model, el, view}) : null}
+          </InputLabel>
+        }
+        <Select
+          color={color}
+          input={
+            variant === "outlined" ?
+              <OutlinedInput notched {...listInputProps}/> :
+              variant === "filled" ?
+                <FilledInput {...listInputProps}/> :
+                <Input {...listInputProps}/>
+          }
+          inputProps={{size: rows}}
+          labelId={`select-label-${model.id}`}
+          native
+          onChange={(event) => setValue(event.target.value)}
+          size={MUI_SIZE(size)}
+          sx={size === "large" ? denseSx(size, listSx) : listSx}
+          value={value ?? ""}
+        >
+          {allOptions.map((item) => (
+            <option key={item.value} value={item.value} disabled={disabledSet.has(item.value)}>
+              {render_icon_text_as_string(item.label)}
+            </option>
+          ))}
+        </Select>
+        {helper_text && <FormHelperText>{render_icon_text(helper_text)}</FormHelperText>}
+      </FormControl>
+    )
+  }
 
   return (
     <FormControl
