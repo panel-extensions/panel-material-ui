@@ -380,8 +380,11 @@ class MaterialComponent(ReactComponent):
             else:
                 params['design'] = MaterialDesign
         super().__init__(**params)
+        # Indexing the instance's param namespace would create a
+        # per-instance copy of every parameter passed in.
+        cls_params = type(self).param
         for p, value in params.items():
-            if p not in self.param or not self.param[p].allow_refs:
+            if p not in cls_params or not cls_params[p].allow_refs:
                 continue
             name = 'value'
             if isinstance(value, param.Parameter):

@@ -11,6 +11,7 @@ from panel.widgets.select import SingleSelectBase as _PnSingleSelectBase
 from panel.widgets.slider import _SliderBase
 from param.parameterized import resolve_value
 
+from .._utils import edit_readonly_params
 from ..base import COLORS, ColorType
 from .base import MaterialWidget
 
@@ -261,7 +262,7 @@ class _RangeSliderBase(_ContinuousSlider):
     @param.depends("value", watch=True)
     def _sync_values(self):
         vs, ve = self.value
-        with edit_readonly(self):
+        with edit_readonly_params(self, 'value_start', 'value_end'):
             self.param.update(value_start=vs, value_end=ve)
 
 

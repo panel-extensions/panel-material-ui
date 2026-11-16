@@ -4,6 +4,8 @@ import html
 import json
 import os
 import re
+from collections.abc import Iterator
+from contextlib import contextmanager
 
 import bokeh
 from bokeh.embed.bundle import URL
@@ -11,6 +13,7 @@ from packaging.version import Version
 from panel.io.cache import cache
 from panel.pane.base import panel
 from panel.pane.image import ImageBase
+from param import Parameterized
 
 bokeh_version = Version(Version(bokeh.__version__).base_version)
 BOKEH_GE_3_8 = bokeh_version >= Version('3.8')
@@ -32,6 +35,30 @@ ICON_NAME_SUFFIXES = {
     '_rounded': 'material-icons-round',
     '_sharp': 'material-icons-sharp',
 }
+
+
+@contextmanager
+def edit_readonly_params(parameterized: Parameterized, *names: str) -> Iterator[None]:
+    """
+    Like panel.util.edit_readonly but only unlocks the named parameters,
+    toggling every parameter is expensive on hot paths like value syncing.
+    """
+    existing = parameterized.param.objects('existing')
+    params = [existing[name] for name in names]
+    states = [(p.readonly, p.constant) for p in params]
+    for p in params:
+        p.readonly = False
+        p.constant = False
+    try:
+        yield
+    finally:
+        # Setting a value may have created an instance-level copy of the
+        # unlocked parameter, which has to be locked again as well.
+        existing = parameterized.param.objects('existing')
+        for name, p, (readonly, constant) in zip(names, params, states, strict=True):
+            for obj in {id(p): p, id(existing[name]): existing[name]}.values():
+                obj.readonly = readonly
+                obj.constant = constant
 
 
 def _icon_token_span(match: re.Match) -> str:

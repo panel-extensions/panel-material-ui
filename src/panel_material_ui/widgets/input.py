@@ -13,7 +13,7 @@ import panel as pn
 import param
 from bokeh.models.formatters import NumeralTickFormatter, TickFormatter
 from panel.models.reactive_html import DOMEvent
-from panel.util import edit_readonly, try_datetime64_to_datetime, value_as_date, value_as_datetime
+from panel.util import try_datetime64_to_datetime, value_as_date, value_as_datetime
 from panel.widgets.input import ArrayInput as _PnArrayInput
 from panel.widgets.input import DatetimeInput as _PnDatetimeInput
 from panel.widgets.input import DatetimeRangeInput as _PnDatetimeRangeInput
@@ -21,6 +21,7 @@ from panel.widgets.input import FileInput as _PnFileInput
 from panel.widgets.input import LiteralInput as _PnLiteralInput
 
 from .._param import Date, DateList, Datetime
+from .._utils import edit_readonly_params
 from ..base import COLORS, ColorType, LoadingTransform, ThemedTransform, TooltipTransform
 from ._mime import MIME_TYPES, NoConverter
 from .base import MaterialWidget
@@ -88,7 +89,7 @@ class _TextInputBase(MaterialInputWidget):
 
     @param.depends('value', watch=True, on_init=True)
     def _sync_value_input(self):
-        with edit_readonly(self):
+        with edit_readonly_params(self, 'value_input'):
             self.value_input = self.value
 
 
@@ -911,11 +912,11 @@ class DateRangePicker(MaterialInputWidget):
     def _update_value_params(self):
         if self.value is not None:
             v1, v2 = self.value
-            with edit_readonly(self):
+            with edit_readonly_params(self, 'value_start', 'value_end'):
                 self.value_start = v1
                 self.value_end = v2
         else:
-            with edit_readonly(self):
+            with edit_readonly_params(self, 'value_start', 'value_end'):
                 self.value_start = None
                 self.value_end = None
 

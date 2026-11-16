@@ -106,6 +106,16 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
 
     __abstract = True
 
+    def __init__(self, **params):
+        # The alias defaults (None) differ from color and variant, so Panel's
+        # post-init alias sync would set both aliases and fire a cascade of
+        # watchers; passing the defaults lets the constructor align them.
+        if 'color' not in params and 'button_type' not in params:
+            params['color'] = type(self).color
+        if 'variant' not in params and 'button_style' not in params:
+            params['variant'] = type(self).variant
+        super().__init__(**params)
+
     @param.depends("button_style", watch=True)
     def _update_variant(self):
         if self.button_style and self.variant != self.button_style:
