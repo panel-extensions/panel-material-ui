@@ -2,6 +2,7 @@ import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
 import Icon from "@mui/material/Icon"
 import Rating from "@mui/material/Rating"
+import {render_description} from "./description"
 import {render_icon, render_icon_text} from "./utils"
 
 const SIZES = {

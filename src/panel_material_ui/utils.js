@@ -2314,3 +2314,37 @@ export const denseSx = (size, sx) => {
   // MUI ignores arrays nested inside an sx array, so callers' sx arrays are spread.
   return sx ? [base, ...(Array.isArray(sx) ? sx : [sx])] : base
 }
+
+// Wraps model.useState for values that change on every pointer move
+// (slider drags, color space drags). The returned value updates locally on
+// every change, while the model is synced at most once per `wait` ms with a
+// trailing update, so the final value always reaches the server. `flush`
+// sends a value immediately and cancels any pending update.
+export function useThrottledModelState(model, name, wait = 50) {
+  const [modelValue, setModelValue] = model.useState(name)
+  const [pending, setPending] = React.useState(undefined)
+  const state = React.useRef({timer: null, last: 0, value: undefined})
+
+  React.useEffect(() => () => clearTimeout(state.current.timer), [])
+
+  const flush = React.useCallback((value) => {
+    const s = state.current
+    clearTimeout(s.timer)
+    s.timer = null
+    s.last = Date.now()
+    s.value = undefined
+    setPending(undefined)
+    setModelValue(value)
+  }, [setModelValue])
+
+  const setThrottled = React.useCallback((value) => {
+    const s = state.current
+    s.value = value
+    setPending(() => value)
+    if (s.timer == null) {
+      s.timer = setTimeout(() => flush(s.value), Math.max(0, wait - (Date.now() - s.last)))
+    }
+  }, [flush, wait])
+
+  return [pending === undefined ? modelValue : pending, setThrottled, flush]
+}

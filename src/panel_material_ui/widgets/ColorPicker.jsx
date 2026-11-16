@@ -1,6 +1,6 @@
 import {MuiColorInput} from "mui-color-input"
 import {render_description} from "./description"
-import {render_icon_text, overlay_container} from "./utils"
+import {render_icon_text, overlay_container, useThrottledModelState} from "./utils"
 
 export function render({model, el, view}) {
   const [alpha] = model.useState("alpha")
@@ -13,7 +13,7 @@ export function render({model, el, view}) {
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
-  const [value, setValue] = model.useState("value")
+  const [value, setValue] = useThrottledModelState(model, "value")
 
   return (
     <MuiColorInput

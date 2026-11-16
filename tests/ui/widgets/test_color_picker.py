@@ -1,10 +1,13 @@
+import time
+
 import pytest
 
 pytest.importorskip("playwright")
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import ColorPicker
 from playwright.sync_api import expect
+
+from panel_material_ui.widgets import ColorPicker
 
 pytestmark = pytest.mark.ui
 
@@ -149,3 +152,29 @@ def test_color_picker_popover_position(page):
     assert popover_box['y'] >= 0
     assert popover_box['x'] + popover_box['width'] <= viewport['width']
     assert popover_box['y'] + popover_box['height'] <= viewport['height']
+
+
+def test_color_picker_drag_throttles_value_updates(page):
+    widget = ColorPicker(value='#ff0000')
+    frames = []
+    page.on('websocket', lambda ws: ws.on(
+        'framesent', lambda p: frames.append(p) if isinstance(p, str) and '"attr":"value"' in p else None
+    ))
+    serve_component(page, widget)
+    page.locator('.MuiColorInput-Button').click()
+    space = page.locator('.MuiColorInput-ColorSpace')
+    expect(space).to_be_visible()
+    box = space.bounding_box()
+    page.mouse.move(box['x'] + 5, box['y'] + 5)
+    page.mouse.down()
+    start = time.perf_counter()
+    for i in range(50):
+        page.mouse.move(box['x'] + 5 + i * 3, box['y'] + 5 + i)
+    elapsed = time.perf_counter() - start
+    page.mouse.up()
+
+    # The trailing update always delivers the final color
+    final = page.locator('.MuiInputBase-input')
+    wait_until(lambda: widget.value.lower() == final.input_value().lower(), page)
+    assert widget.value.lower() != '#ff0000'
+    assert len(frames) <= elapsed / 0.05 + 3
