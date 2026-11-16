@@ -9,6 +9,7 @@ from panel import config
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
+from panel_material_ui.layout import Column, Row
 from panel_material_ui.widgets import (
     DiscreteSlider,
     EditableFloatSlider,
@@ -349,3 +350,42 @@ def test_editable_slider_decrement_button_updates_value_throttled(page, widget_c
 
         wait_until(lambda: widget.value_throttled == pytest.approx(expected, abs=1e-9), page)
         assert widget.value == pytest.approx(expected, abs=1e-9)
+
+
+@pytest.mark.parametrize('text,expected', [('1e-3', 0.001), ('2.5E-1', 0.25)])
+def test_editable_float_slider_accepts_exponent_input(page, text, expected):
+    widget = EditableFloatSlider(value=0.5, start=0, end=1, step=0.001)
+    serve_component(page, widget)
+    inp = page.locator('.MuiInputBase-input').first
+    inp.click()
+    inp.fill(text)
+    page.keyboard.press('Enter')
+    wait_until(lambda: widget.value == expected, page)
+
+
+def test_slider_sends_trailing_drag_value_on_unmount(page):
+    slider = FloatSlider(start=0, end=100, value=0, step=1)
+    col = Column(slider, width=400)
+    # A second view keeps the model in the document once col drops its view
+    layout = Row(col, Column(slider, width=400))
+    serve_component(page, layout)
+
+    roots = page.locator('.MuiSlider-root')
+    expect(roots).to_have_count(2)
+    # Let the Row settle its layout before measuring the drag target
+    page.wait_for_timeout(300)
+    box = roots.first.bounding_box()
+    y = box['y'] + box['height'] / 2
+    page.mouse.move(box['x'] + box['width'] * 0.3, y)
+    page.mouse.down()
+    page.mouse.move(box['x'] + box['width'] * 0.4, y, steps=3)
+    wait_until(lambda: slider.value >= 30, page)
+
+    # The last move lands inside the 50 ms throttle window and the view is
+    # unmounted before the trailing update fires.
+    col_id = col._models[list(col._models)[0]][0].ref['id']
+    page.mouse.move(box['x'] + box['width'] * 0.6, y)
+    page.mouse.move(box['x'] + box['width'] * 0.8, y)
+    page.evaluate("(id) => { Bokeh.documents[0].get_model_by_id(id).data.objects = [] }", col_id)
+    page.mouse.up()
+    wait_until(lambda: slider.value >= 75, page)
