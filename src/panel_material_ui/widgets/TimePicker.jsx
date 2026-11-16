@@ -49,12 +49,30 @@ export function render({model, el, view}) {
     const parsedTime = parseTime(modelValue)
     setValue(parsedTime)
   }, [modelValue])
-  const handleChange = (newValue) => {
-    if (newValue) {
-      const timeString = newValue.format("HH:mm:ss")
+  const commit = (timeString) => {
+    if (timeString !== (model.value ?? null)) {
       setModelValue(timeString)
+    }
+  }
+
+  // Partial edits (a cleared or half-typed section) are reported as null or
+  // an invalid date; keep them local so the other sections are not wiped and
+  // only send complete times to Python.
+  const handleChange = (newValue) => {
+    setValue(newValue)
+    if (newValue && newValue.isValid()) {
+      commit(newValue.format("HH:mm:ss"))
+    }
+  }
+
+  const handleBlur = () => {
+    if (value && value.isValid()) {
+      return
+    }
+    if (/\d/.test(ref.current?.value ?? "")) {
+      setValue(parseTime(model.value))
     } else {
-      setModelValue(null)
+      commit(null)
     }
   }
 
@@ -87,6 +105,7 @@ export function render({model, el, view}) {
             // is left to MUI's own native small styling, which already works.
             sx: size === "large" ? denseSx(size) : undefined,
             error: error_state,
+            onBlur: handleBlur,
             helperText: helper_text ? render_icon_text(helper_text) : undefined,
           },
           popper: {container: overlay_container(view.container)},

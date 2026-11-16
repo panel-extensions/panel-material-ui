@@ -129,3 +129,24 @@ def test_datepicker_edit_single_section_commits(page):
     input_el.press("Tab")
 
     wait_until(lambda: widget.value == dt.date(2030, 8, 13), page)
+
+
+def test_datepicker_repick_after_server_reset(page):
+    widget = DatePicker(value=dt.date(2024, 1, 10))
+    seen = []
+
+    def reject(event):
+        seen.append(event.new)
+        if event.new == dt.date(2024, 1, 15):
+            widget.value = dt.date(2024, 1, 10)
+
+    widget.param.watch(reject, 'value')
+    serve_component(page, widget)
+
+    input_el = page.locator(".MuiPickersInputBase-input")
+    for attempt in range(1, 3):
+        page.locator('button[aria-label^="Choose date"]').click()
+        page.locator('button[role="gridcell"]:text-is("15")').click()
+        wait_until(lambda: seen.count(dt.date(2024, 1, 15)) == attempt, page)
+        wait_until(lambda: "2024-01-10" in input_el.input_value(), page)
+    assert widget.value == dt.date(2024, 1, 10)

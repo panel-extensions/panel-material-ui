@@ -95,6 +95,9 @@ export function render({model, view, el}) {
   // Update local state when model value changes from Python
   React.useEffect(() => {
     const parsedDate = parseDate(modelValue);
+    // Track the value Python actually holds, so re-picking a date the server
+    // rejected (and reset) is sent again instead of being deduplicated.
+    lastCommittedRef.current = formatDateForPython(parsedDate);
     setValue(parsedDate);
     setInternalValue(parsedDate);
   }, [modelValue]);
@@ -140,13 +143,11 @@ export function render({model, view, el}) {
 
     const formattedDate = formatDateForPython(date);
     // Skip update if this is the same value we just committed
-    const currentTimestamp = date.valueOf();
-    if (lastCommittedRef.current === currentTimestamp) {
+    if (lastCommittedRef.current === formattedDate) {
       return;
     }
 
-    // Update our tracking reference
-    lastCommittedRef.current = currentTimestamp;
+    lastCommittedRef.current = formattedDate;
 
     // Update the model
     setValue(date);

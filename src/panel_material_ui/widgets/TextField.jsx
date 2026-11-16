@@ -2,6 +2,11 @@ import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
 import {render_icon_text, render_icon_text_as_string, denseSx} from "./utils"
 
+// While the user is typing, value_input updates coming back from the server
+// may be stale (a response to an earlier keystroke), so they are only applied
+// once the user has stopped typing for this many milliseconds.
+const TYPING_IDLE_MS = 300
+
 export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -15,6 +20,34 @@ export function render({model, el, view}) {
   const [value, setValue] = model.useState("value")
   const [value_input, setValueInput] = model.useState("value_input")
   const [variant] = model.useState("variant")
+
+  const [draft, setDraft] = React.useState(value_input ?? "")
+  const draftRef = React.useRef(draft)
+  const focusedRef = React.useRef(false)
+  const lastEditRef = React.useRef(0)
+  const syncTimerRef = React.useRef(null)
+
+  const updateDraft = (text) => {
+    draftRef.current = text
+    setDraft(text)
+  }
+
+  const syncFromModel = () => {
+    clearTimeout(syncTimerRef.current)
+    const remote = model.value_input ?? ""
+    if (remote === draftRef.current) {
+      return
+    }
+    const idle = Date.now() - lastEditRef.current
+    if (!focusedRef.current || idle >= TYPING_IDLE_MS) {
+      updateDraft(remote)
+    } else {
+      syncTimerRef.current = setTimeout(syncFromModel, TYPING_IDLE_MS - idle)
+    }
+  }
+
+  React.useEffect(syncFromModel, [value_input])
+  React.useEffect(() => () => clearTimeout(syncTimerRef.current), [])
 
   const ref = React.useRef(null)
   React.useEffect(() => {
@@ -35,12 +68,21 @@ export function render({model, el, view}) {
       label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
       multiline={model.esm_constants.multiline}
       placeholder={render_icon_text_as_string(placeholder)}
-      onBlur={() => setValue(value_input)}
-      onChange={(event) => setValueInput(event.target.value)}
+      onBlur={() => {
+        focusedRef.current = false
+        setValue(draftRef.current)
+        syncFromModel()
+      }}
+      onChange={(event) => {
+        lastEditRef.current = Date.now()
+        updateDraft(event.target.value)
+        setValueInput(event.target.value)
+      }}
+      onFocus={() => { focusedRef.current = true }}
       onKeyDown={(event) => {
         if (event.key === "Enter") {
           model.send_event("enter", event)
-          setValue(value_input)
+          setValue(draftRef.current)
         }
       }}
       rows={4}
@@ -52,7 +94,7 @@ export function render({model, el, view}) {
       // InputLabel/InputBase natively and gets it right out of the box.
       sx={size === "large" ? denseSx(size, sx) : sx}
       variant={variant}
-      value={value_input}
+      value={draft}
     />
   )
 }

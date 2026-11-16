@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 import numpy as np
@@ -8,7 +9,7 @@ pytest.importorskip('playwright')
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
-from panel_material_ui.widgets import ArrayInput, DatetimeRangeInput, FloatInput, NumberInput, PasswordInput, TextInput
+from panel_material_ui.widgets import ArrayInput, DatetimeRangeInput, FloatInput, IntInput, NumberInput, PasswordInput, TextInput
 
 pytestmark = pytest.mark.ui
 
@@ -125,6 +126,36 @@ def test_password_max_length(page):
     expect(input_area).to_have_value("12")
     wait_until(lambda: widget.value_input == "12", page)
 
+def test_text_input_server_transform_while_typing(page):
+    widget = TextInput()
+
+    def upper(event):
+        time.sleep(0.03)
+        widget.value = event.new.upper()
+
+    widget.param.watch(upper, 'value_input')
+    serve_component(page, widget)
+
+    input_field = page.locator('input').nth(0)
+    input_field.click()
+    page.keyboard.type('the quick brown fox', delay=10)
+
+    expect(input_field).to_have_value('THE QUICK BROWN FOX')
+    wait_until(lambda: widget.value == 'THE QUICK BROWN FOX', page)
+
+
+def test_text_input_server_update_when_idle(page):
+    widget = TextInput()
+    serve_component(page, widget)
+
+    input_field = page.locator('input').nth(0)
+    input_field.click()
+    input_field.type('abc')
+    wait_until(lambda: widget.value_input == 'abc', page)
+    widget.value = 'xyz'
+    expect(input_field).to_have_value('xyz')
+
+
 def test_float_input_typing(page):
     widget = FloatInput()
     serve_component(page, widget)
@@ -136,6 +167,49 @@ def test_float_input_typing(page):
     input_area.press("Enter")
     expect(input_area).to_have_value("1.23")
     wait_until(lambda: widget.value == 1.23, page)
+
+def test_int_input_value_throttled(page):
+    widget = IntInput(value=1)
+    serve_component(page, widget)
+
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    input_area.fill('42')
+    input_area.press('Enter')
+    wait_until(lambda: widget.value == 42 and widget.value_throttled == 42, page)
+
+    page.locator('button').last.click()
+    wait_until(lambda: widget.value == 43 and widget.value_throttled == 43, page)
+
+
+def test_int_input_arrow_steps_from_typed_value(page):
+    widget = IntInput(value=3)
+    serve_component(page, widget)
+
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    input_area.press('End')
+    page.keyboard.press('Backspace')
+    page.keyboard.type('5')
+    page.keyboard.press('ArrowUp')
+
+    expect(input_area).to_have_value('6')
+    wait_until(lambda: widget.value == 6, page)
+
+
+@pytest.mark.parametrize('typed,expected', [('99', 10), ('-5', 0)])
+def test_int_input_typed_value_clamped(page, typed, expected):
+    widget = IntInput(value=3, start=0, end=10)
+    serve_component(page, widget)
+
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    input_area.fill(typed)
+    input_area.press('Enter')
+
+    expect(input_area).to_have_value(str(expected))
+    wait_until(lambda: widget.value == expected, page)
+
 
 def test_number_input_focus(page):
     widget = NumberInput(value=5, start=0, end=10)
