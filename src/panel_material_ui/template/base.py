@@ -19,7 +19,7 @@ from panel.viewable import Child, Children
 from param.parameterized import edit_constant
 
 from .._utils import _read_icon
-from ..base import BASE_TEMPLATE, MaterialComponent, ThemedTransform, _env
+from ..base import BASE_TEMPLATE, MaterialComponent, ThemedTransform, _env, align_session_theme, aligning_session_theme
 from ..theme import APPLE_ICON_VAR, FAVICON_VAR, THEME_MANAGED_VAR
 from ..widgets.base import MaterialWidget
 
@@ -79,6 +79,10 @@ class Page(MaterialComponent, ResourceComponent):
 
     >>> Page(main=['# Content'], title='My App')
     """
+
+    _constants = {"loading_inset": 0, "session_theme_owner": True}
+
+    _session_theme_owner = True
 
     app_bar_width = param.ClassSelector(default=None, class_=(int, str, dict), precedence=-1, doc="""
         Deprecated alias for ``header_width``.""")
@@ -261,7 +265,8 @@ class Page(MaterialComponent, ResourceComponent):
 
     @param.depends('dark_theme', watch=True)
     def _update_config(self):
-        config.theme = 'dark' if self.dark_theme else 'default'
+        if not aligning_session_theme():
+            align_session_theme(self, self.dark_theme)
 
     def _add_resources(self, resources, extras, raw_css):
         for rname, res in resources.items():
@@ -400,23 +405,28 @@ class ThemeToggle(MaterialWidget):
     _rename = {"theme_toggle": None}
 
     def __init__(self, **params):
+        explicit = 'value' in params or 'theme' in params
         if 'value' in params:
             if 'theme' in params and params['value'] and not params['theme'] == 'dark':
                 raise ValueError(
                     'The ThemeToggle value and theme must match.'
                 )
+            params['theme'] = 'dark' if params['value'] else 'default'
         elif 'theme' in params:
             params['value'] = params['theme'] == 'dark'
         else:
             params['theme'] = config.theme
             params['value'] = config.theme == 'dark'
-        params['dark_theme'] = params['value']
+        # Only a value or theme passed explicitly sets the theme of the page.
+        if explicit:
+            params['dark_theme'] = params['value']
         super().__init__(**params)
 
-    @param.depends('value', watch=True, on_init=True)
+    @param.depends('value', watch=True)
     def _update_theme(self):
         with param.parameterized.edit_constant(self):
-            self.theme = config.theme = 'dark' if self.value else 'default'
+            self.theme = 'dark' if self.value else 'default'
+        align_session_theme(self, self.value)
 
 
 class AppBar(MaterialComponent):

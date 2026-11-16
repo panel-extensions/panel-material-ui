@@ -15,10 +15,22 @@ export function render({model, view}) {
 
   setup_global_styles(view, theme)
 
+  // On mount the theme hooks decide whether this toggle publishes its value
+  // (when it was set explicitly) or adopts the page theme.
+  const mounted = React.useRef(false)
   React.useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true
+      return
+    }
     dark_mode.set_value(value)
     setDarkTheme(value)
   }, [value])
+
+  const toggle = () => {
+    dark_mode.switched = true
+    setValue(!value)
+  }
 
   React.useEffect(() => {
     setValue(dark_theme)
@@ -29,7 +41,7 @@ export function render({model, view}) {
       {variant === "switch" ? (
         <FormControlLabel
           control={
-            <Switch checked={value} onChange={(e) => setValue(!value)} />
+            <Switch checked={value} onChange={toggle} />
           }
           label={value ? "Dark Theme" : "Light Theme"}
         />
@@ -37,7 +49,7 @@ export function render({model, view}) {
         <IconButton
           aria-label="Toggle theme"
           color="inherit" align="right"
-          onClick={() => setValue(!value)}
+          onClick={toggle}
         >
           {value ? <DarkMode /> : <LightMode />}
         </IconButton>
