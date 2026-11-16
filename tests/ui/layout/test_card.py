@@ -182,3 +182,21 @@ def test_card_collapse_unmount(page):
     # Expand and check content appears
     page.locator('.MuiCardHeader-action button').click()
     expect(content).to_have_count(1)
+
+
+@pytest.mark.parametrize('dark_theme, color', [
+    (False, 'rgb(117, 117, 117)'),
+    (True, 'rgb(158, 158, 158)'),
+])
+def test_card_collapse_icon_follows_theme(page, dark_theme, color):
+    serve_component(page, Card("Content", title="Card", dark_theme=dark_theme))
+
+    expect(page.locator('.MuiCardHeader-action button')).to_have_css('color', color)
+
+
+@pytest.mark.parametrize('dark_theme, shade', [(False, 'dark'), (True, 'main')])
+def test_card_collapse_icon_follows_theme_config(page, dark_theme, shade):
+    theme_config = {'palette': {'default': {shade: '#ff0000'}}}
+    serve_component(page, Card("Content", title="Card", dark_theme=dark_theme, theme_config=theme_config))
+
+    expect(page.locator('.MuiCardHeader-action button')).to_have_css('color', 'rgb(255, 0, 0)')
