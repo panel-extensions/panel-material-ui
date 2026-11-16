@@ -185,24 +185,25 @@ def test_page_busy_follows_state():
     assert not page.busy
 
 
-def _busy_watcher_count():
-    return len(state.param.watchers.get('busy', {}).get('value', []))
+def _busy_watchers():
+    return state.param.watchers.get('busy', {}).get('value', [])
 
 
 def test_page_stops_following_busy_after_cleanup():
-    n_watchers = _busy_watcher_count()
     page = pmui.Page()
-    assert _busy_watcher_count() == n_watchers + 1
+    watcher = page._busy_watchers[0]
+    assert watcher in _busy_watchers()
     root = page.get_root(Document())
     page._cleanup(root)
-    assert _busy_watcher_count() == n_watchers
+    assert watcher not in _busy_watchers()
+    assert not page._busy_watchers
     with edit_readonly(state):
         state.busy = True
     try:
         assert not page.busy
         page.get_root(Document())
         assert page.busy
-        assert _busy_watcher_count() == n_watchers + 1
+        assert page._busy_watchers[0] in _busy_watchers()
     finally:
         with edit_readonly(state):
             state.busy = False
