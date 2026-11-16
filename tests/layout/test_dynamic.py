@@ -67,6 +67,23 @@ def test_tabs_objects_assignment_clamps_active():
     assert tabs.active == 1
 
 
+@pytest.mark.parametrize("dynamic", [False, True])
+def test_accordion_out_of_range_active_not_clamped_on_switch(dynamic):
+    acc = Accordion(*((f"A{i}", f"c{i}") for i in range(3)), dynamic=dynamic)
+    acc.active = [0, 5]
+    assert acc.active == [0, 5]
+
+
+def test_named_layout_objects_assignment_remaps_headers():
+    header = Typography("Header")
+    p1, p2 = Column("c1"), Column("c2")
+    acc = Accordion((header, p1))
+    acc.objects = [p2, p1]
+    assert len(acc._headers) == 2
+    assert acc._headers[0] is not header and acc._headers[1] is header
+    assert acc._names[0] == p2.name and acc._names[1] is None
+
+
 def test_tabs_pop_shifts_disabled():
     tabs = Tabs(*((f"T{i}", f"c{i}") for i in range(4)), disabled=[1, 3])
     tabs.pop(1)

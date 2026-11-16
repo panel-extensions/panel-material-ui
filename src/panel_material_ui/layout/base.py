@@ -132,6 +132,20 @@ class MaterialNamedListLike(MaterialLayout, NamedListLike):
         # ensures they are validated and synced in a single update.
         self.param.update(objects=objects, _headers=headers, _names=names, **params)
 
+    def _update_names(self, event: param.parameterized.Event) -> None:
+        if len(event.new) == len(self._names):
+            return
+        names, headers = [], []
+        for obj in event.new:
+            if obj in event.old:
+                index = event.old.index(obj)
+                names.append(self._names[index])
+                headers.append(self._headers[index] if index < len(self._headers) else None)
+            else:
+                names.append(obj.name)
+                headers.append(None)
+        self.param.update(_names=names, _headers=headers)
+
     def _index_updates(self, n: int, removed: int | None = None) -> dict[str, t.Any]:
         """
         Returns parameter updates which keep index based parameters
@@ -768,6 +782,10 @@ class MaterialDynamicNamedListLike(MaterialNamedListLike):
         self.param.watch(self._clamp_indices, 'objects')
 
     def _clamp_indices(self, event: param.parameterized.Event):
+        # A trigger (e.g. a dynamic re-render on an active change) leaves
+        # the objects unchanged, so indices are only clamped on real changes.
+        if event.old is event.new:
+            return
         if (updates := self._index_updates(len(event.new))):
             self.param.update(updates)
 
