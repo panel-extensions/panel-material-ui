@@ -9,7 +9,16 @@ pytest.importorskip('playwright')
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
-from panel_material_ui.widgets import ArrayInput, DatetimeRangeInput, FloatInput, IntInput, NumberInput, PasswordInput, TextInput
+from panel_material_ui.widgets import (
+    ArrayInput,
+    DatetimeRangeInput,
+    FloatInput,
+    IntInput,
+    NumberInput,
+    PasswordInput,
+    TextAreaInput,
+    TextInput,
+)
 
 pytestmark = pytest.mark.ui
 
@@ -126,8 +135,11 @@ def test_password_max_length(page):
     expect(input_area).to_have_value("12")
     wait_until(lambda: widget.value_input == "12", page)
 
-def test_text_input_server_transform_while_typing(page):
-    widget = TextInput()
+@pytest.mark.parametrize('widget_type,selector', [
+    (TextInput, 'input'), (PasswordInput, 'input'), (TextAreaInput, 'textarea')
+])
+def test_text_input_server_transform_while_typing(page, widget_type, selector):
+    widget = widget_type()
 
     def upper(event):
         time.sleep(0.03)
@@ -136,12 +148,33 @@ def test_text_input_server_transform_while_typing(page):
     widget.param.watch(upper, 'value_input')
     serve_component(page, widget)
 
-    input_field = page.locator('input').nth(0)
+    input_field = page.locator(selector).nth(0)
     input_field.click()
     page.keyboard.type('the quick brown fox', delay=10)
 
     expect(input_field).to_have_value('THE QUICK BROWN FOX')
     wait_until(lambda: widget.value == 'THE QUICK BROWN FOX', page)
+
+
+def test_text_input_server_update_deferred_during_ime_composition(page):
+    widget = TextInput()
+
+    def upper(event):
+        widget.value = event.new.upper()
+
+    widget.param.watch(upper, 'value_input')
+    serve_component(page, widget)
+
+    input_field = page.locator('input').nth(0)
+    input_field.click()
+    input_field.dispatch_event('compositionstart', {'data': ''})
+    page.keyboard.type('abc')
+    wait_until(lambda: widget.value_input == 'ABC', page)
+    page.wait_for_timeout(800)
+    expect(input_field).to_have_value('abc')
+
+    input_field.dispatch_event('compositionend', {'data': 'abc'})
+    expect(input_field).to_have_value('ABC')
 
 
 def test_text_input_server_update_when_idle(page):
@@ -180,6 +213,52 @@ def test_int_input_value_throttled(page):
 
     page.locator('button').last.click()
     wait_until(lambda: widget.value == 43 and widget.value_throttled == 43, page)
+
+
+def test_float_input_arrow_steps_small_exponential_values(page):
+    widget = FloatInput(value=1e-7, step=1e-7)
+    serve_component(page, widget)
+
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    page.keyboard.press('ArrowUp')
+    page.keyboard.press('ArrowUp')
+
+    wait_until(lambda: widget.value == pytest.approx(3e-7), page)
+    input_area.press('Tab')
+    page.wait_for_timeout(300)
+    assert widget.value == pytest.approx(3e-7)
+
+
+def test_int_input_blur_without_edit_does_not_commit(page):
+    widget = IntInput(value=1)
+    serve_component(page, widget)
+
+    input_area = page.locator('input').nth(0)
+    expect(input_area).to_have_value('1')
+    widget.value = 5
+    expect(input_area).to_have_value('5')
+
+    input_area.click()
+    input_area.press('Enter')
+    input_area.press('Tab')
+    page.wait_for_timeout(500)
+    assert widget.value == 5
+    assert widget.value_throttled == 1
+
+
+def test_int_input_blur_flushes_pending_step(page):
+    widget = IntInput(value=1, wheel_wait=5000)
+    serve_component(page, widget)
+
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    page.keyboard.press('ArrowUp')
+    wait_until(lambda: widget.value == 2, page)
+    assert widget.value_throttled == 1
+
+    input_area.press('Tab')
+    wait_until(lambda: widget.value_throttled == 2, page)
 
 
 def test_int_input_arrow_steps_from_typed_value(page):

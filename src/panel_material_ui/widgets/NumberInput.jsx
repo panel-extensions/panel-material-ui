@@ -30,6 +30,7 @@ export function render({model, el, view}) {
 
   const ref = React.useRef(null)
   const throttleTimer = React.useRef(null)
+  const throttlePending = React.useRef(false)
   React.useEffect(() => {
     const handler = () => {
       ref.current?.focus()
@@ -60,8 +61,12 @@ export function render({model, el, view}) {
     setValue(newValue)
     setEditableValue(newValue)
     clearTimeout(throttleTimer.current)
+    throttlePending.current = debounce
     if (debounce) {
-      throttleTimer.current = setTimeout(() => setValueThrottled(newValue), wheel_wait ?? 0)
+      throttleTimer.current = setTimeout(() => {
+        throttlePending.current = false
+        setValueThrottled(newValue)
+      }, wheel_wait ?? 0)
     } else {
       setValueThrottled(newValue)
     }
@@ -69,7 +74,10 @@ export function render({model, el, view}) {
 
   const validate = (value) => {
     const regex = model.mode == "int" ? int_regex : float_regex
-    if (value === "" || ["", "-", ".", "-."].includes(value)) {
+    if (typeof value === "number") {
+      // Set by a step or the model rather than typed, String() may be exponential
+      return clamp(value)
+    } else if (value == null || ["", "-", ".", "-."].includes(value)) {
       return null
     } else if (regex.test(value)) {
       return clamp(Number(value))
@@ -78,7 +86,18 @@ export function render({model, el, view}) {
     }
   }
 
-  const commitTyped = () => commit(validate(editableValue))
+  // Blur and Enter only commit an edit; a pending step flushes value_throttled
+  const commitTyped = () => {
+    const parsed = validate(editableValue)
+    if (parsed !== value) {
+      commit(parsed)
+    } else {
+      setEditableValue(value)
+      if (throttlePending.current) {
+        commit(value)
+      }
+    }
+  }
 
   React.useEffect(() => {
     setEditableValue(value)
