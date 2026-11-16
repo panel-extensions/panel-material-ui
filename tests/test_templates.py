@@ -185,6 +185,30 @@ def test_page_busy_follows_state():
     assert not page.busy
 
 
+def _busy_watcher_count():
+    return len(state.param.watchers.get('busy', {}).get('value', []))
+
+
+def test_page_stops_following_busy_after_cleanup():
+    n_watchers = _busy_watcher_count()
+    page = pmui.Page()
+    assert _busy_watcher_count() == n_watchers + 1
+    root = page.get_root(Document())
+    page._cleanup(root)
+    assert _busy_watcher_count() == n_watchers
+    with edit_readonly(state):
+        state.busy = True
+    try:
+        assert not page.busy
+        page.get_root(Document())
+        assert page.busy
+        assert _busy_watcher_count() == n_watchers + 1
+    finally:
+        with edit_readonly(state):
+            state.busy = False
+    assert not page.busy
+
+
 def test_page_does_not_leak_through_state_busy():
     gc.collect()
     n_watchers = len(state.param.watchers.get('busy', {}).get('value', []))

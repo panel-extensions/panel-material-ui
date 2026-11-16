@@ -5,7 +5,10 @@ import {createTheme} from "@mui/material/styles"
 import {deepmerge} from "@mui/utils"
 
 export const int_regex = /^[-+]?\d*$/
-export const float_regex = /^[-+]?(\d*(?:\.\d*)?)$/;
+// Accepts partial input like "-", "." or "1." while typing, and exponent
+// notation like "1e-7" (which String() produces for small and large numbers)
+// once the mantissa has a digit.
+export const float_regex = /^[-+]?(?:\d*(?:\.\d*)?|(?:\d+\.?\d*|\.\d+)[eE][-+]?\d+)$/
 
 export class SessionStore {
   constructor() {
@@ -2328,8 +2331,17 @@ export function useThrottledModelState(model, name, wait = 50) {
   const [modelValue, setModelValue] = model.useState(name)
   const [pending, setPending] = React.useState(undefined)
   const state = React.useRef({timer: null, last: 0, value: undefined})
-
-  React.useEffect(() => () => clearTimeout(state.current.timer), [])
+  // Unmounting mid-drag (e.g. a ColorPicker in a closing Popup) still sends
+  // the trailing value. The useState setter only syncs from an effect, which
+  // never runs once unmounted, so the model is written to directly.
+  React.useEffect(() => () => {
+    const s = state.current
+    if (s.timer != null) {
+      clearTimeout(s.timer)
+      s.timer = null
+      model[name] = s.value
+    }
+  }, [])
 
   const flush = React.useCallback((value) => {
     const s = state.current

@@ -18,7 +18,7 @@ from panel.util import edit_readonly
 from panel.viewable import Child, Children
 from param.parameterized import edit_constant
 
-from .._utils import _read_icon
+from .._utils import _read_icon, edit_readonly_params
 from ..base import BASE_TEMPLATE, MaterialComponent, ThemedTransform, _env
 from ..theme import APPLE_ICON_VAR, FAVICON_VAR, THEME_MANAGED_VAR
 from ..widgets.base import MaterialWidget
@@ -41,6 +41,11 @@ def parse_template(tmpl, *args, **kwargs):
     if os.path.isfile(tmpl):
         tmpl = pathlib.Path(tmpl).read_text(encoding='utf-8')
     return _env.from_string(tmpl, *args, **kwargs)
+
+
+def _unwatch_busy(watchers: list[param.parameterized.Watcher]) -> None:
+    while watchers:
+        state.param.unwatch(watchers.pop())
 
 
 class Meta(param.Parameterized):
@@ -206,16 +211,29 @@ class Page(MaterialComponent, ResourceComponent):
         with edit_constant(self.meta):
             self.meta.param.update(**meta)
         self.config.param.update(**resources)
-        with edit_readonly(self):
-            self.busy = state.busy
         # Sync busy through a weakly referencing watcher on the global state,
-        # a param reference would keep every Page alive forever.
+        # a param reference would keep every Page alive forever. The watcher
+        # is also dropped once the Page is no longer rendered anywhere.
+        self._busy_watchers: list[param.parameterized.Watcher] = []
+        weakref.finalize(self, _unwatch_busy, self._busy_watchers)
+        self._watch_busy()
+
+    def _watch_busy(self):
+        if self._busy_watchers:
+            return
         page_ref = weakref.ref(self)
         def _sync_busy(event):
             if (page := page_ref()) is not None:
-                with edit_readonly(page):
+                with edit_readonly_params(page, 'busy'):
                     page.busy = event.new
-        weakref.finalize(self, state.param.unwatch, state.param.watch(_sync_busy, 'busy'))
+        self._busy_watchers.append(state.param.watch(_sync_busy, 'busy'))
+        with edit_readonly_params(self, 'busy'):
+            self.busy = state.busy
+
+    def _cleanup(self, root: Model | None = None) -> None:
+        super()._cleanup(root)
+        if not self._models:
+            _unwatch_busy(self._busy_watchers)
 
     @param.depends('template', watch=True, on_init=True)
     def _update_template(self):
@@ -312,6 +330,7 @@ class Page(MaterialComponent, ResourceComponent):
         self, doc: Document, root: Model | None = None,
         parent: Model | None = None, comm: Comm | None = None
     ) -> Model:
+        self._watch_busy()
         model = super()._get_model(doc, root, parent, comm)
         served = bool(doc.session_context and doc.session_context.server_context)
         if not served and model.data.site_url == "/":

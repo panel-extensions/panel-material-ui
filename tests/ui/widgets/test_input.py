@@ -168,3 +168,15 @@ def test_datetime_range_input_editing(page):
     inputs.nth(0).fill('2024-01-05 00:00:00')
     inputs.nth(0).press('Enter')
     wait_until(lambda: widget.value[0] == datetime(2024, 1, 5), page)
+
+
+@pytest.mark.parametrize('typed,expected', [('1e-3', 0.001), ('-2.5E2', -250), ('.5e1', 5)])
+def test_float_input_typed_exponent(page, typed, expected):
+    widget = FloatInput(value=1)
+    serve_component(page, widget)
+
+    input_area = page.locator('input').nth(0)
+    input_area.click()
+    input_area.fill(typed)
+    input_area.press('Enter')
+    wait_until(lambda: widget.value == expected, page)
