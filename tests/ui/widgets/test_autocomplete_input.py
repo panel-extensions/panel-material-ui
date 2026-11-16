@@ -431,3 +431,20 @@ def test_autocomplete_lazy_search_vs_local(page):
     # Should show filtered results
     expect(page.locator(".MuiAutocomplete-option")).to_have_count(1)
     expect(page.locator(".MuiAutocomplete-option")).to_have_text("Banana")
+
+def test_autocomplete_caps_rendered_matches(page):
+    options = [f"option {i}" for i in range(500)]
+    widget = AutocompleteInput(options=options, min_characters=1)
+    serve_component(page, widget)
+
+    page.locator('.MuiAutocomplete-input').fill("o")
+
+    expect(page.locator(".MuiAutocomplete-option")).to_have_count(200)
+    expect(page.locator(".autocomplete-more-options")).to_have_text("300 more matches, keep typing to refine")
+
+    page.locator('.MuiAutocomplete-input').fill("option 49")
+    expect(page.locator(".MuiAutocomplete-option")).to_have_count(11)
+    expect(page.locator(".autocomplete-more-options")).to_have_count(0)
+
+    page.locator(".MuiAutocomplete-option", has_text="option 499").click()
+    wait_until(lambda: widget.value == "option 499", page)

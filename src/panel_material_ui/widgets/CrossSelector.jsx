@@ -27,16 +27,42 @@ const CROSS_SELECTOR_ROOT_SX = {
 }
 
 function not(a, b) {
-  return a.filter((value) => !b.includes(value))
+  const exclude = new Set(b)
+  return a.filter((value) => !exclude.has(value))
 }
 
 function intersection(a, b) {
-  return a.filter((value) => b.includes(value))
+  const include = new Set(b)
+  return a.filter((value) => include.has(value))
 }
 
 function union(a, b) {
   return [...a, ...not(b, a)]
 }
+
+// Memoized so that re-renders only touch rows whose label or checked state changed
+const CrossSelectorItem = React.memo(function CrossSelectorItem({item, checked, color, visual_size, onToggle}) {
+  const labelId = `transfer-list-all-item-${item.value}-label`
+  return (
+    <ListItemButton
+      role="listitem"
+      onClick={() => onToggle(item.value)}
+      sx={{p: "0 4px 0 0", minWidth: 0}}
+    >
+      <ListItemIcon>
+        <Checkbox
+          color={color}
+          checked={checked}
+          tabIndex={-1}
+          disableRipple
+          size={MUI_SIZE(visual_size)}
+          slotProps={{input: {"aria-labelledby": labelId}}}
+        />
+      </ListItemIcon>
+      <ListItemText id={labelId} primary={render_icon_text(item.label)} primaryTypographyProps={{noWrap: true}} />
+    </ListItemButton>
+  )
+})
 
 export function render({model, el, view}) {
   const [color] = model.useState("color")
@@ -78,52 +104,55 @@ export function render({model, el, view}) {
 
   const [checked, setChecked] = React.useState([])
 
-  // Process options to get available and selected items
-  const processOptions = () => {
-    if (Array.isArray(options)) {
-      return options.map((opt) => {
-        const option = options.find((o) => (Array.isArray(o) ? o[0] === opt : o === opt))
-        const optionValue = Array.isArray(option) ? option[1] : option
-        const optionLabel = Array.isArray(option) ? option[0] : option
-        return {value: optionValue, label: optionLabel}
-      })
+  const allOptions = React.useMemo(() => {
+    if (!Array.isArray(options)) {
+      return []
     }
-    return []
-  }
+    return options.map((option) => (
+      Array.isArray(option) ? {value: option[1], label: option[0]} : {value: option, label: option}
+    ))
+  }, [options])
 
-  const allOptions = processOptions()
   const selectedValues = Array.isArray(value) ? value : []
-  const availableValues = allOptions.filter(opt => !selectedValues.includes(opt.value))
-  const selectedOptions = definition_order
-    ? allOptions.filter(opt => selectedValues.includes(opt.value))
-    : selectedValues.map(selected => allOptions.find(opt => opt.value === selected)).filter(Boolean)
+  const [availableValues, selectedOptions] = React.useMemo(() => {
+    const selectedSet = new Set(selectedValues)
+    const available = allOptions.filter(opt => !selectedSet.has(opt.value))
+    if (definition_order) {
+      return [available, allOptions.filter(opt => selectedSet.has(opt.value))]
+    }
+    const byValue = new Map()
+    for (const opt of allOptions) {
+      if (!byValue.has(opt.value)) { byValue.set(opt.value, opt) }
+    }
+    return [available, selectedValues.map(selected => byValue.get(selected)).filter(Boolean)]
+  }, [allOptions, value, definition_order])
 
   // Filter options based on search
   const filterOptions = (options, filterStr, side) => {
     if (!filterStr) { return options }
-    return options.filter(opt => matches[side]?.query === filterStr && matches[side].labels.includes(opt.label))
+    if (matches[side]?.query !== filterStr) { return [] }
+    const labels = new Set(matches[side].labels)
+    return options.filter(opt => labels.has(opt.label))
   }
 
-  const filteredAvailable = filterOptions(availableValues, left_filter, "left")
-  const filteredSelected = filterOptions(selectedOptions, right_filter, "right")
+  const filteredAvailable = React.useMemo(
+    () => filterOptions(availableValues, left_filter, "left"), [availableValues, left_filter, matches.left]
+  )
+  const filteredSelected = React.useMemo(
+    () => filterOptions(selectedOptions, right_filter, "right"), [selectedOptions, right_filter, matches.right]
+  )
 
+  const checkedSet = React.useMemo(() => new Set(checked), [checked])
   const leftChecked = intersection(checked, filteredAvailable.map(opt => opt.value))
   const rightChecked = intersection(checked, filteredSelected.map(opt => opt.value))
 
-  const handleToggle = (value) => () => {
-    const currentIndex = checked.indexOf(value)
-    const newChecked = [...checked]
+  const handleToggle = React.useCallback((value) => {
+    setChecked((current) => (
+      current.includes(value) ? current.filter(v => v !== value) : [...current, value]
+    ))
+  }, [])
 
-    if (currentIndex === -1) {
-      newChecked.push(value)
-    } else {
-      newChecked.splice(currentIndex, 1)
-    }
-
-    setChecked(newChecked)
-  }
-
-  const numberOfChecked = (items) => intersection(checked, items.map(opt => opt.value)).length
+  const numberOfChecked = (items) => items.reduce((count, opt) => count + (checkedSet.has(opt.value) ? 1 : 0), 0)
 
   const handleToggleAll = (items) => () => {
     const itemValues = items.map(opt => opt.value)
@@ -217,30 +246,16 @@ export function render({model, el, view}) {
         component="div"
         role="list"
       >
-        {items.map((item) => {
-          const labelId = `transfer-list-all-item-${item.value}-label`
-
-          return (
-            <ListItemButton
-              key={item.value}
-              role="listitem"
-              onClick={handleToggle(item.value)}
-              sx={{p: "0 4px 0 0", minWidth: 0}}
-            >
-              <ListItemIcon>
-                <Checkbox
-                  color={color}
-                  checked={checked.includes(item.value)}
-                  tabIndex={-1}
-                  disableRipple
-                  size={MUI_SIZE(visual_size)}
-                  slotProps={{input: {"aria-labelledby": labelId}}}
-                />
-              </ListItemIcon>
-              <ListItemText id={labelId} primary={render_icon_text(item.label)} primaryTypographyProps={{noWrap: true}} />
-            </ListItemButton>
-          )
-        })}
+        {items.map((item) => (
+          <CrossSelectorItem
+            key={item.value}
+            item={item}
+            checked={checkedSet.has(item.value)}
+            color={color}
+            visual_size={visual_size}
+            onToggle={handleToggle}
+          />
+        ))}
       </List>
     </Card>
   )

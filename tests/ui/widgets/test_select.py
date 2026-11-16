@@ -162,6 +162,104 @@ def test_select_searchable(page):
     page.locator(".MuiMenuItem-root").nth(1).click()
     wait_until(lambda: widget.value == "Another Option", page)
 
+def test_select_searchable_enter_without_match(page):
+    widget = Select(options=["Option 1", "Option 2", "Another Option"], searchable=True)
+    errors = []
+    page.on("pageerror", lambda exc: errors.append(exc))
+    serve_component(page, widget)
+
+    page.locator(".select").click()
+    search = page.locator("input[placeholder='Search...']")
+    search.fill("zzz")
+    search.press("Enter")
+
+    search.fill("another")
+    search.press("Enter")
+    wait_until(lambda: widget.value == "Another Option", page)
+    assert errors == []
+
+def test_select_searchable_renders_options_in_pages(page):
+    options = [f"option {i}" for i in range(450)]
+    widget = Select(options=options, searchable=True)
+    serve_component(page, widget)
+
+    page.locator(".select").click()
+    more = page.locator(".select-more-options")
+    # The search field is a MenuItem as well
+    expect(page.locator(".MuiMenuItem-root[data-matched]")).to_have_count(200)
+    expect(more).to_have_text("250 more options; refine the search or click to show more")
+
+    more.click()
+    expect(page.locator(".MuiMenuItem-root[data-matched]")).to_have_count(400)
+    expect(more).to_have_text("50 more options; refine the search or click to show more")
+
+    more.click()
+    expect(page.locator(".MuiMenuItem-root[data-matched]")).to_have_count(450)
+    expect(more).to_have_count(0)
+
+    page.locator("input[placeholder='Search...']").fill("option 44")
+    expect(page.locator(".MuiMenuItem-root[data-matched]")).to_have_count(11)
+    page.locator(".MuiMenuItem-root[data-matched]", has_text="option 449").click()
+    wait_until(lambda: widget.value == "option 449", page)
+
+def test_select_searchable_highlight_renders_first_match(page):
+    options = [f"option {i}" for i in range(450)]
+    widget = Select(options=options, searchable=True, filter_on_search=False)
+    serve_component(page, widget)
+
+    page.locator(".select").click()
+    page.locator("input[placeholder='Search...']").fill("option 420")
+    expect(page.locator(".MuiMenuItem-root[data-matched='true']")).to_have_text(["option 420"])
+
+def test_select_searchable_renders_selected_value_beyond_page(page):
+    options = [f"opt{i}" for i in range(500)]
+    widget = Select(options=options, value="opt450", searchable=True)
+    serve_component(page, widget)
+
+    page.locator(".select").click()
+    selected = page.locator(".MuiMenuItem-root[data-matched]", has_text=re.compile(r"^opt450$"))
+    expect(selected).to_have_count(1)
+    expect(page.locator(".MuiMenuItem-root[data-matched]")).to_have_count(201)
+    expect(page.locator(".select-more-options")).to_have_text("299 more options; refine the search or click to show more")
+
+def test_select_searchable_renders_bookmarks_beyond_page(page):
+    options = [f"opt{i}" for i in range(500)]
+    widget = Select(options=options, value="opt299", bookmarks=[f"opt{i}" for i in range(299, 500)], searchable=True)
+    serve_component(page, widget)
+
+    page.locator(".select").click()
+    expect(page.locator(".MuiMenuItem-root[data-matched]")).to_have_count(201)
+    expect(page.locator(".MuiMenuItem-root[data-matched]", has_text=re.compile(r"^opt499$"))).to_have_count(1)
+    expect(page.locator(".select-more-options")).to_have_text("299 more options; refine the search or click to show more")
+
+def test_multichoice_searchable_unchecks_selected_value_beyond_page(page):
+    options = [f"opt{i}" for i in range(500)]
+    widget = MultiChoice(options=options, value=["opt1", "opt300"], searchable=True)
+    serve_component(page, widget)
+
+    # Clicking the select would land on a chip, which does not open the menu
+    widget.dropdown_open = True
+    item = page.locator(".MuiMenuItem-root[data-matched]", has_text=re.compile(r"^opt300$"))
+    expect(item).to_have_count(1)
+    expect(item.locator("input[type='checkbox']")).to_be_checked()
+    expect(page.locator(".select-more-options")).to_have_text("299 more options; refine the search or click to show more")
+
+    item.locator("input[type='checkbox']").click()
+    wait_until(lambda: widget.value == ["opt1"], page)
+
+def test_multichoice_option_limit(page):
+    options = [f"option {i}" for i in range(20)]
+    widget = MultiChoice(options=options, option_limit=5, search_option_limit=3, searchable=True)
+    serve_component(page, widget)
+
+    page.locator(".MuiSelect-select").click()
+    expect(page.locator(".MuiMenuItem-root[data-matched]")).to_have_count(5)
+    expect(page.locator(".select-more-options")).to_have_text("15 more options; refine the search or click to show more")
+
+    page.locator("input[placeholder='Search...']").fill("option 1")
+    expect(page.locator(".MuiMenuItem-root[data-matched]")).to_have_count(3)
+    expect(page.locator(".select-more-options")).to_have_text("8 more options; refine the search or click to show more")
+
 def test_select_groups(page):
     widget = Select(
         label='Select test',

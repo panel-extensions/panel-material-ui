@@ -24,6 +24,10 @@ import {render_icon_text, render_icon_text_as_string, MUI_SIZE, denseSx, denseIn
 
 const SELECT_BASE_SX = {padding: 0, margin: 0, "& .MuiMenu-list": {padding: 0}}
 
+// Rendering a MenuItem per option makes searchable menus with thousands of
+// options slow to open and to type into, so they render in pages of this size.
+const MENU_PAGE_SIZE = 200
+
 export function render({model, el, view}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -61,34 +65,34 @@ export function render({model, el, view}) {
   let max_items = 1
   let solid = false
   let placeholder = null
+  let option_limit = null
+  let search_option_limit = null
   if (multi) {
     const [chip_state] = model.useState("chip")
     const [delete_button_state] = model.useState("delete_button")
     const [max_items_state] = model.useState("max_items")
     const [placeholder_state] = model.useState("placeholder")
     const [solid_state] = model.useState("solid")
+    const [option_limit_state] = model.useState("option_limit")
+    const [search_option_limit_state] = model.useState("search_option_limit")
     chip = chip_state === undefined ? true : chip_state
     delete_button = delete_button_state === undefined ? true : delete_button_state
     max_items = max_items_state === undefined ? null : max_items_state
     solid = solid_state === undefined ? true : solid_state
     placeholder = placeholder_state === undefined ? null : placeholder_state
+    option_limit = option_limit_state ?? null
+    search_option_limit = search_option_limit_state ?? null
   }
 
   // Select specific props
   const [disabled_options] = model.useState("disabled_options", [])
 
-  const matches = (label) => {
-    return label.toLowerCase().includes(filterStr.toLowerCase())
-  }
-
-  const processOptions = () => {
+  const allOptions = React.useMemo(() => {
+    const toItem = (value, label, group) => ({value, label, group, search: String(label).toLowerCase()})
     if (Array.isArray(options)) {
-      return options.map((opt) => {
-        const option = options.find((o) => (Array.isArray(o) ? o[0] === opt : o === opt))
-        const value = Array.isArray(option) ? option[1] : option
-        const label = Array.isArray(option) ? option[0] : option
-        return {value, label}
-      })
+      return options.map((option) => (
+        Array.isArray(option) ? toItem(option[1], option[0]) : toItem(option, option)
+      ))
     }
     if (options && typeof options === "object") {
       // Grouped options arrive as Panel's (str(value), label) pairs, but the
@@ -96,52 +100,83 @@ export function render({model, el, view}) {
       return Object.entries(options).flatMap(([group, groupOptions]) => (
         groupOptions.map((option) => {
           const label = Array.isArray(option) ? option[1] : option
-          return {value: label, label, group}
+          return toItem(label, label, group)
         })
       ))
     }
     return []
-  }
+  }, [options])
+
+  const valueSet = React.useMemo(() => {
+    if (multi) {
+      return new Set(Array.isArray(value) ? value : [])
+    }
+    return new Set(value === "" || value == null ? [] : [value])
+  }, [value])
+  const bookmarkSet = React.useMemo(() => new Set(bookmarks || []), [bookmarks])
+  const disabledSet = React.useMemo(() => new Set(disabled_options || []), [disabled_options])
+
+  const filterLower = filterStr.toLowerCase()
+  const matches = (item) => item.search.includes(filterLower)
 
   const menuRef = React.useRef(null)
 
-  const items = processOptions()
-    .filter(({label}) => (!filter_on_search || filterStr === "" || matches(label)))
-    .filter(({value: v}) => !multi || searchable || !value.includes(v))
-  const bookmarkedOptions = items.filter(({value}) => bookmarks.includes(value))
-  const filteredOptions = items.filter(({value}) => !bookmarks.includes(value))
-  let matchedOptions = [...bookmarkedOptions, ...filteredOptions].filter(({label}) => matches(label))
-
-  if (!multi) {
-    matchedOptions = matchedOptions.slice(0, 1)
-  }
+  const {items, bookmarkedOptions, filteredOptions, matchedOptions} = React.useMemo(() => {
+    const items = allOptions.filter((item) => (
+      (!filter_on_search || filterStr === "" || matches(item)) &&
+      (!multi || searchable || !valueSet.has(item.value))
+    ))
+    const bookmarkedOptions = []
+    const filteredOptions = []
+    for (const item of items) {
+      (bookmarkSet.has(item.value) ? bookmarkedOptions : filteredOptions).push(item)
+    }
+    const matchedOptions = multi ? [...bookmarkedOptions, ...filteredOptions].filter(matches) : []
+    return {items, bookmarkedOptions, filteredOptions, matchedOptions}
+  }, [allOptions, filterStr, filter_on_search, searchable, valueSet, bookmarkSet])
 
   const matched_count = matchedOptions.length
 
-  // Checkbox logic for multi-select
-  const isChecked = () => filteredOptions.length > 0 &&
-    (filterStr ? (
-      matchedOptions.every(item => value && value.includes(item.value))
-    ) : (
-      filteredOptions.every(item => value && value.includes(item.value))
-    ))
+  // Select-all checkbox state for multi-select
+  const [checked, indeterminate] = React.useMemo(() => {
+    if (!multi || filteredOptions.length === 0) {
+      return [false, false]
+    }
+    const pool = filterStr ? matchedOptions : filteredOptions
+    let selected = 0
+    for (const item of pool) {
+      if (valueSet.has(item.value)) { selected++ }
+    }
+    return [selected === pool.length, selected > 0 && selected < pool.length]
+  }, [filteredOptions, matchedOptions, valueSet, filterStr])
 
-  const isIndeterminate = () => filteredOptions.length > 0 &&
-    (filterStr ? (
-      matchedOptions.some(item => value && value.includes(item.value)) &&
-      !matchedOptions.every(item => value && value.includes(item.value))
-    ) : (
-      filteredOptions.some(item => value && value.includes(item.value)) &&
-      !filteredOptions.every(item => value && value.includes(item.value))
-    ))
+  // The rendered page count resets whenever the menu reopens or the search changes
+  const pageKey = `${open}|${filterStr}`
+  const [pageState, setPageState] = React.useState({key: pageKey, pages: 1})
+  const pages = pageState.key === pageKey ? pageState.pages : 1
 
-  const [checked, setChecked] = React.useState(isChecked)
-  const [indeterminate, setIndeterminate] = React.useState(isIndeterminate)
-
-  React.useEffect(() => {
-    setChecked(isChecked)
-    setIndeterminate(isIndeterminate())
-  }, [value, filterStr])
+  let pageSize = searchable ? MENU_PAGE_SIZE : Infinity
+  const user_limit = filterStr ? (search_option_limit ?? option_limit) : option_limit
+  if (user_limit != null) {
+    pageSize = user_limit
+  }
+  let renderLimit = pageSize * pages
+  if (!filter_on_search && filterStr && renderLimit < items.length) {
+    // In highlight mode the first match must be rendered so it can be scrolled to
+    const ordered = [...bookmarkedOptions, ...filteredOptions]
+    const firstMatch = ordered.findIndex(matches)
+    if (firstMatch >= renderLimit) {
+      renderLimit = firstMatch + 1
+    }
+  }
+  // Bookmarks and selected options are always rendered, even past the current
+  // page, so the current value is visible and can be deselected from the menu.
+  const visibleBookmarked = bookmarkedOptions
+  const filteredLimit = Math.max(renderLimit - visibleBookmarked.length, 0)
+  const visibleFiltered = filteredLimit >= filteredOptions.length ? filteredOptions : filteredOptions.filter(
+    (item, index) => index < filteredLimit || valueSet.has(item.value)
+  )
+  const hiddenCount = items.length - visibleBookmarked.length - visibleFiltered.length
 
   React.useEffect(() => {
     if (!multi && filterStr && menuRef.current) {
@@ -271,15 +306,16 @@ export function render({model, el, view}) {
               e.stopPropagation()
               if (e.key === "Enter" && filterStr) {
                 if (multi) {
-                  const filteredValues = [...bookmarkedOptions, ...filteredOptions]
-                    .filter(item => item.label.toLowerCase().includes(filterStr.toLowerCase()))
-                    .map(item => item.value)
+                  const filteredValues = matchedOptions.map(item => item.value)
                   const newValues = [...new Set([...value, ...filteredValues])]
                   setValue(max_items ? newValues.slice(0, max_items) : newValues)
                 } else {
-                  setValue(filteredOptions.find(item =>
-                    item.label.toLowerCase().includes(filterStr.toLowerCase())
-                  ).value)
+                  const match = [...bookmarkedOptions, ...filteredOptions].find(item => (
+                    matches(item) && !disabledSet.has(item.value)
+                  ))
+                  if (match) {
+                    setValue(match.value)
+                  }
                 }
               }
             }}
@@ -344,26 +380,19 @@ export function render({model, el, view}) {
                   e.stopPropagation()
                 }}
                 onClick={(e) => {
-                  const filteredValues = filteredOptions.map(item => item.value)
                   if (filterStr) {
+                    const matchedValues = matchedOptions.map(item => item.value)
                     if (!checked || indeterminate) {
-                      setValue([...new Set([...value, ...filteredValues.filter(matches)])])
-                      setChecked(true)
-                      setIndeterminate(false)
+                      setValue([...new Set([...value, ...matchedValues])])
                     } else {
-                      setValue(value.filter(v => !matches(v)))
-                      setChecked(false)
-                      setIndeterminate(false)
+                      const matchedSet = new Set(matchedValues)
+                      setValue(value.filter(v => !matchedSet.has(v)))
                     }
                   } else {
                     if (!checked || indeterminate) {
-                      setValue(filteredValues)
-                      setChecked(true)
-                      setIndeterminate(false)
+                      setValue(filteredOptions.map(item => item.value))
                     } else {
                       setValue([])
-                      setChecked(false)
-                      setIndeterminate(false)
                     }
                   }
                   e.preventDefault()
@@ -408,12 +437,12 @@ export function render({model, el, view}) {
           </MenuItem>
         ) : (
           [
-            ...(bookmarkedOptions.length > 0
-              ? [...bookmarkedOptions.map(item => ({...item, isBookmarked: true})), {isDivider: true}]
+            ...(visibleBookmarked.length > 0
+              ? [...visibleBookmarked.map(item => ({...item, isBookmarked: true})), {isDivider: true}]
               : []),
-            ...filteredOptions.flatMap((item, index) => {
+            ...visibleFiltered.flatMap((item, index) => {
               const entry = {...item, isBookmarked: false}
-              const newGroup = item.group !== undefined && item.group !== filteredOptions[index - 1]?.group
+              const newGroup = item.group !== undefined && item.group !== visibleFiltered[index - 1]?.group
               return newGroup ? [{isHeader: true, group: item.group}, entry] : [entry]
             })
           ].map((item, index) => {
@@ -424,7 +453,7 @@ export function render({model, el, view}) {
               return <ListSubheader key={`${item.group}-header`}>{render_icon_text(item.group)}</ListSubheader>
             }
 
-            const matched = filterStr && matches(item.label);
+            const matched = filterStr && matches(item);
             const {value: opt, label} = item;
 
             const handleClick = (e) => {
@@ -434,7 +463,7 @@ export function render({model, el, view}) {
                 e.stopPropagation();
                 return;
               }
-              const isChecked = !value.includes(opt);
+              const isChecked = !valueSet.has(opt);
               if (isChecked) {
                 if (max_items && value.length >= max_items) {
                   setValue([...value.slice(1), opt]);
@@ -450,7 +479,7 @@ export function render({model, el, view}) {
             return (
               <MenuItem
                 data-matched={matched}
-                disabled={disabled_options?.includes(opt)}
+                disabled={disabledSet.has(opt)}
                 disableGutters
                 key={opt}
                 onClick={handleClick}
@@ -461,12 +490,26 @@ export function render({model, el, view}) {
                 value={opt}
               >
                 {multi && searchable && (
-                  <Checkbox color={color} checked={value.includes(opt)} onClick={handleClick} />
+                  <Checkbox color={color} checked={valueSet.has(opt)} onClick={handleClick} />
                 )}
                 <ListItemText primary={render_icon_text(label)} sx={{margin: 2}} />
               </MenuItem>
             );
-          })
+          }).concat(hiddenCount > 0 ? [
+            <MenuItem
+              className="select-more-options"
+              key="__more_options__"
+              onClick={(e) => {
+                setPageState({key: pageKey, pages: pages + 1})
+                e.stopPropagation()
+              }}
+            >
+              <ListItemText
+                secondary={`${hiddenCount} more option${hiddenCount === 1 ? "" : "s"}; ${searchable ? "refine the search or " : ""}click to show more`}
+                sx={{margin: 2}}
+              />
+            </MenuItem>
+          ] : [])
         )}
       </>
     )
