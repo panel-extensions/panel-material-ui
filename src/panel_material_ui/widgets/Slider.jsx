@@ -13,7 +13,7 @@ import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import dayjs from "dayjs"
 import {render_description} from "./description"
-import {MUI_SIZE, denseSx, int_regex, float_regex, render_icon_text, render_icon_text_as_string} from "./utils"
+import {MUI_SIZE, denseSx, float_regex, render_icon_text, render_icon_text_as_string, useThrottledModelState} from "./utils"
 
 const SLIDER_BASE_SX = {
   "& .MuiSlider-track": {
@@ -61,7 +61,7 @@ export function render({model, el, view}) {
   const [sx] = model.useState("sx")
   const [tooltips] = model.useState("tooltips")
   const [track] = model.useState("track")
-  const [value, setValue] = model.useState("value")
+  const [value, setDragValue, setValue] = useThrottledModelState(model, "value")
   const [valueLabel] = model.useState("value_label")
   const [_, setValueThrottled] = model.useState("value_throttled")
   const [inline_layout] = model.useState("inline_layout")
@@ -111,6 +111,9 @@ export function render({model, el, view}) {
     const [focus, set_focused] = React.useState(false)
 
     const [editable_value, setEditableValue] = React.useState()
+    // Enter keeps DOM focus while resetting `focus`, so a subsequent edit
+    // would not fire onFocus again; track pending edits explicitly.
+    const dirty = React.useRef(false)
 
     editableValue = editable_value ?? editableValue
     setFocused = set_focused ?? setFocused
@@ -123,20 +126,50 @@ export function render({model, el, view}) {
       }
     }, [format, value, focused])
 
-    const validate = (new_value, index) => {
-      const regex = int ? int_regex : float_regex
-      if (new_value === "") {
+    const parse = (new_value) => {
+      // Int sliders accept floats and round them
+      const text = String(new_value).trim()
+      if (text === "" || !float_regex.test(text) || isNaN(Number(text))) {
         return null
-      } else if (regex.test(new_value)) {
-        return int ? Math.round(Number(new_value)) : Number(new_value)
-      } else if (Array.isArray(value)) {
-        return value[index]
+      }
+      return int ? Math.round(Number(text)) : Number(text)
+    }
+
+    const resetEditable = () => {
+      if (Array.isArray(value)) {
+        setEditableValue(format ? value.map((v) => format_value(v, v, true)) : value)
       } else {
-        return value
+        setEditableValue(format ? format_value(value, value, true) : value)
+      }
+    }
+
+    const applyValue = (index, new_value) => {
+      if (Array.isArray(value)) {
+        if (index === 0 && value[1] != null) {
+          new_value = Math.min(new_value, value[1])
+        } else if (index === 1 && value[0] != null) {
+          new_value = Math.max(new_value, value[0])
+        }
+      }
+      if (fixed_start != null && new_value < fixed_start) {
+        new_value = fixed_start
+      }
+      if (fixed_end != null && new_value > fixed_end) {
+        new_value = fixed_end
+      }
+      const full_new_value = Array.isArray(value) ? (index === 0 ? [new_value, value[1]] : [value[0], new_value]) : new_value
+      setValue(full_new_value)
+      setValueThrottled(full_new_value)
+      if (new_value < start) {
+        setStart(new_value)
+      }
+      if (new_value > end) {
+        setEnd(new_value)
       }
     }
 
     handleChange = (event, index) => {
+      dirty.current = true
       if (Array.isArray(value)) {
         setEditableValue(index === 0 ? [event.target.value, value[1]] : [value[0], event.target.value])
       } else {
@@ -164,60 +197,23 @@ export function render({model, el, view}) {
     }
 
     commitValue = (index) => {
-      if (!focus) { return }
-      let edited_value = Array.isArray(value) ? editableValue[index] : editableValue
-      edited_value = int ? Math.round(Number(edited_value)) : edited_value
-      if (Array.isArray(value)) {
-        if (index === 0 && edited_value > value[1]) {
-          edited_value = value[1]
-        } else if (index == 1 && edited_value < value[0]) {
-          edited_value = value[0]
-        }
+      if (!focus && !dirty.current) { return }
+      dirty.current = false
+      const edited_value = parse(Array.isArray(value) ? editableValue[index] : editableValue)
+      if (edited_value === null) {
+        resetEditable()
+        return
       }
-      if (fixed_start != null && edited_value < fixed_start) {
-        edited_value = fixed_start
-      } else if (fixed_end != null && edited_value > fixed_end) {
-        edited_value = fixed_end
-      }
-      let new_value
-      if (Array.isArray(value)) {
-        const full_new_value = index === 0 ? [validate(edited_value, 0), value[1]] : [value[0], validate(edited_value, 1)]
-        setValue(full_new_value)
-        setValueThrottled(full_new_value)
-        new_value = full_new_value[index]
-      } else {
-        new_value = validate(edited_value, 0)
-        setValue(new_value)
-        setValueThrottled(new_value)
-      }
-      if (new_value < start) {
-        setStart(new_value)
-      } else if (new_value > end) {
-        setEnd(new_value)
-      }
+      applyValue(index, edited_value)
     }
 
     increment = (index, multiplier = 1) => {
-      if (Array.isArray(value)) {
-        let val = value[index]
+      const current = Array.isArray(value) ? value[index] : value
+      if (current === null) {
         const fixed = index === 0 ? fixed_start : fixed_end
-        if (val === null) {
-          val = fixed != null ? fixed : 0
-        } else {
-          val = Math.round((val + (step * multiplier)) * 100000000000) / 100000000000
-        }
-        const new_value = index === 0 ? [val, value[1]] : [value[0], val]
-        setValue(new_value)
-        setValueThrottled(new_value)
-      } else if (value === null) {
-        const new_value = fixed_start != null ? fixed_start : 0
-        setValue(new_value)
-        setValueThrottled(new_value)
+        applyValue(index, fixed != null ? fixed : 0)
       } else {
-        const incremented = Math.round((value + (step * multiplier)) * 100000000000) / 100000000000
-        const new_value = fixed_end != null ? Math.min(fixed_end, incremented) : incremented
-        setValue(new_value)
-        setValueThrottled(new_value)
+        applyValue(index, Math.round((current + (step * multiplier)) * 100000000000) / 100000000000)
       }
     }
   }
@@ -397,8 +393,8 @@ export function render({model, el, view}) {
           max={end}
           min={start}
           orientation={orientation}
-          onChange={(_, newValue) => setValue(newValue)}
-          onChangeCommitted={(_, newValue) => setValueThrottled(newValue)}
+          onChange={(_, newValue) => setDragValue(newValue)}
+          onChangeCommitted={(_, newValue) => { setValue(newValue); setValueThrottled(newValue) }}
           ref={ref}
           size={MUI_SIZE(size)}
           step={date ? step*86400000 : (datetime ? step*1000 : step)}

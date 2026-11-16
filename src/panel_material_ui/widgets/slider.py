@@ -121,7 +121,7 @@ class FloatSlider(_ContinuousSlider):
     >>> FloatSlider(value=0.5, start=0.0, end=1.0, step=0.1, label="Float value")
     """
 
-    step = param.Number(default=0.1, doc="The step size.")
+    step = param.Number(default=0.1, bounds=(0, None), inclusive_bounds=(False, True), doc="The step size.")
 
 
 class DateSlider(_ContinuousSlider):
@@ -238,6 +238,8 @@ class _RangeSliderBase(_ContinuousSlider):
 
     value_end = param.Parameter(readonly=True, doc="""The upper value of the selected range.""")
 
+    _rename = {"value_start": None, "value_end": None}
+
     __abstract = True
 
     def __init__(self, **params):
@@ -284,7 +286,7 @@ class RangeSlider(_RangeSliderBase):
     ... )
     """
 
-    step = param.Number(default=0.1, doc="The step size of the slider.")
+    step = param.Number(default=0.1, bounds=(0, None), inclusive_bounds=(False, True), doc="The step size of the slider.")
 
 
 class IntRangeSlider(_RangeSliderBase):
@@ -312,7 +314,7 @@ class IntRangeSlider(_RangeSliderBase):
 
     end = param.Integer(default=1)
 
-    step = param.Integer(default=1)
+    step = param.Integer(default=1, bounds=(1, None))
 
     value_start = param.Integer(default=0, readonly=True, doc="""The lower value of the selected range.""")
 
@@ -365,7 +367,7 @@ class DateRangeSlider(_RangeSliderBase):
     end = param.Date(default=None, doc="""
         The upper bound.""")  # type: ignore[assignment]
 
-    step = param.Number(default=1, doc="""
+    step = param.Number(default=1, bounds=(0, None), inclusive_bounds=(False, True), doc="""
         The step size in days. Default is 1 day.""")
 
     format = param.String(default=None, doc="""
@@ -432,7 +434,7 @@ class DatetimeRangeSlider(DateRangeSlider):
     ... )
     """
 
-    step = param.Number(default=60, doc="""
+    step = param.Number(default=60, bounds=(0, None), inclusive_bounds=(False, True), doc="""
         The step size in seconds. Default is 1 minute, i.e 60 seconds.""")
 
     _property_conversion = staticmethod(value_as_datetime)
@@ -543,19 +545,22 @@ class Rating(MaterialWidget):
         doc="Size of the rating icons."
     )  # type: ignore[assignment]
 
-    value = param.Number(default=0, allow_None=True, bounds=(0, 5))
+    value = param.Number(default=0, allow_None=True, bounds=(0, None), doc="""
+        The selected rating, between 0 and end.""")
 
     width = param.Integer(default=None)
 
     _esm_base = "Rating.jsx"
 
     def __init__(self, **params):
-        if "end" in params:
-            self.param.value.bounds = (0, params["end"])
         super().__init__(**params)
+        self.param.value.bounds = (0, self.end)
+        self.param.value._validate(self.value)
 
-    @param.depends("end", watch=True, on_init=True)
+    @param.depends("end", watch=True)
     def _update_value_bounds(self):
+        if self.value is not None and self.value > self.end:
+            self.value = self.end
         self.param.value.bounds = (0, self.end)
 
     def _process_property_change(self, msg):
