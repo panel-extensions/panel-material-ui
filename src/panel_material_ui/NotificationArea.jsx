@@ -64,7 +64,8 @@ function NotificationArea({model, view}) {
         if (notification._uuid == null) {
           return
         }
-        model.notifications = model.notifications.filter(n => n._uuid !== notification._uuid)
+        // Python drops the notification on destroy; also replacing the
+        // list here races with that update when several are dismissed.
         model.send_msg({
           type: "destroy",
           uuid: notification._uuid,
