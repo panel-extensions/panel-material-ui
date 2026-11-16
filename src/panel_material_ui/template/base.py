@@ -6,6 +6,7 @@ import os
 import pathlib
 import typing as t
 import warnings
+import weakref
 
 import panel
 import param
@@ -206,7 +207,15 @@ class Page(MaterialComponent, ResourceComponent):
             self.meta.param.update(**meta)
         self.config.param.update(**resources)
         with edit_readonly(self):
-            self.busy = state.param.busy
+            self.busy = state.busy
+        # Sync busy through a weakly referencing watcher on the global state,
+        # a param reference would keep every Page alive forever.
+        page_ref = weakref.ref(self)
+        def _sync_busy(event):
+            if (page := page_ref()) is not None:
+                with edit_readonly(page):
+                    page.busy = event.new
+        weakref.finalize(self, state.param.unwatch, state.param.watch(_sync_busy, 'busy'))
 
     @param.depends('template', watch=True, on_init=True)
     def _update_template(self):

@@ -64,7 +64,8 @@ function NotificationArea({model, view}) {
         if (notification._uuid == null) {
           return
         }
-        model.notifications = model.notifications.filter(n => n._uuid !== notification._uuid)
+        // Python drops the notification on destroy; also replacing the
+        // list here races with that update when several are dismissed.
         model.send_msg({
           type: "destroy",
           uuid: notification._uuid,
@@ -79,10 +80,15 @@ function NotificationArea({model, view}) {
     })
   }
 
+  // Handlers are registered once, so they call the latest enqueueNotification
+  // to pick up the current position and theme.
+  const enqueue_ref = React.useRef(enqueueNotification)
+  enqueue_ref.current = enqueueNotification
+
   const timeout_ref = React.useRef(null)
   const clear_timeout = () => {
     if (timeout_ref.current != null) {
-      clearTimeout(timeout_ref.current)
+      clearInterval(timeout_ref.current)
       timeout_ref.current = null
     }
   }
@@ -95,23 +101,26 @@ function NotificationArea({model, view}) {
         duration: 5000,
         notification_type: "success"
       }
-      enqueueNotification(config)
+      enqueue_ref.current(config)
       window.session_reconnect = false
     }
-    view.model.document.on_event("client_reconnected", (_, _event) => {
+    const on_reconnected = (_, _event) => {
       clear_timeout()
       closeSnackbar(reconnect_id)
       window.session_reconnect = true
-    })
+    }
     const update_reconnect = (msg, event) => {
       const reconnect_msg = document.getElementById(reconnect_id)?.children[1]
+      if (reconnect_msg == null) {
+        return
+      }
       reconnect_msg.innerHTML = `<div>${msg} <span class="reconnect-button"><b>Click here</b></span> to attempt manual re-connect.<div>`
       const reconnectSpan = reconnect_msg.querySelector(".reconnect-button")
       if (reconnectSpan) {
         reconnectSpan.addEventListener("click", () => { clear_timeout(); event.reconnect() })
       }
     }
-    view.model.document.on_event("connection_lost", (_, event) => {
+    const on_connection_lost = (_, event) => {
       clear_timeout()
       const {timeout} = event
       const msg = model.js_events.connection_lost.message
@@ -127,11 +136,12 @@ function NotificationArea({model, view}) {
           config.onEnter = () => update_reconnect(msg, event)
         }
         if (reconnect_msg == null) {
-          enqueueNotification(config, reconnect_id)
+          enqueue_ref.current(config, reconnect_id)
         }
         const set_timeout = () => {
           const reconnect_msg = document.getElementById(reconnect_id)?.children[1]
           if (reconnect_msg == null) {
+            clear_timeout()
             return
           }
           const timeout = Math.max(0, Math.round(current_timeout / 1000))
@@ -152,21 +162,39 @@ function NotificationArea({model, view}) {
       if (timeout == null && reconnect_msg) {
         update_reconnect(msg, event)
       }
-    })
+    }
+    const doc = view.model.document
+    doc.on_event("client_reconnected", on_reconnected)
+    doc.on_event("connection_lost", on_connection_lost)
+    // Bokeh documents have no API to remove event callbacks
+    return () => {
+      for (const [name, cb] of [["client_reconnected", on_reconnected], ["connection_lost", on_connection_lost]]) {
+        const callbacks = doc._document_callbacks?.get(name)
+        if (callbacks != null) {
+          doc._document_callbacks.set(name, callbacks.filter(c => c !== cb))
+        }
+      }
+    }
   }
 
   React.useEffect(() => {
-    register_reconnect(view.model)
+    const unregister_reconnect = register_reconnect()
     for (const notification of model.notifications) {
       enqueueNotification(notification)
     }
-    model.on("msg:custom", (msg) => {
+    const on_msg = (msg) => {
       if (msg.type === "destroy") {
         closeSnackbar(msg.uuid)
       } else if (msg.type === "enqueue") {
-        enqueueNotification(msg.notification)
+        enqueue_ref.current(msg.notification)
       }
-    })
+    }
+    model.on("msg:custom", on_msg)
+    return () => {
+      model.off("msg:custom", on_msg)
+      unregister_reconnect()
+      clear_timeout()
+    }
   }, [])
 }
 

@@ -5,7 +5,6 @@ pytest.importorskip('playwright')
 import panel as pn
 from panel.io.state import state
 from panel.tests.util import serve_component, wait_until
-from panel.util import edit_readonly
 from playwright.sync_api import expect
 from panel_material_ui.template import Page
 from panel_material_ui.widgets import Button
@@ -368,15 +367,10 @@ def test_page_linear_progress_visible_when_busy(page):
     pg = Page(busy_indicator='linear')
 
     def trigger_busy(event):
-        with edit_readonly(pg):
-            pg.busy = True
-
-        def clear_busy():
-            with edit_readonly(pg):
-                pg.busy = False
-
+        # Page.busy follows the global state.busy
+        state._add_busy_event('test')
         state.add_periodic_callback(
-            clear_busy, period=2000, count=1
+            lambda: state._remove_busy_event('test'), period=2000, count=1
         )
 
     button = Button(label='Trigger Busy', on_click=trigger_busy)
