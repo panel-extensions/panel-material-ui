@@ -232,7 +232,6 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
         if not self.avatar:
             self._update_avatar()
         self._internal_state.timestamp = self.param.timestamp.rx().strftime(self.param.timestamp_format)
-        self._build_layout()
 
     @param.depends('avatar', watch=True, on_init=True)
     def _render_avatar_html(self):
@@ -322,6 +321,17 @@ class ChatMessage(MaterialComponent, ChatMessage):  # type: ignore[no-redef]
         self._composite = Row()
         self._update_chat_copy_icon()
         self._update_reaction_icons()
+
+    def _update_object_pane(self, event=None):
+        # Reassigning an unchanged _object_panel would re-sync the children,
+        # walking the whole page on every streamed token.
+        old = self._object_panel
+        new = self._create_panel(self.object, old=old)
+        if old is not new:
+            self._object_panel = new
+            self._placeholder.update(new)
+        self._update_chat_copy_icon()
+        self._update_edit_widgets()
 
     def _update_reaction_icons(self, event=None):
         icons = self.reaction_icons

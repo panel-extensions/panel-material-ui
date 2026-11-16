@@ -79,3 +79,29 @@ def test_chat_message_markup_without_object_is_not_styled():
     html = pn.pane.HTML(None)
     ChatMessage(html)
     assert "message" not in html.css_classes
+
+
+def test_chat_message_builds_layout_once():
+    message = ChatMessage("Hi")
+    watchers = [w.fn.__name__ for w in message.param.watchers['object']['value']]
+    assert watchers.count('_update_object_pane') == 1
+
+
+def test_chat_message_stream_keeps_object_panel():
+    message = ChatMessage("Hi")
+    panel = message._object_panel
+    events = []
+    message.param.watch(events.append, '_object_panel')
+    message.stream(" there")
+    message.stream(" again")
+    assert message._object_panel is panel
+    assert panel.object == "Hi there again"
+    assert events == []
+
+
+def test_chat_message_object_change_replaces_object_panel():
+    message = ChatMessage("Hi")
+    image = pn.pane.PNG("https://example.com/image.png")
+    message.object = image
+    assert message._object_panel is image
+    assert message._placeholder.object is image
