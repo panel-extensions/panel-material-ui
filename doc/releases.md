@@ -1,5 +1,14 @@
 # Release Notes
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+* Only write `config.theme` from a component's `dark_theme` inside a session, so constructing `Button(dark_theme=True)`, `Page(dark_theme=True)` or `ThemeToggle(value=True)` at import time, in `pn.cache` or in a thread no longer makes every later session dark. Once a session's theme was switched with a `ThemeToggle`, the `Page` toggle or from Python, components created later follow it instead of switching the page back ([#806](https://github.com/panel-extensions/panel-material-ui/pull/806))
+* Switch dark mode with a single message from the browser and one batched update from Python instead of one round trip per component, and build each theme once per switch ([#806](https://github.com/panel-extensions/panel-material-ui/pull/806))
+* Stop Bokeh toolbar, tooltip, Ace, Tabulator and Split stylesheets from growing on every theme change, fix the `Page` header contrast for a custom primary color and keep the global CSS variables in sync with the theme in unmanaged documents ([#806](https://github.com/panel-extensions/panel-material-ui/pull/806))
+* Contain render errors in production builds, including errors raised while building the theme: the failing component renders nothing and recovers once its parameters change, and an invalid `theme_config` falls back to the default theme ([#806](https://github.com/panel-extensions/panel-material-ui/pull/806))
+
 ## Version 0.16.7
 
 Panel Material UI 0.16.7 adds a `site` parameter to the [`Page`](https://panel-material-ui.holoviz.org/reference/page/Page.html) header for multi-page deployments, keeps the header full width and places the main scrollbar at the edge of the page when `main_width` is set, and fixes `DiscreteSlider` with throttling enabled.

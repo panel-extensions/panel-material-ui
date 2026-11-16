@@ -141,3 +141,67 @@ def test_external_esm_imports_error_boundary_from_bundle():
     esm = _External._render_esm_base()
     assert 'const ComponentErrorBoundary = pnmui.ComponentErrorBoundary;' in esm
     assert 'from "./utils"' not in esm
+
+
+def test_explicit_component_follows_switched_session_theme(server_document):
+    toggle = ThemeToggle()
+    Column(toggle).get_root(server_document)
+    toggle.value = True
+    toggle.value = False
+
+    col = Column(Button(), dark_theme=True)
+
+    assert not col.dark_theme
+    assert not col[0].dark_theme
+    assert config.theme == 'default'
+
+
+def test_theme_toggle_without_value_is_not_explicit():
+    assert not ThemeToggle()._dark_theme_explicit
+    assert ThemeToggle(value=True)._dark_theme_explicit
+    assert ThemeToggle(theme='default')._dark_theme_explicit
+
+
+def test_alignment_guard_is_per_thread():
+    import threading
+
+    from panel_material_ui.base import _aligning, aligning_session_theme
+
+    seen = []
+    ready, release = threading.Event(), threading.Event()
+
+    def other():
+        ready.wait(5)
+        seen.append(aligning_session_theme())
+        release.set()
+
+    thread = threading.Thread(target=other)
+    thread.start()
+    try:
+        with _aligning():
+            ready.set()
+            release.wait(5)
+            assert aligning_session_theme()
+    finally:
+        ready.set()
+        thread.join(5)
+    assert seen == [False]
+
+
+def test_python_change_only_aligns_current_session():
+    from bokeh.document import Document
+    from panel.io.state import set_curdoc
+
+    shared = Button()
+    doc1, doc2 = Document(), Document()
+    other1, other2 = Button(), Button()
+    shared.get_root(doc1)
+    other1.get_root(doc1)
+    shared.get_root(doc2)
+    other2.get_root(doc2)
+
+    with set_curdoc(doc1):
+        shared.dark_theme = True
+
+    assert other1.dark_theme
+    assert not other2.dark_theme

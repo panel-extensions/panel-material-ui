@@ -22,7 +22,7 @@ pn.extension(theme='dark')
 
 ## Managed theme
 
-The theme is shared by the whole page: when a served app contains a component with `dark_theme=True`, the entire page switches to dark mode, not just that component. Rather than setting `dark_theme` on individual components, we therefore recommend controlling the theme for the whole app and letting users switch it. You have two options:
+The theme is shared by the whole page: when a served app contains a component with `dark_theme=True`, the entire page switches to dark mode, not just that component. The theme is tracked per session, and setting `dark_theme` on a component from Python later on also switches the whole page. Once the theme was switched, with a toggle or from Python, components created afterwards follow the current theme even if they set `dark_theme` themselves. Rather than setting `dark_theme` on individual components, we therefore recommend controlling the theme for the whole app and letting users switch it. You have two options:
 
 1. Use the `Page` component, which will automatically include a theme toggle and manage the theme for you.
 

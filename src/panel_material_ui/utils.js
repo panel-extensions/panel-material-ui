@@ -11,6 +11,8 @@ export class SessionStore {
   constructor() {
     this.shared_var = null
     this._callbacks = []
+    // Whether the value was switched after load, e.g. by the user
+    this.switched = false
   }
 
   set_value(value) {
@@ -1080,7 +1082,14 @@ function cached_theme(props, theme_config, dark_theme) {
   }
   let base = THEMES.get(key)
   if (base === undefined) {
-    base = createTheme(render_theme_config({view: {container: null}}, theme_config, dark_theme))
+    try {
+      base = createTheme(render_theme_config({view: {container: null}}, theme_config, dark_theme))
+    } catch (error) {
+      // An invalid theme_config, e.g. a palette color MUI cannot parse,
+      // falls back to the default theme instead of unmounting the component.
+      console.error("panel-material-ui: invalid theme_config, using the default theme", error)
+      base = createTheme(render_theme_config({view: {container: null}}, null, dark_theme))
+    }
     THEMES.set(key, base)
   }
   const components = {...base.components}
@@ -1505,15 +1514,17 @@ export const install_theme_hooks = (props) => {
   }, [])
 
   // The theme is shared by the whole page. A component publishes its
-  // dark_theme to dark_mode when it was set explicitly and whenever it
-  // changes other than by following dark_mode. Followers switch locally
-  // without syncing, Python brings their state in line in a single batch.
-  // A Page owns the session theme, so it syncs its own switch to Python.
+  // dark_theme to dark_mode when it was set explicitly, as long as the page
+  // theme was not switched yet, and whenever it changes other than by
+  // following dark_mode. Followers switch locally without syncing, Python
+  // brings their state in line in a single batch. Owners of the session
+  // theme (Page) sync their own switch to Python.
   const [explicit] = props.model.useState("_dark_theme_explicit")
+  const owner = Boolean(props.view.model.esm_constants?.session_theme_owner)
   const followed_ref = React.useRef(null)
   const follow_dark_mode = (dark) => {
     followed_ref.current = dark
-    if (props.view.model.class_name === "Page") {
+    if (owner) {
       setDarkTheme(dark)
     } else {
       props.view.model.data.setv({dark_theme: dark}, {sync: false})
@@ -1524,12 +1535,14 @@ export const install_theme_hooks = (props) => {
     if (!mounted_ref.current) {
       mounted_ref.current = true
       const value = dark_mode.get_value()
-      if (explicit || value == null) {
+      if ((explicit && !dark_mode.switched) || value == null) {
         dark_mode.set_value(dark_theme)
       } else if (value !== dark_theme) {
+        followed_ref.current = value
         setDarkTheme(value)
       }
     } else if (dark_theme !== followed_ref.current) {
+      dark_mode.switched = true
       dark_mode.set_value(dark_theme)
     }
   }, [dark_theme])
@@ -1615,6 +1628,10 @@ export class ComponentErrorBoundary extends React.Component {
   }
 
   render() {
+    if (this.state.error != null && this.props.view?.model?.dev) {
+      // In dev mode Panel's own boundary shows the formatted error.
+      throw this.state.error
+    }
     return this.state.error == null ? this.props.children : null
   }
 }

@@ -26,6 +26,8 @@ import re
 import textwrap
 import typing as t
 from collections.abc import Mapping
+from contextlib import contextmanager
+from contextvars import ContextVar
 from functools import partial
 from weakref import WeakKeyDictionary
 
@@ -212,7 +214,7 @@ import {{apply_global_css, install_theme_hooks, setup_global_styles as setup_roo
 
 {esm}
 
-function {output}(props) {{
+function {output}Themed(props) {{
   const theme = install_theme_hooks(props)
   const attached = ("attached" in props.view.model.data.properties) ? props.model.get_child("attached") : []
   const theme_managed = document.documentElement.getAttribute("data-theme-managed")
@@ -225,11 +227,19 @@ function {output}(props) {{
   return (
     <ThemeProvider theme={{theme}}>
       <CssBaseline />
-      <ComponentErrorBoundary view={{props.view}}>
-        <{input} {{...props}}/>
-      </ComponentErrorBoundary>
+      <{input} {{...props}}/>
       {{attached.length ? <div class="attached">{{attached}}</div> : null}}
     </ThemeProvider>
+  )
+}}
+
+function {output}(props) {{
+  // The boundary sits outside the theme hooks, so errors raised while
+  // building the theme are contained as well.
+  return (
+    <ComponentErrorBoundary view={{props.view}}>
+      <{output}Themed {{...props}}/>
+    </ComponentErrorBoundary>
   )
 }}
 """
@@ -319,48 +329,77 @@ def _compiled_ancestor(cls: type) -> type:
     return cls
 
 
-_ALIGNING = False
+_ALIGNING: ContextVar[bool] = ContextVar('_ALIGNING', default=False)
+
+# Documents whose theme was switched by a Page, a ThemeToggle or a Python
+# change after load. From then on explicit dark_theme values no longer set
+# the theme of the page, so re-rendered content follows the user's choice.
+_SWITCHED_DOCS: WeakKeyDictionary = WeakKeyDictionary()
 
 
-class _aligning:
-
-    def __enter__(self):
-        global _ALIGNING
-        self._prev, _ALIGNING = _ALIGNING, True
-
-    def __exit__(self, *args):
-        global _ALIGNING
-        _ALIGNING = self._prev
+@contextmanager
+def _aligning():
+    token = _ALIGNING.set(True)
+    try:
+        yield
+    finally:
+        _ALIGNING.reset(token)
 
 
 def aligning_session_theme() -> bool:
-    return _ALIGNING
+    return _ALIGNING.get()
+
+
+def session_theme_switched(doc: Document | None = None) -> bool:
+    doc = doc or state.curdoc
+    return doc is not None and doc in _SWITCHED_DOCS
 
 
 def set_session_theme(dark: bool) -> None:
     """
-    Sets config.theme for the current session. Outside a session, e.g. at
-    import time, in pn.cache or in a thread, the global theme is left alone.
+    Sets config.theme for the current session.
+
+    Outside a session, e.g. at import time, in pn.cache or in a thread
+    without a current document, the global theme is left alone, so
+    components created later in such a session do not pick up the change.
     """
     theme = 'dark' if dark else 'default'
     if state.curdoc is not None and config.theme != theme:
         config.theme = theme
 
 
-def align_session_theme(owner: MaterialComponent, dark: bool) -> None:
+def align_session_theme(owner: MaterialComponent, dark: bool, switch: bool = True) -> None:
     """
     Applies a page wide theme change made on owner to the session.
 
     The frontend switches every component locally without syncing each of
     them back, so the components rendered alongside the owner are brought
-    in line on the Python side in a single batch of events.
+    in line on the Python side in a single batch of events. When a session
+    is active only its own document is updated, so components shared
+    between sessions do not reach into other sessions.
+
+    Parameters
+    ----------
+    owner: MaterialComponent
+        The component whose dark_theme changed.
+    dark: bool
+        Whether the page is now dark.
+    switch: bool
+        Whether this is a switch made after load (by a Page, a ThemeToggle
+        or from Python) rather than an explicit initial value.
     """
     set_session_theme(dark)
     docs = {}
     for ref in list(owner._models):
         if ref in state._views:
             _, _, doc, comm = state._views[ref]
-            docs[id(doc)] = (doc, comm)
+            if state.curdoc is None or doc is state.curdoc:
+                docs[id(doc)] = (doc, comm)
+    if switch:
+        for doc, _ in docs.values():
+            _SWITCHED_DOCS[doc] = True
+        if state.curdoc is not None:
+            _SWITCHED_DOCS[state.curdoc] = True
     with _aligning():
         for doc, comm in docs.values():
             roots = [view for view, _, vdoc, _ in list(state._views.values()) if vdoc is doc]
@@ -368,6 +407,11 @@ def align_session_theme(owner: MaterialComponent, dark: bool) -> None:
                 for root in roots:
                     for c in root.select(MaterialComponent):
                         c.dark_theme = dark
+
+
+def _align_rendered_explicit(component: MaterialComponent, doc: Document) -> None:
+    if not session_theme_switched(doc):
+        align_session_theme(component, component.dark_theme, switch=False)
 
 
 class MaterialComponent(ReactComponent):
@@ -433,7 +477,10 @@ class MaterialComponent(ReactComponent):
     __abstract = True
 
     def __init__(self, **params):
-        explicit_dark_theme = 'dark_theme' in params
+        # Once the theme of the session was switched, e.g. by the user
+        # with a ThemeToggle, components created later follow it even if
+        # they set dark_theme, so re-rendered content does not flip the page.
+        explicit_dark_theme = 'dark_theme' in params and not session_theme_switched()
         if explicit_dark_theme:
             params['_dark_theme_explicit'] = True
         else:
@@ -475,7 +522,7 @@ class MaterialComponent(ReactComponent):
     def _update_session_theme(self):
         # Changes made in Python apply to the whole page, changes made in
         # the frontend are already shared there.
-        if self._session_theme_owner or _ALIGNING or 'dark_theme' in self._param__private.syncing:
+        if self._session_theme_owner or _ALIGNING.get() or 'dark_theme' in self._param__private.syncing:
             return
         align_session_theme(self, self.dark_theme)
 
@@ -588,7 +635,7 @@ class MaterialComponent(ReactComponent):
         if self._dark_theme_explicit and comm is None and doc.session_context:
             # The frontend switches the other components without syncing
             # them back, so bring their Python state in line once rendered.
-            doc.add_next_tick_callback(partial(align_session_theme, self, self.dark_theme))
+            doc.add_next_tick_callback(partial(_align_rendered_explicit, self, doc))
         # Ensure model loads ESM and CSS bundles from CDN
         # if requested or if in notebook
         if (

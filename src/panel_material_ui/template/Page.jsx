@@ -283,6 +283,7 @@ export function render({model, view}) {
   React.useEffect(() => () => clearTimeout(timerRef.current), [])
 
   const toggleTheme = () => {
+    dark_mode.switched = true
     setDarkTheme(!dark_theme)
   }
 

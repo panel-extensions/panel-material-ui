@@ -197,3 +197,56 @@ def test_render_error_is_contained_and_recovers(page):
     broken.label = "Recovered"
     expect(page.locator(".MuiButton-root")).to_have_count(2)
     expect(page.locator(".MuiButton-root").first).to_have_text("Recovered")
+
+
+def test_rerendered_explicit_layout_does_not_override_toggle(page):
+    w = pn.widgets.IntInput(value=0)
+    toggle = ThemeToggle()
+    other = Button(label="Other")
+    bound = pn.bind(lambda v: Column(Button(label=f"dyn{v}"), dark_theme=True), w)
+    serve_component(page, Column(toggle, other, bound))
+    wait_until(lambda: body_background(page) == "rgb(18, 18, 18)", page)
+
+    page.locator('[aria-label="Toggle theme"]').click()
+    wait_until(lambda: body_background(page) == "rgb(255, 255, 255)", page)
+
+    w.value = 1
+    expect(page.locator(".MuiButton-root", has_text="dyn1")).to_have_count(1)
+    page.wait_for_timeout(500)
+    assert body_background(page) == "rgb(255, 255, 255)"
+    expect(page.locator(".mui-dark .MuiButton-root")).to_have_count(0)
+    assert not toggle.value
+
+
+def test_theme_toggle_without_value_does_not_override_explicit(page):
+    other = Button(label="Other")
+    serve_component(page, Column(Button(label="Dark", dark_theme=True), ThemeToggle(), other))
+    wait_until(lambda: body_background(page) == "rgb(18, 18, 18)", page)
+    page.wait_for_timeout(300)
+    assert body_background(page) == "rgb(18, 18, 18)"
+
+
+def test_servable_factory_explicit_component_aligns_siblings(page):
+    objs = {}
+
+    def app():
+        objs['other'] = Button(label="Other")
+        return Row(objs['other'], Button(label="Dark", dark_theme=True))
+
+    serve_component(page, app)
+    expect(page.locator(".mui-dark .MuiButton-root")).to_have_count(2)
+    wait_until(lambda: body_background(page) == "rgb(18, 18, 18)", page)
+    wait_until(lambda: objs['other'].dark_theme, page)
+
+
+def test_invalid_theme_config_falls_back_and_recovers(page):
+    msgs = []
+    page.on("console", lambda msg: msgs.append(msg.text))
+    bad = Button(label="Bad", theme_config={'palette': {'primary': {'main': 'teal'}}})
+    serve_component(page, Row(bad, Button(label="Fine")))
+
+    expect(page.locator(".MuiButton-root")).to_have_count(2)
+    wait_until(lambda: any("invalid theme_config" in m for m in msgs), page)
+
+    bad.theme_config = {'palette': {'primary': {'main': '#ff0000'}}}
+    expect(page.locator(".MuiButton-root").first).to_have_css("background-color", "rgb(255, 0, 0)")
