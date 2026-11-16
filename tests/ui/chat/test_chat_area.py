@@ -185,6 +185,25 @@ def test_chat_area_clears_value_input_on_send(page):
     assert widget.value == ""
 
 
+def test_chat_area_keeps_text_typed_while_sending(page):
+    """
+    Text typed after pressing Enter but before the server has processed
+    the message, e.g. on a high latency connection, belongs to the next
+    message and must not be cleared along with the sent one.
+    """
+    widget = ChatAreaInput()
+    widget.param.watch(lambda event: time.sleep(1), 'value')
+    serve_component(page, widget)
+
+    textarea = page.locator('textarea').first
+    textarea.fill("First message")
+    textarea.press("Enter")
+    textarea.press_sequentially("Next")
+
+    wait_until(lambda: widget.value_input == "Next", page)
+    expect(textarea).to_have_value("Next")
+
+
 def test_chat_area_clears_with_files_attached(page):
     """Test that ChatAreaInput clears after sending a message with files."""
     widget = ChatAreaInput(enable_upload=True)
