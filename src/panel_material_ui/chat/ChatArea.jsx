@@ -621,15 +621,13 @@ export function render({model, view}) {
           fullWidth
           sx={{
             ...props.sx,
-            p: "8px",
+            // Without a button on the left the text is inset as far as the
+            // send icon is from the right edge (8px here plus the button's 8px).
+            p: startAdornment ? "8px" : "8px 8px 8px 16px",
             alignItems: "end",
             position: "relative",
             zIndex: 0,
             width: "100%",
-            ".MuiInputBase-root": {
-              alignItems: "flex-start",
-              padding: (Object.keys(actions).length > 0 || enable_upload) ? "8px" : "8px 8px 8px 16px",
-            },
           }}
         />
       </Box>
