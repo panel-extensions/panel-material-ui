@@ -130,3 +130,26 @@ def test_page_contextbar_permanent_no_toggle(page):
 
     toggle = page.locator('[aria-label*="contextbar"]')
     expect(toggle).to_have_count(0)
+
+
+@pytest.mark.parametrize("contextbar_open", [False, True])
+def test_page_contextbar_persistent_empty_takes_no_width(page, contextbar_open):
+    pg = Page(
+        main=[pn.pane.Markdown("# Main")],
+        sidebar=[pn.pane.Markdown("# Sidebar")],
+        contextbar_variant="persistent",
+        contextbar_open=contextbar_open,
+    )
+
+    serve_component(page, pg)
+
+    main = page.locator("main.main")
+    expect(main).to_have_css("margin-right", "0px")
+    box = main.bounding_box()
+    assert box["x"] + box["width"] == page.viewport_size["width"]
+
+    pg.contextbar = [pn.pane.Markdown("# Context")]
+    pg.contextbar_open = False
+    expect(main).to_have_css("margin-right", "-250px")
+    pg.contextbar = []
+    expect(main).to_have_css("margin-right", "0px")

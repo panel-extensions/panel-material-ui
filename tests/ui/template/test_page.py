@@ -461,3 +461,41 @@ def test_page_empty_site_url_renders_site_and_title_without_link(page):
     expect(page.locator(".site")).to_have_text("Site")
     expect(page.locator(".title")).to_have_text("Atlas")
     expect(page.locator(".MuiAppBar-root a")).to_have_count(0)
+
+
+@pytest.mark.parametrize("sidebar_variant", ["auto", "persistent"])
+def test_page_sidebar_empty_and_closed_does_not_offset_main(page, sidebar_variant):
+    pg = Page(main=[pn.pane.Markdown("# Main")], sidebar_open=False, sidebar_variant=sidebar_variant)
+
+    serve_component(page, pg)
+
+    main = page.locator("main.main")
+    expect(main).to_have_css("margin-left", "0px")
+    assert main.bounding_box()["x"] == 0
+
+    pg.sidebar = [pn.pane.Markdown("# Sidebar")]
+    expect(main).to_have_css("margin-left", "-320px")
+    pg.sidebar = []
+    expect(main).to_have_css("margin-left", "0px")
+    expect(page.locator('[aria-label="Open drawer"]')).to_have_count(0)
+
+
+def test_page_sidebar_change_keeps_main_mounted(page):
+    pg = Page(main=[Button(label="Main")])
+
+    serve_component(page, pg)
+
+    button = page.get_by_role("button", name="Main")
+    expect(button).to_be_visible()
+    button.evaluate("el => { el.dataset.marker = 'kept' }")
+
+    pg.sidebar = [pn.pane.Markdown("Sidebar")]
+    expect(page.locator(".sidebar")).to_contain_text("Sidebar")
+    pg.contextbar = [pn.pane.Markdown("Context")]
+    pg.contextbar_open = True
+    expect(page.locator(".contextbar")).to_contain_text("Context")
+    pg.sidebar = []
+    pg.contextbar = []
+    expect(page.locator(".sidebar")).to_have_count(0)
+
+    expect(button).to_have_attribute("data-marker", "kept")

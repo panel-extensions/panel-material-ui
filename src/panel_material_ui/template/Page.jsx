@@ -630,7 +630,15 @@ export function render({model, view}) {
       >
         {drawer}
       </Box>}
-      <Main className="main" open={open} sidebar_width={sidebar_width} variant={drawer_variant} contextbar_open={contextbar_open} contextbar_width={contextbar_width} context_variant={context_drawer_variant}>
+      <Main
+        className="main"
+        open={open}
+        sidebar_width={drawer ? sidebar_width : 0}
+        variant={drawer ? drawer_variant : null}
+        contextbar_open={contextbar_open}
+        contextbar_width={contextbar_width}
+        context_variant={context_drawer ? context_drawer_variant : null}
+      >
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
           <Toolbar sx={toolbarSx}>
             <Typography variant="h5">&nbsp;</Typography>
