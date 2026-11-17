@@ -585,7 +585,10 @@ export function render({model, view}) {
               onKeyDown: (event) => {
                 if (isSendEvent(event)) {
                   event.preventDefault()
-                  send()
+                  // While sending is disabled the text stays in the input to send later.
+                  if (!disabled_enter) {
+                    send()
+                  }
                 }
               },
               value: value_input,

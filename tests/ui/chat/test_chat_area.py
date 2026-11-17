@@ -275,3 +275,25 @@ def test_chat_area_disabled_does_not_clear_on_send(page):
 
     # Try to click send button (it should be disabled)
     expect(send_button).to_be_disabled()
+
+
+def test_chat_area_disabled_enter_keeps_text_and_focus(page):
+    widget = ChatAreaInput(disabled_enter=True)
+    sent = []
+    widget.param.watch(lambda event: sent.append(event.new), "value")
+    serve_component(page, widget)
+
+    textarea = page.locator("textarea").first
+    textarea.click()
+    textarea.fill("Hello")
+    textarea.press("Enter")
+
+    time.sleep(0.2)
+    assert sent == []
+    expect(textarea).to_have_value("Hello")
+    expect(textarea).to_be_focused()
+
+    widget.disabled_enter = False
+    textarea.press("Enter")
+    wait_until(lambda: sent == ["Hello"], page)
+    expect(textarea).to_have_value("")
