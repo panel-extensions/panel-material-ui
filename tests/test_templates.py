@@ -221,3 +221,28 @@ def test_page_does_not_leak_through_state_busy():
     gc.collect()
     assert all(ref() is None for ref in refs)
     assert len(state.param.watchers.get('busy', {}).get('value', [])) == n_watchers
+
+
+def test_page_header_color_and_rail_defaults():
+    page = pmui.Page()
+    assert page.header_color == "primary"
+    assert page.rail == []
+    assert page.rail_width == 80
+
+
+def test_page_header_color_rejects_unknown_value():
+    with pytest.raises(ValueError):
+        pmui.Page(header_color="secondary")
+
+
+def test_page_rail_children_synced(document, comm):
+    nav = pmui.MenuList(items=[{"label": "Home", "icon": "home"}])
+    page = pmui.Page(rail=[nav], rail_width=96, header_color="paper")
+    model = page.get_root(document, comm=comm)
+    assert model.data.rail == [nav._models[model.ref["id"]][0]]
+    assert model.data.rail_width == 96
+    assert model.data.header_color == "paper"
+    assert model.data.sidebar == []
+
+    page.rail = []
+    assert model.data.rail == []
