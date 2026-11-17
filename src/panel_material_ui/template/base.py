@@ -120,6 +120,13 @@ class Page(MaterialComponent, ResourceComponent):
 
     header = Children(doc="Items rendered in the header.")
 
+    header_color: t.Literal["primary", "paper"] = param.Selector(default="primary", objects=["primary", "paper"], doc="""
+        Background of the header. 'primary' fills it with the primary color
+        and gives the components in it an inverted palette to match, which
+        also applies to dialogs and menus they open. 'paper' renders a flat
+        header on the paper background, separated from the content by a
+        divider, and leaves the palette of its components unchanged.""")  # type: ignore[assignment]
+
     header_width = param.ClassSelector(default=None, class_=(int, str, dict), doc="""
         Maximum width of the header content. When set, the toolbar content is
         clamped to this width and centered. Accepts a number (interpreted as
@@ -145,6 +152,15 @@ class Page(MaterialComponent, ResourceComponent):
         Logo to render in the header. Can be a string, a pathlib.Path, or a dictionary with
         breakpoints as keys, e.g. {'sm': 'logo_mobile.png', 'md': 'logo.png'} or themes as keys, e.g.
         {'dark': 'logo_dark.png', 'light': 'logo.png'}.""")
+
+    rail = Children(doc="""
+        Items rendered in a navigation rail, a narrow column docked to the
+        left edge below the header, typically holding the app's top-level
+        destinations. Below the 'sm' breakpoint the rail is hidden and its
+        items are rendered at the top of the sidebar drawer instead, opened
+        from the header's menu button.""")
+
+    rail_width = param.Integer(default=80, bounds=(0, None), doc="Width of the navigation rail.")
 
     sidebar = Children(doc="Items rendered in the sidebar.")
 
@@ -188,6 +204,7 @@ class Page(MaterialComponent, ResourceComponent):
         "contextbar": None,
         "sidebar": None,
         "main": None,
+        "rail": None,
     }
 
     def __init__(self, **params):

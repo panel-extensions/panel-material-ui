@@ -21,7 +21,16 @@ const PAGE_ROOT_SX = {display: "flex", width: "100vw", height: "100vh", overflow
 // for the header and temporary drawers, which otherwise escape to the viewport.
 const PAGE_INLINE_ROOT_SX = {display: "flex", position: "relative", width: "100%", height: "100%", overflow: "hidden"}
 const PAGE_APPBAR_SX = {zIndex: (theme) => theme.zIndex.drawer + 1}
+const PAGE_APPBAR_PAPER_SX = {
+  bgcolor: "background.paper",
+  backgroundImage: "none",
+  color: "text.primary",
+  boxShadow: "none",
+  borderBottom: 1,
+  borderColor: "divider",
+}
 const INLINE_MODAL_SX = {position: "absolute"}
+const PAGE_RAIL_CONTENT_SX = {flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto"}
 
 // A null href means there is nowhere sensible to link (see Page._get_model),
 // while "" is a valid link to the current app.
@@ -138,10 +147,12 @@ export function render({model, view}) {
   const [contextbar_variant] = model.useState("contextbar_variant")
   const [contextbar_width, setContextbarWidth] = model.useState("contextbar_width")
   const [main_width] = model.useState("main_width")
+  const [header_color] = model.useState("header_color")
   const [header_width] = model.useState("header_width")
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
   const [logo] = model.useState("logo")
   const [open, setOpen] = model.useState("sidebar_open")
+  const [rail_width] = model.useState("rail_width")
   const [sidebar_resizable] = model.useState("sidebar_resizable")
   const [sidebar_width, setSidebarWidth] = model.useState("sidebar_width")
   const [theme_toggle] = model.useState("theme_toggle")
@@ -164,6 +175,7 @@ export function render({model, view}) {
   const [variant] = model.useState("sidebar_variant")
   const [sx] = model.useState("sx")
   const sidebar = model.get_child("sidebar")
+  const rail = model.get_child("rail")
   const contextbar = model.get_child("contextbar")
   const header = model.get_child("header")
   const main = model.get_child("main")
@@ -179,6 +191,10 @@ export function render({model, view}) {
   const modalProps = React.useMemo(() => (fullscreen ? undefined : {container: () => rootRef.current}), [fullscreen])
   const backdropProps = fullscreen ? undefined : {sx: INLINE_MODAL_SX}
 
+  // Below the sm breakpoint the rail moves into the sidebar drawer.
+  const rail_docked = rail.length > 0 && !isMobile
+  const rail_in_drawer = rail.length > 0 && isMobile
+  const has_drawer = sidebar.length > 0 || rail_in_drawer
   const drawer_variant = variant === "auto" ? (isMobile ? "temporary": "persistent") : variant
   const context_drawer_variant = contextbar_variant === "auto" ? (isMobile ? "temporary" : "persistent") : contextbar_variant
 
@@ -204,6 +220,18 @@ export function render({model, view}) {
       overflowX: "hidden",
     },
   }), [sidebar_width, fullscreen, drawer_variant])
+  const railSx = React.useMemo(() => ({
+    display: "flex",
+    flexDirection: "column",
+    flexShrink: 0,
+    width: rail_width,
+    height: drawerHeight,
+    boxSizing: "border-box",
+    bgcolor: "background.paper",
+    borderRight: 1,
+    borderColor: "divider",
+    overflowX: "hidden",
+  }), [rail_width, drawerHeight])
   const contextDrawerSx = React.useMemo(() => {
     const temporary = context_drawer_variant === "temporary"
     return {
@@ -252,6 +280,9 @@ export function render({model, view}) {
     const handler = () => {
       sidebar.map((object, index) => {
         apply_flex(view.get_child_view(model.sidebar[index]), "column")
+      })
+      rail.map((object, index) => {
+        apply_flex(view.get_child_view(model.rail[index]), "column")
       })
       contextbar.map((object, index) => {
         apply_flex(view.get_child_view(model.contextbar[index]), "column")
@@ -408,7 +439,12 @@ export function render({model, view}) {
     }
   }, [isDragging, handleDragMove, handleDragEnd])
 
-  const drawer = sidebar.length > 0 ? (
+  const render_rail = () => rail.map((object, index) => {
+    apply_flex(view.get_child_view(model.rail[index]), "column")
+    return object
+  })
+
+  const drawer = has_drawer ? (
     <Drawer
       slotProps={{paper: {className: "sidebar"}, backdrop: backdropProps}}
       anchor="left"
@@ -422,6 +458,8 @@ export function render({model, view}) {
         <Typography variant="h5">&nbsp;</Typography>
       </Toolbar>
       <Box sx={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
+        {rail_in_drawer && render_rail()}
+        {rail_in_drawer && sidebar.length > 0 && <Divider />}
         {sidebar.map((object, index) => {
           apply_flex(view.get_child_view(model.sidebar[index]), "column")
           return object
@@ -483,10 +521,12 @@ export function render({model, view}) {
   const color_scheme = dark_theme ? "dark" : "light"
   const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && (model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both")))
   const primary_color = model.theme_config?.palette?.primary?.main ?? model.theme_config?.[color_scheme]?.palette?.primary?.main
-  const header_sx = React.useMemo(
-    () => (primary_color == null ? {backgroundColor: "#0072b5", color: "#ffffff"} : {}),
-    [primary_color]
-  )
+  const paper_header = header_color === "paper"
+  const header_sx = React.useMemo(() => {
+    if (paper_header) { return PAGE_APPBAR_PAPER_SX }
+    return primary_color == null ? {backgroundColor: "#0072b5", color: "#ffffff"} : {}
+  }, [primary_color, paper_header])
+  const header_text_color = paper_header ? "text.primary" : "white"
   const appBarSx = React.useMemo(() => [PAGE_APPBAR_SX, header_sx], [header_sx])
   const appBarToolbarSx = React.useMemo(() => {
     const maxWidth = to_max_width(header_width)
@@ -518,9 +558,9 @@ export function render({model, view}) {
 
   return (
     <Box ref={rootRef} className={`mui-${color_scheme}`} sx={pageRootSx}>
-      <AppBar position={fullscreen ? "fixed" : "absolute"} color="primary" className="header" sx={appBarSx}>
+      <AppBar position={fullscreen ? "fixed" : "absolute"} color={paper_header ? "inherit" : "primary"} className="header" sx={appBarSx}>
         <Toolbar sx={appBarToolbarSx}>
-          {(model.sidebar.length > 0 && drawer_variant !== "permanent") &&
+          {(has_drawer && drawer_variant !== "permanent") &&
             <Tooltip enterDelay={500} title={open ? "Close drawer" : "Open drawer"}>
               <IconButton
                 color="inherit"
@@ -548,19 +588,19 @@ export function render({model, view}) {
               )}
               {site && (
                 <SiteLink href={site_href} style={{textDecoration: "none", display: "flex", alignItems: "center"}}>
-                  <Typography variant="h3" className="site" sx={{color: "white", lineHeight: 1}}>
+                  <Typography variant="h3" className="site" sx={{color: header_text_color, lineHeight: 1}}>
                     {render_icon_text(site)}
                   </Typography>
                 </SiteLink>
               )}
               {site && title && (
-                <Typography variant="h3" className="separator" aria-hidden="true" sx={{color: "white", lineHeight: 1, opacity: 0.7}}>
+                <Typography variant="h3" className="separator" aria-hidden="true" sx={{color: header_text_color, lineHeight: 1, opacity: 0.7}}>
                   /
                 </Typography>
               )}
               {title && (
                 <SiteLink href={title_href} style={{textDecoration: "none", display: "flex", alignItems: "center"}}>
-                  <Typography variant="h3" className="title" sx={{color: "white", lineHeight: 1}}>
+                  <Typography variant="h3" className="title" sx={{color: header_text_color, lineHeight: 1}}>
                     {render_icon_text(title)}
                   </Typography>
                 </SiteLink>
@@ -596,7 +636,7 @@ export function render({model, view}) {
             <CircularProgress
               disableShrink
               size="1.4em"
-              sx={{color: "white"}}
+              sx={{color: header_text_color}}
               thickness={5}
               variant={idle ? "determinate" : "indeterminate"}
               value={idle ? 100 : 0}
@@ -617,6 +657,15 @@ export function render({model, view}) {
           />
         }
       </AppBar>
+      {rail_docked &&
+      <Box component="nav" className="rail" sx={railSx}>
+        <Toolbar sx={toolbarSx}>
+          <Typography variant="h5">&nbsp;</Typography>
+        </Toolbar>
+        <Box sx={PAGE_RAIL_CONTENT_SX}>
+          {render_rail()}
+        </Box>
+      </Box>}
       {drawer &&
       <Box
         component="nav"
@@ -630,7 +679,15 @@ export function render({model, view}) {
       >
         {drawer}
       </Box>}
-      <Main className="main" open={open} sidebar_width={sidebar_width} variant={drawer_variant} contextbar_open={contextbar_open} contextbar_width={contextbar_width} context_variant={context_drawer_variant}>
+      <Main
+        className="main"
+        open={open}
+        sidebar_width={drawer ? sidebar_width : 0}
+        variant={drawer ? drawer_variant : null}
+        contextbar_open={contextbar_open}
+        contextbar_width={contextbar_width}
+        context_variant={context_drawer ? context_drawer_variant : null}
+      >
         <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
           <Toolbar sx={toolbarSx}>
             <Typography variant="h5">&nbsp;</Typography>

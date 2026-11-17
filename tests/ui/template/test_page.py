@@ -461,3 +461,175 @@ def test_page_empty_site_url_renders_site_and_title_without_link(page):
     expect(page.locator(".site")).to_have_text("Site")
     expect(page.locator(".title")).to_have_text("Atlas")
     expect(page.locator(".MuiAppBar-root a")).to_have_count(0)
+
+
+@pytest.mark.parametrize("sidebar_variant", ["auto", "persistent"])
+def test_page_sidebar_empty_and_closed_does_not_offset_main(page, sidebar_variant):
+    pg = Page(main=[pn.pane.Markdown("# Main")], sidebar_open=False, sidebar_variant=sidebar_variant)
+
+    serve_component(page, pg)
+
+    main = page.locator("main.main")
+    expect(main).to_have_css("margin-left", "0px")
+    assert main.bounding_box()["x"] == 0
+
+    pg.sidebar = [pn.pane.Markdown("# Sidebar")]
+    expect(main).to_have_css("margin-left", "-320px")
+    pg.sidebar = []
+    expect(main).to_have_css("margin-left", "0px")
+    expect(page.locator('[aria-label="Open drawer"]')).to_have_count(0)
+
+
+def test_page_sidebar_change_keeps_main_mounted(page):
+    pg = Page(main=[Button(label="Main")])
+
+    serve_component(page, pg)
+
+    button = page.get_by_role("button", name="Main")
+    expect(button).to_be_visible()
+    button.evaluate("el => { el.dataset.marker = 'kept' }")
+
+    pg.sidebar = [pn.pane.Markdown("Sidebar")]
+    expect(page.locator(".sidebar")).to_contain_text("Sidebar")
+    pg.contextbar = [pn.pane.Markdown("Context")]
+    pg.contextbar_open = True
+    expect(page.locator(".contextbar")).to_contain_text("Context")
+    pg.sidebar = []
+    pg.contextbar = []
+    expect(page.locator(".sidebar")).to_have_count(0)
+
+    expect(button).to_have_attribute("data-marker", "kept")
+
+
+PRIMARY = "rgb(25, 118, 210)"
+
+NAV_ITEMS = [{"label": "Home", "icon": "home"}, {"label": "Settings", "icon": "settings"}]
+
+
+def test_page_rail_docked_on_wide_screens(page):
+    from panel_material_ui.widgets import MenuList
+    pg = Page(main=[pn.pane.Markdown("# Main")], rail=[MenuList(items=NAV_ITEMS, collapsed=True)])
+
+    serve_component(page, pg)
+
+    rail = page.locator("nav.rail")
+    expect(rail).to_be_visible()
+    expect(rail).to_have_css("width", "80px")
+    expect(page.locator("main.main")).to_have_css("margin-left", "0px")
+    assert page.locator("main.main").bounding_box()["x"] == 80
+    # The rail is always visible, so there is nothing for the menu button to toggle.
+    expect(page.locator('[aria-label="Open drawer"]')).to_have_count(0)
+    expect(page.locator('[aria-label="Close drawer"]')).to_have_count(0)
+
+    pg.rail_width = 96
+    expect(rail).to_have_css("width", "96px")
+
+
+def test_page_rail_next_to_sidebar(page):
+    from panel_material_ui.widgets import MenuList
+    pg = Page(
+        main=[pn.pane.Markdown("# Main")],
+        rail=[MenuList(items=NAV_ITEMS, collapsed=True)],
+        sidebar=[pn.pane.Markdown("Filters")],
+        sidebar_open=False,
+    )
+
+    serve_component(page, pg)
+
+    expect(page.locator("nav.rail")).to_be_visible()
+    page.locator('[aria-label="Open drawer"]').click()
+    sidebar = page.locator(".MuiDrawer-paper.sidebar")
+    expect(sidebar).to_contain_text("Filters")
+    wait_until(lambda: sidebar.bounding_box()["x"] == 80, page)
+    # Rail items stay in the rail rather than also showing in the drawer.
+    expect(sidebar).not_to_contain_text("Home")
+
+
+def test_page_rail_moves_into_drawer_on_narrow_screens(page):
+    from panel_material_ui.widgets import MenuList
+    page.set_viewport_size({"width": 500, "height": 700})
+    pg = Page(
+        main=[pn.pane.Markdown("# Main")],
+        rail=[MenuList(items=NAV_ITEMS)],
+        sidebar=[pn.pane.Markdown("Filters")],
+        sidebar_open=False,
+    )
+
+    serve_component(page, pg)
+
+    expect(page.locator("nav.rail")).to_have_count(0)
+    page.locator('[aria-label="Open drawer"]').click()
+    sidebar = page.locator(".MuiDrawer-paper.sidebar")
+    expect(sidebar).to_contain_text("Home")
+    expect(sidebar).to_contain_text("Filters")
+    home = sidebar.get_by_text("Home", exact=True)
+    assert home.bounding_box()["y"] < sidebar.get_by_text("Filters").bounding_box()["y"]
+
+    page.set_viewport_size({"width": 1000, "height": 700})
+    expect(page.locator("nav.rail")).to_contain_text("Home")
+
+
+def test_page_rail_only_toggle_on_narrow_screens(page):
+    from panel_material_ui.widgets import MenuList
+    page.set_viewport_size({"width": 500, "height": 700})
+    pg = Page(main=[pn.pane.Markdown("# Main")], rail=[MenuList(items=NAV_ITEMS)], sidebar_open=False)
+
+    serve_component(page, pg)
+
+    page.locator('[aria-label="Open drawer"]').click()
+    expect(page.locator(".MuiDrawer-paper.sidebar")).to_contain_text("Settings")
+    wait_until(lambda: pg.sidebar_open, page)
+
+
+@pytest.mark.parametrize("dark", [False, True])
+def test_page_header_color_paper(page, dark):
+    pg = Page(
+        title="App",
+        header=[Button(label="Action", variant="contained")],
+        header_color="paper",
+        main=[Button(label="Reference", variant="contained")],
+        dark_theme=dark,
+    )
+
+    serve_component(page, pg)
+
+    header = page.locator(".MuiAppBar-root.header")
+    main_bg = page.locator("main.main").evaluate("el => getComputedStyle(el).backgroundColor")
+    expect(header).to_have_css("background-color", main_bg)
+    expect(header).to_have_css("box-shadow", "none")
+    expect(header).to_have_css("border-bottom-style", "solid")
+    expect(page.locator(".header .title")).to_have_css("color", "rgb(255, 255, 255)" if dark else "rgba(0, 0, 0, 0.87)")
+    # Header components keep the page palette instead of an inverted one.
+    reference = page.get_by_role("button", name="Reference").evaluate("el => getComputedStyle(el).backgroundColor")
+    expect(page.get_by_role("button", name="Action")).to_have_css("background-color", reference)
+
+
+def test_page_header_color_primary_inverts_header_components(page):
+    pg = Page(header=[Button(label="Action", variant="contained")], main=[pn.pane.Markdown("# Main")])
+
+    serve_component(page, pg)
+
+    header = page.locator(".MuiAppBar-root.header")
+    expect(header).to_have_css("background-color", "rgb(0, 114, 181)")
+    button = page.get_by_role("button", name="Action")
+    expect(button).to_have_css("background-color", "rgb(255, 255, 255)")
+
+    pg.header_color = "paper"
+    expect(header).not_to_have_css("background-color", "rgb(0, 114, 181)")
+    expect(button).to_have_css("background-color", PRIMARY)
+
+    pg.header_color = "primary"
+    expect(header).to_have_css("background-color", "rgb(0, 114, 181)")
+    expect(button).to_have_css("background-color", "rgb(255, 255, 255)")
+
+
+def test_page_header_color_paper_dialog_keeps_palette(page):
+    from panel_material_ui.layout import Dialog
+    dialog = Dialog(pn.pane.Markdown("Dialog body"), title="Dialog", open=True)
+    pg = Page(header=[dialog], header_color="paper", main=[pn.pane.Markdown("# Main")])
+
+    serve_component(page, pg)
+
+    paper = page.locator(".MuiDialog-paper")
+    expect(paper).to_be_visible()
+    expect(paper).to_have_css("background-color", "rgb(255, 255, 255)")
