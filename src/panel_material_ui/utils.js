@@ -1459,7 +1459,7 @@ export const install_theme_hooks = (props) => {
         views.push(current)
         if (is_header) {
           const primary_color = config?.palette?.primary?.main ?? config?.[color_scheme]?.palette?.primary?.main
-          let skip = false
+          let skip = current.model.data.header_color === "paper"
           const header_color = primary_color ?? "#0072b5"
           const header_bg = luminance(header_color) < 164 ? "#ffffff" : "#000000"
           if (current.model.data.sx && current.model.data.sx[".MuiAppBar-root"] != null) {
@@ -1507,12 +1507,14 @@ export const install_theme_hooks = (props) => {
   React.useEffect(() => {
     const [_, views] = merge_theme_configs(props.view, dark_ref.current)
     const cb = () => setConfigVersion(v => v + 1)
+    // A Page's header_color decides whether its header inverts the palette.
+    const watched = (view) => view.model.class_name === "Page" ? ["theme_config", "header_color"] : ["theme_config"]
     for (const view of views) {
-      view.model_proxy.on("theme_config", cb)
+      view.model_proxy.on(watched(view), cb)
     }
     return () => {
       for (const view of views) {
-        view.model_proxy.off("theme_config", cb)
+        view.model_proxy.off(watched(view), cb)
       }
     }
   }, [])
