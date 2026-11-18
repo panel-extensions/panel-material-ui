@@ -1,5 +1,6 @@
 from .__version import __version__  # noqa
 from .chat import *  # noqa
+from .compiler import Compiled  # noqa
 from .base import MaterialUIComponent  # noqa
 from .layout import *  # noqa
 from .notifications import NotificationArea  # noqa

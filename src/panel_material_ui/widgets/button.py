@@ -161,6 +161,7 @@ class Button(_ButtonBase, _ClickButton):
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
 
     _esm_base = "Button.jsx"
+    _compilable = True
     _event = "dom_event"
 
     def __init__(self, **params):

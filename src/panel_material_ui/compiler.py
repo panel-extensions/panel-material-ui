@@ -19,6 +19,11 @@ from .base import MaterialComponent
 from .template.base import Page
 
 
+def _is_compilable(cls: type) -> bool:
+    # Opting in is not inherited, a subclass may render differently.
+    return bool(vars(cls).get("_compilable"))
+
+
 class Compiled(MaterialComponent):
     """Render compilable PMUI components directly in one React root.
 
@@ -39,7 +44,7 @@ class Compiled(MaterialComponent):
         # The bundler renders Compiled before Page enters subclass discovery.
         components = (
             component for component in (Page, *param.concrete_descendents(MaterialComponent).values())
-            if component._compilable and component._esm_base and
+            if _is_compilable(component) and component._esm_base and
             component.__module__.startswith("panel_material_ui.")
         )
         modules: dict[str, str] = {}
@@ -99,7 +104,7 @@ class Compiled(MaterialComponent):
         def walk(obj: Viewable) -> dict:
             node_id = str(id(obj))
             compilable = (
-                isinstance(obj, MaterialComponent) and type(obj)._compilable and
+                isinstance(obj, MaterialComponent) and _is_compilable(type(obj)) and
                 type(obj).__module__.startswith("panel_material_ui.") and obj._esm_base and
                 node_id not in self._failed_stylesheets and
                 (not isinstance(obj, Page) or obj is source) and
@@ -112,7 +117,7 @@ class Compiled(MaterialComponent):
                     ) or obj.sizing_mode == "inherit"
                 )
             )
-            if isinstance(obj, MaterialComponent) and type(obj)._compilable:
+            if isinstance(obj, MaterialComponent) and _is_compilable(type(obj)):
                 nodes[node_id] = obj
             if any(getattr(obj, name, None) for name in (
                 "scroll", "view_latest", "scroll_index", "auto_scroll_limit",

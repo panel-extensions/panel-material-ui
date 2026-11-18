@@ -443,6 +443,9 @@ class MaterialComponent(ReactComponent):
         in the component's documentation.""")
 
     _bundle = BUNDLE_PATH
+    # Whether Compiled may render the component inside its own React root
+    # instead of giving it a Bokeh model and view of its own.
+    _compilable: t.ClassVar[bool] = False
     _constants = {"loading_inset": 0}
     _esm_base: t.ClassVar[str | pathlib.Path | None] = None
     _esm_shared = {

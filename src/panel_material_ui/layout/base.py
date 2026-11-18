@@ -307,6 +307,7 @@ class Column(MaterialListLike):
 
     _direction = "vertical"
     _esm_base = "Box.jsx"
+    _compilable = True
     _constants = {"direction": "column", "loading_inset": 0}
 
     def __init__(self, *objects, **params):
@@ -541,6 +542,7 @@ class Row(MaterialListLike):
 
     _direction = "horizontal"
     _esm_base = "Box.jsx"
+    _compilable = True
     _constants = {"direction": "row", "loading_inset": 0}
 
 
@@ -640,6 +642,7 @@ class Paper(MaterialListLike, PaperMixin):
     margin = Margin(default=0, doc="The margin of the layout.")
 
     _esm_base = "Paper.jsx"
+    _compilable = True
 
 
 class FloatPanel(MaterialListLike, PaperMixin):
@@ -892,6 +895,7 @@ class Card(MaterialNamedListLike, PaperMixin):
 
     _direction = "vertical"
     _esm_base = "Card.jsx"
+    _compilable = True
 
     _rename = {"objects": "objects", "title": "title", "header": "header"}
 

@@ -67,6 +67,7 @@ class Typography(MaterialPaneBase, Markdown):
     )
 
     _esm_base = "Typography.jsx"
+    _compilable = True
     _rename = {"object": "object"}
 
     @classmethod

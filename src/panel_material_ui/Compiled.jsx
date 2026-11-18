@@ -1,6 +1,7 @@
 import pmui from "panel-material-ui"
 
 const stylesheetRequests = new Map()
+const NOOP_SIGNAL = {connect: () => {}, disconnect: () => {}}
 
 function NodeStyles({node, model, shared_styles}) {
   const [loaded, setLoaded] = React.useState({})
@@ -170,7 +171,7 @@ function MaterialNode({node, model, view, parentView, fallbacks, shared_styles})
       get data() {
         return {...current.current.node.props,
           _custom_theme: current.current.node.kind === "Page" ? current.current.model._custom_theme : current.current.node.props._custom_theme,
-          properties: {}}
+          properties: {}, change: NOOP_SIGNAL}
       },
       get document() { return current.current.model.document },
     },

@@ -198,6 +198,7 @@ class Page(MaterialComponent, ResourceComponent):
     _syncing_header_width = False
 
     _esm_base = "Page.jsx"
+    _compilable = True
     _rename = {"app_bar_width": None, "config": None, "meta": None, "favicon": None, "apple_touch_icon": None, "template": None}
     _source_transforms = {
         "header": None,

@@ -386,6 +386,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     _constants = {"multi": False, "loading_inset": -6}
     _stylesheets: t.ClassVar[list[str]] = []
     _esm_base = "Select.jsx"
+    _compilable = True
     _rename = {"name": None, "groups": None}
 
     def __init__(self, **params):

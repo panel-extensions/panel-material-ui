@@ -89,6 +89,8 @@ class IntSlider(_ContinuousSlider):
     >>> IntSlider(value=5, start=0, end=10, step=1, label="Integer Value")
     """
 
+    _compilable = True
+
     end = param.Integer(default=1)
 
     format = param.ClassSelector(default='0,0', class_=(str, TickFormatter,), doc="""
@@ -120,6 +122,8 @@ class FloatSlider(_ContinuousSlider):
 
     >>> FloatSlider(value=0.5, start=0.0, end=1.0, step=0.1, label="Float value")
     """
+
+    _compilable = True
 
     step = param.Number(default=0.1, bounds=(0, None), inclusive_bounds=(False, True), doc="The step size.")
 

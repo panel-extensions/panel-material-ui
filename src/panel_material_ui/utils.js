@@ -1566,7 +1566,9 @@ export const install_theme_hooks = (props) => {
     }
     const style_el = document.createElement("style")
     style_el.id = "styles-panel-mui"
-    props.view.shadow_el.insertBefore(style_el, props.view.container)
+    if (props.view.container?.parentNode === props.view.shadow_el) {
+      props.view.shadow_el.insertBefore(style_el, props.view.container)
+    }
     style_el.textContent = render_theme_css(theme)
 
     // Without a theme-managed document (e.g. a Page in a notebook or docs page)
