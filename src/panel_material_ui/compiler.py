@@ -87,13 +87,33 @@ def _subtree(node: dict):
                 yield from _subtree(child)
 
 
-class _Context:
+def _differs(value, default) -> bool:
+    try:
+        return bool(value != default)
+    except Exception:
+        return True
 
-    def __init__(self, fallbacks: list[Viewable], known_styles: dict[str, str]):
+
+class _Context:
+    """
+    State of one compile. The fallbacks, stylesheets and kinds of the tree
+    are only ever appended to, so that the nodes compiled before keep
+    referring to the right entries.
+    """
+
+    def __init__(self, fallbacks: list[Viewable], tree: dict | None = None):
         self.fallbacks = fallbacks
         self.slots = {id(obj): slot for slot, obj in enumerate(fallbacks)}
-        self.known_styles = known_styles
+        self.known_styles: dict[str, str] = tree["shared_styles"] if tree else {}
         self.shared_styles: dict[str, str] = {}
+        self.known_kinds: dict[str, dict] = tree["kinds"] if tree else {}
+        self.kinds: dict[str, dict] = {}
+        self.known_sheets: int = len(tree["sheets"]) if tree else 0
+        self.sheet_index: dict[tuple, int] = (
+            {tuple(sheet.items()): index for index, sheet in enumerate(tree["sheets"])} if tree else {}
+        )
+        self.sheets: list[dict] = []
+        self.layouts: dict[str, dict] = {}
         self.nodes: dict[str, Viewable] = {}
         self.active: set[Viewable] = set()
         self.dicts: dict[str, dict] = {}
@@ -154,7 +174,7 @@ class Compiled(MaterialComponent):
         self._inherit_sizing = "sizing_mode" not in params
         self._inherit_theme = "dark_theme" not in params
         if self._inherit_sizing and tree["root"]["kind"] != "fallback":
-            params["sizing_mode"] = tree["root"]["layout"]["sizing_mode"]
+            params["sizing_mode"] = tree["root"]["layout"].get("sizing_mode")
         if self._inherit_theme and isinstance(source, Page):
             params["dark_theme"] = source.dark_theme
         super().__init__(source=source, tree=tree, fallbacks=ctx.fallbacks, **params)
@@ -177,13 +197,16 @@ class Compiled(MaterialComponent):
         subscriptions.clear()
 
     def _compile(self, source: Viewable) -> tuple[dict, _Context]:
-        ctx = _Context([], {})
+        ctx = _Context([])
         # Compiled before the source parameter is set on construction.
         self._root = source
         root = self._compile_node(source, ctx)
         self._rev += 1
         self._orphans = 0
-        tree = {"root": root, "shared_styles": ctx.shared_styles, "state": {"rev": self._rev}}
+        tree = {
+            "root": root, "shared_styles": ctx.shared_styles, "kinds": ctx.kinds,
+            "sheets": ctx.sheets, "state": {"rev": self._rev},
+        }
         return tree, ctx
 
     def _fallback_node(self, obj: Viewable, ctx: _Context) -> dict:
@@ -244,18 +267,44 @@ class Compiled(MaterialComponent):
                     return self._fallback_node(obj, ctx)
                 stylesheets.append({"css": css})
         ctx.active.add(obj)
+        # Whatever most nodes share is sent once: the defaults of a kind of
+        # component and the stylesheets, which a node refers to by index.
+        kind = ctx.known_kinds.get(cls.__name__) or ctx.kinds.get(cls.__name__)
+        if kind is None:
+            ctx.kinds[cls.__name__] = kind = {
+                "props": {name: _DATA_DEFAULTS[cls][name] for name in obj._linked_properties},
+                "constants": values["esm_constants"],
+            }
+        sheets = []
+        for stylesheet in stylesheets:
+            key = tuple(stylesheet.items())
+            index = ctx.sheet_index.get(key)
+            if index is None:
+                ctx.sheet_index[key] = index = ctx.known_sheets + len(ctx.sheets)
+                ctx.sheets.append(stylesheet)
+            sheets.append(index)
+        layout = ctx.layouts[node_id] = {name: properties.get(name) for name in _LAYOUT}
         node = {
             "id": node_id,
             "kind": cls.__name__,
-            "css_classes": properties["css_classes"],
-            "stylesheets": stylesheets,
-            "styles": properties["styles"],
-            "visible": obj.visible,
-            "layout": {name: properties.get(name) for name in _LAYOUT},
-            "constants": values["esm_constants"],
-            "props": {name: values[name] for name in obj._linked_properties},
-            "theme_revision": self._theme_revision,
+            "layout": layout,
+            "props": {
+                name: values[name] for name in obj._linked_properties
+                if _differs(values[name], kind["props"][name])
+            },
         }
+        if sheets:
+            node["stylesheets"] = sheets
+        if properties["css_classes"]:
+            node["css_classes"] = properties["css_classes"]
+        if properties["styles"]:
+            node["styles"] = properties["styles"]
+        if not obj.visible:
+            node["visible"] = False
+        if _differs(values["esm_constants"], kind["constants"]):
+            node["constants"] = values["esm_constants"]
+        if self._theme_revision:
+            node["theme_revision"] = self._theme_revision
         ctx.dicts[node_id] = node
         children: dict = {}
         for name, multiple in _child_params(cls):
@@ -268,14 +317,15 @@ class Compiled(MaterialComponent):
         if hasattr(obj, "_compute_sizing_mode") and "objects" in children:
             sizing_children = []
             for child in children["objects"]:
-                layout = child.get("layout")
-                if layout is None:
+                child_layout = ctx.layouts.get(child["id"])
+                if child_layout is None:
                     fallback = ctx.fallbacks[child["slot"]]
-                    layout = {name: getattr(fallback, name, None) for name in (
+                    child_layout = {name: getattr(fallback, name, None) for name in (
                         "width", "height", "min_width", "min_height", "sizing_mode"
                     )}
-                sizing_children.append(SimpleNamespace(**layout))
-            node["layout"].update(obj._compute_sizing_mode(sizing_children, properties))
+                sizing_children.append(SimpleNamespace(**child_layout))
+            layout.update(obj._compute_sizing_mode(sizing_children, properties))
+        node["layout"] = {name: value for name, value in layout.items() if value is not None}
         return node
 
     def _watch_nodes(self, nodes: dict[str, Viewable], active: set[Viewable]) -> None:
@@ -368,7 +418,7 @@ class Compiled(MaterialComponent):
         if old is None or old["kind"] == "fallback":
             return self._rebuild()
         removed = list(_subtree(old))
-        ctx = _Context(list(self.fallbacks), self.tree["shared_styles"])
+        ctx = _Context(list(self.fallbacks), self.tree)
         new = self._compile_node(obj, ctx)
         kept = {node["id"] for node in _subtree(new) if node["kind"] == "fallback"}
         orphans = sum(1 for node in removed if node["kind"] == "fallback" and node["id"] not in kept)
@@ -387,10 +437,14 @@ class Compiled(MaterialComponent):
         nodes.update(ctx.nodes)
         active = {node for node in self._active_nodes if str(id(node)) not in removed_ids} | ctx.active
         self._watch_nodes(nodes, active)
-        self.tree["shared_styles"].update(ctx.shared_styles)
         op = {"id": node_id, "subtree": new}
-        if ctx.shared_styles:
-            op["shared_styles"] = ctx.shared_styles
+        for name, added in (("shared_styles", ctx.shared_styles), ("kinds", ctx.kinds), ("sheets", ctx.sheets)):
+            if added:
+                op[name] = added
+                if isinstance(added, list):
+                    self.tree[name].extend(added)
+                else:
+                    self.tree[name].update(added)
         updates = {}
         if len(ctx.fallbacks) != len(self.fallbacks):
             updates["fallbacks"] = ctx.fallbacks
@@ -408,7 +462,7 @@ class Compiled(MaterialComponent):
         updates = {"tree": tree, "fallbacks": ctx.fallbacks}
         root = tree["root"]
         if self._inherit_sizing:
-            updates["sizing_mode"] = root["layout"]["sizing_mode"] if root["kind"] != "fallback" else None
+            updates["sizing_mode"] = root["layout"].get("sizing_mode") if root["kind"] != "fallback" else None
         if self._inherit_theme and isinstance(self.source, Page):
             updates["dark_theme"] = self.source.dark_theme
         self.param.update(**updates)

@@ -27,9 +27,27 @@ function create_store(model, initial) {
   const subscribers = new Map()
   const seqs = new Map()
   const models = new Map()
-  const state = {tree: null, rev: -1, shared_styles: {}}
+  const state = {tree: null, rev: -1, shared_styles: {}, kinds: {}, sheets: [], layouts: new Map(), dirty: false}
+  // Fills in what the tree only sends once: the defaults of the kind of
+  // component and the stylesheets a node refers to by index.
+  const expand = (node) => {
+    if (node.kind === "fallback") { return node }
+    const kind = state.kinds[node.kind]
+    const sheet_ids = node.stylesheets ?? []
+    return {
+      ...node,
+      props: {...kind.props, ...node.props},
+      constants: node.constants ?? kind.constants,
+      css_classes: node.css_classes ?? [],
+      sheet_ids,
+      stylesheets: sheet_ids.map(id => state.sheets[id]),
+      styles: node.styles ?? {},
+      visible: node.visible ?? true,
+      theme_revision: node.theme_revision ?? 0,
+    }
+  }
   const index = (node) => {
-    nodes.set(node.id, node)
+    nodes.set(node.id, expand(node))
     child_nodes(node).forEach(index)
   }
   const unindex = (node) => {
@@ -41,6 +59,8 @@ function create_store(model, initial) {
     state.tree = tree
     state.rev = tree.state.rev
     state.shared_styles = tree.shared_styles
+    state.kinds = tree.kinds
+    state.sheets = tree.sheets
     nodes.clear()
     index(tree.root)
   }
@@ -63,6 +83,19 @@ function create_store(model, initial) {
       load(tree)
       for (const id of [...listeners.keys()]) { notify(id, null) }
     },
+    layout_key(declarations) {
+      if (!state.layouts.has(declarations)) {
+        state.layouts.set(declarations, `l${state.layouts.size}`)
+        state.dirty = true
+      }
+      return state.layouts.get(declarations)
+    },
+    flush_layouts() {
+      if (state.dirty) {
+        state.dirty = false
+        notify("@layouts", null)
+      }
+    },
     apply(patch) {
       if (patch?.rev == null || patch.rev <= state.rev) { return }
       if (patch.rev > state.rev + 1) {
@@ -76,8 +109,13 @@ function create_store(model, initial) {
         if (node == null) { continue }
         if (op.subtree) {
           unindex(node)
-          index(op.subtree)
           if (op.shared_styles) { state.shared_styles = {...state.shared_styles, ...op.shared_styles} }
+          if (op.kinds) { state.kinds = {...state.kinds, ...op.kinds} }
+          if (op.sheets) {
+            state.sheets = [...state.sheets, ...op.sheets]
+            notify("@sheets", null)
+          }
+          index(op.subtree)
           notify(op.id, null)
           continue
         }
@@ -107,11 +145,41 @@ function create_store(model, initial) {
   }
 }
 
+function scoped(sheet, css) {
+  if (sheet.base_url || sheet.url) {
+    css = css.replace(/url\(\s*(['"]?)(?!data:|https?:|\/)([^'")]+)\1\s*\)/g,
+      (_, quote, path) => `url(${quote}${new URL(path, new URL(sheet.base_url || sheet.url, document.baseURI)).href}${quote})`)
+  }
+  return css.replace(/:host\(([^)]*)\)/g, ":scope$1").replace(/:host\b/g, ":scope")
+}
+
+/**
+ * Renders each stylesheet and each set of layout declarations once for the
+ * whole tree, scoped to the hosts that refer to them, since most nodes
+ * share a handful of them.
+ */
+function SharedStyles({store}) {
+  // Nodes register their layout while they render, after this component
+  // has, which the store snapshot catches before anything is painted.
+  React.useSyncExternalStore(store.subscriber("@layouts"), () => store.state.layouts.size)
+  React.useSyncExternalStore(store.subscriber("@sheets"), () => store.state.sheets)
+  const {sheets, shared_styles, layouts} = store.state
+  const rules = [...layouts].map(([declarations, key]) => `[data-pmui-layout="${key}"] { ${declarations} }`)
+  return <>
+    <style>{rules.join("\n")}</style>
+    {sheets.map((sheet, index) => {
+      const css = sheet.css ?? shared_styles[sheet.base_url]
+      return css == null ? null :
+        <style key={index}>{`@scope ([data-pmui-css~="s${index}"]) to ([data-pmui-host]) { ${scoped(sheet, css)} }`}</style>
+    })}
+  </>
+}
+
 function useNode(store, id) {
   return React.useSyncExternalStore(store.subscriber(id), () => store.get(id))
 }
 
-function NodeStyles({node, model, shared_styles}) {
+function NodeStyles({node, model}) {
   const [loaded, setLoaded] = React.useState({})
   const urls = node.stylesheets.filter(sheet => sheet.url).map(sheet => sheet.url)
   const urlKey = urls.join("\n")
@@ -140,15 +208,9 @@ function NodeStyles({node, model, shared_styles}) {
   }, [urlKey])
 
   return node.stylesheets.map((sheet, index) => {
-    let css = sheet.css ?? shared_styles[sheet.base_url] ?? loaded[sheet.url]
-    if (css === undefined) { return null }
-    if (css === null) { return null }
-    if (sheet.base_url || sheet.url) {
-      css = css.replace(/url\(\s*(['"]?)(?!data:|https?:|\/)([^'")]+)\1\s*\)/g,
-        (_, quote, path) => `url(${quote}${new URL(path, new URL(sheet.base_url || sheet.url, document.baseURI)).href}${quote})`)
-    }
-    css = css.replace(/:host\(([^)]*)\)/g, ":scope$1").replace(/:host\b/g, ":scope")
-    return <style key={index}>{`@scope (#pmui-${node.id}) to ([data-pmui-host]) { ${css} }`}</style>
+    const css = sheet.url ? loaded[sheet.url] : null
+    return css == null ? null :
+      <style key={index}>{`@scope (#pmui-${node.id}) to ([data-pmui-host]) { ${scoped(sheet, css)} }`}</style>
   })
 }
 
@@ -281,6 +343,7 @@ function MaterialNode({node, parentView}) {
     model_proxy: view.model_proxy,
     is_root: false,
     get parent() { return current.current.parentView ?? view },
+    get compiled_root() { return current.current.parentView == null ? view : null },
     get compiled_host_id() { return id },
     get theme_revision() { return current.current.node.theme_revision },
     get compiled_host() { return view.shadow_el.querySelector(`#pmui-${id}`) },
@@ -332,6 +395,7 @@ function Node({id, parentView, direction}) {
       }
     }
   }, [styles, visible])
+  React.useLayoutEffect(() => store.flush_layouts())
   if (node == null) {
     return null
   }
@@ -349,14 +413,15 @@ function Node({id, parentView, direction}) {
       axis === "width" ? margin[1] + margin[3] : margin[0] + margin[2] : margin * 2
   const size = (axis, stretch, value) => stretch ?
     marginSize(axis) ? `calc(100% - ${marginSize(axis)}px)` : "100%" : value ?? undefined
-  return <div ref={host} id={`pmui-${node.id}`} data-pmui-host="" className={node.css_classes.join(" ")}
+  const shared = node.sheet_ids.filter(index => !store.state.sheets[index]?.url).map(index => `s${index}`).join(" ")
+  return <div ref={host} id={`pmui-${node.id}`} data-pmui-host="" data-pmui-layout={store.layout_key(declarations)}
+    data-pmui-css={shared || undefined} className={node.css_classes.join(" ")}
     style={{width: size("width", horizontal, width), height: size("height", vertical, height),
       minWidth: min_width ?? undefined, minHeight: min_height ?? undefined,
       maxWidth: max_width ?? undefined, maxHeight: max_height ?? undefined,
       display: node.visible ? undefined : "none"}}
   >
-    <style>{`@scope (#pmui-${node.id}) { :scope { ${declarations} } }`}</style>
-    <NodeStyles node={node} model={model} shared_styles={store.state.shared_styles}/>
+    {node.stylesheets.some(sheet => sheet.url) && <NodeStyles node={node} model={model}/>}
     <MaterialNode key={node.id} node={node} parentView={parentView}/>
   </div>
 }
@@ -376,6 +441,7 @@ export function render({model, view}) {
   return (
     <CompiledContext.Provider value={context}>
       <FallbackContext.Provider value={fallbacks}>
+        <SharedStyles store={store}/>
         <Node id={tree.root.id}/>
       </FallbackContext.Provider>
     </CompiledContext.Provider>

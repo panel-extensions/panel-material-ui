@@ -34,5 +34,8 @@ for i in range(rows):
 layout = pmui.Column(*items, **kw)
 if mode == "compiled":
     layout = pmui.Compiled(layout)
-print(f"BENCH construct mode={mode} rows={rows} {1e3 * (time.perf_counter() - t0):.1f}ms", flush=True)
+t1 = time.perf_counter()
 layout.servable()
+t2 = time.perf_counter()
+# Read back by bench.py to attribute load time to Python.
+pn.state.curdoc.title = f"{1e3 * (t1 - t0):.1f}|{1e3 * (t2 - t1):.1f}"

@@ -42,6 +42,8 @@ function SiteLink({href, style, children}) {
 // <body> (panel serve, save). In notebook outputs or nested inside other
 // layouts, fixed positioning would attach it to the notebook or tab instead.
 function is_fullscreen(view) {
+  // A compiled Page is mounted by the view of its Compiled root.
+  view = view.compiled_root ?? view
   if (view.parent != null) { return false }
   const container = view.el.parentNode
   return container == null || container.parentNode === document.body

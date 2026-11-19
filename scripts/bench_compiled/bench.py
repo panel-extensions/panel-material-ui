@@ -1,4 +1,4 @@
-import json, re, statistics, sys
+import json, os, re, statistics, sys
 from playwright.sync_api import sync_playwright
 
 PORT = sys.argv[1]
@@ -24,7 +24,15 @@ def patch(route):
 def run(browser, mode, rows):
     ctx = browser.new_context(viewport={"width": 1200, "height": 800})
     pg = ctx.new_page()
-    cdp = ctx.new_cdp_session(pg); cdp.send("Performance.enable")
+    cdp = ctx.new_cdp_session(pg); cdp.send("Performance.enable"); cdp.send("Network.enable")
+    net = {"start": None, "doc": None, "size": 0}
+    def on_request(e):
+        if net["start"] is None and e.get("type") == "Document": net["start"] = e["timestamp"]
+    def on_frame(e):
+        size = len(e["response"]["payloadData"])
+        if size > net["size"]: net.update(size=size, doc=e["timestamp"])
+    cdp.on("Network.requestWillBeSent", on_request)
+    cdp.on("Network.webSocketFrameReceived", on_frame)
     out = {"ws_in": 0, "errors": 0}
     idle = []
     def on_console(m):
@@ -34,10 +42,15 @@ def run(browser, mode, rows):
     def on_ws(ws):
         ws.on("framereceived", lambda p: out.__setitem__("ws_in", out["ws_in"] + len(p)))
     pg.on("websocket", on_ws)
-    pg.route("**/panel.min.js*", patch)
+    if os.environ.get("BENCH_PATCH_PANEL"):
+        pg.route("**/panel.min.js*", patch)
     pg.goto(f"http://localhost:{PORT}/app?mode={mode}&rows={rows}")
     btn = pg.locator(f".btn-{rows-1} button"); btn.wait_for(timeout=120000)
     out["ready_ms"] = pg.evaluate("performance.now()")
+    construct, models = (float(v) for v in pg.title().split("|"))
+    # The largest frame is the document, later ones are patches.
+    doc_ms = 1e3 * (net["doc"] - net["start"])
+    out.update(py_construct_ms=construct, py_models_ms=models, doc_received_ms=doc_ms, render_ms=out["ready_ms"] - doc_ms)
     pg.wait_for_timeout(1500)
     m = {x["name"]: x["value"] for x in cdp.send("Performance.getMetrics")["metrics"]}
     out.update(idle_ms=idle[-1] if idle else None, script_ms=1e3*m["ScriptDuration"], layout_ms=1e3*m["LayoutDuration"],
@@ -69,4 +82,4 @@ with sync_playwright() as p:
                 print(mode, rows, i, {k: (round(v, 1) if isinstance(v, float) else v) for k, v in r.items()}, flush=True)
     b.close()
 summary = {f"{m}|{r}": {k: statistics.median([x[k] for x in v if x[k] is not None] or [float("nan")]) for k in v[0]} for (m, r), v in res.items()}
-json.dump(summary, open(f"results_{'_'.join(map(str, ROWS))}.json", "w"), indent=1)
+json.dump(summary, open(sys.argv[4] if len(sys.argv) > 4 else f"results_{'_'.join(map(str, ROWS))}.json", "w"), indent=1)
