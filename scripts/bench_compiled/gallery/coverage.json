@@ -6,6 +6,8 @@
   "compiled": {
    "Page": 1,
    "Container": 1,
+   "FlexBox": 1,
+   "Button": 9,
    "Row": 2,
    "Column": 3,
    "Select": 3,
@@ -14,7 +16,7 @@
   "fallback_reasons": [
    [
     "ToggleIcon",
-    "theme_config",
+    "jslink or jscallback",
     1
    ],
    [
@@ -31,11 +33,6 @@
     "Markdown",
     "not a pmui component",
     1
-   ],
-   [
-    "FlexBox",
-    "not a pmui component",
-    10
    ],
    [
     "Markdown",
@@ -89,12 +86,12 @@
    ],
    [
     "Button",
-    "theme_config",
+    "scroll options",
     1
    ],
    [
     "Button",
-    "theme_config",
+    "scroll options",
     1
    ]
   ],
@@ -335,9 +332,12 @@
   "pmui_opted_in": 12,
   "compiled": {
    "Page": 1,
-   "ColorPicker": 3,
-   "IntInput": 1,
+   "ColorPicker": 4,
+   "IntInput": 2,
    "Switch": 1,
+   "Column": 1,
+   "TextInput": 1,
+   "Select": 1,
    "Button": 1
   },
   "fallback_reasons": [
@@ -357,9 +357,14 @@
     1
    ],
    [
-    "Column",
-    "not a pmui component",
-    7
+    "Button",
+    "jslink or jscallback",
+    1
+   ],
+   [
+    "NotificationArea",
+    "not opted in",
+    1
    ]
   ],
   "pmui_classes": {

@@ -51,8 +51,6 @@ def _reason(obj):
         return "not opted in"
     if obj.loading:
         return "loading"
-    if obj.theme_config:
-        return "theme_config"
     if getattr(obj, "attached", None):
         return "attached"
     if getattr(obj, "description", None):
