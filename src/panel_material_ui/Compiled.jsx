@@ -415,7 +415,8 @@ function Node({id, parentView, direction}) {
     marginSize(axis) ? `calc(100% - ${marginSize(axis)}px)` : "100%" : value ?? undefined
   const shared = node.sheet_ids.filter(index => !store.state.sheets[index]?.url).map(index => `s${index}`).join(" ")
   return <div ref={host} id={`pmui-${node.id}`} data-pmui-host="" data-pmui-layout={store.layout_key(declarations)}
-    data-pmui-css={shared || undefined} className={node.css_classes.join(" ")}
+    data-pmui-css={shared || undefined}
+    className={[node.kind.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(), ...node.css_classes].join(" ")}
     style={{width: size("width", horizontal, width), height: size("height", vertical, height),
       minWidth: min_width ?? undefined, minHeight: min_height ?? undefined,
       maxWidth: max_width ?? undefined, maxHeight: max_height ?? undefined,
