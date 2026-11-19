@@ -688,6 +688,8 @@ class IntInput(_SpinnerBase, _IntInputBase):
     >>> IntInput(name='Value', value=100, start=0, end=1000, step=10)
     """
 
+    _compilable = True
+
     step = param.Integer(default=1, doc="""
         The step size.""")
 
@@ -712,6 +714,8 @@ class FloatInput(_SpinnerBase, _FloatInputBase):
 
     >>> FloatInput(label='Value', value=100, start=0, end=1000, step=10)
     """
+
+    _compilable = True
 
     step = param.Number(default=0.1, doc="""
         The step size.""")
@@ -827,6 +831,8 @@ class DatePicker(_DatePickerBase):
     ...     name='Date'
     ... )
     """
+
+    _compilable = True
 
     _constants = {'loading_inset': -6, 'range': False, 'time': False}
 
@@ -1596,6 +1602,8 @@ class ColorPicker(MaterialWidget):
 
     >>> pmui.ColorPicker(name='Color Picker', value='#99ef78')
     """
+
+    _compilable = True
 
     alpha = param.Boolean(default=False, doc="Whether to display input controls for a color's alpha (transparency) channel.")
 

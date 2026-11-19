@@ -128,7 +128,7 @@ export function render({model, host}) {
         lastCommittedRef.current = null;
         setValue(null);
         setInternalValue(null);
-        model.value = null;
+        model.set({value: null})
       }
       return;
     }
@@ -150,7 +150,7 @@ export function render({model, host}) {
 
     // Update the model
     setValue(date);
-    model.value = formattedDate;
+    model.set({value: formattedDate})
   }
 
   // Handle calendar open

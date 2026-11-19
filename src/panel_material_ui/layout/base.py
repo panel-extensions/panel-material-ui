@@ -698,6 +698,8 @@ class Container(MaterialListLike):
     >>> Container(some_widget, some_pane, some_python_object, title='Container')
     """
 
+    _compilable = True
+
     disable_gutters = param.Boolean(default=False, doc="""
         If `True`, the container will not have gutters.""")
 
@@ -738,6 +740,8 @@ class Grid(MaterialListLike):
 
     >>> Grid(some_widget, some_pane, some_python_object, title='Grid')
     """
+
+    _compilable = True
 
     container = param.Boolean(default=False, doc="""
         Whether the grid should be a container.""")

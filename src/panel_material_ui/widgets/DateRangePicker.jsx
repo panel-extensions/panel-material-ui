@@ -143,11 +143,11 @@ export function render({model, host}) {
       to.setHours(tTime.h, tTime.m, tTime.s)
       const fromStr = dayjs(from).format("YYYY-MM-DD HH:mm:ss")
       const toStr = dayjs(to).format("YYYY-MM-DD HH:mm:ss")
-      model.value = [fromStr, toStr]
+      model.set({value: [fromStr, toStr]})
     } else {
       const fromStr = dayjs(range.from).format("YYYY-MM-DD")
       const toStr = dayjs(range.to).format("YYYY-MM-DD")
-      model.value = [fromStr, toStr]
+      model.set({value: [fromStr, toStr]})
     }
   }
 

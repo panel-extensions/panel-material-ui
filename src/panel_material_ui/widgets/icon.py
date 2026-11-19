@@ -62,6 +62,8 @@ class ToggleIcon(_ClickableIcon):
     ... )
     """
 
+    _compilable = True
+
     color: ColorType = param.Selector(
         objects=COLORS, default="primary", doc="The color of the icon."
     )  # type: ignore[assignment]

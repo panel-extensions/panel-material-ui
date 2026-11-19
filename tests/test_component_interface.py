@@ -18,6 +18,7 @@ FORBIDDEN = {
     r"\bget_child\(": "render children with model.render_children",
     r"msg:custom|lifecycle:|\.off\(": "subscribe with model.on(event, callback), which returns an unsubscribe",
     r"\besm_constants\b": "read constants from model.constants",
+    r"\bmodel\.\w+ = ": "write with model.set({name: value}) or the setter of model.useState",
     r"\bshadow_el\b|\bmodel_proxy\b|\.data\.setv\b": "private to the Panel view",
 }
 # Keeps what a Panel view passes besides the interface off the DOM.
