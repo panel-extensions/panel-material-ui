@@ -190,11 +190,14 @@ def test_feed_reset_visible_range(page):
 
 # Counts, every few milliseconds, the children in view that were rendered and are
 # blank again while they stay in the feed, as a child that is mounted anew is until
-# its button has rendered.
+# its button has rendered, and the times the feed went back to the top after it
+# had scrolled down.
 _WATCH_BLANKS = """
 (feed) => {
   window.blanks = 0
   window.checked = 0
+  window.top_jumps = []
+  let scrolled = 0
   const seen = new Set()
   const find = (root, selector, found = []) => {
     found.push(...root.querySelectorAll(selector))
@@ -206,6 +209,12 @@ _WATCH_BLANKS = """
     return found
   }
   window.blank_watch = setInterval(() => {
+    if (feed.scrollTop > feed.clientHeight) {
+      scrolled = Math.max(scrolled, feed.scrollTop)
+    } else if (scrolled && feed.scrollTop < 200) {
+      window.top_jumps.push([Math.round(scrolled), Math.round(feed.scrollTop)])
+      scrolled = 0
+    }
     const view = feed.getBoundingClientRect()
     for (const wrapper of find(feed.shadowRoot ?? feed, "[data-feed-child-id]")) {
       const box = wrapper.getBoundingClientRect()
@@ -263,6 +272,7 @@ def test_feed_window_shift_keeps_children_rendered(page):
     assert feed_el.get_by_role("button", name="item 0").count() == 0
     assert page.evaluate("window.checked") > 0
     assert page.evaluate("window.blanks") == 0
+    assert page.evaluate("window.top_jumps") == []
     expect(feed_el.get_by_role("button", name="item 59")).to_be_visible(timeout=20000)
 
     def assert_at_bottom():

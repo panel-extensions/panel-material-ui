@@ -494,20 +494,12 @@ class Feed(Column):
         if not self.visible_range:
             return
 
-        # Need to get all the way to the bottom rather than the center
-        # of the buffer zone.
-        load_buffer = self.load_buffer
-        with param.discard_events(self):
-            self.load_buffer = 1
-
+        # The window synced from this range keeps the full load_buffer above the
+        # latest object, so a frontend that lags behind is not left with one child.
         n = len(self.objects)
-        n_visible = self.visible_range[-1] - self.visible_range[0]
+        n_visible = max(self.visible_range[-1] - self.visible_range[0], 1)
         with edit_readonly(self):
-            # plus one to center on the last object
-            self.visible_range = (min(max(n - n_visible + 1, 0), n), n)
-
-        with param.discard_events(self):
-            self.load_buffer = load_buffer
+            self.visible_range = (max(n - n_visible, 0), n)
 
     def _handle_click(self, event=None):
         self.scroll_to_latest()
