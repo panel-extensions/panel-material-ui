@@ -135,3 +135,41 @@ def test_compiled_page_is_the_compiled_root():
     compiled = Compiled(Page(main=[button], title="Title"))
     assert compiled.tree["root"]["kind"] == "Page"
     assert button not in compiled.fallbacks
+
+
+def test_compiled_patches_in_one_hold_travel_together():
+    first, second = Button(label="A"), Button(label="B")
+    compiled = Compiled(Column(first, second))
+    doc = Document()
+    doc.add_root(compiled.get_root(doc))
+
+    doc.hold()
+    first.label = "A2"
+    second.label = "B2"
+    doc.unhold()
+
+    patch = compiled.patch
+    assert patch["ops"] == [{"id": str(id(second)), "props": {"label": "B2"}}]
+    assert patch["earlier"] == [
+        {"rev": patch["rev"] - 1, "ops": [{"id": str(id(first)), "props": {"label": "A2"}}]}
+    ]
+
+    first.label = "A3"
+    assert "earlier" not in compiled.patch
+
+
+def test_compiled_forwards_messages_to_nodes():
+    button = Button(label="Run")
+    compiled = Compiled(Column(button))
+    sent = []
+    compiled._send_msg = sent.append
+
+    button.focus()
+
+    assert sent == [{"type": "node_msg", "id": str(id(button)), "data": {"action": "focus"}}]
+
+
+def test_compiled_fallback_root_sizes_the_model():
+    compiled = Compiled(pn.Row(pn.Spacer(sizing_mode="stretch_width", height=50)))
+    root = compiled.get_root(Document())
+    assert root.sizing_mode == "stretch_width"

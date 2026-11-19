@@ -140,3 +140,21 @@ def test_compiled_page(page):
     expect(page.locator("input[type='checkbox']")).to_have_count(1)
     page.locator(".MuiButton-root").click()
     expect(page.locator(".status")).to_contain_text("clicks: 1")
+
+
+def test_compiled_focus(page):
+    text = TextInput(label="Name")
+    serve_component(page, Compiled(Column(Button(label="Run"), text)))
+    expect(page.locator(".MuiInputBase-input")).to_have_count(1)
+
+    text.focus()
+
+    expect(page.locator(".MuiInputBase-input")).to_be_focused()
+
+
+def test_compiled_header_inverts_theme(page):
+    pg = Page(header=[Button(label="Action", variant="contained")], main=[Button(label="Main", variant="contained")])
+    serve_component(page, Compiled(pg))
+
+    expect(page.get_by_role("button", name="Action")).to_have_css("background-color", "rgb(255, 255, 255)")
+    expect(page.get_by_role("button", name="Main")).to_have_css("background-color", "rgb(25, 118, 210)")

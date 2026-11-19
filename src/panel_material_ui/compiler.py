@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import re
+import typing as t
 import weakref
+from functools import partial
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -13,10 +15,11 @@ from bokeh.models.css import ImportedStyleSheet, InlineStyleSheet
 from panel.custom import ReactiveESM
 from panel.io.resources import CDN_DIST
 from panel.links import Callback, Link
+from panel.models.reactive_html import DOMEvent
 from panel.util import edit_readonly
 from panel.viewable import Child, Children, Viewable
 
-from .base import MaterialComponent
+from .base import MaterialComponent, _align_rendered_explicit
 from .template.base import Page
 
 
@@ -43,6 +46,10 @@ _LAYOUT = (
     "aspect_ratio", "sizing_mode", "width_policy", "height_policy", "align",
 )
 _MAX_ORPHANS = 32
+_ROOT_SIZING = (
+    "sizing_mode", "width", "height", "min_width", "min_height", "max_width", "max_height",
+    "width_policy", "height_policy",
+)
 
 
 def _child_params(cls: type) -> tuple[tuple[str, bool], ...]:
@@ -132,6 +139,8 @@ class Compiled(MaterialComponent):
     _custom_theme = param.List(default=[])
 
     _esm_base = "Compiled.jsx"
+    # The nodes of the tree are themed, each by its own component.
+    _esm_transforms = []
     _rename = {"source": None}
     _source_transforms = {"fallbacks": None}
 
@@ -165,8 +174,9 @@ class Compiled(MaterialComponent):
         self._active_nodes: set[Viewable] = set()
         self._failed_stylesheets: set[str] = set()
         self._model_docs = {}
-        self._theme_revision = 0
         self._rev = 0
+        self._held: list | None = None
+        self._earlier: list[dict] = []
         self._orphans = 0
         self._stale = False
         self._echo: dict | None = None
@@ -303,8 +313,6 @@ class Compiled(MaterialComponent):
             node["visible"] = False
         if _differs(values["esm_constants"], kind["constants"]):
             node["constants"] = values["esm_constants"]
-        if self._theme_revision:
-            node["theme_revision"] = self._theme_revision
         ctx.dicts[node_id] = node
         children: dict = {}
         for name, multiple in _child_params(cls):
@@ -378,10 +386,27 @@ class Compiled(MaterialComponent):
         if obj is self.source and self._inherit_theme and "dark_theme" in names and isinstance(obj, Page):
             self.dark_theme = obj.dark_theme
 
+    def _held_events(self) -> list | None:
+        for model, _ in self._models.values():
+            doc = model.document
+            if doc is not None and doc.callbacks.hold_value:
+                return doc.callbacks._held_events
+        return None
+
     def _send_patch(self, ops: list[dict], **updates) -> None:
         self._rev += 1
         self.tree["state"]["rev"] = self._rev
-        self.param.update(patch={"rev": self._rev, "ops": ops}, **updates)
+        # While a document holds its events only the last value of the patch
+        # is sent, so it carries the patches made earlier in the same hold.
+        held = self._held_events()
+        if held is None or held is not self._held:
+            self._earlier = []
+        self._held = held
+        patch = {"rev": self._rev, "ops": ops}
+        if self._earlier:
+            patch["earlier"] = list(self._earlier)
+        self._earlier.append({"rev": self._rev, "ops": ops})
+        self.param.update(patch=patch, **updates)
 
     def _patch_props(self, obj: Viewable, msg: dict) -> None:
         node_id = str(id(obj))
@@ -454,18 +479,18 @@ class Compiled(MaterialComponent):
         for event in events:
             if event.name == "stylesheets":
                 self._failed_stylesheets.discard(str(id(event.obj)))
-            elif event.name == "theme_config":
-                self._theme_revision += 1
         tree, ctx = self._compile(self.source)
         self._node_dicts = ctx.dicts
         self._watch_nodes(ctx.nodes, ctx.active)
         updates = {"tree": tree, "fallbacks": ctx.fallbacks}
         root = tree["root"]
-        if self._inherit_sizing:
-            updates["sizing_mode"] = root["layout"].get("sizing_mode") if root["kind"] != "fallback" else None
+        if self._inherit_sizing and root["kind"] != "fallback":
+            updates["sizing_mode"] = root["layout"].get("sizing_mode")
         if self._inherit_theme and isinstance(self.source, Page):
             updates["dark_theme"] = self.source.dark_theme
         self.param.update(**updates)
+        for model, _ in self._models.values():
+            self._sync_fallback_sizing(model)
         if isinstance(self.source, Page):
             for model, _ in self._models.values():
                 if doc := self._model_docs.get(model.id):
@@ -507,13 +532,40 @@ class Compiled(MaterialComponent):
                         self._patch_props(obj, {name: current[name]})
             finally:
                 self._echo = None
-        elif (handler := getattr(obj, f"_handle_{msg.get('type')}", None)) is not None:
-            handler(None)
+        elif msg.get("type") == "event":
+            obj._process_event(DOMEvent(model=None, node=msg["name"], data=msg.get("data")))
+
+    def select(self, selector=None):
+        matches = selector is None or (
+            isinstance(self, selector) if isinstance(selector, type) else selector(self)
+        )
+        return ([self] if matches else []) + self.source.select(selector)
+
+    def _send_node_msg(self, obj: Viewable, data: t.Any) -> None:
+        """
+        Forwards a message a compiled component sends to its frontend.
+        """
+        if obj in self._active_nodes:
+            self._send_msg({"type": "node_msg", "id": str(id(obj)), "data": data})
+
+    def _sync_fallback_sizing(self, model) -> None:
+        # A root that renders through its own model sizes the Compiled
+        # model around it, as it would size itself as the root.
+        root = self.tree["root"]
+        if not self._inherit_sizing or root["kind"] != "fallback":
+            return
+        child = model.data.fallbacks[root["slot"]]
+        model.update(**{name: getattr(child, name) for name in _ROOT_SIZING})
 
     def _get_model(self, doc, root=None, parent=None, comm=None):
         if self._stale:
             self._rebuild()
         model = super()._get_model(doc, root, parent, comm)
+        self._sync_fallback_sizing(model)
+        if comm is None and doc.session_context:
+            for obj in self._active_nodes:
+                if obj._dark_theme_explicit:
+                    doc.add_next_tick_callback(partial(_align_rendered_explicit, obj, doc))
         if isinstance(self.source, Page):
             for existing, _ in self._models.values():
                 if existing_doc := self._model_docs.get(existing.id):

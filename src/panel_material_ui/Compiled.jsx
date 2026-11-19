@@ -1,7 +1,8 @@
+import * as React from "react"
 import pmui from "panel-material-ui"
+import {apply_flex, child_flex, child_handle, make_host} from "./utils"
 
 const stylesheetRequests = new Map()
-const NOOP_SIGNAL = {connect: () => {}, disconnect: () => {}}
 const CompiledContext = React.createContext(null)
 const FallbackContext = React.createContext([])
 
@@ -43,7 +44,6 @@ function create_store(model, initial) {
       stylesheets: sheet_ids.map(id => state.sheets[id]),
       styles: node.styles ?? {},
       visible: node.visible ?? true,
-      theme_revision: node.theme_revision ?? 0,
     }
   }
   const index = (node) => {
@@ -63,6 +63,32 @@ function create_store(model, initial) {
     state.sheets = tree.sheets
     nodes.clear()
     index(tree.root)
+  }
+  const apply_op = (op) => {
+    const node = nodes.get(op.id)
+    if (node == null) { return }
+    if (op.subtree) {
+      unindex(node)
+      if (op.shared_styles) { state.shared_styles = {...state.shared_styles, ...op.shared_styles} }
+      if (op.kinds) { state.kinds = {...state.kinds, ...op.kinds} }
+      if (op.sheets) {
+        state.sheets = [...state.sheets, ...op.sheets]
+        notify("@sheets", null)
+      }
+      index(op.subtree)
+      notify(op.id, null)
+      return
+    }
+    const props = {...node.props}
+    const names = []
+    for (const [name, value] of Object.entries(op.props ?? {})) {
+      const ack = op.acks?.[name]
+      if (ack && ack[0] === model.id && ack[1] < (seqs.get(`${op.id}:${name}`) ?? 0)) { continue }
+      props[name] = value
+      names.push(name)
+    }
+    nodes.set(op.id, {...node, props, visible: op.visible ?? node.visible})
+    notify(op.id, names)
   }
   load(initial)
   return {
@@ -98,37 +124,15 @@ function create_store(model, initial) {
     },
     apply(patch) {
       if (patch?.rev == null || patch.rev <= state.rev) { return }
-      if (patch.rev > state.rev + 1) {
-        // A patch was missed, e.g. sent before this view was listening.
-        model.send_msg({type: "resync"})
-        return
-      }
-      state.rev = patch.rev
-      for (const op of patch.ops) {
-        const node = nodes.get(op.id)
-        if (node == null) { continue }
-        if (op.subtree) {
-          unindex(node)
-          if (op.shared_styles) { state.shared_styles = {...state.shared_styles, ...op.shared_styles} }
-          if (op.kinds) { state.kinds = {...state.kinds, ...op.kinds} }
-          if (op.sheets) {
-            state.sheets = [...state.sheets, ...op.sheets]
-            notify("@sheets", null)
-          }
-          index(op.subtree)
-          notify(op.id, null)
-          continue
+      for (const step of [...(patch.earlier ?? []), patch]) {
+        if (step.rev <= state.rev) { continue }
+        if (step.rev > state.rev + 1) {
+          // A patch was missed, e.g. sent before this view was listening.
+          model.send_msg({type: "resync"})
+          return
         }
-        const props = {...node.props}
-        const names = []
-        for (const [name, value] of Object.entries(op.props ?? {})) {
-          const ack = op.acks?.[name]
-          if (ack && ack[0] === model.id && ack[1] < (seqs.get(`${op.id}:${name}`) ?? 0)) { continue }
-          props[name] = value
-          names.push(name)
-        }
-        nodes.set(op.id, {...node, props, visible: op.visible ?? node.visible})
-        notify(op.id, names)
+        state.rev = step.rev
+        step.ops.forEach(apply_op)
       }
     },
     set_local(id, name, value) {
@@ -214,12 +218,25 @@ function NodeStyles({node, model}) {
   })
 }
 
-function hostLayout(node, direction) {
-  const {width, height, min_width, max_width, min_height, max_height, margin,
-    aspect_ratio, sizing_mode, width_policy, height_policy, align} = node.layout
+// The policies Bokeh derives from the sizing of a model, see
+// LayoutDOMView.box_sizing.
+function box_sizing(layout) {
+  const {width, height, sizing_mode, width_policy, height_policy, align} = layout
   let horizontal = width_policy || "auto"
   let vertical = height_policy || "auto"
   if (sizing_mode === "fixed") { horizontal = vertical = "fixed" } else if (sizing_mode === "stretch_both" || sizing_mode === "scale_both") { horizontal = vertical = "max" } else if (sizing_mode === "stretch_width") { horizontal = "max" } else if (sizing_mode === "stretch_height") { vertical = "max" } else if (sizing_mode === "scale_width") { horizontal = "max"; vertical = "min" } else if (sizing_mode === "scale_height") { horizontal = "min"; vertical = "max" }
+  const [halign, valign] = Array.isArray(align) ? align : [align, align]
+  return {
+    width_policy: horizontal, height_policy: vertical, width, height,
+    halign: halign === "auto" ? undefined : halign, valign: valign === "auto" ? undefined : valign,
+  }
+}
+
+function hostLayout(node, direction, extra) {
+  const {width, height, min_width, max_width, min_height, max_height, margin, aspect_ratio, sizing_mode} = node.layout
+  const sizing = box_sizing(node.layout)
+  const horizontal = sizing.width_policy
+  const vertical = sizing.height_policy
 
   const margins = Array.isArray(margin) ? margin.length === 2 ?
     [margin[0] * 2, margin[1] * 2] : [margin[0] + margin[2], margin[1] + margin[3]] :
@@ -252,133 +269,205 @@ function hostLayout(node, direction) {
     aspectRatio: aspect == null ? undefined : aspect === "auto" && ratio != null ? `${width} / ${height}` : `${aspect}`,
   }
   if (direction) {
-    const along = direction === "row" ? horizontal : vertical
-    const across = direction === "row" ? vertical : horizontal
-    const basis = direction === "row" ? width : height
-    styles.flex = along === "max" ? "1 0 0px" : along === "fit" ? "1 1 auto" :
-      along === "min" ? "0 1 auto" : `0 0 ${basis == null ? "auto" : `${basis}px`}`
-    const alignment = Array.isArray(align) ? align[direction === "row" ? 1 : 0] : align
-    styles.alignSelf = across === "max" ? "stretch" : alignment === "auto" ? undefined : alignment
-    if (across === "max") { styles[direction === "row" ? "height" : "width"] = "auto" }
+    const {flex, align_self, reset} = child_flex(sizing, direction)
+    styles.flex = flex
+    styles.alignSelf = align_self
+    if (reset) { styles[reset] = "auto" }
   }
-  return styles
+  return {...styles, ...extra}
 }
 
-function MaterialNode({node, parentView}) {
-  const {store, model, view} = React.useContext(CompiledContext)
+// Mirrors what Panel serializes of a DOM event: the plain values on the
+// event and the state of its target.
+function serialize_event(event) {
+  if (event == null || typeof event !== "object") {
+    return {}
+  }
+  const plain = (source) => {
+    const data = {}
+    for (const name in source) {
+      const value = source[name]
+      if (value === null || ["string", "number", "boolean"].includes(typeof value)) { data[name] = value }
+    }
+    return data
+  }
+  const element = (el) => el instanceof Element ? {
+    tagName: el.tagName, id: el.id, value: el.value ?? null, checked: el.checked ?? null,
+    boundingClientRect: plain(el.getBoundingClientRect()),
+  } : null
+  const data = plain(event.nativeEvent ?? event)
+  data.target = element(event.target)
+  data.currentTarget = element(event.currentTarget)
+  return data
+}
+
+/**
+ * The model and host of a compiled node, the counterparts of what make_host
+ * builds around a Panel view. See the component interface in utils.js.
+ */
+function make_node(context, id, current) {
+  const {store, model, view, host: compiled_host} = context
+  const node = () => store.get(id) ?? current.current.node
+  const handlers = {msg: new Set(), remove: new Set()}
+  const setters = new Map()
+  const send = (name, value) => {
+    const seq = store.set_local(id, name, value)
+    model.send_msg({type: "update", id, name, value, root: model.id, seq})
+  }
+  const child_list = (name) => {
+    const children = node().children?.[name]
+    return children == null ? [] : Array.isArray(children) ? children : [children]
+  }
+  const fallback_model = (child) => model.get("fallbacks")?.[child.slot]
+  const public_id = (child) => child.kind === "fallback" ? fallback_model(child)?.id ?? child.id : child.id
+  const element = (child, options) => (
+    <Node key={child.id} id={public_id(child)} nid={child.id} parentHost={host}
+      direction={options.direction} extra={options.style}/>
+  )
+  const api = {
+    get id() { return id },
+    get kind() { return node().kind },
+    get constants() { return node().constants ?? {} },
+    get tags() { return [] },
+    useState: (path) => {
+      const [name, ...rest] = path.split(".")
+      if (!(name in node().props)) {
+        throw ReferenceError(`Could not resolve ${path} on ${node().kind}`)
+      }
+      const value = React.useSyncExternalStore(
+        store.subscriber(id), () => rest.reduce((value, key) => value?.[key], store.get(id)?.props[name])
+      )
+      if (!setters.has(path)) {
+        setters.set(path, (next) => {
+          const previous = rest.reduce((value, key) => value?.[key], store.get(id)?.props[name])
+          const updated = typeof next === "function" ? next(previous) : next
+          if (rest.length) {
+            throw Error(`Cannot set ${path} on a compiled ${node().kind}`)
+          }
+          send(name, updated)
+        })
+      }
+      return [value, setters.get(path)]
+    },
+    get: (name) => name === "_custom_theme" && node().kind === "Page" ? model.get("_custom_theme") : node().props[name],
+    set: (values, options = {}) => {
+      for (const [name, value] of Object.entries(values)) {
+        if (options.sync === false) { store.set_local(id, name, value) } else { send(name, value) }
+      }
+    },
+    children: (name) => child_list(name).map((child) => {
+      if (child.kind === "fallback") {
+        const bk_model = fallback_model(child)
+        return bk_model ? child_handle(bk_model) : {id: child.id, kind: "fallback", layout: {}, get: () => undefined}
+      }
+      return {
+        id: child.id,
+        kind: child.kind,
+        get layout() { return store.get(child.id)?.layout ?? child.layout },
+        get: (prop) => store.get(child.id)?.props[prop],
+      }
+    }),
+    render_children: (name, options = {}) => {
+      const children = node().children?.[name]
+      if (Array.isArray(children)) {
+        return children.map(child => element(child, options))
+      }
+      return children ? element(children, options) : null
+    },
+    send_msg: (data) => model.send_msg({type: "msg", id, data}),
+    send_event: (name, event) => model.send_msg({type: "event", id, name, data: serialize_event(event)}),
+    on: (event, callback) => {
+      const stops = (Array.isArray(event) ? event : [event]).map((name) => {
+        if (name in handlers) {
+          handlers[name].add(callback)
+          return () => handlers[name].delete(callback)
+        } else if (name === "change") {
+          return store.listen(id, () => callback())
+        } else if (name.startsWith("change:")) {
+          const prop = name.slice(7)
+          return store.listen(id, (changed) => (changed == null || changed.includes(prop)) && callback())
+        }
+        // A compiled node is laid out by CSS alone, so "layout" never fires.
+        return () => {}
+      })
+      return () => stops.forEach(stop => stop())
+    },
+  }
+  const node_model = new Proxy(api, {
+    get: (target, name) => name in target ? target[name] : node().props[name],
+    has: (target, name) => name in target || name in node().props,
+  })
+  const is_top = () => current.current.parentHost == null
+  const own_el = () => view.shadow_el.querySelector(`#pmui-${id}`)
+  const host = {
+    model: node_model,
+    get parent() { return current.current.parentHost ?? compiled_host },
+    get root() {
+      let top = host
+      while (top.parent != null && top.parent !== compiled_host) { top = top.parent }
+      return top
+    },
+    // The root of the tree stands in for the Compiled view that mounts it.
+    get is_root() { return is_top() && compiled_host.is_root },
+    get is_document_root() { return is_top() && compiled_host.is_document_root },
+    get dev() { return compiled_host.dev },
+    get host_el() { return is_top() ? view.el : own_el() },
+    get content_el() { return is_top() ? view.container : own_el() },
+    get overlay_root() { return compiled_host.overlay_root },
+    get style_root() { return view.shadow_el },
+    shares_style_root: true,
+    get emotion_cache() { return compiled_host.emotion_cache },
+    get layout() { return node().layout },
+    get document() { return compiled_host.document },
+    invalidate_layout: () => view.invalidate_layout(),
+    has_child: (child) => child_nodes(node()).some(({id: child_id}) => child_id === child.model.id),
+  }
+  return {host, handlers}
+}
+
+function MaterialNode({node, parentHost}) {
+  const context = React.useContext(CompiledContext)
+  const {model} = context
   const id = node.id
-  const current = React.useRef({node, parentView})
-  current.current = {node, parentView}
-  const listeners = React.useRef(new Set())
-  const setters = React.useRef(new Map())
+  const current = React.useRef({node, parentHost})
+  current.current = {node, parentHost}
+  const [{host, handlers}] = React.useState(() => make_node(context, id, current))
   React.useEffect(() => {
     const receive = (msg) => {
       if (msg.type === "node_msg" && msg.id === id) {
-        listeners.current.forEach(callback => callback(msg.data))
+        handlers.msg.forEach(callback => callback(msg.data))
       }
     }
-    model.on("msg:custom", receive)
-    return () => model.off("msg:custom", receive)
+    const stop = model.on("msg", receive)
+    return () => {
+      stop()
+      handlers.remove.forEach(callback => callback())
+    }
   }, [model, id])
-
-  const [componentModel] = React.useState(() => {
-    const watchers = new Map()
-    return new Proxy({
-      useState: (name) => {
-        const value = React.useSyncExternalStore(store.subscriber(id), () => store.get(id)?.props[name])
-        if (!setters.current.has(name)) {
-          setters.current.set(name, (next) => {
-            const previous = store.get(id)?.props[name]
-            const updated = typeof next === "function" ? next(previous) : next
-            const seq = store.set_local(id, name, updated)
-            model.send_msg({type: "update", id, name, value: updated, root: model.id, seq})
-          })
-        }
-        return [value, setters.current.get(name)]
-      },
-      get_child: (name) => {
-        const {node} = current.current
-        const children = node.children[name]
-        if (Array.isArray(children)) {
-          const direction = node.kind === "Row" || node.kind === "Page" && name === "header" ? "row" :
-            node.kind === "Column" || node.kind === "Page" ? "column" : null
-          return children.map(child => <Node key={child.id} id={child.id} parentView={childView} direction={direction}/>)
-        }
-        return children ? <Node key={children.id} id={children.id} parentView={childView}/> : null
-      },
-      send_event: (name) => model.send_msg({type: name, id}),
-      send_msg: (data) => model.send_msg({type: "msg", id, data}),
-      on: (name, callback) => {
-        if (name === "msg:custom") {
-          listeners.current.add(callback)
-        } else {
-          const names = Array.isArray(name) ? name : [name]
-          watchers.set(callback, store.listen(id, (changed) => {
-            if (changed == null || changed.some(prop => names.includes(prop))) { callback() }
-          }))
-        }
-      },
-      off: (name, callback) => {
-        if (name === "msg:custom") {
-          listeners.current.delete(callback)
-        } else {
-          watchers.get(callback)?.()
-          watchers.delete(callback)
-        }
-      },
-    }, {
-      get: (target, name) => {
-        if (name in target) { return target[name] }
-        const node = store.get(id) ?? current.current.node
-        if (name === "esm_constants") { return node.constants }
-        return name in node.props ? node.props[name] : node.children[name]
-      },
-    })
-  })
-  const [childView] = React.useState(() => ({
-    el: view.container,
-    container: view.container,
-    root: view.root,
-    shadow_el: view.shadow_el,
-    model_proxy: view.model_proxy,
-    is_root: false,
-    get parent() { return current.current.parentView ?? view },
-    get compiled_root() { return current.current.parentView == null ? view : null },
-    get compiled_host_id() { return id },
-    get theme_revision() { return current.current.node.theme_revision },
-    get compiled_host() { return view.shadow_el.querySelector(`#pmui-${id}`) },
-    get_child_view: (child) => child?.kind === "fallback" ?
-      view.get_child_view(model.fallbacks[child.slot]) : null,
-    model: {
-      get id() { return id },
-      get class_name() { return current.current.node.kind },
-      get data() {
-        const node = store.get(id) ?? current.current.node
-        // Components identify their children by model, e.g. to tell
-        // whether they are rendered in the header of the Page.
-        const resolve = (child) => child && (store.models.get(child.id) ?? child)
-        const children = Object.fromEntries(Object.entries(node.children).map(
-          ([name, value]) => [name, Array.isArray(value) ? value.map(resolve) : resolve(value)]
-        ))
-        return {...children, ...node.props,
-          _custom_theme: node.kind === "Page" ? model._custom_theme : node.props._custom_theme,
-          properties: {}, change: NOOP_SIGNAL}
-      },
-      get document() { return model.document },
-    },
-  }))
-  store.models.set(id, childView.model)
-  React.useEffect(() => () => {
-    if (store.models.get(id) === childView.model) { store.models.delete(id) }
-  }, [])
   const Component = pmui[node.kind].render
-  return <Component key={id} model={componentModel} view={childView} el={view.container}/>
+  return <Component key={id} model={host.model} host={host}/>
 }
 
-function Node({id, parentView, direction}) {
-  const {store, model} = React.useContext(CompiledContext)
+// A child that renders through its own Bokeh view is sized by Bokeh.
+function Fallback({node, parentHost, direction, extra}) {
+  const {model, view} = React.useContext(CompiledContext)
   const fallbacks = React.useContext(FallbackContext)
-  const node = useNode(store, id)
+  const bk_model = model.get("fallbacks")?.[node.slot]
+  if (bk_model != null) {
+    view.pmui_placements.set(bk_model.id, {parent: parentHost ?? null, root: parentHost == null})
+  }
+  React.useEffect(() => {
+    if (bk_model == null || !(direction || extra)) { return }
+    const size = () => apply_flex(view.get_child_view(bk_model), direction, extra)
+    size()
+    return model.on("layout", size)
+  }, [bk_model, direction, extra])
+  return fallbacks[node.slot] ?? null
+}
+
+function Node({nid, parentHost, direction, extra}) {
+  const {store, model} = React.useContext(CompiledContext)
+  const node = useNode(store, nid)
   const host = React.useRef(null)
   const styles = node?.styles
   const visible = node?.visible
@@ -400,9 +489,9 @@ function Node({id, parentView, direction}) {
     return null
   }
   if (node.kind === "fallback") {
-    return fallbacks[node.slot] ?? null
+    return <Fallback node={node} parentHost={parentHost} direction={direction} extra={extra}/>
   }
-  const layout = hostLayout(node, direction)
+  const layout = hostLayout(node, direction, extra)
   const declarations = Object.entries(layout).filter(([, value]) => value !== undefined)
     .map(([name, value]) => `${name.replace(/[A-Z]/g, char => `-${char.toLowerCase()}`)}: ${value};`).join(" ")
   const {width, height, min_width, min_height, max_width, max_height, sizing_mode, margin} = node.layout
@@ -423,27 +512,34 @@ function Node({id, parentView, direction}) {
       display: node.visible ? undefined : "none"}}
   >
     {node.stylesheets.some(sheet => sheet.url) && <NodeStyles node={node} model={model}/>}
-    <MaterialNode key={node.id} node={node} parentView={parentView}/>
+    <MaterialNode key={node.id} node={node} parentHost={parentHost}/>
   </div>
 }
 
-export function render({model, view}) {
+export function render(props) {
+  // Compiled is the host of its nodes, so it works on the Panel view itself.
+  const view = props.view
+  const host = make_host(view, props.model)
+  const model = host.model
   const [tree] = model.useState("tree")
-  const fallbacks = model.get_child("fallbacks")
+  const fallbacks = model.render_children("fallbacks")
   const [store] = React.useState(() => create_store(model, tree))
-  const [context] = React.useState(() => ({store, model, view}))
+  const [context] = React.useState(() => {
+    view.pmui_placements = new Map()
+    view.pmui_placement = (id) => view.pmui_placements.get(id)
+    return {store, model, view, host}
+  })
   React.useLayoutEffect(() => store.reset(tree), [tree])
   React.useEffect(() => {
-    const apply = () => store.apply(model.patch)
-    model.on("patch", apply)
+    const apply = () => store.apply(model.get("patch"))
     apply()
-    return () => model.off("patch", apply)
+    return model.on("change:patch", apply)
   }, [])
   return (
     <CompiledContext.Provider value={context}>
       <FallbackContext.Provider value={fallbacks}>
         <SharedStyles store={store}/>
-        <Node id={tree.root.id}/>
+        <Node nid={tree.root.id}/>
       </FallbackContext.Provider>
     </CompiledContext.Provider>
   )
