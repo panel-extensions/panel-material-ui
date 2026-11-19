@@ -1,4 +1,5 @@
 import * as React from "react"
+import {flushSync} from "react-dom"
 import pmui from "panel-material-ui"
 import {apply_flex, child_flex, child_handle, make_host, theme_document_early} from "./utils"
 
@@ -477,18 +478,61 @@ function MaterialNode({node}) {
   return <Component key={id} model={host.model} host={host}/>
 }
 
+// Panel renders the view of a child when the child mounts. A tree mounts in
+// one commit, so its children would all render before the browser paints
+// anything. They mount after the first paint instead, a few at a time.
+const MOUNT_BUDGET = 12
+const mounts = []
+let mounting = false
+
+function run_mounts() {
+  const start = performance.now()
+  while (mounts.length) {
+    const entry = mounts.shift()
+    if (entry.mount) {
+      flushSync(entry.mount)
+    }
+    if (performance.now() - start > MOUNT_BUDGET) {
+      setTimeout(run_mounts)
+      return
+    }
+  }
+  mounting = false
+}
+
+function schedule_mount(mount) {
+  const entry = {mount}
+  mounts.push(entry)
+  if (!mounting) {
+    mounting = true
+    // A hidden page does not animate, so a timer backs the frame up.
+    let started = false
+    const start = () => {
+      if (!started) {
+        started = true
+        run_mounts()
+      }
+    }
+    requestAnimationFrame(() => setTimeout(start))
+    setTimeout(start, 100)
+  }
+  return () => { entry.mount = null }
+}
+
 // A child that renders through its own Bokeh view is sized by Bokeh.
 function Fallback({node, direction, extra}) {
   const {model, view} = React.useContext(CompiledContext)
   const fallbacks = React.useContext(FallbackContext)
   const bk_model = model.get("fallbacks")?.[node.slot]
+  const [mounted, setMounted] = React.useState(false)
+  React.useEffect(() => schedule_mount(() => setMounted(true)), [])
   React.useEffect(() => {
     if (bk_model == null || !(direction || extra)) { return }
     const size = () => apply_flex(view.get_child_view(bk_model), direction, extra)
     size()
     return model.on("layout", size)
-  }, [bk_model, direction, extra])
-  return fallbacks[node.slot] ?? null
+  }, [bk_model, direction, extra, mounted])
+  return mounted ? fallbacks[node.slot] ?? null : null
 }
 
 function Node({nid, direction, extra}) {
