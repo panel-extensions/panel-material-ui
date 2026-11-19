@@ -176,6 +176,11 @@ if not PANEL_DESIGN_HOOKS:
         pass
 
 
+# Whether a served component is compiled into a single tree, see Compiled.
+# Set PMUI_COMPILE=0, or this to False, to render every component on its own.
+COMPILE = os.environ.get("PMUI_COMPILE", "1") != "0"
+
+
 class ESMTransform:
     """
     ESMTransform allows writing transforms for ReactComponent
@@ -802,6 +807,12 @@ class MaterialComponent(ReactComponent):
         location: bool | Location | None = True
     ) -> Document:
         from .template import ThemeToggle
+        if COMPILE and not getattr(self, "_compiles", False):
+            # A served component renders as one compiled tree, in which the
+            # components that cannot be compiled render as they do alone.
+            from .compiler import Compiled
+            self._compiled = Compiled(self)
+            return self._compiled.server_doc(doc, title, location)
         doc = super().server_doc(doc, title, location)  # type: ignore[arg-type]
         doc.title = title or 'Panel Application'
         doc.template = BASE_TEMPLATE

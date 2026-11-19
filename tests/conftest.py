@@ -72,7 +72,9 @@ def pytest_addoption(parser):
     parser.addoption('--repeat', action='store',
         help='Number of times to repeat each test')
     parser.addoption('--compiled', action='store_true', default=False,
-        help='Wraps every component a UI test serves in Compiled')
+        help='Wraps every component a UI test serves in Compiled, including the '
+             'Panel layouts that are not compiled when served. Set PMUI_COMPILE=0 '
+             'to run the suite without compiling anything.')
 
 
 def pytest_configure(config):

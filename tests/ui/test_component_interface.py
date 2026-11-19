@@ -3,6 +3,8 @@ Conformance tests for the component interface (see utils.js). Each test runs
 a probe component on both hosts that implement the interface, the Panel view
 and a Compiled tree, and expects the same observable behaviour.
 """
+import sys
+
 import pytest
 
 pytest.importorskip('playwright')
@@ -19,7 +21,10 @@ PROBE = "window.pmui_probes[{key!r}]"
 
 
 @pytest.fixture(params=["panel", "compiled"])
-def serve(request, page):
+def serve(request, page, monkeypatch):
+    # The Panel host is what renders a component that is served uncompiled.
+    monkeypatch.setattr(sys.modules["panel_material_ui.base"], "COMPILE", False)
+
     def serve(component):
         served = Compiled(component) if request.param == "compiled" else component
         serve_component(page, served)

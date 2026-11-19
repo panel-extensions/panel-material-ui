@@ -145,6 +145,8 @@ class Compiled(MaterialComponent):
     fallbacks = Children()
     _custom_theme = param.List(default=[])
 
+    _compiles = True
+
     _esm_base = "Compiled.jsx"
     # The nodes of the tree are themed, each by its own component.
     _esm_transforms = []
