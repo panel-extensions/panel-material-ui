@@ -138,11 +138,11 @@ export function render_theme_css(theme) {
 }
 
 function find_on_parent(view, prop) {
-  let current = view
-  const elevations = []
+  let current = make_host(view)
   while (current != null) {
-    if (current.model?.data?.[prop] != null) {
-      return current.model.data[prop]
+    const value = current.model.get(prop)
+    if (value != null) {
+      return value
     }
     current = current.parent
   }
@@ -1367,6 +1367,36 @@ export const apply_global_css = (host, theme) => {
 // With scoped=true the styles go into the view's shadow root, so a component
 // that does not own the document (e.g. a Page in a notebook output) cannot
 // restyle the rest of the page.
+// Themes the Bokeh models of a document, e.g. its plots.
+export function theme_document(doc, theme, custom_theme=[], standalone=false) {
+  const dark = theme.palette.mode === "dark"
+  const font_family = Array.isArray(theme.typography.fontFamily) ? (
+    theme.typography.fontFamily.join(", ")
+  ) : (
+    theme.typography.fontFamily
+  )
+  doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family, custom_theme, standalone))
+}
+
+/**
+ * Themes a document before any of its views render, for a host whose
+ * children would otherwise draw once unthemed and again once the root
+ * component has mounted and applied its theme.
+ */
+export function theme_document_early(doc, theme_config, dark_theme, custom_theme=[]) {
+  if (doc == null) {
+    return
+  }
+  const config = theme_config?.dark && theme_config?.light ? theme_config[dark_theme ? "dark" : "light"] : theme_config
+  let theme
+  try {
+    theme = createTheme(render_theme_config({host: {overlay_root: null}}, config ?? {}, dark_theme))
+  } catch (error) {
+    return
+  }
+  theme_document(doc, theme, custom_theme)
+}
+
 export const setup_global_styles = (host, theme, custom_theme=[], scoped=false, standalone=false) => {
   const doc = host.document
   const target = scoped ? host.style_root : document.head
@@ -1431,13 +1461,7 @@ export const setup_global_styles = (host, theme, custom_theme=[], scoped=false, 
 
   React.useEffect(() => {
     theme_ref.current = theme
-    const dark = theme.palette.mode === "dark"
-    const font_family = Array.isArray(theme.typography.fontFamily) ? (
-      theme.typography.fontFamily.join(", ")
-    ) : (
-      theme.typography.fontFamily
-    )
-    doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family, custom_theme, standalone))
+    theme_document(doc, theme, custom_theme, standalone)
     global_style_el.textContent = render_theme_css(theme)
     page_style_el.textContent = render_page_css(theme)
   }, [theme, scoped])

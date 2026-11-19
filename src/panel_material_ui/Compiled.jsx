@@ -1,6 +1,6 @@
 import * as React from "react"
 import pmui from "panel-material-ui"
-import {apply_flex, child_flex, child_handle, make_host} from "./utils"
+import {apply_flex, child_flex, child_handle, make_host, theme_document_early} from "./utils"
 
 const stylesheetRequests = new Map()
 const CompiledContext = React.createContext(null)
@@ -27,7 +27,11 @@ function create_store(model, initial) {
   const listeners = new Map()
   const subscribers = new Map()
   const seqs = new Map()
-  const models = new Map()
+  // The parent of each node, and of each child that renders through its
+  // own view, which is known by the slot it renders into.
+  const parents = new Map()
+  const slots = new Map()
+  const hosts = new Map()
   const state = {tree: null, rev: -1, shared_styles: {}, kinds: {}, sheets: [], layouts: new Map(), dirty: false}
   // Fills in what the tree only sends once: the defaults of the kind of
   // component and the stylesheets a node refers to by index.
@@ -46,12 +50,16 @@ function create_store(model, initial) {
       visible: node.visible ?? true,
     }
   }
-  const index = (node) => {
+  const index = (node, parent = null) => {
     nodes.set(node.id, expand(node))
-    child_nodes(node).forEach(index)
+    parents.set(node.id, parent)
+    if (node.kind === "fallback") { slots.set(node.slot, parent) }
+    child_nodes(node).forEach(child => index(child, node.id))
   }
   const unindex = (node) => {
     nodes.delete(node.id)
+    parents.delete(node.id)
+    hosts.delete(node.id)
     child_nodes(node).forEach(unindex)
   }
   const notify = (id, names) => listeners.get(id)?.forEach(callback => callback(names))
@@ -62,12 +70,15 @@ function create_store(model, initial) {
     state.kinds = tree.kinds
     state.sheets = tree.sheets
     nodes.clear()
+    parents.clear()
+    slots.clear()
     index(tree.root)
   }
   const apply_op = (op) => {
     const node = nodes.get(op.id)
     if (node == null) { return }
     if (op.subtree) {
+      const parent = parents.get(op.id) ?? null
       unindex(node)
       if (op.shared_styles) { state.shared_styles = {...state.shared_styles, ...op.shared_styles} }
       if (op.kinds) { state.kinds = {...state.kinds, ...op.kinds} }
@@ -75,7 +86,7 @@ function create_store(model, initial) {
         state.sheets = [...state.sheets, ...op.sheets]
         notify("@sheets", null)
       }
-      index(op.subtree)
+      index(op.subtree, parent)
       notify(op.id, null)
       return
     }
@@ -93,8 +104,10 @@ function create_store(model, initial) {
   load(initial)
   return {
     state,
-    models,
+    hosts,
     get: (id) => nodes.get(id),
+    parent: (id) => parents.get(id) ?? null,
+    slot_parent: (slot) => slots.get(slot),
     listen(id, callback) {
       if (!listeners.has(id)) { listeners.set(id, new Set()) }
       listeners.get(id).add(callback)
@@ -305,9 +318,14 @@ function serialize_event(event) {
  * The model and host of a compiled node, the counterparts of what make_host
  * builds around a Panel view. See the component interface in utils.js.
  */
-function make_node(context, id, current) {
+function make_node(context, id) {
   const {store, model, view, host: compiled_host} = context
-  const node = () => store.get(id) ?? current.current.node
+  let last = store.get(id)
+  const node = () => (last = store.get(id) ?? last)
+  const parent = () => {
+    const parent_id = store.parent(id)
+    return parent_id == null ? null : node_host(context, parent_id).host
+  }
   const handlers = {msg: new Set(), remove: new Set()}
   const setters = new Map()
   const send = (name, value) => {
@@ -321,7 +339,7 @@ function make_node(context, id, current) {
   const fallback_model = (child) => model.get("fallbacks")?.[child.slot]
   const public_id = (child) => child.kind === "fallback" ? fallback_model(child)?.id ?? child.id : child.id
   const element = (child, options) => (
-    <Node key={child.id} id={public_id(child)} nid={child.id} parentHost={host}
+    <Node key={child.id} id={public_id(child)} nid={child.id}
       direction={options.direction} extra={options.style}/>
   )
   const api = {
@@ -397,11 +415,11 @@ function make_node(context, id, current) {
     get: (target, name) => name in target ? target[name] : node().props[name],
     has: (target, name) => name in target || name in node().props,
   })
-  const is_top = () => current.current.parentHost == null
+  const is_top = () => store.parent(id) == null
   const own_el = () => view.shadow_el.querySelector(`#pmui-${id}`)
   const host = {
     model: node_model,
-    get parent() { return current.current.parentHost ?? compiled_host },
+    get parent() { return parent() ?? compiled_host },
     get root() {
       let top = host
       while (top.parent != null && top.parent !== compiled_host) { top = top.parent }
@@ -425,13 +443,21 @@ function make_node(context, id, current) {
   return {host, handlers}
 }
 
-function MaterialNode({node, parentHost}) {
+// Hosts are created on demand, so one exists before its component renders,
+// e.g. for a child that looks up its ancestors while it is being built.
+function node_host(context, id) {
+  const hosts = context.store.hosts
+  if (!hosts.has(id)) {
+    hosts.set(id, make_node(context, id))
+  }
+  return hosts.get(id)
+}
+
+function MaterialNode({node}) {
   const context = React.useContext(CompiledContext)
   const {model} = context
   const id = node.id
-  const current = React.useRef({node, parentHost})
-  current.current = {node, parentHost}
-  const [{host, handlers}] = React.useState(() => make_node(context, id, current))
+  const {host, handlers} = node_host(context, id)
   React.useEffect(() => {
     const receive = (msg) => {
       if (msg.type === "node_msg" && msg.id === id) {
@@ -449,13 +475,10 @@ function MaterialNode({node, parentHost}) {
 }
 
 // A child that renders through its own Bokeh view is sized by Bokeh.
-function Fallback({node, parentHost, direction, extra}) {
+function Fallback({node, direction, extra}) {
   const {model, view} = React.useContext(CompiledContext)
   const fallbacks = React.useContext(FallbackContext)
   const bk_model = model.get("fallbacks")?.[node.slot]
-  if (bk_model != null) {
-    view.pmui_placements.set(bk_model.id, {parent: parentHost ?? null, root: parentHost == null})
-  }
   React.useEffect(() => {
     if (bk_model == null || !(direction || extra)) { return }
     const size = () => apply_flex(view.get_child_view(bk_model), direction, extra)
@@ -465,7 +488,7 @@ function Fallback({node, parentHost, direction, extra}) {
   return fallbacks[node.slot] ?? null
 }
 
-function Node({nid, parentHost, direction, extra}) {
+function Node({nid, direction, extra}) {
   const {store, model} = React.useContext(CompiledContext)
   const node = useNode(store, nid)
   const host = React.useRef(null)
@@ -489,7 +512,7 @@ function Node({nid, parentHost, direction, extra}) {
     return null
   }
   if (node.kind === "fallback") {
-    return <Fallback node={node} parentHost={parentHost} direction={direction} extra={extra}/>
+    return <Fallback node={node} direction={direction} extra={extra}/>
   }
   const layout = hostLayout(node, direction, extra)
   const declarations = Object.entries(layout).filter(([, value]) => value !== undefined)
@@ -512,8 +535,20 @@ function Node({nid, parentHost, direction, extra}) {
       display: node.visible ? undefined : "none"}}
   >
     {node.stylesheets.some(sheet => sheet.url) && <NodeStyles node={node} model={model}/>}
-    <MaterialNode key={node.id} node={node} parentHost={parentHost}/>
+    <MaterialNode key={node.id} node={node}/>
   </div>
+}
+
+// Runs when the model is created, before the views of the children that
+// render through Bokeh are built.
+export function initialize({model}) {
+  const tree = model.tree
+  const root = tree?.root
+  if (root?.kind !== "Page") {
+    return
+  }
+  const props = {...tree.kinds.Page.props, ...root.props}
+  theme_document_early(model.document, props.theme_config, props.dark_theme, model._custom_theme)
 }
 
 export function render(props) {
@@ -525,9 +560,18 @@ export function render(props) {
   const fallbacks = model.render_children("fallbacks")
   const [store] = React.useState(() => create_store(model, tree))
   const [context] = React.useState(() => {
-    view.pmui_placements = new Map()
-    view.pmui_placement = (id) => view.pmui_placements.get(id)
-    return {store, model, view, host}
+    const context = {store, model, view, host}
+    // Tells the host of a child that renders through its own view where
+    // the tree places it, see make_host.
+    view.pmui_placement = (id) => {
+      const slot = (model.get("fallbacks") ?? []).findIndex(fallback => fallback.id === id)
+      const parent_id = store.slot_parent(slot)
+      if (parent_id === undefined) {
+        return undefined
+      }
+      return {parent: parent_id == null ? null : node_host(context, parent_id).host, root: parent_id == null}
+    }
+    return context
   })
   React.useLayoutEffect(() => store.reset(tree), [tree])
   React.useEffect(() => {

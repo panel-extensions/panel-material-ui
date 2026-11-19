@@ -242,7 +242,7 @@ class Compiled(MaterialComponent):
             node_id not in self._failed_stylesheets and
             (not isinstance(obj, Page) or obj is self._root) and
             not (
-                obj.loading or (obj.theme_config and not isinstance(obj, Page)) or
+                obj.loading or
                 getattr(obj, "attached", None) or getattr(obj, "description", None) or
                 Callback.registry.get(obj) or any(
                     isinstance(link, Link) and link.target is obj
@@ -374,7 +374,9 @@ class Compiled(MaterialComponent):
         if names & children:
             return self._patch_subtree(obj)
         try:
-            msg = obj._process_param_change({event.name: event.new for event in events})
+            # The current values, since a watcher that ran before this one may
+            # already have changed them again.
+            msg = obj._process_param_change({event.name: getattr(obj, event.name) for event in events})
         except Exception:
             return self._rebuild(*events)
         linked = obj._linked_properties
