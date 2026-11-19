@@ -101,11 +101,42 @@ def test_compiled_subtree_change_appends_fallbacks(tree):
 
 
 def test_compiled_layout_change_recompiles_the_tree(tree):
-    compiled, _, _, _, button = tree
+    compiled, layout, *_ = tree
     before = compiled.tree
-    button.width = 300
+    layout.width = 300
     assert compiled.tree is not before
     assert compiled.tree["state"]["rev"] > before["state"]["rev"]
+
+
+def test_compiled_layout_change_recompiles_the_closest_unaffected_ancestor(tree):
+    compiled, _, inner, _, button = tree
+    before = compiled.tree
+    button.width = 300
+    assert compiled.tree is before
+    (op,) = compiled.patch["ops"]
+    assert op["id"] == str(id(inner))
+    assert op["subtree"]["children"]["objects"][-1]["layout"]["width"] == 300
+
+
+def test_compiled_layout_change_below_a_page_recompiles_the_node():
+    column = Column(Button(label="Run"))
+    compiled = Compiled(Page(main=[column]))
+    before = compiled.tree
+    column.sizing_mode = "stretch_width"
+    assert compiled.tree is before
+    (op,) = compiled.patch["ops"]
+    assert op["id"] == str(id(column))
+    assert op["subtree"]["layout"]["sizing_mode"] == "stretch_width"
+
+
+def test_compiled_patches_classes_and_styles(tree):
+    compiled, _, _, _, button = tree
+    button.param.update(css_classes=["wide"], styles={"color": "red"})
+    (op,) = compiled.patch["ops"]
+    assert op["id"] == str(id(button))
+    assert "wide" in op["css_classes"]
+    assert op["styles"] == {"color": "red"}
+    assert "subtree" not in op
 
 
 def test_compiled_structural_change_falls_back(tree):

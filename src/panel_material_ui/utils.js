@@ -1541,19 +1541,26 @@ export const install_theme_hooks = (props) => {
     () => cached_theme(props, theme_config, dark_theme), [theme_key]
   )
 
-  // After the commit, since a host may render the element's own classes.
+  // After every commit, since a host may render the element's own classes,
+  // but only touching the element when a class is missing.
+  const applied_classes = React.useRef([])
   React.useLayoutEffect(() => {
     const classes = host.content_el?.classList
     if (classes == null) {
       return
     }
-    classes.remove(inverseClass)
-    classes.add(themeClass)
-    if (theme.pmui_scope) {
-      classes.add(theme.pmui_scope)
-      return () => classes.remove(theme.pmui_scope)
+    for (const name of applied_classes.current) {
+      if (name !== themeClass && name !== theme.pmui_scope) { classes.remove(name) }
+    }
+    applied_classes.current = [themeClass, theme.pmui_scope].filter(Boolean)
+    if (classes.contains(inverseClass)) { classes.remove(inverseClass) }
+    for (const name of applied_classes.current) {
+      if (!classes.contains(name)) { classes.add(name) }
     }
   })
+  React.useLayoutEffect(() => () => {
+    if (applied_classes.current.length > 1) { host.content_el?.classList.remove(applied_classes.current[1]) }
+  }, [])
 
   // MUI only generates the variables of the outermost theme of a React
   // tree, so the variables of a scoped theme are added once per style root.

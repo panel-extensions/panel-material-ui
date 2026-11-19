@@ -88,7 +88,16 @@ function create_store(model, initial) {
         notify("@sheets", null)
       }
       index(op.subtree, parent)
-      notify(op.id, null)
+      const renotify = (child) => {
+        notify(child.id, null)
+        child_nodes(child).forEach(renotify)
+      }
+      renotify(op.subtree)
+      // The parent may lay its children out by their sizing.
+      if (parent != null && nodes.has(parent)) {
+        nodes.set(parent, {...nodes.get(parent)})
+        notify(parent, null)
+      }
       return
     }
     const props = {...node.props}
@@ -99,7 +108,10 @@ function create_store(model, initial) {
       props[name] = value
       names.push(name)
     }
-    nodes.set(op.id, {...node, props, visible: op.visible ?? node.visible})
+    nodes.set(op.id, {
+      ...node, props, visible: op.visible ?? node.visible,
+      css_classes: op.css_classes ?? node.css_classes, styles: op.styles ?? node.styles,
+    })
     notify(op.id, names)
   }
   load(initial)
@@ -535,7 +547,19 @@ function Fallback({node, direction, extra}) {
   return mounted ? fallbacks[node.slot] ?? null : null
 }
 
-function Node({nid, direction, extra}) {
+function same_style(a, b) {
+  if (a === b) { return true }
+  if (a == null || b == null) { return false }
+  const names = Object.keys(a)
+  return names.length === Object.keys(b).length && names.every(name => a[name] === b[name])
+}
+
+// A node renders when its own state changes, not when its parent does.
+const Node = React.memo(NodeHost, (prev, next) => (
+  prev.nid === next.nid && prev.direction === next.direction && same_style(prev.extra, next.extra)
+))
+
+function NodeHost({nid, direction, extra}) {
   const {store, model} = React.useContext(CompiledContext)
   const node = useNode(store, nid)
   const host = React.useRef(null)
@@ -622,7 +646,12 @@ export function render(props) {
   })
   React.useLayoutEffect(() => store.reset(tree), [tree])
   React.useEffect(() => {
-    const apply = () => store.apply(model.get("patch"))
+    // A patch that arrives with a rebuilt tree builds on that tree, which
+    // the store only loads once this component has rendered it.
+    const apply = () => {
+      store.reset(model.get("tree"))
+      store.apply(model.get("patch"))
+    }
     apply()
     return model.on("change:patch", apply)
   }, [])

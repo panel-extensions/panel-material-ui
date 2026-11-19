@@ -41,6 +41,8 @@ _STRUCTURAL = frozenset((
     "scroll", "view_latest", "scroll_index", "auto_scroll_limit", "scroll_button_threshold",
     "scroll_position", "href",
 ))
+# What a node renders on its host rather than passing to its component.
+_NODE_STATE = ("visible", "css_classes", "styles")
 _SCROLL = (
     "scroll", "view_latest", "scroll_index", "auto_scroll_limit",
     "scroll_button_threshold", "scroll_position", "href",
@@ -436,8 +438,12 @@ class Compiled(MaterialComponent):
                 self._rebuild(*events)
             return
         children = {name for name, _ in _child_params(type(obj))}
-        if names & _STRUCTURAL or obj is self._root_obj and names & children:
+        if obj is self._root_obj and names & (_STRUCTURAL | children):
             return self._rebuild(*events)
+        if names & _STRUCTURAL:
+            if "stylesheets" in names:
+                self._failed_stylesheets.discard(str(id(obj)))
+            return self._patch_subtree(obj)
         if names & children:
             return self._patch_subtree(obj)
         try:
@@ -447,7 +453,7 @@ class Compiled(MaterialComponent):
         except Exception:
             return self._rebuild(*events)
         linked = obj._linked_properties
-        if any(name != "visible" and name not in linked for name in msg):
+        if any(name not in _NODE_STATE and name not in linked for name in msg):
             if obj is self._root_obj:
                 return self._rebuild(*events)
             return self._patch_subtree(obj)
@@ -484,8 +490,8 @@ class Compiled(MaterialComponent):
         props, acks = {}, {}
         echo = self._echo
         for name, value in msg.items():
-            if name == "visible":
-                node["visible"] = op["visible"] = value
+            if name in _NODE_STATE:
+                node[name] = op[name] = value
                 continue
             node["props"][name] = value
             if echo is not None and echo["obj"] is obj and echo["name"] == name:
@@ -516,9 +522,19 @@ class Compiled(MaterialComponent):
         new = self._compile_node(obj, ctx)
         kept = {node["id"] for node in _subtree(new) if node["kind"] == "fallback"}
         orphans = sum(1 for node in removed if node["kind"] == "fallback" and node["id"] not in kept)
-        # The sizing of the ancestors is computed from the layout of this node.
-        if new["kind"] == "fallback" or new["layout"] != old["layout"] or self._orphans + orphans > _MAX_ORPHANS:
+        if self._orphans + orphans > _MAX_ORPHANS:
             return self._rebuild()
+        if new["kind"] == "fallback" or new["layout"] != old["layout"]:
+            # A layout computes its sizing from the layout of its objects, so
+            # the change is applied from the closest ancestor it leaves alone.
+            parent, name = self._parent(node_id)
+            if parent is None:
+                return self._rebuild()
+            affected = name == "objects" and hasattr(self._nodes[parent["id"]], "_compute_sizing_mode")
+            if new["kind"] == "fallback" or affected:
+                if parent is self.tree["root"]:
+                    return self._rebuild()
+                return self._patch_subtree(self._nodes[parent["id"]])
         self._orphans += orphans
         removed_ids = {node["id"] for node in removed}
         for removed_id in removed_ids:
@@ -543,6 +559,14 @@ class Compiled(MaterialComponent):
         if len(ctx.fallbacks) != len(self.fallbacks):
             updates["fallbacks"] = ctx.fallbacks
         self._send_patch([op], **updates)
+
+    def _parent(self, node_id: str) -> tuple[dict | None, str | None]:
+        for node in _subtree(self.tree["root"]):
+            for name, children in node.get("children", {}).items():
+                for child in children if isinstance(children, list) else [children]:
+                    if child is not None and child["id"] == node_id:
+                        return node, name
+        return None, None
 
     def _rebuild(self, *events) -> None:
         for event in events:
