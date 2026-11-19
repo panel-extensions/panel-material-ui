@@ -1,3 +1,4 @@
+import sys
 import time
 
 import panel as pn
@@ -35,7 +36,14 @@ layout = pmui.Column(*items, **kw)
 if mode == "compiled":
     layout = pmui.Compiled(layout)
 t1 = time.perf_counter()
-layout.servable()
+# Served components compile by default, which the other modes switch off.
+base = sys.modules["panel_material_ui.base"]
+compile_default = base.COMPILE
+base.COMPILE = mode == "compiled"
+try:
+    layout.servable()
+finally:
+    base.COMPILE = compile_default
 t2 = time.perf_counter()
 # Read back by bench.py to attribute load time to Python.
 pn.state.curdoc.title = f"{1e3 * (t1 - t0):.1f}|{1e3 * (t2 - t1):.1f}"

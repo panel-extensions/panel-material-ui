@@ -4,7 +4,7 @@ from playwright.sync_api import sync_playwright
 PORT = sys.argv[1]
 ROWS = [int(r) for r in sys.argv[2].split(",")]
 RUNS = int(sys.argv[3])
-MODES = ["classic", "noshadow", "compiled"]
+MODES = os.environ.get("BENCH_MODES", "classic,compiled").split(",")
 
 CLICK = """([btn, status, want]) => new Promise(res => {
   const t = performance.now()

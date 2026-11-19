@@ -100,12 +100,17 @@ if not hasattr(pmui, "page"):
 _classes = [cls for cls in (ServableMixin, Viewable, Page) if "servable" in vars(cls)]
 _originals = {{cls: cls.servable for cls in _classes}}
 _start = time.perf_counter()
+# Served components compile by default, so the classic run switches it off.
+_base = sys.modules["panel_material_ui.base"]
+_compile = _base.COMPILE
 try:
+    _base.COMPILE = MODE == "compiled"
     if MODE == "compiled":
         for cls in _classes:
             cls.servable = _patched(_originals[cls])
     exec(compile(open(APP).read(), APP, "exec"), {{**globals(), "__file__": APP}})
 finally:
+    _base.COMPILE = _compile
     for cls, original in _originals.items():
         cls.servable = original
 _info["python_ms"] = 1e3 * (time.perf_counter() - _start)
