@@ -81,6 +81,8 @@ def run(browser, app, mode, screenshot=None):
         now, mutations = page.evaluate("[performance.now(), window.__mutations]")
         if (idle and now - mutations["last"] > 1000) or now > 60000:
             break
+    # Counts what is still referenced, not what awaits collection.
+    cdp.send("HeapProfiler.collectGarbage")
     metrics = nodes()
     out.update(
         idle_ms=idle[-1] if idle else None, settled_ms=mutations["last"], mutations=mutations["count"],
