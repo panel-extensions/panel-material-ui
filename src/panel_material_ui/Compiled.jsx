@@ -2,6 +2,114 @@ import pmui from "panel-material-ui"
 
 const stylesheetRequests = new Map()
 const NOOP_SIGNAL = {connect: () => {}, disconnect: () => {}}
+const CompiledContext = React.createContext(null)
+const FallbackContext = React.createContext([])
+
+function child_nodes(node) {
+  const nodes = []
+  for (const children of Object.values(node.children ?? {})) {
+    if (Array.isArray(children)) {
+      nodes.push(...children)
+    } else if (children) {
+      nodes.push(children)
+    }
+  }
+  return nodes
+}
+
+/**
+ * Holds the nodes of the tree by id, so that a patch only re-renders the
+ * components subscribed to the node it changes.
+ */
+function create_store(model, initial) {
+  const nodes = new Map()
+  const listeners = new Map()
+  const subscribers = new Map()
+  const seqs = new Map()
+  const models = new Map()
+  const state = {tree: null, rev: -1, shared_styles: {}}
+  const index = (node) => {
+    nodes.set(node.id, node)
+    child_nodes(node).forEach(index)
+  }
+  const unindex = (node) => {
+    nodes.delete(node.id)
+    child_nodes(node).forEach(unindex)
+  }
+  const notify = (id, names) => listeners.get(id)?.forEach(callback => callback(names))
+  const load = (tree) => {
+    state.tree = tree
+    state.rev = tree.state.rev
+    state.shared_styles = tree.shared_styles
+    nodes.clear()
+    index(tree.root)
+  }
+  load(initial)
+  return {
+    state,
+    models,
+    get: (id) => nodes.get(id),
+    listen(id, callback) {
+      if (!listeners.has(id)) { listeners.set(id, new Set()) }
+      listeners.get(id).add(callback)
+      return () => listeners.get(id)?.delete(callback)
+    },
+    subscriber(id) {
+      if (!subscribers.has(id)) { subscribers.set(id, (callback) => this.listen(id, callback)) }
+      return subscribers.get(id)
+    },
+    reset(tree) {
+      if (tree === state.tree) { return }
+      load(tree)
+      for (const id of [...listeners.keys()]) { notify(id, null) }
+    },
+    apply(patch) {
+      if (patch?.rev == null || patch.rev <= state.rev) { return }
+      if (patch.rev > state.rev + 1) {
+        // A patch was missed, e.g. sent before this view was listening.
+        model.send_msg({type: "resync"})
+        return
+      }
+      state.rev = patch.rev
+      for (const op of patch.ops) {
+        const node = nodes.get(op.id)
+        if (node == null) { continue }
+        if (op.subtree) {
+          unindex(node)
+          index(op.subtree)
+          if (op.shared_styles) { state.shared_styles = {...state.shared_styles, ...op.shared_styles} }
+          notify(op.id, null)
+          continue
+        }
+        const props = {...node.props}
+        const names = []
+        for (const [name, value] of Object.entries(op.props ?? {})) {
+          const ack = op.acks?.[name]
+          if (ack && ack[0] === model.id && ack[1] < (seqs.get(`${op.id}:${name}`) ?? 0)) { continue }
+          props[name] = value
+          names.push(name)
+        }
+        nodes.set(op.id, {...node, props, visible: op.visible ?? node.visible})
+        notify(op.id, names)
+      }
+    },
+    set_local(id, name, value) {
+      const node = nodes.get(id)
+      const key = `${id}:${name}`
+      const seq = (seqs.get(key) ?? 0) + 1
+      seqs.set(key, seq)
+      if (node) {
+        nodes.set(id, {...node, props: {...node.props, [name]: value}})
+        notify(id, [name])
+      }
+      return seq
+    },
+  }
+}
+
+function useNode(store, id) {
+  return React.useSyncExternalStore(store.subscriber(id), () => store.get(id))
+}
 
 function NodeStyles({node, model, shared_styles}) {
   const [loaded, setLoaded] = React.useState({})
@@ -94,64 +202,77 @@ function hostLayout(node, direction) {
   return styles
 }
 
-function MaterialNode({node, model, view, parentView, fallbacks, shared_styles}) {
-  const current = React.useRef({node, model, view, parentView, fallbacks, shared_styles})
-  current.current = {node, model, view, parentView, fallbacks, shared_styles}
+function MaterialNode({node, parentView}) {
+  const {store, model, view} = React.useContext(CompiledContext)
+  const id = node.id
+  const current = React.useRef({node, parentView})
+  current.current = {node, parentView}
   const listeners = React.useRef(new Set())
+  const setters = React.useRef(new Map())
   React.useEffect(() => {
     const receive = (msg) => {
-      if (msg.type === "node_msg" && msg.id === node.id) {
+      if (msg.type === "node_msg" && msg.id === id) {
         listeners.current.forEach(callback => callback(msg.data))
       }
     }
     model.on("msg:custom", receive)
     return () => model.off("msg:custom", receive)
-  }, [model, node.id])
+  }, [model, id])
 
-  const [componentModel] = React.useState(() => new Proxy({
-    useState: (name) => {
-      const incoming = current.current.node.props[name]
-      const ack = current.current.node.acks[model.id]?.[name] ?? 0
-      const [value, setValue] = React.useState(incoming)
-      const latest = React.useRef({seq: ack, value: incoming})
-      React.useEffect(() => {
-        if (ack < latest.current.seq) { return }
-        latest.current = {seq: ack, value: incoming}
-        setValue(incoming)
-      }, [incoming, ack])
-      return [value, (next) => {
-        const updated = typeof next === "function" ? next(latest.current.value) : next
-        const seq = latest.current.seq + 1
-        latest.current = {seq, value: updated}
-        setValue(updated)
-        current.current.model.send_msg({type: "update", id: current.current.node.id, name, value: updated,
-          root: current.current.model.id, seq})
-      }]
-    },
-    get_child: (name) => {
-      const {node, model, view, fallbacks, shared_styles} = current.current
-      const children = node.children[name]
-      if (Array.isArray(children)) {
-        return children.map(child => (
-          <Node key={child.id} node={child} model={model} view={view} fallbacks={fallbacks} shared_styles={shared_styles}
-            parentView={childView}
-            direction={node.kind === "Row" || node.kind === "Page" && name === "header" ? "row" :
-              node.kind === "Column" || node.kind === "Page" ? "column" : null}
-          />
-        ))
-      }
-      return children ? <Node key={children.id} node={children} model={model} view={view} parentView={childView}
-        fallbacks={fallbacks} shared_styles={shared_styles}
-      /> : null
-    },
-    send_event: (name) => current.current.model.send_msg({type: name, id: current.current.node.id}),
-    send_msg: (data) => current.current.model.send_msg({type: "msg", id: current.current.node.id, data}),
-    on: (name, callback) => name === "msg:custom" ? listeners.current.add(callback) : current.current.model.on(name, callback),
-    off: (name, callback) => name === "msg:custom" ? listeners.current.delete(callback) : current.current.model.off(name, callback),
-  }, {
-    get: (target, name) => name === "esm_constants" ? current.current.node.constants :
-      name in target ? target[name] : current.current.node.props[name],
-  }))
+  const [componentModel] = React.useState(() => {
+    const watchers = new Map()
+    return new Proxy({
+      useState: (name) => {
+        const value = React.useSyncExternalStore(store.subscriber(id), () => store.get(id)?.props[name])
+        if (!setters.current.has(name)) {
+          setters.current.set(name, (next) => {
+            const previous = store.get(id)?.props[name]
+            const updated = typeof next === "function" ? next(previous) : next
+            const seq = store.set_local(id, name, updated)
+            model.send_msg({type: "update", id, name, value: updated, root: model.id, seq})
+          })
+        }
+        return [value, setters.current.get(name)]
+      },
+      get_child: (name) => {
+        const {node} = current.current
+        const children = node.children[name]
+        if (Array.isArray(children)) {
+          const direction = node.kind === "Row" || node.kind === "Page" && name === "header" ? "row" :
+            node.kind === "Column" || node.kind === "Page" ? "column" : null
+          return children.map(child => <Node key={child.id} id={child.id} parentView={childView} direction={direction}/>)
+        }
+        return children ? <Node key={children.id} id={children.id} parentView={childView}/> : null
+      },
+      send_event: (name) => model.send_msg({type: name, id}),
+      send_msg: (data) => model.send_msg({type: "msg", id, data}),
+      on: (name, callback) => {
+        if (name === "msg:custom") {
+          listeners.current.add(callback)
+        } else {
+          const names = Array.isArray(name) ? name : [name]
+          watchers.set(callback, store.listen(id, (changed) => {
+            if (changed == null || changed.some(prop => names.includes(prop))) { callback() }
+          }))
+        }
+      },
+      off: (name, callback) => {
+        if (name === "msg:custom") {
+          listeners.current.delete(callback)
+        } else {
+          watchers.get(callback)?.()
+          watchers.delete(callback)
+        }
+      },
+    }, {
+      get: (target, name) => {
+        if (name in target) { return target[name] }
+        const node = store.get(id) ?? current.current.node
+        if (name === "esm_constants") { return node.constants }
+        return name in node.props ? node.props[name] : node.children[name]
+      },
+    })
+  })
   const [childView] = React.useState(() => ({
     el: view.container,
     container: view.container,
@@ -159,48 +280,64 @@ function MaterialNode({node, model, view, parentView, fallbacks, shared_styles})
     shadow_el: view.shadow_el,
     model_proxy: view.model_proxy,
     is_root: false,
-    get parent() { return current.current.parentView ?? current.current.view },
-    get compiled_host_id() { return current.current.node.id },
+    get parent() { return current.current.parentView ?? view },
+    get compiled_host_id() { return id },
     get theme_revision() { return current.current.node.theme_revision },
-    get compiled_host() { return current.current.view.shadow_el.querySelector(`#pmui-${current.current.node.id}`) },
+    get compiled_host() { return view.shadow_el.querySelector(`#pmui-${id}`) },
     get_child_view: (child) => child?.kind === "fallback" ?
-      current.current.view.get_child_view(current.current.model.fallbacks[child.slot]) : null,
+      view.get_child_view(model.fallbacks[child.slot]) : null,
     model: {
-      get id() { return current.current.node.id },
+      get id() { return id },
       get class_name() { return current.current.node.kind },
       get data() {
-        return {...current.current.node.props,
-          _custom_theme: current.current.node.kind === "Page" ? current.current.model._custom_theme : current.current.node.props._custom_theme,
+        const node = store.get(id) ?? current.current.node
+        // Components identify their children by model, e.g. to tell
+        // whether they are rendered in the header of the Page.
+        const resolve = (child) => child && (store.models.get(child.id) ?? child)
+        const children = Object.fromEntries(Object.entries(node.children).map(
+          ([name, value]) => [name, Array.isArray(value) ? value.map(resolve) : resolve(value)]
+        ))
+        return {...children, ...node.props,
+          _custom_theme: node.kind === "Page" ? model._custom_theme : node.props._custom_theme,
           properties: {}, change: NOOP_SIGNAL}
       },
-      get document() { return current.current.model.document },
+      get document() { return model.document },
     },
   }))
+  store.models.set(id, childView.model)
+  React.useEffect(() => () => {
+    if (store.models.get(id) === childView.model) { store.models.delete(id) }
+  }, [])
   const Component = pmui[node.kind].render
-  return <Component key={node.id} model={componentModel} view={childView} el={view.container}/>
+  return <Component key={id} model={componentModel} view={childView} el={view.container}/>
 }
 
-function Node({node, fallbacks, model, view, parentView, direction, shared_styles}) {
+function Node({id, parentView, direction}) {
+  const {store, model} = React.useContext(CompiledContext)
+  const fallbacks = React.useContext(FallbackContext)
+  const node = useNode(store, id)
   const host = React.useRef(null)
+  const styles = node?.styles
+  const visible = node?.visible
   React.useEffect(() => {
     const el = host.current
-    if (!el) { return }
-    for (const [name, value] of Object.entries(node.styles)) {
+    if (!el || !styles) { return }
+    for (const [name, value] of Object.entries(styles)) {
       el.style.setProperty(name.replace(/[A-Z]/g, char => `-${char.toLowerCase()}`), value)
     }
-    if (!node.visible) { el.style.display = "none" }
+    if (!visible) { el.style.display = "none" }
     return () => {
-      for (const name of Object.keys(node.styles)) {
+      for (const name of Object.keys(styles)) {
         el.style.removeProperty(name.replace(/[A-Z]/g, char => `-${char.toLowerCase()}`))
       }
     }
-  }, [node.styles, node.visible])
-  if (node.kind === "fallback") {
-    return fallbacks[node.slot]
+  }, [styles, visible])
+  if (node == null) {
+    return null
   }
-  const content = <MaterialNode key={node.id} node={node} model={model} view={view} parentView={parentView}
-    fallbacks={fallbacks} shared_styles={shared_styles}
-  />
+  if (node.kind === "fallback") {
+    return fallbacks[node.slot] ?? null
+  }
   const layout = hostLayout(node, direction)
   const declarations = Object.entries(layout).filter(([, value]) => value !== undefined)
     .map(([name, value]) => `${name.replace(/[A-Z]/g, char => `-${char.toLowerCase()}`)}: ${value};`).join(" ")
@@ -219,12 +356,28 @@ function Node({node, fallbacks, model, view, parentView, direction, shared_style
       display: node.visible ? undefined : "none"}}
   >
     <style>{`@scope (#pmui-${node.id}) { :scope { ${declarations} } }`}</style>
-    <NodeStyles node={node} model={model} shared_styles={shared_styles}/>{content}
+    <NodeStyles node={node} model={model} shared_styles={store.state.shared_styles}/>
+    <MaterialNode key={node.id} node={node} parentView={parentView}/>
   </div>
 }
 
 export function render({model, view}) {
   const [tree] = model.useState("tree")
   const fallbacks = model.get_child("fallbacks")
-  return <Node node={tree} fallbacks={fallbacks} model={model} view={view} shared_styles={tree.shared_styles}/>
+  const [store] = React.useState(() => create_store(model, tree))
+  const [context] = React.useState(() => ({store, model, view}))
+  React.useLayoutEffect(() => store.reset(tree), [tree])
+  React.useEffect(() => {
+    const apply = () => store.apply(model.patch)
+    model.on("patch", apply)
+    apply()
+    return () => model.off("patch", apply)
+  }, [])
+  return (
+    <CompiledContext.Provider value={context}>
+      <FallbackContext.Provider value={fallbacks}>
+        <Node id={tree.root.id}/>
+      </FallbackContext.Provider>
+    </CompiledContext.Provider>
+  )
 }

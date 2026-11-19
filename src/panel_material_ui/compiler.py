@@ -10,6 +10,7 @@ from types import SimpleNamespace
 import panel
 import param
 from bokeh.models.css import ImportedStyleSheet, InlineStyleSheet
+from panel.custom import ReactiveESM
 from panel.io.resources import CDN_DIST
 from panel.links import Callback, Link
 from panel.util import edit_readonly
@@ -24,6 +25,80 @@ def _is_compilable(cls: type) -> bool:
     return bool(vars(cls).get("_compilable"))
 
 
+_CHILD_PARAMS: dict[type, tuple[tuple[str, bool], ...]] = {}
+_DATA_DEFAULTS: dict[type, dict] = {}
+
+# Parameters that decide whether a component can be compiled at all.
+_STRUCTURAL = frozenset((
+    "loading", "theme_config", "attached", "description", "sizing_mode", "stylesheets",
+    "scroll", "view_latest", "scroll_index", "auto_scroll_limit", "scroll_button_threshold",
+    "scroll_position", "href",
+))
+_SCROLL = (
+    "scroll", "view_latest", "scroll_index", "auto_scroll_limit",
+    "scroll_button_threshold", "scroll_position", "href",
+)
+_LAYOUT = (
+    "width", "height", "min_width", "max_width", "min_height", "max_height", "margin",
+    "aspect_ratio", "sizing_mode", "width_policy", "height_policy", "align",
+)
+_MAX_ORPHANS = 32
+
+
+def _child_params(cls: type) -> tuple[tuple[str, bool], ...]:
+    children = _CHILD_PARAMS.get(cls)
+    if children is None:
+        _CHILD_PARAMS[cls] = children = tuple(
+            (name, isinstance(parameter, Children))
+            for name, parameter in cls.param.objects(instance=False).items()
+            if isinstance(parameter, (Child, Children))
+        )
+    return children
+
+
+def _node_properties(obj: MaterialComponent) -> tuple[dict, dict]:
+    """
+    Returns the model properties of a component and the values of its data
+    properties, without building the Bokeh data model if possible since a
+    compiled node is never rendered as one.
+    """
+    cls = type(obj)
+    spec = getattr(cls, "_esm_spec", None)
+    if spec is None or cls._get_properties is not MaterialComponent._get_properties:
+        properties = obj._get_properties(None)
+        data = properties["data"]
+        values = data.properties_with_values(include_defaults=False)
+    else:
+        properties = super(ReactiveESM, obj)._get_properties(None)
+        values = {name: properties.pop(name) for name in spec().data if name in properties}
+        values["esm_constants"] = obj._constants
+        values["loading"] = obj.loading
+    defaults = _DATA_DEFAULTS.get(cls)
+    if defaults is None:
+        _DATA_DEFAULTS[cls] = defaults = cls._data_model().properties_with_values()
+    return properties, {**defaults, **values}
+
+
+def _subtree(node: dict):
+    yield node
+    for children in node.get("children", {}).values():
+        for child in children if isinstance(children, list) else [children]:
+            if child is not None:
+                yield from _subtree(child)
+
+
+class _Context:
+
+    def __init__(self, fallbacks: list[Viewable], known_styles: dict[str, str]):
+        self.fallbacks = fallbacks
+        self.slots = {id(obj): slot for slot, obj in enumerate(fallbacks)}
+        self.known_styles = known_styles
+        self.shared_styles: dict[str, str] = {}
+        self.nodes: dict[str, Viewable] = {}
+        self.active: set[Viewable] = set()
+        self.dicts: dict[str, dict] = {}
+
+
 class Compiled(MaterialComponent):
     """Render compilable PMUI components directly in one React root.
 
@@ -32,6 +107,7 @@ class Compiled(MaterialComponent):
 
     source = param.Parameter(allow_None=False, allow_refs=False)
     tree = param.Dict(default={})
+    patch = param.Dict(default={})
     fallbacks = Children()
     _custom_theme = param.List(default=[])
 
@@ -65,28 +141,33 @@ class Compiled(MaterialComponent):
             raise TypeError("Compiled requires a Panel Viewable")
         self._subscriptions: dict[Viewable, param.parameterized.Watcher] = {}
         self._nodes: dict[str, Viewable] = {}
+        self._node_dicts: dict[str, dict] = {}
         self._active_nodes: set[Viewable] = set()
         self._failed_stylesheets: set[str] = set()
-        self._acks: dict[str, dict[str, dict[str, int]]] = {}
         self._model_docs = {}
         self._theme_revision = 0
-        tree, fallbacks, nodes, active = self._compile(source)
+        self._rev = 0
+        self._orphans = 0
+        self._stale = False
+        self._echo: dict | None = None
+        tree, ctx = self._compile(source)
         self._inherit_sizing = "sizing_mode" not in params
         self._inherit_theme = "dark_theme" not in params
-        if self._inherit_sizing and tree["kind"] != "fallback":
-            params["sizing_mode"] = tree["layout"]["sizing_mode"]
+        if self._inherit_sizing and tree["root"]["kind"] != "fallback":
+            params["sizing_mode"] = tree["root"]["layout"]["sizing_mode"]
         if self._inherit_theme and isinstance(source, Page):
             params["dark_theme"] = source.dark_theme
-        super().__init__(source=source, tree=tree, fallbacks=fallbacks, **params)
+        super().__init__(source=source, tree=tree, fallbacks=ctx.fallbacks, **params)
         owner = weakref.ref(self)
 
         def changed(*events):
             if instance := owner():
-                instance._rebuild(*events)
+                instance._change_events(*events)
 
         self._change = changed
         weakref.finalize(self, self._unwatch, self._subscriptions)
-        self._watch_nodes(nodes, active)
+        self._node_dicts = ctx.dicts
+        self._watch_nodes(ctx.nodes, ctx.active)
         self.param.watch(self._rebuild, "source")
 
     @staticmethod
@@ -95,125 +176,107 @@ class Compiled(MaterialComponent):
             obj.param.unwatch(watcher)
         subscriptions.clear()
 
-    def _compile(self, source: Viewable) -> tuple[dict, list[Viewable], dict[str, Viewable], set[Viewable]]:
-        fallbacks: list[Viewable] = []
-        nodes: dict[str, Viewable] = {}
-        active: set[Viewable] = set()
-        shared_styles: dict[str, str] = {}
+    def _compile(self, source: Viewable) -> tuple[dict, _Context]:
+        ctx = _Context([], {})
+        # Compiled before the source parameter is set on construction.
+        self._root = source
+        root = self._compile_node(source, ctx)
+        self._rev += 1
+        self._orphans = 0
+        tree = {"root": root, "shared_styles": ctx.shared_styles, "state": {"rev": self._rev}}
+        return tree, ctx
 
-        def walk(obj: Viewable) -> dict:
-            node_id = str(id(obj))
-            compilable = (
-                isinstance(obj, MaterialComponent) and _is_compilable(type(obj)) and
-                type(obj).__module__.startswith("panel_material_ui.") and obj._esm_base and
-                node_id not in self._failed_stylesheets and
-                (not isinstance(obj, Page) or obj is source) and
-                not (
-                    obj.loading or (obj.theme_config and not isinstance(obj, Page)) or
-                    getattr(obj, "attached", None) or getattr(obj, "description", None) or
-                    Callback.registry.get(obj) or any(
-                        isinstance(link, Link) and link.target is obj
-                        for links in Callback.registry.values() for link in links
-                    ) or obj.sizing_mode == "inherit"
-                )
-            )
-            if isinstance(obj, MaterialComponent) and _is_compilable(type(obj)):
-                nodes[node_id] = obj
-            if any(getattr(obj, name, None) for name in (
-                "scroll", "view_latest", "scroll_index", "auto_scroll_limit",
-                "scroll_button_threshold", "scroll_position", "href",
-            )):
-                compilable = False
-            if compilable:
-                properties = obj._get_properties(None)
-                if any(
-                    re.search(r"@import\b", sheet if isinstance(sheet, str) else sheet.css, re.IGNORECASE)
-                    for sheet in properties["stylesheets"]
-                    if isinstance(sheet, (str, InlineStyleSheet))
-                ):
-                    compilable = False
-            if compilable:
-                data = properties["data"]
-                values = data.properties_with_values()
-                props = {name: values[name] for name in obj._linked_properties}
-                stylesheets = []
-                for stylesheet in properties["stylesheets"]:
-                    if isinstance(stylesheet, ImportedStyleSheet):
-                        url = stylesheet.url
-                        prefix = f"{CDN_DIST}css/"
-                        filename = url.partition("?")[0].removeprefix(prefix)
-                        local = Path(panel.__file__).parent / "dist" / "css" / filename
-                        if url.startswith(prefix) and filename == Path(filename).name and local.is_file():
-                            if url not in shared_styles:
-                                shared_styles[url] = local.read_text()
-                            if re.search(r"@import\b", shared_styles[url], re.IGNORECASE):
-                                compilable = False
-                                break
-                            stylesheets.append({"base_url": url})
-                        else:
-                            stylesheets.append({"url": url})
-                    elif isinstance(stylesheet, InlineStyleSheet):
-                        stylesheets.append({"css": stylesheet.css})
-                    else:
-                        stylesheets.append({"css": stylesheet})
-                if not compilable:
-                    slot = len(fallbacks)
-                    fallbacks.append(obj)
-                    return {"id": node_id, "kind": "fallback", "slot": slot,
-                            "sizing_mode": getattr(obj, "sizing_mode", None)}
-                active.add(obj)
-                node = {
-                    "id": node_id,
-                    "kind": type(obj).__name__,
-                    "css_classes": properties["css_classes"],
-                    "stylesheets": stylesheets,
-                    "styles": properties["styles"],
-                    "visible": obj.visible,
-                    "layout": {
-                        name: properties.get(name) for name in (
-                            "width", "height", "min_width", "max_width", "min_height",
-                            "max_height", "margin", "aspect_ratio", "sizing_mode",
-                            "width_policy", "height_policy", "align",
-                        )
-                    },
-                    "constants": values["esm_constants"],
-                    "props": props,
-                    "theme_revision": self._theme_revision,
-                    "acks": {
-                        root: entries.copy() for root, entries in self._acks.get(node_id, {}).items()
-                    },
-                }
-                children = {}
-                for name in obj.param:
-                    parameter = obj.param[name]
-                    if isinstance(parameter, Child):
-                        child = getattr(obj, name)
-                        children[name] = walk(child) if child is not None else None
-                    elif isinstance(parameter, Children):
-                        children[name] = [walk(child) for child in getattr(obj, name)]
-                    if name in children:
-                        props[name] = children[name]
-                node["children"] = children
-                if hasattr(obj, "_compute_sizing_mode") and "objects" in children:
-                    sizing_children = []
-                    for child in children["objects"]:
-                        layout = child.get("layout")
-                        if layout is None:
-                            fallback = fallbacks[child["slot"]]
-                            layout = {name: getattr(fallback, name, None) for name in (
-                                "width", "height", "min_width", "min_height", "sizing_mode"
-                            )}
-                        sizing_children.append(SimpleNamespace(**layout))
-                    node["layout"].update(obj._compute_sizing_mode(sizing_children, properties))
-                return node
-            slot = len(fallbacks)
-            fallbacks.append(obj)
-            return {"id": node_id, "kind": "fallback", "slot": slot,
-                    "sizing_mode": getattr(obj, "sizing_mode", None)}
+    def _fallback_node(self, obj: Viewable, ctx: _Context) -> dict:
+        node_id = str(id(obj))
+        # A fallback keeps its slot, its view is already mounted there.
+        slot = ctx.slots.get(id(obj))
+        if slot is None:
+            ctx.slots[id(obj)] = slot = len(ctx.fallbacks)
+            ctx.fallbacks.append(obj)
+        node = {"id": node_id, "kind": "fallback", "slot": slot,
+                "sizing_mode": getattr(obj, "sizing_mode", None)}
+        ctx.dicts[node_id] = node
+        return node
 
-        tree = walk(source)
-        tree["shared_styles"] = shared_styles
-        return tree, fallbacks, nodes, active
+    def _compile_node(self, obj: Viewable, ctx: _Context) -> dict:
+        node_id = str(id(obj))
+        cls = type(obj)
+        candidate = isinstance(obj, MaterialComponent) and _is_compilable(cls)
+        if candidate:
+            ctx.nodes[node_id] = obj
+        compilable = (
+            candidate and cls.__module__.startswith("panel_material_ui.") and obj._esm_base and
+            node_id not in self._failed_stylesheets and
+            (not isinstance(obj, Page) or obj is self._root) and
+            not (
+                obj.loading or (obj.theme_config and not isinstance(obj, Page)) or
+                getattr(obj, "attached", None) or getattr(obj, "description", None) or
+                Callback.registry.get(obj) or any(
+                    isinstance(link, Link) and link.target is obj
+                    for links in Callback.registry.values() for link in links
+                ) or obj.sizing_mode == "inherit"
+            ) and not any(getattr(obj, name, None) for name in _SCROLL)
+        )
+        if not compilable:
+            return self._fallback_node(obj, ctx)
+        properties, values = _node_properties(obj)
+        stylesheets = []
+        for stylesheet in properties["stylesheets"]:
+            if isinstance(stylesheet, ImportedStyleSheet):
+                url = stylesheet.url
+                prefix = f"{CDN_DIST}css/"
+                filename = url.partition("?")[0].removeprefix(prefix)
+                local = Path(panel.__file__).parent / "dist" / "css" / filename
+                if url.startswith(prefix) and filename == Path(filename).name and local.is_file():
+                    css = ctx.known_styles.get(url) or ctx.shared_styles.get(url)
+                    if css is None:
+                        css = local.read_text()
+                    if re.search(r"@import\b", css, re.IGNORECASE):
+                        return self._fallback_node(obj, ctx)
+                    if url not in ctx.known_styles:
+                        ctx.shared_styles[url] = css
+                    stylesheets.append({"base_url": url})
+                else:
+                    stylesheets.append({"url": url})
+            else:
+                css = stylesheet.css if isinstance(stylesheet, InlineStyleSheet) else stylesheet
+                if re.search(r"@import\b", css, re.IGNORECASE):
+                    return self._fallback_node(obj, ctx)
+                stylesheets.append({"css": css})
+        ctx.active.add(obj)
+        node = {
+            "id": node_id,
+            "kind": cls.__name__,
+            "css_classes": properties["css_classes"],
+            "stylesheets": stylesheets,
+            "styles": properties["styles"],
+            "visible": obj.visible,
+            "layout": {name: properties.get(name) for name in _LAYOUT},
+            "constants": values["esm_constants"],
+            "props": {name: values[name] for name in obj._linked_properties},
+            "theme_revision": self._theme_revision,
+        }
+        ctx.dicts[node_id] = node
+        children: dict = {}
+        for name, multiple in _child_params(cls):
+            value = getattr(obj, name)
+            if multiple:
+                children[name] = [self._compile_node(child, ctx) for child in value]
+            else:
+                children[name] = self._compile_node(value, ctx) if value is not None else None
+        node["children"] = children
+        if hasattr(obj, "_compute_sizing_mode") and "objects" in children:
+            sizing_children = []
+            for child in children["objects"]:
+                layout = child.get("layout")
+                if layout is None:
+                    fallback = ctx.fallbacks[child["slot"]]
+                    layout = {name: getattr(fallback, name, None) for name in (
+                        "width", "height", "min_width", "min_height", "sizing_mode"
+                    )}
+                sizing_children.append(SimpleNamespace(**layout))
+            node["layout"].update(obj._compute_sizing_mode(sizing_children, properties))
+        return node
 
     def _watch_nodes(self, nodes: dict[str, Viewable], active: set[Viewable]) -> None:
         current = set(nodes.values())
@@ -221,7 +284,6 @@ class Compiled(MaterialComponent):
             if obj not in current:
                 obj.param.unwatch(watcher)
                 del self._subscriptions[obj]
-                self._acks.pop(str(id(obj)), None)
         for obj in current - self._subscriptions.keys():
             self._subscriptions[obj] = obj.param.watch(
                 self._change, list(obj.param), onlychanged=True
@@ -234,6 +296,105 @@ class Compiled(MaterialComponent):
             obj._compiled_roots.add(self)
         self._active_nodes = active
         self._nodes = nodes
+        self._stale = False
+
+    def _change_events(self, *events) -> None:
+        """
+        Applies parameter changes on a node with the cheapest update that
+        is still correct: a patch of the changed properties, a recompile of
+        the node's subtree or, if its ancestors are affected, of the tree.
+        """
+        obj = events[0].obj
+        names = {event.name for event in events}
+        if obj not in self._active_nodes:
+            if names & _STRUCTURAL:
+                self._rebuild(*events)
+            return
+        children = {name for name, _ in _child_params(type(obj))}
+        if names & _STRUCTURAL or obj is self.source and names & children:
+            return self._rebuild(*events)
+        if names & children:
+            return self._patch_subtree(obj)
+        try:
+            msg = obj._process_param_change({event.name: event.new for event in events})
+        except Exception:
+            return self._rebuild(*events)
+        linked = obj._linked_properties
+        if any(name != "visible" and name not in linked for name in msg):
+            if obj is self.source:
+                return self._rebuild(*events)
+            return self._patch_subtree(obj)
+        self._patch_props(obj, msg)
+        if obj is self.source and self._inherit_theme and "dark_theme" in names and isinstance(obj, Page):
+            self.dark_theme = obj.dark_theme
+
+    def _send_patch(self, ops: list[dict], **updates) -> None:
+        self._rev += 1
+        self.tree["state"]["rev"] = self._rev
+        self.param.update(patch={"rev": self._rev, "ops": ops}, **updates)
+
+    def _patch_props(self, obj: Viewable, msg: dict) -> None:
+        node_id = str(id(obj))
+        node = self._node_dicts[node_id]
+        op: dict = {"id": node_id}
+        props, acks = {}, {}
+        echo = self._echo
+        for name, value in msg.items():
+            if name == "visible":
+                node["visible"] = op["visible"] = value
+                continue
+            node["props"][name] = value
+            if echo is not None and echo["obj"] is obj and echo["name"] == name:
+                echo["handled"] = True
+                try:
+                    unchanged = bool(value == echo["value"])
+                except Exception:
+                    unchanged = False
+                # The client that made the edit already shows this value.
+                if unchanged and len(self._models) <= 1:
+                    continue
+                acks[name] = [echo["root"], echo["seq"]]
+            props[name] = value
+        if props:
+            op["props"] = props
+        if acks:
+            op["acks"] = acks
+        if len(op) > 1:
+            self._send_patch([op])
+
+    def _patch_subtree(self, obj: Viewable) -> None:
+        node_id = str(id(obj))
+        old = self._node_dicts.get(node_id)
+        if old is None or old["kind"] == "fallback":
+            return self._rebuild()
+        removed = list(_subtree(old))
+        ctx = _Context(list(self.fallbacks), self.tree["shared_styles"])
+        new = self._compile_node(obj, ctx)
+        kept = {node["id"] for node in _subtree(new) if node["kind"] == "fallback"}
+        orphans = sum(1 for node in removed if node["kind"] == "fallback" and node["id"] not in kept)
+        # The sizing of the ancestors is computed from the layout of this node.
+        if new["kind"] == "fallback" or new["layout"] != old["layout"] or self._orphans + orphans > _MAX_ORPHANS:
+            return self._rebuild()
+        self._orphans += orphans
+        removed_ids = {node["id"] for node in removed}
+        for removed_id in removed_ids:
+            self._node_dicts.pop(removed_id, None)
+        old.clear()
+        old.update(new)
+        ctx.dicts[node_id] = old
+        self._node_dicts.update(ctx.dicts)
+        nodes = {key: value for key, value in self._nodes.items() if key not in removed_ids}
+        nodes.update(ctx.nodes)
+        active = {node for node in self._active_nodes if str(id(node)) not in removed_ids} | ctx.active
+        self._watch_nodes(nodes, active)
+        self.tree["shared_styles"].update(ctx.shared_styles)
+        op = {"id": node_id, "subtree": new}
+        if ctx.shared_styles:
+            op["shared_styles"] = ctx.shared_styles
+        updates = {}
+        if len(ctx.fallbacks) != len(self.fallbacks):
+            updates["fallbacks"] = ctx.fallbacks
+        self._send_patch([op], **updates)
 
     def _rebuild(self, *events) -> None:
         for event in events:
@@ -241,11 +402,13 @@ class Compiled(MaterialComponent):
                 self._failed_stylesheets.discard(str(id(event.obj)))
             elif event.name == "theme_config":
                 self._theme_revision += 1
-        tree, fallbacks, nodes, active = self._compile(self.source)
-        self._watch_nodes(nodes, active)
-        updates = {"tree": tree, "fallbacks": fallbacks}
+        tree, ctx = self._compile(self.source)
+        self._node_dicts = ctx.dicts
+        self._watch_nodes(ctx.nodes, ctx.active)
+        updates = {"tree": tree, "fallbacks": ctx.fallbacks}
+        root = tree["root"]
         if self._inherit_sizing:
-            updates["sizing_mode"] = tree["layout"]["sizing_mode"] if tree["kind"] != "fallback" else None
+            updates["sizing_mode"] = root["layout"]["sizing_mode"] if root["kind"] != "fallback" else None
         if self._inherit_theme and isinstance(self.source, Page):
             updates["dark_theme"] = self.source.dark_theme
         self.param.update(**updates)
@@ -259,8 +422,10 @@ class Compiled(MaterialComponent):
         model.data._custom_theme = list(doc.theme._json.get("attrs", {})) if custom else []
 
     def _handle_msg(self, msg) -> None:
+        if msg.get("type") == "resync":
+            return self._rebuild()
         obj = self._nodes.get(msg.get("id"))
-        if obj is None or obj in self.fallbacks:
+        if obj is None or obj not in self._active_nodes:
             return
         if msg.get("type") == "stylesheet_failure":
             self._failed_stylesheets.add(msg["id"])
@@ -268,25 +433,32 @@ class Compiled(MaterialComponent):
         elif msg.get("type") == "msg":
             obj._handle_msg(msg["data"])
         elif msg.get("type") == "update":
-            if msg.get("name") not in obj._linked_properties:
+            name = msg.get("name")
+            if name not in obj._linked_properties:
                 return
-            acks = self._acks.setdefault(msg["id"], {}).setdefault(msg["root"], {})
-            sequence = msg["seq"]
-            if sequence <= acks.get(msg["name"], 0):
-                return
-            acks[msg["name"]] = sequence
-            previous_tree = self.tree
-            changes = obj._process_property_change({msg["name"]: msg["value"]})
-            if changes and not any(isinstance(obj.param[name], (Child, Children)) for name in changes):
-                with edit_readonly(obj):
-                    obj.param.update(**changes)
-            if self.tree is previous_tree:
-                self._rebuild()
+            echo = self._echo = {
+                "obj": obj, "name": name, "value": msg["value"], "root": msg.get("root"),
+                "seq": msg.get("seq"), "handled": False,
+            }
+            try:
+                changes = obj._process_property_change({name: msg["value"]})
+                if changes and not {child for child, _ in _child_params(type(obj))} & changes.keys():
+                    with edit_readonly(obj):
+                        obj.param.update(**changes)
+                if not echo["handled"] and changes and obj in self._active_nodes:
+                    # The edit was rejected or coerced without an event, so
+                    # the client has to be told what the value really is.
+                    current = obj._process_param_change({key: getattr(obj, key) for key in changes})
+                    if name in current:
+                        self._patch_props(obj, {name: current[name]})
+            finally:
+                self._echo = None
         elif (handler := getattr(obj, f"_handle_{msg.get('type')}", None)) is not None:
             handler(None)
 
     def _get_model(self, doc, root=None, parent=None, comm=None):
-        self._rebuild()
+        if self._stale:
+            self._rebuild()
         model = super()._get_model(doc, root, parent, comm)
         if isinstance(self.source, Page):
             for existing, _ in self._models.values():
@@ -323,11 +495,9 @@ class Compiled(MaterialComponent):
             model_id: doc for model_id, doc in self._model_docs.items()
             if model_id in active
         }
-        for acks in self._acks.values():
-            for origin in acks.keys() - self._models.keys():
-                del acks[origin]
         if not self._models:
             self._unwatch(self._subscriptions)
             for obj in self._active_nodes:
                 obj._compiled_roots.discard(self)
-            self._active_nodes.clear()
+            self._active_nodes = set()
+            self._stale = True
