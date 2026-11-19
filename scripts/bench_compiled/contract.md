@@ -159,3 +159,36 @@ Conformance: one Playwright suite, parametrized over the two hosts, built from s
 - **Notebook comms**: `base.py:393-405` and `_get_model` (`base.py:639-662`) switch bundle loading on `comm`. The patch channel uses a synced param plus `msg:custom`, which should carry over comms, but the `rev` gap and resync path is the part to test, since comm messages can arrive before the view listens.
 - **Incremental layout**: sizing is computed in two places, `hostLayout` in `Compiled.jsx` and `apply_flex` in `utils.js`, with the parent's direction known only for `Row`, `Column` and `Page`. Moving the direction into `render_children` (section 3) gives every container a single path, which is also what would let a layout param change become a per-node patch instead of a full recompile.
 - **Shadow-root assumptions**: `getRootNode().host` walks in `layout/Feed.jsx:74`, `widgets/List.jsx:86`, `chat/ChatMessage.jsx:195` and `menu.jsx:13` assume one shadow root per component and will resolve to the shared root.
+
+## 5. As implemented
+
+The interface now exists as an adapter in `utils.js` (`make_host`, documented in the comment above it), and `Compiled.jsx` builds the same two objects from its store (`make_node`). The `ThemedTransform` wrapper in `base.py` is the single entry point: it takes the host a Compiled tree passes, or wraps the view and model proxy a Panel view passes. Every component source goes through it, which `tests/test_component_interface.py` enforces and `tests/ui/test_component_interface.py` checks for behaviour on both hosts with a private `Probe` component.
+
+What changed relative to the proposal in section 3:
+
+- **`render({model, host})`.** Panel still passes `view`, `el` and `data`, and the wrapper forwards them so components outside this package keep working. Nothing in the package reads them.
+- **Direct reads stay.** `model.<name>` remains a shorthand for `model.get(name)` on data parameters. Child parameters are only reachable through `children(name)` and `render_children(name)`.
+- **`render_children(name, {direction, style})`** gained `style`, extra declarations for the child's box. `Badge` uses it to reset the child's margin.
+- **`on(event, callback)`** takes `"msg"`, `"layout"`, `"remove"`, `"change"`, `"change:<name>"` or a list, and returns the unsubscribe. `"change"` (any parameter) was added for the error boundary. `"layout"` never fires on a compiled node, which is laid out by CSS alone.
+- **`useState`** throws on an unknown name on both hosts. A compiled node reads dotted paths but cannot set them.
+- **`ComponentModel.tags`** was added for `NotificationArea`.
+- **`ComponentHost`** gained `root`, `is_document_root`, `shares_style_root` and `has_child(host)`, and lost `set_host_style`: `host_el` is the component's own box on both hosts, so writing to its style is enough. `overlay_root` is whatever MUI accepts as a container, which may be a function.
+- **Theme variables.** A host with `shares_style_root` cannot define its theme's CSS variables on `:host`, so the theme hook scopes them to a class per distinct theme, set on `content_el` and on the overlays the component opens, and writes the variables once per style root. This is what makes header inversion and mixed themes work inside one Compiled root.
+- **Placement.** A Compiled view tells `make_host` where it placed a child that renders through its own view (`view.pmui_placement`), so that child finds its logical parent and knows when it is the root. This is a host to host protocol; components do not see it.
+- **Sizing.** `child_flex` is the one implementation of the flex rules, used by `apply_flex` for Bokeh views and by the compiled runtime. `apply_flex`, `get_child_view` and the `lifecycle:update_layout` handlers are gone from all components, as is `view.compiled_root`.
+
+Not done:
+
+- The serialized DOM event of `send_event` is close to Panel's but not identical, since Panel's serializer is not importable.
+- `getRootNode().host` walks in `Feed`, `List`, `ChatMessage` and `menu.jsx` still assume one shadow root per component.
+- `NotificationArea` still reads `model.data.js_events`.
+
+## 6. What upstreaming to Panel would need
+
+1. `react_model_proxy` gains `id`, `kind`, `constants`, `get`, `set`, `children`, `render_children` and an `on` that returns an unsubscribe and accepts the short event names. All of it can be added without removing what exists.
+2. `render_react` builds the host once per view and passes `{model, host}`, next to `view` and `el` for a deprecation period.
+3. `render_children(name, {direction})` applies the child sizing (`box_sizing`, `parent_style`) inside Panel and re-applies it on layout, so that no component needs a child view.
+4. `serializeEvent` is exported, so another host can produce the same payload.
+5. Public accessors replace the private members the adapter reads: `view.mui_cache`, `view.container`, `view.shadow_el`, `view.child_views`, `model.data.change`.
+6. A parent view can declare the logical parent and root status of a child view, replacing `pmui_placement`.
+7. Python: a public way to tell that a document is holding events, or a message channel that is not collapsed by a hold. `Compiled` reads `doc.callbacks._held_events` to keep patches made in one hold together.

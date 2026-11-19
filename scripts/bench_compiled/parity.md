@@ -51,3 +51,27 @@ Coverage per opted-in class in compiled form (tests passed / failed): `Page` 53/
 - `Feed`, `ChatFeed`, `ChatInterface`, `ChatMessage`, `ChatStep`, `ChatAreaInput` (shadow-root walks, dotted state, `invalidate_layout`).
 - `Grid`, `NotificationArea`, `FileDownload`, `Player`, `ThemeToggle`, a nested `Page`.
 - Any instance with `loading`, `description`, `attached`, `theme_config`, scroll options or a `jslink`, which fall back per instance today.
+
+## After the component interface
+
+Run on plain Panel origin/main, without the shelved shadow-free fixes, which `Compiled` does not need: the earlier run repeats there within flake noise (917 to 924 of 955 across runs, every difference passing on rerun).
+
+| Run | Before | After |
+| --- | --- | --- |
+| Classic, 955 tests | 951 passed | 952 passed; with the 36 new tests 988 of 991 |
+| `--compiled`, 955 tests | 924 passed, 27 consistent failures specific to `Compiled` | 933 to 935 passed, 6 consistent failures specific to `Compiled`, three of them in how the test looks |
+
+The three classic failures are the two known ones and `test_float_panel_drag_and_content`, which fails at the same rate on origin/main when run under load (8 and 11 of 24 repeats there, 7 and 14 here).
+
+Closed since the first matrix: root fallback sizing (6 of 8), `focus()` and other messages from Python (6), all nine theme tests on compiled nodes, and both theme tests under a fallback root.
+
+What still fails consistently with `--compiled`:
+
+| Test | Cause |
+| --- | --- |
+| `test_float_panel_size_and_smallified`, `test_float_panel_resizes_from_right_bottom_anchor` | A `FloatPanel` as fallback root does not grow when resized. It collapses its own box to 0px, and the `Compiled` box around it now copies its sizing. Not diagnosed further |
+| `test_invalid_theme_config_falls_back_and_recovers` | A `theme_config` changed after render on a child that falls back: the theme is rebuilt with the new color, but the CSS variables the button reads are not. An initial `theme_config` works |
+| `test_unmanaged_root_does_not_style_host_document` | The behaviour is right (styles go into the fallback root's shadow root), the test only looks one shadow root deep |
+| `test_render_error_is_contained_and_recovers`, `test_slider_sends_trailing_drag_value_on_unmount` | The tests reach for a per-component Bokeh model through `_models` |
+
+Also found on the way: patches made inside one Bokeh `hold` were collapsed into the last one, which forced a full resync. A patch now carries the earlier ones of the same hold.
