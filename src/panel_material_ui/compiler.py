@@ -19,7 +19,8 @@ from panel.models.reactive_html import DOMEvent
 from panel.util import edit_readonly
 from panel.viewable import Child, Children, Viewable
 
-from .base import MaterialComponent, _align_rendered_explicit
+from .base import MaterialComponent, _align_rendered_explicit, _aligning
+from .layout.base import Column, FlexBox, Row
 from .template.base import Page
 
 
@@ -46,6 +47,9 @@ _LAYOUT = (
     "aspect_ratio", "sizing_mode", "width_policy", "height_policy", "align",
 )
 _MAX_ORPHANS = 32
+# Panel layouts that render as their Material equivalent inside a tree. The
+# two share every parameter, so the equivalent mirrors the original.
+_SUBSTITUTES: dict[type, type] = {panel.Column: Column, panel.Row: Row, panel.FlexBox: FlexBox}
 _ROOT_SIZING = (
     "sizing_mode", "width", "height", "min_width", "min_height", "max_width", "max_height",
     "width_policy", "height_policy",
@@ -175,6 +179,8 @@ class Compiled(MaterialComponent):
         self._failed_stylesheets: set[str] = set()
         self._model_docs = {}
         self._rev = 0
+        self._substitutes: weakref.WeakKeyDictionary[Viewable, Viewable] = weakref.WeakKeyDictionary()
+        self._ready = False
         self._held: list | None = None
         self._earlier: list[dict] = []
         self._orphans = 0
@@ -188,6 +194,7 @@ class Compiled(MaterialComponent):
         if self._inherit_theme and isinstance(source, Page):
             params["dark_theme"] = source.dark_theme
         super().__init__(source=source, tree=tree, fallbacks=ctx.fallbacks, **params)
+        self._ready = True
         owner = weakref.ref(self)
 
         def changed(*events):
@@ -199,6 +206,7 @@ class Compiled(MaterialComponent):
         self._node_dicts = ctx.dicts
         self._watch_nodes(ctx.nodes, ctx.active)
         self.param.watch(self._rebuild, "source")
+        self.param.watch(self._align_substitutes, "dark_theme")
 
     @staticmethod
     def _unwatch(subscriptions):
@@ -210,6 +218,7 @@ class Compiled(MaterialComponent):
         ctx = _Context([])
         # Compiled before the source parameter is set on construction.
         self._root = source
+        self._root_obj = self._substitute(source)
         root = self._compile_node(source, ctx)
         self._rev += 1
         self._orphans = 0
@@ -231,15 +240,12 @@ class Compiled(MaterialComponent):
         ctx.dicts[node_id] = node
         return node
 
-    def _compile_node(self, obj: Viewable, ctx: _Context) -> dict:
-        node_id = str(id(obj))
+    def _is_compilable(self, obj: Viewable) -> bool:
         cls = type(obj)
-        candidate = isinstance(obj, MaterialComponent) and _is_compilable(cls)
-        if candidate:
-            ctx.nodes[node_id] = obj
-        compilable = (
-            candidate and cls.__module__.startswith("panel_material_ui.") and obj._esm_base and
-            node_id not in self._failed_stylesheets and
+        return bool(
+            isinstance(obj, MaterialComponent) and _is_compilable(cls) and
+            cls.__module__.startswith("panel_material_ui.") and obj._esm_base and
+            str(id(obj)) not in self._failed_stylesheets and
             (not isinstance(obj, Page) or obj is self._root) and
             not (
                 obj.loading or
@@ -250,6 +256,48 @@ class Compiled(MaterialComponent):
                 ) or obj.sizing_mode == "inherit"
             ) and not any(getattr(obj, name, None) for name in _SCROLL)
         )
+
+    def _substitute(self, obj: Viewable) -> Viewable:
+        """
+        Returns the Material equivalent of a Panel layout, kept in sync
+        with it, if that is what lets the layout be compiled.
+        """
+        target = _SUBSTITUTES.get(type(obj))
+        if target is None or not _is_compilable(target):
+            return obj
+        if obj not in self._substitutes:
+            substitute = target(**{
+                name: value for name, value in obj.param.values().items() if name != "name"
+            })
+            ref = weakref.ref(substitute)
+
+            def mirror(*events):
+                if (mirrored := ref()) is not None:
+                    mirrored.param.update(**{event.name: event.new for event in events if event.name != "name"})
+
+            obj.param.watch(mirror, [name for name in obj.param if name != "name"])
+            self._substitutes[obj] = substitute
+        substitute = self._substitutes[obj]
+        # Compiled is not initialized yet while it compiles for the first time.
+        if self._ready and substitute.dark_theme != self.dark_theme:
+            with _aligning():
+                substitute.dark_theme = self.dark_theme
+        return substitute if self._is_compilable(substitute) else obj
+
+    def _align_substitutes(self, event) -> None:
+        with _aligning():
+            for substitute in self._substitutes.values():
+                substitute.dark_theme = event.new
+
+    def _compile_node(self, obj: Viewable, ctx: _Context) -> dict:
+        original = obj
+        obj = self._substitute(obj)
+        node_id = str(id(obj))
+        cls = type(obj)
+        candidate = isinstance(obj, MaterialComponent) and _is_compilable(cls)
+        if candidate:
+            ctx.nodes[node_id] = obj
+        compilable = self._is_compilable(obj)
         if not compilable:
             return self._fallback_node(obj, ctx)
         properties, values = _node_properties(obj)
@@ -311,6 +359,9 @@ class Compiled(MaterialComponent):
             node["styles"] = properties["styles"]
         if not obj.visible:
             node["visible"] = False
+        if obj is not original:
+            # Stands in for a layout that does not theme the document.
+            node["substitute"] = True
         if _differs(values["esm_constants"], kind["constants"]):
             node["constants"] = values["esm_constants"]
         ctx.dicts[node_id] = node
@@ -369,7 +420,7 @@ class Compiled(MaterialComponent):
                 self._rebuild(*events)
             return
         children = {name for name, _ in _child_params(type(obj))}
-        if names & _STRUCTURAL or obj is self.source and names & children:
+        if names & _STRUCTURAL or obj is self._root_obj and names & children:
             return self._rebuild(*events)
         if names & children:
             return self._patch_subtree(obj)
@@ -381,7 +432,7 @@ class Compiled(MaterialComponent):
             return self._rebuild(*events)
         linked = obj._linked_properties
         if any(name != "visible" and name not in linked for name in msg):
-            if obj is self.source:
+            if obj is self._root_obj:
                 return self._rebuild(*events)
             return self._patch_subtree(obj)
         self._patch_props(obj, msg)

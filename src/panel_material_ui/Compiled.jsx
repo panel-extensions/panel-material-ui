@@ -427,7 +427,7 @@ function make_node(context, id) {
     },
     // The root of the tree stands in for the Compiled view that mounts it.
     get is_root() { return is_top() && compiled_host.is_root },
-    get is_document_root() { return is_top() && compiled_host.is_document_root },
+    get is_document_root() { return is_top() && !node().substitute && compiled_host.is_document_root },
     get dev() { return compiled_host.dev },
     get host_el() { return is_top() ? view.el : own_el() },
     get content_el() { return is_top() ? view.container : own_el() },

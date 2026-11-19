@@ -173,3 +173,42 @@ def test_compiled_fallback_root_sizes_the_model():
     compiled = Compiled(pn.Row(pn.Spacer(sizing_mode="stretch_width", height=50)))
     root = compiled.get_root(Document())
     assert root.sizing_mode == "stretch_width"
+
+
+def test_compiled_substitutes_panel_layouts():
+    button = Button(label="Run")
+    layout = pn.Column(pn.Row(button, width=300), margin=7)
+    compiled = Compiled(layout)
+
+    root = compiled.tree["root"]
+    assert root["kind"] == "Column"
+    assert root["layout"]["margin"] == 7
+    (row,) = root["children"]["objects"]
+    assert row["kind"] == "Row"
+    assert row["layout"]["width"] == 300
+    assert [child["kind"] for child in row["children"]["objects"]] == ["Button"]
+    assert compiled.fallbacks == []
+    assert compiled.select(Button) == [button]
+
+
+def test_compiled_substituted_layout_follows_the_original():
+    row = pn.Row(Button(label="A"))
+    compiled = Compiled(Column(row))
+    added = Button(label="B")
+
+    row.append(added)
+
+    (op,) = compiled.patch["ops"]
+    assert [child["kind"] for child in op["subtree"]["children"]["objects"]] == ["Button", "Button"]
+
+    row.width = 250
+    (node,) = compiled.tree["root"]["children"]["objects"]
+    assert node["layout"]["width"] == 250
+
+
+def test_compiled_keeps_panel_layouts_it_cannot_compile():
+    layout = pn.Column(Button(label="Run"), scroll=True)
+    compiled = Compiled(layout)
+
+    assert compiled.tree["root"]["kind"] == "fallback"
+    assert compiled.fallbacks == [layout]

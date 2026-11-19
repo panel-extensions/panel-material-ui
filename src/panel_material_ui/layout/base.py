@@ -551,6 +551,8 @@ class FlexBox(MaterialListLike):
     The `FlexBox` layout arranges its contents in a flex container.
     """
 
+    _compilable = True
+
     align_content: t.Literal[
         'normal', 'flex-start', 'flex-end', 'center', 'space-between',
         'space-around', 'space-evenly', 'stretch', 'start', 'end',
