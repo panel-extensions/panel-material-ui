@@ -38,13 +38,14 @@ _DATA_DEFAULTS: dict[type, dict] = {}
 # Parameters that decide whether a component can be compiled at all.
 _STRUCTURAL = frozenset((
     "theme_config", "attached", "description", "sizing_mode", "stylesheets",
-    "scroll", "view_latest", "scroll_index", "auto_scroll_limit", "scroll_button_threshold",
+    "view_latest", "scroll_index", "auto_scroll_limit", "scroll_button_threshold",
     "scroll_position", "href",
 ))
 # What a node renders on its host rather than passing to its component.
 _NODE_STATE = ("visible", "css_classes", "styles")
+# Plain scrolling is CSS on the host, which a compiled node renders too.
 _SCROLL = (
-    "scroll", "view_latest", "scroll_index", "auto_scroll_limit",
+    "view_latest", "scroll_index", "auto_scroll_limit",
     "scroll_button_threshold", "scroll_position", "href",
 )
 _LAYOUT = (

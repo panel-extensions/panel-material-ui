@@ -238,11 +238,19 @@ def test_compiled_substituted_layout_follows_the_original():
 
 
 def test_compiled_keeps_panel_layouts_it_cannot_compile():
-    layout = pn.Column(Button(label="Run"), scroll=True)
+    layout = pn.Column(Button(label="Run"), view_latest=True)
     compiled = Compiled(layout)
 
     assert compiled.tree["root"]["kind"] == "fallback"
     assert compiled.fallbacks == [layout]
+
+
+def test_compiled_scrolling_layout_compiles():
+    compiled = Compiled(pn.Column(Button(label="Run"), scroll="y-auto", height=100))
+
+    root = compiled.tree["root"]
+    assert root["kind"] == "Column"
+    assert root["css_classes"] == ["scrollable-vertical"]
 
 
 def test_compiled_renders_function_panes_as_their_layout():
