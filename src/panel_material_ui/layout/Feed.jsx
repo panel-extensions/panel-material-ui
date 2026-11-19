@@ -335,7 +335,10 @@ export function render({model, host}) {
   return (
     <Box ref={setBoxRef} sx={boxSx}>
       {objects.map((object, index) => {
-        const childId = object.props.id ?? `${index}`
+        // The rendered children can lag a render behind the model, so a wrapper is
+        // keyed by the child it holds: keyed by index position, a window that drops
+        // children at the top would move every child to another wrapper and remount it.
+        const childId = object.props.id ?? object.key ?? `${index}`
         return (
           <div
             key={childId}
