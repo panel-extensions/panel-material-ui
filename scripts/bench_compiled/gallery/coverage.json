@@ -1,0 +1,181 @@
+{
+ "branding": {
+  "viewables": 46,
+  "pmui": 26,
+  "pmui_opted_in": 21,
+  "compiled": {
+   "Page": 1
+  },
+  "fallback_reasons": [
+   [
+    "ToggleIcon",
+    "not opted in",
+    1
+   ],
+   [
+    "Container",
+    "not opted in",
+    29
+   ],
+   [
+    "Image",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Column",
+    "theme_config",
+    14
+   ]
+  ],
+  "pmui_classes": {
+   "Button": 12,
+   "Column": 3,
+   "Select": 3,
+   "Row": 2,
+   "DatePicker": 2,
+   "Page": 1,
+   "ToggleIcon": 1,
+   "Container": 1,
+   "Drawer": 1
+  },
+  "other_classes": {
+   "Markdown": 7,
+   "Column": 3,
+   "ParamFunction": 2,
+   "HoloViews": 2,
+   "ParamMethod": 1,
+   "FlexBox": 1,
+   "Spacer": 1,
+   "Tabulator": 1,
+   "Image": 1,
+   "VSpacer": 1
+  }
+ },
+ "plotly": {
+  "viewables": 53,
+  "pmui": 29,
+  "pmui_opted_in": 15,
+  "compiled": {
+   "Page": 1,
+   "Typography": 2
+  },
+  "fallback_reasons": [
+   [
+    "Container",
+    "not opted in",
+    50
+   ]
+  ],
+  "pmui_classes": {
+   "Grid": 13,
+   "Card": 12,
+   "Typography": 2,
+   "Page": 1,
+   "Container": 1
+  },
+  "other_classes": {
+   "Plotly": 12,
+   "Str": 12
+  }
+ },
+ "holoviz": {
+  "viewables": 18,
+  "pmui": 14,
+  "pmui_opted_in": 11,
+  "compiled": {},
+  "fallback_reasons": [
+   [
+    "Container",
+    "not opted in",
+    18
+   ]
+  ],
+  "pmui_classes": {
+   "Paper": 4,
+   "Container": 1,
+   "Row": 1,
+   "Checkbox": 1,
+   "ColorPicker": 1,
+   "IntSlider": 1,
+   "Select": 1,
+   "ThemeToggle": 1,
+   "Column": 1,
+   "TextInput": 1,
+   "Button": 1
+  },
+  "other_classes": {
+   "HoloViews": 2,
+   "HSpacer": 1,
+   "Markdown": 1
+  }
+ },
+ "components": {
+  "viewables": 19,
+  "pmui": 13,
+  "pmui_opted_in": 6,
+  "compiled": {
+   "Page": 1,
+   "Switch": 1,
+   "Button": 1
+  },
+  "fallback_reasons": [
+   [
+    "Markdown",
+    "not a pmui component",
+    1
+   ],
+   [
+    "ParamFunction",
+    "not a pmui component",
+    3
+   ],
+   [
+    "ColorPicker",
+    "not opted in",
+    1
+   ],
+   [
+    "ColorPicker",
+    "not opted in",
+    1
+   ],
+   [
+    "ColorPicker",
+    "not opted in",
+    1
+   ],
+   [
+    "IntInput",
+    "not opted in",
+    1
+   ],
+   [
+    "Markdown",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Column",
+    "not a pmui component",
+    7
+   ]
+  ],
+  "pmui_classes": {
+   "ColorPicker": 4,
+   "IntInput": 2,
+   "Button": 2,
+   "Page": 1,
+   "Switch": 1,
+   "TextInput": 1,
+   "Select": 1,
+   "NotificationArea": 1
+  },
+  "other_classes": {
+   "Markdown": 2,
+   "Column": 2,
+   "ParamFunction": 1,
+   "Str": 1
+  }
+ }
+}

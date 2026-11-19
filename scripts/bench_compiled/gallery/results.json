@@ -1,0 +1,90 @@
+{
+ "branding|classic": {
+  "ws_kb": 2464.42578125,
+  "idle_ms": 345,
+  "settled_ms": 753,
+  "script_ms": 263.623,
+  "layout_ms": 44.542,
+  "heap_mb": 37.6542,
+  "nodes": 4376,
+  "errors": [],
+  "pixels_differing_pct": 0.4660493827160494
+ },
+ "branding|compiled": {
+  "ws_kb": 2470.294921875,
+  "idle_ms": 349,
+  "settled_ms": 756.6999999880791,
+  "script_ms": 264.843,
+  "layout_ms": 44.51199999999999,
+  "heap_mb": 37.180088,
+  "nodes": 4269,
+  "errors": [],
+  "pixels_differing_pct": 0.4660493827160494
+ },
+ "plotly|classic": {
+  "ws_kb": 361.20703125,
+  "idle_ms": 2789,
+  "settled_ms": 3362.800000011921,
+  "script_ms": 1737.018,
+  "layout_ms": 51.623000000000005,
+  "heap_mb": 55.94186,
+  "nodes": 6171,
+  "errors": [],
+  "pixels_differing_pct": 0.0
+ },
+ "plotly|compiled": {
+  "ws_kb": 376.4453125,
+  "idle_ms": 2818,
+  "settled_ms": 3371.400000035763,
+  "script_ms": 1756.1850000000002,
+  "layout_ms": 50.832,
+  "heap_mb": 58.244024,
+  "nodes": 6182,
+  "errors": [],
+  "pixels_differing_pct": 0.0
+ },
+ "holoviz|classic": {
+  "ws_kb": 184.9501953125,
+  "idle_ms": 265,
+  "settled_ms": 448.19999998807907,
+  "script_ms": 208.85799999999998,
+  "layout_ms": 22.648000000000003,
+  "heap_mb": 23.692276,
+  "nodes": 1926,
+  "errors": [],
+  "pixels_differing_pct": 0.0
+ },
+ "holoviz|compiled": {
+  "ws_kb": 186.265625,
+  "idle_ms": 273,
+  "settled_ms": 448.5,
+  "script_ms": 213.90400000000002,
+  "layout_ms": 23.168000000000003,
+  "heap_mb": 26.606848,
+  "nodes": 1978,
+  "errors": [],
+  "pixels_differing_pct": 0.0
+ },
+ "components|classic": {
+  "ws_kb": 469.2236328125,
+  "idle_ms": 127,
+  "settled_ms": 820.3000000119209,
+  "script_ms": 152.301,
+  "layout_ms": 19.303,
+  "heap_mb": 30.938288,
+  "nodes": 7391,
+  "errors": [],
+  "pixels_differing_pct": 0.0
+ },
+ "components|compiled": {
+  "ws_kb": 473.7646484375,
+  "idle_ms": 129,
+  "settled_ms": 820.8999999761581,
+  "script_ms": 156.65,
+  "layout_ms": 18.513,
+  "heap_mb": 31.6023,
+  "nodes": 7296,
+  "errors": [],
+  "pixels_differing_pct": 0.0
+ }
+}
