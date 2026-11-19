@@ -1,7 +1,9 @@
 import * as React from "react"
-import {flushSync} from "react-dom"
+import {createPortal, flushSync} from "react-dom"
+import createCache from "@emotion/cache"
+import {CacheProvider} from "@emotion/react"
 import pmui from "panel-material-ui"
-import {apply_flex, child_flex, child_handle, make_host, theme_document_early} from "./utils"
+import {apply_flex, child_flex, child_handle, make_host, overlay_container, theme_document_early} from "./utils"
 
 const stylesheetRequests = new Map()
 const CompiledContext = React.createContext(null)
@@ -33,6 +35,9 @@ function create_store(model, initial) {
   const parents = new Map()
   const slots = new Map()
   const hosts = new Map()
+  // The shadow roots of the nodes a JSComponent places in the DOM itself,
+  // which seal a child off from its parent as the view of a child would.
+  const roots = new Map()
   const state = {tree: null, rev: -1, shared_styles: {}, kinds: {}, sheets: [], layouts: new Map(), dirty: false}
   // Fills in what the tree only sends once: the defaults of the kind of
   // component and the stylesheets a node refers to by index.
@@ -118,6 +123,13 @@ function create_store(model, initial) {
   return {
     state,
     hosts,
+    roots,
+    root_of(id) {
+      for (let current = id; current != null; current = parents.get(current)) {
+        if (roots.has(current)) { return roots.get(current) }
+      }
+      return null
+    },
     get: (id) => nodes.get(id),
     parent: (id) => parents.get(id) ?? null,
     slot_parent: (slot) => slots.get(slot),
@@ -195,12 +207,14 @@ function SharedStyles({store}) {
   React.useSyncExternalStore(store.subscriber("@sheets"), () => store.state.sheets)
   const {sheets, shared_styles, layouts} = store.state
   const rules = [...layouts].map(([declarations, key]) => `[data-pmui-layout="${key}"] { ${declarations} }`)
+  // The wrapper Panel mounts a child view in takes no part in the layout.
+  rules.unshift(".error-wrapper, .child-wrapper { display: contents; }")
   return <>
     <style>{rules.join("\n")}</style>
     {sheets.map((sheet, index) => {
       const css = sheet.css ?? shared_styles[sheet.base_url]
       return css == null ? null :
-        <style key={index}>{`@scope ([data-pmui-css~="s${index}"]) to ([data-pmui-host]) { ${scoped(sheet, css)} }`}</style>
+        <style key={index}>{`@scope ([data-pmui-css~="s${index}"]) to (:scope [data-pmui-host] > *) { ${scoped(sheet, css)} }`}</style>
     })}
   </>
 }
@@ -240,7 +254,7 @@ function NodeStyles({node, model}) {
   return node.stylesheets.map((sheet, index) => {
     const css = sheet.url ? loaded[sheet.url] : null
     return css == null ? null :
-      <style key={index}>{`@scope (#pmui-${node.id}) to ([data-pmui-host]) { ${scoped(sheet, css)} }`}</style>
+      <style key={index}>{`@scope (#pmui-${node.id}) to (:scope [data-pmui-host] > *) { ${scoped(sheet, css)} }`}</style>
   })
 }
 
@@ -432,7 +446,8 @@ function make_node(context, id) {
     has: (target, name) => name in target || name in node().props,
   })
   const is_top = () => store.parent(id) == null
-  const own_el = () => view.shadow_el.querySelector(`#pmui-${id}`)
+  const style_root = () => store.root_of(id)?.root ?? view.shadow_el
+  const own_el = () => style_root().querySelector(`#pmui-${id}`)
   const host = {
     model: node_model,
     get parent() { return parent() ?? compiled_host },
@@ -447,10 +462,13 @@ function make_node(context, id) {
     get dev() { return compiled_host.dev },
     get host_el() { return is_top() ? view.el : own_el() },
     get content_el() { return is_top() ? view.container : own_el() },
-    get overlay_root() { return compiled_host.overlay_root },
-    get style_root() { return view.shadow_el },
+    get overlay_root() {
+      const sealed = store.root_of(id)
+      return sealed ? overlay_container(sealed.overlays) : compiled_host.overlay_root
+    },
+    get style_root() { return style_root() },
     shares_style_root: true,
-    get emotion_cache() { return compiled_host.emotion_cache },
+    get emotion_cache() { return store.root_of(id)?.cache ?? compiled_host.emotion_cache },
     get layout() { return node().layout },
     get document() { return compiled_host.document },
     invalidate_layout: () => view.invalidate_layout(),
@@ -532,12 +550,13 @@ function schedule_mount(mount) {
 }
 
 // A child that renders through its own Bokeh view is sized by Bokeh.
-function Fallback({node, direction, extra}) {
+function Fallback({node, direction, extra, immediate}) {
   const {model, view} = React.useContext(CompiledContext)
   const fallbacks = React.useContext(FallbackContext)
   const bk_model = model.get("fallbacks")?.[node.slot]
-  const [mounted, setMounted] = React.useState(false)
-  React.useEffect(() => schedule_mount(() => setMounted(true)), [])
+  // A JSComponent measures its children once it has placed them.
+  const [mounted, setMounted] = React.useState(Boolean(immediate))
+  React.useEffect(() => immediate ? undefined : schedule_mount(() => setMounted(true)), [])
   React.useEffect(() => {
     if (bk_model == null || !(direction || extra)) { return }
     const size = () => apply_flex(view.get_child_view(bk_model), direction, extra)
@@ -545,6 +564,412 @@ function Fallback({node, direction, extra}) {
     return model.on("layout", size)
   }, [bk_model, direction, extra, mounted])
   return mounted ? fallbacks[node.slot] ?? null : null
+}
+
+const LAYOUT_PROPS = new Set([
+  "width", "height", "min_width", "max_width", "min_height", "max_height", "margin", "sizing_mode",
+  "aspect_ratio", "width_policy", "height_policy", "align",
+])
+const PROTOTYPE_PROPS = new Set(["class_name", "dev", "events", "render_policy", "importmap", "bundle", "type"])
+const LIFECYCLE = ["after_render", "after_layout", "mounted", "remove", "resize"]
+const esm_renderers = new Map()
+
+function same_value(a, b) {
+  if (a === b) { return true }
+  if (a == null || b == null || typeof a !== "object" || typeof b !== "object") { return false }
+  try {
+    return JSON.stringify(a) === JSON.stringify(b)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Stands in for the model and the view Panel passes to the render function
+ * of a JSComponent. Whatever of the two a component reaches for that has no
+ * counterpart here is reported, and the component then renders through its
+ * own view instead.
+ */
+function make_esm(context, id, prototype) {
+  const {store, model, view} = context
+  let last = store.get(id)
+  const node = () => (last = store.get(id) ?? last)
+  const slots = new Map()
+  const child_models = new Map()
+  const child_values = new WeakMap()
+  const lifecycle = new Map(LIFECYCLE.map(name => [name, []]))
+  const accessed = new Set()
+  const state = {
+    watchers: [], msg: [], container: null, host: null, render: null, mounted: false,
+    reported: false, generation: 0, children: new Map(),
+  }
+
+  const report = (reason) => {
+    if (state.reported) { return }
+    state.reported = true
+    console.warn(`${node().kind} cannot be compiled, it uses ${reason}`)
+    model.send_msg({type: "esm_unsupported", id, reason})
+  }
+  const is_child = (name) => node().children != null && name in node().children
+  const is_prop = (name) => name in node().props
+  const child_list = (name) => {
+    const children = node().children?.[name]
+    return children == null ? [] : Array.isArray(children) ? children : [children]
+  }
+  const fallback_model = (child) => model.get("fallbacks")?.[child.slot]
+  const child_model = (child) => {
+    if (child.kind === "fallback") { return fallback_model(child) }
+    if (!child_models.has(child.id)) {
+      child_models.set(child.id, new Proxy({id: child.id}, {
+        get: (target, name) => name in target ? target[name] :
+          store.get(child.id)?.layout?.[name] ?? store.get(child.id)?.props?.[name] ?? null,
+      }))
+    }
+    return child_models.get(child.id)
+  }
+  const child_value = (name) => {
+    const children = node().children[name]
+    if (children == null) { return null }
+    if (!Array.isArray(children)) { return child_model(children) }
+    if (child_values.has(children)) { return child_values.get(children) }
+    const models = children.map(child_model)
+    if (models.every(child => child != null)) { child_values.set(children, models) }
+    return models
+  }
+  const slot = (child) => {
+    if (!slots.has(child.id)) { slots.set(child.id, document.createElement("div")) }
+    return slots.get(child.id)
+  }
+  const read = (name) => {
+    if (is_child(name)) { return child_value(name) }
+    if (is_prop(name)) { return node().props[name] }
+    if (LAYOUT_PROPS.has(name)) { return node().layout[name] ?? null }
+    if (name === "css_classes") { return node().css_classes }
+    if (name === "visible") { return node().visible }
+    return undefined
+  }
+  const watchable = (name) => is_child(name) || is_prop(name) || LAYOUT_PROPS.has(name) ||
+    name === "css_classes" || name === "visible"
+  const snapshot = (name) => is_child(name) ? child_list(name).map(child => child.id).join(" ") : read(name)
+  const write = (name, value) => {
+    if (!is_prop(name) || is_child(name)) { return false }
+    if (same_value(node().props[name], value)) { return true }
+    const seq = store.set_local(id, name, value)
+    model.send_msg({type: "update", id, name, value, root: model.id, seq})
+    return true
+  }
+  const strip = (name) => name.startsWith("change:") ? name.slice(7) : name
+  const methods = {
+    get_child: (name) => {
+      accessed.add(name)
+      if (!state.children.has(name)) { state.children.set(name, snapshot(name)) }
+      const children = node().children?.[name]
+      return Array.isArray(children) ? children.map(slot) : children ? slot(children) : null
+    },
+    send_msg: (data) => model.send_msg({type: "msg", id, data}),
+    send_event: (name, event) => model.send_msg({type: "event", id, name, data: serialize_event(event)}),
+    on: (names, callback) => {
+      for (let name of [].concat(names)) {
+        name = strip(name)
+        if (name === "msg:custom") {
+          state.msg.push(callback)
+        } else if (watchable(name)) {
+          state.watchers.push({name, callback, seen: snapshot(name)})
+        } else if (lifecycle.has(name.replace(/^lifecycle:/, ""))) {
+          lifecycle.get(name.replace(/^lifecycle:/, "")).push(callback)
+        } else if (name.split(".")[0] in node().props || name in prototype) {
+          report(`model.on("${name}")`)
+        } else {
+          console.warn(`Could not register callback for event type '${name}'`)
+        }
+      }
+    },
+    off: (names, callback) => {
+      for (let name of [].concat(names)) {
+        name = strip(name)
+        if (name === "msg:custom") {
+          state.msg = state.msg.filter(handler => handler !== callback)
+        } else if (watchable(name)) {
+          state.watchers = state.watchers.filter(watcher => watcher.name !== name || watcher.callback !== callback)
+        } else if (lifecycle.has(name.replace(/^lifecycle:/, ""))) {
+          const key = name.replace(/^lifecycle:/, "")
+          lifecycle.set(key, lifecycle.get(key).filter(handler => handler !== callback))
+        }
+      }
+    },
+  }
+  const data = new Proxy({}, {
+    get: (_, name) => {
+      if (typeof name !== "string") { return undefined }
+      if (name === "attributes") { return node().props }
+      if (name === "esm_constants") { return node().constants }
+      return is_child(name) || is_prop(name) ? read(name) : undefined
+    },
+    set: (_, name, value) => write(name, value),
+    has: (_, name) => is_child(name) || is_prop(name),
+  })
+  const model_proxy = new Proxy({}, {
+    get: (_, name) => {
+      if (typeof name !== "string") { return undefined }
+      if (name in methods) { return methods[name] }
+      if (watchable(name)) { return read(name) }
+      if (name === "id") { return id }
+      if (name === "data") { return data }
+      if (name === "document") { return view.model.document }
+      if (name === "children") { return Object.keys(node().children ?? {}) }
+      if (PROTOTYPE_PROPS.has(name)) { return prototype[name] }
+      if (name in prototype) { report(`model.${name}`) }
+      return undefined
+    },
+    set: (_, name, value) => {
+      if (write(name, value)) { return true }
+      if (name in prototype) { report(`model.${name}`) }
+      return false
+    },
+    has: (_, name) => name in methods || watchable(name) || name in prototype,
+  })
+  const child_view = (child) => {
+    const real = child.kind === "fallback" && fallback_model(child) ? view.get_child_view(fallback_model(child)) : null
+    return {
+      el: slot(child), model: child_model(child),
+      // Resolves once React has committed the child into its element.
+      get ready() { return new Promise(resolve => setTimeout(resolve)).then(() => real?.ready) },
+      child_views: [], rerender: () => restyle(child), rerender_: () => restyle(child), render: () => {},
+      after_render: () => {}, r_after_render: () => restyle(child),
+      invalidate_layout: () => {}, has_finished: () => true,
+    }
+  }
+  // Attaching or moving an element drops the rules its stylesheets were
+  // given through the CSSOM. The views below it recover in r_after_render.
+  const restyle = (child) => {
+    const visit = (current) => {
+      if (current.kind === "fallback") {
+        const bk_model = fallback_model(current)
+        const child_view = bk_model && view.get_child_view(bk_model)
+        if (child_view?.el.isConnected) { child_view.r_after_render?.() }
+      } else {
+        child_nodes(store.get(current.id) ?? current).forEach(visit)
+      }
+    }
+    visit(child)
+  }
+  const child_views = () => Object.keys(node().children ?? {}).flatMap(name => child_list(name).map(child_view))
+  const view_api = {
+    get el() { return state.host },
+    get container() { return state.container },
+    get shadow_el() { return view.shadow_el },
+    get model() { return model_proxy },
+    get model_proxy() { return model_proxy },
+    get child_views() { return child_views() },
+    get root() { return view.root },
+    get parent() { return view },
+    get is_destroyed() { return !state.mounted },
+    get ready() { return Promise.resolve() },
+    _child_rendered: new Map(),
+    get_child_view: (child) => {
+      const match = Object.keys(node().children ?? {}).flatMap(child_list).find(
+        candidate => child_model(candidate) === child || candidate.id === child?.id
+      )
+      return match ? child_view(match) : undefined
+    },
+    invalidate_layout: () => {},
+    update_layout: () => {},
+    compute_layout: () => {},
+    notify_finished: () => {},
+  }
+  const view_proxy = new Proxy(view_api, {
+    get: (target, name) => {
+      if (name in target || typeof name !== "string") { return target[name] }
+      if (name in view) { report(`view.${name}`) }
+      return undefined
+    },
+  })
+
+  const call = (handlers) => {
+    for (const handler of [...handlers]) {
+      try {
+        handler()
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
+  const run = () => {
+    const generation = ++state.generation
+    state.container.replaceChildren()
+    state.watchers = []
+    state.msg = []
+    accessed.clear()
+    state.children.clear()
+    for (const name of LIFECYCLE) { lifecycle.set(name, []) }
+    let output
+    try {
+      output = state.render({view: view_proxy, model: model_proxy, data, el: state.container})
+    } catch (error) {
+      console.error(error)
+      report(`a render function that fails: ${error}`)
+      return
+    }
+    Promise.resolve(output).then((out) => {
+      if (generation !== state.generation || !state.mounted) { return }
+      if (out instanceof Element) { state.container.replaceChildren(out) }
+      call(lifecycle.get("after_render"))
+      call(lifecycle.get("mounted"))
+      call(lifecycle.get("after_layout"))
+    }, (error) => {
+      console.error(error)
+      report(`a render function that fails: ${error}`)
+    })
+  }
+  // The views of the children that render through Bokeh are built
+  // asynchronously, after the patch that adds them has been applied.
+  const children_ready = async () => {
+    const fallbacks = () => Object.keys(node().children ?? {}).flatMap(child_list).filter(child => child.kind === "fallback")
+    for (let attempt = 0; attempt < 40; attempt++) {
+      if (fallbacks().every(child => fallback_model(child) && view.get_child_view(fallback_model(child)))) { return }
+      await new Promise(resolve => setTimeout(resolve, attempt < 5 ? 0 : 25))
+    }
+  }
+  const notify = () => {
+    if (!state.mounted) { return }
+    const changed = state.watchers.filter((watcher) => {
+      const current = snapshot(watcher.name)
+      const differs = !same_value(watcher.seen, current)
+      watcher.seen = current
+      return differs
+    })
+    let rerender = false
+    for (const [name, seen] of state.children) {
+      const current = snapshot(name)
+      if (seen !== current) {
+        state.children.set(name, current)
+        rerender = true
+      }
+    }
+    const fire = (watcher) => {
+      const event = prototype.events?.includes(watcher.name)
+      if (event && !node().props[watcher.name]) { return }
+      try {
+        watcher.callback()
+      } catch (error) {
+        console.error(error)
+      }
+      if (event) { store.set_local(id, watcher.name, false) }
+    }
+    changed.filter(watcher => !is_child(watcher.name)).forEach(fire)
+    const children = changed.filter(watcher => is_child(watcher.name))
+    if (!children.length && !rerender) { return }
+    const generation = state.generation
+    children_ready().then(() => {
+      if (!state.mounted || generation !== state.generation) { return }
+      if (rerender && store.state.kinds[node().kind].render_policy !== "manual") {
+        run()
+      } else {
+        children.forEach(fire)
+      }
+    })
+  }
+  let unlisten = null
+  let observer = null
+  let moves = null
+  const moved = (records) => {
+    const added = records.flatMap(record => [...record.addedNodes]).filter(added => added.nodeType === 1)
+    if (!added.length) { return }
+    for (const child of Object.keys(node().children ?? {}).flatMap(child_list)) {
+      const el = slots.get(child.id)
+      if (el && added.some(parent => parent === el || parent.contains(el))) { restyle(child) }
+    }
+  }
+  return {
+    slot,
+    prune(ids) {
+      for (const child_id of [...slots.keys()]) {
+        if (!ids.has(child_id)) {
+          slots.get(child_id).remove()
+          slots.delete(child_id)
+          child_models.delete(child_id)
+        }
+      }
+    },
+    receive: (data) => state.msg.forEach(handler => handler(data)),
+    mount(container, render) {
+      state.container = container
+      state.host = container.parentElement
+      state.render = render
+      state.mounted = true
+      unlisten = store.listen(id, notify)
+      observer = new ResizeObserver(() => {
+        call(lifecycle.get("resize"))
+        call(lifecycle.get("after_layout"))
+      })
+      observer.observe(state.host)
+      moves = new MutationObserver(moved)
+      moves.observe(container, {childList: true, subtree: true})
+      run()
+    },
+    unmount() {
+      state.mounted = false
+      state.generation++
+      unlisten?.()
+      observer?.disconnect()
+      moves?.disconnect()
+      call(lifecycle.get("remove"))
+    },
+  }
+}
+
+function EsmNode({node}) {
+  const context = React.useContext(CompiledContext)
+  const {model, view} = context
+  const id = node.id
+  const [prototype, setPrototype] = React.useState(() => view.model.data._prototypes?.[node.kind])
+  const [render, setRender] = React.useState(() => esm_renderers.get(node.kind))
+  const container = React.useRef(null)
+  const instance = React.useRef(null)
+  React.useEffect(() => {
+    if (prototype != null) { return }
+    const update = () => setPrototype(view.model.data._prototypes?.[node.kind])
+    update()
+    view.model_proxy.on("_prototypes", update)
+    return () => view.model_proxy.off("_prototypes", update)
+  }, [prototype])
+  React.useEffect(() => {
+    if (prototype == null || render != null) { return }
+    let active = true
+    Promise.resolve(prototype.compiled_module).then((mod) => {
+      const fn = mod?.default?.render ?? mod?.render
+      if (fn == null) {
+        model.send_msg({type: "esm_unsupported", id, reason: "a module without a render function"})
+      } else if (active) {
+        esm_renderers.set(node.kind, fn)
+        setRender(() => fn)
+      }
+    })
+    return () => { active = false }
+  }, [prototype, render])
+  if (prototype != null && instance.current == null) {
+    instance.current = make_esm(context, id, prototype)
+  }
+  React.useLayoutEffect(() => {
+    if (render == null || instance.current == null) { return }
+    const esm = instance.current
+    esm.mount(container.current, render)
+    const stop = model.on("msg", (msg) => {
+      if (msg.type === "node_msg" && msg.id === id) { esm.receive(msg.data) }
+    })
+    return () => {
+      stop()
+      esm.unmount()
+    }
+  }, [render, id])
+  const children = child_nodes(node)
+  React.useEffect(() => instance.current?.prune(new Set(children.map(child => child.id))))
+  return <>
+    <div ref={container} style={{display: "contents"}}/>
+    {instance.current && children.map(child => (
+      <SlotNode key={child.id} nid={child.id} slot={instance.current.slot(child)}/>
+    ))}
+  </>
 }
 
 function same_style(a, b) {
@@ -556,10 +981,67 @@ function same_style(a, b) {
 
 // A node renders when its own state changes, not when its parent does.
 const Node = React.memo(NodeHost, (prev, next) => (
-  prev.nid === next.nid && prev.direction === next.direction && same_style(prev.extra, next.extra)
+  prev.nid === next.nid && prev.direction === next.direction && prev.fill === next.fill &&
+  same_style(prev.extra, next.extra)
 ))
 
-function NodeHost({nid, direction, extra}) {
+const FILL = {
+  width: "100%", height: "100%", margin: "0px", minWidth: undefined, minHeight: undefined,
+  maxWidth: undefined, maxHeight: undefined, aspectRatio: undefined,
+}
+
+// Renders a child of a JSComponent into the element the component places
+// in the DOM itself. A compiled child gets a shadow root, so that it is as
+// opaque to the queries and the stylesheets of its parent as a view.
+function SlotNode({nid, slot}) {
+  const {store} = React.useContext(CompiledContext)
+  const node = useNode(store, nid)
+  const sealed = React.useMemo(() => {
+    if (node == null || node.kind === "fallback") { return null }
+    const root = slot.shadowRoot ?? slot.attachShadow({mode: "open"})
+    const overlays = document.createElement("div")
+    overlays.style.display = "contents"
+    root.append(overlays)
+    // The parent attaches and moves the element, which drops the rules a
+    // stylesheet was given through the CSSOM, so they are written as text.
+    const cache = createCache({key: "pnl", prepend: true, container: root, speedy: false})
+    const entry = {root, overlays, cache}
+    store.roots.set(nid, entry)
+    return entry
+  }, [slot, nid, node == null || node.kind === "fallback"])
+  React.useEffect(() => () => { store.roots.delete(nid) }, [nid])
+  const fallback = node?.kind === "fallback"
+  const layout = node == null ? null : fallback ? {
+    width: ["stretch_width", "stretch_both", "scale_width", "scale_both"].includes(node.sizing_mode) ? "100%" : "fit-content",
+    height: ["stretch_height", "stretch_both", "scale_height", "scale_both"].includes(node.sizing_mode) ? "100%" : "fit-content",
+  } : {...hostLayout(node), display: node.visible ? undefined : "none"}
+  const declared = layout == null ? [] : Object.entries(layout).filter(([, value]) => value !== undefined)
+    .map(([name, value]) => [name.replace(/[A-Z]/g, char => `-${char.toLowerCase()}`), value])
+  const applied = React.useRef([])
+  // Only the declarations of the layout, the parent styles the element too.
+  React.useLayoutEffect(() => {
+    slot.dataset.pmuiSlot = ""
+    for (const name of applied.current) {
+      if (!declared.some(([current]) => current === name)) { slot.style.removeProperty(name) }
+    }
+    for (const [name, value] of declared) { slot.style.setProperty(name, value) }
+    applied.current = declared.map(([name]) => name)
+  }, [slot, JSON.stringify(declared)])
+  if (node == null) {
+    return null
+  }
+  if (fallback) {
+    return createPortal(<Fallback node={node} immediate/>, slot)
+  }
+  return createPortal(
+    <CacheProvider value={sealed.cache}>
+      <SharedStyles store={store}/>
+      <Node nid={nid} extra={FILL} fill/>
+    </CacheProvider>, sealed.root
+  )
+}
+
+function NodeHost({nid, direction, extra, fill}) {
   const {store, model} = React.useContext(CompiledContext)
   const node = useNode(store, nid)
   const host = React.useRef(null)
@@ -597,16 +1079,25 @@ function NodeHost({nid, direction, extra}) {
   const size = (axis, stretch, value) => stretch ?
     marginSize(axis) ? `calc(100% - ${marginSize(axis)}px)` : "100%" : value ?? undefined
   const shared = node.sheet_ids.filter(index => !store.state.sheets[index]?.url).map(index => `s${index}`).join(" ")
-  return <div ref={host} id={`pmui-${node.id}`} data-pmui-host="" data-pmui-layout={store.layout_key(declarations)}
-    data-pmui-css={shared || undefined}
-    className={[node.kind.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(), ...node.css_classes].join(" ")}
-    style={{width: size("width", horizontal, width), height: size("height", vertical, height),
-      minWidth: min_width ?? undefined, minHeight: min_height ?? undefined,
-      maxWidth: max_width ?? undefined, maxHeight: max_height ?? undefined,
-      display: node.visible ? undefined : "none"}}
-  >
+  const esm = Boolean(store.state.kinds[node.kind]?.esm)
+  const className = [
+    node.kind.split(".").pop().replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(), ...node.css_classes,
+  ].join(" ")
+  // A node that fills a slot is sized by the slot.
+  const style = fill ? {} : {
+    width: size("width", horizontal, width), height: size("height", vertical, height),
+    minWidth: min_width ?? undefined, minHeight: min_height ?? undefined,
+    maxWidth: max_width ?? undefined, maxHeight: max_height ?? undefined,
+    display: node.visible ? undefined : "none",
+  }
+  const content = <>
     {node.stylesheets.some(sheet => sheet.url) && <NodeStyles node={node} model={model}/>}
-    <MaterialNode key={node.id} node={node}/>
+    {esm ? <EsmNode key={node.id} node={node}/> : <MaterialNode key={node.id} node={node}/>}
+  </>
+  return <div ref={host} id={`pmui-${node.id}`} data-pmui-host="" data-pmui-layout={store.layout_key(declarations)}
+    data-pmui-css={shared || undefined} className={className} style={style}
+  >
+    {content}
   </div>
 }
 

@@ -12,13 +12,15 @@ from types import SimpleNamespace
 import panel
 import param
 from bokeh.models.css import ImportedStyleSheet, InlineStyleSheet
-from panel.custom import ReactiveESM
+from panel.custom import AnyWidgetComponent, JSComponent, ReactComponent, ReactiveESM
+from panel.io.resource_spec import resource_spec
 from panel.io.resources import CDN_DIST
 from panel.io.state import state
 from panel.links import Callback, Link
 from panel.models.reactive_html import DOMEvent
 from panel.pane.base import ReplacementPane
 from panel.param import ParamRef
+from panel.reactive import drop_default_properties
 from panel.util import edit_readonly
 from panel.viewable import Child, Children, Viewable
 
@@ -26,10 +28,82 @@ from .base import MaterialComponent, _align_rendered_explicit, _aligning
 from .layout.base import Column, FlexBox, Row
 from .template.base import Page
 
+_REGISTERED: set[type] = set()
+
+
+def register(cls: type) -> type:
+    """
+    Opts a component class into compilation, the equivalent of declaring
+    `_compilable = True` on a class that cannot be edited.
+    """
+    _REGISTERED.add(cls)
+    return cls
+
 
 def _is_compilable(cls: type) -> bool:
     # Opting in is not inherited, a subclass may render differently.
-    return bool(vars(cls).get("_compilable"))
+    return bool(vars(cls).get("_compilable")) or cls in _REGISTERED
+
+
+def _is_esm(cls: type) -> bool:
+    """
+    Whether the class is a JSComponent, which a tree renders by calling its
+    render function with stand-ins for the model and the view.
+    """
+    return issubclass(cls, JSComponent) and not issubclass(
+        cls, (MaterialComponent, ReactComponent, AnyWidgetComponent)
+    )
+
+
+def _kind(cls: type) -> str:
+    return f"{cls.__module__}.{cls.__name__}" if _is_esm(cls) else cls.__name__
+
+
+# What a subclass of a Panel layout must leave alone to render as the
+# Material equivalent of that layout.
+_RENDER_HOOKS = (
+    "_bokeh_model", "_get_model", "_get_objects", "_process_param_change", "_process_property_change",
+    "_rename", "_stylesheets", "_linked_properties", "_update_model", "_init_params",
+    "_source_transforms", "_compute_sizing_mode",
+)
+_SUBSTITUTE_TARGETS: dict[type, type | None] = {}
+
+
+def _substitute_target(cls: type) -> type | None:
+    if cls in _SUBSTITUTES:
+        return _SUBSTITUTES[cls]
+    if cls not in _SUBSTITUTE_TARGETS:
+        target = None
+        for index, base in enumerate(cls.__mro__):
+            if base in _SUBSTITUTES:
+                between = cls.__mro__[:index]
+                plain = not any(
+                    klass.__module__.split(".")[0] == "panel" or any(name in vars(klass) for name in _RENDER_HOOKS)
+                    for klass in between
+                )
+                target = _SUBSTITUTES[base] if plain else None
+                break
+        _SUBSTITUTE_TARGETS[cls] = target
+    return _SUBSTITUTE_TARGETS[cls]
+
+
+def _forward_messages(obj: Viewable) -> None:
+    """
+    Makes the messages a component sends reach the trees that render it,
+    as MaterialComponent does for its own subclasses.
+    """
+    if "_send_msg" in vars(obj):
+        return
+    original = obj._send_msg
+    ref = weakref.ref(obj)
+
+    def _send_msg(data: t.Any) -> None:
+        original(data)
+        if (target := ref()) is not None:
+            for root in tuple(getattr(target, "_compiled_roots", ())):
+                root._send_node_msg(target, data)
+
+    obj._send_msg = _send_msg
 
 
 _CHILD_PARAMS: dict[type, tuple[tuple[str, bool], ...]] = {}
@@ -134,6 +208,7 @@ class _Context:
         self.nodes: dict[str, Viewable] = {}
         self.active: set[Viewable] = set()
         self.dicts: dict[str, dict] = {}
+        self.esm: dict[str, Viewable] = {}
 
 
 class Compiled(MaterialComponent):
@@ -147,6 +222,7 @@ class Compiled(MaterialComponent):
     patch = param.Dict(default={})
     fallbacks = Children()
     _custom_theme = param.List(default=[])
+    _prototypes = param.Dict(default={})
 
     _compiles = True
 
@@ -195,6 +271,7 @@ class Compiled(MaterialComponent):
         self._orphans = 0
         self._stale = False
         self._echo: dict | None = None
+        self._esm_samples: dict[str, Viewable] = {}
         tree, ctx = self._compile(source)
         self._inherit_sizing = "sizing_mode" not in params
         self._inherit_theme = "dark_theme" not in params
@@ -231,6 +308,7 @@ class Compiled(MaterialComponent):
         root = self._compile_node(source, ctx)
         self._rev += 1
         self._orphans = 0
+        self._esm_samples.update(ctx.esm)
         tree = {
             "root": root, "shared_styles": ctx.shared_styles, "kinds": ctx.kinds,
             "sheets": ctx.sheets, "state": {"rev": self._rev},
@@ -251,9 +329,18 @@ class Compiled(MaterialComponent):
 
     def _is_compilable(self, obj: Viewable) -> bool:
         cls = type(obj)
+        if not _is_compilable(cls):
+            return False
+        if _is_esm(cls):
+            # The stylesheet of a bundle is loaded by the view of a component.
+            supported = not (cls._bundle_path and cls._bundle_css)
+        else:
+            supported = bool(
+                isinstance(obj, MaterialComponent) and
+                cls.__module__.startswith("panel_material_ui.") and obj._esm_base
+            )
         return bool(
-            isinstance(obj, MaterialComponent) and _is_compilable(cls) and
-            cls.__module__.startswith("panel_material_ui.") and obj._esm_base and
+            supported and
             str(id(obj)) not in self._failed_stylesheets and
             (not isinstance(obj, Page) or obj is self._root) and
             not (
@@ -281,20 +368,19 @@ class Compiled(MaterialComponent):
             obj._init_placeholder()
             inner = self._substitute(obj._inner_layout)
             return obj if inner is obj._inner_layout else inner
-        target = _SUBSTITUTES.get(type(obj))
+        target = _substitute_target(type(obj))
         if target is None or not _is_compilable(target):
             return obj
         if obj not in self._substitutes:
-            substitute = target(**{
-                name: value for name, value in obj.param.values().items() if name != "name"
-            })
+            shared = [name for name in obj.param if name != "name" and name in target.param]
+            substitute = target(**{name: getattr(obj, name) for name in shared})
             ref = weakref.ref(substitute)
 
             def mirror(*events):
                 if (mirrored := ref()) is not None:
-                    mirrored.param.update(**{event.name: event.new for event in events if event.name != "name"})
+                    mirrored.param.update(**{event.name: event.new for event in events})
 
-            obj.param.watch(mirror, [name for name in obj.param if name != "name"])
+            obj.param.watch(mirror, shared)
             self._substitutes[obj] = substitute
         substitute = self._substitutes[obj]
         # Compiled is not initialized yet while it compiles for the first time.
@@ -313,7 +399,7 @@ class Compiled(MaterialComponent):
         obj = self._substitute(obj)
         node_id = str(id(obj))
         cls = type(obj)
-        candidate = isinstance(obj, MaterialComponent) and _is_compilable(cls)
+        candidate = isinstance(obj, (MaterialComponent, JSComponent)) and _is_compilable(cls)
         if candidate:
             ctx.nodes[node_id] = obj
         compilable = self._is_compilable(obj)
@@ -346,12 +432,18 @@ class Compiled(MaterialComponent):
         ctx.active.add(obj)
         # Whatever most nodes share is sent once: the defaults of a kind of
         # component and the stylesheets, which a node refers to by index.
-        kind = ctx.known_kinds.get(cls.__name__) or ctx.kinds.get(cls.__name__)
+        kind_name = _kind(cls)
+        kind = ctx.known_kinds.get(kind_name) or ctx.kinds.get(kind_name)
         if kind is None:
-            ctx.kinds[cls.__name__] = kind = {
+            ctx.kinds[kind_name] = kind = {
                 "props": {name: _DATA_DEFAULTS[cls][name] for name in obj._linked_properties},
                 "constants": values["esm_constants"],
             }
+            if _is_esm(cls):
+                kind["esm"] = True
+                kind["render_policy"] = cls._render_policy
+        if kind.get("esm"):
+            ctx.esm.setdefault(kind_name, obj)
         sheets = []
         for stylesheet in stylesheets:
             key = tuple(stylesheet.items())
@@ -363,7 +455,7 @@ class Compiled(MaterialComponent):
         layout = ctx.layouts[node_id] = {name: properties.get(name) for name in _LAYOUT}
         node = {
             "id": node_id,
-            "kind": cls.__name__,
+            "kind": kind_name,
             "layout": layout,
             "props": {
                 name: values[name] for name in obj._linked_properties
@@ -422,6 +514,8 @@ class Compiled(MaterialComponent):
             if not hasattr(obj, "_compiled_roots"):
                 obj._compiled_roots = weakref.WeakSet()
             obj._compiled_roots.add(self)
+            if not isinstance(obj, MaterialComponent):
+                _forward_messages(obj)
         self._active_nodes = active
         self._nodes = nodes
         self._stale = False
@@ -559,6 +653,9 @@ class Compiled(MaterialComponent):
         updates = {}
         if len(ctx.fallbacks) != len(self.fallbacks):
             updates["fallbacks"] = ctx.fallbacks
+        if ctx.esm:
+            self._esm_samples.update(ctx.esm)
+            self._sync_prototypes()
         self._send_patch([op], **updates)
 
     def _parent(self, node_id: str) -> tuple[dict | None, str | None]:
@@ -576,6 +673,7 @@ class Compiled(MaterialComponent):
         tree, ctx = self._compile(self.source)
         self._node_dicts = ctx.dicts
         self._watch_nodes(ctx.nodes, ctx.active)
+        self._sync_prototypes()
         updates = {"tree": tree, "fallbacks": ctx.fallbacks}
         root = tree["root"]
         if self._inherit_sizing and root["kind"] != "fallback":
@@ -590,6 +688,31 @@ class Compiled(MaterialComponent):
                 if doc := self._model_docs.get(model.id):
                     self._sync_custom_theme(model, doc)
 
+    def _prototype(self, obj: Viewable, doc) -> t.Any:
+        """
+        A model of a JSComponent that is never rendered, which the client
+        loads the module of the component from as Panel would for a view.
+        """
+        props = obj._get_properties(doc)
+        props["esm"] = obj._bundle_esm(doc, props.get("bundle"), props["esm"])
+        props["data"] = type(props["data"])(esm_constants=obj._constants)
+        kept = ("esm", "importmap", "bundle", "class_name", "dev", "data", "events", "render_policy")
+        properties = drop_default_properties(obj._bokeh_model, {name: props[name] for name in kept if name in props})
+        properties["external_resources"] = resource_spec(type(obj))
+        return obj._bokeh_model(**properties)
+
+    def _sync_prototypes(self, model=None, doc=None) -> None:
+        models = [(model, doc)] if model is not None else [
+            (existing, existing.document) for existing, _ in self._models.values()
+        ]
+        for model, doc in models:
+            current = model.data._prototypes
+            missing = {kind: obj for kind, obj in self._esm_samples.items() if kind not in current}
+            if missing:
+                model.data._prototypes = {
+                    **current, **{kind: self._prototype(obj, doc) for kind, obj in missing.items()}
+                }
+
     def _sync_custom_theme(self, model, doc):
         custom = doc.theme is not self.source._design.theme.bokeh_theme
         model.data._custom_theme = list(doc.theme._json.get("attrs", {})) if custom else []
@@ -600,7 +723,12 @@ class Compiled(MaterialComponent):
         obj = self._nodes.get(msg.get("id"))
         if obj is None or obj not in self._active_nodes:
             return
-        if msg.get("type") == "stylesheet_failure":
+        if msg.get("type") in ("stylesheet_failure", "esm_unsupported"):
+            if msg["type"] == "esm_unsupported":
+                self.param.warning(
+                    f"{type(obj).__name__} cannot be compiled and renders through its own "
+                    f"view instead: {msg.get('reason')}"
+                )
             self._failed_stylesheets.add(msg["id"])
             self._rebuild()
         elif msg.get("type") == "msg":
@@ -656,9 +784,10 @@ class Compiled(MaterialComponent):
             self._rebuild()
         model = super()._get_model(doc, root, parent, comm)
         self._sync_fallback_sizing(model)
+        self._sync_prototypes(model, doc)
         if comm is None and doc.session_context:
             for obj in self._active_nodes:
-                if obj._dark_theme_explicit:
+                if getattr(obj, "_dark_theme_explicit", False):
                     doc.add_next_tick_callback(partial(_align_rendered_explicit, obj, doc))
         if isinstance(self.source, Page):
             for existing, _ in self._models.values():

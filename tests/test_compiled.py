@@ -1,8 +1,10 @@
 import json
 
 import panel as pn
+import param
 import pytest
 from bokeh.document import Document
+from panel.custom import Children, JSComponent
 
 from panel_material_ui import (
     Button,
@@ -278,3 +280,130 @@ def test_compiled_patches_loading():
     button.loading = True
 
     assert compiled.patch["ops"] == [{"id": str(id(button)), "props": {"loading": True}}]
+
+
+class Shelf(JSComponent):
+
+    label = param.String(default="shelf")
+    objects = Children()
+
+    _compilable = True
+    _esm = """
+    export function render({model, el}) {
+      el.append(...model.get_child("objects"))
+    }
+    """
+
+
+class Frame(pn.Column):
+    """A Panel layout that only adds behavior in Python."""
+
+    def __init__(self, *objects, **params):
+        super().__init__(*objects, **params)
+        self.note = "kept"
+
+
+class Custom(pn.Column):
+
+    _stylesheets = [":host { color: red; }"]
+
+
+def test_compiled_renders_a_js_component_as_a_node():
+    button = Button(label="Run")
+    markdown = pn.pane.Markdown("classic")
+    shelf = Shelf(objects=[button, markdown], label="top")
+    compiled = Compiled(Column(shelf))
+
+    (node,) = compiled.tree["root"]["children"]["objects"]
+    assert node["kind"] == f"{Shelf.__module__}.Shelf"
+    assert node["props"]["label"] == "top"
+    assert [child["kind"] for child in node["children"]["objects"]] == ["Button", "fallback"]
+    kind = compiled.tree["kinds"][node["kind"]]
+    assert kind["esm"] is True
+    assert kind["render_policy"] == "children"
+    assert compiled.fallbacks == [markdown]
+
+
+def test_compiled_ships_one_prototype_per_js_component():
+    compiled = Compiled(Column(Shelf(), Shelf()))
+    doc = Document()
+    model = compiled.get_root(doc)
+
+    (kind,) = model.data._prototypes
+    prototype = model.data._prototypes[kind]
+    assert prototype.class_name == "Shelf"
+    assert prototype.esm == Shelf()._render_esm(True, server=False)
+
+
+def test_compiled_ships_the_prototype_of_a_js_component_added_later():
+    layout = Column(Button(label="Run"))
+    compiled = Compiled(Column(layout))
+    model = compiled.get_root(Document())
+    assert model.data._prototypes == {}
+
+    layout.append(Shelf())
+
+    assert list(model.data._prototypes) == [f"{Shelf.__module__}.Shelf"]
+
+
+def test_compiled_forwards_the_messages_of_a_js_component():
+    shelf = Shelf()
+    compiled = Compiled(Column(shelf))
+    sent = []
+    compiled._send_msg = sent.append
+
+    shelf._send_msg({"text": "hello"})
+
+    assert sent == [{"type": "node_msg", "id": str(id(shelf)), "data": {"text": "hello"}}]
+
+
+def test_compiled_updates_a_js_component():
+    shelf = Shelf()
+    compiled = Compiled(Column(shelf))
+
+    shelf.label = "renamed"
+    assert compiled.patch["ops"] == [{"id": str(id(shelf)), "props": {"label": "renamed"}}]
+
+    compiled.get_root(Document())
+    compiled._handle_msg({"type": "update", "id": str(id(shelf)), "name": "label", "value": "typed", "root": "r", "seq": 1})
+    assert shelf.label == "typed"
+
+
+def test_compiled_js_component_that_is_not_opted_in_falls_back():
+    class Plain(JSComponent):
+        _esm = "export function render() {}"
+
+    plain = Plain()
+    compiled = Compiled(Column(plain))
+
+    assert compiled.fallbacks == [plain]
+
+
+def test_compiled_js_component_falls_back_when_the_client_cannot_render_it():
+    shelf = Shelf()
+    compiled = Compiled(Column(shelf))
+
+    compiled._handle_msg({"type": "esm_unsupported", "id": str(id(shelf)), "reason": "view.render_children"})
+
+    assert compiled.fallbacks == [shelf]
+
+
+def test_compiled_substitutes_plain_subclasses_of_panel_layouts():
+    button = Button(label="Run")
+    frame = Frame(button, width=300)
+    compiled = Compiled(Column(frame))
+
+    (node,) = compiled.tree["root"]["children"]["objects"]
+    assert node["kind"] == "Column"
+    assert node["layout"]["width"] == 300
+    assert compiled.fallbacks == []
+
+
+def test_compiled_keeps_subclasses_of_panel_layouts_that_render_differently():
+    custom = Custom(Button(label="Run"))
+    compiled = Compiled(Column(custom))
+
+    assert compiled.fallbacks == [custom]
+
+    card = pn.Card(Button(label="Run"))
+    assert Compiled(Column(card)).fallbacks == [card]
