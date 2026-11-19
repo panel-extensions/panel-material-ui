@@ -494,8 +494,8 @@ class Feed(Column):
         if not self.visible_range:
             return
 
-        # The window synced from this range keeps the full load_buffer above the
-        # latest object, so a frontend that lags behind is not left with one child.
+        # The window synced from this range ends at the latest object and keeps
+        # the full load_buffer above it.
         n = len(self.objects)
         n_visible = max(self.visible_range[-1] - self.visible_range[0], 1)
         with edit_readonly(self):

@@ -190,8 +190,8 @@ def test_feed_reset_visible_range(page):
 
 # Counts, every few milliseconds, the children in view that were rendered and are
 # blank again while they stay in the feed, as a child that is mounted anew is until
-# its button has rendered, and the times the feed went back to the top after it
-# had scrolled down.
+# its button has rendered, and the times the feed's log went back to the top after
+# it had scrolled down.
 _WATCH_BLANKS = """
 (feed) => {
   window.blanks = 0
@@ -209,10 +209,11 @@ _WATCH_BLANKS = """
     return found
   }
   window.blank_watch = setInterval(() => {
-    if (feed.scrollTop > feed.clientHeight) {
-      scrolled = Math.max(scrolled, feed.scrollTop)
-    } else if (scrolled && feed.scrollTop < 200) {
-      window.top_jumps.push([Math.round(scrolled), Math.round(feed.scrollTop)])
+    const [log] = find(feed.shadowRoot ?? feed, ".chat-feed-log")
+    if (log.scrollTop > log.clientHeight) {
+      scrolled = Math.max(scrolled, log.scrollTop)
+    } else if (scrolled && log.scrollTop < 200) {
+      window.top_jumps.push([Math.round(scrolled), Math.round(log.scrollTop)])
       scrolled = 0
     }
     const view = feed.getBoundingClientRect()
@@ -275,7 +276,9 @@ def test_feed_window_shift_keeps_children_rendered(page):
     assert page.evaluate("window.top_jumps") == []
     expect(feed_el.get_by_role("button", name="item 59")).to_be_visible(timeout=20000)
 
+    log = feed_el.locator(".chat-feed-log")
+
     def assert_at_bottom():
-        assert feed_el.evaluate("(el) => el.scrollHeight - el.scrollTop - el.clientHeight") <= 1
+        assert log.evaluate("(el) => el.scrollHeight - el.scrollTop - el.clientHeight") <= 1
 
     wait_until(assert_at_bottom, page)
