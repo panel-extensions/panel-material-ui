@@ -37,6 +37,13 @@ export function render({model, view, el}) {
 
   el.style.width = "100%"
 
+  // The model a rendered child stands for. Older Panel versions do not pass it
+  // to the child, which is keyed by its model's id instead.
+  const childModelOf = (object, index) => {
+    const id = object?.props?.model?.id ?? object?.props?.id ?? object?.key
+    return object?.props?.model ?? model.objects.find((m) => m.id === id) ?? model.objects[index]
+  }
+
   const updateScrollButton = React.useCallback((el) => {
     update_scroll_button(el, view.model.data.scroll_button_threshold, setShowScrollButton)
   }, [])
@@ -201,7 +208,7 @@ export function render({model, view, el}) {
       layoutUpdatedRef.current = true
       updateScrollbarWidth()
       objects.map((object, index) => {
-        apply_flex(view.get_child_view(object?.props?.model ?? model.objects[index]), flexDirection)
+        apply_flex(view.get_child_view(childModelOf(object, index)), flexDirection)
       })
       if (view_latest && !initialLatestDoneRef.current) {
         startScrollLatestSettlement(() => {
@@ -343,8 +350,8 @@ export function render({model, view, el}) {
         // The rendered children can lag a render behind model.objects, so a wrapper is
         // keyed by the child it holds: keyed by index position, a window that drops
         // children at the top would move every child to another wrapper and remount it.
-        const childModel = object?.props?.model ?? model.objects[index]
-        const childId = childModel?.id ?? `${index}`
+        const childModel = childModelOf(object, index)
+        const childId = object?.key ?? childModel?.id ?? `${index}`
         apply_flex(view.get_child_view(childModel), flexDirection)
         return (
           <div
