@@ -8,6 +8,8 @@ import {apply_flex, child_flex, child_handle, make_host, overlay_container, them
 const stylesheetRequests = new Map()
 const CompiledContext = React.createContext(null)
 const FallbackContext = React.createContext([])
+// Whether the element a JSComponent places its child in is in the page.
+const AttachedContext = React.createContext(true)
 
 function child_nodes(node) {
   const nodes = []
@@ -555,8 +557,13 @@ function Fallback({node, direction, extra, immediate}) {
   const fallbacks = React.useContext(FallbackContext)
   const bk_model = model.get("fallbacks")?.[node.slot]
   // A JSComponent measures its children once it has placed them.
+  // A view that renders into an element that is then attached loses the
+  // styles it inserted, so it waits for the element to be in the page.
+  const attached = React.useContext(AttachedContext)
   const [mounted, setMounted] = React.useState(Boolean(immediate))
-  React.useEffect(() => immediate ? undefined : schedule_mount(() => setMounted(true)), [])
+  React.useEffect(() => {
+    if (!immediate && attached && !mounted) { return schedule_mount(() => setMounted(true)) }
+  }, [attached])
   React.useEffect(() => {
     if (bk_model == null || !(direction || extra)) { return }
     const size = () => apply_flex(view.get_child_view(bk_model), direction, extra)
@@ -1000,6 +1007,63 @@ function same_style(a, b) {
 }
 
 // A node renders when its own state changes, not when its parent does.
+// The parent attaches and moves the element of a child, which drops the
+// rules a stylesheet was given through the CSSOM, so the rules are written
+// as text, into one element per sheet rather than emotion's one per rule.
+class TextSheet {
+  constructor(options) {
+    this.key = options.key
+    this.container = options.container
+    this.nonce = options.nonce
+    this.isSpeedy = false
+    this.tags = []
+    this.before = null
+    this.ctr = 0
+  }
+
+  insert(rule) {
+    if (!this.tags.length) {
+      const tag = document.createElement("style")
+      tag.setAttribute("data-emotion", this.key)
+      this.container.insertBefore(tag, this.before ?? this.container.firstChild)
+      this.tags.push(tag)
+    }
+    this.tags[0].appendChild(document.createTextNode(rule))
+    this.ctr++
+  }
+
+  hydrate() {}
+
+  flush() {
+    this.tags.forEach(tag => tag.remove())
+    this.tags = []
+    this.ctr = 0
+  }
+}
+
+// The rules of a style are the same in every cache, so stylis compiles
+// them once and the other caches replay them.
+const compiled_rules = new Map()
+
+function sealed_cache(root) {
+  const cache = createCache({key: "pnl", prepend: true, container: root, speedy: false})
+  cache.sheet = new TextSheet({key: cache.key, container: root, nonce: cache.nonce})
+  const insert = cache.insert
+  cache.insert = (selector, serialized, sheet, should_cache) => {
+    const key = `${selector}\u0000${serialized.name}`
+    const rules = compiled_rules.get(key)
+    if (rules == null) {
+      const recorded = []
+      const result = insert(selector, serialized, {insert: (rule) => { recorded.push(rule); sheet.insert(rule) }}, should_cache)
+      compiled_rules.set(key, recorded)
+      return result
+    }
+    rules.forEach(rule => sheet.insert(rule))
+    if (should_cache) { cache.inserted[serialized.name] = true }
+  }
+  return cache
+}
+
 const Node = React.memo(NodeHost, (prev, next) => (
   prev.nid === next.nid && prev.direction === next.direction && prev.fill === next.fill &&
   same_style(prev.extra, next.extra)
@@ -1029,10 +1093,7 @@ function SlotNode({nid, slot, esm}) {
     const overlays = document.createElement("div")
     overlays.style.display = "contents"
     root.append(overlays)
-    // The parent attaches and moves the element, which drops the rules a
-    // stylesheet was given through the CSSOM, so they are written as text.
-    const cache = createCache({key: "pnl", prepend: true, container: root, speedy: false})
-    const entry = {root, overlays, cache}
+    const entry = {root, overlays, cache: sealed_cache(root)}
     store.roots.set(nid, entry)
     return entry
   }, [slot, nid, node == null || node.kind === "fallback"])
@@ -1062,8 +1123,10 @@ function SlotNode({nid, slot, esm}) {
   }
   return createPortal(
     <CacheProvider value={sealed.cache}>
-      <SharedStyles store={store}/>
-      <Node nid={nid} extra={FILL} fill/>
+      <AttachedContext.Provider value={attached}>
+        <SharedStyles store={store}/>
+        <Node nid={nid} extra={FILL} fill/>
+      </AttachedContext.Provider>
     </CacheProvider>, sealed.root
   )
 }
