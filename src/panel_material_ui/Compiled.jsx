@@ -271,6 +271,9 @@ function hostLayout(node, direction, extra) {
   }
 
   const styles = {
+    // As for the host of a Bokeh view, which e.g. the loading overlay of a
+    // component is positioned against.
+    position: "relative",
     width: cssWidth, height: cssHeight,
     margin: margin == null ? undefined : Array.isArray(margin) ? margin.map(value => `${value}px`).join(" ") : `${margin}px`,
     minWidth: min_width == null ? undefined : `${min_width}px`,

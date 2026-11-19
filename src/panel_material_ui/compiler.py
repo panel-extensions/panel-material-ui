@@ -14,8 +14,11 @@ import param
 from bokeh.models.css import ImportedStyleSheet, InlineStyleSheet
 from panel.custom import ReactiveESM
 from panel.io.resources import CDN_DIST
+from panel.io.state import state
 from panel.links import Callback, Link
 from panel.models.reactive_html import DOMEvent
+from panel.pane.base import ReplacementPane
+from panel.param import ParamRef
 from panel.util import edit_readonly
 from panel.viewable import Child, Children, Viewable
 
@@ -34,7 +37,7 @@ _DATA_DEFAULTS: dict[type, dict] = {}
 
 # Parameters that decide whether a component can be compiled at all.
 _STRUCTURAL = frozenset((
-    "loading", "theme_config", "attached", "description", "sizing_mode", "stylesheets",
+    "theme_config", "attached", "description", "sizing_mode", "stylesheets",
     "scroll", "view_latest", "scroll_index", "auto_scroll_limit", "scroll_button_threshold",
     "scroll_position", "href",
 ))
@@ -180,6 +183,7 @@ class Compiled(MaterialComponent):
         self._model_docs = {}
         self._rev = 0
         self._substitutes: weakref.WeakKeyDictionary[Viewable, Viewable] = weakref.WeakKeyDictionary()
+        self._deferred: weakref.WeakSet[Viewable] = weakref.WeakSet()
         self._ready = False
         self._held: list | None = None
         self._earlier: list[dict] = []
@@ -248,7 +252,6 @@ class Compiled(MaterialComponent):
             str(id(obj)) not in self._failed_stylesheets and
             (not isinstance(obj, Page) or obj is self._root) and
             not (
-                obj.loading or
                 getattr(obj, "attached", None) or getattr(obj, "description", None) or
                 Callback.registry.get(obj) or any(
                     isinstance(link, Link) and link.target is obj
@@ -262,6 +265,17 @@ class Compiled(MaterialComponent):
         Returns the Material equivalent of a Panel layout, kept in sync
         with it, if that is what lets the layout be compiled.
         """
+        if isinstance(obj, ReplacementPane):
+            # Such a pane renders as the layout that holds its output.
+            if isinstance(obj, ParamRef) and not obj._evaled:
+                deferred = bool(obj.defer_load and not state.loaded)
+                if deferred and obj not in self._deferred:
+                    self._deferred.add(obj)
+                    state.onload(partial(obj._replace_pane, force=True), threaded=bool(state._thread_pool))
+                obj._replace_pane(force=not deferred)
+            obj._init_placeholder()
+            inner = self._substitute(obj._inner_layout)
+            return obj if inner is obj._inner_layout else inner
         target = _SUBSTITUTES.get(type(obj))
         if target is None or not _is_compilable(target):
             return obj

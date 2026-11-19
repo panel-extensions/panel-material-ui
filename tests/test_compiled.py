@@ -110,9 +110,9 @@ def test_compiled_layout_change_recompiles_the_tree(tree):
 
 def test_compiled_structural_change_falls_back(tree):
     compiled, _, _, _, button = tree
-    button.loading = True
+    button.description = "Help"
     assert button in compiled.fallbacks
-    button.loading = False
+    button.description = None
     assert button not in compiled.fallbacks
 
 
@@ -212,3 +212,30 @@ def test_compiled_keeps_panel_layouts_it_cannot_compile():
 
     assert compiled.tree["root"]["kind"] == "fallback"
     assert compiled.fallbacks == [layout]
+
+
+def test_compiled_renders_function_panes_as_their_layout():
+    button = Button(label="Run")
+    text = TextInput(value="a")
+    layout = Column(text, pn.bind(lambda value: Button(label=value), text), button)
+    compiled = Compiled(layout)
+
+    kinds = [child["kind"] for child in compiled.tree["root"]["children"]["objects"]]
+    assert kinds == ["TextInput", "Column", "Button"]
+    inner = compiled.tree["root"]["children"]["objects"][1]
+    assert [(child["kind"], child["props"]["label"]) for child in inner["children"]["objects"]] == [("Button", "a")]
+    assert compiled.fallbacks == []
+
+    text.value = "b"
+
+    inner = compiled.tree["root"]["children"]["objects"][1]
+    assert [(child["kind"], child["props"]["label"]) for child in inner["children"]["objects"]] == [("Button", "b")]
+
+
+def test_compiled_patches_loading():
+    button = Button(label="Run")
+    compiled = Compiled(Column(button))
+
+    button.loading = True
+
+    assert compiled.patch["ops"] == [{"id": str(id(button)), "props": {"loading": True}}]
