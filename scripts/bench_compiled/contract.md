@@ -192,3 +192,19 @@ Not done:
 5. Public accessors replace the private members the adapter reads: `view.mui_cache`, `view.container`, `view.shadow_el`, `view.child_views`, `model.data.change`.
 6. A parent view can declare the logical parent and root status of a child view, replacing `pmui_placement`.
 7. Python: a public way to tell that a document is holding events, or a message channel that is not collapsed by a hold. `Compiled` reads `doc.callbacks._held_events` to keep patches made in one hold together.
+
+## 7. JSComponents as nodes
+
+A `JSComponent` that opts in (`_compilable = True` on the class, or `compiler.register(cls)` for a class that cannot be edited) is compiled like a Material component: one node with its data properties, stylesheets and children. Its own `render({model, view, el, data})` runs unchanged, against stand-ins built in `make_esm` (`Compiled.jsx`).
+
+- **Module.** `Compiled` carries one unrendered prototype model per component class in `_prototypes`, and the client reads `compiled_module` from it. Bundles, import maps and dev mode therefore go through Panel's loader.
+- **`model`.** Data properties read and write, layout properties, `css_classes` and `visible` read; `on`/`off` for properties, `msg:custom` and the `lifecycle:` events; `get_child`, `send_msg`, `send_event`. A property watcher fires when the value it watches changed, compared by value, since a recompiled subtree replaces every value. Child parameters return stand-ins for the child models (`id` and the layout properties), with the same list while the children are the same.
+- **`view`.** `el`, `container`, `shadow_el`, `model`, `child_views`, `get_child_view`, `root`, `_child_rendered` and no-op layout methods. A child view stand-in has `el`, `model`, `ready`, `rerender`, `rerender_` and `r_after_render`.
+- **Children.** `get_child` returns one element per child. A compiled child renders into a shadow root on that element with its own emotion cache (written as text, since the parent moves the element) and overlay container, so the parent can neither query nor style what is inside, as with a view. A child that renders through its own view is mounted into the element directly. Moving an element makes the views below it recover their styles, as `rerender_` does in Panel.
+- **Lifecycle.** `render` runs on mount and, unless the render policy is `manual`, again when the children it accessed change. `after_render` and `mounted` follow the render, `resize` and `after_layout` follow a `ResizeObserver` on the host, `remove` follows the unmount.
+- **Falling back.** Reading or setting a member of the real model or view that the stand-ins do not provide, a render function that throws, and a bundle with its own stylesheet all make the component render through its own view. The client reports the first two with an `esm_unsupported` message.
+- **Messages.** Python forwards `_send_msg` by wrapping it on the instance while it is compiled. A hook in `ReactiveESM._send_msg` would replace the wrap.
+
+A subclass of `pn.Column`, `pn.Row` or `pn.FlexBox` that is defined outside Panel and overrides none of the rendering hooks (`_RENDER_HOOKS` in `compiler.py`) renders as the Material equivalent, like the layouts themselves.
+
+Not done: `ReactComponent` and `AnyWidgetComponent` outside this package, dotted property paths in `model.on`, and the stylesheet of a bundle (`_bundle_css`).
