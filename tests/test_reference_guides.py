@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 NO_REFENCE_GUIDE_NEEDED = [
     "MaterialWrapper",
+    "Compiled",
+    "Probe",
     "ArrayInput",
     "DatetimeInput",
     "DatetimeRangeInput",

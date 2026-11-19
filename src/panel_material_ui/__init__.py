@@ -1,5 +1,6 @@
 from .__version import __version__  # noqa
 from .chat import *  # noqa
+from ._probe import Probe as _Probe  # noqa
 from .compiler import Compiled  # noqa
 from .base import MaterialUIComponent  # noqa
 from .layout import *  # noqa
