@@ -20,6 +20,35 @@ PORT, RUNS, OUT = int(sys.argv[1]), int(sys.argv[2]), pathlib.Path(sys.argv[3])
 APPS = ["branding", "plotly", "holoviz", "components"]
 MODES = ["classic", "compiled"]
 
+# Records when the DOM last changed, in the document and every shadow root.
+OBSERVE = """
+window.__mutations = {count: 0, last: 0}
+const seen = new WeakSet()
+const watch = (root) => new MutationObserver((records) => {
+  window.__mutations.count += records.length
+  window.__mutations.last = performance.now()
+  for (const record of records) { record.addedNodes.forEach(hook) }
+}).observe(root, {childList: true, subtree: true, attributes: true, characterData: true})
+const hook = (node) => {
+  if (node.nodeType !== 1) { return }
+  for (const el of [node, ...node.querySelectorAll('*')]) {
+    if (el.shadowRoot && !seen.has(el.shadowRoot)) {
+      seen.add(el.shadowRoot)
+      watch(el.shadowRoot)
+      for (const child of el.shadowRoot.children) { hook(child) }
+    }
+  }
+}
+const attach = Element.prototype.attachShadow
+Element.prototype.attachShadow = function(options) {
+  const root = attach.call(this, options)
+  seen.add(root)
+  watch(root)
+  return root
+}
+document.addEventListener('DOMContentLoaded', () => watch(document.body))
+"""
+
 
 def run(browser, app, mode, screenshot=None):
     ctx = browser.new_context(viewport={"width": 1440, "height": 900})
@@ -40,23 +69,21 @@ def run(browser, app, mode, screenshot=None):
     page.on("websocket", lambda ws: ws.on(
         "framereceived", lambda payload: out.__setitem__("ws_kb", out["ws_kb"] + len(payload) / 1024)
     ))
+    page.add_init_script(OBSERVE)
     page.goto(f"http://localhost:{PORT + APPS.index(app)}/{app}_{mode}")
 
     def nodes():
         return {m["name"]: m["value"] for m in cdp.send("Performance.getMetrics")["metrics"]}
 
-    # Settled once the number of DOM nodes has not changed for a second.
-    last, changed = None, page.evaluate("performance.now()")
+    # Settled once the DOM has not changed for a second.
     while True:
         page.wait_for_timeout(100)
-        now, count = page.evaluate("performance.now()"), nodes()["Nodes"]
-        if count != last:
-            last, changed = count, now
-        if (idle and now - changed > 1000) or now > 60000:
+        now, mutations = page.evaluate("[performance.now(), window.__mutations]")
+        if (idle and now - mutations["last"] > 1000) or now > 60000:
             break
     metrics = nodes()
     out.update(
-        idle_ms=idle[-1] if idle else None, settled_ms=changed,
+        idle_ms=idle[-1] if idle else None, settled_ms=mutations["last"], mutations=mutations["count"],
         script_ms=1e3 * metrics["ScriptDuration"], layout_ms=1e3 * (metrics["LayoutDuration"] + metrics["RecalcStyleDuration"]),
         heap_mb=metrics["JSHeapUsedSize"] / 1e6, nodes=metrics["Nodes"],
     )

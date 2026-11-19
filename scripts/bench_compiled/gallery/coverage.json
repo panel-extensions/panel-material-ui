@@ -2,20 +2,70 @@
  "branding": {
   "viewables": 46,
   "pmui": 26,
-  "pmui_opted_in": 21,
+  "pmui_opted_in": 25,
   "compiled": {
-   "Page": 1
+   "Page": 1,
+   "Container": 1,
+   "Row": 2,
+   "Column": 3,
+   "Select": 3,
+   "DatePicker": 2
   },
   "fallback_reasons": [
    [
     "ToggleIcon",
-    "not opted in",
+    "theme_config",
     1
    ],
    [
-    "Container",
+    "Markdown",
+    "not a pmui component",
+    1
+   ],
+   [
+    "ParamMethod",
+    "not a pmui component",
+    3
+   ],
+   [
+    "Markdown",
+    "not a pmui component",
+    1
+   ],
+   [
+    "FlexBox",
+    "not a pmui component",
+    10
+   ],
+   [
+    "Markdown",
+    "not a pmui component",
+    1
+   ],
+   [
+    "ParamFunction",
+    "not a pmui component",
+    3
+   ],
+   [
+    "ParamFunction",
+    "not a pmui component",
+    3
+   ],
+   [
+    "Drawer",
     "not opted in",
-    29
+    3
+   ],
+   [
+    "Markdown",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Tabulator",
+    "not a pmui component",
+    1
    ],
    [
     "Image",
@@ -23,9 +73,29 @@
     1
    ],
    [
-    "Column",
+    "Markdown",
+    "not a pmui component",
+    1
+   ],
+   [
+    "VSpacer",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Markdown",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Button",
     "theme_config",
-    14
+    1
+   ],
+   [
+    "Button",
+    "theme_config",
+    1
    ]
   ],
   "pmui_classes": {
@@ -55,16 +125,134 @@
  "plotly": {
   "viewables": 53,
   "pmui": 29,
-  "pmui_opted_in": 15,
+  "pmui_opted_in": 29,
   "compiled": {
    "Page": 1,
-   "Typography": 2
+   "Typography": 2,
+   "Container": 1,
+   "Grid": 13,
+   "Card": 12
   },
   "fallback_reasons": [
    [
-    "Container",
-    "not opted in",
-    50
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Plotly",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Str",
+    "not a pmui component",
+    1
    ]
   ],
   "pmui_classes": {
@@ -82,13 +270,44 @@
  "holoviz": {
   "viewables": 18,
   "pmui": 14,
-  "pmui_opted_in": 11,
-  "compiled": {},
+  "pmui_opted_in": 13,
+  "compiled": {
+   "Container": 1,
+   "Paper": 4,
+   "Row": 1,
+   "Checkbox": 1,
+   "ColorPicker": 1,
+   "IntSlider": 1,
+   "Select": 1,
+   "Column": 1,
+   "TextInput": 1,
+   "Button": 1
+  },
   "fallback_reasons": [
    [
-    "Container",
+    "HSpacer",
+    "not a pmui component",
+    1
+   ],
+   [
+    "ThemeToggle",
     "not opted in",
-    18
+    1
+   ],
+   [
+    "HoloViews",
+    "not a pmui component",
+    1
+   ],
+   [
+    "HoloViews",
+    "not a pmui component",
+    1
+   ],
+   [
+    "Markdown",
+    "not a pmui component",
+    1
    ]
   ],
   "pmui_classes": {
@@ -113,9 +332,11 @@
  "components": {
   "viewables": 19,
   "pmui": 13,
-  "pmui_opted_in": 6,
+  "pmui_opted_in": 12,
   "compiled": {
    "Page": 1,
+   "ColorPicker": 3,
+   "IntInput": 1,
    "Switch": 1,
    "Button": 1
   },
@@ -129,26 +350,6 @@
     "ParamFunction",
     "not a pmui component",
     3
-   ],
-   [
-    "ColorPicker",
-    "not opted in",
-    1
-   ],
-   [
-    "ColorPicker",
-    "not opted in",
-    1
-   ],
-   [
-    "ColorPicker",
-    "not opted in",
-    1
-   ],
-   [
-    "IntInput",
-    "not opted in",
-    1
    ],
    [
     "Markdown",
