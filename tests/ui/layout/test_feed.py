@@ -2,9 +2,12 @@ import pytest
 
 pytest.importorskip("playwright")
 
+from panel.io.state import state
 from panel.layout.spacer import Spacer
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.layout import Feed
+from panel_material_ui.chat import ChatFeed, ChatMessage
+from panel_material_ui.layout import Column, Feed
+from panel_material_ui.widgets import Button
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -183,3 +186,86 @@ def test_feed_reset_visible_range(page):
     feed.objects = feed.objects[:20]
     page.wait_for_timeout(500)
     expect(pre.last).to_have_text("19")
+
+
+# Counts, every few milliseconds, the children in view that were rendered and are
+# blank again while they stay in the feed, as a child that is mounted anew is until
+# its button has rendered.
+_WATCH_BLANKS = """
+(feed) => {
+  window.blanks = 0
+  window.checked = 0
+  const seen = new Set()
+  const find = (root, selector, found = []) => {
+    found.push(...root.querySelectorAll(selector))
+    for (const el of root.querySelectorAll("*")) {
+      if (el.shadowRoot) {
+        find(el.shadowRoot, selector, found)
+      }
+    }
+    return found
+  }
+  window.blank_watch = setInterval(() => {
+    const view = feed.getBoundingClientRect()
+    for (const wrapper of find(feed.shadowRoot ?? feed, "[data-feed-child-id]")) {
+      const box = wrapper.getBoundingClientRect()
+      if (box.bottom <= view.top || box.top >= view.bottom) {
+        continue
+      }
+      const id = wrapper.getAttribute("data-feed-child-id")
+      const [button] = find(wrapper, "button")
+      const rendered = button != null && button.getBoundingClientRect().height > 0
+      if (rendered) {
+        seen.add(id)
+        window.checked++
+      } else if (seen.has(id)) {
+        window.blanks++
+      }
+    }
+  }, 10)
+}
+"""
+
+
+def test_feed_window_shift_keeps_children_rendered(page):
+    feeds = []
+
+    def app():
+        feed = ChatFeed(height=700, css_classes=["test-feed-shift"])
+        feeds.append(feed)
+        rounds = iter(range(60))
+
+        def add():
+            i = next(rounds, None)
+            if i is None:
+                callback.stop()
+                return
+            feed.objects = [
+                *feed.objects,
+                ChatMessage(f"question {i}", user="You"),
+                ChatMessage(Button(label=f"item {i}"), user="Bot"),
+                ChatMessage(f"answer {i}", user="Bot"),
+            ]
+
+        # Every round lands while the frontend is still settling the last one.
+        callback = state.add_periodic_callback(add, period=200)
+        return Column(feed, height=800, width=600)
+
+    serve_component(page, app)
+    feed_el = _feed(page, "test-feed-shift")
+    expect(feed_el.get_by_role("button", name="item 0")).to_be_attached(timeout=20000)
+    feed_el.evaluate(_WATCH_BLANKS)
+    wait_until(lambda: len(feeds[0].objects) == 3 * 60, page, timeout=90000)
+    page.wait_for_timeout(1000)
+    page.evaluate("clearInterval(window.blank_watch)")
+
+    # Past twice the load_buffer of 50 the window drops children at the top.
+    assert feed_el.get_by_role("button", name="item 0").count() == 0
+    assert page.evaluate("window.checked") > 0
+    assert page.evaluate("window.blanks") == 0
+    expect(feed_el.get_by_role("button", name="item 59")).to_be_visible(timeout=20000)
+
+    def assert_at_bottom():
+        assert feed_el.evaluate("(el) => el.scrollHeight - el.scrollTop - el.clientHeight") <= 1
+
+    wait_until(assert_at_bottom, page)
