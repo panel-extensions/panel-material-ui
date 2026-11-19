@@ -201,7 +201,7 @@ export function render({model, view, el}) {
       layoutUpdatedRef.current = true
       updateScrollbarWidth()
       objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), flexDirection)
+        apply_flex(view.get_child_view(object?.props?.model ?? model.objects[index]), flexDirection)
       })
       if (view_latest && !initialLatestDoneRef.current) {
         startScrollLatestSettlement(() => {
@@ -340,7 +340,10 @@ export function render({model, view, el}) {
   return (
     <Box ref={setBoxRef} sx={boxSx}>
       {objects.map((object, index) => {
-        const childModel = model.objects[index]
+        // The rendered children can lag a render behind model.objects, so a wrapper is
+        // keyed by the child it holds: keyed by index position, a window that drops
+        // children at the top would move every child to another wrapper and remount it.
+        const childModel = object?.props?.model ?? model.objects[index]
         const childId = childModel?.id ?? `${index}`
         apply_flex(view.get_child_view(childModel), flexDirection)
         return (
