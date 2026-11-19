@@ -740,13 +740,22 @@ function make_esm(context, id, prototype) {
     }
   }
   // Attaching or moving an element drops the rules its stylesheets were
-  // given through the CSSOM. The views below it recover in r_after_render.
+  // given through the CSSOM, which the views below it then restore.
+  const recover = (moved) => {
+    // What r_after_render does for a React view, without laying the view
+    // and everything below it out again.
+    if (moved.use_shadow_dom && moved._dom_reinserted?.()) {
+      moved.force_update()
+      moved._mark_dom()
+    }
+    for (const nested of moved.child_views ?? []) { recover(nested) }
+  }
   const restyle = (child) => {
     const visit = (current) => {
       if (current.kind === "fallback") {
         const bk_model = fallback_model(current)
         const child_view = bk_model && view.get_child_view(bk_model)
-        if (child_view?.el.isConnected) { child_view.r_after_render?.() }
+        if (child_view?.el.isConnected) { recover(child_view) }
       } else {
         child_nodes(store.get(current.id) ?? current).forEach(visit)
       }
@@ -872,19 +881,30 @@ function make_esm(context, id, prototype) {
   let unlisten = null
   let observer = null
   let moves = null
+  const attachments = new Map()
   const moved = (records) => {
     const added = records.flatMap(record => [...record.addedNodes]).filter(added => added.nodeType === 1)
     if (!added.length) { return }
     for (const child of Object.keys(node().children ?? {}).flatMap(child_list)) {
       const el = slots.get(child.id)
-      if (el && added.some(parent => parent === el || parent.contains(el))) { restyle(child) }
+      if (el && added.some(parent => parent === el || parent.contains(el))) {
+        attachments.get(el)?.forEach(callback => callback())
+        restyle(child)
+      }
     }
   }
   return {
     slot,
+    // Calls back whenever the component places the element in the page.
+    on_attach(el, callback) {
+      if (!attachments.has(el)) { attachments.set(el, new Set()) }
+      attachments.get(el).add(callback)
+      return () => attachments.get(el)?.delete(callback)
+    },
     prune(ids) {
       for (const child_id of [...slots.keys()]) {
         if (!ids.has(child_id)) {
+          attachments.delete(slots.get(child_id))
           slots.get(child_id).remove()
           slots.delete(child_id)
           child_models.delete(child_id)
@@ -967,7 +987,7 @@ function EsmNode({node}) {
   return <>
     <div ref={container} style={{display: "contents"}}/>
     {instance.current && children.map(child => (
-      <SlotNode key={child.id} nid={child.id} slot={instance.current.slot(child)}/>
+      <SlotNode key={child.id} nid={child.id} slot={instance.current.slot(child)} esm={instance.current}/>
     ))}
   </>
 }
@@ -993,9 +1013,16 @@ const FILL = {
 // Renders a child of a JSComponent into the element the component places
 // in the DOM itself. A compiled child gets a shadow root, so that it is as
 // opaque to the queries and the stylesheets of its parent as a view.
-function SlotNode({nid, slot}) {
+function SlotNode({nid, slot, esm}) {
   const {store} = React.useContext(CompiledContext)
   const node = useNode(store, nid)
+  // A view renders once its element is in the page, as it does when Panel
+  // renders the children of a component, so that it is sized only once.
+  const [attached, setAttached] = React.useState(slot.isConnected)
+  React.useEffect(() => {
+    if (slot.isConnected) { setAttached(true) }
+    return esm.on_attach(slot, () => setAttached(true))
+  }, [slot, esm])
   const sealed = React.useMemo(() => {
     if (node == null || node.kind === "fallback") { return null }
     const root = slot.shadowRoot ?? slot.attachShadow({mode: "open"})
@@ -1031,7 +1058,7 @@ function SlotNode({nid, slot}) {
     return null
   }
   if (fallback) {
-    return createPortal(<Fallback node={node} immediate/>, slot)
+    return attached ? createPortal(<Fallback node={node} immediate/>, slot) : null
   }
   return createPortal(
     <CacheProvider value={sealed.cache}>
