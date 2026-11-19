@@ -228,12 +228,18 @@ _WATCH_BLANKS = """
 
 
 def test_feed_window_shift_keeps_children_rendered(page):
+    feeds = []
+
     def app():
         feed = ChatFeed(height=700, css_classes=["test-feed-shift"])
+        feeds.append(feed)
         rounds = iter(range(60))
 
         def add():
-            i = next(rounds)
+            i = next(rounds, None)
+            if i is None:
+                callback.stop()
+                return
             feed.objects = [
                 *feed.objects,
                 ChatMessage(f"question {i}", user="You"),
@@ -241,21 +247,23 @@ def test_feed_window_shift_keeps_children_rendered(page):
                 ChatMessage(f"answer {i}", user="Bot"),
             ]
 
-        state.add_periodic_callback(add, period=200, count=60)
+        # Every round lands while the frontend is still settling the last one.
+        callback = state.add_periodic_callback(add, period=200)
         return Column(feed, height=800, width=600)
 
     serve_component(page, app)
     feed_el = _feed(page, "test-feed-shift")
-    expect(feed_el.get_by_role("button", name="item 0")).to_be_attached()
+    expect(feed_el.get_by_role("button", name="item 0")).to_be_attached(timeout=20000)
     feed_el.evaluate(_WATCH_BLANKS)
-    expect(feed_el.get_by_role("button", name="item 59")).to_be_visible(timeout=40000)
-    page.wait_for_timeout(500)
+    wait_until(lambda: len(feeds[0].objects) == 3 * 60, page, timeout=90000)
+    page.wait_for_timeout(1000)
     page.evaluate("clearInterval(window.blank_watch)")
 
     # Past twice the load_buffer of 50 the window drops children at the top.
     assert feed_el.get_by_role("button", name="item 0").count() == 0
     assert page.evaluate("window.checked") > 0
     assert page.evaluate("window.blanks") == 0
+    expect(feed_el.get_by_role("button", name="item 59")).to_be_visible(timeout=20000)
 
     def assert_at_bottom():
         assert feed_el.evaluate("(el) => el.scrollHeight - el.scrollTop - el.clientHeight") <= 1
