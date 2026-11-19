@@ -2,6 +2,8 @@ import pytest
 
 pytest.importorskip("playwright")
 
+import panel.io.document
+import panel.io.server
 from panel.config import config
 from panel.io.state import state
 from panel.layout import Row
@@ -13,6 +15,14 @@ from panel_material_ui.notifications import NotificationArea
 from panel_material_ui.widgets import Button
 
 pytestmark = pytest.mark.ui
+
+# Panel releases that write a locked callback's changes in one message
+# (holoviz/panel#9106) but still send changes to models the client was
+# never sent (fixed by holoviz/panel#8906) reject the whole patch.
+PANEL_DROPS_ONLOAD_PATCH = (
+    hasattr(panel.io.server, '_serialize_patches') and
+    not hasattr(panel.io.document, '_drop_unsent_model_changes')
+)
 
 
 def test_notifications(page):
@@ -188,6 +198,10 @@ def test_disconnect_notification(page):
     expect(page.locator('.MuiAlert-message')).to_have_text('Disconnected!')
 
 
+@pytest.mark.xfail(
+    PANEL_DROPS_ONLOAD_PATCH, strict=False,
+    reason="Panel bug from holoviz/panel#9106, fixed by holoviz/panel#8906"
+)
 def test_onload_notification(page):
     def onload_callback():
         state.notifications.warning("Warning", duration=0)
