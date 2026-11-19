@@ -188,14 +188,14 @@ def test_feed_reset_visible_range(page):
     expect(pre.last).to_have_text("19")
 
 
-# Counts, every few milliseconds, the children in view that were rendered and are
-# blank again while they stay in the feed, as a child that is mounted anew is until
-# its button has rendered.
+# Counts, every few milliseconds, children in view that go blank after they have
+# rendered while their wrapper stays in place, as a child does that is mounted
+# anew in a wrapper that held another child. A child that leaves the window and
+# comes back gets a new wrapper and is not counted.
 _WATCH_BLANKS = """
 (feed) => {
   window.blanks = 0
   window.checked = 0
-  const seen = new Set()
   const find = (root, selector, found = []) => {
     found.push(...root.querySelectorAll(selector))
     for (const el of root.querySelectorAll("*")) {
@@ -212,13 +212,12 @@ _WATCH_BLANKS = """
       if (box.bottom <= view.top || box.top >= view.bottom) {
         continue
       }
-      const id = wrapper.getAttribute("data-feed-child-id")
       const [button] = find(wrapper, "button")
       const rendered = button != null && button.getBoundingClientRect().height > 0
       if (rendered) {
-        seen.add(id)
+        wrapper._rendered = true
         window.checked++
-      } else if (seen.has(id)) {
+      } else if (wrapper._rendered) {
         window.blanks++
       }
     }
