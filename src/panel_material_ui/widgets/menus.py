@@ -717,6 +717,7 @@ class MenuList(TreeLikeBase):
     removable = param.Boolean(default=False, doc="Whether to allow deleting items.")
 
     _esm_base = "List.jsx"
+    _compilable = True
 
     _item_keys = [
         'label', 'items', 'icon', 'avatar', 'color', 'secondary', 'actions', 'selectable',
@@ -890,6 +891,7 @@ class MenuButton(MenuBase, _ButtonBase):
     )  # type: ignore[assignment]
 
     _esm_base = "MenuButton.jsx"
+    _compilable = True
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _source_transforms = {
         "attached": None,

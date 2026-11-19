@@ -1,3 +1,4 @@
+import gc
 import json
 
 import panel as pn
@@ -15,6 +16,15 @@ from panel_material_ui import (
     TextInput,
     Typography,
 )
+
+
+@pytest.fixture(autouse=True)
+def collect_trees():
+    yield
+    # A tree releases its components when it is finalized, so a component
+    # is only collected by the pass after the one that collects its tree.
+    gc.collect()
+    gc.collect()
 
 
 def _nodes(node):
@@ -143,10 +153,17 @@ def test_compiled_patches_classes_and_styles(tree):
 
 def test_compiled_structural_change_falls_back(tree):
     compiled, _, _, _, button = tree
-    button.description = "Help"
+    button.href = "https://panel.holoviz.org"
     assert button in compiled.fallbacks
-    button.description = None
+    button.href = None
     assert button not in compiled.fallbacks
+
+
+def test_compiled_description_compiles(tree):
+    compiled, _, _, _, button = tree
+    button.description = "Help"
+    assert compiled.fallbacks == []
+    assert compiled.patch["ops"] == [{"id": str(id(button)), "props": {"description": "Help"}}]
 
 
 def test_compiled_client_update_is_not_echoed(tree):

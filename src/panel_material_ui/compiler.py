@@ -111,7 +111,7 @@ _DATA_DEFAULTS: dict[type, dict] = {}
 
 # Parameters that decide whether a component can be compiled at all.
 _STRUCTURAL = frozenset((
-    "theme_config", "attached", "description", "sizing_mode", "stylesheets",
+    "theme_config", "attached", "sizing_mode", "stylesheets",
     "view_latest", "scroll_index", "auto_scroll_limit", "scroll_button_threshold",
     "scroll_position", "href",
 ))
@@ -344,7 +344,7 @@ class Compiled(MaterialComponent):
             str(id(obj)) not in self._failed_stylesheets and
             (not isinstance(obj, Page) or obj is self._root) and
             not (
-                getattr(obj, "attached", None) or getattr(obj, "description", None) or
+                getattr(obj, "attached", None) or
                 Callback.registry.get(obj) or any(
                     isinstance(link, Link) and link.target is obj
                     for links in Callback.registry.values() for link in links

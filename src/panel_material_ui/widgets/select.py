@@ -577,6 +577,7 @@ class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
 
     value = param.Parameter()
 
+    _compilable = True
     _constants = {"exclusive": True, "loading_inset": -6}
 
     @param.depends('value', 'options', watch=True, on_init=True)
@@ -754,6 +755,7 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
 
     _constants = {"multi": True, "loading_inset": -6}
     _esm_base = "Select.jsx"
+    _compilable = True
     _rename = {"name": None}
 
 

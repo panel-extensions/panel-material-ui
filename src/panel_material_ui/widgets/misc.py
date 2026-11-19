@@ -36,6 +36,7 @@ class FileDownload(_ButtonBase, _FileDownload):
     _seed_appearance_defaults = False
 
     _esm_base = "FileDownload.jsx"
+    _compilable = True
     _esm_transforms = [TooltipTransform, ThemedTransform]
     _rename = _rename_fix = {
         "_clicks": None, "icon": "icon", "icon_size": "icon_size", "description": "description",

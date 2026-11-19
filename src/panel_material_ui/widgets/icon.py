@@ -130,6 +130,7 @@ class IconButton(_ClickableIcon, _ButtonBase):
     value = param.Event(doc="Toggles from False to True while the event is being processed.")
 
     _esm_base = "IconButton.jsx"
+    _compilable = True
     _esm_transforms = [TooltipTransform, LoadingTransform, ThemedTransform]
     _event = "dom_event"
 

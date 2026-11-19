@@ -1155,6 +1155,7 @@ class Divider(MaterialListLike):
         doc="Variant style of the divider.")  # type: ignore[assignment]
 
     _esm_base = "Divider.jsx"
+    _compilable = True
 
 
 class Alert(MaterialListLike):
@@ -1274,6 +1275,7 @@ class Dialog(MaterialListLike):
         The width of the dialog.""")  # type: ignore[assignment]
 
     _esm_base = "Dialog.jsx"
+    _compilable = True
 
 
 class Drawer(MaterialListLike):
@@ -1390,6 +1392,7 @@ class Popup(MaterialListLike):
     transform_origin = param.Dict(default=None)
 
     _esm_base = "Popup.jsx"
+    _compilable = True
 
 
 
