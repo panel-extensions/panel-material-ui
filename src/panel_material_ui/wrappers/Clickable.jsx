@@ -5,7 +5,7 @@ export function render({model}) {
   const [disabled] = model.useState("disabled")
   const [disableRipple] = model.useState("disable_ripple")
   const [sx] = model.useState("sx")
-  const object = model.get_child("object")
+  const object = model.render_children("object")
 
   const mergedSx = React.useMemo(() => ({
     display: "inline-flex",

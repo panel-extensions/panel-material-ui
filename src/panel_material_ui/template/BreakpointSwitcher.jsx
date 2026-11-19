@@ -6,8 +6,8 @@ export function render({model}) {
   const theme = useTheme();
   const [breakpoint] = model.useState("breakpoint")
   const [media_query] = model.useState("media_query")
-  const small = model.get_child("small")
-  const large = model.get_child("large")
+  const small = model.render_children("small")
+  const large = model.render_children("large")
   const isLarge = media_query ? useMediaQuery(media_query) : useMediaQuery(theme.breakpoints.up(breakpoint))
 
   React.useEffect(() => {

@@ -1,0 +1,98 @@
+{
+ "branding|classic": {
+  "ws_kb": 2464.419921875,
+  "idle_ms": 391,
+  "settled_ms": 799.8999999761581,
+  "mutations": 4366,
+  "script_ms": 299.56,
+  "layout_ms": 50.340999999999994,
+  "heap_mb": 26.909516,
+  "nodes": 2766,
+  "errors": [],
+  "pixels_differing_pct": 0.40077160493827163
+ },
+ "branding|compiled": {
+  "ws_kb": 2469.2109375,
+  "idle_ms": 178,
+  "settled_ms": 1065.4000000357628,
+  "mutations": 3441,
+  "script_ms": 271.139,
+  "layout_ms": 58.012,
+  "heap_mb": 26.05996,
+  "nodes": 2231,
+  "errors": [],
+  "pixels_differing_pct": 0.40077160493827163
+ },
+ "plotly|classic": {
+  "ws_kb": 361.20703125,
+  "idle_ms": 3012,
+  "settled_ms": 3622.199999988079,
+  "mutations": 16735,
+  "script_ms": 1884.042,
+  "layout_ms": 57.374,
+  "heap_mb": 34.305908,
+  "nodes": 4296,
+  "errors": [],
+  "pixels_differing_pct": 1.2479166666666666
+ },
+ "plotly|compiled": {
+  "ws_kb": 365.595703125,
+  "idle_ms": 98,
+  "settled_ms": 3540.699999988079,
+  "mutations": 15923,
+  "script_ms": 1904.968,
+  "layout_ms": 55.169,
+  "heap_mb": 33.555232,
+  "nodes": 3641,
+  "errors": [],
+  "pixels_differing_pct": 1.2479166666666666
+ },
+ "holoviz|classic": {
+  "ws_kb": 184.9501953125,
+  "idle_ms": 312,
+  "settled_ms": 488.39999997615814,
+  "mutations": 1450,
+  "script_ms": 241.501,
+  "layout_ms": 28.616,
+  "heap_mb": 20.29968,
+  "nodes": 1746,
+  "errors": [],
+  "pixels_differing_pct": 0.0
+ },
+ "holoviz|compiled": {
+  "ws_kb": 187.095703125,
+  "idle_ms": 127,
+  "settled_ms": 421.80000001192093,
+  "mutations": 1023,
+  "script_ms": 211.668,
+  "layout_ms": 23.095,
+  "heap_mb": 19.636324,
+  "nodes": 1450,
+  "errors": [],
+  "pixels_differing_pct": 0.0
+ },
+ "components|classic": {
+  "ws_kb": 469.22265625,
+  "idle_ms": 141,
+  "settled_ms": 809.3000000119209,
+  "mutations": 1696,
+  "script_ms": 170.94400000000002,
+  "layout_ms": 22.769000000000002,
+  "heap_mb": 25.209112,
+  "nodes": 6240,
+  "errors": [],
+  "pixels_differing_pct": 0.0
+ },
+ "components|compiled": {
+  "ws_kb": 474.599609375,
+  "idle_ms": 119,
+  "settled_ms": 818.1999999880791,
+  "mutations": 958,
+  "script_ms": 181.772,
+  "layout_ms": 25.464000000000002,
+  "heap_mb": 26.018028,
+  "nodes": 5982,
+  "errors": [],
+  "pixels_differing_pct": 0.0
+ }
+}

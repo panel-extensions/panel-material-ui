@@ -1,7 +1,6 @@
 import Popover from "@mui/material/Popover"
-import {apply_flex, child_model, overlay_container} from "./utils"
 
-export function render({model, view}, ref) {
+export function render({model, host}, ref) {
   const [anchor_origin] = model.useState("anchor_origin")
   const [anchor_position] = model.useState("anchor_position")
   const [close_on_click] = model.useState("close_on_click")
@@ -11,19 +10,9 @@ export function render({model, view}, ref) {
   const [open, setOpen] = model.useState("open")
   const [sx] = model.useState("sx")
   const [transform_origin] = model.useState("transform_origin")
-  const objects = model.get_child("objects")
+  const objects = model.render_children("objects", {direction: "column"})
 
-  const anchorEl = view.parent?.child_views.includes(view) ? view.parent.el : null
-
-  React.useEffect(() => {
-    const handler = () => {
-      objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-      })
-    }
-    model.on("lifecycle:update_layout", handler)
-    return () => model.off("lifecycle:update_layout", handler)
-  }, [])
+  const anchorEl = host.parent?.has_child(host) ? host.parent.host_el : null
 
   return (
     <Popover
@@ -31,7 +20,7 @@ export function render({model, view}, ref) {
       anchorOrigin={anchor_origin}
       anchorPosition={anchor_position ? {left: anchor_position[1], top: anchor_position[0]} : undefined}
       anchorReference={anchor_position == null ? "anchorEl" : "anchorPosition"}
-      container={overlay_container(view.container)}
+      container={host.overlay_root}
       disableEnforceFocus={!enforce_focus}
       elevation={elevation}
       marginThreshold={0}

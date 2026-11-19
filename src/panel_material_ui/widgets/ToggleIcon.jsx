@@ -18,7 +18,7 @@ const PADDING = {
 const TOGGLE_ICON_ROOT_SX = {display: "flex", alignItems: "center", flexDirection: "row"}
 
 export function render(props, ref) {
-  const {data, el, model, view, ...other} = props
+  const {model, host, view, el, data, ...other} = props
   const [active_icon] = model.useState("active_icon")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -41,8 +41,7 @@ export function render(props, ref) {
 
   React.useEffect(() => {
     const focus_cb = () => ref?.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   return (

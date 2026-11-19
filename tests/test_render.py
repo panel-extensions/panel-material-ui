@@ -8,7 +8,7 @@ from bokeh.document import Document
 from panel_material_ui.base import MaterialComponent
 
 
-SKIP = {'NumberInput'}
+SKIP = {'NumberInput', 'Compiled'}
 
 KWARGS = {
     'DateRangeSlider': dict(

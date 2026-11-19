@@ -46,7 +46,7 @@ const spinner = (increment, index) => {
   )
 }
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [bar_color] = model.useState("bar_color")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -80,15 +80,14 @@ export function render({model, el, view}) {
         thumb?.focus()
       }
     }
-    model.on("msg:custom", handler)
-    return () => model.off("msg:custom", handler)
+    return model.on("msg", handler)
   }, [])
 
-  const date = model.esm_constants.date
-  const datetime = model.esm_constants.datetime
-  const discrete = model.esm_constants.discrete
-  const editable = model.esm_constants.editable
-  const int = model.esm_constants.int
+  const date = model.constants.date
+  const datetime = model.constants.datetime
+  const discrete = model.constants.discrete
+  const editable = model.constants.editable
+  const int = model.constants.int
 
   let labels = null
   if (discrete) {
@@ -354,7 +353,7 @@ export function render({model, el, view}) {
                 />
               </>
             )}
-            {model.description ? render_description({model, el, view}) : null}
+            {model.description ? render_description({model, host}) : null}
           </Box>
         </Box>
       ) : (
@@ -365,7 +364,7 @@ export function render({model, el, view}) {
             {render_icon_text(value_label)}
           </strong>
           }
-          {model.description && render_description({model, el, view})}
+          {model.description && render_description({model, host})}
         </FormLabel>)}
       <Box sx={{display: "flex", flexDirection: orientation !== "vertical"? "row" : "initial", alignItems: "center", width: "100%", height: "100%"}}>
         {editable && inline_layout && orientation !== "vertical" && Array.isArray(value) && (

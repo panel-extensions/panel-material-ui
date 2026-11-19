@@ -4,7 +4,7 @@ export function render({model}) {
   const [orientation] = model.useState("orientation");
   const [variant] = model.useState("variant");
   const [sx] = model.useState("sx");
-  const objects = model.get_child("objects");
+  const objects = model.render_children("objects");
 
   return (
     <Divider

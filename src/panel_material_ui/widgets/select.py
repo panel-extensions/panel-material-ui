@@ -386,6 +386,7 @@ class Select(MaterialSingleSelectBase, _PnSelect, _SelectDropdownBase):
     _constants = {"multi": False, "loading_inset": -6}
     _stylesheets: t.ClassVar[list[str]] = []
     _esm_base = "Select.jsx"
+    _compilable = True
     _rename = {"name": None, "groups": None}
 
     def __init__(self, **params):
@@ -576,6 +577,7 @@ class RadioButtonGroup(_ButtonGroup, MaterialSingleSelectBase):
 
     value = param.Parameter()
 
+    _compilable = True
     _constants = {"exclusive": True, "loading_inset": -6}
 
     @param.depends('value', 'options', watch=True, on_init=True)
@@ -753,6 +755,7 @@ class MultiChoice(_SelectDropdownBase, MultiSelect):
 
     _constants = {"multi": True, "loading_inset": -6}
     _esm_base = "Select.jsx"
+    _compilable = True
     _rename = {"name": None}
 
 

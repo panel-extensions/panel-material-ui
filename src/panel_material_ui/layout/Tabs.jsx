@@ -2,7 +2,7 @@ import Tabs from "@mui/material/Tabs"
 import Tab from "@mui/material/Tab"
 import Box from "@mui/material/Box"
 import {useTheme} from "@mui/material/styles"
-import {apply_flex, render_html_icon_text} from "./utils"
+import {render_html_icon_text} from "./utils"
 
 const TABS_BASE_SX = {transition: "height 0.3s"}
 const TAB_CLOSE_LABEL_SX = {display: "flex", alignItems: "center"}
@@ -20,7 +20,7 @@ const TABS_CONTENT_BASE_SX = {
   opacity: 1,
 }
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [active, setActive] = model.useState("active")
   const [centered] = model.useState("centered")
   const [closable] = model.useState("closable")
@@ -30,8 +30,8 @@ export function render({model, view}) {
   const [names] = model.useState("_names")
   const [sx] = model.useState("sx")
   const [wrapped] = model.useState("wrapped")
-  const headers = model.get_child("_headers")
-  const objects = model.get_child("objects")
+  const headers = model.render_children("_headers")
+  const objects = model.render_children("objects", {direction: "column"})
 
   const theme = useTheme()
 
@@ -42,7 +42,7 @@ export function render({model, view}) {
   const orientation = (location === "above" || location === "below") ? "horizontal" : "vertical"
   const paletteEntry = theme.palette[color] || theme.palette.primary
   const disabledList = Array.isArray(disabled) ? disabled : []
-  const object_models = model.objects
+  const object_models = model.children("objects")
   const ntabs = object_models.length
   const activeIndex = Number.isInteger(active) && active >= 0 && active < ntabs ? active : 0
   const panelSx = React.useMemo(() => {
@@ -63,9 +63,9 @@ export function render({model, view}) {
 
   const handleClose = React.useCallback((event, index) => {
     event.stopPropagation()
-    const objId = view.model.data.objects[index].id
+    const objId = model.children("objects")[index].id
     model.send_msg({type: "close", id: objId, index})
-  }, [model, view.model.data])
+  }, [model])
 
   const tabLabels = React.useMemo(() => (
     names.map((label, index) => (
@@ -118,7 +118,6 @@ export function render({model, view}) {
   let content = null
   if (ntabs > 0) {
     const active_model = object_models[activeIndex]
-    apply_flex(view.get_child_view(active_model), "column")
     content = objects.find((object) => object.props.id === active_model.id)
   }
 

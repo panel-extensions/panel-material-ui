@@ -138,11 +138,11 @@ export function render_theme_css(theme) {
 }
 
 function find_on_parent(view, prop) {
-  let current = view
-  const elevations = []
+  let current = make_host(view)
   while (current != null) {
-    if (current.model?.data?.[prop] != null) {
-      return current.model.data[prop]
+    const value = current.model.get(prop)
+    if (value != null) {
+      return value
     }
     current = current.parent
   }
@@ -1076,9 +1076,23 @@ const THEMES = new Map()
 const CONTAINER_THEMES = new WeakMap()
 const CONTAINER_COMPONENTS = ["MuiPopover", "MuiPopper", "MuiModal"]
 
+// A component that shares its style root with others cannot define the
+// variables of its theme on :host, so they are scoped to a class that the
+// component and the overlays it opens carry.
+const SCOPED_THEMES = new WeakMap()
+
+function theme_scope(key) {
+  let hash = 5381
+  for (let i = 0; i < key.length; i++) {
+    hash = ((hash << 5) + hash + key.charCodeAt(i)) >>> 0
+  }
+  return `pmui-theme-${hash.toString(36)}`
+}
+
 function cached_theme(props, theme_config, dark_theme) {
-  const key = JSON.stringify([theme_config, dark_theme])
-  const container = overlay_container(props.view.container)
+  const scope = props.host.shares_style_root ? theme_scope(JSON.stringify([theme_config, dark_theme])) : null
+  const key = JSON.stringify([theme_config, dark_theme, scope])
+  const container = props.host.overlay_root
   let themes = container == null ? null : CONTAINER_THEMES.get(container)
   if (themes?.has(key)) {
     return themes.get(key)
@@ -1086,21 +1100,22 @@ function cached_theme(props, theme_config, dark_theme) {
   let base = THEMES.get(key)
   if (base === undefined) {
     try {
-      base = createTheme(render_theme_config({view: {container: null}}, theme_config, dark_theme))
+      base = createTheme(render_theme_config({host: {overlay_root: null}}, theme_config, dark_theme, scope))
     } catch (error) {
       // An invalid theme_config, e.g. a palette color MUI cannot parse,
       // falls back to the default theme instead of unmounting the component.
       console.error("panel-material-ui: invalid theme_config, using the default theme", error)
-      base = createTheme(render_theme_config({view: {container: null}}, null, dark_theme))
+      base = createTheme(render_theme_config({host: {overlay_root: null}}, null, dark_theme, scope))
     }
     THEMES.set(key, base)
   }
   const components = {...base.components}
   for (const name of CONTAINER_COMPONENTS) {
     const component = components[name] ?? {}
-    components[name] = {...component, defaultProps: {...component.defaultProps, container}}
+    const scoped = scope ? {className: scope} : {}
+    components[name] = {...component, defaultProps: {...component.defaultProps, container, ...scoped}}
   }
-  const theme = {...base, components}
+  const theme = {...base, components, pmui_scope: scope}
   if (container != null) {
     if (themes == null) {
       themes = new Map()
@@ -1111,11 +1126,11 @@ function cached_theme(props, theme_config, dark_theme) {
   return theme
 }
 
-export function render_theme_config(props, theme_config, dark_theme) {
-  const container = overlay_container(props.view.container)
+export function render_theme_config(props, theme_config, dark_theme, scope=null) {
+  const container = props.host.overlay_root
   const config = {
     cssVariables: {
-      rootSelector: ":host",
+      rootSelector: scope ? `.${scope}` : ":host",
       colorSchemeSelector: "class",
     },
     palette: {
@@ -1305,7 +1320,7 @@ const render_page_css = (theme) => {
   }).join("\n\n");
 }
 
-export const apply_global_css = (model, view, theme) => {
+export const apply_global_css = (host, theme) => {
   const template_style_el = document.querySelector("#template-styles")
   const managed = React.useRef(false)
 
@@ -1314,27 +1329,24 @@ export const apply_global_css = (model, view, theme) => {
     if (global_style_el) {
       return
     }
-    for (const root of view.model.document.roots()) {
-      if (root === view.model) {
-        global_style_el = document.createElement("style")
-        global_style_el.id = "global-styles-panel-mui"
-        global_style_el.textContent = render_theme_css(theme)
-        if (template_style_el) {
-          document.head.insertBefore(global_style_el, template_style_el)
-        } else {
-          document.head.appendChild(global_style_el)
-        }
-        const page_style_el = document.createElement("style")
-        page_style_el.id = "page-style"
-        page_style_el.textContent = render_page_css(theme)
-        if (template_style_el) {
-          document.head.insertBefore(page_style_el, template_style_el)
-        } else {
-          document.head.appendChild(page_style_el)
-        }
-        managed.current = true
-        break
+    if (host.is_document_root) {
+      global_style_el = document.createElement("style")
+      global_style_el.id = "global-styles-panel-mui"
+      global_style_el.textContent = render_theme_css(theme)
+      if (template_style_el) {
+        document.head.insertBefore(global_style_el, template_style_el)
+      } else {
+        document.head.appendChild(global_style_el)
       }
+      const page_style_el = document.createElement("style")
+      page_style_el.id = "page-style"
+      page_style_el.textContent = render_page_css(theme)
+      if (template_style_el) {
+        document.head.insertBefore(page_style_el, template_style_el)
+      } else {
+        document.head.appendChild(page_style_el)
+      }
+      managed.current = true
     }
   }, [])
 
@@ -1355,10 +1367,40 @@ export const apply_global_css = (model, view, theme) => {
 // With scoped=true the styles go into the view's shadow root, so a component
 // that does not own the document (e.g. a Page in a notebook output) cannot
 // restyle the rest of the page.
-export const setup_global_styles = (view, theme, custom_theme=[], scoped=false, standalone=false) => {
-  const doc = view.model.document
-  const target = scoped ? view.shadow_el : document.head
-  const anchor_el = scoped ? view.container : document.querySelector("#template-styles")
+// Themes the Bokeh models of a document, e.g. its plots.
+export function theme_document(doc, theme, custom_theme=[], standalone=false) {
+  const dark = theme.palette.mode === "dark"
+  const font_family = Array.isArray(theme.typography.fontFamily) ? (
+    theme.typography.fontFamily.join(", ")
+  ) : (
+    theme.typography.fontFamily
+  )
+  doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family, custom_theme, standalone))
+}
+
+/**
+ * Themes a document before any of its views render, for a host whose
+ * children would otherwise draw once unthemed and again once the root
+ * component has mounted and applied its theme.
+ */
+export function theme_document_early(doc, theme_config, dark_theme, custom_theme=[]) {
+  if (doc == null) {
+    return
+  }
+  const config = theme_config?.dark && theme_config?.light ? theme_config[dark_theme ? "dark" : "light"] : theme_config
+  let theme
+  try {
+    theme = createTheme(render_theme_config({host: {overlay_root: null}}, config ?? {}, dark_theme))
+  } catch (error) {
+    return
+  }
+  theme_document(doc, theme, custom_theme)
+}
+
+export const setup_global_styles = (host, theme, custom_theme=[], scoped=false, standalone=false) => {
+  const doc = host.document
+  const target = scoped ? host.style_root : document.head
+  const anchor_el = scoped ? host.content_el : document.querySelector("#template-styles")
   const insert = (el) => {
     if (anchor_el && anchor_el.parentNode === target) {
       target.insertBefore(el, anchor_el)
@@ -1419,19 +1461,14 @@ export const setup_global_styles = (view, theme, custom_theme=[], scoped=false, 
 
   React.useEffect(() => {
     theme_ref.current = theme
-    const dark = theme.palette.mode === "dark"
-    const font_family = Array.isArray(theme.typography.fontFamily) ? (
-      theme.typography.fontFamily.join(", ")
-    ) : (
-      theme.typography.fontFamily
-    )
-    doc.all_models.forEach(model => apply_bokeh_theme(model, theme, dark, font_family, custom_theme, standalone))
+    theme_document(doc, theme, custom_theme, standalone)
     global_style_el.textContent = render_theme_css(theme)
     page_style_el.textContent = render_page_css(theme)
   }, [theme, scoped])
 }
 
 export const install_theme_hooks = (props) => {
+  const host = props.host
   const [dark_theme, setDarkTheme] = props.model.useState("dark_theme")
 
   // ALERT: Unclear why this is needed, the dark_theme state variable
@@ -1444,26 +1481,26 @@ export const install_theme_hooks = (props) => {
   // Apply .mui-dark or .mui-light to the container
   const themeClass = `mui-${dark_theme ? "dark" : "light"}`
   const inverseClass = `mui-${dark_theme ? "light" : "dark"}`
-  props.view.container.className = `${props.view.container.className.replace(inverseClass, "").replace(themeClass, "").trim()} ${themeClass}`.trim()
 
-  const merge_theme_configs = (view, dark) => {
+  const merge_theme_configs = (start, dark) => {
     const color_scheme = dark ? "dark" : "light"
-    let current = view
+    let current = start
     let prev = null
     const theme_configs = []
-    const views = []
+    const hosts = []
     while (current != null) {
-      const is_header = current.model.class_name === "Page" && prev && current.model.data.header.includes(prev.model)
-      if (current.model?.data?.theme_config !== undefined) {
-        const config = current.model.data.theme_config
-        views.push(current)
+      const is_header = current.model.kind === "Page" && prev && current.model.children("header").some(child => child.id === prev.model.id)
+      if (current.model.get("theme_config") !== undefined) {
+        const config = current.model.get("theme_config")
+        hosts.push(current)
         if (is_header) {
           const primary_color = config?.palette?.primary?.main ?? config?.[color_scheme]?.palette?.primary?.main
-          let skip = current.model.data.header_color === "paper"
+          let skip = current.model.get("header_color") === "paper"
           const header_color = primary_color ?? "#0072b5"
           const header_bg = luminance(header_color) < 164 ? "#ffffff" : "#000000"
-          if (current.model.data.sx && current.model.data.sx[".MuiAppBar-root"] != null) {
-            const header_sx = current.model.data.sx[".MuiAppBar-root"]
+          const sx = current.model.get("sx")
+          if (sx && sx[".MuiAppBar-root"] != null) {
+            const header_sx = sx[".MuiAppBar-root"]
             skip = header_sx.bgcolor === "primary.contrastText" && header_sx.color == "primary.main"
           }
           if (!skip) {
@@ -1488,14 +1525,14 @@ export const install_theme_hooks = (props) => {
       current = current.parent
     }
     const merged = theme_configs.reverse().reduce((acc, config) => deepmerge(acc, config), {})
-    return [merged, views]
+    return [merged, hosts]
   }
 
   // The theme config is merged during render, so a dark mode switch builds
   // the theme once, and the theme only changes when the merged config does.
   const [config_version, setConfigVersion] = React.useState(0)
   const theme_config = React.useMemo(
-    () => merge_theme_configs(props.view, dark_theme)[0], [dark_theme, config_version]
+    () => merge_theme_configs(host, dark_theme)[0], [dark_theme, config_version]
   )
   const theme_key = React.useMemo(
     () => JSON.stringify([theme_config, dark_theme]), [theme_config, dark_theme]
@@ -1504,19 +1541,66 @@ export const install_theme_hooks = (props) => {
     () => cached_theme(props, theme_config, dark_theme), [theme_key]
   )
 
-  React.useEffect(() => {
-    const [_, views] = merge_theme_configs(props.view, dark_ref.current)
-    const cb = () => setConfigVersion(v => v + 1)
-    // A Page's header_color decides whether its header inverts the palette.
-    const watched = (view) => view.model.class_name === "Page" ? ["theme_config", "header_color"] : ["theme_config"]
-    for (const view of views) {
-      view.model_proxy.on(watched(view), cb)
+  // After every commit, since a host may render the element's own classes,
+  // but only touching the element when a class is missing.
+  const applied_classes = React.useRef([])
+  React.useLayoutEffect(() => {
+    const classes = host.content_el?.classList
+    if (classes == null) {
+      return
     }
+    for (const name of applied_classes.current) {
+      if (name !== themeClass && name !== theme.pmui_scope) { classes.remove(name) }
+    }
+    applied_classes.current = [themeClass, theme.pmui_scope].filter(Boolean)
+    if (classes.contains(inverseClass)) { classes.remove(inverseClass) }
+    for (const name of applied_classes.current) {
+      if (!classes.contains(name)) { classes.add(name) }
+    }
+  })
+  React.useLayoutEffect(() => () => {
+    if (applied_classes.current.length > 1) { host.content_el?.classList.remove(applied_classes.current[1]) }
+  }, [])
+
+  // MUI only generates the variables of the outermost theme of a React
+  // tree, so the variables of a scoped theme are added once per style root.
+  React.useLayoutEffect(() => {
+    const scope = theme.pmui_scope
+    if (!scope) {
+      return
+    }
+    const root = host.style_root
+    if (!SCOPED_THEMES.has(root)) {
+      SCOPED_THEMES.set(root, new Map())
+    }
+    const sheets = SCOPED_THEMES.get(root)
+    if (!sheets.has(scope)) {
+      const el = document.createElement("style")
+      el.dataset.pmuiTheme = scope
+      el.textContent = theme.generateStyleSheets().map(sheet => Object.values(sheet).map(
+        vars => `.${scope} { ${Object.entries(vars).map(([name, value]) => `${name}: ${value};`).join(" ")} }`
+      ).join("\n")).join("\n")
+      root.appendChild(el)
+      sheets.set(scope, {el, count: 0})
+    }
+    const entry = sheets.get(scope)
+    entry.count++
     return () => {
-      for (const view of views) {
-        view.model_proxy.off(watched(view), cb)
+      if (--entry.count === 0) {
+        entry.el.remove()
+        sheets.delete(scope)
       }
     }
+  }, [theme.pmui_scope])
+
+  React.useEffect(() => {
+    const [_, hosts] = merge_theme_configs(host, dark_ref.current)
+    const cb = () => setConfigVersion(v => v + 1)
+    // A Page's header_color decides whether its header inverts the palette.
+    const watched = (ancestor) => ancestor.model.kind === "Page" ?
+      ["change:theme_config", "change:header_color"] : ["change:theme_config"]
+    const unwatch = hosts.map(ancestor => ancestor.model.on(watched(ancestor), cb))
+    return () => unwatch.forEach(stop => stop())
   }, [])
 
   // The theme is shared by the whole page. A component publishes its
@@ -1526,14 +1610,14 @@ export const install_theme_hooks = (props) => {
   // brings their state in line in a single batch. Owners of the session
   // theme (Page) sync their own switch to Python.
   const [explicit] = props.model.useState("_dark_theme_explicit")
-  const owner = Boolean(props.view.model.esm_constants?.session_theme_owner)
+  const owner = Boolean(props.model.constants.session_theme_owner)
   const followed_ref = React.useRef(null)
   const follow_dark_mode = (dark) => {
     followed_ref.current = dark
     if (owner) {
       setDarkTheme(dark)
     } else {
-      props.view.model.data.setv({dark_theme: dark}, {sync: false})
+      props.model.set({dark_theme: dark}, {sync: false})
     }
   }
   const mounted_ref = React.useRef(false)
@@ -1566,22 +1650,23 @@ export const install_theme_hooks = (props) => {
     }
     const style_el = document.createElement("style")
     style_el.id = "styles-panel-mui"
-    props.view.shadow_el.insertBefore(style_el, props.view.container)
+    if (host.content_el?.parentNode === host.style_root) {
+      host.style_root.insertBefore(style_el, host.content_el)
+    }
     style_el.textContent = render_theme_css(theme)
 
     // Without a theme-managed document (e.g. a Page in a notebook or docs page)
     // there is no global dark_mode to follow, so track the enclosing Page.
-    let page = props.view.parent
-    while (page != null && page.model.class_name !== "Page") {
+    let page = host.parent
+    while (page != null && page.model.kind !== "Page") {
       page = page.parent
     }
     if (page == null) {
       return
     }
-    const sync = () => follow_dark_mode(page.model.data.dark_theme)
+    const sync = () => follow_dark_mode(page.model.get("dark_theme"))
     sync()
-    page.model_proxy.on("dark_theme", sync)
-    return () => page.model_proxy.off("dark_theme", sync)
+    return page.model.on("change:dark_theme", sync)
   }, [])
 
   React.useEffect(() => {
@@ -1592,7 +1677,7 @@ export const install_theme_hooks = (props) => {
   }, [])
 
   React.useEffect(() => {
-    const style_el = props.view.shadow_el.querySelector("#styles-panel-mui")
+    const style_el = host.style_root.querySelector("#styles-panel-mui")
     if (style_el) {
       style_el.textContent = render_theme_css(theme)
     }
@@ -1621,20 +1706,20 @@ export class ComponentErrorBoundary extends React.Component {
   }
 
   componentDidMount() {
-    this.props.view?.model?.data?.change.connect(this._reset)
+    this._unwatch = this.props.host?.model.on("change", this._reset)
   }
 
   componentWillUnmount() {
-    this.props.view?.model?.data?.change.disconnect(this._reset)
+    this._unwatch?.()
   }
 
   componentDidCatch(error) {
-    const name = this.props.view?.model?.class_name ?? "component"
+    const name = this.props.host?.model.kind ?? "component"
     console.error(`panel-material-ui: ${name} failed to render`, error)
   }
 
   render() {
-    if (this.state.error != null && this.props.view?.model?.dev) {
+    if (this.state.error != null && this.props.host?.dev) {
       // In dev mode Panel's own boundary shows the formatted error.
       throw this.state.error
     }
@@ -1646,57 +1731,201 @@ export function isNumber(obj) {
   return toString.call(obj) === "[object Number]"
 }
 
-// Panel renders a child model listed more than once a single time, so the
-// rendered children may not line up with the list of child models.
-export function child_model(models, child, index) {
-  const model = models[index]
-  if (model == null || child?.props?.id == null || model.id === child.props.id) {
-    return model
+/**
+ * The flex rules of a child laid out along the given direction, shared by
+ * every host so a child is sized the same wherever it renders.
+ */
+export function child_flex(sizing, direction) {
+  const row = direction == "row"
+  const along = row ? sizing.width_policy : sizing.height_policy
+  const across = row ? sizing.height_policy : sizing.width_policy
+  const size = row ? sizing.width : sizing.height
+  const basis = size != null ? (isNumber(size) ? `${size}px` : size) : "auto"
+  const flex = along == "max" ? "1 0 0px" : along == "fit" ? "1 1 auto" : along == "min" ? "0 1 auto" : `0 0 ${basis}`
+  return {
+    flex,
+    align_self: across == "max" ? "stretch" : row ? sizing.valign : sizing.halign,
+    // undo `width/height: 100%` and let `align-self: stretch` do the work
+    reset: across == "max" ? (row ? "height" : "width") : null,
   }
-  return models.find((m) => m.id === child.props.id)
 }
 
-export function apply_flex(view, direction) {
+// Sizes the view of a child that renders through Bokeh. Hosts only.
+export function apply_flex(view, direction, style) {
   if (view == null) {
     return
   }
-  const sizing = view.box_sizing()
-  const flex = (() => {
-    const policy = direction == "row" ? sizing.width_policy : sizing.height_policy
-    const size = direction == "row" ? sizing.width : sizing.height
-    const basis = size != null ? (isNumber(size) ? `${size}px` : size) : "auto"
-    switch (policy) {
-      case "auto":
-      case "fixed": return `0 0 ${basis}`
-      case "fit": return "1 1 auto"
-      case "min": return "0 1 auto"
-      case "max": return "1 0 0px"
-    }
-  })()
-
-  const align_self = (() => {
-    const policy = direction == "row" ? sizing.height_policy : sizing.width_policy
-    switch (policy) {
-      case "auto":
-      case "fixed":
-      case "fit":
-      case "min": return direction == "row" ? sizing.valign : sizing.halign
-      case "max": return "stretch"
-    }
-  })()
-
-  view.parent_style.replace(":host", {flex, align_self})
-
-  // undo `width/height: 100%` and let `align-self: stretch` do the work
-  if (direction == "row") {
-    if (sizing.height_policy == "max") {
-      view.parent_style.append(":host", {height: "auto"})
-    }
-  } else {
-    if (sizing.width_policy == "max") {
-      view.parent_style.append(":host", {width: "auto"})
+  if (direction) {
+    const {flex, align_self, reset} = child_flex(view.box_sizing(), direction)
+    view.parent_style.replace(":host", {flex, align_self})
+    if (reset) {
+      view.parent_style.append(":host", {[reset]: "auto"})
     }
   }
+  if (style) {
+    view.parent_style.append(":host", style)
+  }
+}
+
+/*
+ * The component interface. A component's render function receives
+ * `{model, host}` and uses nothing else, so the same component renders
+ * through a Panel view (make_host) and inside a Compiled tree, which builds
+ * the same two objects from its store.
+ *
+ * ComponentModel
+ *   id, kind, constants, tags
+ *   useState(path)                     reactive state, [value, setter]
+ *   get(name)                          non-reactive read
+ *   set(values, {sync})                write, sync: false keeps it local
+ *   children(name)                     ChildHandle[]: {id, kind, layout, get(name)}
+ *   render_children(name, {direction, style})
+ *   send_msg(data), send_event(name, event)
+ *   on(event, callback) -> unsubscribe
+ *     "msg" | "layout" | "remove" | "change" | "change:<name>" (or a list)
+ *
+ * ComponentHost
+ *   model, parent, root, is_root, is_document_root, dev
+ *   host_el       the component's own box, safe to style and measure
+ *   content_el    the element its output renders into, safe to query
+ *   overlay_root  where popovers and dialogs mount
+ *   style_root    where <style> elements go
+ *   shares_style_root  whether other components render into the same root
+ *   emotion_cache, layout, document
+ *   invalidate_layout(), has_child(host)
+ */
+const LAYOUT_PARAMS = [
+  "sizing_mode", "width", "height", "min_width", "min_height", "max_width",
+  "max_height", "margin", "align", "aspect_ratio", "width_policy", "height_policy",
+]
+const HOST_EVENTS = {msg: "msg:custom", layout: "lifecycle:update_layout", remove: "lifecycle:remove"}
+const HOSTS = new WeakMap()
+const HOST_VIEWS = new WeakMap()
+
+export function layout_of(bk_model) {
+  return Object.fromEntries(LAYOUT_PARAMS.map(name => [name, bk_model[name]]))
+}
+
+export function child_handle(bk_model) {
+  return {
+    id: bk_model.id,
+    kind: bk_model.class_name ?? bk_model.type,
+    get layout() { return layout_of(bk_model) },
+    get: (name) => bk_model.data?.[name],
+  }
+}
+
+function make_model(view, state) {
+  const bk_model = view.model
+  const flex = new Map()
+  const child_models = (name) => {
+    const data = bk_model.data
+    if (data == null || !(name in data.properties)) {
+      return []
+    }
+    const value = data[name]
+    return value == null ? [] : Array.isArray(value) ? value : [value]
+  }
+  const size_children = (name) => {
+    const {direction, style} = flex.get(name)
+    for (const child of child_models(name)) {
+      apply_flex(view.get_child_view(child), direction, style)
+    }
+  }
+  let bound = false
+  const api = {
+    get id() { return bk_model.id },
+    get kind() { return bk_model.class_name ?? bk_model.type },
+    get constants() { return bk_model.data?.esm_constants ?? {} },
+    get tags() { return bk_model.tags },
+    get: (name) => bk_model.data?.[name],
+    set: (values, options) => bk_model.data.setv(values, options),
+    children: (name) => child_models(name).map(child_handle),
+    render_children: (name, options = {}) => {
+      const rendered = state.proxy.get_child(name)
+      if (options.direction || options.style) {
+        flex.set(name, options)
+        if (!bound) {
+          // Bokeh recomputes the sizing of a child whenever it lays out.
+          bound = true
+          state.proxy.on("lifecycle:update_layout", () => [...flex.keys()].forEach(size_children))
+        }
+        size_children(name)
+      } else {
+        flex.delete(name)
+      }
+      return rendered
+    },
+    on: (event, callback) => {
+      if (event === "change") {
+        const data = bk_model.data
+        data?.change.connect(callback)
+        return () => data?.change.disconnect(callback)
+      }
+      const proxy = state.proxy
+      if (proxy?.on == null) {
+        return () => {}
+      }
+      const names = (Array.isArray(event) ? event : [event]).map(name => HOST_EVENTS[name] ?? name)
+      proxy.on(names, callback)
+      return () => proxy.off(names, callback)
+    },
+  }
+  return new Proxy(api, {
+    get: (target, name) => name in target ? target[name] : state.proxy?.[name],
+    set: (_, name, value) => { state.proxy[name] = value; return true },
+    has: (target, name) => name in target || (state.proxy != null && name in state.proxy),
+  })
+}
+
+/**
+ * The host of a component rendered by a Panel view. Pass the model proxy
+ * the view renders the component with; ancestors are wrapped without one.
+ */
+export function make_host(view, proxy) {
+  if (view == null) {
+    return null
+  }
+  let host = HOSTS.get(view)
+  if (host != null) {
+    const state = HOST_VIEWS.get(host)
+    if (proxy != null) { state.proxy = proxy }
+    return host
+  }
+  const state = {view, proxy: proxy ?? view.model_proxy}
+  // A Compiled view places the children it renders through Bokeh somewhere
+  // in its tree, which decides their parent and whether they are the root.
+  const placement = () => view.parent?.pmui_placement?.(view.model.id)
+  host = {
+    model: make_model(view, state),
+    get parent() {
+      const parent = view.parent
+      if (parent == null) {
+        return null
+      }
+      return placement()?.parent ?? make_host(parent)
+    },
+    get root() { return make_host(view.root) },
+    get is_root() { return view.is_root || Boolean(placement()?.root && view.parent.is_root) },
+    get is_document_root() {
+      const owner = placement()?.root ? view.parent : view
+      return owner.is_root && Boolean(owner.model.document?.roots().includes(owner.model))
+    },
+    get dev() { return Boolean(view.model.dev) },
+    get host_el() { return view.el },
+    get content_el() { return view.container },
+    get overlay_root() { return overlay_container(view.container) },
+    get style_root() { return view.shadow_el },
+    shares_style_root: false,
+    get emotion_cache() { return view.mui_cache ?? null },
+    get layout() { return layout_of(view.model) },
+    get document() { return view.model.document },
+    invalidate_layout: () => view.invalidate_layout(),
+    has_child: (child) => Boolean(view.child_views?.includes(HOST_VIEWS.get(child)?.view)),
+  }
+  HOSTS.set(view, host)
+  HOST_VIEWS.set(host, state)
+  return host
 }
 
 export function distance_from_latest(el) {

@@ -29,7 +29,7 @@ const FILE_INPUT_BUTTON_SX = {
 }
 
 export function render(props, ref) {
-  const {data, el, model, view, ...other} = props
+  const {model, host, view, el, data, ...other} = props
   const [accept] = model.useState("accept")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -172,8 +172,7 @@ export function render(props, ref) {
         setStatus("error")
       }
     }
-    model.on("msg:custom", handler)
-    return () => model.off("msg:custom", handler)
+    return model.on("msg", handler)
   }, [])
 
   const dynamic_icon = (() => {

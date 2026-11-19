@@ -2,7 +2,7 @@ import {MuiColorInput} from "mui-color-input"
 import {render_description} from "./description"
 import {render_icon_text, overlay_container, useThrottledModelState} from "./utils"
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [alpha] = model.useState("alpha")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -24,14 +24,14 @@ export function render({model, el, view}) {
       fullWidth
       helperText={helper_text ? render_icon_text(helper_text) : undefined}
       isAlphaHidden={!alpha}
-      label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
+      label={model.description ? <>{render_icon_text(label)}{render_description({model, host})}</> : render_icon_text(label)}
       onChange={setValue}
       size={size}
       sx={sx}
       value={value || ""}
       variant={variant}
       PopoverProps={{
-        container: overlay_container(el),
+        container: host.overlay_root,
       }}
     />
   )

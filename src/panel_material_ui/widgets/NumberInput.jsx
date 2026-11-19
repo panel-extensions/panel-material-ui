@@ -6,7 +6,7 @@ import RemoveIcon from "@mui/icons-material/Remove"
 import {float_regex, int_regex, render_icon_text, render_icon_text_as_string} from "./utils"
 import {render_description} from "./description"
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
@@ -35,9 +35,9 @@ export function render({model, el, view}) {
     const handler = () => {
       ref.current?.focus()
     }
-    model.on("msg:custom", handler)
+    const unwatch = model.on("msg", handler)
     return () => {
-      model.off("msg:custom", handler)
+      unwatch()
       clearTimeout(throttleTimer.current)
     }
   }, [model])
@@ -156,7 +156,7 @@ export function render({model, el, view}) {
       fullWidth
       helperText={helper_text ? render_icon_text(helper_text) : undefined}
       inputRef={ref}
-      label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
+      label={model.description ? <>{render_icon_text(label)}{render_description({model, host})}</> : render_icon_text(label)}
       onBlur={() => {
         setFocused(false)
         commitTyped()

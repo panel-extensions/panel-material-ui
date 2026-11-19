@@ -1,6 +1,6 @@
 import Pagination from "@mui/material/Pagination"
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [count] = model.useState("count")
   const [disabled] = model.useState("disabled")

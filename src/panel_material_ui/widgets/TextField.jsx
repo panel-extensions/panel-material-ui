@@ -2,7 +2,7 @@ import TextField from "@mui/material/TextField"
 import {render_description} from "./description"
 import {render_icon_text, render_icon_text_as_string, denseSx, useDraftInput} from "./utils"
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
@@ -18,8 +18,7 @@ export function render({model, el, view}) {
   const ref = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   return (
@@ -31,8 +30,8 @@ export function render({model, el, view}) {
       inputRef={ref}
       fullWidth
       slotProps={{htmlInput: {maxLength: max_length}}}
-      label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
-      multiline={model.esm_constants.multiline}
+      label={model.description ? <>{render_icon_text(label)}{render_description({model, host})}</> : render_icon_text(label)}
+      multiline={model.constants.multiline}
       placeholder={render_icon_text_as_string(placeholder)}
       {...inputProps}
       onKeyDown={(event) => {

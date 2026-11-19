@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography"
 import {render_description} from "./description"
 import {render_icon_text} from "./utils"
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
   const [sx] = model.useState("sx")
@@ -15,7 +15,7 @@ export function render({model, el, view}) {
       {label && (
         <FormLabel sx={{fontSize: "0.75rem"}}>
           {render_icon_text(label)}
-          {model.description ? render_description({model, el, view}) : null}
+          {model.description ? render_description({model, host}) : null}
         </FormLabel>
       )}
       <Typography

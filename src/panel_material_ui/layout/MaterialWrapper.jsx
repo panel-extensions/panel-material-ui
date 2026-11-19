@@ -1,4 +1,3 @@
-import {apply_flex, child_model} from "./utils"
 
 const WRAPPER_STYLE = {
   display: "flex",
@@ -7,25 +6,12 @@ const WRAPPER_STYLE = {
   height: "100%",
 }
 
-export function render({model, view}) {
-  const objects = model.get_child("objects")
-
-  React.useEffect(() => {
-    const handler = () => {
-      objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-      })
-    }
-    model.on("lifecycle:update_layout", handler)
-    return () => model.off("lifecycle:update_layout", handler)
-  }, [])
+export function render({model, host}) {
+  const objects = model.render_children("objects", {direction: "column"})
 
   return (
     <div style={WRAPPER_STYLE}>
-      {objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-        return object
-      })}
+      {objects}
     </div>
   )
 }

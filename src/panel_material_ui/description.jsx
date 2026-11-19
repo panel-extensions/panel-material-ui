@@ -8,7 +8,7 @@ import {render_icon_text, overlay_container} from "./utils"
 // Reserve the icon and its margin in outlined-input notches, which only accept text.
 export const DESCRIPTION_LABEL_SPACER = "\u00A0\u00A0\u00A0\u00A0\u00A0"
 
-export function render_description({model, el, view}) {
+export function render_description({model, host}) {
   const theme = useTheme()
   const [description] =  model.useState("description")
   const title = render_icon_text(description)
@@ -16,11 +16,12 @@ export function render_description({model, el, view}) {
   const iconRef = React.useRef(null)
   const [open, setOpen] = React.useState(false);
 
-  let container = overlay_container(el)
+  let container = overlay_container(host?.content_el)
   let cache = null
-  if (view && view.root.model.class_name == "Page" && view.root.mui_cache != null) {
-    container = overlay_container(view.root.shadow_el)
-    cache = view.root.mui_cache
+  const root = host?.root
+  if (root && root.model.kind == "Page" && root.emotion_cache != null) {
+    container = overlay_container(root.style_root)
+    cache = root.emotion_cache
     return (
       <>
         <InfoOutlinedIcon

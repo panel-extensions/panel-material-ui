@@ -8,7 +8,7 @@ import {MUI_SIZE, denseSx, render_icon_text, overlay_container} from "./utils"
 
 const DATE_TIME_PICKER_BASE_SX = {width: "100%"}
 
-export function render({model, view, el}) {
+export function render({model, host}) {
   const [clearable] = model.useState("clearable")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -33,7 +33,7 @@ export function render({model, view, el}) {
     [sx]
   )
 
-  const time = model.esm_constants.time
+  const time = model.constants.time
 
   const timeProps = {}
   if (time) {
@@ -88,8 +88,7 @@ export function render({model, view, el}) {
     const handler = () => {
       ref.current?.focus()
     }
-    model.on("msg:custom", handler)
-    return () => model.off("msg:custom", handler)
+    return model.on("msg", handler)
   }, [model])
 
   // Update local state when model value changes from Python
@@ -129,7 +128,7 @@ export function render({model, view, el}) {
         lastCommittedRef.current = null;
         setValue(null);
         setInternalValue(null);
-        model.value = null;
+        model.set({value: null})
       }
       return;
     }
@@ -151,7 +150,7 @@ export function render({model, view, el}) {
 
     // Update the model
     setValue(date);
-    model.value = formattedDate;
+    model.set({value: formattedDate})
   }
 
   // Handle calendar open
@@ -258,7 +257,7 @@ export function render({model, view, el}) {
         format={format}
         fullWidth
         inputRef={ref}
-        label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
+        label={model.description ? <>{render_icon_text(label)}{render_description({model, host})}</> : render_icon_text(label)}
         minDate={min_date ? parseDate(min_date) : undefined}
         maxDate={max_date ? parseDate(max_date) : undefined}
         openTo={open_to}
@@ -291,7 +290,7 @@ export function render({model, view, el}) {
               }
             }
           },
-          popper: {container: overlay_container(view.container)}
+          popper: {container: host.overlay_root}
         }}
         {...timeProps}
       />

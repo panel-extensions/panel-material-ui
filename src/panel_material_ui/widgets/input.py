@@ -112,6 +112,7 @@ class TextInput(_TextInputBase):
         Event when the enter key has been pressed.""")
 
     _esm_base = "TextField.jsx"
+    _compilable = True
 
     def _handle_enter(self, event: DOMEvent):
         self.param.trigger('enter_pressed')
@@ -687,6 +688,8 @@ class IntInput(_SpinnerBase, _IntInputBase):
     >>> IntInput(name='Value', value=100, start=0, end=1000, step=10)
     """
 
+    _compilable = True
+
     step = param.Integer(default=1, doc="""
         The step size.""")
 
@@ -711,6 +714,8 @@ class FloatInput(_SpinnerBase, _FloatInputBase):
 
     >>> FloatInput(label='Value', value=100, start=0, end=1000, step=10)
     """
+
+    _compilable = True
 
     step = param.Number(default=0.1, doc="""
         The step size.""")
@@ -826,6 +831,8 @@ class DatePicker(_DatePickerBase):
     ...     name='Date'
     ... )
     """
+
+    _compilable = True
 
     _constants = {'loading_inset': -6, 'range': False, 'time': False}
 
@@ -1513,6 +1520,7 @@ class Checkbox(MaterialWidget):
 
     _constants = {"loading_inset": -6}
     _esm_base = "Checkbox.jsx"
+    _compilable = True
     _esm_transforms = [LoadingTransform, ThemedTransform]
 
     def __init__(self, **params):
@@ -1576,6 +1584,7 @@ class Switch(MaterialWidget):
     width = param.Integer(default=None, bounds=(0, None), allow_None=True, doc="Width of the widget.")
 
     _esm_base = "Switch.jsx"
+    _compilable = True
     _esm_transforms = [LoadingTransform, ThemedTransform]
 
 
@@ -1593,6 +1602,8 @@ class ColorPicker(MaterialWidget):
 
     >>> pmui.ColorPicker(name='Color Picker', value='#99ef78')
     """
+
+    _compilable = True
 
     alpha = param.Boolean(default=False, doc="Whether to display input controls for a color's alpha (transparency) channel.")
 

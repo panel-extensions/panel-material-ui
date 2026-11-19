@@ -6,7 +6,7 @@ import Collapse from "@mui/material/Collapse"
 import IconButton from "@mui/material/IconButton"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
-import {apply_flex, child_model, render_html_icon_text} from "./utils"
+import {render_html_icon_text} from "./utils"
 
 const CARD_BASE_SX = {
   display: "flex",
@@ -39,7 +39,7 @@ const ExpandMore = styled((props) => {
   ],
 }))
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [collapsible] = model.useState("collapsible")
   const [collapsed, setCollapsed] = model.useState("collapsed")
   const [elevation] = model.useState("elevation")
@@ -54,27 +54,14 @@ export function render({model, view}) {
   const [title_css_classes] = model.useState("title_css_classes")
   const [title_variant] = model.useState("title_variant")
   const [variant] = model.useState("variant")
-  const header = model.get_child("header")
-  const objects = model.get_child("objects")
+  const header = model.render_children("header", {direction: "row"})
+  const has_header = model.children("header").length > 0
+  const objects = model.render_children("objects", {direction: "column"})
 
-  const shouldHideHeader = hide_header || (!model.header && (!title || title.trim() === ""))
+  const shouldHideHeader = hide_header || (!has_header && (!title || title.trim() === ""))
   const shouldHideContent = objects.length === 0
 
-  React.useEffect(() => {
-    const handler = () => {
-      objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-      })
-    }
-    model.on("lifecycle:update_layout", handler)
-    return () => model.off("lifecycle:update_layout", handler)
-  }, [])
-
   const cardSx = React.useMemo(() => [CARD_BASE_SX, sx || {}], [sx])
-
-  if (model.header) {
-    apply_flex(view.get_child_view(model.header), "row")
-  }
 
   return (
     <Card
@@ -98,7 +85,7 @@ export function render({model, view}) {
             </ExpandMore>
           }
           classes={header_css_classes}
-          title={model.header ? header : (
+          title={has_header ? header : (
             <Typography
               classes={title_css_classes}
               sx={{display: "inline-flex", alignItems: "center", gap: "0.25em", fontSize: "1.15rem", fontWeight: 500}}
@@ -143,10 +130,7 @@ export function render({model, view}) {
               },
             }}
           >
-            {objects.map((object, index) => {
-              apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-              return object
-            })}
+            {objects}
           </CardContent>
         )}
       </Collapse>

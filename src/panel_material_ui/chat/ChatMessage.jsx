@@ -72,7 +72,7 @@ function ActionButton({label, onClick, children, className = "chat-message-hover
   )
 }
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [placement] = model.useState("placement")
   const [elevation] = model.useState("elevation")
   const [user] = model.useState("user")
@@ -92,10 +92,10 @@ export function render({model, view}) {
   const [grouped] = model.useState("_internal_state.grouped")
   const [has_text] = model.useState("_internal_state.has_text")
   const [is_help] = model.useState("_internal_state.help")
-  const object = model.get_child("_object_panel")
+  const object = model.render_children("_object_panel")
 
-  const header = model.get_child("header_objects")
-  const footer = model.get_child("footer_objects")
+  const header = model.render_children("header_objects")
+  const footer = model.render_children("footer_objects")
 
   const [copied, setCopied] = React.useState(false)
   React.useEffect(() => {
@@ -108,9 +108,9 @@ export function render({model, view}) {
         timer = setTimeout(() => setCopied(false), 1500)
       })
     }
-    model.on("msg:custom", onMsg)
+    const unwatch = model.on("msg", onMsg)
     return () => {
-      model.off("msg:custom", onMsg)
+      unwatch()
       clearTimeout(timer)
     }
   }, [])
@@ -155,8 +155,8 @@ export function render({model, view}) {
     )
   }
 
-  const obj_model = view.model.data._object_panel
-  const isResponsive = obj_model.sizing_mode && (obj_model.sizing_mode.includes("width") || obj_model.sizing_mode.includes("both"))
+  const obj_sizing = model.children("_object_panel")[0]?.layout.sizing_mode
+  const isResponsive = obj_sizing && (obj_sizing.includes("width") || obj_sizing.includes("both"))
 
   const paperRef = React.useRef(null)
 
@@ -172,14 +172,14 @@ export function render({model, view}) {
   }, [])
 
   // Find and cache the scrollable feed ancestor once on mount.
-  // Walk up from view.el, crossing shadow DOM boundaries via getRootNode().host.
+  // Walk up from host.host_el, crossing shadow DOM boundaries via getRootNode().host.
   const scrollContainerRef = React.useRef(null)
   // Track whether the user has manually scrolled up. Reset when they
   // scroll back near the bottom. This lets us distinguish "user scrolled
   // up to read history" from "content grew and pushed the scroll position".
   const userScrolledUpRef = React.useRef(false)
   React.useEffect(() => {
-    let el = view.el
+    let el = host.host_el
     while (el) {
       // +1 accounts for subpixel rounding differences across browsers
       if (el.scrollHeight > el.clientHeight + 1) {
@@ -215,12 +215,12 @@ export function render({model, view}) {
   }, [])
 
   React.useEffect(() => {
-    if (!paperRef.current || (view.parent?.model.type != "panel.models.feed.Feed")) { return }
+    if (!paperRef.current || (host.parent?.model.kind != "panel.models.feed.Feed")) { return }
     let layoutTimer = null
     const observer = new ResizeObserver(() => {
       // Debounce layout invalidation to avoid thrashing during streaming.
       clearTimeout(layoutTimer)
-      layoutTimer = setTimeout(() => view.invalidate_layout(), 50)
+      layoutTimer = setTimeout(() => host.invalidate_layout(), 50)
       // Scroll the feed to show new/expanded content after React paints,
       // but only if the user hasn't manually scrolled up.
       if (!userScrolledUpRef.current) {

@@ -12,7 +12,7 @@ const PILL_CONTAINER_SX = {
   alignItems: "center"
 }
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [disabled_options] = model.useState("disabled_options", [])
@@ -22,7 +22,7 @@ export function render({model, el, view}) {
   const [sx] = model.useState("sx")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
-  const multi = model.esm_constants.multi || false
+  const multi = model.constants.multi || false
   let max_items = null
   if (multi) {
     const [max_items_state] = model.useState("max_items")
@@ -32,8 +32,7 @@ export function render({model, el, view}) {
   const focusRef = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = () => focusRef.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   const processOptions = () => {
@@ -98,7 +97,7 @@ export function render({model, el, view}) {
       {label && (
         <FormLabel component="legend" sx={{mb: 0.5}}>
           {render_icon_text(label)}
-          {model.description ? render_description({model, el, view}) : null}
+          {model.description ? render_description({model, host}) : null}
         </FormLabel>
       )}
       <Box

@@ -64,7 +64,7 @@ const CrossSelectorItem = React.memo(function CrossSelectorItem({item, checked, 
   )
 })
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -93,8 +93,7 @@ export function render({model, el, view}) {
         }
       }
     }
-    model.on("msg:custom", handler)
-    return () => model.off("msg:custom", handler)
+    return model.on("msg", handler)
   }, [model, left_filter, right_filter])
 
   React.useEffect(() => {
@@ -265,7 +264,7 @@ export function render({model, el, view}) {
       {label && (
         <InputLabel>
           {render_icon_text(label)}
-          {model.description ? render_description({model, el, view}) : null}
+          {model.description ? render_description({model, host}) : null}
         </InputLabel>
       )}
       <Box sx={{display: "flex", flexGrow: 1, minWidth: 0, maxHeight: "calc(100% - 2em)", flexDirection: "row", justifyContent: "center", overflow: "hidden"}}>

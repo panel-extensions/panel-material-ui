@@ -11,7 +11,7 @@ import ErrorIcon from "@mui/icons-material/Error"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked"
 import Typography from "@mui/material/Typography"
-import {apply_flex, render_icon_text} from "./utils"
+import {render_icon_text} from "./utils"
 
 const STATUS_SIZE = 20
 // Lines the body up with the title: header padding, status icon and its
@@ -65,7 +65,7 @@ const ExpandMore = styled((props) => {
   ],
 }));
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [collapsible] = model.useState("collapsible")
   const [collapsed, setCollapsed] = model.useState("collapsed")
   const [hide_header] = model.useState("hide_header")
@@ -74,13 +74,10 @@ export function render({model, view}) {
   const [outlined] = model.useState("outlined")
   const [raised] = model.useState("raised")
   const [sx] = model.useState("sx")
-  const header = model.get_child("header")
-  const objects = model.get_child("objects")
+  const header = model.render_children("header", {direction: "row"})
+  const has_header = model.children("header").length > 0
+  const objects = model.render_children("objects")
   const [status] = model.useState("status")
-
-  if (model.header) {
-    apply_flex(view.get_child_view(model.header), "row")
-  }
 
   return (
     <Card
@@ -118,7 +115,7 @@ export function render({model, view}) {
           "& .MuiCardHeader-content": {minWidth: 0},
           "& .MuiCardHeader-title .step-header": {minWidth: 0}
         }}
-        title={model.header ? header : <Typography variant="subtitle2">{render_icon_text(title)}</Typography>}
+        title={has_header ? header : <Typography variant="subtitle2">{render_icon_text(title)}</Typography>}
       />
       <Collapse
         in={!collapsed}

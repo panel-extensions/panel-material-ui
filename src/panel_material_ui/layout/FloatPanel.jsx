@@ -7,7 +7,7 @@ import CropSquare from "@mui/icons-material/CropSquare"
 import FilterNone from "@mui/icons-material/FilterNone"
 import Minimize from "@mui/icons-material/Minimize"
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [contained] = model.useState("contained")
   const [controls] = model.useState("controls")
   const [elevation] = model.useState("elevation")
@@ -19,7 +19,7 @@ export function render({model, view}) {
   const [status, setStatus] = model.useState("status")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
-  const objects = model.get_child("objects")
+  const objects = model.render_children("objects")
   const [location, setLocation] = React.useState(null)
   const [size, setSize] = React.useState(null)
   const paper = React.useRef(null)
@@ -31,7 +31,7 @@ export function render({model, view}) {
     setLocation(null)
   }, [position, offsetx, offsety, contained])
 
-  const bounds = () => contained ? view.el.getBoundingClientRect() : {
+  const bounds = () => contained ? host.host_el.getBoundingClientRect() : {
     left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight,
     width: window.innerWidth, height: window.innerHeight,
   }
@@ -107,9 +107,9 @@ export function render({model, view}) {
     transform: `translate(${horizontal === "center" || !vertical ? "-50%" : "0"}, ${vertical === "center" || !vertical ? "-50%" : "0"})`,
   }
 
-  view.el.style.position = contained ? "relative" : "static"
-  view.el.style.width = contained ? "100%" : "0px"
-  view.el.style.height = contained ? "100%" : "0px"
+  host.host_el.style.position = contained ? "relative" : "static"
+  host.host_el.style.width = contained ? "100%" : "0px"
+  host.host_el.style.height = contained ? "100%" : "0px"
 
   return status === "closed" ? null : (
     <Paper
@@ -128,8 +128,8 @@ export function render({model, view}) {
       sx={[{
         position: contained ? "absolute" : "fixed", zIndex: "modal",
         ...(maximized ? {inset: 0, transform: "none"} : positioned),
-        width: maximized ? "100%" : (size ? size[0] : model.width || "max-content"), minWidth: 180,
-        height: maximized ? "100%" : (size ? size[1] : model.height || undefined),
+        width: maximized ? "100%" : (size ? size[0] : host.layout.width || "max-content"), minWidth: 180,
+        height: maximized ? "100%" : (size ? size[1] : host.layout.height || undefined),
         maxWidth: "100%", maxHeight: "100%", overflow: "auto",
         display: "flex", flexDirection: "column", cursor: "grab",
         touchAction: "none",

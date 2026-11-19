@@ -307,6 +307,7 @@ class Column(MaterialListLike):
 
     _direction = "vertical"
     _esm_base = "Box.jsx"
+    _compilable = True
     _constants = {"direction": "column", "loading_inset": 0}
 
     def __init__(self, *objects, **params):
@@ -541,6 +542,7 @@ class Row(MaterialListLike):
 
     _direction = "horizontal"
     _esm_base = "Box.jsx"
+    _compilable = True
     _constants = {"direction": "row", "loading_inset": 0}
 
 
@@ -548,6 +550,8 @@ class FlexBox(MaterialListLike):
     """
     The `FlexBox` layout arranges its contents in a flex container.
     """
+
+    _compilable = True
 
     align_content: t.Literal[
         'normal', 'flex-start', 'flex-end', 'center', 'space-between',
@@ -640,6 +644,7 @@ class Paper(MaterialListLike, PaperMixin):
     margin = Margin(default=0, doc="The margin of the layout.")
 
     _esm_base = "Paper.jsx"
+    _compilable = True
 
 
 class FloatPanel(MaterialListLike, PaperMixin):
@@ -695,6 +700,8 @@ class Container(MaterialListLike):
     >>> Container(some_widget, some_pane, some_python_object, title='Container')
     """
 
+    _compilable = True
+
     disable_gutters = param.Boolean(default=False, doc="""
         If `True`, the container will not have gutters.""")
 
@@ -735,6 +742,8 @@ class Grid(MaterialListLike):
 
     >>> Grid(some_widget, some_pane, some_python_object, title='Grid')
     """
+
+    _compilable = True
 
     container = param.Boolean(default=False, doc="""
         Whether the grid should be a container.""")
@@ -892,6 +901,7 @@ class Card(MaterialNamedListLike, PaperMixin):
 
     _direction = "vertical"
     _esm_base = "Card.jsx"
+    _compilable = True
 
     _rename = {"objects": "objects", "title": "title", "header": "header"}
 
@@ -1145,6 +1155,7 @@ class Divider(MaterialListLike):
         doc="Variant style of the divider.")  # type: ignore[assignment]
 
     _esm_base = "Divider.jsx"
+    _compilable = True
 
 
 class Alert(MaterialListLike):
@@ -1264,6 +1275,7 @@ class Dialog(MaterialListLike):
         The width of the dialog.""")  # type: ignore[assignment]
 
     _esm_base = "Dialog.jsx"
+    _compilable = True
 
 
 class Drawer(MaterialListLike):
@@ -1380,6 +1392,7 @@ class Popup(MaterialListLike):
     transform_origin = param.Dict(default=None)
 
     _esm_base = "Popup.jsx"
+    _compilable = True
 
 
 

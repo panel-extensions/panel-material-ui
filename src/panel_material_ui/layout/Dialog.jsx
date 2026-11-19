@@ -6,7 +6,7 @@ import CloseIcon from "@mui/icons-material/Close"
 import Box from "@mui/material/Box"
 import {render_icon_text, overlay_container} from "./utils"
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [close_on_click] = model.useState("close_on_click")
   const [full_screen] = model.useState("full_screen")
   const [open, setOpen] = model.useState("open")
@@ -16,13 +16,13 @@ export function render({model, view}) {
   const [sx] = model.useState("sx")
   const [title_variant] = model.useState("title_variant")
   const [width_option] = model.useState("width_option")
-  const objects = model.get_child("objects")
+  const objects = model.render_children("objects")
 
   return (
     <Dialog
-      container={overlay_container(view.container)}
+      container={host.overlay_root}
       fullScreen={full_screen}
-      fullWidth={view.model.sizing_mode === "stretch_width" || view.model.sizing_mode === "stretch_both"}
+      fullWidth={host.layout.sizing_mode === "stretch_width" || host.layout.sizing_mode === "stretch_both"}
       maxWidth={width_option}
       open={open}
       onClose={() => close_on_click && setOpen(false)}

@@ -12,7 +12,7 @@ export function render({model}) {
   const [placement] = model.useState("placement")
   const [sx] = model.useState("sx")
   const [title] = model.useState("title")
-  const object = model.get_child("object")
+  const object = model.render_children("object")
 
   const openProps = open === null ? {} : {open}
 

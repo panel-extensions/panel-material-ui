@@ -8,7 +8,7 @@ const BASE_ICON_BUTTON_SX = {
 }
 
 export function render(props, ref) {
-  const {data, el, model, view, ...other} = props
+  const {model, host, view, el, data, ...other} = props
   const [active_icon] = model.useState("active_icon")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -38,8 +38,7 @@ export function render(props, ref) {
     const handler = () => {
       ref.current?.focus()
     }
-    model.on("msg:custom", handler)
-    return () => model.off("msg:custom", handler)
+    return model.on("msg", handler)
   }, [model, ref])
 
   React.useEffect(() => {

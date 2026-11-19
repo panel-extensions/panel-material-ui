@@ -1,5 +1,4 @@
 import Container from "@mui/material/Container"
-import {apply_flex, child_model} from "./utils"
 
 const CONTAINER_BASE_SX = {
   height: "100%",
@@ -8,26 +7,16 @@ const CONTAINER_BASE_SX = {
   flexDirection: "column",
 }
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [disableGutters] = model.useState("disable_gutters")
   const [fixed] = model.useState("fixed")
   const [widthOption] = model.useState("width_option")
   const [sx] = model.useState("sx")
-  const objects = model.get_child("objects")
-
-  React.useEffect(() => {
-    const handler = () => {
-      objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-      })
-    }
-    model.on("lifecycle:update_layout", handler)
-    return () => model.off("lifecycle:update_layout", handler)
-  }, [])
+  const objects = model.render_children("objects", {direction: "column"})
 
   const containerSx = React.useMemo(
-    () => [CONTAINER_BASE_SX, {minHeight: model.min_height}, sx || {}],
-    [model.min_height, sx]
+    () => [CONTAINER_BASE_SX, {minHeight: host.layout.min_height}, sx || {}],
+    [host.layout.min_height, sx]
   )
 
   return (
@@ -37,10 +26,7 @@ export function render({model, view}) {
       maxWidth={widthOption || undefined}
       sx={containerSx}
     >
-      {objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-        return object
-      })}
+      {objects}
     </Container>
   )
 }
