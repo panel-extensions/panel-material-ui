@@ -10,7 +10,7 @@ const MENU_BUTTON_BASE_SX = {
 }
 
 export function render(props, ref) {
-  const {data, el, model, view, ...other} = props
+  const {model, host, view, el, data, ...other} = props
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [icon] = model.useState("icon")
@@ -33,8 +33,7 @@ export function render(props, ref) {
   }
   React.useEffect(() => {
     const focus_cb = (msg) => anchorEl.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   return (
@@ -59,7 +58,7 @@ export function render(props, ref) {
         anchorEl={() => anchorEl.current}
         open={open}
         onClose={() => setOpen(false)}
-        view={view}
+        host={host}
       >
         {items.map((item, index) => {
           if (item === null || item.label === "---") {

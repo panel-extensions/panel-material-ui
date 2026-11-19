@@ -3,7 +3,7 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import {render_description} from "./description"
 import {MUI_SIZE, denseLabelSx, denseSx, render_icon_text} from "./utils"
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [checked, setChecked] = model.useState("value")
   const [disabled] = model.useState("disabled")
@@ -15,8 +15,7 @@ export function render({model, el, view}) {
   const ref = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   return (
@@ -37,7 +36,7 @@ export function render({model, el, view}) {
           }}
         />
       }
-      label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
+      label={model.description ? <>{render_icon_text(label)}{render_description({model, host})}</> : render_icon_text(label)}
       sx={[denseLabelSx(size, "switch"), {mr: 0}]}
     />
   );

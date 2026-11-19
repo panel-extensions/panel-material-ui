@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box"
 import {
-  apply_flex, child_at_latest, scroll_to_child, scroll_to_latest,
+  child_at_latest, scroll_to_child, scroll_to_latest,
   update_scroll_button, use_latest_scroll_settlement
 } from "./utils"
 
@@ -13,15 +13,15 @@ const FEED_BASE_SX = {
   minWidth: 0,
 }
 
-export function render({model, view, el}) {
+export function render({model, host}) {
   const [sx] = model.useState("sx")
   const [scroll_button_threshold] = model.useState("scroll_button_threshold")
   const [scroll_index] = model.useState("scroll_index")
   const [scroll_position, setScrollPosition] = model.useState("scroll_position")
   const [view_latest] = model.useState("view_latest")
   const [visibleChildren, setVisibleChildren] = model.useState("visible_children")
-  const objects = model.get_child("objects")
-  const flexDirection = model.esm_constants.direction
+  const objects = model.render_children("objects", {direction: model.constants.direction})
+  const flexDirection = model.constants.direction
   const boxRef = React.useRef(null)
   const syncingScrollRef = React.useRef(false)
   const [scrollbarWidth, setScrollbarWidth] = React.useState(0)
@@ -35,10 +35,10 @@ export function render({model, view, el}) {
   const observerRef = React.useRef(null)
   const observedNodesRef = React.useRef(new Map())
 
-  el.style.width = "100%"
+  host.content_el.style.width = "100%"
 
   const updateScrollButton = React.useCallback((el) => {
-    update_scroll_button(el, view.model.data.scroll_button_threshold, setShowScrollButton)
+    update_scroll_button(el, model.get("scroll_button_threshold"), setShowScrollButton)
   }, [])
 
   const scrollToLatest = React.useCallback((scrollLimit = null) => {
@@ -46,13 +46,13 @@ export function render({model, view, el}) {
   }, [])
 
   const latestChildAtBottom = React.useCallback((el) => {
-    const latest = model.objects[model.objects.length - 1]
+    const latest = model.children("objects")[model.children("objects").length - 1]
     const node = latest ? wrappersRef.current.get(latest.id) : null
     return child_at_latest(el, node)
   }, [])
 
   const syncLatestVisibleChild = React.useCallback(() => {
-    const latest = model.objects[model.objects.length - 1]
+    const latest = model.children("objects")[model.children("objects").length - 1]
     const ordered = latest ? [latest.id] : []
     visibleSetRef.current = new Set(ordered)
     setVisibleChildren(ordered)
@@ -102,7 +102,7 @@ export function render({model, view, el}) {
     if (!el || index === null || index < 0) {
       return
     }
-    const child = wrappersRef.current.get(model.objects[index]?.id)
+    const child = wrappersRef.current.get(model.children("objects")[index]?.id)
     if (!child) {
       return
     }
@@ -111,7 +111,7 @@ export function render({model, view, el}) {
 
   const captureTopAnchor = React.useCallback((el) => {
     const scrollTop = el.scrollTop
-    for (const childModel of model.objects) {
+    for (const childModel of model.children("objects")) {
       const node = wrappersRef.current.get(childModel.id)
       if (!node) {
         continue
@@ -174,8 +174,7 @@ export function render({model, view, el}) {
         }
       }
     }
-    model.on("msg:custom", handler)
-    return () => model.off("msg:custom", handler)
+    return model.on("msg", handler)
   }, [])
 
   React.useEffect(() => {
@@ -200,9 +199,6 @@ export function render({model, view, el}) {
     const handler = () => {
       layoutUpdatedRef.current = true
       updateScrollbarWidth()
-      objects.map((object, index) => {
-        apply_flex(view.get_child_view(model.objects[index]), flexDirection)
-      })
       if (view_latest && !initialLatestDoneRef.current) {
         startScrollLatestSettlement(() => {
           initialLatestDoneRef.current = true
@@ -212,8 +208,7 @@ export function render({model, view, el}) {
         scrollToLatest()
       }
     }
-    model.on("lifecycle:update_layout", handler)
-    return () => model.off("lifecycle:update_layout", handler)
+    return model.on("layout", handler)
   }, [])
 
   React.useEffect(() => {
@@ -249,7 +244,7 @@ export function render({model, view, el}) {
       if (!initialLatestDoneRef.current) {
         return
       }
-      const ordered = model.objects.map((m) => m.id).filter((id) => next.has(id))
+      const ordered = model.children("objects").map((m) => m.id).filter((id) => next.has(id))
       setVisibleChildren(ordered)
     }, {root, threshold: 0.01})
     observerRef.current = observer
@@ -340,9 +335,7 @@ export function render({model, view, el}) {
   return (
     <Box ref={setBoxRef} sx={boxSx}>
       {objects.map((object, index) => {
-        const childModel = model.objects[index]
-        const childId = childModel?.id ?? `${index}`
-        apply_flex(view.get_child_view(childModel), flexDirection)
+        const childId = object.props.id ?? `${index}`
         return (
           <div
             key={childId}

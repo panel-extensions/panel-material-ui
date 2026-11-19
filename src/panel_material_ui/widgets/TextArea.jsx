@@ -3,7 +3,7 @@ import {render_description} from "./description"
 import {render_icon_text, render_icon_text_as_string} from "./utils"
 import {MUI_SIZE, denseSx, useDraftInput} from "./utils"
 
-export function render({model, el}) {
+export function render({model, host}) {
   const [autogrow] = model.useState("auto_grow")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -23,11 +23,10 @@ export function render({model, el}) {
   const ref = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
-  el.style.display = "flex"
+  host.content_el.style.display = "flex"
 
   let props = {}
   if (autogrow) {
@@ -65,7 +64,7 @@ export function render({model, el}) {
       helperText={helper_text ? render_icon_text(helper_text) : undefined}
       slotProps={{htmlInput: {maxLength: max_length}}}
       inputRef={ref}
-      label={model.description ? <>{render_icon_text(label)}{render_description({model, el})}</> : render_icon_text(label)}
+      label={model.description ? <>{render_icon_text(label)}{render_description({model, host})}</> : render_icon_text(label)}
       multiline
       maxRows={max_rows}
       onKeyDown={(e) => {

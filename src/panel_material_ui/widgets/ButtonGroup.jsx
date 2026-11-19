@@ -5,7 +5,7 @@ import ToggleButton from "@mui/material/ToggleButton"
 import {render_description} from "./description"
 import {render_icon_text, render_icon_text_as_string} from "./utils"
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [label] = model.useState("label")
@@ -15,7 +15,7 @@ export function render({model, el, view}) {
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
   const [value, setValue] = model.useState("value")
-  const exclusive = model.esm_constants.exclusive
+  const exclusive = model.constants.exclusive
   const setActive = model.useState("active")[1]
 
   return (
@@ -23,7 +23,7 @@ export function render({model, el, view}) {
       {label && (
         <FormLabel id="toggle-buttons-group-label">
           {render_icon_text(label)}
-          {model.description ? render_description({model, el, view}) : null}
+          {model.description ? render_description({model, host}) : null}
         </FormLabel>
       )}
       <ToggleButtonGroup

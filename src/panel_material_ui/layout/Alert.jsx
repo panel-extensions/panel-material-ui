@@ -16,7 +16,7 @@ export function render({model}) {
   const [object] = model.useState("object")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
-  const objects = model.get_child("objects")
+  const objects = model.render_children("objects")
 
   const props = {}
   if (closeable) {

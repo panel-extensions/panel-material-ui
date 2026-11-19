@@ -20,10 +20,10 @@ export function render({model}) {
   const [square] = model.useState("square")
   const [title_variant] = model.useState("title_variant")
   const [variant] = model.useState("variant")
-  const headers = model.get_child("_headers")
-  const objects = model.get_child("objects")
+  const headers = model.render_children("_headers")
+  const objects = model.render_children("objects")
   const children = new Map(objects.map((object) => [object.props.id, object]))
-  const object_models = model.objects
+  const object_models = model.children("objects")
   // A child listed more than once can only be mounted in one place, so it is
   // rendered in the first expanded section it belongs to.
   const placement = new Map()

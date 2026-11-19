@@ -13,7 +13,7 @@ const MAX_RENDERED_OPTIONS = 200
 
 const defaultFilterOptions = createFilterOptions()
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
@@ -53,12 +53,11 @@ export function render({model, el, view}) {
         }
       }
     }
-    model.on("msg:custom", handler)
-    return () => model.off("msg:custom", handler)
+    return model.on("msg", handler)
   }, [model])
 
   function CustomPopper(props) {
-    return <Popper {...props} container={overlay_container(el)} />
+    return <Popper {...props} container={host.overlay_root} />
   }
 
   const filter_op = (input) => {
@@ -194,7 +193,7 @@ export function render({model, el, view}) {
           color={color}
           error={error_state}
           helperText={helper_text ? render_icon_text(helper_text) : undefined}
-          label={model.description ? <>{render_icon_text(label)}{render_description({model, el, view})}</> : render_icon_text(label)}
+          label={model.description ? <>{render_icon_text(label)}{render_description({model, host})}</> : render_icon_text(label)}
           inputRef={ref}
           slotProps={{...params.slotProps, input: {
             ...params.slotProps.input,

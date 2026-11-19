@@ -12,7 +12,7 @@ const SPEED_DIAL_BASE_SX = {
   }
 }
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [direction] = model.useState("direction")
   const [disabled] = model.useState("disabled")
@@ -27,8 +27,7 @@ export function render({model, view}) {
   const ref = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   const margin = React.useMemo(() => {
@@ -69,7 +68,7 @@ export function render({model, view}) {
               <Avatar color={item.color}>{avatar}</Avatar>
             )}
             slotProps={{
-              popper: {container: overlay_container(view.container)},
+              popper: {container: host.overlay_root},
 
               tooltip: {
                 title: render_icon_text(item.label),

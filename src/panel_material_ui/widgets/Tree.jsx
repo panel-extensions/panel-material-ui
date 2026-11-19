@@ -329,7 +329,7 @@ const pathsToIds = (value, metadata) => {
  * Uses item metadata (`icon`, `file_type`) to choose the label icon.
  */
 const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
-  const {id, itemId, label, children, color, model, highlightSelection, setToggleValues, toggle_ref, view, ...other} = props
+  const {id, itemId, label, children, color, model, highlightSelection, setToggleValues, toggle_ref, host, ...other} = props
 
   const item = useTreeItemModel(itemId)
   const {
@@ -372,8 +372,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
         setAction(toggle_key, msg.value)
       }
     }
-    model.on("msg:custom", handler)
-    return () => model.off("msg:custom", handler)
+    return model.on("msg", handler)
   }, [])
 
   const buildToggleKey = React.useCallback(
@@ -592,7 +591,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
                     anchorEl={menuAnchor}
                     open={menuOpen}
                     onClose={handleMenuClose}
-                    view={view}
+                    host={host}
                   >
                     {menuActions.map((action, index) => {
                       if (action === null) {
@@ -647,7 +646,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   )
 })
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [checkboxes] = model.useState("checkboxes")
   const [color] = model.useState("color")
   const [items] = model.useState("items")
@@ -745,7 +744,7 @@ export function render({model, view}) {
       items={treeItems}
       isItemDisabled={(item) => item.disabled ?? false}
       slots={{item: CustomTreeItem}}
-      slotProps={{item: {color, model, highlightSelection: !checkboxes, setToggleValues, toggle_ref, view}}}
+      slotProps={{item: {color, model, highlightSelection: !checkboxes, setToggleValues, toggle_ref, host}}}
       selectedItems={selectedIds}
       onSelectedItemsChange={handleSelectedChange}
       expandedItems={expandedIds}

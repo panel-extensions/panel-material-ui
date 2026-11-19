@@ -14,7 +14,7 @@ import TocIcon from "@mui/icons-material/Toc";
 import Tooltip from "@mui/material/Tooltip";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {styled, useTheme} from "@mui/material/styles";
-import {apply_flex, dark_mode, setup_global_styles, render_icon_text} from "./utils"
+import {dark_mode, setup_global_styles, render_icon_text} from "./utils"
 
 const PAGE_ROOT_SX = {display: "flex", width: "100vw", height: "100vh", overflow: "hidden"}
 // Inline pages size to their host (or content) and become the containing block
@@ -41,11 +41,9 @@ function SiteLink({href, style, children}) {
 // A Page only owns the viewport when it is a document root mounted directly in
 // <body> (panel serve, save). In notebook outputs or nested inside other
 // layouts, fixed positioning would attach it to the notebook or tab instead.
-function is_fullscreen(view) {
-  // A compiled Page is mounted by the view of its Compiled root.
-  view = view.compiled_root ?? view
-  if (view.parent != null) { return false }
-  const container = view.el.parentNode
+function is_fullscreen(host) {
+  if (!host.is_root) { return false }
+  const container = host.host_el.parentNode
   return container == null || container.parentNode === document.body
 }
 const PAGE_BUSY_TOOLBAR_SX = {m: "4px"}
@@ -140,7 +138,7 @@ const Main = styled("main", {shouldForwardProp: (prop) => !["open", "variant", "
   }
 )
 
-export function render({model, view}) {
+export function render({model, host}) {
   const theme = useTheme()
   const [busy] = model.useState("busy")
   const [busy_indicator] = model.useState("busy_indicator")
@@ -176,11 +174,11 @@ export function render({model, view}) {
   const [title] = model.useState("title")
   const [variant] = model.useState("sidebar_variant")
   const [sx] = model.useState("sx")
-  const sidebar = model.get_child("sidebar")
-  const rail = model.get_child("rail")
-  const contextbar = model.get_child("contextbar")
-  const header = model.get_child("header")
-  const main = model.get_child("main")
+  const sidebar = model.render_children("sidebar", {direction: "column"})
+  const rail = model.render_children("rail", {direction: "column"})
+  const contextbar = model.render_children("contextbar", {direction: "column"})
+  const header = model.render_children("header", {direction: "row"})
+  const main = model.render_children("main", {direction: "column"})
   const isXl = useMediaQuery(theme.breakpoints.up("xl"))
   const isLg = useMediaQuery(theme.breakpoints.up("lg"))
   const isMd = useMediaQuery(theme.breakpoints.up("md"))
@@ -188,8 +186,8 @@ export function render({model, view}) {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
   const rootRef = React.useRef(null)
-  const [fullscreen, setFullscreen] = React.useState(() => is_fullscreen(view))
-  React.useLayoutEffect(() => setFullscreen(is_fullscreen(view)), [])
+  const [fullscreen, setFullscreen] = React.useState(() => is_fullscreen(host))
+  React.useLayoutEffect(() => setFullscreen(is_fullscreen(host)), [])
   const modalProps = React.useMemo(() => (fullscreen ? undefined : {container: () => rootRef.current}), [fullscreen])
   const backdropProps = fullscreen ? undefined : {sx: INLINE_MODAL_SX}
 
@@ -278,28 +276,6 @@ export function render({model, view}) {
     return logo.default || Object.values(logo)[0];
   }, [logo, theme.breakpoints, isXl, isLg, isMd, isSm, dark_theme])
 
-  React.useEffect(() => {
-    const handler = () => {
-      sidebar.map((object, index) => {
-        apply_flex(view.get_child_view(model.sidebar[index]), "column")
-      })
-      rail.map((object, index) => {
-        apply_flex(view.get_child_view(model.rail[index]), "column")
-      })
-      contextbar.map((object, index) => {
-        apply_flex(view.get_child_view(model.contextbar[index]), "column")
-      })
-      header.map((object, index) => {
-        apply_flex(view.get_child_view(model.header[index]), "row")
-      })
-      main.map((object, index) => {
-        apply_flex(view.get_child_view(model.main[index]), "column")
-      })
-    }
-    model.on("lifecycle:update_layout", handler)
-    return () => model.off?.("lifecycle:update_layout", handler)
-  }, [])
-
   // Set up debouncing of busy indicator
   const [idle, setIdle] = React.useState(true);
   const timerRef = React.useRef(undefined)
@@ -320,7 +296,7 @@ export function render({model, view}) {
     setDarkTheme(!dark_theme)
   }
 
-  setup_global_styles(view, theme, view.model.data._custom_theme, !fullscreen)
+  setup_global_styles(host, theme, model.get("_custom_theme"), !fullscreen)
   React.useEffect(() => dark_mode.set_value(dark_theme), [dark_theme])
 
   const [highlight, setHighlight] = React.useState(false)
@@ -441,10 +417,7 @@ export function render({model, view}) {
     }
   }, [isDragging, handleDragMove, handleDragEnd])
 
-  const render_rail = () => rail.map((object, index) => {
-    apply_flex(view.get_child_view(model.rail[index]), "column")
-    return object
-  })
+  const render_rail = () => rail
 
   const drawer = has_drawer ? (
     <Drawer
@@ -462,10 +435,7 @@ export function render({model, view}) {
       <Box sx={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
         {rail_in_drawer && render_rail()}
         {rail_in_drawer && sidebar.length > 0 && <Divider />}
-        {sidebar.map((object, index) => {
-          apply_flex(view.get_child_view(model.sidebar[index]), "column")
-          return object
-        })}
+        {sidebar}
       </Box>
       {sidebar_resizable && (
         <Box
@@ -513,16 +483,14 @@ export function render({model, view}) {
           title="Drag to resize contextbar"
         />
       )}
-      {contextbar.map((object, index) => {
-        apply_flex(view.get_child_view(model.contextbar[index]), "column")
-        return object
-      })}
+      {contextbar}
     </Drawer>
   ) : null
 
   const color_scheme = dark_theme ? "dark" : "light"
-  const main_stretch = model.main.length === 1 && (model.main[0].sizing_mode && (model.main[0].sizing_mode.includes("height") ||  model.main[0].sizing_mode.includes("both")))
-  const primary_color = model.theme_config?.palette?.primary?.main ?? model.theme_config?.[color_scheme]?.palette?.primary?.main
+  const main_layout = model.children("main").map(child => child.layout.sizing_mode)
+  const main_stretch = main_layout.length === 1 && Boolean(main_layout[0]) && (main_layout[0].includes("height") || main_layout[0].includes("both"))
+  const primary_color = model.get("theme_config")?.palette?.primary?.main ?? model.get("theme_config")?.[color_scheme]?.palette?.primary?.main
   const paper_header = header_color === "paper"
   const header_sx = React.useMemo(() => {
     if (paper_header) { return PAGE_APPBAR_PAPER_SX }
@@ -610,10 +578,7 @@ export function render({model, view}) {
             </Box>
           )}
           <Box sx={{alignItems: "center", flexGrow: 1, display: "flex", flexDirection: "row"}}>
-            {header.map((object, index) => {
-              apply_flex(view.get_child_view(model.header[index]), "row")
-              return object
-            })}
+            {header}
           </Box>
           {theme_toggle &&
             <Tooltip enterDelay={500} title="Toggle theme">
@@ -622,7 +587,7 @@ export function render({model, view}) {
               </IconButton>
             </Tooltip>
           }
-          {(model.contextbar.length > 0 && context_drawer_variant !== "permanent") &&
+          {(contextbar.length > 0 && context_drawer_variant !== "permanent") &&
             <Tooltip enterDelay={500} title={contextbar_open ? "Close contextbar" : "Open contextbar"}>
               <IconButton
                 color="inherit"
@@ -696,10 +661,7 @@ export function render({model, view}) {
           </Toolbar>
           <Box className="main-scroll" sx={mainScrollSx}>
             <Box className="main-content" sx={mainContentSx}>
-              {main.map((object, index) => {
-                apply_flex(view.get_child_view(model.main[index]), "column")
-                return object
-              })}
+              {main}
             </Box>
           </Box>
         </Box>

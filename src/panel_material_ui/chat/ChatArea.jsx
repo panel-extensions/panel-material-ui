@@ -18,7 +18,7 @@ import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
-import {isFileAccepted, processFilesChunked, apply_flex, render_icon_text, render_icon_text_as_string, waitForRef} from "./utils"
+import {isFileAccepted, processFilesChunked, render_icon_text, render_icon_text_as_string, waitForRef} from "./utils"
 
 // Map MIME types to Material Icons
 const mimeTypeIcons = {
@@ -199,7 +199,7 @@ const CustomInput = React.forwardRef(({filePreview, footerObjects, ...props}, re
   );
 });
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [accept] = model.useState("accept")
   const [actions] = model.useState("actions")
   const [autogrow] = model.useState("auto_grow")
@@ -219,7 +219,7 @@ export function render({model, view}) {
   const [variant] = model.useState("variant")
   const [isDragOver, setIsDragOver] = React.useState(false)
   const fileInputRef = React.useRef(null)
-  const footer_objects = model.get_child("footer_objects")
+  const footer_objects = model.render_children("footer_objects", {direction: "row"})
 
   // placeholder is a string-only DOM attribute, so icon tokens are stripped
   const placeholder_text = render_icon_text_as_string(placeholder)
@@ -239,7 +239,7 @@ export function render({model, view}) {
   const focusInput = () => {
     // Defer focus to next frame so React re-renders (e.g. disabled state) complete first.
     setTimeout(() => {
-      view.container.querySelector("textarea")?.focus({preventScroll: true})
+      host.content_el.querySelector("textarea")?.focus({preventScroll: true})
     }, 0)
   }
 
@@ -254,22 +254,11 @@ export function render({model, view}) {
         focusInput()
       }
     }
-    const onUpdateLayout = () => {
-      model.footer_objects.map((object) => {
-        apply_flex(view.get_child_view(object), "row")
-      })
-    }
     // If there is an input event in progress when the component is
     // removed, release the waitForRef handlers that depend on it.
     const onRemove = () => { upload_ref.current = {status: "removed"} }
-    model.on("msg:custom", onMsg)
-    model.on("lifecycle:update_layout", onUpdateLayout)
-    model.on("remove", onRemove)
-    return () => {
-      model.off("msg:custom", onMsg)
-      model.off("lifecycle:update_layout", onUpdateLayout)
-      model.off("remove", onRemove)
-    }
+    const unwatch = [model.on("msg", onMsg), model.on("remove", onRemove)]
+    return () => unwatch.forEach(stop => stop())
   }, [])
 
   const isSendEvent = (event) => {
@@ -286,7 +275,7 @@ export function render({model, view}) {
     props = {rows}
   }
 
-  // Version that reads from ref (for use in msg:custom handler to avoid stale closure)
+  // Version that reads from ref (for use in the msg handler to avoid stale closure)
   const syncFilesFromRef = async () => {
     const currentFiles = file_data_ref.current
     if (currentFiles.length) {
@@ -595,10 +584,7 @@ export function render({model, view}) {
             },
             input: {
               filePreview: (enable_upload && file_data.length > 0) ? <FilePreview /> : null,
-              footerObjects: footer_objects.map((object, index) => {
-                apply_flex(view.get_child_view(model.footer_objects[index]), "row")
-                return object
-              }),
+              footerObjects: footer_objects,
               maxRows: max_rows,
               placeholder: placeholder_text,
               ...props,

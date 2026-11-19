@@ -6,9 +6,9 @@ import MenuList from "@mui/material/MenuList"
 import Paper from "@mui/material/Paper"
 import Popper from "@mui/material/Popper"
 
-export function detect_nb(view) {
+export function detect_nb(host) {
   let nb = document.querySelector(".jp-NotebookPanel");
-  let node = view.el
+  let node = host.host_el
   while (node != null) {
     if (node.host != null) {
       node = node.host
@@ -32,8 +32,8 @@ export function detect_nb(view) {
  * innermost one. `autoFocus={false}` additionally keeps a menu opened by hover
  * from stealing focus from the menu it was opened from.
  */
-export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMounted, anchorOrigin, transformOrigin, placement, autoFocus, passthrough, paperProps}) {
-  const nb = detect_nb(view)
+export function CustomMenu({open, host, anchorEl, onClose, children, sx, keepMounted, anchorOrigin, transformOrigin, placement, autoFocus, passthrough, paperProps}) {
+  const nb = detect_nb(host)
   const unfocused = autoFocus === false
 
   if (nb == null) {

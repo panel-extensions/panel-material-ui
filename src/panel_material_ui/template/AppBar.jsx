@@ -4,9 +4,8 @@ import Toolbar from "@mui/material/Toolbar"
 import Typography from "@mui/material/Typography"
 import IconButton from "@mui/material/IconButton"
 import {render_icon, render_icon_text} from "./utils"
-import {apply_flex, child_model} from "./utils"
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [enable_color_on_dark] = model.useState("enable_color_on_dark")
   const [icon] = model.useState("icon")
@@ -14,18 +13,8 @@ export function render({model, view}) {
   const [title] = model.useState("title")
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
-  const drawer_toggle = model.get_child("drawer_toggle")
-  const objects = model.get_child("objects")
-
-  React.useEffect(() => {
-    const handler = () => {
-      objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "row")
-      })
-    }
-    model.on("lifecycle:update_layout", handler)
-    return () => model.off?.("lifecycle:update_layout", handler)
-  }, [])
+  const drawer_toggle = model.render_children("drawer_toggle")
+  const objects = model.render_children("objects", {direction: "row"})
 
   return (
     <AppBar
@@ -53,10 +42,7 @@ export function render({model, view}) {
           </Typography>
         )}
         <Box sx={{flexGrow: 1, display: "flex", alignItems: "center", ml: title ? 2 : 0}}>
-          {objects.map((object, index) => {
-            apply_flex(view.get_child_view(child_model(model.objects, object, index)), "row")
-            return object
-          })}
+          {objects}
         </Box>
       </Toolbar>
     </AppBar>

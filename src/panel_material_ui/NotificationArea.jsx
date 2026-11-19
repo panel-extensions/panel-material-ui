@@ -10,7 +10,7 @@ function standardize_color(str) {
   return ctx.fillStyle
 }
 
-function NotificationArea({model, view}) {
+function NotificationArea({model, host}) {
   const {enqueueSnackbar, closeSnackbar} = useSnackbar()
   const [position] = model.useState("position")
   const theme = useTheme()
@@ -94,7 +94,7 @@ function NotificationArea({model, view}) {
   }
 
   const register_reconnect = () => {
-    const reconnect_id = `reconnect-notification-${view.model.id}`
+    const reconnect_id = `reconnect-notification-${host.model.id}`
     if (window.session_reconnect) {
       const config = {
         message: "Connection with server was re-established.",
@@ -132,7 +132,7 @@ function NotificationArea({model, view}) {
           duration: 0,
           notification_type: model.data.js_events.connection_lost.type
         }
-        if (timeout == null && view.model.tags[0] === "prompt") {
+        if (timeout == null && host.model.tags[0] === "prompt") {
           config.onEnter = () => update_reconnect(msg, event)
         }
         if (reconnect_msg == null) {
@@ -163,7 +163,7 @@ function NotificationArea({model, view}) {
         update_reconnect(msg, event)
       }
     }
-    const doc = view.model.document
+    const doc = host.document
     doc.on_event("client_reconnected", on_reconnected)
     doc.on_event("connection_lost", on_connection_lost)
     // Bokeh documents have no API to remove event callbacks
@@ -189,23 +189,23 @@ function NotificationArea({model, view}) {
         enqueue_ref.current(msg.notification)
       }
     }
-    model.on("msg:custom", on_msg)
+    const unwatch = model.on("msg", on_msg)
     return () => {
-      model.off("msg:custom", on_msg)
+      unwatch()
       unregister_reconnect()
       clear_timeout()
     }
   }, [])
 }
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [maxSnack] = model.useState("max_notifications")
 
   return (
     <SnackbarProvider maxSnack={maxSnack}>
       <NotificationArea
         model={model}
-        view={view}
+        host={host}
       />
     </SnackbarProvider>
   )

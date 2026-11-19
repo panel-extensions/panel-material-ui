@@ -7,13 +7,13 @@ import Tooltip from "@mui/material/Tooltip"
 import {useTheme} from "@mui/material/styles"
 import {dark_mode, setup_global_styles} from "./utils"
 
-export function render({model, view}) {
+export function render({model, host}) {
   const theme = useTheme()
   const [dark_theme, setDarkTheme] = model.useState("dark_theme")
   const [value, setValue] = model.useState("value")
   const [variant] = model.useState("variant")
 
-  setup_global_styles(view, theme)
+  setup_global_styles(host, theme)
 
   // On mount the theme hooks decide whether this toggle publishes its value
   // (when it was set explicitly) or adopts the page theme.

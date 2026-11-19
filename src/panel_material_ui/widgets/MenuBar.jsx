@@ -31,7 +31,7 @@ function useResetWhenClosed(open, subs) {
   }, [open, subs])
 }
 
-function SubMenu({item, index, model, view, onCloseAll, path, subs}) {
+function SubMenu({item, index, model, host, onCloseAll, path, subs}) {
   const anchorRef = React.useRef(null)
   const open = subs.openIndex === index
   const childSubs = useSubMenus()
@@ -70,7 +70,7 @@ function SubMenu({item, index, model, view, onCloseAll, path, subs}) {
         onClose={handleClose}
         autoFocus={subs.focus}
         passthrough
-        view={view}
+        host={host}
         paperProps={{"data-menubar-surface": ""}}
         sx={{minWidth: 180, mt: -1}}
         anchorOrigin={{vertical: "top", horizontal: "right"}}
@@ -83,7 +83,7 @@ function SubMenu({item, index, model, view, onCloseAll, path, subs}) {
             item={subItem}
             index={subIndex}
             model={model}
-            view={view}
+            host={host}
             onCloseAll={() => { handleClose(); onCloseAll() }}
             path={[...path, index]}
             subs={childSubs}
@@ -94,7 +94,7 @@ function SubMenu({item, index, model, view, onCloseAll, path, subs}) {
   )
 }
 
-function MenuItemContent({item, index, model, view, onCloseAll, path, subs}) {
+function MenuItemContent({item, index, model, host, onCloseAll, path, subs}) {
   // Hovering any non-submenu item dismisses a sibling submenu that was opened by hover.
   const onMouseEnter = () => subs.close()
 
@@ -119,7 +119,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path, subs}) {
             item={subItem}
             index={subIndex}
             model={model}
-            view={view}
+            host={host}
             onCloseAll={onCloseAll}
             path={[...path, index]}
             subs={subs}
@@ -137,7 +137,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path, subs}) {
         item={item}
         index={index}
         model={model}
-        view={view}
+        host={host}
         onCloseAll={onCloseAll}
         path={path}
         subs={subs}
@@ -227,7 +227,7 @@ function MenuItemContent({item, index, model, view, onCloseAll, path, subs}) {
   )
 }
 
-function TopLevelMenu({menu, menuIndex, model, view, color, size, bar}) {
+function TopLevelMenu({menu, menuIndex, model, host, color, size, bar}) {
   const anchorRef = React.useRef(null)
   const open = bar.openIndex === menuIndex
   const subs = useSubMenus()
@@ -268,7 +268,7 @@ function TopLevelMenu({menu, menuIndex, model, view, color, size, bar}) {
         open={open}
         onClose={handleClose}
         passthrough
-        view={view}
+        host={host}
         paperProps={{"data-menubar-surface": ""}}
         sx={{minWidth: 200}}
         anchorOrigin={{vertical: "bottom", horizontal: "left"}}
@@ -281,7 +281,7 @@ function TopLevelMenu({menu, menuIndex, model, view, color, size, bar}) {
             item={item}
             index={index}
             model={model}
-            view={view}
+            host={host}
             onCloseAll={handleClose}
             path={[menuIndex]}
             subs={subs}
@@ -292,7 +292,7 @@ function TopLevelMenu({menu, menuIndex, model, view, color, size, bar}) {
   )
 }
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [items] = model.useState("items")
   const [color] = model.useState("color")
   const [size] = model.useState("size")
@@ -345,7 +345,7 @@ export function render({model, view}) {
             menu={menu}
             menuIndex={index}
             model={model}
-            view={view}
+            host={host}
             color={color}
             size={size}
             bar={bar}

@@ -7,7 +7,7 @@ import {MUI_SIZE, denseSx, render_icon_text, overlay_container} from "./utils"
 
 const TIME_PICKER_BASE_SX = {width: "100%"}
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [clock] = model.useState("clock")
@@ -28,8 +28,7 @@ export function render({model, el, view}) {
   const ref = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   function parseTime(timeString) {
@@ -89,7 +88,7 @@ export function render({model, el, view}) {
         inputRef={ref}
         label={
           model.description ? (
-            <>{render_icon_text(label)}{render_description({model, el, view})}</>
+            <>{render_icon_text(label)}{render_description({model, host})}</>
           ) : render_icon_text(label)
         }
         onChange={handleChange}
@@ -110,7 +109,7 @@ export function render({model, el, view}) {
             onBlur: handleBlur,
             helperText: helper_text ? render_icon_text(helper_text) : undefined,
           },
-          popper: {container: overlay_container(view.container)},
+          popper: {container: host.overlay_root},
         }}
         value={value}
         views={views}

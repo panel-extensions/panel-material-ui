@@ -2,7 +2,7 @@ import ToggleButton from "@mui/material/ToggleButton"
 import {render_icon, render_icon_text} from "./utils"
 
 export function render(props, ref) {
-  const {data, el, model, view, ...other} = props
+  const {model, host, view, el, data, ...other} = props
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [end_icon] = model.useState("end_icon")
@@ -19,8 +19,7 @@ export function render(props, ref) {
   }
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   return (

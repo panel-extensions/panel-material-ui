@@ -128,8 +128,7 @@ export function render({model}) {
         setAction(toggle_key, msg.value)
       }
     }
-    model.on("msg:custom", handler)
-    return () => model.off("msg:custom", handler)
+    return model.on("msg", handler)
   }, [])
 
   const render_item = (item, index, path, indent=0) => {

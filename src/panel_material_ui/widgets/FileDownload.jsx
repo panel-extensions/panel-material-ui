@@ -22,7 +22,7 @@ function dataURItoBlob(dataURI) {
 }
 
 export function render(props, ref) {
-  const {data, el, model, view, ...other} = props
+  const {model, host, view, el, data, ...other} = props
   const [auto] = model.useState("auto")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -53,8 +53,7 @@ export function render(props, ref) {
   }
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   const href = React.useMemo(
@@ -71,11 +70,11 @@ export function render(props, ref) {
     link.download = model.filename
     const blob = dataURItoBlob(model.data)
     link.href = URL.createObjectURL(blob)
-    view.container.appendChild(link)
+    host.content_el.appendChild(link)
     link.click()
     setTimeout(() => {
       URL.revokeObjectURL(link.href)
-      view.container.removeChild(link)
+      host.content_el.removeChild(link)
     }, 100)
   }
 
@@ -100,8 +99,7 @@ export function render(props, ref) {
         downloadFile()
       }
     }
-    model.on("change:data", changeDataHandler)
-    return () => model.off("change:data", changeDataHandler)
+    return model.on("change:data", changeDataHandler)
   }, [model, auto])
 
   return (

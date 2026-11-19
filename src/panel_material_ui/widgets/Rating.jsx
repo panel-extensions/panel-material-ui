@@ -11,7 +11,7 @@ const SIZES = {
   large: "3.5em",
 }
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [empty_icon] = model.useState("empty_icon")
@@ -28,19 +28,18 @@ export function render({model, el, view}) {
   const ref = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   const empty = empty_icon || icon
-  el.style.overflowY = "clip"
+  host.content_el.style.overflowY = "clip"
 
   return (
     <FormControl component="fieldset" disabled={disabled} fullWidth>
       {label && (
         <FormLabel id="radio-group-label">
           {render_icon_text(label)}
-          {model.description ? render_description({model, el, view}) : null}
+          {model.description ? render_description({model, host}) : null}
         </FormLabel>
       )}
       <Rating

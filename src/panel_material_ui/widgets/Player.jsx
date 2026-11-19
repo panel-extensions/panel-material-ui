@@ -71,7 +71,7 @@ const BUTTON_PADDING = {small: 5, medium: 8, large: 12}
 // The classic player scales the interval by this factor on each speed change.
 const SPEED_FACTOR = 0.7
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [direction, setDirection] = model.useState("direction")
   const [disabled] = model.useState("disabled")
@@ -92,7 +92,7 @@ export function render({model, el, view}) {
   const [visible_buttons] = model.useState("visible_buttons")
   const [visible_loop_options] = model.useState("visible_loop_options")
 
-  const discrete = model.esm_constants.discrete
+  const discrete = model.constants.discrete
 
   let start
   let end
@@ -152,8 +152,7 @@ export function render({model, el, view}) {
         slider_ref.current?.querySelector(".MuiSlider-thumb input")?.focus()
       }
     }
-    model.on("msg:custom", handler)
-    return () => model.off("msg:custom", handler)
+    return model.on("msg", handler)
   }, [])
 
   const [fps_preview, setFpsPreview] = React.useState(null)
@@ -270,7 +269,7 @@ export function render({model, el, view}) {
               {render_icon_text(position_label)}
             </Typography>
           )}
-          {model.description && render_description({model, el, view})}
+          {model.description && render_description({model, host})}
         </Box>
       </FormControl>
     )
@@ -286,7 +285,7 @@ export function render({model, el, view}) {
         <FormLabel sx={{textAlign: value_align, overflowWrap: "break-word", whiteSpace: "normal"}}>
           {label && <>{render_icon_text(label)}{show_value && ": "}</>}
           {show_value && <strong>{render_icon_text(value_label)}</strong>}
-          {model.description && render_description({model, el, view})}
+          {model.description && render_description({model, host})}
         </FormLabel>
       )}
       <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", width: "100%"}}>

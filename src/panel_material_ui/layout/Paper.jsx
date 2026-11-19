@@ -1,5 +1,4 @@
 import Paper from "@mui/material/Paper"
-import {apply_flex, child_model} from "./utils"
 
 const PAPER_BASE_SX = {
   height: "100%",
@@ -7,23 +6,13 @@ const PAPER_BASE_SX = {
   display: "flex",
 }
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [direction] = model.useState("direction")
   const [elevation] = model.useState("elevation")
   const [square] = model.useState("square")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
-  const objects = model.get_child("objects")
-
-  React.useEffect(() => {
-    const handler = () => {
-      objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-      })
-    }
-    model.on("lifecycle:update_layout", handler)
-    return () => model.off("lifecycle:update_layout", handler)
-  }, [])
+  const objects = model.render_children("objects", {direction: "column"})
 
   const paperSx = React.useMemo(
     () => [PAPER_BASE_SX, {flexDirection: direction}, sx || {}],
@@ -37,10 +26,7 @@ export function render({model, view}) {
       sx={paperSx}
       variant={variant}
     >
-      {objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-        return object
-      })}
+      {objects}
     </Paper>
   )
 }

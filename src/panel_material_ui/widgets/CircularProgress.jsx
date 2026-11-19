@@ -8,7 +8,7 @@ const CIRCULAR_PROGRESS_ROOT_SX = {display: "flex", alignItems: "center", flexDi
 const CIRCULAR_PROGRESS_CONTAINER_SX = {position: "relative", overflow: "hidden"}
 const CIRCULAR_PROGRESS_BASE_SX = {position: "absolute", left: 0}
 
-export function render({model, el}) {
+export function render({model, host}) {
   const [bgcolor] = model.useState("bgcolor")
   const [color] = model.useState("color")
   const [label] = model.useState("label")

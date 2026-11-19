@@ -210,19 +210,19 @@ import 'material-icons/iconfont/filled.css';
 import 'material-icons/iconfont/outlined.css';
 import {{ ThemeProvider }} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import {{apply_global_css, install_theme_hooks, setup_global_styles as setup_root_styles, ComponentErrorBoundary}} from "./utils"
+import {{apply_global_css, install_theme_hooks, make_host, setup_global_styles as setup_root_styles, ComponentErrorBoundary}} from "./utils"
 
 {esm}
 
 function {output}Themed(props) {{
   const theme = install_theme_hooks(props)
-  const attached = ("attached" in props.view.model.data.properties) ? props.model.get_child("attached") : []
+  const attached = props.model.children("attached").length ? props.model.render_children("attached") : []
   const theme_managed = document.documentElement.getAttribute("data-theme-managed")
-  if (props.view.is_root && theme_managed === "false") {{
-    apply_global_css(props.model, props.view, theme)
-  }} else if (props.view.is_root && theme_managed == null && props.model.class_name !== "Page") {{
+  if (props.host.is_root && theme_managed === "false") {{
+    apply_global_css(props.host, theme)
+  }} else if (props.host.is_root && theme_managed == null && props.model.kind !== "Page") {{
     // Hosts like Jupyter own the document, so the root themes its own output.
-    setup_root_styles(props.view, theme, [], true, true)
+    setup_root_styles(props.host, theme, [], true, true)
   }}
   return (
     <ThemeProvider theme={{theme}}>
@@ -234,11 +234,14 @@ function {output}Themed(props) {{
 }}
 
 function {output}(props) {{
-  // The boundary sits outside the theme hooks, so errors raised while
-  // building the theme are contained as well.
+  // A Panel view renders the component with its view and model proxy, which
+  // are wrapped in the component interface here. A Compiled tree passes its
+  // own host. The boundary sits outside the theme hooks, so errors raised
+  // while building the theme are contained as well.
+  const host = props.host ?? make_host(props.view, props.model)
   return (
-    <ComponentErrorBoundary view={{props.view}}>
-      <{output}Themed {{...props}}/>
+    <ComponentErrorBoundary host={{host}}>
+      <{output}Themed {{...props}} model={{host.model}} host={{host}}/>
     </ComponentErrorBoundary>
   )
 }}
@@ -255,7 +258,7 @@ import {{ useTheme as useMuiTheme }} from '@mui/material/styles'
 
 function {output}(props) {{
   const [loading] = props.model.useState('loading')
-  const loading_inset = props.model.esm_constants.loading_inset || 0
+  const loading_inset = props.model.constants.loading_inset || 0
   const theme = useMuiTheme()
 
   const overlayColor = theme.palette.mode === 'dark'
@@ -312,7 +315,7 @@ function {output}(props, ref) {{
       enterDelay={{description_delay}}
       enterNextDelay={{description_delay}}
       placement="right"
-      slotProps={{{{ popper: {{ container: props.el }} }}}}
+      slotProps={{{{ popper: {{ container: props.host.content_el }} }}}}
     >
       <Wrapped{input} {{...props}}/>
     </Tooltip>) : <{input} {{...props}}/>
@@ -390,7 +393,9 @@ def align_session_theme(owner: MaterialComponent, dark: bool, switch: bool = Tru
     """
     set_session_theme(dark)
     docs = {}
-    for ref in list(owner._models):
+    # A component rendered inside a Compiled tree is shown by its models.
+    refs = [*owner._models, *(ref for root in getattr(owner, "_compiled_roots", ()) for ref in root._models)]
+    for ref in refs:
         if ref in state._views:
             _, _, doc, comm = state._views[ref]
             if state.curdoc is None or doc is state.curdoc:
@@ -582,7 +587,7 @@ class MaterialComponent(ReactComponent):
             "react-is": ["*react_is"],
             "react-dom": ["*react_dom"],
             "react/jsx-runtime": [("jsx", "jsxs", "Fragment")],
-            "./utils": [("apply_global_css","install_theme_hooks","setup_global_styles","ComponentErrorBoundary",)],
+            "./utils": [("apply_global_css","install_theme_hooks","make_host","setup_global_styles","ComponentErrorBoundary",)],
             "@mui/material/styles": ["*material_styles"],
             "@mui/material": ["*material_ui"],
         })
@@ -671,6 +676,12 @@ class MaterialComponent(ReactComponent):
         if 'loading' in msg and isinstance(model, BkReactComponent):
             model.data.loading = msg.pop('loading')
         return super()._set_on_model(msg, root, model)
+
+    def _send_msg(self, data: t.Any) -> None:
+        super()._send_msg(data)
+        # A component rendered inside a Compiled tree has no model of its own.
+        for root in tuple(getattr(self, "_compiled_roots", ())):
+            root._send_node_msg(self, data)
 
     def _get_properties(self, doc: Document | None) -> dict[str, t.Any]:
         props = super()._get_properties(doc)
@@ -932,11 +943,11 @@ class MaterialUIComponent(MaterialComponent):
                 esm_base, component_name = transform.apply(cls, esm_base, component_name)
             esm_base += f'\nexport default {{ render: {component_name} }}'
         esm_base = esm_base.replace(
-            'import {apply_global_css, install_theme_hooks, setup_global_styles as setup_root_styles, '
+            'import {apply_global_css, install_theme_hooks, make_host, setup_global_styles as setup_root_styles, '
             'ComponentErrorBoundary} from "./utils"',
             'import pnmui from "panel-material-ui"; const install_theme_hooks = pnmui.install_theme_hooks; '
             'const apply_global_css = pnmui.apply_global_css; const setup_root_styles = pnmui.setup_global_styles; '
-            'const ComponentErrorBoundary = pnmui.ComponentErrorBoundary;'
+            'const make_host = pnmui.make_host; const ComponentErrorBoundary = pnmui.ComponentErrorBoundary;'
         ).replace(
             'import * as React from "react"', ''
         )

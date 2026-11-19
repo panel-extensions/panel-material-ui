@@ -19,7 +19,7 @@ const SPLIT_TOGGLE_BUTTON_SX = {
 }
 
 export function render(props, ref) {
-  const {data, el, model, view, ...other} = props
+  const {model, host, view, el, data, ...other} = props
   const [active] = model.useState("active")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -44,8 +44,7 @@ export function render(props, ref) {
   const btnRef = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = () => btnRef.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   const handleMenuItemClick = (event, selectedIndex) => {
@@ -115,7 +114,7 @@ export function render(props, ref) {
         anchorEl={() => anchorEl.current}
         open={open}
         onClose={() => setOpen(false)}
-        view={view}
+        host={host}
       >
         {items.map((option, index) => {
           if (option === null || option.label === "---") {

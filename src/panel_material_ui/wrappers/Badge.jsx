@@ -8,7 +8,7 @@ const PLACEMENT_TO_ANCHOR = {
   "bottom-left": {vertical: "bottom", horizontal: "left"},
 }
 
-export function render({model, view}) {
+export function render({model, host}) {
   const [placement] = model.useState("placement")
   const [badgeContent] = model.useState("content")
   const [color] = model.useState("color")
@@ -18,17 +18,8 @@ export function render({model, view}) {
   const [showZero] = model.useState("show_zero")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
-  const object = model.get_child("object")
-
   // Zero out child margin so the badge sits tightly on the child's visual edge
-  React.useEffect(() => {
-    if (model.object) {
-      const childView = view.get_child_view(model.object)
-      if (childView) {
-        childView.parent_style.append(":host", {margin: "0px"})
-      }
-    }
-  }, [object])
+  const object = model.render_children("object", {style: {margin: "0px"}})
 
   // Position the badge as an (x, y) pixel offset from its anchor point on the
   // object (raw translate: +x shifts right, +y shifts down), and fill the host

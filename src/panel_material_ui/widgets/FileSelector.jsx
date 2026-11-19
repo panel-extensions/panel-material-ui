@@ -51,7 +51,7 @@ function describe(item) {
   return parts.length ? parts.join(" \u2022 ") : null
 }
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [can_back] = model.useState("_can_back")
   const [can_forward] = model.useState("_can_forward")
   const [can_up] = model.useState("_can_up")
@@ -79,8 +79,7 @@ export function render({model, el, view}) {
         setPath(msg.directory)
       }
     }
-    model.on("msg:custom", cb)
-    return () => model.off("msg:custom", cb)
+    return model.on("msg", cb)
   }, [])
 
   const selected = React.useMemo(() => new Set(value), [value])
@@ -121,7 +120,7 @@ export function render({model, el, view}) {
       {label && (
         <InputLabel>
           {render_icon_text(label)}
-          {model.description ? render_description({model, el, view}) : null}
+          {model.description ? render_description({model, host}) : null}
         </InputLabel>
       )}
       <Paper

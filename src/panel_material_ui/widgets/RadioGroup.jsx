@@ -7,7 +7,7 @@ import FormLabel from "@mui/material/FormLabel"
 import {render_description} from "./description"
 import {MUI_SIZE, denseLabelSx, denseSx, render_icon_text} from "./utils"
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [inline] = model.useState("inline")
@@ -17,13 +17,12 @@ export function render({model, el, view}) {
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [value, setValue] = model.useState("value")
-  const exclusive = model.esm_constants.exclusive
+  const exclusive = model.constants.exclusive
 
   const ref = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   const RadioButton = exclusive ? Radio : Checkbox
@@ -33,7 +32,7 @@ export function render({model, el, view}) {
       {label && (
         <FormLabel id="radio-group-label">
           {render_icon_text(label)}
-          {model.description ? render_description({model, el, view}) : null}
+          {model.description ? render_description({model, host}) : null}
         </FormLabel>
       )}
       <RadioGroup

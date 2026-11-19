@@ -8,7 +8,7 @@ import Input from "@mui/material/Input"
 import {DESCRIPTION_LABEL_SPACER, render_description} from "./description"
 import {MUI_SIZE, denseSx, render_icon_text, render_icon_text_as_string} from "./utils"
 
-export function render({model, view, el}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
@@ -25,8 +25,7 @@ export function render({model, view, el}) {
   const ref = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = (msg) => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   const handleChange = (event) => {
@@ -71,7 +70,7 @@ export function render({model, view, el}) {
       {label &&
         <InputLabel id={`select-multiple-label-${model.id}`} shrink htmlFor={inputId}>
           {render_icon_text(label)}
-          {model.description ? render_description({model, el, view}) : null}
+          {model.description ? render_description({model, host}) : null}
         </InputLabel>
       }
       <Select

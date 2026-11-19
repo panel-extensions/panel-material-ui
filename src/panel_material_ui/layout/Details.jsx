@@ -6,7 +6,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
-import {apply_flex, child_model, render_html_icon_text} from "./utils"
+import {render_html_icon_text} from "./utils"
 
 const DETAILS_BASE_SX = {
   display: "flex",
@@ -42,7 +42,7 @@ const ExpandFull = styled(IconButton, {
   }),
 }))
 
-export function render({model, view, el}) {
+export function render({model, host}) {
   const [collapsed, setCollapsed] = model.useState("collapsed")
   const [fully_expanded, setFullyExpanded] = model.useState("fully_expanded")
   const [header_color] = model.useState("header_color")
@@ -54,21 +54,22 @@ export function render({model, view, el}) {
   const [title] = model.useState("title")
   const [title_css_classes] = model.useState("title_css_classes")
   const [scrollable_height] = model.useState("scrollable_height")
-  const header = model.get_child("header")
-  const objects = model.get_child("objects")
+  const header = model.render_children("header", {direction: "row"})
+  const has_header = model.children("header").length > 0
+  const objects = model.render_children("objects", {direction: "column"})
   const theme = useTheme()
 
-  const shouldHideHeader = hide_header || (!model.header && (!title || title.trim() === ""))
+  const shouldHideHeader = hide_header || (!has_header && (!title || title.trim() === ""))
   const shouldHideContent = objects.length === 0
   const isExpanded = !collapsed
   const isFullyExpanded = isExpanded && fully_expanded
-  const isStretched = model.objects.some((object) => object.sizing_mode === "stretch_both" || object.sizing_mode === "stretch_height")
+  const isStretched = model.children("objects").some(({layout}) => layout.sizing_mode === "stretch_both" || layout.sizing_mode === "stretch_height")
 
   const initialized = React.useRef(false)
   const updateHeight = () => {
-    if (model.height != null) {
-      const height = isFullyExpanded ? `${model.height}px` : "auto"
-      view.el.style.height = el.style.height = height
+    if (host.layout.height != null) {
+      const height = isFullyExpanded ? `${host.layout.height}px` : "auto"
+      host.host_el.style.height = host.content_el.style.height = height
     }
   }
   if (!initialized.current) {
@@ -78,20 +79,6 @@ export function render({model, view, el}) {
   React.useEffect(() => {
     updateHeight()
   }, [isExpanded, isFullyExpanded])
-
-  React.useEffect(() => {
-    const handler = () => {
-      objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-      })
-    }
-    model.on("lifecycle:update_layout", handler)
-    return () => model.off("lifecycle:update_layout", handler)
-  }, [])
-
-  if (model.header) {
-    apply_flex(view.get_child_view(model.header), "row")
-  }
 
   const handleToggleCollapse = () => {
     setCollapsed(!collapsed)
@@ -115,13 +102,13 @@ export function render({model, view, el}) {
     () => [
       DETAILS_BASE_SX,
       {
-        minHeight: model.min_height ? `${model.min_height}px` : 0,
+        minHeight: host.layout.min_height ? `${host.layout.min_height}px` : 0,
         border: `1px solid ${theme.palette.divider}`,
         borderRadius: square ? 0 : "4px",
       },
       sx || {}
     ],
-    [model.min_height, theme.palette.divider, square, sx]
+    [host.layout.min_height, theme.palette.divider, square, sx]
   )
 
   return (
@@ -155,7 +142,7 @@ export function render({model, view, el}) {
               }),
             }}
           />
-          {model.header ? header : (
+          {has_header ? header : (
             <Typography
               classes={title_css_classes}
               sx={{
@@ -222,10 +209,7 @@ export function render({model, view, el}) {
                 flex: 1,
               }}
             >
-              {objects.map((object, index) => {
-                apply_flex(view.get_child_view(child_model(model.objects, object, index)), "column")
-                return object
-              })}
+              {objects}
             </Box>
           </Box>
         )}

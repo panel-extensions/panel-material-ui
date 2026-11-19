@@ -20,7 +20,7 @@ export function render({model}) {
   const [placement] = model.useState("placement")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
-  const object = model.get_child("object")
+  const object = model.render_children("object")
 
   const Transition = VARIANTS[variant]
 

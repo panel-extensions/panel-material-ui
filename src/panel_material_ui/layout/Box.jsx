@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box"
 import {
-  apply_flex, child_model, child_at_latest, scroll_to_child, scroll_to_latest,
+  child_at_latest, scroll_to_child, scroll_to_latest,
   update_scroll_button, use_latest_scroll_settlement
 } from "./utils"
 
@@ -11,8 +11,8 @@ const BOX_BASE_SX = {
   position: "relative",
 }
 
-export function render({model, view}) {
-  const flexDirection = model.esm_constants.direction
+export function render({model, host}) {
+  const flexDirection = model.constants.direction
   const isColumn = flexDirection === "column"
 
   const [sx] = model.useState("sx")
@@ -35,7 +35,9 @@ export function render({model, view}) {
     view_latest = view_latest_state === undefined ? false : view_latest_state
     setScrollPosition = setScrollPosition_state
   }
-  const objects = model.get_child("objects")
+  const childDirection = flexDirection === "flex" ?
+    (model.get("flex_direction")?.startsWith("column") ? "column" : "row") : flexDirection
+  const objects = model.render_children("objects", {direction: childDirection})
   const boxRef = React.useRef(null)
   const syncingScrollRef = React.useRef(false)
   const pendingScrollLatestRef = React.useRef(false)
@@ -140,8 +142,7 @@ export function render({model, view}) {
           scrollToIndex(msg.index)
         }
       }
-      model.on("msg:custom", handler)
-      return () => model.off("msg:custom", handler)
+      return model.on("msg", handler)
     }, [model, scrollToIndex])
 
     React.useEffect(() => {
@@ -174,24 +175,17 @@ export function render({model, view}) {
       flexDirection: flex_direction,
     }
   }
-  const childDirection = flexDirection === "flex" ? (props.flexDirection?.startsWith("column") ? "column" : "row") : flexDirection
-  const childDirectionRef = React.useRef(childDirection)
-  childDirectionRef.current = childDirection
-
   React.useEffect(() => {
     const handler = () => {
       layoutUpdatedRef.current = true
-      objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), childDirectionRef.current)
-      })
       if (pendingScrollLatestRef.current) {
         scrollToLatest()
       }
     }
-    model.on("lifecycle:update_layout", handler)
+    const unwatch = model.on("layout", handler)
     return () => {
       stopScrollLatestSettlement?.()
-      model.off("lifecycle:update_layout", handler)
+      unwatch()
     }
   }, [])
 
@@ -205,10 +199,7 @@ export function render({model, view}) {
       ref={boxRef}
       sx={boxSx}
     >
-      {objects.map((object, index) => {
-        apply_flex(view.get_child_view(child_model(model.objects, object, index)), childDirection)
-        return object
-      })}
+      {objects}
       {managedScroll && scroll_button_threshold > 0 && (
         <div
           role="button"

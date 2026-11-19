@@ -37,7 +37,7 @@ const LIST_BOX_SX = {
 // options slow to open and to type into, so they render in pages of this size.
 const MENU_PAGE_SIZE = 200
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
@@ -55,8 +55,7 @@ export function render({model, el, view}) {
   const ref = React.useRef(null)
   React.useEffect(() => {
     const focus_cb = () => ref.current?.focus()
-    model.on("msg:custom", focus_cb)
-    return () => model.off("msg:custom", focus_cb)
+    return model.on("msg", focus_cb)
   }, [])
 
   // SelectSearch specific props
@@ -69,7 +68,7 @@ export function render({model, el, view}) {
   const [value_label] = model.useState("value_label")
 
   // MultiChoice specific props
-  const multi = model.esm_constants.multi || false
+  const multi = model.constants.multi || false
   let chip = false
   let delete_button = false
   let max_items = 1
@@ -197,10 +196,10 @@ export function render({model, el, view}) {
     }
   }, [filterStr])
 
-  const nb = detect_nb(view)
+  const nb = detect_nb(host)
 
   const MenuProps = nb ? {} : {
-    container: overlay_container(el),
+    container: host.overlay_root,
     sx: {height: dropdown_height},
     slotProps: {
       list: {
@@ -547,7 +546,7 @@ export function render({model, el, view}) {
         {label &&
           <InputLabel id={`select-label-${model.id}`} shrink htmlFor={listId}>
             {render_icon_text(label)}
-            {model.description ? render_description({model, el, view}) : null}
+            {model.description ? render_description({model, host}) : null}
           </InputLabel>
         }
         <Select
@@ -595,7 +594,7 @@ export function render({model, el, view}) {
          sx={denseInputLabelSx(size, multi && chip && variant === "outlined" ? {backgroundColor: "background.paper", px: 0.5, zIndex: 1} : undefined)}
        >
          {render_icon_text(label)}
-         {model.description ? render_description({model, el, view}) : null}
+         {model.description ? render_description({model, host}) : null}
        </InputLabel>
       }
       <Select
@@ -637,7 +636,7 @@ export function render({model, el, view}) {
           onClose={() => setOpen(false)}
           ref={menuRef}
           sx={{maxHeight: dropdown_height}}
-          view={view}
+          host={host}
         >
           {renderMenuItems()}
         </CustomMenu>

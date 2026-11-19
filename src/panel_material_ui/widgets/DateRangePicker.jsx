@@ -51,7 +51,7 @@ function pad(n) {
   return n.toString().padStart(2, "0")
 }
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const theme = useTheme()
   const [modelValue] = model.useState("value")
   const [start] = model.useState("start")
@@ -68,7 +68,7 @@ export function render({model, el, view}) {
   const [enabled_dates] = model.useState("enabled_dates")
   const [sx] = model.useState("sx")
 
-  const time = model.esm_constants.time
+  const time = model.constants.time
 
   let enableSeconds = false
   let militaryTime = true
@@ -312,7 +312,7 @@ export function render({model, el, view}) {
         open={open}
         anchorEl={anchorRef.current}
         placement="bottom-start"
-        container={overlay_container(view.container)}
+        container={host.overlay_root}
         style={{zIndex: theme.zIndex.modal}}
       >
         <ClickAwayListener onClickAway={handleCancel}>

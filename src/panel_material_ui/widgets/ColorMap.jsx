@@ -18,7 +18,7 @@ const paletteStyle = (colors, height, width, fit) => ({
   borderRadius: 1,
 })
 
-export function render({model, el, view}) {
+export function render({model, host}) {
   const [disabled] = model.useState("disabled")
   const [error_state] = model.useState("error_state")
   const [helper_text] = model.useState("helper_text")
@@ -33,7 +33,7 @@ export function render({model, el, view}) {
   const options = Object.entries(items || {})
   const selected = options.find(([name]) => name === value)
   const labelId = `colormap-label-${model.id}`
-  const isNotebook = Boolean(detect_nb(view))
+  const isNotebook = Boolean(detect_nb(host))
   const [open, setOpen] = React.useState(false)
   const anchorEl = React.useRef(null)
 
@@ -55,7 +55,7 @@ export function render({model, el, view}) {
 
   return (
     <FormControl disabled={disabled} fullWidth error={error_state}>
-      {label && <InputLabel id={labelId}>{render_icon_text(label)}{description ? render_description({model, el, view}) : null}</InputLabel>}
+      {label && <InputLabel id={labelId}>{render_icon_text(label)}{description ? render_description({model, host}) : null}</InputLabel>}
       <Select
         label={label}
         labelId={labelId}
@@ -95,7 +95,7 @@ export function render({model, el, view}) {
           open={open}
           onClose={() => setOpen(false)}
           paperProps={{sx: {"& .MuiList-root": {display: "grid", gridTemplateColumns: `repeat(${Math.max(1, ncols)}, minmax(0, 1fr))`, gap: 0.5, p: 1}}}}
-          view={view}
+          host={host}
         >
           {menuItems}
         </CustomMenu>
