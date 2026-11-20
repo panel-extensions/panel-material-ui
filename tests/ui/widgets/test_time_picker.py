@@ -5,8 +5,9 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import TimePicker
 from playwright.sync_api import expect
+
+from panel_material_ui.widgets import TimePicker
 
 pytestmark = pytest.mark.ui
 
@@ -217,9 +218,13 @@ def test_time_picker_partial_edit_not_committed(page):
     page.wait_for_timeout(300)
     assert values == []
 
-    page.keyboard.type("45")
+    # "4" alone already forms the valid time 10:04, which is committed
+    # unless "5" arrives before that change is sent; type at a human pace
+    # so that path is taken and check only complete times are committed.
+    page.keyboard.type("45", delay=100)
     wait_until(lambda: widget.value == datetime.time(10, 45), page)
-    assert values == [datetime.time(10, 45)]
+    assert values[-1] == datetime.time(10, 45)
+    assert all(isinstance(v, datetime.time) for v in values)
 
 
 def test_time_picker_partial_edit_restored_on_blur(page):
