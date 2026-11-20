@@ -58,11 +58,13 @@ export function render({model, view, el}) {
     return child_at_latest(el, node)
   }, [])
 
+  // Reported as a message rather than as visible_children: a frontend that lags
+  // behind the server would report a child that is no longer the newest, and
+  // the server would move its window back to that child.
   const syncLatestVisibleChild = React.useCallback(() => {
     const latest = model.objects[model.objects.length - 1]
-    const ordered = latest ? [latest.id] : []
-    visibleSetRef.current = new Set(ordered)
-    setVisibleChildren(ordered)
+    visibleSetRef.current = new Set(latest ? [latest.id] : [])
+    model.send_msg({type: "at_latest"})
   }, [])
 
   const updateScrollbarWidth = React.useCallback((el = boxRef.current) => {

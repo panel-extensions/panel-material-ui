@@ -487,27 +487,19 @@ class Feed(Column):
             new_models.append(model)
         return new_models, old_models  # type: ignore[return-value]
 
-    def _process_event(self, event=None) -> None:
+    def _move_to_latest(self) -> None:
         """
-        Process a scroll-button click event by forcing range to latest window.
+        Moves the visible range to the latest objects.
         """
         if not self.visible_range:
             return
 
-        # Need to get all the way to the bottom rather than the center
-        # of the buffer zone.
-        load_buffer = self.load_buffer
-        with param.discard_events(self):
-            self.load_buffer = 1
-
+        # The window synced from this range ends at the latest object and keeps
+        # the full load_buffer above it.
         n = len(self.objects)
-        n_visible = self.visible_range[-1] - self.visible_range[0]
+        n_visible = max(self.visible_range[-1] - self.visible_range[0], 1)
         with edit_readonly(self):
-            # plus one to center on the last object
-            self.visible_range = (min(max(n - n_visible + 1, 0), n), n)
-
-        with param.discard_events(self):
-            self.load_buffer = load_buffer
+            self.visible_range = (max(n - n_visible, 0), n)
 
     def _handle_click(self, event=None):
         self.scroll_to_latest()
@@ -516,6 +508,12 @@ class Feed(Column):
     def _handle_msg(self, msg: dict[str, t.Any]) -> None:
         if msg.get("type") == "request_latest":
             self.scroll_to_latest(scroll_limit=msg.get("scroll_limit"))
+        elif msg.get("type") == "at_latest" and self.objects:
+            # The frontend scrolled to the newest child it has, which may be
+            # behind the server, so the window follows the newest object.
+            n = len(self.objects)
+            with edit_readonly(self):
+                self.visible_range = (n - 1, n)
 
     def scroll_to_latest(self, scroll_limit: float | None = None) -> None:
         """
@@ -530,7 +528,7 @@ class Feed(Column):
         """
         rerender = bool(self._last_synced and self._last_synced[-1] < len(self.objects))
         if rerender:
-            self._process_event()
+            self._move_to_latest()
         self._send_msg({"type": "scroll_latest", "rerender": rerender, "scroll_limit": scroll_limit})
 
 

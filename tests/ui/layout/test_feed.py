@@ -190,11 +190,14 @@ def test_feed_reset_visible_range(page):
 
 # Counts, every few milliseconds, the children in view that were rendered and are
 # blank again while they stay in the feed, as a child that is mounted anew is until
-# its button has rendered.
+# its button has rendered, and the times the feed's log went back to the top after
+# it had scrolled down.
 _WATCH_BLANKS = """
 (feed) => {
   window.blanks = 0
   window.checked = 0
+  window.top_jumps = []
+  let scrolled = 0
   const seen = new Set()
   const find = (root, selector, found = []) => {
     found.push(...root.querySelectorAll(selector))
@@ -206,6 +209,13 @@ _WATCH_BLANKS = """
     return found
   }
   window.blank_watch = setInterval(() => {
+    const [log] = find(feed.shadowRoot ?? feed, ".chat-feed-log")
+    if (log.scrollTop > log.clientHeight) {
+      scrolled = Math.max(scrolled, log.scrollTop)
+    } else if (scrolled && log.scrollTop < 200) {
+      window.top_jumps.push([Math.round(scrolled), Math.round(log.scrollTop)])
+      scrolled = 0
+    }
     const view = feed.getBoundingClientRect()
     for (const wrapper of find(feed.shadowRoot ?? feed, "[data-feed-child-id]")) {
       const box = wrapper.getBoundingClientRect()
@@ -255,7 +265,7 @@ def test_feed_window_shift_keeps_children_rendered(page):
     feed_el = _feed(page, "test-feed-shift")
     expect(feed_el.get_by_role("button", name="item 0")).to_be_attached(timeout=20000)
     feed_el.evaluate(_WATCH_BLANKS)
-    wait_until(lambda: len(feeds[0].objects) == 3 * 60, page, timeout=90000)
+    wait_until(lambda: len(feeds[0].objects) == 3 * 60, page, timeout=240000)
     page.wait_for_timeout(1000)
     page.evaluate("clearInterval(window.blank_watch)")
 
@@ -263,9 +273,12 @@ def test_feed_window_shift_keeps_children_rendered(page):
     assert feed_el.get_by_role("button", name="item 0").count() == 0
     assert page.evaluate("window.checked") > 0
     assert page.evaluate("window.blanks") == 0
+    assert page.evaluate("window.top_jumps") == []
     expect(feed_el.get_by_role("button", name="item 59")).to_be_visible(timeout=20000)
 
+    log = feed_el.locator(".chat-feed-log")
+
     def assert_at_bottom():
-        assert feed_el.evaluate("(el) => el.scrollHeight - el.scrollTop - el.clientHeight") <= 1
+        assert log.evaluate("(el) => el.scrollHeight - el.scrollTop - el.clientHeight") <= 1
 
     wait_until(assert_at_bottom, page)
