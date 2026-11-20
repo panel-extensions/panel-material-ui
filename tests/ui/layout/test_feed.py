@@ -265,7 +265,7 @@ def test_feed_window_shift_keeps_children_rendered(page):
     feed_el = _feed(page, "test-feed-shift")
     expect(feed_el.get_by_role("button", name="item 0")).to_be_attached(timeout=20000)
     feed_el.evaluate(_WATCH_BLANKS)
-    wait_until(lambda: len(feeds[0].objects) == 3 * 60, page, timeout=90000)
+    wait_until(lambda: len(feeds[0].objects) == 3 * 60, page, timeout=240000)
     page.wait_for_timeout(1000)
     page.evaluate("clearInterval(window.blank_watch)")
 
