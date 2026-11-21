@@ -1231,14 +1231,21 @@ class Dialog(MaterialListLike):
     - https://mui.com/material-ui/react-dialog/
 
     :Example:
-    >>> close = Button(on_click=lambda _: dialog.param.update(open=False), label='Close')  # type: ignore
-    >>> dialog = Dialog("This is a modal", close)
+    >>> close = Button(on_click=lambda _: dialog.param.update(open=False), label='Close', variant='text')  # type: ignore
+    >>> dialog = Dialog("This is a modal", title="Dialog", actions=[close])
     >>> button = Button(on_click=lambda _: dialog.param.update(open=True), label=f'Open {Dialog.name}')
     >>> pn.Column(button, dialog).servable()
     """
 
+    actions = Children(default=[], doc="""
+        Components, usually buttons, shown right-aligned in a footer below
+        the content. The footer stays in view while the content scrolls.""")
+
     close_on_click = param.Boolean(default=False, doc="""
         Close when clicking outside the Dialog area.""")
+
+    close_on_escape = param.Boolean(default=True, doc="""
+        Close when the Escape key is pressed.""")
 
     full_screen = param.Boolean(default=False, doc="""
         Whether the dialog should be full screen.""")
@@ -1249,7 +1256,7 @@ class Dialog(MaterialListLike):
     title = param.String(default="", doc="""
         The title of the dialog.""")
 
-    title_variant = param.String(default="h3", doc="""
+    title_variant = param.String(default="h5", doc="""
         The text variant of the Dialog title.""")
 
     scroll: t.Literal["body", "paper"] = param.Selector(objects=["body", "paper"], default="paper", doc="""
