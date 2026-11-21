@@ -161,6 +161,7 @@ def test_split_button_update_item_with_href(page):
 
     # Open menu
     page.locator('.MuiButtonBase-root').nth(1).click()
+    expect(page.locator('.MuiMenuItem-root')).to_have_count(2)
 
     # Update item to add href
     item_to_update = items[1]

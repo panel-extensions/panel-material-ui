@@ -4,8 +4,10 @@ import shutil
 import tempfile
 import uuid
 
+import pytest
+
 if os.name != "nt":
-    import nbval.kernel
+    nbval_kernel = pytest.importorskip("nbval.kernel")
     from jupyter_client.manager import KernelManager
 
     # Over TCP each kernel picks five free ports, closes them and binds them
@@ -23,4 +25,4 @@ if os.name != "nt":
             kwargs.setdefault("ip", os.path.join(_IPC_DIR, uuid.uuid4().hex[:12]))
             super().__init__(**kwargs)
 
-    nbval.kernel.KernelManager = IPCKernelManager
+    nbval_kernel.KernelManager = IPCKernelManager

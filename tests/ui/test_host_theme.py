@@ -129,6 +129,7 @@ def test_unmanaged_standalone_figure_is_grounded(page):
     wait_until(lambda: (
         axis.axis_line_alpha == 1 and axis.major_tick_line_alpha == 1
         and axis.minor_tick_line_alpha == 0 and fig.outline_line_alpha == 0.3
+        and fig.title.text_font_size == "1.15em"
     ), page)
     assert fig.title.text_font_style == "bold"
 
@@ -162,6 +163,6 @@ def test_page_figure_standard_chart_style(page):
     axis = fig.yaxis[0]
     wait_until(lambda: (
         axis.axis_line_alpha == 1 and axis.major_tick_line_alpha == 1
-        and axis.minor_tick_line_alpha == 0
+        and axis.minor_tick_line_alpha == 0 and fig.title.text_font_size == "1.15em"
     ), page)
     assert fig.title.text_font_style == "bold"

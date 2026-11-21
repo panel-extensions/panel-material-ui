@@ -327,6 +327,7 @@ def test_menu_button_update_item_with_color(page):
 
     # Open menu
     page.locator('.MuiButton-root').click()
+    expect(page.locator('.MuiMenuItem-root')).to_have_count(2)
 
     # Update item to add color and icon
     item_to_update = items[0]
