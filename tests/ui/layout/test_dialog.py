@@ -5,6 +5,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.layout import Column
+from panel.pane import Markdown
 from panel.tests.util import serve_component, wait_until
 from panel_material_ui.layout import Dialog
 from panel_material_ui.widgets import Button
@@ -159,7 +160,7 @@ def test_dialog_actions_footer(page):
     cancel_box = actions.locator('button', has_text="Cancel").bounding_box()
     paper_box = page.locator('.MuiDialog-paper').bounding_box()
     assert cancel_box['x'] < save_box['x']
-    assert paper_box['x'] + paper_box['width'] - (save_box['x'] + save_box['width']) < 32
+    assert abs(paper_box['x'] + paper_box['width'] - (save_box['x'] + save_box['width']) - 20) <= 1
 
     actions.locator('button', has_text="Save").click()
     wait_until(lambda: save.clicks == 1, page)
@@ -196,6 +197,8 @@ def test_dialog_close_button_aligned_with_title(page):
     title_center = title_box['y'] + title_box['height'] / 2
     close_center = close_box['y'] + close_box['height'] / 2
     assert abs(title_center - close_center) <= 2
+    paper_box = page.locator('.MuiDialog-paper').bounding_box()
+    assert abs(paper_box['x'] + paper_box['width'] - (close_box['x'] + close_box['width']) - 8) <= 1
 
     close.click()
     expect(page.locator('.MuiDialog-root')).to_have_count(0)
@@ -253,3 +256,35 @@ def test_dialog_small_screen_margins(page):
     box = page.locator('.MuiDialog-paper').bounding_box()
     assert box['x'] == 16
     assert box['width'] == 390 - 32
+
+def test_dialog_title_aligned_with_content(page):
+    # Panel children carry a 10px horizontal margin, so with the content's
+    # 10px padding their text lines up with the title's 20px inset.
+    widget = Dialog(Markdown("Dialog Content"), title="Test Dialog", open=True)
+    serve_component(page, widget)
+
+    title_x = page.locator('.MuiDialogTitle-root').evaluate(
+        "e => { const r = document.createRange(); r.selectNodeContents(e); return r.getBoundingClientRect().x }"
+    )
+    content_x = page.locator('.MuiDialogContent-root p').bounding_box()['x']
+    paper_x = page.locator('.MuiDialog-paper').bounding_box()['x']
+    assert abs(title_x - paper_x - 20) <= 1
+    assert abs(content_x - paper_x - 20) <= 1
+
+def test_dialog_dividers_follow_swapped_objects(page):
+    # Full screen fixes the content's size, so only the children's own
+    # resizes reveal that it starts to overflow.
+    small = Column("Short", height=50)
+    widget = Dialog(small, title="Test Dialog", actions=[Button(label="OK")], full_screen=True, open=True)
+    serve_component(page, widget)
+
+    actions = page.locator('.MuiDialogActions-root')
+    expect(actions).to_have_css('border-top-width', '0px')
+
+    replacement = Column("Replacement", height=50)
+    widget.objects = [replacement]
+    expect(page.locator('.MuiDialogContent-root')).to_contain_text("Replacement")
+    expect(actions).to_have_css('border-top-width', '0px')
+
+    replacement.height = 3000
+    expect(actions).to_have_css('border-top-width', '1px')

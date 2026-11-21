@@ -9,21 +9,41 @@ import {apply_flex, child_model, render_icon_text, overlay_container} from "./ut
 
 const SMALL_SCREEN = "@media (max-width: 599.95px)"
 
-function useOverflow(el, deps) {
+// Title, content and actions share a 20px inset. Panel objects carry a 10px
+// horizontal margin, so the content and actions add only the remaining 10px.
+const INSET = "20px"
+const OBJECT_INSET = "10px"
+
+function useOverflow(el) {
   const [overflowing, setOverflowing] = React.useState(false)
   React.useEffect(() => {
     if (el == null) {
       return
     }
     const check = () => setOverflowing(el.scrollHeight - el.clientHeight > 1)
-    const observer = new ResizeObserver(check)
-    observer.observe(el)
-    for (const child of el.children) {
-      observer.observe(child)
+    const resize = new ResizeObserver(check)
+    const observe_children = () => {
+      resize.disconnect()
+      resize.observe(el)
+      // Each object sits in a child wrapper that does not take on its size,
+      // so the views inside the wrappers are observed as well.
+      for (const wrapper of el.children) {
+        resize.observe(wrapper)
+        for (const child of wrapper.children) {
+          resize.observe(child)
+        }
+      }
+      check()
     }
-    check()
-    return () => observer.disconnect()
-  }, [el, ...deps])
+    // Objects are swapped in and out of the wrappers, so follow them.
+    const mutation = new MutationObserver(observe_children)
+    mutation.observe(el, {childList: true, subtree: true})
+    observe_children()
+    return () => {
+      mutation.disconnect()
+      resize.disconnect()
+    }
+  }, [el])
   return overflowing
 }
 
@@ -43,7 +63,7 @@ export function render({model, view}) {
 
   const [content, setContent] = React.useState(null)
   // Dividers mark the edges of the content only while it scrolls inside the paper.
-  const dividers = useOverflow(content, [objects.length]) && scroll === "paper"
+  const dividers = useOverflow(content) && scroll === "paper"
 
   const fullWidth = view.model.sizing_mode === "stretch_width" || view.model.sizing_mode === "stretch_both"
   const has_header = Boolean(title) || show_close_button
@@ -86,8 +106,8 @@ export function render({model, view}) {
             alignItems: "center",
             justifyContent: "flex-end",
             gap: 1,
-            pr: show_close_button ? 1.5 : 0,
-            pt: title ? 0 : 1.5,
+            pr: show_close_button ? 1 : 0,
+            pt: title ? 0 : 1,
             borderBottom: dividers ? 1 : 0,
             borderColor: "divider",
           }}
@@ -95,7 +115,7 @@ export function render({model, view}) {
           {title && (
             <DialogTitle
               variant={title_variant}
-              sx={{flex: "1 1 auto", minWidth: 0, pr: show_close_button ? 0 : 3, overflowWrap: "anywhere"}}
+              sx={{flex: "1 1 auto", minWidth: 0, py: 1.5, pl: INSET, pr: show_close_button ? 0 : INSET, overflowWrap: "anywhere"}}
             >
               {render_icon_text(title)}
             </DialogTitle>
@@ -117,9 +137,9 @@ export function render({model, view}) {
         sx={{
           display: "flex",
           flexDirection: "column",
-          px: 2,
+          px: OBJECT_INSET,
           pt: (has_header && !dividers) ? 0 : 1,
-          pb: has_actions ? 0 : 2,
+          pb: has_actions ? 0 : 1.5,
         }}
       >
         {objects}
@@ -127,9 +147,9 @@ export function render({model, view}) {
       {has_actions && (
         <DialogActions
           sx={{
-            px: 2,
+            px: OBJECT_INSET,
             pt: dividers ? 1 : 0.5,
-            pb: 1.5,
+            pb: 1,
             flexWrap: "wrap",
             "& > :not(style) ~ :not(style)": {ml: 0},
             borderTop: dividers ? 1 : 0,
