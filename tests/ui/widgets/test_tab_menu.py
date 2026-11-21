@@ -83,7 +83,7 @@ def test_tab_menu_selection(page):
     tabs = page.locator('.MuiTab-root')
     tabs.nth(1).click()
 
-    assert widget.active == 1
+    wait_until(lambda: widget.active == 1, page)
     assert widget.value == items[1]
 
 def test_tab_menu_active_setting(page):

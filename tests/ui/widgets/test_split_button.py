@@ -160,7 +160,7 @@ def test_split_button_update_item_with_href(page):
     serve_component(page, widget)
 
     # Open menu
-    page.locator('.MuiButtonBase-root').nth(1).click(force=True)
+    page.locator('.MuiButtonBase-root').nth(1).click()
 
     # Update item to add href
     item_to_update = items[1]
@@ -168,7 +168,5 @@ def test_split_button_update_item_with_href(page):
 
     assert 'href' in widget.items[1] and widget.items[1]['href'] == '/option2'
 
-    # Reopen menu to verify
-    page.locator('.MuiButtonBase-root').nth(1).click(force=True)
     expect(page.locator('.MuiMenuItem-root').nth(1)).to_have_attribute('href', '/option2')
     expect(page.locator('.MuiMenuItem-root').nth(1)).to_have_attribute('target', '_blank')

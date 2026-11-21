@@ -34,7 +34,7 @@ def test_menubutton_selection(page):
     page.locator('.MuiButton-root').click()
     page.locator('.MuiMenuItem-root').nth(1).click()
 
-    assert widget.active == 1
+    wait_until(lambda: widget.active == 1, page)
     assert widget.value == 'Option 2'
 
 def test_menu_button_basic_functionality(page):
@@ -309,8 +309,8 @@ def test_menu_button_update_item(page):
     widget.update_item(item_to_update, label='Save As', icon='save')
     assert widget.items[1]['label'] == 'Save As'
 
-    # Reopen menu to verify update
-    page.locator('.MuiButton-root').click(force=True)
+    # The open menu re-renders with the updated item, clicking the
+    # button again would close it
     expect(menu_items.nth(1)).to_have_text('saveSave As')
     expect(menu_items.nth(1).locator('.material-icons')).to_have_text('save')
     expect(menu_items.nth(0)).to_have_text('Open')  # Other items unchanged
@@ -333,6 +333,4 @@ def test_menu_button_update_item_with_color(page):
     widget.update_item(item_to_update, color='primary', icon='star')
     assert 'color' in widget.items[0] and widget.items[0]['color'] == 'primary'
 
-    # Reopen menu to verify
-    page.locator('.MuiButton-root').click(force=True)
     expect(page.locator('.MuiMenuItem-root').nth(0).locator('.material-icons')).to_have_text('star')

@@ -62,13 +62,15 @@ def test_player_loop_policy_reflect_reverses(page):
     widget = Player(length=3, interval=100, loop_policy='reflect')
     serve_component(page, widget)
 
-    # The player keeps advancing after reversing, so record the value at
-    # which each change of direction happens
-    directions = []
-    widget.param.watch(lambda e: directions.append((e.new, widget.value)), 'direction')
+    # The browser may send a change of direction together with the next
+    # frame, so record the directions and frames separately
+    directions, values = [], []
+    widget.param.watch(lambda e: directions.append(e.new), 'direction')
+    widget.param.watch(lambda e: values.append(e.new), 'value')
 
     page.locator('.play').click()
-    wait_until(lambda: directions[:3] == [(1, 0), (-1, 2), (1, 0)], page)
+    wait_until(lambda: directions[:3] == [1, -1, 1] and {0, 2} <= set(values), page)
+    assert set(values) <= {0, 1, 2}
 
 
 def test_player_reverse(page):
