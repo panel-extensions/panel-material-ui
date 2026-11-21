@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 pytest.importorskip('playwright')
@@ -140,3 +142,114 @@ def test_dialog_custom_styling(page):
 
     dialog = page.locator('.MuiDialog-root')
     expect(dialog).to_have_css('background-color', 'rgb(0, 0, 255)')
+
+def test_dialog_actions_footer(page):
+    cancel = Button(label="Cancel", variant="text")
+    save = Button(label="Save")
+    widget = Dialog("Dialog Content", title="Test Dialog", actions=[cancel, save], open=True)
+    serve_component(page, widget)
+
+    actions = page.locator('.MuiDialogActions-root')
+    expect(actions).to_have_count(1)
+    expect(actions).to_contain_text("Cancel")
+    expect(actions).to_contain_text("Save")
+    expect(page.locator('.MuiDialogContent-root')).not_to_contain_text("Save")
+
+    save_box = actions.locator('button', has_text="Save").bounding_box()
+    cancel_box = actions.locator('button', has_text="Cancel").bounding_box()
+    paper_box = page.locator('.MuiDialog-paper').bounding_box()
+    assert cancel_box['x'] < save_box['x']
+    assert paper_box['x'] + paper_box['width'] - (save_box['x'] + save_box['width']) < 32
+
+    actions.locator('button', has_text="Save").click()
+    wait_until(lambda: save.clicks == 1, page)
+
+def test_dialog_no_actions_footer_by_default(page):
+    widget = Dialog("Dialog Content", title="Test Dialog", open=True)
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiDialogContent-root')).to_have_count(1)
+    expect(page.locator('.MuiDialogActions-root')).to_have_count(0)
+
+def test_dialog_actions_stay_visible_when_scrolling(page):
+    long_content = Column("<br>".join(["Content"] * 100))
+    widget = Dialog(long_content, title="Test Dialog", actions=[Button(label="OK")], open=True)
+    serve_component(page, widget)
+
+    actions = page.locator('.MuiDialogActions-root')
+    expect(actions).to_be_in_viewport()
+    expect(actions).to_have_css('border-top-width', '1px')
+
+def test_dialog_no_dividers_without_overflow(page):
+    widget = Dialog("Short content", title="Test Dialog", actions=[Button(label="OK")], open=True)
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiDialogActions-root')).to_have_css('border-top-width', '0px')
+
+def test_dialog_close_button_aligned_with_title(page):
+    widget = Dialog("Dialog Content", title="Test Dialog", show_close_button=True, open=True)
+    serve_component(page, widget)
+
+    title_box = page.locator('.MuiDialogTitle-root').bounding_box()
+    close = page.locator('button[aria-label="close"]')
+    close_box = close.bounding_box()
+    title_center = title_box['y'] + title_box['height'] / 2
+    close_center = close_box['y'] + close_box['height'] / 2
+    assert abs(title_center - close_center) <= 2
+
+    close.click()
+    expect(page.locator('.MuiDialog-root')).to_have_count(0)
+    wait_until(lambda: widget.open is False, page)
+
+def test_dialog_title_variant_default(page):
+    widget = Dialog("Dialog Content", title="Test Dialog", open=True)
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiDialogTitle-root')).to_have_class(re.compile('MuiTypography-h5'))
+
+def test_dialog_escape_closes(page):
+    widget = Dialog("Dialog Content", title="Test Dialog", open=True)
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiDialog-paper')).to_have_count(1)
+    page.keyboard.press("Escape")
+    expect(page.locator('.MuiDialog-root')).to_have_count(0)
+    wait_until(lambda: widget.open is False, page)
+
+def test_dialog_escape_disabled(page):
+    widget = Dialog("Dialog Content", title="Test Dialog", close_on_escape=False, open=True)
+    serve_component(page, widget)
+
+    expect(page.locator('.MuiDialog-paper')).to_have_count(1)
+    page.keyboard.press("Escape")
+    page.wait_for_timeout(300)
+    expect(page.locator('.MuiDialog-paper')).to_have_count(1)
+    assert widget.open is True
+
+def test_dialog_backdrop_click(page):
+    widget = Dialog("Dialog Content", title="Test Dialog", open=True)
+    serve_component(page, widget)
+
+    page.mouse.click(5, 5)
+    page.wait_for_timeout(300)
+    expect(page.locator('.MuiDialog-paper')).to_have_count(1)
+
+    widget.close_on_click = True
+    page.mouse.click(5, 5)
+    expect(page.locator('.MuiDialog-root')).to_have_count(0)
+    wait_until(lambda: widget.open is False, page)
+
+def test_dialog_min_width(page):
+    widget = Dialog("Hi", title="T", open=True)
+    serve_component(page, widget)
+
+    assert page.locator('.MuiDialog-paper').bounding_box()['width'] >= 360
+
+def test_dialog_small_screen_margins(page):
+    page.set_viewport_size({"width": 390, "height": 760})
+    widget = Dialog("Dialog Content", title="Test Dialog", open=True)
+    serve_component(page, widget)
+
+    box = page.locator('.MuiDialog-paper').bounding_box()
+    assert box['x'] == 16
+    assert box['width'] == 390 - 32
