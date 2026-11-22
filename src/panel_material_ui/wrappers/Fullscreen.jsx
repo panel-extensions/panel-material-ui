@@ -407,11 +407,34 @@ class Controller {
   }
 }
 
-const OFFSET = "8px"
+const OFFSET = 8
+const GAP = 4
 
-function placementSx(placement) {
+// A child with a header (a Card) keeps its own actions, e.g. the collapse
+// chevron, in the top right corner: the overlay sits beside them, centered on
+// the header row, rather than over them.
+function headerAnchor(root, childEl) {
+  const header = childEl?.shadowRoot?.querySelector(".MuiCardHeader-root")
+  if (!root || !header) {
+    return null
+  }
+  const box = root.getBoundingClientRect()
+  const head = header.getBoundingClientRect()
+  if (head.height === 0) {
+    return null
+  }
+  const action = header.querySelector(".MuiCardHeader-action")
+  const actionBox = action?.getBoundingClientRect()
+  const right = actionBox?.width ? box.right - actionBox.left + GAP : box.right - head.right + OFFSET
+  return {center: Math.round(head.top + head.height / 2 - box.top), right: Math.round(right)}
+}
+
+function placementSx(placement, anchor) {
   const [vertical, horizontal] = placement.split("-")
-  return {[vertical]: OFFSET, [horizontal]: OFFSET}
+  if (anchor && placement === "top-right") {
+    return {top: `${anchor.center}px`, right: `${anchor.right}px`, transform: "translateY(-50%)"}
+  }
+  return {[vertical]: `${OFFSET}px`, [horizontal]: `${OFFSET}px`}
 }
 
 export function render({model, view}) {
@@ -486,16 +509,101 @@ export function render({model, view}) {
     view.el.style.setProperty("--pmui-fullscreen-scheme", theme.palette.mode)
   }, [theme.palette.background.default, theme.palette.text.primary, theme.palette.mode])
 
+  const rootRef = React.useRef(null)
+  const [anchor, setAnchor] = React.useState(null)
+  React.useEffect(() => {
+    const root = rootRef.current
+    if (root == null) {
+      return
+    }
+    const childEl = () => (model.object ? view.get_child_view(model.object)?.el : null)
+    const measure = () => {
+      const next = headerAnchor(root, childEl())
+      setAnchor((prev) => (
+        prev?.center === next?.center && prev?.right === next?.right ? prev : next
+      ))
+    }
+    const resize = new ResizeObserver(measure)
+    resize.observe(root)
+    const el = childEl()
+    if (el) {
+      resize.observe(el)
+    }
+    // The child renders its header after the wrapper mounts.
+    const mutation = new MutationObserver(measure)
+    if (el?.shadowRoot) {
+      mutation.observe(el.shadowRoot, {childList: true, subtree: true})
+    }
+    measure()
+    const frame = requestAnimationFrame(measure)
+    return () => {
+      cancelAnimationFrame(frame)
+      resize.disconnect()
+      mutation.disconnect()
+    }
+  }, [object, active])
+
   const hidden = active && !shown && hide_delay != null
   React.useEffect(() => {
     view.el.style.cursor = hidden ? "none" : ""
   }, [hidden])
 
   const hasOverlay = show_button || (active && toolbar.length > 0)
-  const overlayVisible = active ? !hidden : false
+  // In the page the button always shows, so keyboard and touch users find it.
+  const overlayVisible = active ? !hidden : true
+
+  // Beside a Card's header actions the overlay comes first in the DOM, so
+  // the tab order follows the visual order: toggle, then the card's own actions.
+  const overlayFirst = anchor != null && placement === "top-right"
+  const overlay = hasOverlay ? (
+    <Box
+      ref={overlayRef}
+      className="pmui-fullscreen-overlay"
+      role="region"
+      aria-label={label}
+      sx={{
+        position: "absolute",
+        zIndex: 2,
+        display: "flex",
+        alignItems: "center",
+        gap: 0.5,
+        p: active && toolbar.length ? 0.5 : 0,
+        borderRadius: "20px",
+        bgcolor: active && toolbar.length ? "background.paper" : "transparent",
+        border: active && toolbar.length ? 1 : 0,
+        borderColor: "divider",
+        boxShadow: active && toolbar.length ? 3 : 0,
+        transition: "opacity 0.2s",
+        opacity: overlayVisible ? 1 : 0,
+        // Hidden in full screen it takes no clicks.
+        pointerEvents: overlayVisible ? "auto" : "none",
+        "@media (prefers-reduced-motion: reduce)": {transition: "none"},
+        ...placementSx(placement, anchor),
+      }}
+    >
+      {active && toolbar}
+      {show_button && (
+        <IconButton
+          aria-label={active ? "Exit full screen" : "Enter full screen"}
+          disabled={disabled && !active}
+          onClick={() => controller.toggle()}
+          size="small"
+          // Low emphasis at rest; a raised button over the child in full screen.
+          sx={active ? (toolbar.length ? {} : {
+            bgcolor: "background.paper",
+            boxShadow: 1,
+            "&:hover": {bgcolor: "background.paper"},
+          }) : {color: "text.secondary"}}
+        >
+          {active ? <FullscreenExitIcon /> : <FullscreenIcon />}
+        </IconButton>
+      )}
+    </Box>
+  ) : null
 
   return (
     <Box
+      ref={rootRef}
       className="pmui-fullscreen"
       tabIndex={-1}
       sx={{
@@ -503,62 +611,13 @@ export function render({model, view}) {
         position: "relative",
         width: "100%",
         height: "100%",
-        // In the page the button shows on hover, and always on touch screens.
-        ...(active ? {} : {
-          "&:hover .pmui-fullscreen-overlay": {opacity: 1},
-          "@media (hover: none)": {
-            "& .pmui-fullscreen-overlay": {opacity: 1},
-          },
-        }),
         "& .pmui-fullscreen-overlay:has(:focus-visible)": {opacity: 1, pointerEvents: "auto"},
         ...sx,
       }}
     >
+      {overlayFirst && overlay}
       {object}
-      {hasOverlay && (
-        <Box
-          ref={overlayRef}
-          className="pmui-fullscreen-overlay"
-          role="region"
-          aria-label={label}
-          sx={{
-            position: "absolute",
-            zIndex: 2,
-            display: "flex",
-            alignItems: "center",
-            gap: 0.5,
-            p: active && toolbar.length ? 0.5 : 0,
-            borderRadius: "20px",
-            bgcolor: active && toolbar.length ? "background.paper" : "transparent",
-            border: active && toolbar.length ? 1 : 0,
-            borderColor: "divider",
-            boxShadow: active && toolbar.length ? 3 : 0,
-            transition: "opacity 0.2s",
-            opacity: overlayVisible ? 1 : 0,
-            // Hidden in full screen it takes no clicks; in the page it shows on hover.
-            pointerEvents: active && !overlayVisible ? "none" : "auto",
-            "@media (prefers-reduced-motion: reduce)": {transition: "none"},
-            ...placementSx(placement),
-          }}
-        >
-          {active && toolbar}
-          {show_button && (
-            <IconButton
-              aria-label={active ? "Exit full screen" : "Enter full screen"}
-              disabled={disabled && !active}
-              onClick={() => controller.toggle()}
-              size="small"
-              sx={active && toolbar.length ? {} : {
-                bgcolor: "background.paper",
-                boxShadow: 1,
-                "&:hover": {bgcolor: "background.paper"},
-              }}
-            >
-              {active ? <FullscreenExitIcon /> : <FullscreenIcon />}
-            </IconButton>
-          )}
-        </Box>
-      )}
+      {!overlayFirst && overlay}
     </Box>
   )
 }

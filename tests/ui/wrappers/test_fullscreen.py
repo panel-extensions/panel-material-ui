@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.layout import Column, Paper
+from panel_material_ui.layout import Card, Column, Paper
 from panel_material_ui.pane import Typography
 from panel_material_ui.widgets import Button, TextInput
 from panel_material_ui.wrappers import Fullscreen
@@ -255,3 +255,68 @@ def test_fullscreen_moves_focus_in_and_restores_it_on_exit(page, trigger):
     wrapper.active = False
     wait_until(lambda: not wrapper.active, page)
     wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "Present", page)
+
+
+def _overlaps(a, b):
+    return not (
+        a["x"] + a["width"] <= b["x"] or b["x"] + b["width"] <= a["x"]
+        or a["y"] + a["height"] <= b["y"] or b["y"] + b["height"] <= a["y"]
+    )
+
+
+def test_fullscreen_button_visible_at_rest(page):
+    layout, wrapper = _app()
+    serve_component(page, layout)
+
+    page.mouse.move(600, 600)
+    overlay = page.locator(".pmui-fullscreen-overlay")
+    expect(overlay).to_have_css("opacity", "1")
+    expect(page.get_by_role("button", name="Enter full screen")).to_be_visible()
+
+
+def _card_app(**params):
+    card = Card(Typography("Revenue"), title="Dashboard card", collapsible=True, sizing_mode="stretch_both")
+    return Fullscreen(card, height=250, width=400, **params)
+
+
+def test_fullscreen_button_sits_beside_card_header_actions(page):
+    serve_component(page, _card_app())
+
+    chevron = page.get_by_role("button", name="show more")
+    toggle = page.get_by_role("button", name="Enter full screen")
+    expect(chevron).to_be_visible()
+    wait_until(lambda: not _overlaps(toggle.bounding_box(), chevron.bounding_box()), page)
+    toggle_box, chevron_box = toggle.bounding_box(), chevron.bounding_box()
+    assert toggle_box["x"] + toggle_box["width"] <= chevron_box["x"]
+    centers = [b["y"] + b["height"] / 2 for b in (toggle_box, chevron_box)]
+    assert abs(centers[0] - centers[1]) <= 2
+
+
+def test_fullscreen_toolbar_does_not_cover_card_header_actions(page):
+    wrapper = _card_app(toolbar=[Typography("Live")], hide_delay=None)
+    serve_component(page, wrapper)
+
+    wrapper.active = True
+    wait_until(lambda: _covers(page), page)
+    chevron = page.get_by_role("button", name="show more")
+    toolbar = page.locator(".pmui-fullscreen-overlay")
+    expect(toolbar).to_contain_text("Live")
+    wait_until(lambda: not _overlaps(toolbar.bounding_box(), chevron.bounding_box()), page)
+    chevron.click()
+
+
+def test_fullscreen_tab_order_matches_card_header_order(page):
+    serve_component(page, _card_app())
+
+    toggle = page.get_by_role("button", name="Enter full screen")
+    chevron = page.get_by_role("button", name="show more")
+    wait_until(lambda: toggle.bounding_box()["x"] < chevron.bounding_box()["x"], page)
+    order = []
+    for _ in range(4):
+        page.keyboard.press("Tab")
+        order.append(page.evaluate("""() => {
+          let node = document.activeElement
+          while (node?.shadowRoot?.activeElement) node = node.shadowRoot.activeElement
+          return node?.getAttribute("aria-label") ?? ""
+        }"""))
+    assert order.index("Enter full screen") < order.index("show more"), order
