@@ -336,9 +336,8 @@ def test_menu_toggle_update_item(page):
     widget.update_item(item_to_update, active_icon='favorite', toggled=True)
     assert 'active_icon' in widget.items[0] and widget.items[0]['active_icon'] == 'favorite'
 
-    # Reopen menu to verify update (toggled items show active_icon)
-    page.locator('.MuiButton-root').click(force=True)
-
+    # The open menu re-renders with the updated item (toggled items show
+    # active_icon), clicking the button again would close it
     assert widget.items[0].get('toggled', False)
     expect(icons.nth(0)).to_have_text('favorite')
 
@@ -352,14 +351,13 @@ def test_menu_toggle_update_item_with_colors(page):
     serve_component(page, widget)
 
     # Open menu
-    page.locator('.MuiButton-root').click(force=True)
+    page.locator('.MuiButton-root').click()
+    expect(page.locator('.MuiMenuItem-root')).to_have_count(1)
 
     # Update item to add colors
     item_to_update = items[0]
     widget.update_item(item_to_update, color='default', active_color='primary')
     assert 'color' in widget.items[0] and widget.items[0]['color'] == 'default'
 
-    # Reopen menu to verify
-    page.locator('.MuiButton-root').click(force=True)
     # Colors are applied via CSS, verify the item exists
     expect(page.locator('.MuiMenuItem-root')).to_have_count(1)

@@ -481,6 +481,9 @@ def test_select_clear_selection(page):
     page.locator(".MuiMenuItem-root").nth(0).click()
     wait_until(lambda: widget.value == "Option 1", page)
 
+    # While the menu fades out its backdrop still swallows clicks
+    expect(page.locator(".MuiMenuItem-root")).to_have_count(0)
+
     # Try to clear by selecting empty option (should not be possible)
     page.locator(".select").click()
     expect(page.locator(".MuiMenuItem-root")).to_have_count(2)  # No empty option
