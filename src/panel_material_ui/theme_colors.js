@@ -29,6 +29,17 @@ function to_hex(rgb) {
   return `#${rgb.map(c => Math.round(c).toString(16).padStart(2, "0")).join("")}`
 }
 
+// The color of a dark mode surface at the given elevation, i.e. the white
+// overlay MUI's Paper draws on top of the background (see getOverlayAlpha).
+export function elevated_surface(background, elevation) {
+  const rgb = parse_color(background)
+  if (rgb == null) {
+    return background
+  }
+  const alpha = Math.round((4.5 * Math.log(elevation + 1) + 2) * 10) / 1000
+  return to_hex(lighten_rgb(rgb, alpha))
+}
+
 export function relative_luminance(rgb) {
   const [r, g, b] = rgb.map(c => {
     const v = c / 255

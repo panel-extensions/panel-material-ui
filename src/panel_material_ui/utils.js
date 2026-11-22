@@ -3,7 +3,11 @@ import Icon from "@mui/material/Icon"
 import {blue, grey} from "@mui/material/colors"
 import {createTheme} from "@mui/material/styles"
 import {deepmerge} from "@mui/utils"
-import {primary_text_color} from "./theme_colors"
+import {elevated_surface, primary_text_color} from "./theme_colors"
+
+// Menus, popovers and dialogs sit at elevation 8 or above; the primary text
+// tint must stay readable on them, not only on the page background.
+const TEXT_SURFACE_ELEVATION = 8
 
 export const int_regex = /^[-+]?\d*$/
 // Accepts partial input like "-", "." or "1." while typing, and exponent
@@ -88,6 +92,7 @@ export function render_theme_css(theme) {
   return `
     :root, :host {
       --panel-primary-color: ${theme.palette.primary.main};
+      --pmui-dark-link-color: ${dark && theme.palette.primary.text ? theme.palette.primary.text : "initial"};
       --panel-on-primary-color: ${theme.palette.primary.contrastText};
       --panel-secondary-color: ${theme.palette.default.dark};
       --panel-on-secondary-color: ${theme.palette.text.secondary};
@@ -1113,7 +1118,8 @@ function cached_theme(props, theme_config, dark_theme) {
 }
 
 // In dark mode, primary coloured text (text and outlined buttons, links,
-// typography, selected tabs and toggles, outlined chips, icon buttons) uses
+// typography, selected tabs and toggles, outlined chips, icon buttons, focused
+// input labels and outlines) uses
 // palette.primary.text, a tint of the primary that stays readable on the dark
 // background, while fills keep primary.main.
 const PRIMARY_TEXT = "var(--mui-palette-primary-text)"
@@ -1133,8 +1139,9 @@ function with_primary_text(config, dark_theme) {
   const defaults = dark_theme ? {main: blue[200], light: blue[50], dark: blue[400]} : {main: blue[700], light: blue[400], dark: blue[800]}
   const resolved = main ?? defaults.main
   const background = palette.background ?? {}
+  const paper = background.paper ?? "#121212"
   const text = dark_theme ? primary_text_color(
-    resolved, [background.default ?? "#121212", background.paper ?? "#121212"]
+    resolved, [background.default ?? "#121212", paper, elevated_surface(paper, TEXT_SURFACE_ELEVATION)]
   ) : resolved
   return {...config, palette: {...palette, primary: {...(main == null ? defaults : {}), ...primary, text}}}
 }
@@ -1297,6 +1304,26 @@ function base_theme_config(props, dark_theme) {
             variants: dark_only(dark_theme, [{
               props: {color: "primary"},
               style: {color: PRIMARY_TEXT},
+            }]),
+          },
+        },
+      },
+      MuiFormLabel: {
+        styleOverrides: {
+          root: {
+            variants: dark_only(dark_theme, [{
+              props: {color: "primary"},
+              style: {"&.Mui-focused": {color: PRIMARY_TEXT}},
+            }]),
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            variants: dark_only(dark_theme, [{
+              props: {color: "primary"},
+              style: {"&.Mui-focused:not(.Mui-error) .MuiOutlinedInput-notchedOutline": {borderColor: PRIMARY_TEXT}},
             }]),
           },
         },

@@ -8,7 +8,7 @@ from playwright.sync_api import expect
 
 from panel_material_ui.layout import Column, Row, Tabs
 from panel_material_ui.template import Page, ThemeToggle
-from panel_material_ui.widgets import Button, Chip, RadioButtonGroup
+from panel_material_ui.widgets import Button, Chip, RadioButtonGroup, TextInput
 
 pytestmark = pytest.mark.ui
 
@@ -265,6 +265,8 @@ def _primary_components(dark, theme_config=PRIMARY):
         Tabs(("A", "a"), ("B", "b")),
         RadioButtonGroup(options=["X", "Y"], value="X", variant="outlined"),
         Chip(label="Chip", variant="outlined"),
+        TextInput(label="Name"),
+        pn.pane.Markdown("A [link](https://holoviz.org)"),
         dark_theme=dark, theme_config=theme_config,
     )
 
@@ -278,16 +280,25 @@ def _expect_primary_colors(page, text, fill):
     expect(page.locator(".MuiTabs-indicator")).to_have_css("background-color", text)
     expect(page.locator(".MuiToggleButton-root.Mui-selected")).to_have_css("color", text)
     expect(page.locator(".MuiChip-root")).to_have_css("color", text)
+    page.locator(".MuiInputBase-input").click()
+    expect(page.locator(".MuiInputLabel-root.Mui-focused")).to_have_css("color", text)
+    expect(page.locator(".Mui-focused .MuiOutlinedInput-notchedOutline")).to_have_css("border-top-color", text)
+
+
+def _expect_link_color(page, color):
+    expect(page.locator(".markdown a")).to_have_css("color", color)
 
 
 def test_light_primary_text_is_unchanged(page):
     serve_component(page, _primary_components(False))
     _expect_primary_colors(page, PRIMARY_RGB, PRIMARY_RGB)
+    _expect_link_color(page, PRIMARY_RGB)
 
 
 def test_dark_primary_text_uses_tint(page):
     serve_component(page, _primary_components(True))
     _expect_primary_colors(page, PRIMARY_TEXT_RGB, PRIMARY_RGB)
+    _expect_link_color(page, PRIMARY_TEXT_RGB)
 
 
 def test_dark_primary_text_follows_theme_toggle(page):

@@ -25,5 +25,5 @@
 }
 
 :host a {
-  color: var(--mui-palette-primary-text, var(--design-primary-color, var(--panel-primary-color)));
+  color: var(--pmui-dark-link-color, var(--design-primary-color, var(--panel-primary-color)));
 }

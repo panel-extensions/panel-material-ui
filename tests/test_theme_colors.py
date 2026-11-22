@@ -13,16 +13,20 @@ THEME_COLORS = pathlib.Path(panel_material_ui.__file__).parent / 'theme_colors.j
 pytestmark = pytest.mark.skipif(NODE is None, reason='node is required')
 
 
-def primary_text_color(main, backgrounds=('#121212',)):
+def run(call):
     script = (
         f"const m = await import({json.dumps(THEME_COLORS.as_uri())});"
-        f"console.log(JSON.stringify(m.primary_text_color({json.dumps(main)}, {json.dumps(list(backgrounds))})))"
+        f"console.log(JSON.stringify(m.{call}))"
     )
     out = subprocess.run(
         [NODE, '--no-warnings', '--input-type=module', '-e', script],
         capture_output=True, text=True, check=True
     )
     return json.loads(out.stdout)
+
+
+def primary_text_color(main, backgrounds=('#121212',)):
+    return run(f"primary_text_color({json.dumps(main)}, {json.dumps(list(backgrounds))})")
 
 
 def contrast(fg, bg):
@@ -67,3 +71,14 @@ def test_unparseable_primary_is_unchanged(main):
 def test_parses_short_hex_and_rgb():
     assert primary_text_color('#00f') != '#00f'
     assert primary_text_color('rgb(0, 114, 181)') == '#59a3cf'
+
+
+def test_elevated_surface_matches_mui_overlay():
+    # MUI's dark Paper at elevation 8 is #121212 under an 11.9% white overlay.
+    assert run("elevated_surface('#121212', 8)") == '#2e2e2e'
+
+
+@pytest.mark.parametrize('main', ['#0072B5', '#6200ee', '#000080'])
+def test_tint_is_readable_on_elevated_surfaces(main):
+    text = primary_text_color(main, ['#121212', '#2e2e2e'])
+    assert contrast(text, '#2e2e2e') >= 4.5
