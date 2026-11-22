@@ -320,3 +320,24 @@ def test_fullscreen_tab_order_matches_card_header_order(page):
           return node?.getAttribute("aria-label") ?? ""
         }"""))
     assert order.index("Enter full screen") < order.index("show more"), order
+
+
+@pytest.mark.parametrize("active", [False, True])
+def test_fullscreen_click_inside_keeps_tab_order(page, active):
+    wrapper = Fullscreen(
+        Column(
+            Button(label="First"),
+            Typography("Some text", css_classes=["text"]),
+            Button(label="Second"),
+            sizing_mode="stretch_both",
+        ),
+        height=200, width=300, show_button=False, active=active,
+    )
+    serve_component(page, Column(Button(label="Outside"), wrapper))
+
+    if active:
+        wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "wrapper", page)
+    page.get_by_text("Some text").click()
+    assert page.evaluate(_FOCUSED_LABEL) != "wrapper"
+    page.keyboard.press("Tab")
+    wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "Second", page)
