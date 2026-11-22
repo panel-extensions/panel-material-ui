@@ -40,6 +40,13 @@ function tabbables(root) {
   return found
 }
 
+function closest_deep(node, selector) {
+  for (; node; node = node.parentNode || node.host) {
+    if (node.matches?.(selector)) { return node }
+  }
+  return null
+}
+
 function deep_active() {
   let el = document.activeElement
   while (el && el.shadowRoot && el.shadowRoot.activeElement) {
@@ -223,7 +230,54 @@ export function render({model, view}, ref) {
     }
   }
 
-  const onFocus = () => { restoreRef.current = true }
+  const watchedRef = React.useRef(null)
+
+  const watch_nested_modal = (el) => {
+    const paper = paperRef.current
+    const modal_root = el ? closest_deep(el, ".MuiModal-root") : null
+    if (modal_root && paper && modal_root !== closest_deep(paper, ".MuiModal-root") && watchedRef.current !== modal_root) {
+      watchedRef.current = modal_root
+      watch_modal(modal_root)
+    }
+  }
+
+  const onFocus = () => {
+    restoreRef.current = true
+    // The focus target is retargeted, so look it up once it has the focus.
+    setTimeout(() => watch_nested_modal(deep_active()))
+  }
+  const onFocusRef = React.useRef(onFocus)
+  onFocusRef.current = onFocus
+
+  // MUI's focus trap replaces an onFocus prop on the paper, so listen natively.
+  const focusListener = React.useRef((event) => onFocusRef.current(event)).current
+  const setPaper = React.useCallback((el) => {
+    paperRef.current?.removeEventListener("focusin", focusListener)
+    paperRef.current = el
+    el?.addEventListener("focusin", focusListener)
+  }, [])
+
+  // A modal opened from inside the popup, e.g. a Dialog, keeps it open.
+  // Once the modal closes, the focus comes back to the popup, or to the
+  // trigger if the popup closed meanwhile, unless the user moved it elsewhere.
+  const watch_modal = (modal_root) => {
+    const parent = modal_root.parentNode
+    const closed = () => !modal_root.isConnected || modal_root.getClientRects().length === 0 ||
+      getComputedStyle(modal_root).visibility === "hidden"
+    const check = () => {
+      if (!closed()) { return }
+      observer.disconnect()
+      watchedRef.current = null
+      const active = deep_active()
+      if (active && active !== document.body && active.isConnected && !within(active, modal_root)) { return }
+      const paper = paperRef.current
+      const target = paper?.isConnected ? paper : triggerRef.current
+      target?.focus()
+    }
+    const observer = new MutationObserver(check)
+    observer.observe(modal_root, {attributes: true, childList: true, subtree: true})
+    if (parent) { observer.observe(parent, {childList: true}) }
+  }
 
   const onBlur = () => {
     // The focus target is retargeted to this shadow tree, so the element
@@ -236,6 +290,12 @@ export function render({model, view}, ref) {
       // the trigger, whose click toggles it.
       if (paper == null || next == null || next === document.body || within(next, paper)) { return }
       if (trigger && within(next, trigger)) { return }
+      const own_root = closest_deep(paper, ".MuiModal-root")
+      const modal_root = closest_deep(next, ".MuiModal-root")
+      if (modal_root && modal_root !== own_root) {
+        watch_nested_modal(next)
+        return
+      }
       close()
     })
   }
@@ -249,7 +309,6 @@ export function render({model, view}, ref) {
     Object.assign(paperProps, {
       "aria-modal": "false",
       onBlur,
-      onFocus,
       onKeyDown,
       style: {pointerEvents: "auto"},
       tabIndex: -1,
@@ -273,7 +332,7 @@ export function render({model, view}, ref) {
       onClose={() => close_on_click && setOpen(false)}
       open={open}
       slotProps={{
-        paper: {ref: paperRef, ...paperProps},
+        paper: {ref: setPaper, ...paperProps},
         root: nonModal ? {style: {pointerEvents: "none"}} : undefined,
         transition: nonModal ? {onEnter, onExited} : undefined,
       }}

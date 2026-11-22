@@ -20,12 +20,6 @@ def test_popup_non_modal_params_sync(document, comm):
     assert model.data.label == 'More details'
 
 
-def test_drawer_resize_on_toggle_default(document, comm):
-    drawer = Drawer('Content')
-    model = drawer.get_root(document, comm=comm)
-    assert model.data.resize_on_toggle is True
-
-
 def test_drawer_on_transition_callback():
     drawer = Drawer('Content')
     events = []

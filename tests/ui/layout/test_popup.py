@@ -6,7 +6,7 @@ from panel.layout import Column, Row
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
-from panel_material_ui.layout import Popup
+from panel_material_ui.layout import Dialog, Popup
 from panel_material_ui.widgets import Button, TextInput
 
 pytestmark = pytest.mark.ui
@@ -194,3 +194,33 @@ def test_popup_non_modal_focus_elsewhere_closes(page):
 
     wait_until(lambda: not popup.open, page)
     expect(page.get_by_role('button', name='After')).to_be_focused()
+
+
+def test_popup_non_modal_stays_open_under_a_dialog(page):
+    trigger = Button(label="Details")
+    cancel = Button(label="Cancel")
+    dialog = Dialog(cancel, title="Confirm")
+    delete = Button(label="Delete")
+    popup = Popup(delete, dialog, modal=False)
+    trigger.on_click(lambda event: popup.param.update(open=not popup.open))
+    delete.on_click(lambda event: dialog.param.update(open=True))
+    cancel.on_click(lambda event: dialog.param.update(open=False))
+    serve_component(page, Column(Row(trigger, popup)))
+
+    page.get_by_role('button', name='Details').click()
+    page.get_by_role('button', name='Delete').click()
+    wait_until(lambda: dialog.open, page)
+    page.get_by_role('button', name='Cancel').click()
+    wait_until(lambda: not dialog.open, page)
+    expect(page.locator('.MuiDialog-root')).to_have_count(0)
+
+    assert popup.open
+    expect(page.get_by_role('dialog', name='Details')).to_be_visible()
+    wait_until(lambda: page.evaluate("""() => {
+        let el = document.activeElement
+        while (el && el.shadowRoot && el.shadowRoot.activeElement) { el = el.shadowRoot.activeElement }
+        return el != null && el !== document.body
+    }"""), page)
+    page.keyboard.press('Escape')
+    wait_until(lambda: not popup.open, page)
+    expect(page.get_by_role('button', name='Details')).to_be_focused()

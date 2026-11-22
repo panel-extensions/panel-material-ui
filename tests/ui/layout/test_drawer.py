@@ -86,28 +86,14 @@ def test_drawer_multiple_objects(page):
     expect(drawer).to_contain_text("Content 2")
 
 
-def test_drawer_transition_callback_and_resize(page):
+def test_drawer_transition_callback(page):
     events = []
     widget = Drawer("Content", variant="persistent", inline=True)
     widget.on_transition(events.append)
     serve_component(page, Row(widget, Column("Main")))
-    page.evaluate("window.__resizes = 0; window.addEventListener('resize', () => window.__resizes++)")
 
     widget.open = True
     wait_until(lambda: events == [True], page)
-    assert page.evaluate("window.__resizes") >= 1
 
     widget.open = False
     wait_until(lambda: events == [True, False], page)
-
-
-def test_drawer_resize_on_toggle_disabled(page):
-    events = []
-    widget = Drawer("Content", variant="persistent", inline=True, resize_on_toggle=False)
-    widget.on_transition(events.append)
-    serve_component(page, Row(widget, Column("Main")))
-    page.evaluate("window.__resizes = 0; window.addEventListener('resize', () => window.__resizes++)")
-
-    widget.open = True
-    wait_until(lambda: events == [True], page)
-    assert page.evaluate("window.__resizes") == 0

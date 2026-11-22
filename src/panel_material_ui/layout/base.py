@@ -1313,13 +1313,6 @@ class Drawer(MaterialListLike):
     open = param.Boolean(default=False, doc="""
         Whether the drawer is open.""")
 
-    resize_on_toggle = param.Boolean(default=True, doc="""
-        Whether to dispatch a window resize event once a drawer that takes
-        up room in the layout (an inline drawer or a persistent, permanent
-        or docked one) has finished opening or closing, so that plots, maps
-        and other components that only measure themselves on window resizes
-        fill the space it leaves.""")
-
     variant: t.Literal["docked", "permanent", "persistent", "temporary"] = param.Selector(
         default="temporary", objects=["docked", "permanent", "persistent", "temporary"],
         doc="Variant style of the drawer.")  # type: ignore[assignment]

@@ -94,7 +94,6 @@ export function render({model, view}) {
   const [dockPosition] = model.useState("dock_position")
   const [inline] = model.useState("inline")
   const [open, setOpen] = model.useState("open")
-  const [resize_on_toggle] = model.useState("resize_on_toggle")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
@@ -126,8 +125,7 @@ export function render({model, view}) {
     return () => model.off("lifecycle:update_layout", handler)
   }, [])
 
-  // Once the drawer has opened or closed, tell Python and, when it moved
-  // its siblings, the components that only measure on window resizes.
+  // Tell Python once the drawer has finished opening or closing.
   const mounted = React.useRef(false)
   React.useEffect(() => {
     if (!mounted.current) {
@@ -135,9 +133,6 @@ export function render({model, view}) {
       return
     }
     const timer = setTimeout(() => {
-      if (resize_on_toggle && (inline || variant !== "temporary")) {
-        window.dispatchEvent(new Event("resize"))
-      }
       model.send_msg({type: "transition", open})
     }, TRANSITION_MS)
     return () => clearTimeout(timer)
