@@ -155,9 +155,9 @@ def test_fullscreen_toggle_event(page):
     layout, wrapper = _app()
     serve_component(page, layout)
 
-    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen', {cancelable: true}))")
+    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen-toggle', {cancelable: true}))")
     wait_until(lambda: wrapper.active, page)
-    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen', {cancelable: true}))")
+    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen-toggle', {cancelable: true}))")
     wait_until(lambda: not wrapper.active, page)
 
 
@@ -178,7 +178,7 @@ def test_fullscreen_disabled_blocks_entering(page):
     serve_component(page, layout)
 
     expect(page.get_by_role("button", name="Enter full screen")).to_be_disabled()
-    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen', {cancelable: true}))")
+    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen-toggle', {cancelable: true}))")
     page.wait_for_timeout(200)
     assert not wrapper.active
 
@@ -222,3 +222,36 @@ def test_fullscreen_stretches_responsive_child_beyond_fixed_height(page):
     viewport = page.viewport_size
     paper = page.locator(".MuiPaper-root").first
     wait_until(lambda: paper.bounding_box()["height"] == viewport["height"], page)
+
+
+_FOCUSED_LABEL = """() => {
+  let node = document.activeElement
+  while (node?.shadowRoot?.activeElement) node = node.shadowRoot.activeElement
+  if (!node || node === document.body) return "body"
+  if (node.classList.contains("pmui-fullscreen")) return "wrapper"
+  return (node.getAttribute("aria-label") || node.textContent || "").trim()
+}"""
+
+
+@pytest.mark.parametrize("trigger", ["toggle_class", "event"])
+def test_fullscreen_moves_focus_in_and_restores_it_on_exit(page, trigger):
+    header = Button(label="Present", css_classes=["present-toggle"])
+    wrapper = Fullscreen(
+        Paper(Typography("Dashboard"), sizing_mode="stretch_both"),
+        height=200, width=300, show_button=False, toggle_class="present-toggle",
+    )
+    serve_component(page, Column(header, wrapper))
+
+    present = page.get_by_role("button", name="Present")
+    if trigger == "toggle_class":
+        present.click()
+    else:
+        present.focus()
+        page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen-toggle', {cancelable: true}))")
+    wait_until(lambda: wrapper.active, page)
+    wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "wrapper", page)
+
+    page.evaluate("document.fullscreenElement ? document.exitFullscreen() : null")
+    wrapper.active = False
+    wait_until(lambda: not wrapper.active, page)
+    wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "Present", page)

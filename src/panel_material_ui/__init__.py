@@ -4,7 +4,7 @@ from .base import MaterialUIComponent  # noqa
 from .layout import *  # noqa
 from .notifications import NotificationArea  # noqa
 from .pane import *  # noqa
-from .spotlight import Spotlight  # noqa
+from .reveal import Reveal  # noqa
 from .template import *  # noqa
 from .theme import MaterialDesign  # noqa
 from .widgets import *  # noqa

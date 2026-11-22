@@ -322,7 +322,7 @@ class Fullscreen(Wrapper):
     toggles are handled in the browser: the built-in button, clicks on
     elements inside the child with the `pmui-fullscreen-toggle` or
     `pmui-fullscreen-exit` CSS class, clicks anywhere on the page on
-    elements with the `toggle_class`, and a `pmui:fullscreen` event
+    elements with the `toggle_class`, and a `pmui:fullscreen-toggle` event
     dispatched on the document (e.g. by a keyboard shortcut).
 
     :References:
@@ -338,7 +338,7 @@ class Fullscreen(Wrapper):
     TOGGLE_CLASS: t.ClassVar[str] = "pmui-fullscreen-toggle"
     EXIT_CLASS: t.ClassVar[str] = "pmui-fullscreen-exit"
     KEEP_CLASS: t.ClassVar[str] = "pmui-fullscreen-keep"
-    TOGGLE_EVENT: t.ClassVar[str] = "pmui:fullscreen"
+    TOGGLE_EVENT: t.ClassVar[str] = "pmui:fullscreen-toggle"
 
     active = param.Boolean(default=False, doc="""
         Whether the child covers the screen.""")

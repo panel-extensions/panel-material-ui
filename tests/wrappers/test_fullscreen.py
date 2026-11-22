@@ -59,7 +59,7 @@ def test_fullscreen_class_names():
     assert Fullscreen.TOGGLE_CLASS == "pmui-fullscreen-toggle"
     assert Fullscreen.EXIT_CLASS == "pmui-fullscreen-exit"
     assert Fullscreen.KEEP_CLASS == "pmui-fullscreen-keep"
-    assert Fullscreen.TOGGLE_EVENT == "pmui:fullscreen"
+    assert Fullscreen.TOGGLE_EVENT == "pmui:fullscreen-toggle"
 
 
 def test_fullscreen_browser_updates_readonly_state(document, comm):

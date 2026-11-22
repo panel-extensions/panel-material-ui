@@ -7,7 +7,7 @@ import {useTheme} from "@mui/material/styles"
 const TOGGLE_CLASS = "pmui-fullscreen-toggle"
 const EXIT_CLASS = "pmui-fullscreen-exit"
 const KEEP_CLASS = "pmui-fullscreen-keep"
-const TOGGLE_EVENT = "pmui:fullscreen"
+const TOGGLE_EVENT = "pmui:fullscreen-toggle"
 const HOST_ATTR = "data-pmui-fullscreen-host"
 const ACTIVE_ATTR = "data-pmui-fullscreen"
 
@@ -241,6 +241,8 @@ class Controller {
         top: scroller.scrollTop,
         left: scroller.scrollLeft,
         overflow: document.documentElement.style.overflow,
+        // The trigger, e.g. a toggle outside the child, turns inert below.
+        focus: focusPath()[0] ?? null,
       }
       // Keeps the page behind from scrolling, e.g. on iOS where the cover is not real full screen.
       document.documentElement.style.overflow = "hidden"
@@ -252,6 +254,12 @@ class Controller {
     } else {
       this.release()
     }
+    // Focus moves into the child; a tabindex on the host itself would take
+    // its whole shadow tree out of the tab order.
+    const box = root?.querySelector(".pmui-fullscreen")
+    if (box && !focusPath().includes(host)) {
+      box.focus({preventScroll: true})
+    }
   }
 
   uncover() {
@@ -260,10 +268,15 @@ class Controller {
     this.release()
     if (this.covering) {
       this.covering = false
-      const {top, left, overflow} = this.saved
+      const {top, left, overflow, focus} = this.saved
       document.documentElement.style.overflow = overflow
       const scroller = document.scrollingElement ?? document.documentElement
       scroller.scrollTo(left, top)
+      // Back to the trigger, unless focus has moved on outside the child.
+      const path = focusPath()
+      if (focus?.isConnected && (path.length === 0 || path.includes(this.host) || path[0] === document.body)) {
+        focus.focus({preventScroll: true})
+      }
     }
   }
 
@@ -484,7 +497,9 @@ export function render({model, view}) {
   return (
     <Box
       className="pmui-fullscreen"
+      tabIndex={-1}
       sx={{
+        outline: "none",
         position: "relative",
         width: "100%",
         height: "100%",
@@ -530,7 +545,6 @@ export function render({model, view}) {
           {show_button && (
             <IconButton
               aria-label={active ? "Exit full screen" : "Enter full screen"}
-              aria-pressed={active}
               disabled={disabled && !active}
               onClick={() => controller.toggle()}
               size="small"

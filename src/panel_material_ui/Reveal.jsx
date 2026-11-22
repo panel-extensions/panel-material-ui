@@ -17,21 +17,31 @@ function reducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false
 }
 
+// The styles each outlined element had before it was first outlined, and its
+// pending timer, so a repeated outline restores the original styles.
+const OUTLINED = new WeakMap()
+
 function outline(el, color, duration, reduce) {
-  const previous = [el.style.outline, el.style.outlineOffset, el.style.transition]
+  let state = OUTLINED.get(el)
+  if (state === undefined) {
+    state = {styles: [el.style.outline, el.style.outlineOffset, el.style.transition], timer: null}
+    OUTLINED.set(el, state)
+  }
+  clearTimeout(state.timer)
   const restore = () => {
-    [el.style.outline, el.style.outlineOffset, el.style.transition] = previous
+    [el.style.outline, el.style.outlineOffset, el.style.transition] = state.styles
+    OUTLINED.delete(el)
   }
   el.style.transition = reduce ? "none" : "outline-color 0.6s"
   el.style.outline = `3px solid ${color}`
   el.style.outlineOffset = "2px"
-  setTimeout(() => {
+  state.timer = setTimeout(() => {
     if (reduce) {
       restore()
       return
     }
     el.style.outlineColor = "transparent"
-    setTimeout(restore, 700)
+    state.timer = setTimeout(restore, 700)
   }, duration)
 }
 

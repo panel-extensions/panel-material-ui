@@ -7,9 +7,9 @@ import param
 from .base import COLORS, ColorType, MaterialComponent
 
 
-class Spotlight(MaterialComponent):
+class Reveal(MaterialComponent):
     """
-    The `Spotlight` scrolls to the elements on the page carrying a CSS
+    The `Reveal` scrolls to the elements on the page carrying a CSS
     class and briefly outlines them, e.g. to point users at the cards
     that need their attention.
 
@@ -20,13 +20,13 @@ class Spotlight(MaterialComponent):
 
     :References:
 
-    - https://panel-material-ui.holoviz.org/reference/global/Spotlight.html
+    - https://panel-material-ui.holoviz.org/reference/global/Reveal.html
 
     :Example:
 
-    >>> spotlight = Spotlight()
+    >>> reveal = Reveal()
     >>> card = Card(..., css_classes=["needs-review"])
-    >>> spotlight.scroll_to("needs-review")
+    >>> reveal.scroll_to("needs-review")
     """
 
     color: ColorType = param.Selector(default="primary", objects=COLORS, doc="""
@@ -35,7 +35,7 @@ class Spotlight(MaterialComponent):
     duration = param.Integer(default=2200, bounds=(0, None), doc="""
         Milliseconds the outline is shown before it fades.""")
 
-    _esm_base = "Spotlight.jsx"
+    _esm_base = "Reveal.jsx"
 
     def __init__(self, **params):
         params.setdefault("margin", 0)
@@ -68,4 +68,4 @@ class Spotlight(MaterialComponent):
         self._send_msg({"css_class": css_class, "highlight": highlight, "focus": focus, "block": block})
 
 
-__all__ = ["Spotlight"]
+__all__ = ["Reveal"]
