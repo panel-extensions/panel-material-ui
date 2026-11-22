@@ -31,7 +31,7 @@ export function render(props, ref) {
     return () => model.off("msg:custom", focus_cb)
   }, [])
 
-  return (
+  const fab = (
     <Fab
       aria-label={render_icon_text_as_string(label)}
       color={color}
@@ -47,9 +47,11 @@ export function render(props, ref) {
       {...aria}
       {...other}
     >
-      {icon && render_badge(render_icon(icon, null, null, icon_size, null, {pr: padding}), badge, badge_color, badge_max)}
+      {icon && render_icon(icon, null, null, icon_size, null, {pr: padding})}
       {variant === "extended" && render_icon_text(label)}
       {end_icon && render_icon(end_icon, null, null, icon_size, null, {pl: padding})}
     </Fab>
   )
+  // The badge sits on the button's edge rather than over its icon.
+  return render_badge(fab, badge, badge_color, badge_max, variant === "circular" ? "circular" : "rectangular")
 }

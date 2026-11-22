@@ -7,6 +7,7 @@ pytest.importorskip('playwright')
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
+from panel_material_ui.layout import Row
 from panel_material_ui.widgets import Button, Fab, IconButton, Toggle, ToggleIcon
 
 pytestmark = pytest.mark.ui
@@ -172,3 +173,27 @@ def test_button_badge_without_icon(page):
 
     expect(page.locator('button .MuiBadge-badge')).to_have_text('1')
     expect(page.locator('button')).to_contain_text('Approvals')
+
+
+def test_fab_badge_sits_on_the_button_edge(page):
+    widget = Fab(icon='add', label='New', badge=7)
+    serve_component(page, widget)
+
+    button = page.get_by_role('button', name='New')
+    badge = page.locator('.MuiBadge-badge')
+    expect(badge).to_have_text('7')
+    expect(page.locator('button .MuiBadge-badge')).to_have_count(0)
+    icon = button.locator('.material-icons, .material-icons-outlined, svg').first
+    badge_box, icon_box = badge.bounding_box(), icon.bounding_box()
+    # The badge does not cover the middle of the icon.
+    cx, cy = icon_box['x'] + icon_box['width'] / 2, icon_box['y'] + icon_box['height'] / 2
+    assert not (badge_box['x'] < cx < badge_box['x'] + badge_box['width'] and badge_box['y'] < cy < badge_box['y'] + badge_box['height'])
+
+
+def test_fab_label_names_circular_and_shows_extended(page):
+    circular = Fab(icon='add', label='New')
+    extended = Fab(icon='add', label='Create', variant='extended')
+    serve_component(page, Row(circular, extended))
+
+    expect(page.get_by_role('button', name='New')).not_to_contain_text('New')
+    expect(page.get_by_role('button', name='Create')).to_contain_text('Create')
