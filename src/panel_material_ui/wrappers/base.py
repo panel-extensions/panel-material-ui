@@ -4,7 +4,7 @@ import typing as t
 from collections.abc import Awaitable, Callable
 
 import param
-from panel.viewable import Child
+from panel.viewable import Child, Children
 from panel.widgets.button import _ClickButton
 
 from ..base import COLORS, ColorType, MaterialComponent
@@ -304,3 +304,95 @@ class Tooltip(Wrapper):
         The text to display inside the tooltip.""")
 
     _esm_base = "Tooltip.jsx"
+
+
+class Fullscreen(Wrapper):
+    """
+    The `Fullscreen` wrapper lets its child cover the whole screen and
+    return to its place in the page.
+
+    Setting `active` (or clicking the built-in toggle button) lays the
+    child over the browser window and, where the browser offers the
+    Fullscreen API, puts the page into real full screen. Leaving full
+    screen in the browser (Escape, the browser's own controls) sets
+    `active` back to False. Where full screen is unavailable or refused,
+    e.g. on iPhone Safari, the child covers the browser window instead.
+
+    Browsers only grant full screen in response to a user gesture, so
+    toggles are handled in the browser: the built-in button, clicks on
+    elements inside the child with the `pmui-fullscreen-toggle` or
+    `pmui-fullscreen-exit` CSS class, clicks anywhere on the page on
+    elements with the `toggle_class`, and a `pmui:fullscreen` event
+    dispatched on the document (e.g. by a keyboard shortcut).
+
+    :References:
+
+    - https://panel-material-ui.holoviz.org/reference/wrappers/Fullscreen.html
+    - https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
+
+    :Example:
+
+    >>> Fullscreen(Paper(..., sizing_mode="stretch_both"), height=400)
+    """
+
+    TOGGLE_CLASS: t.ClassVar[str] = "pmui-fullscreen-toggle"
+    EXIT_CLASS: t.ClassVar[str] = "pmui-fullscreen-exit"
+    KEEP_CLASS: t.ClassVar[str] = "pmui-fullscreen-keep"
+    TOGGLE_EVENT: t.ClassVar[str] = "pmui:fullscreen"
+
+    active = param.Boolean(default=False, doc="""
+        Whether the child covers the screen.""")
+
+    disabled = param.Boolean(default=False, doc="""
+        Whether entering full screen is disabled.""")
+
+    hide_delay = param.Integer(default=2500, bounds=(0, None), allow_None=True, doc="""
+        Milliseconds without pointer or keyboard activity after which the
+        toolbar and the pointer are hidden in full screen. None keeps
+        them visible.""")
+
+    inert = param.Boolean(default=True, doc="""
+        Whether the rest of the page is made inert while in full screen, so
+        focus, clicks and screen readers only reach the child and the
+        dialogs, menus and notifications it opens. Elements carrying the
+        `pmui-fullscreen-keep` CSS class stay live.""")
+
+    label = param.String(default="Full screen controls", doc="""
+        The accessible name of the toolbar.""")
+
+    native = param.Boolean(default=False, readonly=True, doc="""
+        Whether the page is in the browser's real full screen, as opposed
+        to the child covering the browser window. Set by the browser.""")
+
+    placement: t.Literal['top-left', 'top-right', 'bottom-left', 'bottom-right'] = param.Selector(
+        default="top-right",
+        objects=["top-left", "top-right", "bottom-left", "bottom-right"],
+        doc="""
+        Where the toggle button and toolbar are placed over the child.""")  # type: ignore[assignment]
+
+    show_button = param.Boolean(default=True, doc="""
+        Whether to show the toggle button. When hidden, toggle with the
+        `toggle_class`, the `pmui-fullscreen-toggle` CSS class or `active`.""")
+
+    supported = param.Boolean(default=False, readonly=True, doc="""
+        Whether the browser offers real full screen for the page. Set by
+        the browser.""")
+
+    toggle_class = param.String(default="", doc="""
+        A CSS class marking toggles of this wrapper anywhere on the page,
+        e.g. a Full screen button in an app bar outside the child.""")
+
+    toolbar = Children(default=[], doc="""
+        Components shown next to the toggle button while in full screen,
+        e.g. a title or a status indicator.""")
+
+    _esm_base = "Fullscreen.jsx"
+
+    def toggle(self):
+        """
+        Toggle full screen from the server.
+
+        Full screen requested outside a user gesture may be refused by the
+        browser, in which case the child covers the browser window.
+        """
+        self.active = not self.active

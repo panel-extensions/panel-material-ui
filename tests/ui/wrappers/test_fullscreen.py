@@ -1,0 +1,224 @@
+import pytest
+
+pytest.importorskip('playwright')
+
+from panel.tests.util import serve_component, wait_until
+from panel_material_ui.layout import Column, Paper
+from panel_material_ui.pane import Typography
+from panel_material_ui.widgets import Button, TextInput
+from panel_material_ui.wrappers import Fullscreen
+from playwright.sync_api import expect
+
+pytestmark = pytest.mark.ui
+
+
+def _app(**params):
+    paper = Paper(Typography("Dashboard"), sizing_mode="stretch_both")
+    wrapper = Fullscreen(paper, height=200, width=300, **params)
+    header = Button(label="Outside")
+    return Column(header, wrapper), wrapper
+
+
+def _native(page):
+    return page.evaluate("(document.fullscreenElement ?? null) !== null")
+
+
+def _covers(page):
+    viewport = page.viewport_size
+    box = page.locator("[data-pmui-fullscreen]").bounding_box()
+    return box == {"x": 0, "y": 0, "width": viewport["width"], "height": viewport["height"]}
+
+
+def test_fullscreen_button_enters_and_browser_exit_syncs_back(page):
+    layout, wrapper = _app()
+    serve_component(page, layout)
+
+    wait_until(lambda: wrapper.supported, page)
+    page.get_by_role("button", name="Enter full screen").click()
+    wait_until(lambda: wrapper.active and wrapper.native, page)
+    wait_until(lambda: _native(page), page)
+    wait_until(lambda: _covers(page), page)
+    expect(page.get_by_role("button", name="Exit full screen")).to_be_attached()
+
+    page.evaluate("document.exitFullscreen()")
+    wait_until(lambda: not wrapper.active and not wrapper.native, page)
+    expect(page.locator("[data-pmui-fullscreen]")).to_have_count(0)
+
+
+def test_fullscreen_exit_button_leaves(page):
+    layout, wrapper = _app()
+    serve_component(page, layout)
+
+    page.get_by_role("button", name="Enter full screen").click()
+    wait_until(lambda: wrapper.native, page)
+    page.mouse.move(100, 100)
+    page.get_by_role("button", name="Exit full screen").click()
+    wait_until(lambda: not wrapper.active, page)
+    wait_until(lambda: not _native(page), page)
+
+
+def test_fullscreen_active_from_server_covers_window(page):
+    layout, wrapper = _app()
+    serve_component(page, layout)
+
+    wrapper.active = True
+    wait_until(lambda: _covers(page), page)
+    page.evaluate("document.fullscreenElement && document.exitFullscreen()")
+    wait_until(lambda: not wrapper.active, page)
+    expect(page.locator("[data-pmui-fullscreen]")).to_have_count(0)
+
+
+def test_fullscreen_escape_while_typing_does_not_leave(page):
+    paper = Paper(TextInput(label="Name"), sizing_mode="stretch_both")
+    wrapper = Fullscreen(paper, height=200, width=300, active=True)
+    serve_component(page, wrapper)
+
+    wait_until(lambda: _covers(page), page)
+    page.get_by_label("Name").click()
+    page.keyboard.press("Escape")
+    page.wait_for_timeout(200)
+    assert wrapper.active
+
+
+def test_fullscreen_without_api_covers_window(page):
+    # As on iPhone Safari, which offers no full screen for elements.
+    page.add_init_script("""
+      for (const name of ["fullscreenEnabled", "webkitFullscreenEnabled"]) {
+        Object.defineProperty(Document.prototype, name, {get: () => false})
+      }
+    """)
+    layout, wrapper = _app()
+    serve_component(page, layout)
+
+    page.get_by_role("button", name="Enter full screen").click()
+    wait_until(lambda: wrapper.active, page)
+    wait_until(lambda: _covers(page), page)
+    assert not wrapper.supported
+    assert not _native(page)
+    assert page.evaluate("document.documentElement.style.overflow") == "hidden"
+
+    # Escape leaves the cover, as the browser does for real full screen.
+    page.keyboard.press("Escape")
+    wait_until(lambda: not wrapper.active, page)
+    expect(page.locator("[data-pmui-fullscreen]")).to_have_count(0)
+    assert page.evaluate("document.documentElement.style.overflow") == ""
+
+
+def test_fullscreen_makes_rest_of_page_inert(page):
+    layout, wrapper = _app()
+    serve_component(page, layout)
+
+    outside = page.get_by_role("button", name="Outside")
+    expect(outside).to_be_visible()
+    wrapper.active = True
+    wait_until(lambda: _covers(page), page)
+    wait_until(lambda: page.evaluate("""() => {
+      const inert = [];
+      const walk = (root) => root.querySelectorAll("*").forEach((el) => {
+        if (el.inert) inert.push(el);
+        if (el.shadowRoot) walk(el.shadowRoot);
+      });
+      walk(document);
+      return inert.length > 0;
+    }"""), page)
+
+    wrapper.active = False
+    wait_until(lambda: page.evaluate("""() => {
+      let found = false;
+      const walk = (root) => root.querySelectorAll("*").forEach((el) => {
+        if (el.inert) found = true;
+        if (el.shadowRoot) walk(el.shadowRoot);
+      });
+      walk(document);
+      return !found;
+    }"""), page)
+    outside.click()
+
+
+def test_fullscreen_toggle_class_outside(page):
+    header = Button(label="Present", css_classes=["present-toggle"])
+    wrapper = Fullscreen(
+        Paper(Typography("Dashboard"), sizing_mode="stretch_both"),
+        height=200, width=300, show_button=False, toggle_class="present-toggle",
+    )
+    serve_component(page, Column(header, wrapper))
+
+    expect(page.get_by_role("button", name="Enter full screen")).to_have_count(0)
+    page.get_by_role("button", name="Present").click()
+    wait_until(lambda: wrapper.native, page)
+    # The page outside is inert in full screen, so the toggle there no longer takes clicks.
+    page.evaluate("document.exitFullscreen()")
+    wait_until(lambda: not wrapper.active and not wrapper.native, page)
+
+
+def test_fullscreen_toggle_event(page):
+    layout, wrapper = _app()
+    serve_component(page, layout)
+
+    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen', {cancelable: true}))")
+    wait_until(lambda: wrapper.active, page)
+    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen', {cancelable: true}))")
+    wait_until(lambda: not wrapper.active, page)
+
+
+def test_fullscreen_exit_class_inside(page):
+    exit_button = Button(label="Done", css_classes=[Fullscreen.EXIT_CLASS])
+    wrapper = Fullscreen(
+        Paper(exit_button, sizing_mode="stretch_both"), height=200, width=300, active=True,
+    )
+    serve_component(page, wrapper)
+
+    wait_until(lambda: _covers(page), page)
+    page.get_by_role("button", name="Done").click()
+    wait_until(lambda: not wrapper.active, page)
+
+
+def test_fullscreen_disabled_blocks_entering(page):
+    layout, wrapper = _app(disabled=True)
+    serve_component(page, layout)
+
+    expect(page.get_by_role("button", name="Enter full screen")).to_be_disabled()
+    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen', {cancelable: true}))")
+    page.wait_for_timeout(200)
+    assert not wrapper.active
+
+
+def test_fullscreen_toolbar_hides_while_idle(page):
+    wrapper = Fullscreen(
+        Paper(Typography("Dashboard"), sizing_mode="stretch_both"),
+        toolbar=[Typography("Status OK")], hide_delay=1000, height=200, width=300, label="Report toolbar",
+    )
+    serve_component(page, wrapper)
+
+    expect(page.get_by_text("Status OK")).to_have_count(0)
+    wrapper.active = True
+    overlay = page.get_by_role("region", name="Report toolbar")
+    page.mouse.move(150, 150)
+    expect(overlay).to_contain_text("Status OK")
+    expect(overlay).to_have_css("opacity", "1")
+    page.mouse.move(10, 10)
+    expect(overlay).to_have_css("opacity", "0")
+    page.mouse.move(150, 150)
+    expect(overlay).to_have_css("opacity", "1")
+
+
+def test_fullscreen_uses_theme_background(page):
+    wrapper = Fullscreen(
+        Typography("Dashboard"), height=200, width=300, active=True, dark_theme=True,
+    )
+    serve_component(page, wrapper)
+
+    wait_until(lambda: _covers(page), page)
+    background = page.locator("[data-pmui-fullscreen]").evaluate("el => getComputedStyle(el).backgroundColor")
+    assert background == "rgb(18, 18, 18)"
+
+
+def test_fullscreen_stretches_responsive_child_beyond_fixed_height(page):
+    layout, wrapper = _app()
+    serve_component(page, layout)
+
+    wrapper.active = True
+    wait_until(lambda: _covers(page), page)
+    viewport = page.viewport_size
+    paper = page.locator(".MuiPaper-root").first
+    wait_until(lambda: paper.bounding_box()["height"] == viewport["height"], page)
