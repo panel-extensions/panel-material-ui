@@ -101,3 +101,17 @@ def test_input_params_ignores_managed_keys():
     # dynamic update should also skip managed keys
     chat.input_params = {"sizing_mode": "fixed", "placeholder": "Updated"}
     assert chat._widget.placeholder == "Updated"
+
+
+def test_chat_interface_send_event_loop_is_closed_after_test():
+    from tests.conftest import _current_event_loop, closing_leaked_event_loop
+
+    before = _current_event_loop()
+    with closing_leaked_event_loop():
+        chat = ChatInterface(callback=lambda contents, user, instance: "Reply")
+        chat.send("Hello")
+        leaked = _current_event_loop()
+    assert chat.objects[-1].object == "Reply"
+    assert leaked is not before
+    assert leaked.is_closed()
+    assert _current_event_loop() is before

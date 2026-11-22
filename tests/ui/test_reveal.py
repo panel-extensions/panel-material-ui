@@ -11,8 +11,8 @@ from playwright.sync_api import expect
 pytestmark = pytest.mark.ui
 
 
-def _app():
-    reveal = Reveal(color="error", duration=400)
+def _app(duration=400):
+    reveal = Reveal(color="error", duration=duration)
     cards = [
         Paper(Typography(f"Card {i}"), height=300, width=200, css_classes=["late"] if i in (6, 8) else [])
         for i in range(10)
@@ -76,11 +76,14 @@ def test_reveal_focus_moves_keyboard_focus(page):
 
 def test_reveal_reduced_motion_jumps(page):
     page.emulate_media(reduced_motion="reduce")
-    layout, reveal = _app()
+    # The outline and its transition are removed after `duration`, so keep
+    # them long enough to observe on a slow runner.
+    layout, reveal = _app(duration=10_000)
     serve_component(page, layout)
 
     reveal.scroll_to("late")
     expect(page.get_by_text("Card 6")).to_be_in_viewport()
+    wait_until(lambda: "solid" in (_outline(page, "Card 6") or ""), page)
     transition = page.get_by_text("Card 6").evaluate("""el => {
       let node = el;
       while (node && !node.classList?.contains("late")) node = node.parentNode ?? node.host;

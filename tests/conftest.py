@@ -1,11 +1,13 @@
 """
 A module containing testing utilities and fixtures.
 """
+import asyncio
 import os
 import re
 import socket
 import unittest
 
+from contextlib import contextmanager
 from functools import cache
 
 import pytest
@@ -133,6 +135,38 @@ def cleanup_panel_servers():
         yield
     finally:
         state.reset()
+
+
+def _current_event_loop():
+    get_policy = getattr(asyncio.events, '_get_event_loop_policy', None) or asyncio.get_event_loop_policy
+    return getattr(getattr(get_policy(), '_local', None), '_loop', None)
+
+
+@contextmanager
+def closing_leaked_event_loop():
+    """
+    Close an event loop that was created and set as the current loop
+    inside the block and left open, e.g. by Panel's async_execute when a
+    callback runs outside a server session (ChatInterface.send).
+
+    Otherwise the loop stays the thread's current loop until something
+    replaces it, and Python 3.10 then reports it as garbage collected
+    without being closed in whichever test happens to collect it.
+    """
+    before = _current_event_loop()
+    try:
+        yield
+    finally:
+        loop = _current_event_loop()
+        if not (loop is None or loop is before or loop.is_running() or loop.is_closed()):
+            loop.close()
+            asyncio.set_event_loop(before)
+
+
+@pytest.fixture(autouse=True)
+def close_leaked_event_loop():
+    with closing_leaked_event_loop():
+        yield
 
 
 PORT = [get_default_port()]
