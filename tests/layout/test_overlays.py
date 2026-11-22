@@ -46,7 +46,7 @@ def test_drawer_remove_on_transition():
     assert events == []
 
 
-def test_drawer_on_transition_async_callback():
+async def test_drawer_on_transition_async_callback():
     drawer = Drawer('Content')
     events = []
 
@@ -54,10 +54,6 @@ def test_drawer_on_transition_async_callback():
         events.append(open)
 
     drawer.on_transition(callback)
-
-    async def run():
-        drawer._handle_msg({'type': 'transition', 'open': True})
-        await asyncio.sleep(0.05)
-
-    asyncio.run(run())
+    drawer._handle_msg({'type': 'transition', 'open': True})
+    await asyncio.sleep(0.05)
     assert events == [True]
