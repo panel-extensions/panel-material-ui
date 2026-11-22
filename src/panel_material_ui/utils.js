@@ -1,8 +1,13 @@
 import * as React from "react"
 import Icon from "@mui/material/Icon"
-import {grey} from "@mui/material/colors"
+import {blue, grey} from "@mui/material/colors"
 import {createTheme} from "@mui/material/styles"
 import {deepmerge} from "@mui/utils"
+import {elevated_surface, primary_text_color} from "./theme_colors"
+
+// Menus, popovers and dialogs sit at elevation 8 or above; the primary text
+// tint must stay readable on them, not only on the page background.
+const TEXT_SURFACE_ELEVATION = 8
 
 export const int_regex = /^[-+]?\d*$/
 // Accepts partial input like "-", "." or "1." while typing, and exponent
@@ -87,6 +92,7 @@ export function render_theme_css(theme) {
   return `
     :root, :host {
       --panel-primary-color: ${theme.palette.primary.main};
+      --pmui-dark-link-color: ${dark && theme.palette.primary.text ? theme.palette.primary.text : "initial"};
       --panel-on-primary-color: ${theme.palette.primary.contrastText};
       --panel-secondary-color: ${theme.palette.default.dark};
       --panel-on-secondary-color: ${theme.palette.text.secondary};
@@ -1111,7 +1117,41 @@ function cached_theme(props, theme_config, dark_theme) {
   return theme
 }
 
+// In dark mode, primary coloured text (text and outlined buttons, links,
+// typography, selected tabs and toggles, outlined chips, icon buttons, focused
+// input labels and outlines) uses
+// palette.primary.text, a tint of the primary that stays readable on the dark
+// background, while fills keep primary.main.
+const PRIMARY_TEXT = "var(--mui-palette-primary-text)"
+const PRIMARY_TEXT_MUTED = `color-mix(in srgb, ${PRIMARY_TEXT} 70%, transparent)`
+
+const dark_only = (dark_theme, items) => dark_theme ? items : []
+
+// Adds palette.primary.text unless the theme config sets it. It equals
+// primary.main in light mode; in dark mode see primary_text_color.
+function with_primary_text(config, dark_theme) {
+  const palette = config.palette
+  const primary = palette.primary ?? {}
+  if (primary.text != null) {
+    return config
+  }
+  const main = primary.main ?? primary[500]
+  const defaults = dark_theme ? {main: blue[200], light: blue[50], dark: blue[400]} : {main: blue[700], light: blue[400], dark: blue[800]}
+  const resolved = main ?? defaults.main
+  const background = palette.background ?? {}
+  const paper = background.paper ?? "#121212"
+  const text = dark_theme ? primary_text_color(
+    resolved, [background.default ?? "#121212", paper, elevated_surface(paper, TEXT_SURFACE_ELEVATION)]
+  ) : resolved
+  return {...config, palette: {...palette, primary: {...(main == null ? defaults : {}), ...primary, text}}}
+}
+
 export function render_theme_config(props, theme_config, dark_theme) {
+  const config = theme_config == null ? base_theme_config(props, dark_theme) : deepmerge(base_theme_config(props, dark_theme), theme_config)
+  return with_primary_text(config, dark_theme)
+}
+
+function base_theme_config(props, dark_theme) {
   const container = overlay_container(props.view.container)
   const config = {
     cssVariables: {
@@ -1174,6 +1214,10 @@ export function render_theme_config(props, theme_config, dark_theme) {
                   color: `var(--mui-palette-default-${dark_theme ? "main" : "dark"})`,
                 },
               },
+              ...dark_only(dark_theme, [{
+                props: {color: "primary"},
+                style: {color: PRIMARY_TEXT},
+              }]),
             ],
           },
         },
@@ -1215,6 +1259,10 @@ export function render_theme_config(props, theme_config, dark_theme) {
               backgroundColor: "var(--mui-palette-default-light)",
               color: "var(--mui-palette-default-dark)",
             },
+            variants: dark_only(dark_theme, [{
+              props: {color: "primary"},
+              style: {"&.Mui-selected": {color: PRIMARY_TEXT}},
+            }]),
           },
         },
       },
@@ -1233,9 +1281,80 @@ export function render_theme_config(props, theme_config, dark_theme) {
           root: {
             "&.MuiTab-textColorDefault": {
               color: "var(--mui-palette-default-main)"
-            }
+            },
+            ...(dark_theme && {
+              "&.MuiTab-textColorPrimary.Mui-selected": {color: PRIMARY_TEXT},
+            }),
           }
         }
+      },
+      MuiTabs: {
+        styleOverrides: {
+          indicator: {
+            variants: dark_only(dark_theme, [{
+              props: {indicatorColor: "primary"},
+              style: {backgroundColor: PRIMARY_TEXT},
+            }]),
+          },
+        },
+      },
+      MuiTypography: {
+        styleOverrides: {
+          root: {
+            variants: dark_only(dark_theme, [{
+              props: {color: "primary"},
+              style: {color: PRIMARY_TEXT},
+            }]),
+          },
+        },
+      },
+      MuiFormLabel: {
+        styleOverrides: {
+          root: {
+            variants: dark_only(dark_theme, [{
+              props: {color: "primary"},
+              style: {"&.Mui-focused": {color: PRIMARY_TEXT}},
+            }]),
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            variants: dark_only(dark_theme, [{
+              props: {color: "primary"},
+              style: {"&.Mui-focused:not(.Mui-error) .MuiOutlinedInput-notchedOutline": {borderColor: PRIMARY_TEXT}},
+            }]),
+          },
+        },
+      },
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            variants: dark_only(dark_theme, [{
+              props: {color: "primary"},
+              // Link applies its color through sx, which only a more specific selector beats.
+              style: {
+                "&&": {color: PRIMARY_TEXT},
+                "--Link-underlineColor": `color-mix(in srgb, ${PRIMARY_TEXT} 40%, transparent)`,
+              },
+            }]),
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            variants: dark_only(dark_theme, [{
+              props: {variant: "outlined", color: "primary"},
+              style: {
+                color: PRIMARY_TEXT,
+                "& .MuiChip-deleteIcon": {color: PRIMARY_TEXT_MUTED},
+                "& .MuiChip-deleteIcon:hover": {color: PRIMARY_TEXT},
+              },
+            }]),
+          },
+        },
       },
       MuiButton: {
         styleOverrides: {
@@ -1273,6 +1392,16 @@ export function render_theme_config(props, theme_config, dark_theme) {
                   },
                 },
               },
+              ...dark_only(dark_theme, [
+                {
+                  props: {variant: "text", color: "primary"},
+                  style: {"--variant-textColor": PRIMARY_TEXT},
+                },
+                {
+                  props: {variant: "outlined", color: "primary"},
+                  style: {"--variant-outlinedColor": PRIMARY_TEXT},
+                },
+              ]),
             ],
             textTransform: "none",
           },
@@ -1286,9 +1415,6 @@ export function render_theme_config(props, theme_config, dark_theme) {
         }
       }
     }
-  }
-  if (theme_config != null) {
-    return deepmerge(config, theme_config)
   }
   return config
 }
@@ -1470,7 +1596,7 @@ export const install_theme_hooks = (props) => {
             theme_configs.push({
               palette: {
                 default: {main: header_bg},
-                primary: {main: header_bg, contrastText: header_color},
+                primary: {main: header_bg, contrastText: header_color, text: header_bg},
                 background: {
                   default: header_color,
                   paper: header_color

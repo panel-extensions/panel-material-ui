@@ -6,9 +6,9 @@ import panel as pn
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
-from panel_material_ui.layout import Column, Row
+from panel_material_ui.layout import Column, Row, Tabs
 from panel_material_ui.template import Page, ThemeToggle
-from panel_material_ui.widgets import Button
+from panel_material_ui.widgets import Button, Chip, RadioButtonGroup, TextInput
 
 pytestmark = pytest.mark.ui
 
@@ -250,3 +250,66 @@ def test_invalid_theme_config_falls_back_and_recovers(page):
 
     bad.theme_config = {'palette': {'primary': {'main': '#ff0000'}}}
     expect(page.locator(".MuiButton-root").first).to_have_css("background-color", "rgb(255, 0, 0)")
+
+
+PRIMARY = {'palette': {'primary': {'main': '#0072B5'}}}
+PRIMARY_RGB = "rgb(0, 114, 181)"
+PRIMARY_TEXT_RGB = "rgb(89, 163, 207)"
+
+
+def _primary_components(dark, theme_config=PRIMARY):
+    return Column(
+        Button(label="Text", variant="text"),
+        Button(label="Outlined", variant="outlined"),
+        Button(label="Contained", variant="contained"),
+        Tabs(("A", "a"), ("B", "b")),
+        RadioButtonGroup(options=["X", "Y"], value="X", variant="outlined"),
+        Chip(label="Chip", variant="outlined"),
+        TextInput(label="Name"),
+        pn.pane.Markdown("A [link](https://holoviz.org)"),
+        dark_theme=dark, theme_config=theme_config,
+    )
+
+
+def _expect_primary_colors(page, text, fill):
+    buttons = page.locator(".MuiButton-root")
+    expect(buttons.nth(0)).to_have_css("color", text)
+    expect(buttons.nth(1)).to_have_css("color", text)
+    expect(buttons.nth(2)).to_have_css("background-color", fill)
+    expect(page.locator(".MuiTab-root.Mui-selected")).to_have_css("color", text)
+    expect(page.locator(".MuiTabs-indicator")).to_have_css("background-color", text)
+    expect(page.locator(".MuiToggleButton-root.Mui-selected")).to_have_css("color", text)
+    expect(page.locator(".MuiChip-root")).to_have_css("color", text)
+    page.locator(".MuiInputBase-input").click()
+    expect(page.locator(".MuiInputLabel-root.Mui-focused")).to_have_css("color", text)
+    expect(page.locator(".Mui-focused .MuiOutlinedInput-notchedOutline")).to_have_css("border-top-color", text)
+
+
+def _expect_link_color(page, color):
+    expect(page.locator(".markdown a")).to_have_css("color", color)
+
+
+def test_light_primary_text_is_unchanged(page):
+    serve_component(page, _primary_components(False))
+    _expect_primary_colors(page, PRIMARY_RGB, PRIMARY_RGB)
+    _expect_link_color(page, PRIMARY_RGB)
+
+
+def test_dark_primary_text_uses_tint(page):
+    serve_component(page, _primary_components(True))
+    _expect_primary_colors(page, PRIMARY_TEXT_RGB, PRIMARY_RGB)
+    _expect_link_color(page, PRIMARY_TEXT_RGB)
+
+
+def test_dark_primary_text_follows_theme_toggle(page):
+    toggle = ThemeToggle()
+    serve_component(page, Column(toggle, _primary_components(False)))
+    _expect_primary_colors(page, PRIMARY_RGB, PRIMARY_RGB)
+    page.locator('[aria-label="Toggle theme"]').click()
+    _expect_primary_colors(page, PRIMARY_TEXT_RGB, PRIMARY_RGB)
+
+
+def test_dark_primary_text_can_be_overridden(page):
+    config = {'palette': {'primary': {'main': '#0072B5', 'text': '#ff00ff'}}}
+    serve_component(page, _primary_components(True, config))
+    _expect_primary_colors(page, "rgb(255, 0, 255)", PRIMARY_RGB)

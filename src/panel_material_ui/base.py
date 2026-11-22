@@ -447,6 +447,7 @@ class MaterialComponent(ReactComponent):
     _esm_base: t.ClassVar[str | pathlib.Path | None] = None
     _esm_shared = {
         'utils': BASE_PATH / "utils.js",
+        'theme_colors': BASE_PATH / "theme_colors.js",
         'menu': BASE_PATH / "menu.jsx",
         'description': BASE_PATH / 'description.jsx'
     }

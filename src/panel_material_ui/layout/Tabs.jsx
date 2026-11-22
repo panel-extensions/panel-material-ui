@@ -103,7 +103,7 @@ export function render({model, view}) {
       slotProps={{
         indicator: {
           sx: {
-            backgroundColor: paletteEntry.main,
+            backgroundColor: theme.palette.mode === "dark" ? (paletteEntry.text ?? paletteEntry.main) : paletteEntry.main,
             ...(location === "right" && {left: 0, right: "auto", width: 3}),
             ...(location === "bottom" && {top: 0, bottom: "auto", height: 3}),
           },
