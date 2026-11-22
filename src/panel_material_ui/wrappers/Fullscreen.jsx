@@ -255,9 +255,16 @@ class Controller {
       this.release()
     }
     // Focus moves into the child; a tabindex on the host itself would take
-    // its whole shadow tree out of the tab order.
+    // its whole shadow tree out of the tab order. The box is only focusable
+    // until the focus moves on or the pointer is pressed, or a click on any
+    // text in the child would focus the box and Tab would start over at the
+    // child's first control.
     const box = root?.querySelector(".pmui-fullscreen")
     if (box && !focusPath().includes(host)) {
+      const unfocusable = () => box.removeAttribute("tabindex")
+      box.setAttribute("tabindex", "-1")
+      box.addEventListener("blur", unfocusable, {once: true})
+      box.addEventListener("pointerdown", unfocusable, {once: true, capture: true})
       box.focus({preventScroll: true})
     }
   }
@@ -605,7 +612,6 @@ export function render({model, view}) {
     <Box
       ref={rootRef}
       className="pmui-fullscreen"
-      tabIndex={-1}
       sx={{
         outline: "none",
         position: "relative",
