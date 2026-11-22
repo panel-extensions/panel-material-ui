@@ -4,7 +4,7 @@ pytest.importorskip('playwright')
 
 from panel_material_ui.layout import Drawer, Column
 from panel_material_ui.widgets import Button
-from panel.tests.util import serve_component
+from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
 
 pytestmark = pytest.mark.ui
@@ -72,7 +72,7 @@ def test_drawer_with_button_interaction(page):
     # Button should be clickable inside drawer
     drawer_button = page.locator('.MuiDrawer-paper button')
     drawer_button.click()
-    assert button.clicks == 1
+    wait_until(lambda: button.clicks == 1, page)
 
 def test_drawer_multiple_objects(page):
     content1 = Column("Content 1")

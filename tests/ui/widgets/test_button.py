@@ -63,7 +63,7 @@ def test_button_handle_click(page):
     serve_component(page, widget)
     button = page.locator('.button')
     button.click()
-    assert widget.clicks == 1
+    wait_until(lambda: widget.clicks == 1, page)
 
 def test_icon_button(page):
     widget = IconButton(

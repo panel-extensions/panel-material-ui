@@ -68,7 +68,7 @@ def test_menu_list_selection(page):
     list_items = page.locator('.MuiListItemButton-root')
     list_items.nth(1).click()
 
-    assert widget.active == (1,)
+    wait_until(lambda: widget.active == (1,), page)
     assert widget.value == items[1]
 
 def test_menu_list_basic_functionality(page):
