@@ -1,8 +1,11 @@
 import Fab from "@mui/material/Fab"
-import {render_icon, render_icon_text, render_icon_text_as_string} from "./utils"
+import {render_badge, render_icon, render_icon_text, render_icon_text_as_string, useAria} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
+  const [badge] = model.useState("badge")
+  const [badge_color] = model.useState("badge_color")
+  const [badge_max] = model.useState("badge_max")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [end_icon] = model.useState("end_icon")
@@ -16,6 +19,7 @@ export function render(props, ref) {
   const [target] = model.useState("target")
   const [variant] = model.useState("variant")
 
+  const aria = useAria(model)
   const padding = variant === "extended" ? "1.2em" : "0.2em"
 
   if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
@@ -40,9 +44,10 @@ export function render(props, ref) {
       sx={sx}
       target={target}
       variant={variant}
+      {...aria}
       {...other}
     >
-      {icon && render_icon(icon, null, null, icon_size, null, {pr: padding})}
+      {icon && render_badge(render_icon(icon, null, null, icon_size, null, {pr: padding}), badge, badge_color, badge_max)}
       {variant === "extended" && render_icon_text(label)}
       {end_icon && render_icon(end_icon, null, null, icon_size, null, {pl: padding})}
     </Fab>

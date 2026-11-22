@@ -68,7 +68,48 @@ class _ButtonLike(MaterialWidget):
         return params
 
 
-class _ButtonBase(_ButtonLike, _PnButtonBase):
+class _AriaMixin(param.Parameterized):
+    """
+    Mixin adding ARIA attributes to a widget's interactive element.
+    """
+
+    aria = param.Dict(default={}, doc="""
+        Further ARIA attributes of the widget's interactive element, e.g.
+        ``{"controls": "settings-panel", "haspopup": "dialog"}``. Keys may be
+        given with or without the ``aria-`` prefix and booleans are written
+        as ``"true"`` or ``"false"``.""")
+
+    aria_expanded = param.Boolean(default=None, allow_None=True, doc="""
+        Whether the element this widget controls, e.g. a menu, dialog or
+        drawer, is expanded. Sets ``aria-expanded`` when not None.""")
+
+    aria_label = param.String(default=None, doc="""
+        Accessible name of the widget, read by screen readers instead of its
+        visible label. Useful for icon-only buttons and to include state
+        that is only shown visually, such as a badge count.""")
+
+    __abstract = True
+
+
+class _BadgeMixin(param.Parameterized):
+    """
+    Mixin adding a badge to a button.
+    """
+
+    badge = param.ClassSelector(default=None, class_=(int, str), doc="""
+        Content of a badge shown on the button's icon, e.g. a count of
+        pending items. A count of 0 or None hides the badge.""")
+
+    badge_color: ColorType = param.Selector(objects=COLORS, default="error", doc="""
+        The color of the badge.""")  # type: ignore[assignment]
+
+    badge_max = param.Integer(default=99, bounds=(1, None), doc="""
+        Largest count shown on the badge; larger counts show as e.g. 99+.""")
+
+    __abstract = True
+
+
+class _ButtonBase(_AriaMixin, _ButtonLike, _PnButtonBase):
     """
     Abstract base class for Material UI button widgets.
     """
@@ -133,7 +174,7 @@ class _ButtonBase(_ButtonLike, _PnButtonBase):
         return props
 
 
-class Button(_ButtonBase, _ClickButton):
+class Button(_BadgeMixin, _ButtonBase, _ClickButton):
     """
     The `Button` widget allows triggering events when the button is clicked.
 

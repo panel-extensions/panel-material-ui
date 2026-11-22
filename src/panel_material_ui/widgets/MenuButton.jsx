@@ -3,7 +3,7 @@ import Divider from "@mui/material/Divider"
 import MenuItem from "@mui/material/MenuItem"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import {CustomMenu} from "./menu"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text, useAria} from "./utils"
 
 const MENU_BUTTON_BASE_SX = {
   "&.MuiButton-sizeSmall": {py: "6px"}
@@ -27,6 +27,8 @@ export function render(props, ref) {
     [sx]
   )
   const anchorEl = React.useRef(null)
+  const menuId = React.useId()
+  const aria = useAria(model)
 
   if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
     ref = undefined
@@ -40,6 +42,9 @@ export function render(props, ref) {
   return (
     <div ref={ref}>
       <Button
+        aria-controls={open ? menuId : undefined}
+        aria-expanded={String(open)}
+        aria-haspopup="menu"
         color={color}
         disabled={disabled}
         endIcon={<ArrowDropDownIcon />}
@@ -51,12 +56,14 @@ export function render(props, ref) {
         startIcon={icon && render_icon(icon, null, size, icon_size)}
         sx={buttonSx}
         variant={variant}
+        {...aria}
         {...other}
       >
         {render_icon_text(label)}
       </Button>
       <CustomMenu
         anchorEl={() => anchorEl.current}
+        listProps={{id: menuId}}
         open={open}
         onClose={() => setOpen(false)}
         view={view}

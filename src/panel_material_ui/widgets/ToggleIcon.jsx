@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box"
 import Checkbox from "@mui/material/Checkbox"
 import Typography from "@mui/material/Typography"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text, useAria} from "./utils"
 
 const SIZES = {
   small: "1.5em",
@@ -29,6 +29,7 @@ export function render(props, ref) {
   const [value, setValue] = model.useState("value")
   const [sx] = model.useState("sx")
 
+  const aria = useAria(model)
   const standard_size = ["small", "medium", "large"].includes(size)
   const font_size = standard_size ? icon_size : size
   const color_state = disabled ? "disabled" : color
@@ -58,6 +59,7 @@ export function render(props, ref) {
         size={size}
         onClick={(e, newValue) => setValue(!value)}
         sx={checkboxSx}
+        slotProps={{input: aria}}
         {...other}
       />
       {label && (

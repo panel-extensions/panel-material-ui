@@ -2,7 +2,7 @@ import Button from "@mui/material/Button"
 import CircularProgress from "@mui/material/CircularProgress"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import {useTheme} from "@mui/material/styles"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text, useAria} from "./utils"
 
 const FILE_DOWNLOAD_BUTTON_SX = {
   cursor: "var(--pmui-filedownload-cursor, pointer)",
@@ -23,6 +23,7 @@ function dataURItoBlob(dataURI) {
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
+  const aria = useAria(model)
   const [auto] = model.useState("auto")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -124,6 +125,7 @@ export function render(props, ref) {
       sx={buttonSx}
       style={{"--pmui-filedownload-cursor": _syncing ? "not-allowed" : "pointer"}}
       variant={variant}
+      {...aria}
       {...other}
     >
       {auto ? render_icon_text(label) : <a

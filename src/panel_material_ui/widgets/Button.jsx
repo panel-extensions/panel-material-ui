@@ -1,5 +1,5 @@
 import Button from "@mui/material/Button"
-import {render_icon, render_icon_text} from "./utils"
+import {render_badge, render_icon, render_icon_text, useAria} from "./utils"
 
 const BUTTON_BASE_SX = {
   height: "100%",
@@ -9,6 +9,9 @@ const BUTTON_BASE_SX = {
 
 export function render(props, ref) {
   const {model, ...other} = props
+  const [badge] = model.useState("badge")
+  const [badge_color] = model.useState("badge_color")
+  const [badge_max] = model.useState("badge_max")
   const [color] = model.useState("color")
   const [disable_elevation] = model.useState("disable_elevation")
   const [disabled] = model.useState("disabled")
@@ -22,6 +25,7 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const [sx] = model.useState("sx")
   const [target] = model.useState("target")
+  const aria = useAria(model)
   const buttonSx = React.useMemo(
     () => (sx ? [BUTTON_BASE_SX, sx] : BUTTON_BASE_SX),
     [sx]
@@ -49,14 +53,15 @@ export function render(props, ref) {
       onClick={() => model.send_event("click", {})}
       ref={ref}
       size={size}
-      startIcon={icon && render_icon(icon, null, size, icon_size)}
+      startIcon={icon && render_badge(render_icon(icon, null, size, icon_size), badge, badge_color, badge_max)}
       sx={buttonSx}
       style={{"--pmui-starticon-mr": label.length ? "8px" : "0px"}}
       target={target}
       variant={variant}
+      {...aria}
       {...other}
     >
-      {render_icon_text(label)}
+      {icon ? render_icon_text(label) : render_badge(render_icon_text(label), badge, badge_color, badge_max)}
     </Button>
   )
 }

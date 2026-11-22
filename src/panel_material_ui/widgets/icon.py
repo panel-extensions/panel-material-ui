@@ -8,7 +8,7 @@ from panel.links import Callback
 
 from ..base import COLORS, ColorType, LoadingTransform, ThemedTransform, TooltipTransform
 from .base import MaterialWidget
-from .button import _ButtonBase
+from .button import _AriaMixin, _BadgeMixin, _ButtonBase
 
 
 class _ClickableIcon(MaterialWidget):
@@ -42,7 +42,7 @@ class _ClickableIcon(MaterialWidget):
     __abstract = True
 
 
-class ToggleIcon(_ClickableIcon):
+class ToggleIcon(_AriaMixin, _ClickableIcon):
     """
     The `ToggleIcon` widget allows toggling a single condition between True/False states. This
     widget is interchangeable with the `Checkbox` and `Switch` widget.
@@ -77,7 +77,7 @@ class ToggleIcon(_ClickableIcon):
     _esm_base = "ToggleIcon.jsx"
 
 
-class IconButton(_ClickableIcon, _ButtonBase):
+class IconButton(_BadgeMixin, _ClickableIcon, _ButtonBase):
     """
     The `IconButton` widget facilitates event triggering upon button clicks.
 

@@ -32,7 +32,7 @@ export function detect_nb(view) {
  * innermost one. `autoFocus={false}` additionally keeps a menu opened by hover
  * from stealing focus from the menu it was opened from.
  */
-export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMounted, anchorOrigin, transformOrigin, placement, autoFocus, passthrough, paperProps}) {
+export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMounted, anchorOrigin, transformOrigin, placement, autoFocus, passthrough, paperProps, listProps}) {
   const nb = detect_nb(view)
   const unfocused = autoFocus === false
 
@@ -61,6 +61,7 @@ export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMou
           disableRestoreFocus: true,
         } : {})}
         slotProps={{
+          list: listProps,
           root: passthrough ? {sx: {pointerEvents: "none"}} : undefined,
           paper: {
             ...paperProps,
@@ -84,7 +85,7 @@ export function CustomMenu({open, view, anchorEl, onClose, children, sx, keepMou
       {...paperProps}
       sx={{overflowY: "auto", ...sx, ...(passthrough ? {pointerEvents: "auto"} : {}), ...paperProps?.sx}}
     >
-      <MenuList autoFocusItem={open && !unfocused}>
+      <MenuList autoFocusItem={open && !unfocused} {...listProps}>
         {children}
       </MenuList>
     </Paper>

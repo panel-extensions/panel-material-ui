@@ -1,6 +1,6 @@
 import IconButton from "@mui/material/IconButton"
 import {useTheme} from "@mui/material/styles"
-import {render_icon} from "./utils"
+import {render_badge, render_icon, useAria} from "./utils"
 
 const BASE_ICON_BUTTON_SX = {
   width: "100%",
@@ -10,6 +10,9 @@ const BASE_ICON_BUTTON_SX = {
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
   const [active_icon] = model.useState("active_icon")
+  const [badge] = model.useState("badge")
+  const [badge_color] = model.useState("badge_color")
+  const [badge_max] = model.useState("badge_max")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [edge] = model.useState("edge")
@@ -21,6 +24,7 @@ export function render(props, ref) {
   const [target] = model.useState("target")
   const [toggle_duration] = model.useState("toggle_duration")
 
+  const aria = useAria(model)
   const theme = useTheme()
   const [current_icon, setIcon] = React.useState(icon)
   const [color_variant, setColorVariant] = React.useState(null)
@@ -81,9 +85,10 @@ export function render(props, ref) {
       sx={iconButtonSx}
       style={{"--pmui-iconbutton-color": color_variant || "inherit"}}
       target={target}
+      {...aria}
       {...other}
     >
-      {render_icon(current_icon, null, size, icon_size)}
+      {render_badge(render_icon(current_icon, null, size, icon_size), badge, badge_color, badge_max)}
     </IconButton>
   )
 }

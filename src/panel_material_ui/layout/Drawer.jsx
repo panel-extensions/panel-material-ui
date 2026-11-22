@@ -4,6 +4,8 @@ import {apply_flex, child_model, render_icon} from "./utils"
 
 const TAB_SIZE = 24
 const TAB_LENGTH = 48
+// Slightly longer than the drawer's slide and width transitions (225ms).
+const TRANSITION_MS = 260
 
 const anchorToChevron = {
   left: {open: "chevron_left", closed: "chevron_right"},
@@ -122,6 +124,19 @@ export function render({model, view}) {
     model.on("lifecycle:update_layout", handler)
     return () => model.off("lifecycle:update_layout", handler)
   }, [])
+
+  // Tell Python once the drawer has finished opening or closing.
+  const mounted = React.useRef(false)
+  React.useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true
+      return
+    }
+    const timer = setTimeout(() => {
+      model.send_msg({type: "transition", open})
+    }, TRANSITION_MS)
+    return () => clearTimeout(timer)
+  }, [open])
 
   // Update view.el dimensions so Panel's layout system tracks our size when inline.
   React.useEffect(() => {

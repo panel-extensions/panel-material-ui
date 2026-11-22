@@ -5,7 +5,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import ErrorIcon from "@mui/icons-material/Error"
 import TaskAltIcon from "@mui/icons-material/TaskAlt"
 import {useTheme} from "@mui/material/styles"
-import {isFileAccepted, processFilesChunked, render_icon, render_icon_text} from "./utils"
+import {isFileAccepted, processFilesChunked, render_icon, render_icon_text, useAria} from "./utils"
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -30,6 +30,7 @@ const FILE_INPUT_BUTTON_SX = {
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
+  const aria = useAria(model)
   const [accept] = model.useState("accept")
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
@@ -241,6 +242,7 @@ export function render(props, ref) {
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
+      {...aria}
       {...other}
     >
       {render_icon_text(title)}
