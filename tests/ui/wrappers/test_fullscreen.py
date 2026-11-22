@@ -303,3 +303,20 @@ def test_fullscreen_toolbar_does_not_cover_card_header_actions(page):
     expect(toolbar).to_contain_text("Live")
     wait_until(lambda: not _overlaps(toolbar.bounding_box(), chevron.bounding_box()), page)
     chevron.click()
+
+
+def test_fullscreen_tab_order_matches_card_header_order(page):
+    serve_component(page, _card_app())
+
+    toggle = page.get_by_role("button", name="Enter full screen")
+    chevron = page.get_by_role("button", name="show more")
+    wait_until(lambda: toggle.bounding_box()["x"] < chevron.bounding_box()["x"], page)
+    order = []
+    for _ in range(4):
+        page.keyboard.press("Tab")
+        order.append(page.evaluate("""() => {
+          let node = document.activeElement
+          while (node?.shadowRoot?.activeElement) node = node.shadowRoot.activeElement
+          return node?.getAttribute("aria-label") ?? ""
+        }"""))
+    assert order.index("Enter full screen") < order.index("show more"), order

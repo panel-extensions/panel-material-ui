@@ -552,6 +552,55 @@ export function render({model, view}) {
   // In the page the button always shows, so keyboard and touch users find it.
   const overlayVisible = active ? !hidden : true
 
+  // Beside a Card's header actions the overlay comes first in the DOM, so
+  // the tab order follows the visual order: toggle, then the card's own actions.
+  const overlayFirst = anchor != null && placement === "top-right"
+  const overlay = hasOverlay ? (
+    <Box
+      ref={overlayRef}
+      className="pmui-fullscreen-overlay"
+      role="region"
+      aria-label={label}
+      sx={{
+        position: "absolute",
+        zIndex: 2,
+        display: "flex",
+        alignItems: "center",
+        gap: 0.5,
+        p: active && toolbar.length ? 0.5 : 0,
+        borderRadius: "20px",
+        bgcolor: active && toolbar.length ? "background.paper" : "transparent",
+        border: active && toolbar.length ? 1 : 0,
+        borderColor: "divider",
+        boxShadow: active && toolbar.length ? 3 : 0,
+        transition: "opacity 0.2s",
+        opacity: overlayVisible ? 1 : 0,
+        // Hidden in full screen it takes no clicks.
+        pointerEvents: overlayVisible ? "auto" : "none",
+        "@media (prefers-reduced-motion: reduce)": {transition: "none"},
+        ...placementSx(placement, anchor),
+      }}
+    >
+      {active && toolbar}
+      {show_button && (
+        <IconButton
+          aria-label={active ? "Exit full screen" : "Enter full screen"}
+          disabled={disabled && !active}
+          onClick={() => controller.toggle()}
+          size="small"
+          // Low emphasis at rest; a raised button over the child in full screen.
+          sx={active ? (toolbar.length ? {} : {
+            bgcolor: "background.paper",
+            boxShadow: 1,
+            "&:hover": {bgcolor: "background.paper"},
+          }) : {color: "text.secondary"}}
+        >
+          {active ? <FullscreenExitIcon /> : <FullscreenIcon />}
+        </IconButton>
+      )}
+    </Box>
+  ) : null
+
   return (
     <Box
       ref={rootRef}
@@ -566,52 +615,9 @@ export function render({model, view}) {
         ...sx,
       }}
     >
+      {overlayFirst && overlay}
       {object}
-      {hasOverlay && (
-        <Box
-          ref={overlayRef}
-          className="pmui-fullscreen-overlay"
-          role="region"
-          aria-label={label}
-          sx={{
-            position: "absolute",
-            zIndex: 2,
-            display: "flex",
-            alignItems: "center",
-            gap: 0.5,
-            p: active && toolbar.length ? 0.5 : 0,
-            borderRadius: "20px",
-            bgcolor: active && toolbar.length ? "background.paper" : "transparent",
-            border: active && toolbar.length ? 1 : 0,
-            borderColor: "divider",
-            boxShadow: active && toolbar.length ? 3 : 0,
-            transition: "opacity 0.2s",
-            opacity: overlayVisible ? 1 : 0,
-            // Hidden in full screen it takes no clicks.
-            pointerEvents: overlayVisible ? "auto" : "none",
-            "@media (prefers-reduced-motion: reduce)": {transition: "none"},
-            ...placementSx(placement, anchor),
-          }}
-        >
-          {active && toolbar}
-          {show_button && (
-            <IconButton
-              aria-label={active ? "Exit full screen" : "Enter full screen"}
-              disabled={disabled && !active}
-              onClick={() => controller.toggle()}
-              size="small"
-              // Low emphasis at rest; a raised button over the child in full screen.
-              sx={active ? (toolbar.length ? {} : {
-                bgcolor: "background.paper",
-                boxShadow: 1,
-                "&:hover": {bgcolor: "background.paper"},
-              }) : {color: "text.secondary"}}
-            >
-              {active ? <FullscreenExitIcon /> : <FullscreenIcon />}
-            </IconButton>
-          )}
-        </Box>
-      )}
+      {!overlayFirst && overlay}
     </Box>
   )
 }
