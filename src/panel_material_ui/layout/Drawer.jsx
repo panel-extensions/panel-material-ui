@@ -4,6 +4,8 @@ import {apply_flex, child_model, render_icon} from "./utils"
 
 const TAB_SIZE = 24
 const TAB_LENGTH = 48
+// Slightly longer than the drawer's slide and width transitions (225ms).
+const TRANSITION_MS = 260
 
 const anchorToChevron = {
   left: {open: "chevron_left", closed: "chevron_right"},
@@ -92,6 +94,7 @@ export function render({model, view}) {
   const [dockPosition] = model.useState("dock_position")
   const [inline] = model.useState("inline")
   const [open, setOpen] = model.useState("open")
+  const [resize_on_toggle] = model.useState("resize_on_toggle")
   const [size] = model.useState("size")
   const [sx] = model.useState("sx")
   const [variant] = model.useState("variant")
@@ -122,6 +125,23 @@ export function render({model, view}) {
     model.on("lifecycle:update_layout", handler)
     return () => model.off("lifecycle:update_layout", handler)
   }, [])
+
+  // Once the drawer has opened or closed, tell Python and, when it moved
+  // its siblings, the components that only measure on window resizes.
+  const mounted = React.useRef(false)
+  React.useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true
+      return
+    }
+    const timer = setTimeout(() => {
+      if (resize_on_toggle && (inline || variant !== "temporary")) {
+        window.dispatchEvent(new Event("resize"))
+      }
+      model.send_msg({type: "transition", open})
+    }, TRANSITION_MS)
+    return () => clearTimeout(timer)
+  }, [open])
 
   // Update view.el dimensions so Panel's layout system tracks our size when inline.
   React.useEffect(() => {

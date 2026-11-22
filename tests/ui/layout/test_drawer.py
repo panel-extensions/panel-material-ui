@@ -2,10 +2,11 @@ import pytest
 
 pytest.importorskip('playwright')
 
-from panel_material_ui.layout import Drawer, Column
-from panel_material_ui.widgets import Button
 from panel.tests.util import serve_component, wait_until
 from playwright.sync_api import expect
+
+from panel_material_ui.layout import Column, Drawer, Row
+from panel_material_ui.widgets import Button
 
 pytestmark = pytest.mark.ui
 
@@ -83,3 +84,30 @@ def test_drawer_multiple_objects(page):
     drawer = page.locator('.MuiDrawer-paper')
     expect(drawer).to_contain_text("Content 1")
     expect(drawer).to_contain_text("Content 2")
+
+
+def test_drawer_transition_callback_and_resize(page):
+    events = []
+    widget = Drawer("Content", variant="persistent", inline=True)
+    widget.on_transition(events.append)
+    serve_component(page, Row(widget, Column("Main")))
+    page.evaluate("window.__resizes = 0; window.addEventListener('resize', () => window.__resizes++)")
+
+    widget.open = True
+    wait_until(lambda: events == [True], page)
+    assert page.evaluate("window.__resizes") >= 1
+
+    widget.open = False
+    wait_until(lambda: events == [True, False], page)
+
+
+def test_drawer_resize_on_toggle_disabled(page):
+    events = []
+    widget = Drawer("Content", variant="persistent", inline=True, resize_on_toggle=False)
+    widget.on_transition(events.append)
+    serve_component(page, Row(widget, Column("Main")))
+    page.evaluate("window.__resizes = 0; window.addEventListener('resize', () => window.__resizes++)")
+
+    widget.open = True
+    wait_until(lambda: events == [True], page)
+    assert page.evaluate("window.__resizes") == 0

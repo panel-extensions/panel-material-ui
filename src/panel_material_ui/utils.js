@@ -1,4 +1,5 @@
 import * as React from "react"
+import Badge from "@mui/material/Badge"
 import Icon from "@mui/material/Icon"
 import {blue, grey} from "@mui/material/colors"
 import {createTheme} from "@mui/material/styles"
@@ -2672,4 +2673,53 @@ export function useThrottledModelState(model, name, wait = 50) {
   }, [flush, wait])
 
   return [pending === undefined ? modelValue : pending, setThrottled, flush]
+}
+
+function aria_attribute(key) {
+  const name = key.replace(/_/g, "-").toLowerCase()
+  return name.startsWith("aria-") ? name : `aria-${name}`
+}
+
+/**
+ * Collect the ARIA attributes a component declares through its `aria`,
+ * `aria_label` and `aria_expanded` parameters, ready to spread onto an element.
+ *
+ * Keys of `aria` may be given with or without the `aria-` prefix and with
+ * underscores, e.g. `{"haspopup": "dialog", "aria_controls": "panel"}`.
+ * Booleans are written as "true" or "false" and None removes the attribute.
+ */
+export function useAria(model) {
+  const [aria] = model.useState("aria")
+  const [aria_label] = model.useState("aria_label")
+  const [aria_expanded] = model.useState("aria_expanded")
+  return React.useMemo(() => {
+    const props = {}
+    for (const [key, value] of Object.entries(aria || {})) {
+      if (value != null) {
+        props[aria_attribute(key)] = typeof value === "boolean" ? String(value) : value
+      }
+    }
+    if (aria_label) {
+      props["aria-label"] = aria_label
+    }
+    if (aria_expanded != null) {
+      props["aria-expanded"] = String(aria_expanded)
+    }
+    return props
+  }, [aria, aria_label, aria_expanded])
+}
+
+/**
+ * Wrap `child`, usually a button's icon, in a badge showing `badge` unless
+ * it is null, 0 or an empty string.
+ */
+export function render_badge(child, badge, color, max) {
+  if (badge == null || badge === 0 || badge === "") {
+    return child
+  }
+  return (
+    <Badge badgeContent={badge} color={color} max={max} sx={{".MuiBadge-badge": {pointerEvents: "none"}}}>
+      {child}
+    </Badge>
+  )
 }

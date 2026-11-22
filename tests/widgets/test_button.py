@@ -102,3 +102,30 @@ def test_toggle(document, comm):
     assert toggle.value == False
     toggle._process_events({'value': True})
     assert toggle.value == True
+
+
+@pytest.mark.parametrize('widget_type', [Button, Toggle, FileDownload, FileInput, IconButton, MenuButton, MenuToggle, SplitButton])
+def test_button_aria_params_sync(widget_type, document, comm):
+    widget = widget_type(aria_label='Open settings', aria_expanded=False, aria={'controls': 'settings'})
+    model = widget.get_root(document, comm=comm)
+    assert model.data.aria_label == 'Open settings'
+    assert model.data.aria_expanded is False
+    assert model.data.aria == {'controls': 'settings'}
+    widget.aria_expanded = True
+    assert model.data.aria_expanded is True
+
+
+@pytest.mark.parametrize('widget_type', [Button, IconButton])
+def test_button_badge_params_sync(widget_type, document, comm):
+    widget = widget_type(icon='mail', badge=3, badge_color='warning')
+    model = widget.get_root(document, comm=comm)
+    assert model.data.badge == 3
+    assert model.data.badge_color == 'warning'
+    assert model.data.badge_max == 99
+    widget.badge = '!'
+    assert model.data.badge == '!'
+
+
+def test_button_badge_rejects_other_types():
+    with pytest.raises(ValueError):
+        Button(badge=[1])

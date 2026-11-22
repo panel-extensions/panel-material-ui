@@ -5,7 +5,7 @@ import ClickAwayListener from "@mui/material/ClickAwayListener"
 import Divider from "@mui/material/Divider"
 import MenuItem from "@mui/material/MenuItem"
 import {CustomMenu} from "./menu"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text, useAria} from "./utils"
 
 const SPLIT_PRIMARY_BUTTON_SX = {
   borderBottomRightRadius: 0,
@@ -40,6 +40,8 @@ export function render(props, ref) {
   const [open, setOpen] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(active)
   const anchorEl = React.useRef(null)
+  const menuId = React.useId()
+  const aria = useAria(model)
 
   const btnRef = React.useRef(null)
   React.useEffect(() => {
@@ -94,12 +96,13 @@ export function render(props, ref) {
           ref={btnRef}
           sx={primaryButtonSx}
           variant={variant}
+          {...aria}
         >
           {render_icon_text(current_label)}
         </Button>
         <Button
-          aria-controls={open ? "split-button-menu" : undefined}
-          aria-expanded={open ? "true" : undefined}
+          aria-controls={open ? menuId : undefined}
+          aria-expanded={String(open)}
           aria-haspopup="menu"
           color={color}
           disabled={disabled || loading}
@@ -113,6 +116,7 @@ export function render(props, ref) {
       </ButtonGroup>
       <CustomMenu
         anchorEl={() => anchorEl.current}
+        listProps={{id: menuId}}
         open={open}
         onClose={() => setOpen(false)}
         view={view}

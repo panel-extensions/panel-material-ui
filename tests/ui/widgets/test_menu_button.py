@@ -1,10 +1,13 @@
+import re
+
 import pytest
 
 pytest.importorskip("playwright")
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.widgets import MenuButton
 from playwright.sync_api import expect
+
+from panel_material_ui.widgets import MenuButton
 
 pytestmark = pytest.mark.ui
 
@@ -335,3 +338,28 @@ def test_menu_button_update_item_with_color(page):
     assert 'color' in widget.items[0] and widget.items[0]['color'] == 'primary'
 
     expect(page.locator('.MuiMenuItem-root').nth(0).locator('.material-icons')).to_have_text('star')
+
+
+def test_menubutton_aria_follows_menu(page):
+    widget = MenuButton(items=['Option 1', 'Option 2'], label='Menu')
+    serve_component(page, widget)
+
+    button = page.locator('.MuiButton-root')
+    expect(button).to_have_attribute('aria-haspopup', 'menu')
+    expect(button).to_have_attribute('aria-expanded', 'false')
+    expect(button).not_to_have_attribute('aria-controls', re.compile('.*'))
+
+    button.click()
+    expect(button).to_have_attribute('aria-expanded', 'true')
+    menu_id = button.get_attribute('aria-controls')
+    expect(page.locator('[role=menu]')).to_have_attribute('id', menu_id)
+
+    page.keyboard.press('Escape')
+    expect(button).to_have_attribute('aria-expanded', 'false')
+
+
+def test_menubutton_aria_params(page):
+    widget = MenuButton(items=['Option 1'], label='', icon='more_vert', aria_label='More actions')
+    serve_component(page, widget)
+
+    expect(page.get_by_role('button', name='More actions')).to_have_count(1)

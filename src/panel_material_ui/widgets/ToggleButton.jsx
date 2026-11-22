@@ -1,8 +1,9 @@
 import ToggleButton from "@mui/material/ToggleButton"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text, useAria} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
+  const aria = useAria(model)
   const [color] = model.useState("color")
   const [disabled] = model.useState("disabled")
   const [end_icon] = model.useState("end_icon")
@@ -34,6 +35,7 @@ export function render(props, ref) {
       sx={buttonSx}
       value={value}
       variant={variant}
+      {...aria}
       {...other}
     >
       {icon && render_icon(icon, null, null, icon_size)}

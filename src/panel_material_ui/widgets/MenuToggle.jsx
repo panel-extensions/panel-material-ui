@@ -6,7 +6,7 @@ import ListItemText from "@mui/material/ListItemText"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp"
 import {CustomMenu} from "./menu"
-import {render_icon, render_icon_text} from "./utils"
+import {render_icon, render_icon_text, useAria} from "./utils"
 
 export function render(props, ref) {
   const {data, el, model, view, ...other} = props
@@ -26,6 +26,8 @@ export function render(props, ref) {
   const [variant] = model.useState("variant")
   const [open, setOpen] = React.useState(false)
   const anchorEl = React.useRef(null)
+  const menuId = React.useId()
+  const aria = useAria(model)
 
   if (ref == null || (Object.entries(ref).length === 0 && ref.constructor === Object)) {
     ref = undefined
@@ -58,6 +60,9 @@ export function render(props, ref) {
   return (
     <div ref={ref}>
       <Button
+        aria-controls={open ? menuId : undefined}
+        aria-expanded={String(open)}
+        aria-haspopup="menu"
         color={color}
         disabled={disabled}
         disableElevation={disable_elevation}
@@ -69,12 +74,14 @@ export function render(props, ref) {
         startIcon={currentIcon && render_icon(currentIcon, null, size, icon_size)}
         sx={sx}
         variant={variant}
+        {...aria}
         {...other}
       >
         {render_icon_text(label)}
       </Button>
       <CustomMenu
         anchorEl={() => anchorEl.current}
+        listProps={{id: menuId}}
         open={open}
         // For persistent mode, we still want backdrop clicks to close the menu
         onClick={(event) => {

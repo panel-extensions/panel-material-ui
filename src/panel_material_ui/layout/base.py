@@ -3,11 +3,13 @@ from __future__ import annotations
 import typing as t
 from collections import defaultdict
 from collections.abc import Callable, Iterable
+from functools import partial
 
 import param
 from bokeh.models import Spacer as BkSpacer
 from panel._param import Margin
 from panel.io.resources import CDN_DIST
+from panel.io.state import state
 from panel.layout.base import (
     _SCROLL_MAPPING,
     ListLike,
@@ -1311,11 +1313,51 @@ class Drawer(MaterialListLike):
     open = param.Boolean(default=False, doc="""
         Whether the drawer is open.""")
 
+    resize_on_toggle = param.Boolean(default=True, doc="""
+        Whether to dispatch a window resize event once a drawer that takes
+        up room in the layout (an inline drawer or a persistent, permanent
+        or docked one) has finished opening or closing, so that plots, maps
+        and other components that only measure themselves on window resizes
+        fill the space it leaves.""")
+
     variant: t.Literal["docked", "permanent", "persistent", "temporary"] = param.Selector(
         default="temporary", objects=["docked", "permanent", "persistent", "temporary"],
         doc="Variant style of the drawer.")  # type: ignore[assignment]
 
     _esm_base = "Drawer.jsx"
+
+    def __init__(self, *objects, **params):
+        self._on_transition_callbacks: list[Callable[[bool], t.Any]] = []
+        super().__init__(*objects, **params)
+
+    def on_transition(self, callback: Callable[[bool], t.Any]) -> None:
+        """
+        Register a callback to run once the drawer has finished opening or closing.
+
+        Arguments
+        ---------
+        callback: (callable)
+            Called with whether the drawer is now open. May be a sync or
+            async function.
+        """
+        self._on_transition_callbacks.append(callback)
+
+    def remove_on_transition(self, callback: Callable[[bool], t.Any]) -> None:
+        """
+        Remove a callback registered with ``on_transition``.
+
+        Arguments
+        ---------
+        callback: (callable)
+            The callback to remove.
+        """
+        self._on_transition_callbacks.remove(callback)
+
+    def _handle_msg(self, msg: t.Any) -> None:
+        if msg.get("type") != "transition":
+            return
+        for fn in list(self._on_transition_callbacks):
+            state.execute(partial(fn, msg["open"]))
 
     @param.depends("variant", "inline", "anchor", watch=True, on_init=True)
     def _force_zero_dimensions(self):
@@ -1379,6 +1421,20 @@ class Popup(MaterialListLike):
         Whether to hide the backdrop when the Popup is open.""")
 
     elevation = param.Integer(default=1, bounds=(0, None), doc="Elevation of the paper surface.")
+
+    label = param.String(default=None, doc="""
+        Accessible name of the Popup. When set, the Popup is announced as a
+        dialog with this name. A non-modal Popup without a label takes the
+        name of its trigger.""")
+
+    modal = param.Boolean(default=True, doc="""
+        Whether the Popup is modal. A non-modal Popup behaves as a non-modal
+        dialog: it has no backdrop and leaves the page usable, moves the focus
+        into itself when it opens, and closes on Escape, on a click outside
+        and when the focus moves elsewhere on the page, returning the focus
+        to its trigger when it had it. The trigger is the button in the same
+        layout as the Popup that opened it, and gets ``aria-haspopup`` and
+        ``aria-expanded``.""")
 
     open = param.Boolean(default=False, doc="Whether the pop-up is open.")
 
