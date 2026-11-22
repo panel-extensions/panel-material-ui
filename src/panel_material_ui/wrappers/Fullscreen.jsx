@@ -122,9 +122,21 @@ function focusPath() {
   return path
 }
 
+// A click on text does not move the focus, so the toggle event falls back
+// to where the pointer was last pressed.
+if (globalThis.__pmuiFullscreenPointer === undefined) {
+  globalThis.__pmuiFullscreenPointer = []
+  document.addEventListener("pointerdown", (event) => {
+    globalThis.__pmuiFullscreenPointer = event.composedPath()
+  }, true)
+}
+
 function chosen() {
   const live = WRAPPERS.filter((c) => c.host.isConnected && !c.model.disabled)
-  const path = focusPath()
+  let path = focusPath()
+  if (path[0] == null || path[0] === document.body || path[0] === document.documentElement) {
+    path = globalThis.__pmuiFullscreenPointer
+  }
   return live.find((c) => path.includes(c.host)) ?? live.find((c) => c.model.active) ?? live[0]
 }
 
@@ -258,13 +270,24 @@ class Controller {
     // its whole shadow tree out of the tab order. The box is only focusable
     // until the focus moves on or the pointer is pressed, or a click on any
     // text in the child would focus the box and Tab would start over at the
-    // child's first control.
+    // child's first control. A dialog or menu the child opens hands the focus
+    // back to the box when it closes, so the box stays focusable meanwhile.
     const box = root?.querySelector(".pmui-fullscreen")
     if (box && !focusPath().includes(host)) {
-      const unfocusable = () => box.removeAttribute("tabindex")
+      const events = {
+        // The focus moved elsewhere in the child, unless into an overlay.
+        focusin: (event) => event.target !== box && !event.composedPath().some(isOverlay),
+        blur: (event) => event.target === box && !box.contains(event.relatedTarget),
+        pointerdown: (event) => !event.composedPath().some(isOverlay),
+      }
+      const moved = (event) => {
+        if (events[event.type](event)) {
+          box.removeAttribute("tabindex")
+          Object.keys(events).forEach((name) => box.removeEventListener(name, moved, true))
+        }
+      }
       box.setAttribute("tabindex", "-1")
-      box.addEventListener("blur", unfocusable, {once: true})
-      box.addEventListener("pointerdown", unfocusable, {once: true, capture: true})
+      Object.keys(events).forEach((name) => box.addEventListener(name, moved, true))
       box.focus({preventScroll: true})
     }
   }
