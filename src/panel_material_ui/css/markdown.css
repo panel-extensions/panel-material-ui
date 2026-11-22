@@ -23,3 +23,7 @@
 :host tbody tr:last-child td {
   border-bottom: 0;
 }
+
+:host a {
+  color: var(--mui-palette-primary-text, var(--design-primary-color, var(--panel-primary-color)));
+}

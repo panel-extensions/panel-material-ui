@@ -152,6 +152,19 @@ However, you should still verify that the chosen foreground and background color
 
 For more guidance on setting up dark mode, including toggling, see our [Dark mode guide](./control_dark_mode). Typically, in `panel_material_ui`, you either set `dark_theme=True` on individual components or at the `Page` level. To use a separate palette in dark mode, nest the palette under `"light"` and `"dark"` keys in the `theme_config`.
 
+### Primary text in dark mode
+
+A brand color that works as a fill is often too dark to read as text on the dark background (the common `#0072B5` reaches only 3.6:1 on `#121212`). In dark mode, primary colored text, i.e. text and outlined buttons, links, selected tabs and their indicator, selected toggle buttons, outlined chips, primary `Typography` and icon buttons, therefore uses `palette.primary.text`, while fills such as contained buttons, switches and progress bars keep `primary.main`. Unless you set it, `primary.text` is derived from `primary.main`: a primary that already reaches 4.5:1 against the background is used as is, otherwise it is lightened by at least 35% until it does (`#0072B5` becomes `#59A3CF`, 6.7:1). In light mode `primary.text` equals `primary.main`. Set it explicitly to choose your own tint:
+
+```python
+my_theme = {
+    "dark": {"palette": {"primary": {"main": "#0072B5", "text": "#58A9DE"}}},
+    "light": {"palette": {"primary": {"main": "#0072B5"}}},
+}
+```
+
+The tint is also available to your own CSS as `var(--mui-palette-primary-text)`.
+
 ## Summary
 
 - **Default palette**: `default`, `primary`, `secondary`, `error`, `warning`, `info`, `success`, `light`, `dark`
