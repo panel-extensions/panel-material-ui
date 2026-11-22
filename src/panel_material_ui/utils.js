@@ -2713,12 +2713,12 @@ export function useAria(model) {
  * Wrap `child`, usually a button's icon, in a badge showing `badge` unless
  * it is null, 0 or an empty string.
  */
-export function render_badge(child, badge, color, max, overlap = "rectangular") {
+export function render_badge(child, badge, color, max, overlap = "rectangular", sx = null) {
   if (badge == null || badge === 0 || badge === "") {
     return child
   }
   return (
-    <Badge badgeContent={badge} color={color} max={max} overlap={overlap} sx={{".MuiBadge-badge": {pointerEvents: "none"}}}>
+    <Badge badgeContent={badge} color={color} max={max} overlap={overlap} sx={{...sx, ".MuiBadge-badge": {pointerEvents: "none"}}}>
       {child}
     </Badge>
   )

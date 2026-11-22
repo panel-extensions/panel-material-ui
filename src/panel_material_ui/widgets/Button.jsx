@@ -1,6 +1,8 @@
 import Button from "@mui/material/Button"
 import {render_badge, render_icon, render_icon_text, useAria} from "./utils"
 
+const BADGE_SX = {width: "100%", height: "100%"}
+
 const BUTTON_BASE_SX = {
   height: "100%",
   ".MuiButton-startIcon": {mr: "var(--pmui-starticon-mr, 8px)"},
@@ -40,7 +42,7 @@ export function render(props, ref) {
     return () => model.off("msg:custom", focus_cb)
   }, [])
 
-  return (
+  const button = (
     <Button
       color={color}
       disableElevation={disable_elevation}
@@ -53,7 +55,7 @@ export function render(props, ref) {
       onClick={() => model.send_event("click", {})}
       ref={ref}
       size={size}
-      startIcon={icon && render_badge(render_icon(icon, null, size, icon_size), badge, badge_color, badge_max)}
+      startIcon={icon && render_icon(icon, null, size, icon_size)}
       sx={buttonSx}
       style={{"--pmui-starticon-mr": label.length ? "8px" : "0px"}}
       target={target}
@@ -61,7 +63,9 @@ export function render(props, ref) {
       {...aria}
       {...other}
     >
-      {icon ? render_icon_text(label) : render_badge(render_icon_text(label), badge, badge_color, badge_max)}
+      {render_icon_text(label)}
     </Button>
   )
+  // The badge sits on the button's top-right corner rather than over its icon.
+  return render_badge(button, badge, badge_color, badge_max, "rectangular", BADGE_SX)
 }
