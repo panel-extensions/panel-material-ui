@@ -368,7 +368,9 @@ class Fullscreen(Wrapper):
         default="top-right",
         objects=["top-left", "top-right", "bottom-left", "bottom-right"],
         doc="""
-        Where the toggle button and toolbar are placed over the child.""")  # type: ignore[assignment]
+        Where the toggle button and toolbar are placed over the child. At
+        the top right they sit beside the header actions of a Card child,
+        e.g. its collapse button, rather than over them.""")  # type: ignore[assignment]
 
     show_button = param.Boolean(default=True, doc="""
         Whether to show the toggle button. When hidden, toggle with the
