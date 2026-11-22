@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 pytest.importorskip('playwright')
@@ -105,7 +107,7 @@ def test_popup_non_modal_opens_as_dialog(page):
     wait_until(lambda: popup.open, page)
     dialog = page.get_by_role('dialog', name='Details')
     expect(dialog).to_have_attribute('aria-modal', 'false')
-    expect(dialog).to_be_focused()
+    expect(page.get_by_role('textbox', name='Name')).to_be_focused()
     expect(trigger).to_have_attribute('aria-expanded', 'true')
     expect(page.locator('.MuiBackdrop-root')).to_have_count(0)
 
@@ -162,8 +164,8 @@ def test_popup_non_modal_tab_order(page):
 
     trigger = page.get_by_role('button', name='Details')
     trigger.click()
-    dialog = page.get_by_role('dialog')
-    expect(dialog).to_be_focused()
+    name = page.get_by_role('textbox', name='Name')
+    expect(name).to_be_focused()
 
     # Shift+Tab goes back to the trigger and leaves the popup open.
     page.keyboard.press('Shift+Tab')
@@ -172,9 +174,7 @@ def test_popup_non_modal_tab_order(page):
 
     # Tab on the trigger moves into the popup rather than past it.
     page.keyboard.press('Tab')
-    expect(dialog).to_be_focused()
-    page.keyboard.press('Tab')
-    expect(page.get_by_role('textbox', name='Name')).to_be_focused()
+    expect(name).to_be_focused()
     page.keyboard.press('Tab')
     expect(page.get_by_role('button', name='Apply')).to_be_focused()
 
@@ -189,7 +189,7 @@ def test_popup_non_modal_focus_elsewhere_closes(page):
     serve_component(page, layout)
 
     page.get_by_role('button', name='Details').click()
-    expect(page.get_by_role('dialog')).to_be_focused()
+    expect(page.get_by_role('textbox', name='Name')).to_be_focused()
     after.focus()
 
     wait_until(lambda: not popup.open, page)
@@ -224,3 +224,36 @@ def test_popup_non_modal_stays_open_under_a_dialog(page):
     page.keyboard.press('Escape')
     wait_until(lambda: not popup.open, page)
     expect(page.get_by_role('button', name='Details')).to_be_focused()
+
+
+def test_popup_non_modal_anchors_to_trigger(page):
+    trigger = Button(label="Filters", margin=(10, 40))
+    popup = Popup(
+        "Only rows updated this week", modal=False,
+        anchor_origin={"horizontal": "left", "vertical": "bottom"},
+        transform_origin={"horizontal": "left", "vertical": "top"},
+    )
+    trigger.on_click(lambda event: popup.param.update(open=True))
+    serve_component(page, Row(trigger, popup, Button(label="Other")))
+
+    button = page.get_by_role('button', name='Filters')
+    button.click()
+    paper = page.get_by_role('dialog')
+    expect(paper).to_be_visible()
+    expect(paper).to_have_class(re.compile('MuiPaper-elevation8'))
+    wait_until(lambda: abs(paper.bounding_box()['x'] - button.bounding_box()['x']) < 2, page)
+    box, paper_box = button.bounding_box(), paper.bounding_box()
+    assert abs(paper_box['y'] - (box['y'] + box['height'])) < 2
+
+
+def test_popup_non_modal_without_focusable_content_focuses_itself(page):
+    trigger = Button(label="About")
+    popup = Popup("Plain text only", modal=False)
+    trigger.on_click(lambda event: popup.param.update(open=True))
+    serve_component(page, Row(trigger, popup))
+
+    page.get_by_role('button', name='About').focus()
+    page.keyboard.press('Enter')
+    dialog = page.get_by_role('dialog', name='About')
+    expect(dialog).to_be_focused()
+    expect(dialog).to_have_css('outline-style', 'solid')

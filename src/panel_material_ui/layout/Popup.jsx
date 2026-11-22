@@ -75,7 +75,8 @@ export function render({model, view}, ref) {
   const [transform_origin] = model.useState("transform_origin")
   const objects = model.get_child("objects")
 
-  const anchorEl = view.parent?.child_views.includes(view) ? view.parent.el : null
+  const [triggerEl, setTriggerEl] = React.useState(null)
+  const parentEl = view.parent?.child_views.includes(view) ? view.parent.el : null
 
   const paperRef = React.useRef(null)
   const triggerRef = React.useRef(null)
@@ -148,6 +149,7 @@ export function render({model, view}, ref) {
         return
       }
       triggerRef.current = trigger
+      setTriggerEl(trigger)
       trigger.setAttribute("aria-haspopup", "dialog")
       trigger.setAttribute("aria-expanded", String(open))
       setName(accessible_name(trigger))
@@ -179,7 +181,7 @@ export function render({model, view}, ref) {
     const onTriggerKeyDown = (event) => {
       if (event.key === "Tab" && !event.shiftKey && paperRef.current) {
         event.preventDefault()
-        paperRef.current.focus()
+        focus_first()
       } else if (event.key === "Escape") {
         event.preventDefault()
         event.stopPropagation()
@@ -195,13 +197,32 @@ export function render({model, view}, ref) {
     }
   }, [open, nonModal, close_on_click])
 
+  // Focus the first focusable element in the popup, or the popup itself
+  // until its contents have rendered.
+  const focus_first = () => {
+    const paper = paperRef.current
+    if (paper == null) { return }
+    let attempt = 0
+    const move = () => {
+      const first = tabbables(paper)[0]
+      if (first) {
+        const active = deep_active()
+        if (active === paper || active == null || active === document.body) { first.focus() }
+      } else if (attempt++ < 20) {
+        requestAnimationFrame(move)
+      }
+    }
+    paper.focus()
+    move()
+  }
+
   const onEnter = () => {
     const paper = paperRef.current
     const active = deep_active()
     const trigger = triggerRef.current
     // Leave the focus alone if it moved elsewhere while the popup opened.
     if (paper && (active == null || active === document.body || (trigger && within(active, trigger)))) {
-      paper.focus()
+      focus_first()
     }
   }
 
@@ -311,13 +332,15 @@ export function render({model, view}, ref) {
       onBlur,
       onKeyDown,
       style: {pointerEvents: "auto"},
+      // Shown when the popup itself holds the focus, i.e. it has nothing focusable.
+      sx: {"&:focus-visible": {outline: "2px solid", outlineColor: "primary.main", outlineOffset: "-2px"}},
       tabIndex: -1,
     })
   }
 
   return (
     <Popover
-      anchorEl={anchorEl}
+      anchorEl={(nonModal && triggerEl?.isConnected ? triggerEl : null) ?? parentEl}
       anchorOrigin={anchor_origin}
       anchorPosition={anchor_position ? {left: anchor_position[1], top: anchor_position[0]} : undefined}
       anchorReference={anchor_position == null ? "anchorEl" : "anchorPosition"}
@@ -326,7 +349,7 @@ export function render({model, view}, ref) {
       disableEnforceFocus={nonModal || !enforce_focus}
       disableRestoreFocus={nonModal}
       disableScrollLock={nonModal}
-      elevation={elevation}
+      elevation={elevation ?? (nonModal ? 8 : 1)}
       marginThreshold={0}
       hideBackdrop={nonModal || hide_backdrop}
       onClose={() => close_on_click && setOpen(false)}

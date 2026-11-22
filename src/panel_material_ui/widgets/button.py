@@ -263,6 +263,11 @@ class Fab(Button):
     icon = param.String(default="add", allow_None=True, doc="""
         The icon to display on the button.""")
 
+    label = param.String(default="", doc="""
+        The label of the button. The ``extended`` variant shows it next to the
+        icon; the ``circular`` variant only shows the icon and uses the label
+        as the button's accessible name.""")
+
     icon_size = param.String(default="1.5em", doc="""
         Size of the icon as a string, e.g. 12px or 1em.""")
 

@@ -1413,7 +1413,9 @@ class Popup(MaterialListLike):
     hide_backdrop = param.Boolean(default=False, doc="""
         Whether to hide the backdrop when the Popup is open.""")
 
-    elevation = param.Integer(default=1, bounds=(0, None), doc="Elevation of the paper surface.")
+    elevation = param.Integer(default=None, bounds=(0, None), allow_None=True, doc="""
+        Elevation of the paper surface. Defaults to 1 for a modal Popup and
+        to 8, the elevation of menus, for a non-modal one.""")
 
     label = param.String(default=None, doc="""
         Accessible name of the Popup. When set, the Popup is announced as a
@@ -1422,12 +1424,12 @@ class Popup(MaterialListLike):
 
     modal = param.Boolean(default=True, doc="""
         Whether the Popup is modal. A non-modal Popup behaves as a non-modal
-        dialog: it has no backdrop and leaves the page usable, moves the focus
-        into itself when it opens, and closes on Escape, on a click outside
-        and when the focus moves elsewhere on the page, returning the focus
-        to its trigger when it had it. The trigger is the button in the same
-        layout as the Popup that opened it, and gets ``aria-haspopup`` and
-        ``aria-expanded``.""")
+        dialog: it is anchored to its trigger, has no backdrop and leaves the
+        page usable, moves the focus to its first focusable element when it
+        opens, and closes on Escape, on a click outside and when the focus
+        moves elsewhere on the page, returning the focus to its trigger when
+        it had it. The trigger is the button in the same layout as the Popup
+        that opened it, and gets ``aria-haspopup`` and ``aria-expanded``.""")
 
     open = param.Boolean(default=False, doc="Whether the pop-up is open.")
 
