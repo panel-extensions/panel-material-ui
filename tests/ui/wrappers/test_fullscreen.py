@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip('playwright')
 
 from panel.tests.util import serve_component, wait_until
-from panel_material_ui.layout import Card, Column, Paper
+from panel_material_ui.layout import Card, Column, Dialog, Paper
 from panel_material_ui.pane import Typography
 from panel_material_ui.widgets import Button, TextInput
 from panel_material_ui.wrappers import Fullscreen
@@ -21,6 +21,13 @@ def _app(**params):
 
 def _native(page):
     return page.evaluate("(document.fullscreenElement ?? null) !== null")
+
+
+_TOGGLE = "document.dispatchEvent(new CustomEvent('pmui:fullscreen-toggle', {cancelable: true}))"
+
+
+def _wait_connected(page, count=1):
+    expect(page.locator("[data-pmui-fullscreen-host]")).to_have_count(count)
 
 
 def _covers(page):
@@ -154,11 +161,24 @@ def test_fullscreen_toggle_class_outside(page):
 def test_fullscreen_toggle_event(page):
     layout, wrapper = _app()
     serve_component(page, layout)
+    _wait_connected(page)
 
-    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen-toggle', {cancelable: true}))")
+    page.evaluate(_TOGGLE)
     wait_until(lambda: wrapper.active, page)
-    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen-toggle', {cancelable: true}))")
+    page.evaluate(_TOGGLE)
     wait_until(lambda: not wrapper.active, page)
+
+
+def test_fullscreen_toggle_event_chooses_clicked_wrapper(page):
+    a = Fullscreen(Paper(Typography("Alpha text"), sizing_mode="stretch_both"), height=100, width=300)
+    b = Fullscreen(Paper(Typography("Beta text"), sizing_mode="stretch_both"), height=100, width=300)
+    serve_component(page, Column(a, b))
+    _wait_connected(page, 2)
+
+    page.get_by_text("Beta text").click()
+    page.evaluate(_TOGGLE)
+    wait_until(lambda: a.active or b.active, page)
+    assert b.active and not a.active
 
 
 def test_fullscreen_exit_class_inside(page):
@@ -178,7 +198,8 @@ def test_fullscreen_disabled_blocks_entering(page):
     serve_component(page, layout)
 
     expect(page.get_by_role("button", name="Enter full screen")).to_be_disabled()
-    page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen-toggle', {cancelable: true}))")
+    _wait_connected(page)
+    page.evaluate(_TOGGLE)
     page.wait_for_timeout(200)
     assert not wrapper.active
 
@@ -246,8 +267,9 @@ def test_fullscreen_moves_focus_in_and_restores_it_on_exit(page, trigger):
     if trigger == "toggle_class":
         present.click()
     else:
+        _wait_connected(page)
         present.focus()
-        page.evaluate("document.dispatchEvent(new CustomEvent('pmui:fullscreen-toggle', {cancelable: true}))")
+        page.evaluate(_TOGGLE)
     wait_until(lambda: wrapper.active, page)
     wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "wrapper", page)
 
@@ -341,3 +363,52 @@ def test_fullscreen_click_inside_keeps_tab_order(page, active):
     assert page.evaluate(_FOCUSED_LABEL) != "wrapper"
     page.keyboard.press("Tab")
     wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "Second", page)
+
+
+_BOX_TABINDEX = """() => {
+  const find = (root) => {
+    for (const el of root.querySelectorAll("*")) {
+      if (el.classList.contains("pmui-fullscreen")) return el
+      if (el.shadowRoot) { const found = find(el.shadowRoot); if (found) return found }
+    }
+    return null
+  }
+  return find(document).getAttribute("tabindex")
+}"""
+
+
+def test_fullscreen_tab_moves_focus_on_from_box(page):
+    wrapper = Fullscreen(
+        Column(Button(label="First"), Typography("Some text"), Button(label="Second"), sizing_mode="stretch_both"),
+        height=200, width=300, show_button=False, toggle_class="present-toggle",
+    )
+    serve_component(page, Column(Button(label="Present", css_classes=["present-toggle"]), wrapper))
+
+    page.get_by_role("button", name="Present").click()
+    wait_until(lambda: wrapper.active, page)
+    wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "wrapper", page)
+    assert page.evaluate(_BOX_TABINDEX) == "-1"
+    page.keyboard.press("Tab")
+    wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "First", page)
+    assert page.evaluate(_BOX_TABINDEX) is None
+    page.keyboard.press("Tab")
+    wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "Second", page)
+    page.keyboard.press("Shift+Tab")
+    wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "First", page)
+
+
+def test_fullscreen_dialog_returns_focus_to_box(page):
+    dialog = Dialog(Button(label="Inside dialog"), title="Details")
+    wrapper = Fullscreen(
+        Paper(Column(Typography("Dashboard"), dialog), sizing_mode="stretch_both"),
+        height=200, width=300, active=True,
+    )
+    serve_component(page, Column(Button(label="Outside"), wrapper))
+    wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "wrapper", page)
+
+    dialog.open = True
+    wait_until(lambda: page.evaluate(_FOCUSED_LABEL) not in ("wrapper", "body"), page)
+    page.keyboard.press("Escape")
+    wait_until(lambda: not dialog.open, page)
+    wait_until(lambda: page.evaluate(_FOCUSED_LABEL) == "wrapper", page)
+    assert wrapper.active
