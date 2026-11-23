@@ -5,6 +5,8 @@ import pytest
 pytest.importorskip("playwright")
 
 from panel.tests.util import serve_component, wait_until
+from playwright.sync_api import expect
+
 from panel_material_ui.widgets import DateRangePicker, DatetimeRangePicker
 
 pytestmark = pytest.mark.ui
@@ -112,3 +114,51 @@ def test_datetime_range_picker_select_range_with_time(page):
 
     wait_until(lambda: widget.value[0].date() == dt.date(2024, 4, 10), page)
     wait_until(lambda: widget.value[1].date() == dt.date(2024, 4, 20), page)
+
+
+@pytest.mark.parametrize('key', ['Enter', 'Space', 'ArrowDown'])
+def test_date_range_picker_opens_with_keyboard(page, key):
+    widget = DateRangePicker(
+        label='Date Range',
+        start=dt.date(2024, 4, 1),
+        end=dt.date(2024, 4, 30),
+        value=(dt.date(2024, 4, 1), dt.date(2024, 4, 2)),
+    )
+    serve_component(page, widget)
+
+    field = page.get_by_role('textbox')
+    field.focus()
+    page.keyboard.press(key)
+
+    expect(page.locator('.rdp-root')).to_be_visible()
+    expect(page.locator('button.rdp-day_button:focus')).to_have_count(1)
+
+    page.keyboard.press('Escape')
+    expect(page.locator('.rdp-root')).to_have_count(0)
+    expect(field).to_be_focused()
+    assert widget.value == (dt.date(2024, 4, 1), dt.date(2024, 4, 2))
+
+
+def test_date_range_picker_select_range_with_keyboard(page):
+    widget = DateRangePicker(
+        label='Date Range',
+        start=dt.date(2024, 4, 1),
+        end=dt.date(2024, 4, 30),
+        value=(dt.date(2024, 4, 1), dt.date(2024, 4, 2)),
+    )
+    serve_component(page, widget)
+
+    field = page.get_by_role('textbox')
+    field.focus()
+    page.keyboard.press('Enter')
+    focused_day = page.locator('button.rdp-day_button:focus')
+    expect(focused_day).to_have_count(1)
+
+    page.keyboard.press('Enter')
+    for _ in range(3):
+        page.keyboard.press('ArrowRight')
+    page.keyboard.press('Enter')
+
+    expect(page.locator('.rdp-root')).to_have_count(0)
+    expect(field).to_be_focused()
+    wait_until(lambda: widget.value[1] - widget.value[0] == dt.timedelta(days=3), page)
