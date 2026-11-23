@@ -130,6 +130,7 @@ export function render({model, el, view}) {
   const matches = (item) => item.search.includes(filterLower)
 
   const menuRef = React.useRef(null)
+  const searchInputRef = React.useRef(null)
   // Opening the menu with Space moves focus to an option before the key is
   // released, and the release then clicks that option. Clicks are ignored
   // until the Space that opened the menu is released.
@@ -295,8 +296,14 @@ export function render({model, el, view}) {
         {searchable && <MenuItem
           disableGutters
           disableRipple
+          role="presentation"
           onClick={(e) => {
             e.stopPropagation()
+          }}
+          // The menu focuses this item on open and when ArrowUp leaves the
+          // first option, so hand the focus on to the search field.
+          onFocus={(e) => {
+            if (e.target === e.currentTarget) { searchInputRef.current?.focus() }
           }}
           sx={{
             paddingTop: 0,
@@ -329,9 +336,20 @@ export function render({model, el, view}) {
             variant="filled"
             placeholder="Search..."
             value={filterStr}
+            inputRef={searchInputRef}
             onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                return
+              }
               e.stopPropagation()
-              if (e.key === "Enter" && filterStr) {
+              if (e.key === "ArrowDown") {
+                e.preventDefault()
+                let next = e.currentTarget.closest("li")?.nextElementSibling
+                while (next && (!next.hasAttribute("tabindex") || next.getAttribute("aria-disabled") === "true")) {
+                  next = next.nextElementSibling
+                }
+                next?.focus()
+              } else if (e.key === "Enter" && filterStr) {
                 if (multi) {
                   const filteredValues = matchedOptions.map(item => item.value)
                   const newValues = [...new Set([...value, ...filteredValues])]
@@ -459,7 +477,7 @@ export function render({model, el, view}) {
           )}
         </MenuItem>}
         {(bookmarkedOptions.length === 0 && filteredOptions.length === 0) ? (
-          <MenuItem disabled>
+          <MenuItem disabled role="option">
             <ListItemText primary="No choices to choose from" />
           </MenuItem>
         ) : (
@@ -516,6 +534,8 @@ export function render({model, el, view}) {
 
             return (
               <MenuItem
+                aria-selected={valueSet.has(opt)}
+                role="option"
                 data-matched={matched}
                 disabled={disabledSet.has(opt)}
                 disableGutters
@@ -536,6 +556,7 @@ export function render({model, el, view}) {
           }).concat(hiddenCount > 0 ? [
             <MenuItem
               className="select-more-options"
+              role="option"
               key="__more_options__"
               onClick={(e) => {
                 setPageState({key: pageKey, pages: pages + 1})
@@ -554,6 +575,16 @@ export function render({model, el, view}) {
   }
 
   const anchorEl = React.useRef(null)
+
+  // The menu restores the focus to the shadow host rather than the field,
+  // which leaves it on the page once a focused search field or option unmounts.
+  const restoreFieldFocus = () => requestAnimationFrame(() => {
+    let active = document.activeElement
+    while (active?.shadowRoot?.activeElement) { active = active.shadowRoot.activeElement }
+    if (active == null || active === document.body || !active.isConnected || active === el.getRootNode().host) {
+      anchorEl.current?.querySelector("[role='combobox']")?.focus()
+    }
+  })
 
   const multiChipSx = React.useMemo(() => {
     if (!multi || !chip) { return selectSx }
@@ -652,7 +683,10 @@ export function render({model, el, view}) {
         // render, closed or not, forcing a page reflow per Select as a page
         // mounts. Measure only while open and let autoWidth skip MUI's read.
         autoWidth
-        MenuProps={{slotProps: {paper: {style: {minWidth: open ? anchorEl.current?.clientWidth : undefined}}}}}
+        MenuProps={{slotProps: {
+          paper: {style: {minWidth: open ? anchorEl.current?.clientWidth : undefined}},
+          transition: {onExited: restoreFieldFocus},
+        }}}
         ref={anchorEl}
         renderValue={renderValue}
         size={MUI_SIZE(size)}
@@ -666,6 +700,7 @@ export function render({model, el, view}) {
       {nb && (
         <CustomMenu
           anchorEl={() => anchorEl.current}
+          listProps={{role: "listbox"}}
           open={open}
           onClose={() => setOpen(false)}
           ref={menuRef}

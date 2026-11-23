@@ -41,13 +41,13 @@ def test_select_keyboard_navigation_selects_option(page):
 
     combobox = _focus_select(page)
     page.keyboard.press('ArrowDown')
-    expect(page.get_by_role('menuitem', name='A')).to_be_focused()
+    expect(page.get_by_role('option', name='A')).to_be_focused()
 
     page.keyboard.press('ArrowDown')
     page.keyboard.press('ArrowDown')
-    expect(page.get_by_role('menuitem', name='C')).to_be_focused()
+    expect(page.get_by_role('option', name='C')).to_be_focused()
     page.keyboard.press('ArrowUp')
-    expect(page.get_by_role('menuitem', name='B')).to_be_focused()
+    expect(page.get_by_role('option', name='B')).to_be_focused()
 
     page.keyboard.press('Enter')
     expect(page.get_by_role('listbox')).to_have_count(0)
@@ -94,7 +94,7 @@ def test_select_click_still_opens(page):
 
     page.get_by_role('combobox').click()
     expect(page.get_by_role('listbox')).to_be_visible()
-    page.get_by_role('menuitem', name='B').click()
+    page.get_by_role('option', name='B').click()
     expect(page.get_by_role('listbox')).to_have_count(0)
     wait_until(lambda: widget.value == 'B', page)
 
@@ -124,7 +124,7 @@ def test_select_in_modal_opens_with_keyboard(page, container, key):
     expect(page.get_by_role('listbox')).to_be_visible()
 
     page.keyboard.press('ArrowDown')
-    expect(page.get_by_role('menuitem', name='B')).to_be_focused()
+    expect(page.get_by_role('option', name='B')).to_be_focused()
     page.keyboard.press('Enter')
     wait_until(lambda: widget.value == 'B', page)
 
@@ -147,7 +147,7 @@ def test_multi_choice_opens_with_keyboard(page, key, label):
     page.keyboard.press(key)
     expect(page.get_by_role('listbox')).to_be_visible()
 
-    expect(page.get_by_role('menuitem', name='B')).to_be_focused()
+    expect(page.get_by_role('option', name='B')).to_be_focused()
     page.keyboard.press('Enter')
     wait_until(lambda: widget.value == ['A', 'B'], page)
     # A multi select stays open so several options can be picked.
@@ -184,3 +184,108 @@ def test_multi_choice_disabled_does_not_open_with_keyboard(page):
         page.keyboard.press(key)
     page.wait_for_timeout(300)
     expect(page.get_by_role('listbox')).to_have_count(0)
+
+
+def test_select_options_are_listbox_options(page):
+    widget = Select(label='Pick', options=['A', 'B', 'C'], value='B')
+    serve_component(page, widget)
+
+    _focus_select(page)
+    page.keyboard.press('Enter')
+    listbox = page.get_by_role('listbox')
+    expect(listbox.get_by_role('option')).to_have_count(3)
+    expect(page.get_by_role('option', name='B')).to_have_attribute('aria-selected', 'true')
+    expect(page.get_by_role('option', name='A')).to_have_attribute('aria-selected', 'false')
+
+
+def test_multi_choice_options_announce_selection(page):
+    widget = MultiChoice(label='Pick', options=['A', 'B', 'C'], value=['A'], searchable=True)
+    serve_component(page, widget)
+
+    _focus_select(page)
+    page.keyboard.press('Enter')
+    expect(page.get_by_role('option', name='A')).to_have_attribute('aria-selected', 'true')
+    expect(page.get_by_role('option', name='B')).to_have_attribute('aria-selected', 'false')
+
+
+@pytest.mark.parametrize('key', OPEN_KEYS)
+def test_searchable_select_focuses_search_on_open(page, key):
+    widget = Select(label='Pick', options=['Apple', 'Banana', 'Cherry'], value='Apple', searchable=True)
+    serve_component(page, widget)
+
+    _focus_select(page)
+    page.keyboard.press(key)
+    search = page.get_by_placeholder('Search...')
+    expect(search).to_be_focused()
+
+    page.keyboard.type('an')
+    wait_until(lambda: widget.filter_str == 'an', page)
+    expect(page.get_by_role('option')).to_have_count(1)
+    expect(page.get_by_role('option', name='Banana')).to_be_visible()
+
+
+def test_searchable_select_keyboard_flow(page):
+    widget = Select(label='Pick', options=['Apple', 'Banana', 'Cherry'], value='Apple', searchable=True)
+    serve_component(page, widget)
+
+    combobox = _focus_select(page)
+    page.keyboard.press('ArrowDown')
+    search = page.get_by_placeholder('Search...')
+    expect(search).to_be_focused()
+
+    page.keyboard.press('ArrowDown')
+    expect(page.get_by_role('option', name='Apple')).to_be_focused()
+    page.keyboard.press('ArrowUp')
+    expect(search).to_be_focused()
+
+    page.keyboard.press('ArrowDown')
+    page.keyboard.press('ArrowDown')
+    expect(page.get_by_role('option', name='Banana')).to_be_focused()
+    page.keyboard.press('Enter')
+    wait_until(lambda: widget.value == 'Banana', page)
+    expect(page.get_by_role('listbox')).to_have_count(0)
+    expect(combobox).to_be_focused()
+
+    page.keyboard.press('Enter')
+    expect(search).to_be_focused()
+    page.keyboard.press('Escape')
+    expect(page.get_by_role('listbox')).to_have_count(0)
+    expect(combobox).to_be_focused()
+    assert widget.value == 'Banana'
+
+
+@pytest.mark.parametrize('container', [Dialog, Drawer])
+def test_searchable_select_in_modal_keyboard_flow(page, container):
+    widget = Select(label='Pick', options=['Apple', 'Banana'], value='Apple', searchable=True)
+    serve_component(page, container(widget, open=True))
+
+    combobox = _focus_select(page)
+    page.keyboard.press('Enter')
+    search = page.get_by_placeholder('Search...')
+    expect(search).to_be_focused()
+    page.keyboard.type('ban')
+    page.keyboard.press('ArrowDown')
+    expect(page.get_by_role('option', name='Banana')).to_be_focused()
+    page.keyboard.press('Enter')
+    wait_until(lambda: widget.value == 'Banana', page)
+    expect(combobox).to_be_focused()
+
+
+def test_searchable_multi_choice_keyboard_flow(page):
+    widget = MultiChoice(label='Pick', options=['Apple', 'Banana', 'Cherry'], value=[], searchable=True)
+    serve_component(page, widget)
+
+    combobox = _focus_select(page)
+    page.keyboard.press('Enter')
+    search = page.get_by_placeholder('Search...')
+    expect(search).to_be_focused()
+    page.keyboard.type('ch')
+    page.keyboard.press('ArrowDown')
+    expect(page.get_by_role('option', name='Cherry')).to_be_focused()
+    page.keyboard.press('Enter')
+    wait_until(lambda: widget.value == ['Cherry'], page)
+    expect(page.get_by_role('option', name='Cherry')).to_have_attribute('aria-selected', 'true')
+
+    page.keyboard.press('Escape')
+    expect(page.get_by_role('listbox')).to_have_count(0)
+    expect(combobox).to_be_focused()
