@@ -289,3 +289,26 @@ def test_searchable_multi_choice_keyboard_flow(page):
     page.keyboard.press('Escape')
     expect(page.get_by_role('listbox')).to_have_count(0)
     expect(combobox).to_be_focused()
+
+
+@pytest.mark.parametrize('container', [Dialog, Drawer])
+def test_searchable_select_in_modal_escape_returns_focus(page, container):
+    widget = Select(label='Pick', options=['Apple', 'Banana'], value='Apple', searchable=True)
+    serve_component(page, container(widget, open=True))
+
+    combobox = _focus_select(page)
+    for _ in range(3):
+        page.keyboard.press('Enter')
+        expect(page.get_by_placeholder('Search...')).to_be_focused()
+        page.keyboard.press('Escape')
+        expect(page.get_by_role('listbox')).to_have_count(0)
+        expect(combobox).to_be_focused()
+
+
+def test_searchable_select_clear_button_is_labelled(page):
+    widget = Select(label='Pick', options=['Apple', 'Banana'], value='Apple', searchable=True)
+    serve_component(page, widget)
+
+    _focus_select(page)
+    page.keyboard.press('Enter')
+    expect(page.get_by_role('button', name='Clear search')).to_have_count(1)

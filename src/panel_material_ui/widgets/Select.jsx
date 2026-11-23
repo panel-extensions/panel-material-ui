@@ -395,7 +395,7 @@ export function render({model, el, view}) {
                     size="small"
                     sx={{zIndex: 100}}
                   >
-                    <IconButton size="small">
+                    <IconButton aria-label="Clear search" size="small">
                       <ClearIcon/>
                     </IconButton>
                   </InputAdornment>
@@ -576,13 +576,15 @@ export function render({model, el, view}) {
 
   const anchorEl = React.useRef(null)
 
-  // The menu restores the focus to the shadow host rather than the field,
-  // which leaves it on the page once a focused search field or option unmounts.
+  // The menu restores the focus to the shadow host rather than the field, so
+  // once a focused search field or option unmounts the focus falls to the page
+  // or to the focus trap of a surrounding Dialog or Drawer.
   const restoreFieldFocus = () => requestAnimationFrame(() => {
+    const field = anchorEl.current?.querySelector("[role='combobox']")
     let active = document.activeElement
     while (active?.shadowRoot?.activeElement) { active = active.shadowRoot.activeElement }
-    if (active == null || active === document.body || !active.isConnected || active === el.getRootNode().host) {
-      anchorEl.current?.querySelector("[role='combobox']")?.focus()
+    if (field && !anchorEl.current.contains(active)) {
+      field.focus()
     }
   })
 

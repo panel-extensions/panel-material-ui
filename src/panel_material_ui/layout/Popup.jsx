@@ -87,6 +87,25 @@ export function render({model, view}, ref) {
   const [name, setName] = React.useState(null)
   const nonModal = modal === false
 
+  // The popup is usually opened from the server, so whatever held the focus
+  // when it opened is where the focus returns once a modal popup closes. MUI
+  // would return it to the shadow host of that element, i.e. to the page.
+  const returnRef = React.useRef(null)
+  const wasOpenRef = React.useRef(false)
+  if (open && !wasOpenRef.current && !nonModal) {
+    const active = deep_active()
+    returnRef.current = active && active !== document.body ? active : null
+  }
+  wasOpenRef.current = open
+  const onModalExited = () => requestAnimationFrame(() => {
+    const target = returnRef.current
+    returnRef.current = null
+    const active = deep_active()
+    const lost = active == null || active === document.body || !active.isConnected ||
+      (active.shadowRoot != null && active.shadowRoot.activeElement == null)
+    if (target?.isConnected && lost) { target.focus() }
+  })
+
   React.useEffect(() => {
     const handler = () => {
       objects.map((object, index) => {
@@ -357,7 +376,7 @@ export function render({model, view}, ref) {
       slotProps={{
         paper: {ref: setPaper, ...paperProps},
         root: nonModal ? {style: {pointerEvents: "none"}} : undefined,
-        transition: nonModal ? {onEnter, onExited} : undefined,
+        transition: nonModal ? {onEnter, onExited} : {onExited: onModalExited},
       }}
       sx={sx}
       transformOrigin={transform_origin ?? undefined}

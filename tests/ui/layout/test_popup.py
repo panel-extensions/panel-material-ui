@@ -257,3 +257,43 @@ def test_popup_non_modal_without_focusable_content_focuses_itself(page):
     dialog = page.get_by_role('dialog', name='About')
     expect(dialog).to_be_focused()
     expect(dialog).to_have_css('outline-style', 'solid')
+
+
+def _server_opened_popup():
+    start = Button(label="Start")
+    close = Button(label="Close")
+    popup = Popup(TextInput(label="In popup"), close)
+    trigger = Button(label="OpenPopup")
+    trigger.on_click(lambda event: popup.param.update(open=True))
+    close.on_click(lambda event: popup.param.update(open=False))
+    return Column(start, trigger, popup), popup
+
+
+def test_popup_modal_escape_returns_focus_to_opener(page):
+    layout, popup = _server_opened_popup()
+    serve_component(page, layout)
+
+    trigger = page.get_by_role('button', name='OpenPopup')
+    trigger.focus()
+    page.keyboard.press('Enter')
+    wait_until(lambda: popup.open, page)
+    expect(page.locator('.MuiPopover-paper')).to_be_visible()
+
+    page.keyboard.press('Escape')
+    wait_until(lambda: not popup.open, page)
+    expect(page.locator('.MuiPopover-paper')).to_have_count(0)
+    expect(trigger).to_be_focused()
+
+
+def test_popup_modal_server_close_returns_focus_to_opener(page):
+    layout, popup = _server_opened_popup()
+    serve_component(page, layout)
+
+    trigger = page.get_by_role('button', name='OpenPopup')
+    trigger.focus()
+    page.keyboard.press('Enter')
+    wait_until(lambda: popup.open, page)
+    page.get_by_role('button', name='Close').click()
+    wait_until(lambda: not popup.open, page)
+    expect(page.locator('.MuiPopover-paper')).to_have_count(0)
+    expect(trigger).to_be_focused()
