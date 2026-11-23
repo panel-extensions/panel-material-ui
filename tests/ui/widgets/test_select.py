@@ -96,6 +96,7 @@ def test_select_disabled_options(page):
 
     expect(page.locator(".select")).to_have_count(1)
 
+    expect(page.get_by_role("combobox")).to_be_visible()
     page.locator(".select").click(force=True)
     expect(page.locator(".MuiMenuItem-root")).to_have_count(3)
     expect(page.locator(".MuiMenuItem-root.Mui-disabled")).to_have_text("Option 2")
@@ -108,6 +109,7 @@ def test_select_dict_disabled_options(page, kwargs):
     widget = Select(label='Select test', disabled_options=['b'], **kwargs)
     serve_component(page, widget)
 
+    expect(page.get_by_role("combobox")).to_be_visible()
     page.locator(".select").click(force=True)
     expect(page.locator(".MuiMenuItem-root.Mui-disabled")).to_have_text("Label B")
 

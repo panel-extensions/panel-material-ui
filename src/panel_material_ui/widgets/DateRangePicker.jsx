@@ -86,6 +86,9 @@ export function render({model, el, view}) {
 
   const [open, setOpen] = React.useState(false)
   const anchorRef = React.useRef(null)
+  const inputRef = React.useRef(null)
+  const paperRef = React.useRef(null)
+  const focusCalendar = React.useRef(false)
 
   const selected = React.useMemo(() => {
     if (!modelValue || !Array.isArray(modelValue) || modelValue.length !== 2) {
@@ -180,6 +183,13 @@ export function render({model, el, view}) {
   const [pendingRange, setPendingRange] = React.useState(null)
   const rangeStepRef = React.useRef("start")
 
+  const restoreFocus = () => {
+    const paper = paperRef.current
+    if (paper?.contains(paper.getRootNode().activeElement)) {
+      inputRef.current?.focus()
+    }
+  }
+
   const openPicker = () => {
     if (disabled) { return }
     setPendingRange(null)
@@ -199,6 +209,7 @@ export function render({model, el, view}) {
       if (!mobile && !time) {
         commitRange(range, fromTime, toTime)
         setPendingRange(null)
+        restoreFocus()
         setOpen(false)
       }
     }
@@ -210,6 +221,42 @@ export function render({model, el, view}) {
     setOpen(false)
   }
 
+  // A picker opened from the keyboard moves focus into the calendar, which is
+  // portalled away from the field, and Escape hands focus back to the field.
+  const handleFieldKeyDown = (e) => {
+    if (open) {
+      if (e.key === "Escape") {
+        e.preventDefault()
+        handleCancel()
+      }
+    } else if (["Enter", " ", "ArrowDown"].includes(e.key)) {
+      e.preventDefault()
+      focusCalendar.current = true
+      openPicker()
+    }
+  }
+
+  const handlePopupKeyDown = (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault()
+      e.stopPropagation()
+      restoreFocus()
+      handleCancel()
+    }
+  }
+
+  React.useEffect(() => {
+    if (!open || !focusCalendar.current) { return }
+    focusCalendar.current = false
+    const frame = requestAnimationFrame(() => {
+      const paper = paperRef.current
+      const day = paper?.querySelector("button.rdp-day_button[tabindex='0']") ??
+        paper?.querySelector("button.rdp-day_button:not([disabled])")
+      day?.focus()
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [open])
+
   const handleOk = () => {
     const range = pendingRange || selected
     if (range?.from && range?.to) {
@@ -217,6 +264,7 @@ export function render({model, el, view}) {
     }
     setPendingRange(null)
     rangeStepRef.current = "start"
+    restoreFocus()
     setOpen(false)
   }
 
@@ -276,6 +324,8 @@ export function render({model, el, view}) {
         label={render_icon_text(label)}
         value={displayValue}
         onClick={openPicker}
+        onKeyDown={handleFieldKeyDown}
+        inputRef={inputRef}
         variant={variant}
         color={color}
         disabled={disabled}
@@ -316,7 +366,7 @@ export function render({model, el, view}) {
         style={{zIndex: theme.zIndex.modal}}
       >
         <ClickAwayListener onClickAway={handleCancel}>
-          <Paper elevation={8} sx={{p: 2, mt: 0.5}}>
+          <Paper elevation={8} onKeyDown={handlePopupKeyDown} ref={paperRef} sx={{p: 2, mt: 0.5}}>
             <DayPicker
               mode="range"
               selected={effectiveSelected}

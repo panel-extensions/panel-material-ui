@@ -130,6 +130,23 @@ export function render({model, el, view}) {
   const matches = (item) => item.search.includes(filterLower)
 
   const menuRef = React.useRef(null)
+  // Opening the menu with Space moves focus to an option before the key is
+  // released, and the release then clicks that option. Clicks are ignored
+  // until the Space that opened the menu is released.
+  const spaceOpening = React.useRef(false)
+  const handleOpenKeyDown = (e) => {
+    if (e.key !== " " || open || spaceOpening.current) {
+      return
+    }
+    spaceOpening.current = true
+    const release = (event) => {
+      if (event.key === " ") {
+        window.removeEventListener("keyup", release, true)
+        setTimeout(() => { spaceOpening.current = false })
+      }
+    }
+    window.addEventListener("keyup", release, true)
+  }
 
   const {items, bookmarkedOptions, filteredOptions, matchedOptions} = React.useMemo(() => {
     const items = allOptions.filter((item) => (
@@ -467,6 +484,10 @@ export function render({model, el, view}) {
             const {value: opt, label} = item;
 
             const handleClick = (e) => {
+              if (spaceOpening.current) {
+                e.stopPropagation()
+                return
+              }
               if (!multi) {
                 setValue(opt);
                 setOpen(false);
@@ -474,6 +495,13 @@ export function render({model, el, view}) {
                 return;
               }
               const isChecked = !valueSet.has(opt);
+              const target = e.currentTarget
+              if (isChecked && !searchable && target.contains(target.getRootNode().activeElement)) {
+                // The picked option leaves the list, so keyboard focus moves
+                // to its neighbour instead of being lost with it.
+                const neighbour = target.nextElementSibling || target.previousElementSibling || menuRef.current
+                neighbour?.focus()
+              }
               if (isChecked) {
                 if (max_items && value.length >= max_items) {
                   setValue([...value.slice(1), opt]);
@@ -586,6 +614,7 @@ export function render({model, el, view}) {
       size={MUI_SIZE(size)}
       variant={variant}
       sx={multi && chip ? {height: "100%"} : undefined}
+      onKeyDownCapture={handleOpenKeyDown}
     >
       {label &&
        <InputLabel
@@ -612,8 +641,12 @@ export function render({model, el, view}) {
           }
           setValue(newValue)
         }}
+        // MUI opens a Select on mousedown and closes it again on a mouseup outside
+        // the field, which races the controlled `open` round trip, so the mouse
+        // keeps opening it on click and only the keyboard goes through onOpen.
         onClick={() => setOpen(true)}
-        onClose={(e) => { e.stopPropagation(); setOpen(false) }}
+        onOpen={(e) => { if (e?.type !== "mousedown") { setOpen(true) } }}
+        onClose={(e) => { e?.stopPropagation(); setOpen(false) }}
         open={!nb && open}
         // With a controlled `open` MUI reads the anchor's clientWidth on every
         // render, closed or not, forcing a page reflow per Select as a page
