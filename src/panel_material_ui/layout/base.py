@@ -8,6 +8,7 @@ from functools import partial
 import param
 from bokeh.models import Spacer as BkSpacer
 from panel._param import Margin
+from panel.io.document import hold
 from panel.io.resources import CDN_DIST
 from panel.io.state import state
 from panel.layout.base import (
@@ -69,6 +70,25 @@ class MaterialLayout(MaterialComponent, SizingModeMixin):
         sizing_mode = self._compute_sizing_mode(model.data.objects, props)
         model.update(**sizing_mode)
         return model
+
+    def _update_model(
+        self, events: dict[str, param.parameterized.Event], msg: dict[str, t.Any],
+        root: Model, model: Model, doc: Document, comm: Comm | None
+    ) -> None:
+        # Like Panel's own layouts, re-infer the layout's sizing from its
+        # children whenever they change, not only on the initial render.
+        with hold(doc):
+            super()._update_model(events, msg, root, model, doc, comm)
+            if 'objects' not in events:
+                return
+            props = {
+                prop: getattr(model, prop)
+                for prop in ('sizing_mode', 'styles', 'width', 'min_width', 'margin')
+            }
+            sizing_mode = self._compute_sizing_mode(model.data.objects, props)
+            changed = {k: v for k, v in sizing_mode.items() if getattr(model, k) != v}
+            if changed:
+                model.update(**changed)
 
 
 class MaterialListLike(MaterialLayout, ListLike):
