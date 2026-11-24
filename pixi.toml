@@ -16,9 +16,9 @@ pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
 
 [dependencies]
-python = ">=3.10"
-panel = ">=1.9.0"
-bokeh = ">=3.8.0"
+python = ">=3.12"
+panel = ">=1.10.0"
+bokeh = ">=3.10.0"
 packaging = "*"
 watchfiles = "*"
 pip = "*"
@@ -30,23 +30,17 @@ nodejs = ">=18"
 esbuild = "*"
 
 [environments]
-test-310 = ["py310", "compile", "test-core", "example", "test-example", "test-unit-task"]
-test-311 = ["py311", "compile", "test-core", "example", "test-example", "test-unit-task"]
 test-312 = ["py312", "compile", "test-core", "example", "test-example", "test-unit-task"]
 test-313 = ["py313", "compile", "test-core", "example", "test-example", "test-unit-task"]
 test-314 = ["py314", "compile", "test-core", "example", "test-example", "test-unit-task"]
-test-type = ["py311", "test-core", "type"]
+test-type = ["py312", "test-core", "type"]
 test-ui = ["py312", "compile", "test-core", "test-ui"]
 build = ["py312", "build", "compile"]
 compile = ["py312", "compile"]
 lint = { features = ["lint"], no-default-feature = true }
-# docs = ["py311", "example", "doc"]
-docs = ["py311", "doc"]
+# docs = ["py312", "example", "doc"]
+docs = ["py312", "doc"]
 
-[feature.py310.dependencies]
-python = "3.10.*"
-[feature.py311.dependencies]
-python = "3.11.*"
 [feature.py312.dependencies]
 python = "3.12.*"
 [feature.py313.dependencies]

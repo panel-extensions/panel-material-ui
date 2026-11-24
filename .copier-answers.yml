@@ -7,6 +7,6 @@ author_name: Philipp Rudiger
 docs_url: https://panel-extensions.github.io/panel-material-ui/
 github_url: https://github.com/panel-extensions/panel-material-ui
 github_user: philippjfr
-minimal_python_version: py310
+minimal_python_version: py312
 project_short_description: An extension to bring MaterialUI components to Panel.
 project_slug: panel-material-ui

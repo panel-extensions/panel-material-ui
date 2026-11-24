@@ -7,16 +7,11 @@ import re
 from collections.abc import Iterator
 from contextlib import contextmanager
 
-import bokeh
 from bokeh.embed.bundle import URL
-from packaging.version import Version
 from panel.io.cache import cache
 from panel.pane.base import panel
 from panel.pane.image import ImageBase
 from param import Parameterized
-
-bokeh_version = Version(Version(bokeh.__version__).base_version)
-BOKEH_GE_3_8 = bokeh_version >= Version('3.8')
 
 ICON_TOKEN_PATTERN = re.compile(r':material/([a-zA-Z0-9_]+)(?:@([^:]*))?:')
 
