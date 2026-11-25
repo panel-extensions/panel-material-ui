@@ -425,6 +425,51 @@ def test_page_inline_contains_header_and_drawers(page):
     expect(page.locator(".MuiBackdrop-root")).to_have_css("position", "absolute")
 
 
+def test_page_inline_open_temporary_sidebar_stays_in_page(page):
+    pg = Page(
+        main=[pn.pane.Markdown("# Main")],
+        sidebar=[pn.pane.Markdown("Sidebar content")],
+        sidebar_variant="temporary",
+        sidebar_open=True,
+    )
+    below = pn.pane.Markdown("Below", height=2000)
+    layout = pn.Column(pg, below, sizing_mode="stretch_width")
+
+    serve_component(page, layout)
+
+    sidebar = page.locator(".MuiDrawer-paper.sidebar")
+    expect(sidebar).to_contain_text("Sidebar content")
+    # Portaled to <body> the drawer escapes the page and its shadow root styles
+    assert not page.evaluate("() => [...document.body.children].some(el => el.classList.contains('MuiModal-root'))")
+    expect(sidebar).to_have_css("position", "absolute")
+
+
+def test_page_inline_temporary_sidebar_does_not_trap_document_focus(page):
+    pg = Page(
+        main=[pn.pane.Markdown("# Main")],
+        sidebar=[pn.pane.Markdown("Sidebar content")],
+        sidebar_variant="temporary",
+        sidebar_open=True,
+    )
+    text = pn.widgets.TextInput(placeholder="Outside")
+    layout = pn.Column(pg, pn.pane.Markdown("Spacer", height=2000), text, sizing_mode="stretch_width")
+
+    serve_component(page, layout)
+
+    expect(page.locator(".MuiDrawer-paper.sidebar")).to_contain_text("Sidebar content")
+    page.wait_for_timeout(200)
+    assert page.evaluate("() => window.scrollY") == 0
+
+    page.locator("input").last.click()
+    page.wait_for_timeout(200)
+    active = page.evaluate("""() => {
+        let el = document.activeElement
+        while (el?.shadowRoot?.activeElement) { el = el.shadowRoot.activeElement }
+        return el.tagName
+    }""")
+    assert active == "INPUT"
+
+
 def test_page_inline_theme_toggle_scoped(page):
     button = Button(label="Click")
     pg = Page(main=[button])
