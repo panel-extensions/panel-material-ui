@@ -5,6 +5,7 @@ import {blue, grey} from "@mui/material/colors"
 import {createTheme} from "@mui/material/styles"
 import {deepmerge} from "@mui/utils"
 import {elevated_surface, primary_text_color} from "./theme_colors"
+import {apply_plot_theme} from "./bokeh_theme"
 
 // Menus, popovers and dialogs sit at elevation 8 or above; the primary text
 // tint must stay readable on them, not only on the page background.
@@ -980,7 +981,11 @@ function apply_bokeh_theme(model, theme, dark, font_family, custom_theme=[], sta
     }
   }
   if (Object.keys(model_props).length > 0) {
-    model.setv(model_props)
+    if (/(Figure|Axis|Legend|ColorBar|Title|Grid|Rect)$/.test(model_type)) {
+      apply_plot_theme(model, model_props)
+    } else {
+      model.setv(model_props)
+    }
   }
 }
 
