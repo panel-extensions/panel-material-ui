@@ -1,0 +1,35 @@
+# Panel Material UI
+
+Panel Material UI is a Material Design extension for HoloViz Panel, providing Material UI themed components for building interactive Python web applications. It offers widgets, layouts, menus, indicators, chat components, and page templates styled with Google's Material Design.
+
+All documentation is available as markdown files under the /markdown/ path.
+
+## Documentation
+
+### how_to
+> How-to guides for theming, styling, and customizing Panel Material UI apps
+
+- [Apply Branding](/markdown/how_to/apply_branding.md)
+- [Build Custom Components](/markdown/how_to/build_custom_components.md)
+- [Control Dark Mode](/markdown/how_to/control_dark_mode.md)
+- [Customize Palette](/markdown/how_to/customize_palette.md)
+- [Customize Themes And Styles](/markdown/how_to/customize_themes_and_styles.md)
+- [Customize Typography](/markdown/how_to/customize_typography.md)
+- [Pick Colors](/markdown/how_to/pick_colors.md)
+- [Theme Components](/markdown/how_to/theme_components.md)
+- [Theme Plotting Libraries](/markdown/how_to/theme_plotting_libraries.md)
+- [Using Mui Icons](/markdown/how_to/using_mui_icons.md)
+
+## Component Reference
+
+Detailed reference documentation for every Panel Material UI component, organized by category.
+
+- [Widgets](/markdown/reference/widgets/index.md): Interactive input widgets (Button, Select, Slider, TextInput, DatePicker, etc.)
+- [Menus](/markdown/reference/menus/index.md): Navigation and menu components (Breadcrumbs, MenuButton, Pagination, SpeedDial, TabMenu, Tree, etc.)
+- [Layouts](/markdown/reference/layouts/index.md): Layout containers (Accordion, Card, Dialog, Drawer, Grid, Tabs, etc.)
+- [Panes](/markdown/reference/panes/index.md): Display panes (Typography, etc.)
+- [Wrappers](/markdown/reference/wrappers/index.md): Wrapper components (Badge, Skeleton, Tooltip, Transition, etc.)
+- [Page](/markdown/reference/page/index.md): Page-level components (Page template, BreakpointSwitcher, ThemeToggle, etc.)
+- [Chat](/markdown/reference/chat/index.md): Chat components (ChatFeed, ChatInterface, ChatMessage, ChatStep, etc.)
+- [Indicators](/markdown/reference/indicators/index.md): Progress and status indicators (CircularProgress, LinearProgress, LoadingSpinner, etc.)
+- [Global](/markdown/reference/global/index.md): Global components (Notifications, etc.)
