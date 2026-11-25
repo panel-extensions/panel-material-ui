@@ -454,10 +454,10 @@ class MaterialComponent(ReactComponent):
     _esm_transforms = [LoadingTransform, ThemedTransform]
     _importmap = {
         "imports": {
-            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@9.0.1/",
-            "@mui/material/": "https://esm.sh/@mui/material@9.0.1/",
-            "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@9.2.0",
-            "@mui/x-tree-view": "https://esm.sh/@mui/x-tree-view@9.1.0",
+            "@mui/icons-material/": "https://esm.sh/@mui/icons-material@9.6.0/",
+            "@mui/material/": "https://esm.sh/@mui/material@9.6.0/",
+            "@mui/x-date-pickers/": "https://esm.sh/@mui/x-date-pickers@9.18.0",
+            "@mui/x-tree-view": "https://esm.sh/@mui/x-tree-view@9.18.0",
             "mui-color-input": "https://esm.sh/mui-color-input@9.0.0",
             "dayjs": "https://esm.sh/dayjs@1.11.5",
             "react-day-picker": "https://esm.sh/react-day-picker@9.7.0",
