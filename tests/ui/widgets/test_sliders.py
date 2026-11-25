@@ -134,6 +134,15 @@ def test_slider_vertical_orientation(page):
     assert page.locator('.MuiSlider-rail').evaluate("el => el.offsetHeight") == 277
 
 
+def test_vertical_slider_keeps_requested_dimensions(page):
+    widget = FloatSlider(orientation='vertical', width=123, height=321)
+    serve_component(page, widget)
+
+    control = page.locator('.MuiFormControl-root')
+    expect(control).to_have_css('width', '123px')
+    expect(control).to_have_css('height', '321px')
+
+
 @pytest.mark.parametrize('size', ['small', 'medium'])
 def test_range_slider_thumbs_stay_within_widget(page, size):
     widget = RangeSlider(value=(0, 10), start=0, end=10, size=size, width=300)

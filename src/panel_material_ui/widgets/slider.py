@@ -66,11 +66,11 @@ class _ContinuousSlider(MaterialWidget, _SliderBase):
 
     __abstract = True
 
-    def _process_param_change(self, params):
-        if self.orientation == 'vertical' and ('width' in params or 'height' in params):
-            params['width'] = self.height
-            params['height'] = self.width
-        return super()._process_param_change(params)
+    def __init__(self, **params):
+        if params.get('orientation', self.param.orientation.default) == 'vertical':
+            params.setdefault('width', self.param.height.default)
+            params.setdefault('height', self.param.width.default)
+        super().__init__(**params)
 
 
 class IntSlider(_ContinuousSlider):
