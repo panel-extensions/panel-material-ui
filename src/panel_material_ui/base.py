@@ -607,7 +607,7 @@ class MaterialComponent(ReactComponent):
 
     @classmethod
     def _render_esm_base(cls):
-        esm_base = (pathlib.Path(inspect.getfile(cls)).parent / cls._esm_base).read_text()
+        esm_base = (pathlib.Path(inspect.getfile(cls)).parent / cls._esm_base).read_text(encoding='utf-8')
         if not cls._esm_transforms:
             return esm_base
 
@@ -922,7 +922,7 @@ class MaterialUIComponent(MaterialComponent):
         if not esm.endswith(('.js', '.jsx', '.ts', '.tsx')):
             esm_base = esm
         else:
-            esm_base = (pathlib.Path(inspect.getfile(cls)).parent / esm).read_text()
+            esm_base = (pathlib.Path(inspect.getfile(cls)).parent / esm).read_text(encoding='utf-8')
         if cls._esm_transforms:
             component_name = f'Panel{cls.__name__}'
             esm_base = esm_base.replace('export function render', f'function {component_name}')
