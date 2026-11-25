@@ -185,10 +185,22 @@ export function render({model, view}) {
   const isSm = useMediaQuery(theme.breakpoints.up("sm"))
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
-  const rootRef = React.useRef(null)
+  // A callback ref, since refs are attached parent-last, so a ref object is
+  // still unset when a child drawer's portal resolves its container and the
+  // portal falls back to <body>, outside the shadow root and its styles.
+  const [root, setRoot] = React.useState(null)
   const [fullscreen, setFullscreen] = React.useState(() => is_fullscreen(view))
-  React.useLayoutEffect(() => setFullscreen(is_fullscreen(view)), [])
-  const modalProps = React.useMemo(() => (fullscreen ? undefined : {container: () => rootRef.current}), [fullscreen])
+  const [mounted, setMounted] = React.useState(false)
+  React.useLayoutEffect(() => {
+    setFullscreen(is_fullscreen(view))
+    setMounted(true)
+  }, [])
+  // An inline page is part of a larger document (notebook, docs), so its
+  // temporary drawers must not pull focus or keep it from the rest of it.
+  const modalProps = React.useMemo(() => (
+    fullscreen ? undefined : {container: root, disableAutoFocus: true, disableEnforceFocus: true}
+  ), [fullscreen, root])
+  const portal_ready = mounted && (fullscreen || root != null)
   const backdropProps = fullscreen ? undefined : {sx: INLINE_MODAL_SX}
 
   // Below the sm breakpoint the rail moves into the sidebar drawer.
@@ -448,7 +460,7 @@ export function render({model, view}) {
     <Drawer
       slotProps={{paper: {className: "sidebar"}, backdrop: backdropProps}}
       anchor="left"
-      open={open}
+      open={open && (drawer_variant !== "temporary" || portal_ready)}
       onClose={drawer_variant === "temporary" ? (() => setOpen(false)) : null}
       ModalProps={modalProps}
       sx={drawerSx}
@@ -484,7 +496,7 @@ export function render({model, view}) {
     <Drawer
       slotProps={{paper: {className: "contextbar"}, backdrop: backdropProps}}
       anchor="right"
-      open={contextbar_open}
+      open={contextbar_open && (context_drawer_variant !== "temporary" || portal_ready)}
       onClose={context_drawer_variant === "temporary" ? (() => contextOpen(false)) : null}
       ModalProps={modalProps}
       sx={contextDrawerSx}
@@ -557,7 +569,7 @@ export function render({model, view}) {
   }, [main_stretch, main_width])
 
   return (
-    <Box ref={rootRef} className={`mui-${color_scheme}`} sx={pageRootSx}>
+    <Box ref={setRoot} className={`mui-${color_scheme}`} sx={pageRootSx}>
       <AppBar position={fullscreen ? "fixed" : "absolute"} color={paper_header ? "inherit" : "primary"} className="header" sx={appBarSx}>
         <Toolbar sx={appBarToolbarSx}>
           {(has_drawer && drawer_variant !== "permanent") &&
