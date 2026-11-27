@@ -264,6 +264,8 @@ export function render({model, view}) {
     const onRemove = () => { upload_ref.current = {status: "removed"} }
     model.on("msg:custom", onMsg)
     model.on("lifecycle:update_layout", onUpdateLayout)
+    // Children mounting clear parent_style before this passive effect registers
+    onUpdateLayout()
     model.on("remove", onRemove)
     return () => {
       model.off("msg:custom", onMsg)
