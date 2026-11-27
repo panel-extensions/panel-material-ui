@@ -67,6 +67,8 @@ export function render({model, view}) {
       })
     }
     model.on("lifecycle:update_layout", handler)
+    // Children mounting clear parent_style before this passive effect registers
+    handler()
     return () => model.off("lifecycle:update_layout", handler)
   }, [])
 
