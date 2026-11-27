@@ -448,6 +448,7 @@ class MaterialComponent(ReactComponent):
     _esm_shared = {
         'utils': BASE_PATH / "utils.js",
         'theme_colors': BASE_PATH / "theme_colors.js",
+        'bokeh_theme': BASE_PATH / "bokeh_theme.js",
         'menu': BASE_PATH / "menu.jsx",
         'description': BASE_PATH / 'description.jsx'
     }
